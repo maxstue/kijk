@@ -14,7 +14,8 @@
     "clean:all": "rimraf ./dist ./stats ./node_modules ./*.lock ./.eslintcache",
     "clean:packages": "rimraf ./node_modules",
     "clean:build": "rimraf ./dist ./stats",
-    "component:add": "npx shadcn-ui add"
+    "component:add": "npx shadcn-ui add",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
