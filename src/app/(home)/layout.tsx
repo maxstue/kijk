@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import { Toaster } from '@/components/ui/toaster';
 import { SiteHeader } from '@/components/site-header';
@@ -14,13 +14,26 @@ export default function HomeLayout({ children }: RootLayoutProps) {
   return (
     <div className='flex min-h-screen flex-col'>
       <header className='bg-background'>
-        {/* TODO */}
-        {/* @ts-expect-error Server Component*/}
-        <SiteHeader navChildren={<HomeNav />} actionChildren={<HomeNavActions />} />
+        <SiteHeader
+          navChildren={
+            <Suspense>
+              <HomeNav />
+            </Suspense>
+          }
+          actionChildren={
+            <>
+              {/* TODO */}
+              {/* @ts-expect-error Server Component*/}
+              <HomeNavActions />
+            </>
+          }
+        />
       </header>
       <main className='container flex-1'>
-        <AuthProvider>{children}</AuthProvider>
-        <Toaster />
+        <Suspense>
+          <AuthProvider>{children}</AuthProvider>
+          <Toaster />
+        </Suspense>
       </main>
     </div>
   );

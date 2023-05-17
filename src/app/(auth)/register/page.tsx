@@ -1,9 +1,10 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 
 import { cn } from '@/lib/classnames';
 import { buttonVariants } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import { UserAuthForm } from '@/app/(auth)/components/user-auth-form';
+import { UserAuthForm } from '@/app/(auth)/(components)/user-auth-form';
 
 export const metadata = {
   title: 'Create an account',
@@ -28,7 +29,9 @@ export default function RegisterPage() {
             <h1 className='text-2xl font-semibold tracking-tight'>Create an account</h1>
             <p className='text-sm text-muted-foreground'>Enter your email below to create your account</p>
           </div>
-          <UserAuthForm />
+          <Suspense fallback={<FormFallback />}>
+            <UserAuthForm />
+          </Suspense>
           <p className='px-8 text-center text-sm text-muted-foreground'>
             By clicking continue, you agree to our Terms of Service and Privacy Policy
             {/* TODO add those pages */}
@@ -45,4 +48,8 @@ export default function RegisterPage() {
       </div>
     </div>
   );
+}
+
+function FormFallback() {
+  return <>Loading ...</>;
 }

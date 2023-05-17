@@ -1,5 +1,5 @@
 import { SiteHeader } from '@/components/site-header';
-import { LandingnNavActions } from '@/app/(landing)/components/landing-nav-actions';
+import { LandingnNavActions } from '@/app/(landing)/(components)/landing-nav-actions';
 
 interface Props {
   children: React.ReactNode;
