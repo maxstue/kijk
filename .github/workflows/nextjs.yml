@@ -42,6 +42,11 @@ jobs:
     #   run: npm test -- --coverage
     # - name: Build
     #   run: pnpm build
+    - name: Lint
+      run: pnpm lint
+
+    - name: Style
+      run: pnpm format:check
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@master
