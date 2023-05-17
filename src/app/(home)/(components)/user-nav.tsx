@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import * as Sentry from '@sentry/nextjs';
 import { signOut } from 'next-auth/react';
 
 import { AppUser } from '@/types/user';
@@ -31,7 +32,7 @@ export function UserNav({ user }: Props) {
     event.preventDefault();
     signOut({
       callbackUrl: `${window.location.origin}`,
-    });
+    }).catch((err) => Sentry.captureException(err));
   };
 
   return (

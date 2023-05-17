@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as Sentry from '@sentry/nextjs';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -56,6 +57,14 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     });
   }
 
+  function handleGithubSignIn() {
+    setIsGitHubLoading(true);
+    signIn('github').catch((err) => {
+      Sentry.captureException(err);
+      setIsGitHubLoading(false);
+    });
+  }
+
   return (
     <div className={cn('grid gap-6', className)} {...props}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -93,10 +102,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       <button
         type='button'
         className={cn(buttonVariants({ variant: 'outline' }))}
-        onClick={() => {
-          setIsGitHubLoading(true);
-          signIn('github');
-        }}
+        onClick={handleGithubSignIn}
         disabled={isLoading || isGitHubLoading}
       >
         {isGitHubLoading ? (
