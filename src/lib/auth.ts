@@ -19,7 +19,8 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     process.env.VERCEL_ENV === 'preview'
-      ? CredentialsProvider({
+      ? // TODO add credential login in userAuthform
+        CredentialsProvider({
           name: 'Credentials',
           credentials: {
             username: {
