@@ -4,11 +4,13 @@ import localFont from 'next/font/local';
 export const fontSans = FontSans({
   subsets: ['latin'],
   variable: '--font-sans',
+  preload: true,
 });
 
 export const fontMono = FontMono({
   subsets: ['latin'],
   variable: '--font-mono',
+  preload: true,
 });
 
 // TODO add local fonts
@@ -16,4 +18,5 @@ export const fontMono = FontMono({
 export const fontHeading = localFont({
   src: '../assets/fonts/CalSans-SemiBold.woff2',
   variable: '--font-heading',
+  preload: true,
 });

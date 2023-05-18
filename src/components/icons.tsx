@@ -28,11 +28,12 @@ import {
   type Icon as LucideIcon,
 } from 'lucide-react';
 
+import Logo from '@/components/Logo';
+
 export type Icon = LucideIcon;
 
 export const Icons = {
-  // TODO replace with other logo
-  logo: Command,
+  logo: Logo,
   close: X,
   spinner: Loader2,
   chevronLeft: ChevronLeft,

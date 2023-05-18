@@ -3,10 +3,10 @@ import React from 'react';
 import { cn } from '@/lib/classnames';
 import { fontSans } from '@/lib/fonts';
 import { Analytics } from '@/components/analytics';
+import { SiteFooter } from '@/components/site-footer';
 import { ThemeProvider } from '@/components/theme-provider';
 
 import '@/styles/globals.css';
-import { SiteFooter } from '@/components/site-footer';
 
 export const metadata = {
   title: {
