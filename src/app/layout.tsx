@@ -30,7 +30,6 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 export default function RootLayout({ children }: RootLayoutProps) {
-  const t = 0;
   return (
     <html lang='en' suppressHydrationWarning>
       <head />
