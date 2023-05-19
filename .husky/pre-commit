@@ -1,8 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-pnpx lint-staged || (
-  echo '👋 Something went wrong, while trying to lint + format 👋'
-)
-
-echo '🚀🔥 Everything is awesome 👍'
+pnpx lint-staged
