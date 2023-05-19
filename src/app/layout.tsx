@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import { cn } from '@/lib/classnames';
 import { fontSans } from '@/lib/fonts';
@@ -36,7 +36,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           {children}
-          <Analytics />
+          <Suspense>
+            <Analytics />
+          </Suspense>
           <SiteFooter />
         </ThemeProvider>
       </body>
