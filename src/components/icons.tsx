@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   ArrowRight,
+  BellRing,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -13,6 +14,7 @@ import {
   Loader2,
   LogOut,
   LucideProps,
+  Monitor,
   Moon,
   MoreVertical,
   Pizza,
@@ -57,6 +59,8 @@ export const Icons = {
   check: Check,
   logOut: LogOut,
   users: Users,
+  bellRing: BellRing,
+  monitor: Monitor,
   // custom Icons
   gitHub: ({ ...props }: LucideProps) => (
     <svg

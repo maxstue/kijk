@@ -57,7 +57,7 @@ export function UserNav({ user }: Props) {
           {homeConfig.sidebarNav.map(({ title, href, icon }) => {
             const Icon = Icons[icon || 'arrowRight'];
             return (
-              <DropdownMenuItem key={title} className='cursor-pointer'>
+              <DropdownMenuItem key={title} asChild className='cursor-pointer'>
                 <Link href={href} className='flex w-full'>
                   <Icon className='mr-2 h-4 w-4' />
                   <span>{title}</span>

@@ -19,18 +19,23 @@ export const homeConfig: HomeConfig = {
   sidebarNav: [
     {
       title: 'Profile',
-      href: '/profile',
+      href: '/settings',
       icon: 'user',
     },
     {
-      title: 'Teams',
-      href: '/teams',
-      icon: 'users',
+      title: 'Account',
+      href: '/settings/account',
+      icon: 'settings',
     },
     {
-      title: 'Settings',
-      href: '/settings',
-      icon: 'settings',
+      title: 'Appearance',
+      href: '/settings/appearance',
+      icon: 'monitor',
+    },
+    {
+      title: 'Notifications',
+      href: '/settings/notifications',
+      icon: 'bellRing',
     },
   ],
 };

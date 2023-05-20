@@ -5,8 +5,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { Icons } from '@/components/icons';
 import { SiteHeader } from '@/components/site-header';
 import { AuthProvider } from '@/app/(home)/(components)/auth-provider';
-import { HomeNav } from '@/app/(home)/(components)/home-nav';
 import { HomeNavActions } from '@/app/(home)/(components)/home-nav-actions';
+import { homeConfig } from '@/app/(home)/constants';
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -17,9 +17,11 @@ export default function HomeLayout({ children }: RootLayoutProps) {
     <div className='flex min-h-screen flex-col'>
       <header className='bg-background'>
         <Suspense fallback={<NavLoading />}>
-          {/* TODO */}
-          {/* @ts-expect-error Server Component*/}
-          <SiteHeader navChildren={<HomeNav />} actionChildren={<HomeNavActions />} />
+          <SiteHeader navItems={homeConfig.mainNav}>
+            {/* TODO */}
+            {/* @ts-expect-error Server Component*/}
+            <HomeNavActions />
+          </SiteHeader>
         </Suspense>
       </header>
       <main className='container flex-1'>
