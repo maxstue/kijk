@@ -8,13 +8,13 @@ import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
+import { userAuthSchema } from '@/app/(auth)/_components/schemas';
 import { cn } from '@/lib/classnames';
 import { toast } from '@/hooks/use-toast';
+import { Icons } from '@/components/icons';
 import { buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Icons } from '@/components/icons';
-import { userAuthSchema } from '@/app/(auth)/_components/schemas';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 

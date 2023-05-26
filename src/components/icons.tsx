@@ -26,10 +26,10 @@ import {
   User,
   Users,
   X,
-  type Icon as LucideIcon,
 } from 'lucide-react';
 
 import Logo from '@/components/Logo';
+import type { Icon as LucideIcon } from 'lucide-react';
 
 export type Icon = LucideIcon;
 

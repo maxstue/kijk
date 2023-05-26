@@ -1,12 +1,12 @@
 import React, { Suspense } from 'react';
 
-import { siteConfig } from '@/config/site';
-import { Toaster } from '@/components/ui/toaster';
-import { Icons } from '@/components/icons';
-import { SiteHeader } from '@/components/site-header';
 import { AuthProvider } from '@/app/(home)/_components/auth-provider';
 import { HomeNavActions } from '@/app/(home)/_components/home-nav-actions';
 import { homeConfig } from '@/app/(home)/constants';
+import { siteConfig } from '@/config/site';
+import { Icons } from '@/components/icons';
+import { SiteHeader } from '@/components/site-header';
+import { Toaster } from '@/components/ui/toaster';
 
 interface RootLayoutProps {
   children: React.ReactNode;

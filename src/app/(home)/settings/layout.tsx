@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 
-import { Separator } from '@/components/ui/separator';
 import { homeConfig } from '@/app/(home)/constants';
 import { SidebarNav } from '@/app/(home)/settings/_components/sidebar-nav';
+import { Separator } from '@/components/ui/separator';
 
 export const metadata: Metadata = {
   title: 'Forms',

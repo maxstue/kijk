@@ -1,12 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { DialogProps } from '@radix-ui/react-alert-dialog';
 import { File, Laptop, Moon, SunMedium } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
+import { homeConfig } from '@/app/(home)/constants';
 import { cn } from '@/lib/classnames';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,7 +18,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
-import { homeConfig } from '@/app/(home)/constants';
+import type { Route } from 'next';
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();

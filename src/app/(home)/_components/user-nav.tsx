@@ -4,8 +4,9 @@ import Link from 'next/link';
 import * as Sentry from '@sentry/nextjs';
 import { signOut } from 'next-auth/react';
 
-import { AppUser } from '@/types/user';
+import { homeConfig } from '@/app/(home)/constants';
 import { getInitailChars } from '@/lib/utils';
+import { Icons } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,8 +19,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Icons } from '@/components/icons';
-import { homeConfig } from '@/app/(home)/constants';
+import { AppUser } from '@/types/user';
 
 interface Props {
   user: AppUser;

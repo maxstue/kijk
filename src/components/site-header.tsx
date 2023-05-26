@@ -4,10 +4,10 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { MainNavItem } from '@/types/nav';
 import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/classnames';
 import { Icons } from '@/components/icons';
+import { MainNavItem } from '@/types/nav';
 
 interface Props {
   children?: ReactNode;

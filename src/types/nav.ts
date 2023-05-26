@@ -1,6 +1,5 @@
-import type { Route } from 'next';
-
 import { Icons } from '@/components/icons';
+import type { Route } from 'next';
 
 export interface NavItem {
   title: string;

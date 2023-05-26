@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { MainNavItem } from '@/types/nav';
 import { cn } from '@/lib/classnames';
-import { buttonVariants } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
+import { buttonVariants } from '@/components/ui/button';
+import { MainNavItem } from '@/types/nav';
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: MainNavItem[];

@@ -1,11 +1,11 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 
+import { UserNav } from '@/app/(home)/_components/user-nav';
 import { authOptions } from '@/lib/auth';
 import { getCurrentUser } from '@/lib/session';
 import { CommandMenu } from '@/components/command-menu';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
-import { UserNav } from '@/app/(home)/_components/user-nav';
 
 export async function HomeNavActions() {
   const user = await getCurrentUser();

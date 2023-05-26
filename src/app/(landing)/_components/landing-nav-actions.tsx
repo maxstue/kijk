@@ -3,9 +3,9 @@ import Link from 'next/link';
 
 import { cn } from '@/lib/classnames';
 import { getCurrentUser } from '@/lib/session';
-import { buttonVariants } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
+import { buttonVariants } from '@/components/ui/button';
 
 export async function LandingnNavActions() {
   const user = await getCurrentUser();
