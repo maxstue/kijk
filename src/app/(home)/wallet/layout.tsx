@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import { Metadata } from 'next';
 
 import { Separator } from '@/components/ui/separator';
-import { SidebarNav } from '@/app/(home)/wallet/(components)/sidebar-nav';
-import { YearSwitcher } from '@/app/(home)/wallet/(components)/year-switcher';
+import { SidebarNav } from '@/app/(home)/wallet/_components/sidebar-nav';
+import { YearSwitcher } from '@/app/(home)/wallet/_components/year-switcher';
 
 export const metadata: Metadata = {
   title: 'Forms',

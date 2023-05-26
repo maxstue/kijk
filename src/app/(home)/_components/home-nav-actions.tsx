@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { getCurrentUser } from '@/lib/session';
 import { CommandMenu } from '@/components/command-menu';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
-import { UserNav } from '@/app/(home)/(components)/user-nav';
+import { UserNav } from '@/app/(home)/_components/user-nav';
 
 export async function HomeNavActions() {
   const user = await getCurrentUser();

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/classnames';
 import { buttonVariants } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import { UserAuthForm } from '@/app/(auth)/(components)/user-auth-form';
+import { UserAuthForm } from '@/app/(auth)/_components/user-auth-form';
 
 export const metadata = {
   title: 'Create an account',

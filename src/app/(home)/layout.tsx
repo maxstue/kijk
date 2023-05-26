@@ -4,8 +4,8 @@ import { siteConfig } from '@/config/site';
 import { Toaster } from '@/components/ui/toaster';
 import { Icons } from '@/components/icons';
 import { SiteHeader } from '@/components/site-header';
-import { AuthProvider } from '@/app/(home)/(components)/auth-provider';
-import { HomeNavActions } from '@/app/(home)/(components)/home-nav-actions';
+import { AuthProvider } from '@/app/(home)/_components/auth-provider';
+import { HomeNavActions } from '@/app/(home)/_components/home-nav-actions';
 import { homeConfig } from '@/app/(home)/constants';
 
 interface RootLayoutProps {
@@ -18,7 +18,7 @@ export default function HomeLayout({ children }: RootLayoutProps) {
       <header className='bg-background'>
         <Suspense fallback={<NavLoading />}>
           <SiteHeader navItems={homeConfig.mainNav}>
-            {/* TODO */}
+            {/* TODO TS 5.1 */}
             {/* @ts-expect-error Server Component*/}
             <HomeNavActions />
           </SiteHeader>
