@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 import { Separator } from '@/components/ui/separator';
 import { homeConfig } from '@/app/(home)/constants';
-import { SidebarNav } from '@/app/(home)/settings/(components)/sidebar-nav';
+import { SidebarNav } from '@/app/(home)/settings/_components/sidebar-nav';
 
 export const metadata: Metadata = {
   title: 'Forms',
