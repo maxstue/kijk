@@ -1,4 +1,4 @@
-const { withSentryConfig } = require('@sentry/nextjs');
+import { withSentryConfig } from '@sentry/nextjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -36,4 +36,4 @@ const sentryConfig = {
   disableLogger: true,
 };
 
-module.exports = withSentryConfig(nextConfig, sentryWebPackConfig, sentryConfig);
+export default withSentryConfig(nextConfig, sentryWebPackConfig, sentryConfig);
