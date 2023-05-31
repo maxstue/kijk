@@ -13,6 +13,7 @@ datasource db {
   // shadowDatabaseUrl = env(“SHADOW_DATABASE_URL”)
 }
 
+// ##### Next-Auth #####
 model Account {
   id                       String   @id @default(cuid())
   userId                   String
@@ -69,4 +70,36 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map(name: "verification_tokens")
+}
+
+// ##### App #####
+
+model Transaction {
+  id        String          @id @default(cuid())
+  name      String
+  amount    String
+  type      TransactionType @default(EXPENSE)
+  createdAt DateTime        @default(now()) @map(name: "created_at")
+  updatedAt DateTime        @default(now()) @map(name: "updated_at")
+
+  categories Category[]
+
+  @@map(name: "transactions")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String?
+  color     String? // TODO make as enum or separate Table
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+
+  transactions Transaction[]
+
+  @@map(name: "categories")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
 }

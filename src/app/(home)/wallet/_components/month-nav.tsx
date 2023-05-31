@@ -21,9 +21,9 @@ const months = [
   'December',
 ] as const;
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {}
+interface Props extends React.HTMLAttributes<HTMLElement> {}
 
-export function SidebarNav({ className, ...props }: SidebarNavProps) {
+export function MonthNav({ className, ...props }: Props) {
   const searchParams = useSearchParams();
   const currentMonth = searchParams.get('month') ?? months[new Date().getMonth()];
   // TODO only show if searcparams contains "year"
@@ -31,7 +31,7 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
   // https://nextjs.org/docs/app/api-reference/functions/use-search-params#updating-searchparams
 
   return (
-    <nav className={cn('flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1', className)} {...props}>
+    <nav className={cn('flex lg:flex-col', className)} {...props}>
       {searchParams.get('year') ? (
         <>
           {months.map((item) => {

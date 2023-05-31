@@ -6,13 +6,13 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/classnames';
 import { Icons } from '@/components/icons';
 import { buttonVariants } from '@/components/ui/button';
-import { MainNavItem } from '@/types/nav';
+import { NavItem } from '@/types/nav';
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
-  items: MainNavItem[];
+interface Props extends React.HTMLAttributes<HTMLElement> {
+  items: NavItem[];
 }
 
-export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
+export function SidebarNav({ className, items, ...props }: Props) {
   const pathname = usePathname();
 
   return (

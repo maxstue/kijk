@@ -1,4 +1,9 @@
-import { HomeConfig } from '@/types/nav';
+import { NavItem } from '@/types/nav';
+
+type HomeConfig = {
+  mainNav: NavItem[];
+  sidebarNav: NavItem[];
+};
 
 export const homeConfig: HomeConfig = {
   mainNav: [

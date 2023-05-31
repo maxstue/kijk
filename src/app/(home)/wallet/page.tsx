@@ -1,10 +1,12 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Download } from 'lucide-react';
+import { DollarSign, Download, FormInput, List, Users } from 'lucide-react';
 
-import { authOptions } from '@/lib/auth';
+import { TransactionForm } from '@/app/(home)/wallet/_components/transaction-form';
 import { getCurrentUser } from '@/lib/session';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const metadata: Metadata = {
   title: 'Wallet',
@@ -15,22 +17,60 @@ export default async function WalletPage() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect(authOptions?.pages?.signIn || '/login');
+    redirect('/login');
   }
 
   return (
-    <div className='flex flex-col'>
-      <div className='flex-1 space-y-4 pt-6'>
-        <div className='flex items-center justify-between space-y-2'>
-          <h2 className='text-3xl font-bold tracking-tight'>Wallet</h2>
-          <div className='flex items-center space-x-2'>
-            <Button size='sm'>
-              <Download className='mr-2 h-4 w-4' />
-              Export
-            </Button>
-          </div>
-        </div>
-        <div>hier dann Wallet eingaben</div>
+    <div className='flex flex-col space-y-4'>
+      <div className='flex justify-end'>
+        <Button size='sm' disabled>
+          <Download className='h-4 w-4' />
+        </Button>
+      </div>
+      <div className='grid gap-4 lg:grid-cols-2'>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Balance</CardTitle>
+            <DollarSign className='h-4 w-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <div className='text-2xl font-bold'>$4,231.89</div>
+            <p className='text-xs text-muted-foreground'>+2.1% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Year Overview</CardTitle>
+            <Users className='h-4 w-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>{/*TODO <div className='text-2xl font-bold'>&quot;Hier dann Chart&quot;</div> */}</CardContent>
+        </Card>
+      </div>
+      {/* TODO hier dann Form mit Tabs (Expense / Revenue) */}
+      <div className='w-full'>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>New Expense/Income</CardTitle>
+            <FormInput className='h-4 w-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <Suspense fallback={<div>Loading ...</div>}>
+              <TransactionForm />
+            </Suspense>
+          </CardContent>
+        </Card>
+      </div>
+      {/* TODO third row = data list */}
+      <div className='w-full'>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Month Overview</CardTitle>
+            <List className='h-4 w-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <div>List</div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

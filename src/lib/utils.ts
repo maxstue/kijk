@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Optional } from '@/types/tsTypes';
+import { Optional } from '@/types/app';
 
 const initialRegex = new RegExp(/(\p{L}{1})\p{L}+/, 'gu');
 

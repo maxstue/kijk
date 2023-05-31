@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 
-import { SidebarNav } from '@/app/(home)/wallet/_components/sidebar-nav';
+import { MonthNav } from '@/app/(home)/wallet/_components/month-nav';
 import { YearSwitcher } from '@/app/(home)/wallet/_components/year-switcher';
 import { Separator } from '@/components/ui/separator';
 
@@ -10,27 +10,27 @@ export const metadata: Metadata = {
   description: 'Advanced form example using react-hook-form and Zod.',
 };
 
-interface SettingsLayoutProps {
+interface Props {
   children: React.ReactNode;
 }
 
-export default function WalletLayout({ children }: SettingsLayoutProps) {
+export default function WalletLayout({ children }: Props) {
   return (
     <>
-      <div className='hidden space-y-6 p-10 pb-16 md:block'>
+      <div className='space-y-6  pt-10'>
         <div className='space-y-0.5'>
-          <h2 className='text-2xl font-bold tracking-tight'>Wallet</h2>
-          <p className='text-muted-foreground'>Manage your expenses for each month.</p>
+          <h2 className='text-2xl font-bold tracking-tight'>Income / Expenses</h2>
+          <p className='text-muted-foreground'>Manage your Revenues and Expenses.</p>
         </div>
         <Separator className='my-6' />
         <div className='flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <aside className='-mx-4 space-y-6 lg:w-1/5'>
+          <aside className='space-y-6 lg:w-1/5'>
             <Suspense fallback={<Fallback />}>
               <YearSwitcher />
-              <SidebarNav />
+              <MonthNav />
             </Suspense>
           </aside>
-          <div className='flex-1 lg:max-w-2xl'>{children}</div>
+          <div className='flex-1'>{children}</div>
         </div>
       </div>
     </>

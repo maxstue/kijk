@@ -7,11 +7,11 @@ import { usePathname } from 'next/navigation';
 import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/classnames';
 import { Icons } from '@/components/icons';
-import { MainNavItem } from '@/types/nav';
+import { NavItem } from '@/types/nav';
 
 interface Props {
   children?: ReactNode;
-  navItems?: MainNavItem[];
+  navItems?: NavItem[];
 }
 
 export function SiteHeader({ children, navItems = [] }: Props) {
