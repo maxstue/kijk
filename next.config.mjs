@@ -10,6 +10,10 @@ const nextConfig = {
     // serverActions: true,
     serverComponentsExternalPackages: ['@prisma/client'],
   },
+  // We already do linting on GH actions
+  eslint: {
+    ignoreDuringBuilds: !!process.env.CI,
+  },
 };
 
 const sentryWebPackConfig = {
