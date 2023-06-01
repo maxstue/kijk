@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { ComponentPropsWithoutRef, useState } from 'react';
+import { ComponentPropsWithoutRef, useEffect, useState } from 'react';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 
 import { cn } from '@/lib/classnames';
+import { useSearchQuery } from '@/hooks/use-search-query';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -28,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
+// TODO dont hardcode, safe in DB or get currentyear
 const yearGroups = [
   {
     label: 'Years',
@@ -35,19 +37,24 @@ const yearGroups = [
   },
 ];
 
-type Year = (typeof yearGroups)[number]['years'][number];
-
-type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
-
-interface Props extends PopoverTriggerProps {}
+interface Props extends ComponentPropsWithoutRef<typeof PopoverTrigger> {}
 
 export function YearSwitcher({ className }: Props) {
   const [open, setOpen] = useState(false);
-  const [showNewYearDialog, setShowNewYearDialog] = React.useState(false);
-  const [selectedYear, setSelectedYear] = React.useState<Year>(yearGroups[0].years[0]);
+  const [showNewYearDialog, setShowNewYearDialog] = useState(false);
+  const { pushQueryString, isQuerySet, getQueryString } = useSearchQuery();
+  const selectedYear = getQueryString('year', new Date().getFullYear().toString() ?? yearGroups[0].years[0]);
 
-  // TODO update searchparams on select, https://nextjs.org/docs/app/api-reference/functions/use-search-params#updating-searchparams
-  // calc current year from current date
+  useEffect(() => {
+    if (!isQuerySet('year')) {
+      pushQueryString('year', new Date().getFullYear().toString() ?? yearGroups[0].years[0]);
+    }
+  }, [isQuerySet, pushQueryString]);
+
+  const handleSelectYear = (year: string) => {
+    setOpen(false);
+    pushQueryString('year', year);
+  };
 
   return (
     <Dialog open={showNewYearDialog} onOpenChange={setShowNewYearDialog}>
@@ -73,14 +80,7 @@ export function YearSwitcher({ className }: Props) {
               {yearGroups.map((group) => (
                 <CommandGroup key={group.label} heading={group.label}>
                   {group.years.map((year) => (
-                    <CommandItem
-                      key={year}
-                      onSelect={() => {
-                        setSelectedYear(year);
-                        setOpen(false);
-                      }}
-                      className='text-sm'
-                    >
+                    <CommandItem key={year} onSelect={handleSelectYear} className='text-sm'>
                       {year}
                       <Check className={cn('ml-auto h-4 w-4', selectedYear === year ? 'opacity-100' : 'opacity-0')} />
                     </CommandItem>

@@ -30,7 +30,7 @@ export default function WalletLayout({ children }: Props) {
               <MonthNav />
             </Suspense>
           </aside>
-          <div className='flex-1'>{children}</div>
+          <div className='flex-1 pb-12'>{children}</div>
         </div>
       </div>
     </>

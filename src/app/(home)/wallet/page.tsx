@@ -3,11 +3,14 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { DollarSign, Download, FormInput, List, Users } from 'lucide-react';
 
-import { DataList } from '@/app/(home)/wallet/_components/data-list';
+import { columns } from '@/app/(home)/wallet/_components/data-columns';
+import { DataTable } from '@/app/(home)/wallet/_components/data-table';
 import { TransactionForm } from '@/app/(home)/wallet/_components/transaction-form';
+import { getTransactions } from '@/app/(home)/wallet/fetchers';
 import { getCurrentUser } from '@/lib/session';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Months, months } from '@/types/app';
 
 export const metadata: Metadata = {
   title: 'Wallet',
@@ -24,6 +27,10 @@ export default async function WalletPage({
   if (!user) {
     redirect('/login');
   }
+  const data = await getTransactions({
+    month: (searchParams['month'] as Months) ?? months[new Date().getMonth()],
+    year: (searchParams['year'] as string) ?? new Date().getFullYear().toString(),
+  });
 
   return (
     <div className='flex flex-col space-y-4'>
@@ -73,7 +80,7 @@ export default async function WalletPage({
           <CardContent>
             {/* TODO TS 5.1 */}
             {/* @ts-expect-error Server Component*/}
-            <DataList searchParams={searchParams} />
+            <DataTable searchParams={searchParams} data={data} columns={columns} />
           </CardContent>
         </Card>
       </div>

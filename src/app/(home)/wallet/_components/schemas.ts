@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { TransactionType } from '@/types/app';
+
 export const transactionSchema = z.object({
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters',
@@ -16,26 +18,3 @@ export function isTransactionType(value: string): value is TransactionType {
 }
 
 export type TransactionFormValues = z.infer<typeof transactionSchema>;
-
-export const TransactionType = {
-  EXPENSE: 'EXPENSE',
-  INCOME: 'INCOME',
-} as const;
-
-export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
-
-export const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
-export type Months = (typeof months)[number];
