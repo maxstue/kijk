@@ -25,8 +25,10 @@ export default function HomeLayout({ children }: RootLayoutProps) {
         </Suspense>
       </header>
       <main className='container flex-1'>
-        <AuthProvider>{children}</AuthProvider>
-        <Toaster />
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
       </main>
     </div>
   );

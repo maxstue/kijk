@@ -3,23 +3,9 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
+import { months } from '@/app/(home)/wallet/_components/schemas';
 import { cn } from '@/lib/classnames';
 import { buttonVariants } from '@/components/ui/button';
-
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
 
 interface Props extends React.HTMLAttributes<HTMLElement> {}
 

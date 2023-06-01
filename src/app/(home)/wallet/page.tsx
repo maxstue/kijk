@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { DollarSign, Download, FormInput, List, Users } from 'lucide-react';
 
+import { DataList } from '@/app/(home)/wallet/_components/data-list';
 import { TransactionForm } from '@/app/(home)/wallet/_components/transaction-form';
 import { getCurrentUser } from '@/lib/session';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
   description: 'kijk wallet',
 };
 
-export default async function WalletPage() {
+export default async function WalletPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -46,7 +51,6 @@ export default async function WalletPage() {
           <CardContent>{/*TODO <div className='text-2xl font-bold'>&quot;Hier dann Chart&quot;</div> */}</CardContent>
         </Card>
       </div>
-      {/* TODO hier dann Form mit Tabs (Expense / Revenue) */}
       <div className='w-full'>
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -60,7 +64,6 @@ export default async function WalletPage() {
           </CardContent>
         </Card>
       </div>
-      {/* TODO third row = data list */}
       <div className='w-full'>
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -68,7 +71,9 @@ export default async function WalletPage() {
             <List className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
-            <div>List</div>
+            {/* TODO TS 5.1 */}
+            {/* @ts-expect-error Server Component*/}
+            <DataList searchParams={searchParams} />
           </CardContent>
         </Card>
       </div>

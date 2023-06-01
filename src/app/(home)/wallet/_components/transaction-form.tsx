@@ -1,38 +1,40 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
+import { TransactionFormValues, transactionSchema } from '@/app/(home)/wallet/_components/schemas';
+import { createTransaction } from '@/app/(home)/wallet/actions';
+import { toast } from '@/hooks/use-toast';
+import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const schema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
-  }),
-  amount: z.string().min(1, {
-    message: 'Amount must be at least 1 character.',
-  }),
-  categories: z.string().array().optional(),
-  // TODO make as enum
-  type: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof schema>;
-
 export function TransactionForm() {
+  let [isPending, startTransition] = useTransition();
   const [show, setShow] = useState(false);
-  const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  const form = useForm<TransactionFormValues>({
+    resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      name: '',
+      amount: '',
+    },
     mode: 'onBlur',
   });
 
-  function onSubmit(data: FormValues) {
-    console.log('submit', data);
+  function onSubmit(data: TransactionFormValues) {
+    startTransition(async () => {
+      await createTransaction(data).then(() => {
+        toast({
+          title: `Successfully Created ${data.name} `,
+          variant: 'default',
+        });
+        form.reset();
+      });
+    });
   }
 
   return (
@@ -91,8 +93,12 @@ export function TransactionForm() {
                 </FormItem>
               )}
             />
-
-            <Button type='submit'>Add</Button>
+            <div className='flex items-center gap-2'>
+              <Button type='submit' disabled={isPending}>
+                Add
+              </Button>
+              {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
+            </div>
           </form>
         </Form>
       )}

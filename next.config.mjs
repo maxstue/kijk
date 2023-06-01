@@ -7,7 +7,7 @@ const nextConfig = {
   experimental: {
     appDir: true,
     // typedRoutes: true,
-    // serverActions: true,
+    serverActions: true,
     serverComponentsExternalPackages: ['@prisma/client'],
   },
   // We already do linting on GH actions
