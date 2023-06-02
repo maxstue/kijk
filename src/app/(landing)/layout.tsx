@@ -11,8 +11,6 @@ export default function LandingLayout({ children }: Props) {
     <div className='flex min-h-screen flex-col'>
       <header className='bg-background'>
         <SiteHeader>
-          {/* TODO TS 5.1 */}
-          {/* @ts-expect-error Server Component*/}
           <LandingnNavActions />
         </SiteHeader>
       </header>

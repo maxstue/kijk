@@ -18,8 +18,6 @@ export default function HomeLayout({ children }: RootLayoutProps) {
       <header className='bg-background'>
         <Suspense fallback={<NavLoading />}>
           <SiteHeader navItems={homeConfig.mainNav}>
-            {/* TODO TS 5.1 */}
-            {/* @ts-expect-error Server Component*/}
             <HomeNavActions />
           </SiteHeader>
         </Suspense>

@@ -14,6 +14,8 @@ interface Props {
   children: React.ReactNode;
 }
 
+// TODO: set year and month in her via empty clientComponent
+// instead of in there own components
 export default function WalletLayout({ children }: Props) {
   return (
     <>

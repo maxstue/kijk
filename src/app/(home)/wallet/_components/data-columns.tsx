@@ -18,7 +18,7 @@ import {
 export type Transaction = {
   id: string;
   name: string;
-  amount: number;
+  amount: string;
   type: 'EXPENSE' | 'INCOME';
 };
 

@@ -78,8 +78,6 @@ export default async function WalletPage({
             <List className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
-            {/* TODO TS 5.1 */}
-            {/* @ts-expect-error Server Component*/}
             <DataTable searchParams={searchParams} data={data} columns={columns} />
           </CardContent>
         </Card>
