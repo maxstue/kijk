@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ComponentPropsWithoutRef, useEffect, useState } from 'react';
+import { ComponentPropsWithoutRef, useState } from 'react';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 
 import { cn } from '@/lib/classnames';
@@ -42,18 +42,12 @@ interface Props extends ComponentPropsWithoutRef<typeof PopoverTrigger> {}
 export function YearSwitcher({ className }: Props) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
-  const { pushQueryString, isQuerySet, getQueryString } = useSearchQuery();
+  const { pushQueryString, getQueryString, createQueryString } = useSearchQuery();
   const selectedYear = getQueryString('year', new Date().getFullYear().toString() ?? yearGroups[0].years[0]);
-
-  useEffect(() => {
-    if (!isQuerySet('year')) {
-      pushQueryString('year', new Date().getFullYear().toString() ?? yearGroups[0].years[0]);
-    }
-  }, [isQuerySet, pushQueryString]);
 
   const handleSelectYear = (year: string) => {
     setOpen(false);
-    pushQueryString('year', year);
+    pushQueryString(createQueryString('year', year));
   };
 
   return (

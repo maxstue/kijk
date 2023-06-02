@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 
 import { cn } from '@/lib/classnames';
@@ -11,14 +10,8 @@ import { months } from '@/types/app';
 interface Props extends React.HTMLAttributes<HTMLElement> {}
 
 export function MonthNav({ className, ...props }: Props) {
-  const { getQueryString, createLinkString, isQuerySet, pushQueryString } = useSearchQuery();
+  const { getQueryString, createLinkString } = useSearchQuery();
   const currentMonth = getQueryString('month', months[new Date().getMonth()]);
-
-  useEffect(() => {
-    if (!isQuerySet('month')) {
-      pushQueryString('month', months[new Date().getMonth()]);
-    }
-  }, [isQuerySet, pushQueryString]);
 
   return (
     <nav className={cn('flex lg:flex-col', className)} {...props}>

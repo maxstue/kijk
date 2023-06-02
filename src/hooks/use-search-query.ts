@@ -15,6 +15,17 @@ export function useSearchQuery() {
     [searchParams]
   );
 
+  const createQueriesString = useCallback(
+    (data: { name: string; value: string }[]) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const { name, value } of data) {
+        params.set(name, value);
+      }
+      return params.toString();
+    },
+    [searchParams]
+  );
+
   const createLinkString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -25,11 +36,10 @@ export function useSearchQuery() {
   );
 
   const pushQueryString = useCallback(
-    (name: string, value: string) => {
-      const query = createQueryString(name, value);
+    (query: string) => {
       router.push(pathname + '?' + query);
     },
-    [createQueryString, pathname, router]
+    [pathname, router]
   );
 
   const getQueryString = useCallback(
@@ -45,5 +55,6 @@ export function useSearchQuery() {
     pushQueryString,
     createLinkString,
     createQueryString,
+    createQueriesString,
   };
 }

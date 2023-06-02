@@ -1,8 +1,6 @@
-import { Suspense } from 'react';
 import { Metadata } from 'next';
 
-import { MonthNav } from '@/app/(home)/wallet/_components/month-nav';
-import { YearSwitcher } from '@/app/(home)/wallet/_components/year-switcher';
+import { WalletSideNav } from '@/app/(home)/wallet/_components/wallet-side-nav';
 import { Separator } from '@/components/ui/separator';
 
 export const metadata: Metadata = {
@@ -14,8 +12,6 @@ interface Props {
   children: React.ReactNode;
 }
 
-// TODO: set year and month in her via empty clientComponent
-// instead of in there own components
 export default function WalletLayout({ children }: Props) {
   return (
     <>
@@ -27,18 +23,11 @@ export default function WalletLayout({ children }: Props) {
         <Separator className='my-6' />
         <div className='flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0'>
           <aside className='space-y-6 lg:w-1/5'>
-            <Suspense fallback={<Fallback />}>
-              <YearSwitcher />
-              <MonthNav />
-            </Suspense>
+            <WalletSideNav />
           </aside>
           <div className='flex-1 pb-12'>{children}</div>
         </div>
       </div>
     </>
   );
-}
-
-function Fallback() {
-  return <div>Loading ...</div>;
 }
