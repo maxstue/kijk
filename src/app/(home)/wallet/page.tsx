@@ -4,10 +4,10 @@ import { redirect } from 'next/navigation';
 import { DollarSign, Download, FormInput, List, Users } from 'lucide-react';
 
 import { columns } from '@/app/(home)/wallet/_components/data-columns';
-import { DataTable } from '@/app/(home)/wallet/_components/data-table';
 import { TransactionForm } from '@/app/(home)/wallet/_components/transaction-form';
 import { getTransactions } from '@/app/(home)/wallet/fetchers';
 import { getCurrentUser } from '@/lib/session';
+import { DataTable } from '@/components/data-table/data-table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Months, months } from '@/types/app';
@@ -78,7 +78,7 @@ export default async function WalletPage({
             <List className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
-            <DataTable searchParams={searchParams} data={data} columns={columns} />
+            <DataTable data={data} columns={columns} />
           </CardContent>
         </Card>
       </div>

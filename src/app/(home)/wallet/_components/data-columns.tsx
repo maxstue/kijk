@@ -3,6 +3,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
+import { deleteTransaction } from '@/app/(home)/wallet/actions';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -58,6 +60,14 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const transaction = row.original;
 
+      const handleDelete = async () => {
+        await deleteTransaction(row.original.id);
+        toast({
+          title: `Successfully Deleted ${row.original.name} `,
+          variant: 'default',
+        });
+      };
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -68,10 +78,10 @@ export const columns: ColumnDef<Transaction>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(transaction.id)}>Copy</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(transaction.id)}>Copy Id</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Update</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
