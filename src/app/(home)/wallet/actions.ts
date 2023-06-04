@@ -13,6 +13,14 @@ export async function createTransaction(data: TransactionFormValues) {
   revalidatePath('/wallet');
 }
 
+export async function updateTransaction(id: string, data: Partial<TransactionFormValues>) {
+  await db.transaction.update({
+    where: { id },
+    data: { name: data.name, amount: data.amount, type: data.type },
+  });
+  revalidatePath('/wallet');
+}
+
 export async function deleteTransaction(id: Id) {
   await db.transaction.delete({
     where: { id },

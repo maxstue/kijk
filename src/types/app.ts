@@ -5,7 +5,7 @@ export type Id<T = string> = T;
 export type Transaction = {
   id: string;
   name: string;
-  amount: number;
+  amount: string;
   type: TransactionType;
 };
 

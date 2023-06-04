@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-export function TransactionForm() {
+export function TransactionCreateForm() {
   let [isPending, startTransition] = useTransition();
   const [show, setShow] = useState(false);
   const form = useForm<TransactionFormValues>({
@@ -29,7 +29,7 @@ export function TransactionForm() {
     startTransition(async () => {
       await createTransaction(data).then(() => {
         toast({
-          title: `Successfully Created ${data.name} `,
+          title: `Successfully created: ${data.name} `,
           variant: 'default',
         });
         form.reset();

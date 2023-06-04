@@ -60,3 +60,11 @@ export function zodBuilder<TType extends Record<string, any>>() {
     return z.object(shape as any) as any;
   };
 }
+
+export function formatStringToCurrency(value: string) {
+  const amount = parseFloat(value);
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(amount);
+}

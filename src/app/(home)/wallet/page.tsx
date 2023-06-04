@@ -3,8 +3,8 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { DollarSign, Download, FormInput, List, Users } from 'lucide-react';
 
-import { columns } from '@/app/(home)/wallet/_components/data-columns';
-import { TransactionForm } from '@/app/(home)/wallet/_components/transaction-form';
+import { columns } from '@/app/(home)/wallet/_components/data-list-columns';
+import { TransactionCreateForm } from '@/app/(home)/wallet/_components/transaction-create-form';
 import { getTransactions } from '@/app/(home)/wallet/fetchers';
 import { getCurrentUser } from '@/lib/session';
 import { DataTable } from '@/components/data-table/data-table';
@@ -66,7 +66,7 @@ export default async function WalletPage({
           </CardHeader>
           <CardContent>
             <Suspense fallback={<div>Loading ...</div>}>
-              <TransactionForm />
+              <TransactionCreateForm />
             </Suspense>
           </CardContent>
         </Card>

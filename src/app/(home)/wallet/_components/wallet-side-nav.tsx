@@ -18,10 +18,7 @@ export function WalletSideNav() {
     if (!isQuerySet('month')) {
       params.push({ name: 'month', value: months[new Date().getMonth()] });
     }
-    const query = createQueriesString(params);
-    console.log(params, query);
-
-    pushQueryString(query);
+    pushQueryString(createQueriesString(params));
   }, [createQueriesString, isQuerySet, pushQueryString]);
 
   return (
