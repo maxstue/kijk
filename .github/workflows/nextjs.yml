@@ -5,12 +5,13 @@ name: Next.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   build:
+    name: 'Build, lint, and test'
 
     runs-on: ubuntu-latest
 
@@ -20,36 +21,36 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      id: pnpm-install
-      with:
-        version: 8
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        id: pnpm-install
+        with:
+          version: 8
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
 
-    - name: Install dependencies
-      run: pnpm install
-    # Enable at later time
-    # - name: Run the tests and generate coverage report
-    #   run: npm test -- --coverage
-    # - name: Build
-    #   run: pnpm build
-    - name: Lint
-      run: pnpm lint
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # Enable at later time
+      # - name: Run the tests and generate coverage report
+      #   run: npm test -- --coverage
+      # - name: Build
+      #   run: pnpm build
+      - name: Lint
+        run: pnpm lint
 
-    - name: Style
-      run: pnpm format:check
+      - name: Style
+        run: pnpm format:check
 
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

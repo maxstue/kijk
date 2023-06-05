@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import { cn } from '@/lib/classnames';
 import { fontSans } from '@/lib/fonts';
@@ -6,7 +6,6 @@ import { Analytics } from '@/components/analytics';
 import { ThemeProvider } from '@/components/theme-provider';
 
 import '@/styles/globals.css';
-import { SiteFooter } from '@/components/site-footer';
 
 export const metadata = {
   title: {
@@ -36,8 +35,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           {children}
-          <Analytics />
-          <SiteFooter />
+          <Suspense>
+            <Analytics />
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>

@@ -1,33 +1,30 @@
 {
   "$schema": "https://json.schemastore.org/eslintrc",
   "root": true,
-  "extends": [
-    "next/core-web-vitals",
-    "prettier"
-  ],
+  "parser": "@typescript-eslint/parser",
+  "extends": ["next/core-web-vitals", "prettier"],
   "plugins": ["@typescript-eslint"],
+  "settings": {
+    "next": {
+      "rootDir": true
+    }
+  },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "no-undef": "off",
-        "@typescript-eslint/no-empty-interface": "off"
-      }
+      "parser": "@typescript-eslint/parser"
     }
   ],
   "rules": {
+    // next
+    "@next/next/no-html-link-for-pages": "off",
+    // javascript
+    "no-unused-vars": "off",
     // Typescript
     "@typescript-eslint/no-var-requires": "off",
-    // "@typescript-eslint/ban-ts-comment": "warn",
-    // "@typescript-eslint/no-empty-function": "error",
-    // "@typescript-eslint/no-shadow": ["warn"],
-    // "@typescript-eslint/no-unused-vars": "error",
-    // a11y
-    "jsx-a11y/click-events-have-key-events": "off", // enablr to have better usability
-    "jsx-a11y/no-static-element-interactions": "warn",
-    "jsx-a11y/label-has-associated-control": "off",
-    "jsx-a11y/control-has-associated-label": "warn",
-    "jsx-a11y/mouse-events-have-key-events": "warn",
-    "jsx-a11y/interactive-supports-focus": "off"
+    "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/no-empty-function": "error",
+    "@typescript-eslint/no-shadow": ["warn"],
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   }
 }

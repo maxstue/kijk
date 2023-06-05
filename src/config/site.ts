@@ -1,11 +1,9 @@
 import { Route } from 'next';
 
-// TODO
 export const siteConfig = {
   name: 'kijk',
-  url: 'https://ui.shadcn.com',
-  ogImage: 'https://ui.shadcn.com/og.jpg',
-  description: 'Beautifully designed components built with Radix UI and Tailwind CSS.',
+  url: 'https://kijk-maxstue.vercel.app/',
+  description: 'Beautifully designed Budget book built with shadcn/ui and nextjs',
   links: {
     github: 'https://github.com/maxstue/kijk' as Route,
   },

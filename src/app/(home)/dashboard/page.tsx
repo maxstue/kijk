@@ -2,16 +2,16 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-react';
 
+import { TeamSwitcher } from '@/app/(home)/dashboard/_components/team-switcher';
 import { authOptions } from '@/lib/auth';
 import { getCurrentUser } from '@/lib/session';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TeamSwitcher } from '@/app/(home)/dashboard/components/team-switcher';
 
-import { CalendarDateRangePicker } from './components/date-range-picker';
-import { Overview } from './components/overview';
-import { RecentSales } from './components/recent-sales';
+import { CalendarDateRangePicker } from './_components/date-range-picker';
+import { Overview } from './_components/overview';
+import { RecentSales } from './_components/recent-sales';
 
 export const metadata: Metadata = {
   title: 'Dashboard',

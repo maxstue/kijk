@@ -1,10 +1,10 @@
 import {
   AlertTriangle,
   ArrowRight,
+  BellRing,
   Check,
   ChevronLeft,
   ChevronRight,
-  Command,
   CreditCard,
   File,
   FileText,
@@ -14,6 +14,7 @@ import {
   Loader2,
   LogOut,
   LucideProps,
+  Monitor,
   Moon,
   MoreVertical,
   Pizza,
@@ -25,14 +26,15 @@ import {
   User,
   Users,
   X,
-  type Icon as LucideIcon,
 } from 'lucide-react';
+
+import Logo from '@/components/Logo';
+import type { Icon as LucideIcon } from 'lucide-react';
 
 export type Icon = LucideIcon;
 
 export const Icons = {
-  // TODO replace with other logo
-  logo: Command,
+  logo: Logo,
   close: X,
   spinner: Loader2,
   chevronLeft: ChevronLeft,
@@ -57,6 +59,8 @@ export const Icons = {
   check: Check,
   logOut: LogOut,
   users: Users,
+  bellRing: BellRing,
+  monitor: Monitor,
   // custom Icons
   gitHub: ({ ...props }: LucideProps) => (
     <svg
