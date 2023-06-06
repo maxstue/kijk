@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
             },
             password: { label: 'Password', type: 'password' },
           },
-          async authorize() {
+          authorize() {
             return {
               id: 'test-user-1',
               name: 'Max',
@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
         }),
   ],
   callbacks: {
-    async session({ token, session }) {
+    session({ token, session }) {
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;

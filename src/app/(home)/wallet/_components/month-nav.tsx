@@ -7,14 +7,14 @@ import { useSearchQuery } from '@/hooks/use-search-query';
 import { buttonVariants } from '@/components/ui/button';
 import { months } from '@/types/app';
 
-interface Props extends React.HTMLAttributes<HTMLElement> {}
+type Props = React.HTMLAttributes<HTMLElement>;
 
 export function MonthNav({ className, ...props }: Props) {
   const { getQueryString, createLinkString } = useSearchQuery();
   const currentMonth = getQueryString('month', months[new Date().getMonth()]);
 
   return (
-    <nav className={cn('flex lg:flex-col', className)} {...props}>
+    <nav className={cn('flex overflow-auto lg:flex-col', className)} {...props}>
       {currentMonth ? (
         <>
           {months.map((item) => {

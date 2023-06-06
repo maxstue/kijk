@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function TransactionCreateForm() {
-  let [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [show, setShow] = useState(false);
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),

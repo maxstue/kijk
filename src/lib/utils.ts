@@ -55,8 +55,10 @@ type TypeToZodShape<T> = [T] extends [string | number | boolean | undefined | nu
  * A function that creates zod schemas from your own interfaces, with full autocomplete.
  * @returns A typesage zod schema based on the interface.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function zodBuilder<TType extends Record<string, any>>() {
   return <TShape extends TypeToZodShape<TType>>(shape: TShape): z.ZodObject<TType> => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any
     return z.object(shape as any) as any;
   };
 }

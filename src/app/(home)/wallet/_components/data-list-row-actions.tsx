@@ -55,7 +55,7 @@ export function DataListRowActions<TData extends Transaction>({ row }: DataTable
   const transaction = row.original;
 
   const handleCopyId = async () => {
-    navigator.clipboard.writeText(transaction.id);
+    await navigator.clipboard.writeText(transaction.id);
     toast({
       title: `Successfully copied: ${row.original.name} `,
       variant: 'default',
@@ -98,8 +98,8 @@ function DeleteAlertDialog({ transaction }: { transaction: Transaction }) {
   const formattedAmount = formatStringToCurrency(transaction.amount);
 
   const handleDelete = () => {
-    startTransition(() => {
-      deleteTransaction(transaction.id);
+    startTransition(async () => {
+      await deleteTransaction(transaction.id);
       toast({
         title: `Successfully deleted: ${transaction.name} `,
         variant: 'default',
@@ -135,7 +135,7 @@ function DeleteAlertDialog({ transaction }: { transaction: Transaction }) {
 }
 
 function UpdateDialog({ transaction, onClose }: { transaction: Transaction; onClose: () => void }) {
-  let [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     values: transaction,

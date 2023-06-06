@@ -43,7 +43,7 @@ export function useSearchQuery() {
   );
 
   const getQueryString = useCallback(
-    <T extends unknown>(name: string, defaultValue?: T) => searchParams.get(name) ?? defaultValue,
+    <T>(name: string, defaultValue?: T) => searchParams.get(name) ?? defaultValue,
     [searchParams]
   );
 

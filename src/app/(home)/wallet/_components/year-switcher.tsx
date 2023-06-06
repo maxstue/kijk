@@ -37,7 +37,7 @@ const yearGroups = [
   },
 ];
 
-interface Props extends ComponentPropsWithoutRef<typeof PopoverTrigger> {}
+type Props = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
 export function YearSwitcher({ className }: Props) {
   const [open, setOpen] = useState(false);
