@@ -8,5 +8,3 @@ export const siteConfig = {
     github: 'https://github.com/maxstue/kijk' as Route,
   },
 };
-
-export type SiteConfig = typeof siteConfig;
