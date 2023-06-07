@@ -8,7 +8,7 @@
     "build": "pnpm run --parallel -r build",
     "build:nextjs": "pnpm run --filter \"kijk-nextjs-web\" build",
     "clean:all": "pnpm run --parallel -r clean:all",
-    "pre-commit": "pnpm run --filter \"apps/*\" pre-commit",
+    "pre-commit": "pnpm run --filter \"kijk*\" pre-commit",
     "prepare": "husky install"
   },
   "devDependencies": {
