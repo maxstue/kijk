@@ -5,20 +5,23 @@ name: Next.js CI
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
+    paths: ['apps/nextjs-web/**']
   pull_request:
-    branches: ['main']
+    branches: ["main"]
+    paths: ['apps/nextjs-web/**']
 
 jobs:
-  build:
-    name: 'Build, lint, and test'
-
+  web-ci:
+    name: "Build, lint, and test"
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    defaults:
+      run:
+        working-directory: ./apps/nextjs-web
 
     steps:
       - name: Checkout Repository
@@ -34,7 +37,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
