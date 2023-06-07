@@ -16,6 +16,7 @@
   "scripts": {
     "dev:all": "pnpm run --parallel --filter \"kijk*\" dev",
     "dev:nextjs": "pnpm run --filter \"kijk-nextjs-web\" dev",
+    "dev:dotnet-api": "pnpm run --filter \"kijk-dotnet-api\" dev",
     "build": "pnpm run --parallel -r build",
     "build:nextjs": "pnpm run --filter \"kijk-nextjs-web\" build",
     "clean:all": "pnpm run --parallel -r clean:all",
