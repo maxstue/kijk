@@ -10,7 +10,7 @@ on:
     paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
 
   pull_request:
-    branches: ["main"]
+    branches: ["main", "develop"]
     paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
 
 jobs:
