@@ -4,9 +4,11 @@
 name: Next.js CI
 
 on:
+  workflow_dispatch:
   push:
     branches: ["main"]
     paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
+
   pull_request:
     branches: ["main"]
     paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
