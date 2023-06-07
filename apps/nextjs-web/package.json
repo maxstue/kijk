@@ -2,6 +2,14 @@
   "name": "kijk-nextjs-web",
   "version": "0.1.0",
   "private": true,
+  "keywords": [
+    "nextjs",
+    "pnpm",
+    "tailwindcss",
+    "shadcn/ui",
+    "prisma",
+    "neondb"
+  ],
   "scripts": {
     "dev": "next dev -p 5003",
     "build": "next build",
