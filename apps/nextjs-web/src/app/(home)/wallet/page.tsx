@@ -27,7 +27,7 @@ export default async function WalletPage({
   if (!user) {
     redirect('/login');
   }
-  const data = await getTransactions({
+  const { transactions } = await getTransactions({
     month: (searchParams['month'] as Months) ?? months[new Date().getMonth()],
     year: (searchParams['year'] as string) ?? new Date().getFullYear().toString(),
   });
@@ -78,7 +78,7 @@ export default async function WalletPage({
             <List className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
-            <DataTable data={data} columns={columns} />
+            <DataTable data={transactions ?? []} columns={columns} />
           </CardContent>
         </Card>
       </div>
