@@ -27,7 +27,7 @@ export default function LoginPage() {
           <Icons.logo className='mx-auto h-6 w-6' />
           <h2>kijk</h2>
           <h1 className='text-2xl font-semibold tracking-tight'>Welcome back</h1>
-          <p className='text-sm text-muted-foreground'>Enter your email to sign in to your account</p>
+          <p className='text-sm text-muted-foreground'>Sign in to your account</p>
         </div>
         <Suspense fallback={<FormFallback />}>
           <UserAuthForm />

@@ -1,6 +1,5 @@
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 
 import { db } from '@/lib/db';
@@ -18,31 +17,10 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   providers: [
-    process.env.VERCEL_ENV === 'preview'
-      ? // TODO add credential login in userAuthform
-        CredentialsProvider({
-          name: 'Credentials',
-          credentials: {
-            username: {
-              label: 'Username',
-              type: 'text',
-              placeholder: 'jsmith',
-            },
-            password: { label: 'Password', type: 'password' },
-          },
-          authorize() {
-            return {
-              id: 'test-user-1',
-              name: 'Max',
-              email: 'max@example.com',
-              image: 'https://i.pravatar.cc/150?u=jsmith@example.com',
-            };
-          },
-        })
-      : GithubProvider({
-          clientId: process.env.GITHUB_CLIENT_ID,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        }),
+    GithubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
   ],
   callbacks: {
     session({ token, session }) {
