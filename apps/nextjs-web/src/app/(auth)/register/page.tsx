@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 
 import { UserAuthForm } from '@/app/(auth)/_components/user-auth-form';
 import { cn } from '@/lib/classnames';
@@ -11,18 +12,22 @@ export const metadata = {
   description: 'Create an account to get started.',
 };
 
-// TODO style as loginpage
 export default function RegisterPage() {
   return (
-    <div className='container grid h-screen w-screen flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0'>
-      <Link
-        href='/login'
-        className={cn(buttonVariants({ variant: 'ghost' }), 'absolute right-4 top-4 md:right-8 md:top-8')}
-      >
-        Login
-      </Link>
-      <div className='hidden h-full bg-muted lg:block' />
-      <div className='lg:p-8'>
+    <div className='flex h-screen w-screen lg:max-w-none '>
+      <div className='hidden h-full w-full bg-muted lg:block' />
+      <div className='flex h-2/3 w-full flex-col justify-between lg:p-8'>
+        <div className='flex w-full justify-between'>
+          <Link href='/' className={cn(buttonVariants({ variant: 'ghost' }))}>
+            <>
+              <ChevronLeft className='mr-2 h-4 w-4' />
+              Back
+            </>
+          </Link>
+          <Link href='/login' className={cn(buttonVariants({ variant: 'ghost' }))}>
+            Login
+          </Link>
+        </div>
         <div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]'>
           <div className='flex flex-col space-y-2 text-center'>
             <Icons.logo className='mx-auto h-6 w-6' />
@@ -33,15 +38,14 @@ export default function RegisterPage() {
             <UserAuthForm />
           </Suspense>
           <p className='px-8 text-center text-sm text-muted-foreground'>
-            By clicking continue, you agree to our Terms of Service and Privacy Policy
-            {/* TODO add those pages */}
-            {/* <Link href='/terms' className='hover:text-brand underline underline-offset-4'>
+            By clicking continue, you agree to our{' '}
+            <Link href='/terms' className='hover:text-brand underline underline-offset-4'>
               Terms of Service
             </Link>{' '}
             and{' '}
             <Link href='/privacy' className='hover:text-brand underline underline-offset-4'>
               Privacy Policy
-            </Link> */}
+            </Link>
             .
           </p>
         </div>
