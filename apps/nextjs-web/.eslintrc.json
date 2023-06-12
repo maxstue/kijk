@@ -28,12 +28,14 @@
     "@next/next/no-html-link-for-pages": "off",
     // javascript
     "no-unused-vars": "off",
+    "require-await": "off",
     // Typescript
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/ban-ts-comment": "warn",
     "@typescript-eslint/no-empty-function": "error",
     "@typescript-eslint/no-shadow": ["warn"],
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/require-await": "warn",
     "@typescript-eslint/no-misused-promises": [
       "error",
       {

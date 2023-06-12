@@ -27,6 +27,7 @@
       "node_modules/": true,
       "apps": true,
       "packages": true
-    }
+    },
+    "dotnet.defaultSolution": "/Users/mast1/Documents/_Repos/_privat/kijk/apps/dotnet-api/KijkDotnetApi.sln"
   }
 }
