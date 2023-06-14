@@ -26,6 +26,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.0.0",
     "husky": "^8.0.3"
   }
 }
