@@ -1,6 +1,3 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
 name: Next.js CI
 
 on:
@@ -14,12 +11,12 @@ on:
     paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
 
 jobs:
-  web-ci:
+  install:
     name: "Build, lint, and test"
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     defaults:
       run:
@@ -48,8 +45,24 @@ jobs:
       #   run: npm test -- --coverage
       # - name: Build
       #   run: pnpm build
-      - name: Lint
-        run: pnpm lint
 
-      - name: Style
+  lint_format:
+    name: Run eslint and prettier
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    steps:
+      - name: Format
         run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint --output-file eslint-results.sarif
+        continue-on-error: true
+
+      - name: Upload results to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: eslint-results.sarif
+          wait-for-processing: true

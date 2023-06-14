@@ -28,7 +28,7 @@
     "clean:build": "rimraf ./dist ./stats",
     "component:add": "pnpx shadcn-ui add",
     "postinstall": "prisma generate",
-    "pre-commit": "lint-staged"
+    "pre-commit": "pnpm format:write"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
@@ -98,7 +98,6 @@
     "eslint-config-prettier": "^8.8.0",
     "husky": "^8.0.3",
     "knip": "^2.13.0",
-    "lint-staged": "^13.2.2",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
     "prisma": "^4.15.0",
