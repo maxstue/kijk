@@ -6,8 +6,10 @@ name: SonarCloud analysis
 on:
   push:
     branches: [ "main" ]
+    paths: ['!.github/workflows/**']
   pull_request:
     branches: [ "main", "develop" ]
+    paths: ['!.github/workflows/**']
   workflow_dispatch:
 
 permissions:

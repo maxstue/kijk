@@ -11,7 +11,7 @@ on:
     paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
 
 jobs:
-  install:
+  Install:
     name: "Build, lint, and test"
     runs-on: ubuntu-latest
     strategy:
@@ -45,15 +45,28 @@ jobs:
       #   run: npm test -- --coverage
       # - name: Build
       #   run: pnpm build
+      # Share artifact inside workflow
+      - name: Share artifact inside workflow
+        uses: actions/upload-artifact@v1
+        with:
+          name: next-root-artifact
+          path: .
 
-  lint_format:
+  Lint_format:
     name: Run eslint and prettier
     runs-on: ubuntu-latest
+    needs: [Install]
     permissions:
       contents: read
       security-events: write
       actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     steps:
+      # Download previously shared root folder
+      - name: Get artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: next-root-artifact
+
       - name: Format
         run: pnpm format:check
 
