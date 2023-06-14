@@ -16,6 +16,8 @@
   "scripts": {
     "dev": "dotnet watch run --project KijkDotnetApi/KijkDotnetAPi.csproj --launch-profile https",
     "build": "dotnet build --project KijkDotnetApi/KijkDotnetAPi.csproj",
+    "lint": "echo '🏖️ dotnet-api: No lint script here' ",
+    "format:check": "echo '🏖️ dotnet-api: No format:check script here' ",
     "pre-commit": "echo '🏖️ dotnet-api: No pre commit hook here' "
   }
 }
