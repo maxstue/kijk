@@ -51,7 +51,7 @@ jobs:
       # - name: Run the tests and generate coverage report
       #   run: npm test -- --coverage
       - name: "🧹 Format"
-        run: pnpm format:check-all
+        run: pnpm format:check
 
       - name: "🔍 Lint"
         run: pnpm lint --format @microsoft/eslint-formatter-sarif --output-file lint-results.sarif
