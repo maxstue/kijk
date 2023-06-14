@@ -14,14 +14,14 @@ env:
   NODE_VERSION: "20.x"
   PNPM_VERSION: "8"
 
+defaults:
+  run:
+    working-directory: ./apps/nextjs-web
+
 jobs:
   Build:
     name: "Build, lint, and test"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./apps/nextjs-web
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
