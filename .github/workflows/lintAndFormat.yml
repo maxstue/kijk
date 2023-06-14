@@ -13,6 +13,7 @@ on:
 env:
   NODE_VERSION: "20.x"
   PNPM_VERSION: "8"
+  CI: ${{ vars.CI }}
 
 # defaults:
 #   run:
@@ -20,7 +21,7 @@ env:
 
 jobs:
   Format_Lint:
-    name: "Format, lint, and test"
+    name: "Format and lint"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,7 +47,7 @@ jobs:
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
-          pnpm install @microsoft/eslint-formatter-sarif@latest
+          pnpm add -D @microsoft/eslint-formatter-sarif@latest
       # Enable at later time
       # - name: Run the tests and generate coverage report
       #   run: npm test -- --coverage
