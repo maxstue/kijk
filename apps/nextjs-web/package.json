@@ -28,7 +28,7 @@
     "clean:build": "rimraf ./dist ./stats",
     "component:add": "pnpx shadcn-ui add",
     "postinstall": "prisma generate",
-    "pre-commit": "pnpm format:write"
+    "pre-commit": "lint-staged"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
@@ -88,6 +88,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@builder.io/partytown": "^0.8.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.0.2",
     "@types/node": "20.2.5",
     "@types/react": "18.2.8",
