@@ -20,11 +20,15 @@ export const env = createEnv({
     NEXTAUTH_SECRET: process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().min(1).optional(),
     GITHUB_CLIENT_ID: z.string().min(1),
     GITHUB_CLIENT_SECRET: z.string().min(1),
-    SENTRY_ENABLE: z.string(),
+    SENTRY_ENABLE: z
+      .string() // only allow "true" or "false"
+      .refine((s) => s === 'true' || s === 'false')
+      // transform to boolean
+      .transform((s) => s === 'true'),
     SENTRY_DSN: z.string().min(1),
     SENTRY_ORG: z.string().min(1),
     SENTRY_PROJECT: z.string().min(1),
-    SENTRY_LOG_LEVEL: z.string(),
+    SENTRY_LOG_LEVEL: z.enum(['info', 'warn']),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -32,7 +36,11 @@ export const env = createEnv({
    * To expose them to the client, prefix them with `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_SENTRY_ENABLE: z.string(),
+    NEXT_PUBLIC_SENTRY_ENABLE: z
+      .string() // only allow "true" or "false"
+      .refine((s) => s === 'true' || s === 'false')
+      // transform to boolean
+      .transform((s) => s === 'true'),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -47,7 +55,9 @@ export const env = createEnv({
     SENTRY_DSN: process.env.SENTRY_DSN,
     SENTRY_ORG: process.env.SENTRY_ORG,
     SENTRY_PROJECT: process.env.SENTRY_PROJECT,
-    SENTRY_LOG_LEVEL: process.env.SENTRY_LOG_LEVEL ?? 'info',
+    SENTRY_LOG_LEVEL: process.env.SENTRY_LOG_LEVEL ?? 'warn',
   },
   skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION,
+  // Tell the library when we're in a server context.
+  isServer: typeof window === 'undefined',
 });
