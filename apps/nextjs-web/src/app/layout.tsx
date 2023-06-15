@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 
 import { cn } from '@/lib/classnames';
-import { fontSans } from '@/lib/fonts';
+import { fontMono } from '@/lib/fonts';
 import { Analytics } from '@/components/analytics';
 import { ThemeProvider } from '@/components/theme-provider';
 
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang='en' suppressHydrationWarning>
       <head />
-      <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+      <body className={cn('min-h-screen bg-background font-sans antialiased', fontMono.variable)}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           {children}
           <Suspense>
