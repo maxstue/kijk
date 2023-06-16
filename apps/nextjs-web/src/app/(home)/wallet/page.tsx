@@ -23,13 +23,15 @@ export default async function WalletPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const user = await getCurrentUser();
+  const month = (searchParams['month'] as Months) ?? months[new Date().getMonth()];
+  const year = (searchParams['year'] as string) ?? new Date().getFullYear().toString();
 
   if (!user) {
     redirect('/login');
   }
   const { transactions } = await getTransactions({
-    month: (searchParams['month'] as Months) ?? months[new Date().getMonth()],
-    year: (searchParams['year'] as string) ?? new Date().getFullYear().toString(),
+    month: month,
+    year: year,
   });
 
   return (
@@ -66,7 +68,7 @@ export default async function WalletPage({
           </CardHeader>
           <CardContent>
             <Suspense fallback={<div>Loading ...</div>}>
-              <TransactionCreateForm />
+              <TransactionCreateForm year={year} month={month} />
             </Suspense>
           </CardContent>
         </Card>

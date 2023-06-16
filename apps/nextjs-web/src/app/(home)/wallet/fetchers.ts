@@ -6,7 +6,7 @@ export async function getTransactions(filter: { month: Months; year: string }) {
     const nextMonth = months[months.indexOf(filter.month) + 1];
     const transactions = await db.transaction.findMany({
       where: {
-        createdAt: {
+        executedAt: {
           gte: new Date(`${filter.year}-${filter.month}-01`).toISOString(),
           lt: new Date(`${filter.year}-${nextMonth}-01`).toISOString(),
         },

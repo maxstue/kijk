@@ -9,7 +9,7 @@ import { Id } from '@/types/app';
 export async function createTransaction(data: TransactionFormValues) {
   try {
     const created = await db.transaction.create({
-      data: { name: data.name, amount: data.amount, type: data.type },
+      data: { name: data.name, amount: data.amount, type: data.type, executedAt: data.executed_At },
     });
     revalidatePath('/wallet');
     return { created };
@@ -22,7 +22,7 @@ export async function updateTransaction(id: string, data: Partial<TransactionFor
   try {
     const updatedTransaction = await db.transaction.update({
       where: { id },
-      data: { name: data.name, amount: data.amount, type: data.type },
+      data: { name: data.name, amount: data.amount, type: data.type, executedAt: data.executed_At },
     });
     revalidatePath('/wallet');
     return { updatedTransaction };

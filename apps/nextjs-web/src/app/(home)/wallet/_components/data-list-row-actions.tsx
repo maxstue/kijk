@@ -3,7 +3,8 @@
 import { useState, useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Row } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { format } from 'date-fns';
+import { Calendar as CalendarIcon, MoreHorizontal } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 import { TransactionFormValues, transactionSchema } from '@/app/(home)/wallet/_components/schemas';
@@ -24,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Dialog,
   DialogContent,
@@ -41,8 +43,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Transaction } from '@/types/app';
 
@@ -207,6 +210,42 @@ function UpdateDialog({ transaction, onClose }: { transaction: Transaction; onCl
                       <SelectItem value='INCOME'>Income</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='executed_At'
+              render={({ field }) => (
+                <FormItem className='flex flex-col'>
+                  <FormLabel>Execution date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={'outline'}
+                          className={cn(
+                            'w-[240px] pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                          <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className='w-auto p-0' align='start'>
+                      <Calendar
+                        mode='single'
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>Execution date of this transaction.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
