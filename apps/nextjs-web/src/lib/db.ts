@@ -1,3 +1,4 @@
+import { env } from '@/env.mjs';
 import { PrismaClient } from '@prisma/client';
 
 declare global {
@@ -6,11 +7,25 @@ declare global {
 }
 
 let prisma: PrismaClient;
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
+if (env.NODE_ENV === 'production') {
+  prisma = new PrismaClient({
+    log: [
+      // { emit: 'stdout', level: 'query' },
+      { emit: 'stdout', level: 'info' },
+      { emit: 'stdout', level: 'error' },
+      { emit: 'stdout', level: 'warn' },
+    ],
+  });
 } else {
   if (!global.cachedPrisma) {
-    global.cachedPrisma = new PrismaClient();
+    global.cachedPrisma = new PrismaClient({
+      log: [
+        // { emit: 'stdout', level: 'query' },
+        { emit: 'stdout', level: 'info' },
+        { emit: 'stdout', level: 'error' },
+        { emit: 'stdout', level: 'warn' },
+      ],
+    });
   }
   prisma = global.cachedPrisma;
 }

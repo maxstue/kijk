@@ -6,14 +6,21 @@ import { useForm } from 'react-hook-form';
 
 import { TransactionFormValues, transactionSchema } from '@/app/(home)/wallet/_components/schemas';
 import { createTransaction } from '@/app/(home)/wallet/actions';
+import { getMonthFromString } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Months } from '@/types/app';
 
-export function TransactionCreateForm() {
+interface Props {
+  year?: string;
+  month?: Months;
+}
+
+export function TransactionCreateForm({ month, year }: Props) {
   const [isPending, startTransition] = useTransition();
   const [show, setShow] = useState(false);
   const form = useForm<TransactionFormValues>({
@@ -26,8 +33,13 @@ export function TransactionCreateForm() {
   });
 
   function onSubmit(data: TransactionFormValues) {
+    const executionDate =
+      typeof year !== 'undefined' && typeof month !== 'undefined'
+        ? new Date(Number(year), getMonthFromString(month), new Date().getDate())
+        : new Date();
+
     startTransition(async () => {
-      await createTransaction(data).then(() => {
+      await createTransaction({ ...data, executedAt: executionDate }).then(() => {
         toast({
           title: `Successfully created: ${data.name} `,
           variant: 'default',

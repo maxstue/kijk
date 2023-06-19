@@ -1,5 +1,7 @@
 import { withSentryConfig } from '@sentry/nextjs';
 
+import './src/env.mjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,11 +11,11 @@ const nextConfig = {
     // typedRoutes: true,
     serverActions: true,
     serverComponentsExternalPackages: ['@prisma/client'],
+    nextScriptWorkers: true,
   },
-  // We already do linting on GH actions
-  eslint: {
-    ignoreDuringBuilds: !!process.env.CI,
-  },
+  /** We already do linting and typechecking as separate tasks in CI */
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
 };
 
 const sentryWebPackConfig = {

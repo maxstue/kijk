@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-react';
@@ -31,11 +32,15 @@ export default async function DashboardPage() {
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-3xl font-bold tracking-tight'>Dashboard</h2>
           <div className='flex items-center space-x-2'>
-            <CalendarDateRangePicker />
-            <Button size='sm'>
-              <Download className='mr-2 h-4 w-4' />
-              Download
-            </Button>
+            <Suspense fallback={<div>Loading...</div>}>
+              <CalendarDateRangePicker />
+            </Suspense>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Button size='sm'>
+                <Download className='mr-2 h-4 w-4' />
+                Download
+              </Button>
+            </Suspense>
           </div>
         </div>
         <Tabs defaultValue='overview' className='space-y-4'>

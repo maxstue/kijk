@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Optional } from '@/types/app';
+import { Months, months, Optional } from '@/types/app';
 
 const initialRegex = new RegExp(/(\p{L}{1})\p{L}+/, 'gu');
 
@@ -69,4 +69,8 @@ export function formatStringToCurrency(value: string) {
     style: 'currency',
     currency: 'EUR',
   }).format(amount);
+}
+
+export function getMonthFromString(month: Months) {
+  return months.indexOf(month) + 1;
 }

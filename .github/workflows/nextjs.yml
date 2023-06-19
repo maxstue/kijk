@@ -1,61 +1,64 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Next.js CI
+name: Nextjs CICD
 
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
+    paths: ['apps/nextjs-web/**']
 
   pull_request:
     branches: ["main", "develop"]
-    paths: ['apps/nextjs-web/**', '.github/workflows/nextjs.yml']
+    paths: ['apps/nextjs-web/**']
+
+env:
+  NODE_VERSION: "20.x"
+  PNPM_VERSION: "8"
+  CI: ${{ vars.CI }}
+
+defaults:
+  run:
+    working-directory: ./apps/nextjs-web
 
 jobs:
-  web-ci:
-    name: "Build, lint, and test"
+  Format_Lint:
+    name: "Format and lint"
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-    defaults:
-      run:
-        working-directory: ./apps/nextjs-web
+    permissions:
+      contents: read
+      security-events: write
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
 
     steps:
-      - name: Checkout Repository
+      - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v3
 
-      - name: Install pnpm
+      - name: "🔧 Install pnpm"
         uses: pnpm/action-setup@v2
         id: pnpm-install
         with:
-          version: 8
+          version: ${{ env.PNPM_VERSION }}
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: "🔧 Use Node.js ${{ env.NODE_VERSION }}"
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: "📦 Install dependencies"
+        run: |
+          pnpm install --frozen-lockfile
       # Enable at later time
       # - name: Run the tests and generate coverage report
       #   run: npm test -- --coverage
-      # - name: Build
-      #   run: pnpm build
-      - name: Lint
-        run: pnpm lint
-
-      - name: Style
+      - name: "🧹 Format"
         run: pnpm format:check
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: "🔍 Lint"
+        run: pnpm lint --format @microsoft/eslint-formatter-sarif --output-file lint-results.sarif
+        continue-on-error: true
+
+      - name: "⬆️ Upload results to GitHub"
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: apps/nextjs-web/lint-results.sarif
+          wait-for-processing: true

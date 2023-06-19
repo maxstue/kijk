@@ -1,6 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import { format } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 
 import { DataListRowActions } from '@/app/(home)/wallet/_components/data-list-row-actions';
@@ -39,6 +40,24 @@ export const columns: ColumnDef<Transaction>[] = [
           {formattedAmount}
         </div>
       );
+    },
+  },
+  {
+    accessorKey: 'executedAt',
+    header: ({ column }) => {
+      return (
+        <div className='flex justify-end'>
+          <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            Date
+            <ArrowUpDown className='ml-2 h-4 w-4' />
+          </Button>
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const executionDate = row.getValue<Date>('executedAt');
+      const formattedDate = format(executionDate, 'dd.MM.yy');
+      return <div className={cn('text-right font-medium')}>{formattedDate}</div>;
     },
   },
   {

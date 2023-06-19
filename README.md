@@ -22,3 +22,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 ## Table of Contents
 
 - 💾 [Database](./docs/database.md)
+- 💻 [Services and Tools](./docs/services.md)

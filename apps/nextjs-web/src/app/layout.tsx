@@ -1,11 +1,13 @@
 import React, { Suspense } from 'react';
 
 import { cn } from '@/lib/classnames';
-import { fontSans } from '@/lib/fonts';
+import { fontMono } from '@/lib/fonts';
 import { Analytics } from '@/components/analytics';
 import { ThemeProvider } from '@/components/theme-provider';
 
 import '@/styles/globals.css';
+
+import Script from 'next/script';
 
 export const metadata = {
   title: {
@@ -32,7 +34,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang='en' suppressHydrationWarning>
       <head />
-      <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+      <Script
+        async
+        src='https://analytics.umami.is/script.js'
+        data-website-id='8a6e035b-c1d5-4152-9ad9-1fe9f25cfbc4'
+        strategy='worker'
+      />
+      <body className={cn('min-h-screen bg-background font-sans antialiased', fontMono.variable)}>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           {children}
           <Suspense>
