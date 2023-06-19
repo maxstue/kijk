@@ -11,7 +11,7 @@ export const transactionSchema = z.object({
   }),
   type: z.string().refine(isTransactionType, { message: 'The type needs to be "Expense" or "Income"' }),
   categories: z.any().array().optional(),
-  executed_At: z.date().optional(),
+  executedAt: z.date(),
 });
 
 export function isTransactionType(value: string): value is TransactionType {

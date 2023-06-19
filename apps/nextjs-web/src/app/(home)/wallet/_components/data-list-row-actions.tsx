@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Row } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { format, toDate } from 'date-fns';
 import { Calendar as CalendarIcon, MoreHorizontal } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
@@ -216,7 +216,7 @@ function UpdateDialog({ transaction, onClose }: { transaction: Transaction; onCl
             />
             <FormField
               control={form.control}
-              name='executed_At'
+              name='executedAt'
               render={({ field }) => (
                 <FormItem className='flex flex-col'>
                   <FormLabel>Execution date</FormLabel>
@@ -230,7 +230,7 @@ function UpdateDialog({ transaction, onClose }: { transaction: Transaction; onCl
                             !field.value && 'text-muted-foreground'
                           )}
                         >
-                          {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                          {field.value ? format(toDate(field.value), 'PPP') : <span>Pick a date</span>}
                           <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
                         </Button>
                       </FormControl>
@@ -240,7 +240,7 @@ function UpdateDialog({ transaction, onClose }: { transaction: Transaction; onCl
                         mode='single'
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                        disabled={(date) => date < new Date('1900-01-01')}
                         initialFocus
                       />
                     </PopoverContent>

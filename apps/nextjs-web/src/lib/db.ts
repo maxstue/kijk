@@ -8,10 +8,24 @@ declare global {
 
 let prisma: PrismaClient;
 if (env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
+  prisma = new PrismaClient({
+    log: [
+      // { emit: 'stdout', level: 'query' },
+      { emit: 'stdout', level: 'info' },
+      { emit: 'stdout', level: 'error' },
+      { emit: 'stdout', level: 'warn' },
+    ],
+  });
 } else {
   if (!global.cachedPrisma) {
-    global.cachedPrisma = new PrismaClient();
+    global.cachedPrisma = new PrismaClient({
+      log: [
+        // { emit: 'stdout', level: 'query' },
+        { emit: 'stdout', level: 'info' },
+        { emit: 'stdout', level: 'error' },
+        { emit: 'stdout', level: 'warn' },
+      ],
+    });
   }
   prisma = global.cachedPrisma;
 }

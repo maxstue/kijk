@@ -35,10 +35,11 @@ export function TransactionCreateForm({ month, year }: Props) {
   function onSubmit(data: TransactionFormValues) {
     const executionDate =
       typeof year !== 'undefined' && typeof month !== 'undefined'
-        ? new Date(Number(year), getMonthFromString(month))
-        : undefined;
+        ? new Date(Number(year), getMonthFromString(month), new Date().getDate())
+        : new Date();
+
     startTransition(async () => {
-      await createTransaction({ ...data, executed_At: executionDate }).then(() => {
+      await createTransaction({ ...data, executedAt: executionDate }).then(() => {
         toast({
           title: `Successfully created: ${data.name} `,
           variant: 'default',

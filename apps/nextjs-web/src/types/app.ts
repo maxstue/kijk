@@ -7,6 +7,7 @@ export type Transaction = {
   name: string;
   amount: string;
   type: TransactionType;
+  executedAt: Date;
 };
 
 export const TransactionType = {
