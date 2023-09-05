@@ -50,28 +50,28 @@ export function UserNav({ user }: Props) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem key={'Profile'} asChild className='cursor-pointer'>
-            <Link to={'/'} className='flex w-full'>
+            <Link to={'/settings'} className='flex w-full'>
               Profile
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem key={'Account'} asChild className='cursor-pointer'>
-            <Link to={''} className='flex w-full'>
+            <Link to={'/settings/account'} className='flex w-full'>
               Account
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem key={'Appearance'} asChild className='cursor-pointer'>
-            <Link to={''} className='flex w-full'>
+            <Link to={'/settings/appearance'} className='flex w-full'>
               Appearance
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem key={'Notifications'} asChild className='cursor-pointer'>
-            <Link to={''} className='flex w-full'>
+            <Link to={'/settings/notifications'} className='flex w-full'>
               Notifications
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem key={'Categories'} asChild className='cursor-pointer'>
-            <Link to={''} className='flex w-full'>
+            <Link to={'/settings/categories'} className='flex w-full'>
               Categories
             </Link>
           </DropdownMenuItem>
