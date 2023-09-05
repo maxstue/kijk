@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    // disable to remove "reference"-error in root tsconfig
+    // "noEmit": false,
+
+    /* Linting */
+    "strictNullChecks": true
+  },
+  "include": ["vite.config.ts"]
+}
