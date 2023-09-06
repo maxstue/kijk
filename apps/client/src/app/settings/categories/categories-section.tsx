@@ -6,11 +6,7 @@ import { DataTable } from '@/components/data-table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
-export function CategoriesPage() {
-  // const user = await getCurrentUser();
-  // if (!user) {
-  //   redirect('/login');
-  // }
+export function CategoriesSection() {
   // const { categories } = await getCategories({ userId: user.id });
 
   return (

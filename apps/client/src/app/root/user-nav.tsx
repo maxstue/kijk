@@ -12,6 +12,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { settingsNav } from '@/lib/constants';
 import { getInitailChars } from '@/lib/utils';
 import { User } from '@/types/app';
 
@@ -49,32 +50,14 @@ export function UserNav({ user }: Props) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem key={'Profile'} asChild className='cursor-pointer'>
-            <Link to={'/settings'} className='flex w-full'>
-              Profile
-              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem key={'Account'} asChild className='cursor-pointer'>
-            <Link to={'/settings/account'} className='flex w-full'>
-              Account
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem key={'Appearance'} asChild className='cursor-pointer'>
-            <Link to={'/settings/appearance'} className='flex w-full'>
-              Appearance
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem key={'Notifications'} asChild className='cursor-pointer'>
-            <Link to={'/settings/notifications'} className='flex w-full'>
-              Notifications
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem key={'Categories'} asChild className='cursor-pointer'>
-            <Link to={'/settings/categories'} className='flex w-full'>
-              Categories
-            </Link>
-          </DropdownMenuItem>
+          {settingsNav.map(({ to, label, shortCutKey }) => (
+            <DropdownMenuItem key={label} asChild className='cursor-pointer'>
+              <Link to={'/settings/$section'} params={{ section: to }} className='flex w-full'>
+                {label}
+                {shortCutKey && <DropdownMenuShortcut>{shortCutKey}</DropdownMenuShortcut>}
+              </Link>
+            </DropdownMenuItem>
+          ))}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem className='cursor-pointer' onSelect={handleSignOut}>

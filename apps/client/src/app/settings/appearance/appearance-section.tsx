@@ -1,7 +1,7 @@
 import { AppearanceForm } from '@/app/settings/appearance/appearance-form';
 import { Separator } from '@/components/ui/separator';
 
-export function AppearancePage() {
+export function AppearanceSection() {
   return (
     <div className='space-y-6'>
       <div>

@@ -1,7 +1,7 @@
 import { NotificationsForm } from '@/app/settings/notifications/notifications-form';
 import { Separator } from '@/components/ui/separator';
 
-export function NotificationsPage() {
+export function NotificationsSection() {
   return (
     <div className='space-y-6'>
       <div>

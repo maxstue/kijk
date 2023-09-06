@@ -1,7 +1,7 @@
 import { AccountForm } from '@/app/settings/account/account-form';
 import { Separator } from '@/components/ui/separator';
 
-export function AccountPage() {
+export function AccountSection() {
   return (
     <div className='space-y-6'>
       <div>

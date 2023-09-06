@@ -1,7 +1,7 @@
 import { ProfileForm } from '@/app/settings/profile/profile-form';
 import { Separator } from '@/components/ui/separator';
 
-export function ProfilePage() {
+export function ProfileSection() {
   return (
     <div className='space-y-6'>
       <div>

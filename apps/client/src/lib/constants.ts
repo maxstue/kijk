@@ -8,3 +8,12 @@ export const siteConfig = {
     github: 'https://github.com/maxstue/kijk' as Route,
   },
 } as const;
+
+/** Icon: available icons come from the "Icons" file */
+export const settingsNav = [
+  { to: 'profile', label: 'Profile', shortCutKey: '⇧⌘P', icon: 'user' },
+  { to: 'account', label: 'Account', shortCutKey: undefined, icon: 'settings' },
+  { to: 'appearance', label: 'Appearance', shortCutKey: undefined, icon: 'monitor' },
+  { to: 'notifications', label: 'Notifications', shortCutKey: undefined, icon: 'bellRing' },
+  { to: 'categories', label: 'Categories', shortCutKey: undefined, icon: 'category' },
+] as const;
