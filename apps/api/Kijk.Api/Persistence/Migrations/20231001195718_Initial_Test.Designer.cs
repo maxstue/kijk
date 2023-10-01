@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Kijk.Api.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231001191925_Initial_Test")]
+    [Migration("20231001195718_Initial_Test")]
     partial class Initial_Test
     {
         /// <inheritdoc />

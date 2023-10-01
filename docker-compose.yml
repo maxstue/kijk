@@ -1,8 +1,8 @@
 version: "3.9"
 services:
-  db:
+  database:
     image: "postgres:alpine"
-    container_name: "kijkDb"
+    container_name: "kijk-db"
     restart: "on-failure"
     environment:
       POSTGRES_USER: postgres
