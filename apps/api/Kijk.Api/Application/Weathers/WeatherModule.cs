@@ -1,10 +1,8 @@
-﻿using Kijk.Api.Common.interfaces;
+﻿namespace Kijk.Api.Application.Weathers;
 
-namespace Kijk.Api.Application.Weathers;
-
-public class WeatherModule : IModule
+public static class WeatherModule
 {
-    public IServiceCollection RegisterModule(IServiceCollection services)
+    public static IServiceCollection RegisterWeatherModule(this IServiceCollection services)
     {
         services.AddScoped<IWeatherService, WeatherService>();
 

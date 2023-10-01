@@ -3,15 +3,13 @@
 using Kijk.Api.Application.Weathers;
 using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Filters;
-using Kijk.Api.Common.interfaces;
 using Kijk.Api.Common.Models;
 
 namespace Kijk.Api.Endpoints;
 
-/// <inheritdoc cref="IEndpoint" />
-public class WeatherEndpoint : IEndpoint
+public static class WeatherEndpoint
 {
-    public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpointRouteBuilder)
+    public static IEndpointRouteBuilder MapWeatherEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
         var group = endpointRouteBuilder.MapGroup("/w");
 

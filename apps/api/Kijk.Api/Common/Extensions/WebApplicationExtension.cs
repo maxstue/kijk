@@ -1,5 +1,5 @@
-﻿using Kijk.Api.Common.interfaces;
-using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Models;
+using Kijk.Api.Endpoints;
 using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Common.Extensions;
@@ -50,33 +50,15 @@ public static class WebApplicationExtension
     public static WebApplication MapCustomEndpoints(this WebApplication app)
     {
         app.Map("/", () => Results.Redirect("/swagger"));
-        app.MapApiGroupEndpoints();
-        return app;
-    }
-
-    private static WebApplication MapApiGroupEndpoints(this WebApplication app)
-    {
-        var registeredModules = DiscoverEndpoints();
         var apiGroup = app.MapGroup("/api");
-            // .RequireAuthorization(AppConstants.Policies.All);
+        // .RequireAuthorization(AppConstants.Policies.All);
 
         // apiGroup.WithOpenApi(); // disabled until this is fixed "https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2625"
         apiGroup.RequirePerUserRateLimit();
 
-        foreach (var endpointModule in registeredModules)
-        {
-            endpointModule.MapEndpoints(apiGroup);
-        }
+        apiGroup.MapWeatherEndpoints();
 
         return app;
     }
 
-    private static IEnumerable<IEndpoint> DiscoverEndpoints()
-    {
-        return typeof(IEndpoint).Assembly
-            .GetTypes()
-            .Where(p => p.IsClass && p.IsAssignableTo(typeof(IEndpoint)))
-            .Select(Activator.CreateInstance)
-            .Cast<IEndpoint>();
-    }
 }

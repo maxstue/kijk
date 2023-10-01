@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 
 using Humanizer;
 
+using Kijk.Api.Application.App;
+using Kijk.Api.Application.Weathers;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 
@@ -14,6 +16,13 @@ namespace Kijk.Api.Common.Extensions;
 
 public static class ServiceExtensions
 {
+    public static IServiceCollection RegisterModules(this IServiceCollection services)
+    {
+        services.RegisterAppModule()
+            .RegisterWeatherModule();
+
+        return services;
+    }
 
     public static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration configuration)
     {
@@ -137,5 +146,4 @@ public static class ServiceExtensions
         return services;
     }
 
-    
 }

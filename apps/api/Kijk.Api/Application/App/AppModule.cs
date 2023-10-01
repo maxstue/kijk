@@ -1,10 +1,8 @@
-﻿using Kijk.Api.Common.interfaces;
+﻿namespace Kijk.Api.Application.App;
 
-namespace Kijk.Api.Application.App;
-
-public class AppModule : IModule
+public static class AppModule
 {
-    public IServiceCollection RegisterModule(IServiceCollection services)
+    public static IServiceCollection RegisterAppModule(this IServiceCollection services)
     {
         return services;
     }
