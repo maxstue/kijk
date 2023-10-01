@@ -2,7 +2,7 @@
   "name": "kijk-api",
   "version": "0.1.0",
   "private": true,
-  "description": "A test dotnet project for this workspace.",
+  "description": "The Kijk api project.",
   "keywords": [
     "dotnet",
     "c#",
@@ -14,8 +14,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "dev": "dotnet watch run --project KijkDotnetApi/KijkDotnetAPi.csproj --launch-profile https",
-    "build": "dotnet build --project KijkDotnetApi/KijkDotnetAPi.csproj",
+    "dev": "dotnet watch run --project Kijk.Api/Kijk.Api.csproj --launch-profile https",
+    "build": "dotnet build --project Kijk.Api/Kijk.Api.csproj",
     "lint": "echo '🏖️ dotnet-api: No lint script here'",
     "format:check": "echo '🏖️ dotnet-api: No format:check script here' ",
     "pre-commit": "echo '🏖️ dotnet-api: No pre commit hook here' "
