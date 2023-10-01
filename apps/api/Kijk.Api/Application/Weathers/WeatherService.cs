@@ -2,8 +2,6 @@
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
-using ILogger = Serilog.ILogger;
-
 namespace Kijk.Api.Application.Weathers;
 
 public class WeatherService : IWeatherService

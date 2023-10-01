@@ -25,7 +25,17 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseExceptionProcessor();
-        options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+        options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
+            .UseExceptionProcessor()
+            .UseSnakeCaseNamingConvention();
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder
+            .Properties<DateTime>()
+            .HaveConversion(typeof(UtcDateTimeConverter));
+
+        base.ConfigureConventions(configurationBuilder);
     }
 }

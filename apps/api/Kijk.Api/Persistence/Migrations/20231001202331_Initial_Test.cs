@@ -15,12 +15,12 @@ namespace Kijk.Api.Persistence.Migrations
                 name: "weather",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: true)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_weather", x => x.Id);
+                    table.PrimaryKey("pk_weather", x => x.id);
                 });
         }
 
