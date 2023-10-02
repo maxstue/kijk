@@ -29,7 +29,7 @@ public class AppDbContext : DbContext
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
+    {        
         options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
             .UseExceptionProcessor()
             .UseSnakeCaseNamingConvention();
@@ -42,26 +42,5 @@ public class AppDbContext : DbContext
             .HaveConversion(typeof(UtcDateTimeConverter));
 
         base.ConfigureConventions(configurationBuilder);
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
-    {
-        var entityEntries = this.ChangeTracker
-            .Entries()
-            .Where(x => x is { Entity: BaseEntity, State: EntityState.Added or EntityState.Modified });
-
-        foreach (var entry in entityEntries)
-        {
-            if (entry.State is EntityState.Added)
-            {
-                ((BaseEntity)entry.Entity).CreatedAt = DateTime.UtcNow;
-            }
-            if (entry.State is EntityState.Modified)
-            {
-                ((BaseEntity)entry.Entity).UpdatedAt = DateTime.UtcNow;
-            }
-        }
-
-        return base.SaveChangesAsync(cancellationToken);
     }
 }

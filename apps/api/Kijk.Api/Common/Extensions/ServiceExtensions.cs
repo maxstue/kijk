@@ -8,9 +8,11 @@ using Kijk.Api.Application.App;
 using Kijk.Api.Application.Transactions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
+using Kijk.Api.Persistence.Interceptors;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -108,23 +110,31 @@ public static class ServiceExtensions
                 //     });
                 //
                 // o.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("oAuth2"));
-                o.AddSecurity("Bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-                {
-                    Type = OpenApiSecuritySchemeType.Http,
-                    Scheme = JwtBearerDefaults.AuthenticationScheme,
-                    BearerFormat = "JWT", 
-                    Description = "Type into the textbox: {your JWT token}."
-                });
+                o.AddSecurity(
+                    "Bearer",
+                    Enumerable.Empty<string>(),
+                    new OpenApiSecurityScheme
+                    {
+                        Type = OpenApiSecuritySchemeType.Http,
+                        Scheme = JwtBearerDefaults.AuthenticationScheme,
+                        BearerFormat = "JWT",
+                        Description = "Type into the textbox: {your JWT token}."
+                    });
 
-                o.OperationProcessors.Add(
-                    new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
+                o.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
             });
         return services;
     }
 
     public static IServiceCollection ConfigureDatabase(this IServiceCollection services)
     {
-        services.AddDbContext<AppDbContext>();
+        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+
+        services.AddDbContext<AppDbContext>(
+            (sp, options) =>
+            {
+                options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            });
 
         return services;
     }
