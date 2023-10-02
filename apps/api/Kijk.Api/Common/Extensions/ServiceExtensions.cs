@@ -5,12 +5,11 @@ using System.Text.Json.Serialization;
 using Humanizer;
 
 using Kijk.Api.Application.App;
-using Kijk.Api.Application.Weathers;
+using Kijk.Api.Application.Transactions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.OpenApi.Models;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -26,7 +25,7 @@ public static class ServiceExtensions
     public static IServiceCollection RegisterModules(this IServiceCollection services)
     {
         services.RegisterAppModule()
-            .RegisterWeatherModule();
+            .RegisterTransactionModule();
 
         return services;
     }

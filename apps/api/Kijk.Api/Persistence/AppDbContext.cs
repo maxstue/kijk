@@ -1,5 +1,6 @@
 ﻿using EntityFramework.Exceptions.PostgreSQL;
 
+using Kijk.Api.Domain;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence.Configs;
 
@@ -9,7 +10,9 @@ public class AppDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
 
-    public DbSet<Weather> Weathers => Set<Weather>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<Category> Categories => Set<Category>();
 
     public AppDbContext(IConfiguration configuration)
     {
@@ -18,9 +21,11 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new UserConfig());
+        modelBuilder.ApplyConfiguration(new TransactionConfig());
+        modelBuilder.ApplyConfiguration(new CategoryConfig());
 
-        modelBuilder.ApplyConfiguration(new WeatherConfig());
+        base.OnModelCreating(modelBuilder);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -37,5 +42,26 @@ public class AppDbContext : DbContext
             .HaveConversion(typeof(UtcDateTimeConverter));
 
         base.ConfigureConventions(configurationBuilder);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+    {
+        var entityEntries = this.ChangeTracker
+            .Entries()
+            .Where(x => x is { Entity: BaseEntity, State: EntityState.Added or EntityState.Modified });
+
+        foreach (var entry in entityEntries)
+        {
+            if (entry.State is EntityState.Added)
+            {
+                ((BaseEntity)entry.Entity).CreatedAt = DateTime.UtcNow;
+            }
+            if (entry.State is EntityState.Modified)
+            {
+                ((BaseEntity)entry.Entity).UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
     }
 }

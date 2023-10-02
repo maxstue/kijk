@@ -61,7 +61,7 @@ public static class WebApplicationExtension
 
         apiGroup.RequirePerUserRateLimit();
 
-        apiGroup.MapWeatherEndpoints();
+        apiGroup.MapTransactionEndpoints();
 
         return app;
     }
