@@ -13,24 +13,26 @@ Log.Information("Application is starting ...");
 // ##### Add services to the container. #####
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Host.UseSerilog(
     (context, services, configuration) =>
         configuration
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services));
 
-builder.Services.AddAuthentication();
-
-// .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+builder.Services.AddAuthentication().AddJwtBearer();
 
 // State that represents the current user from the request
 builder.Services.AddCurrentUser();
 
+// TODO only save sub/kinde.id and permissions/roles for a user, because you don't need more on the api level 
+
+// TODO write into custom requirementshandler
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(AppConstants.Policies.All, policy => policy.RequireRole(AppConstants.Roles.All).RequireCurrentUser().Build())
-    .AddPolicy(AppConstants.Policies.User, policy => policy.RequireRole(AppConstants.Roles.User).RequireCurrentUser().Build())
-    .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
+    .AddPolicy(
+        AppConstants.Policies.All,
+        policy => policy.RequireClaim("permissions").RequireCurrentUser().Build())
+    // .AddPolicy(AppConstants.Policies.User, policy => policy.RequireRole(AppConstants.Roles.User).RequireCurrentUser().Build())
+    // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
     .AddCurrentUserHandler();
 
 builder.Services.ConfigureDatabase()

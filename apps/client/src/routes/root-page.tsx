@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { Link, Outlet } from '@tanstack/react-router';
 
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools';
@@ -6,35 +7,55 @@ import { Link, Outlet } from '@tanstack/react-router';
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/components/icons';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { User } from '@/types/app';
 
 export function RootPage() {
+  const { login, register, isAuthenticated, user } = useKindeAuth();
+
+  const handleSignup = () => {
+    void register({});
+  };
+
+  const handleSignin = () => {
+    void login({});
+  };
+
   return (
     <>
-      <div className='flex min-h-screen flex-col'>
-        <header className='bg-background'>
-          <SiteHeader>
-            <div className='flex space-x-2'>
-              <div className='w-full flex-1 md:w-auto md:flex-none'>{/* TODO add <CommandMenu /> */}</div>
-              <nav className='flex items-center space-x-1'>
-                <ThemeToggle />
-              </nav>
-              <div className='ml-auto flex items-center space-x-4'>
-                {/* TODO load user */}
-                <UserNav user={{} as User} />
+      {isAuthenticated && user ? (
+        <div className='flex min-h-screen flex-col'>
+          <header className='bg-background'>
+            <SiteHeader>
+              <div className='flex space-x-2'>
+                <div className='w-full flex-1 md:w-auto md:flex-none'>{/* TODO add <CommandMenu /> */}</div>
+                <nav className='flex items-center space-x-1'>
+                  <ThemeToggle />
+                </nav>
+                <div className='ml-auto flex items-center space-x-4'>
+                  <UserNav user={user} />
+                </div>
               </div>
-            </div>
-          </SiteHeader>
-        </header>
-        <main className='container flex-1'>
-          <Outlet />
-          <Toaster />
-        </main>
-        {/* <SiteFooter /> */}
-      </div>
+            </SiteHeader>
+          </header>
+          <main className='container flex-1'>
+            <Outlet />
+            <Toaster />
+          </main>
+          {/* <SiteFooter /> */}
+        </div>
+      ) : (
+        <div className='flex h-full w-full items-center justify-center gap-6'>
+          <Button onClick={handleSignup} type='button'>
+            Sign up
+          </Button>
+          <Button onClick={handleSignin} type='button'>
+            Sign in
+          </Button>
+        </div>
+      )}
       {/* <TanStackRouterDevtools position='bottom-right' /> */}
     </>
   );

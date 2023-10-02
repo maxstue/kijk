@@ -45,7 +45,10 @@ export interface Category {
 }
 
 export interface User {
-  id: Id;
-  name?: string;
-  email?: string;
+  id?: Id | null;
+  name?: string | null;
+  email?: string | null;
+  given_name: string | null;
+  family_name: string | null;
+  picture?: string | null;
 }

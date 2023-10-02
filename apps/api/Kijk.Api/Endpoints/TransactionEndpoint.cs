@@ -15,6 +15,7 @@ public static class TransactionEndpoint
         var group = endpointRouteBuilder.MapGroup("/transaction");
 
         group.MapGet("/", GetAll);
+        group.MapGet("/auth", GetAll).RequireAuthorization(AppConstants.Policies.All);
         group.MapGet("/{id:guid}", GetById);
         group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<TransactionDto>>();
         group.MapPut("/{id:guid}", Update);

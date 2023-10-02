@@ -25,7 +25,7 @@ export function SettingsPage() {
                   to={'/settings/$section'}
                   params={{ section: to }}
                   activeProps={{ className: 'bg-accent-foreground text-accent' }}
-                  className={cn(buttonVariants({ variant: 'ghost' }), 'justify-start text-accent-foreground ')}
+                  className={cn(buttonVariants({ variant: 'ghost' }), 'justify-start  ')}
                 >
                   <Icon className='mr-2 h-4 w-4' />
                   {label}

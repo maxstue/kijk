@@ -9,16 +9,14 @@ import { router } from '@/router';
 
 function App() {
   return (
-    <>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ThemeProvider defaultTheme='light' storageKey='kijk-theme'>
-            <RouterProvider router={router} />
-          </ThemeProvider>
-        </AuthProvider>
-        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-      </QueryClientProvider>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider defaultTheme='light' storageKey='kijk-theme'>
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </AuthProvider>
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+    </QueryClientProvider>
   );
 }
 

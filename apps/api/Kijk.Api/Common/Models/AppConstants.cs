@@ -8,8 +8,8 @@ public static class AppConstants
     /// </summary>
     public static class Roles
     {
-        public const string User = "Kijk.User";
-        public const string Admin = "Kijk.Admin";
+        public const string Admin = "Admin";
+        public const string User = "User";
 
         public static readonly string[] All = { User, Admin };
     }

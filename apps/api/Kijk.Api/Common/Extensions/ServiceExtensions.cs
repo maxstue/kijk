@@ -9,14 +9,11 @@ using Kijk.Api.Application.Transactions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
-
-using OpenApiOAuthFlow = NSwag.OpenApiOAuthFlow;
-using OpenApiOAuthFlows = NSwag.OpenApiOAuthFlows;
-using OpenApiSecurityScheme = NSwag.OpenApiSecurityScheme;
 
 namespace Kijk.Api.Common.Extensions;
 
@@ -88,29 +85,39 @@ public static class ServiceExtensions
                         Title = "Kijk API",
                         Description = "Kijk api to manage households",
                         Version = "0.5",
-                        Contact = new NSwag.OpenApiContact() { Name = "Github", Url = "https://github.com/maxstue/kijk" }
+                        Contact = new OpenApiContact { Name = "Github", Url = "https://github.com/maxstue/kijk" }
                     };
                 };
 
-                o.AddSecurity(
-                    "oAuth2",
-                    Enumerable.Empty<string>(),
-                    new OpenApiSecurityScheme
-                    {
-                        Type = OpenApiSecuritySchemeType.OAuth2,
-                        Description = "Kijk Authentication",
-                        Flows = new OpenApiOAuthFlows
-                        {
-                            AuthorizationCode = new OpenApiOAuthFlow
-                            {
-                                AuthorizationUrl = $"{authSettings.Instance}{authSettings.TenantId}/oauth2/v2.0/authorize",
-                                TokenUrl = $"{authSettings.Instance}{authSettings.TenantId}/oauth2/v2.0/token",
-                                Scopes = { { authSettings.Scopes, "Web Api access" } }
-                            }
-                        }
-                    });
+                // o.AddSecurity(
+                //     "oAuth2",
+                //     Enumerable.Empty<string>(),
+                //     new OpenApiSecurityScheme
+                //     {
+                //         Type = OpenApiSecuritySchemeType.OAuth2,
+                //         Description = "Kijk Authentication",
+                //         Flows = new OpenApiOAuthFlows
+                //         {
+                //             AuthorizationCode = new OpenApiOAuthFlow
+                //             {
+                //                 AuthorizationUrl = $"{authSettings.Instance}{authSettings.TenantId}/oauth2/v2.0/authorize",
+                //                 TokenUrl = $"{authSettings.Instance}{authSettings.TenantId}/oauth2/v2.0/token",
+                //                 Scopes = { { authSettings.Scopes, "Web Api access" } }
+                //             }
+                //         }
+                //     });
+                //
+                // o.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("oAuth2"));
+                o.AddSecurity("Bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.Http,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    BearerFormat = "JWT", 
+                    Description = "Type into the textbox: {your JWT token}."
+                });
 
-                o.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("oAuth2"));
+                o.OperationProcessors.Add(
+                    new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
             });
         return services;
     }
