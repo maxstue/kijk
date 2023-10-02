@@ -12,6 +12,13 @@ using Kijk.Api.Persistence;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
 
+using NSwag;
+using NSwag.Generation.Processors.Security;
+
+using OpenApiOAuthFlow = NSwag.OpenApiOAuthFlow;
+using OpenApiOAuthFlows = NSwag.OpenApiOAuthFlows;
+using OpenApiSecurityScheme = NSwag.OpenApiSecurityScheme;
+
 namespace Kijk.Api.Common.Extensions;
 
 public static class ServiceExtensions
@@ -58,31 +65,43 @@ public static class ServiceExtensions
         }
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(
+        services.AddOpenApiDocument(
             o =>
             {
-                o.SwaggerDoc(
-                    "v1",
-                    new OpenApiInfo { Version = "v1", Title = "Kijk API", Description = "ASP.NET 7 Web API" });
+                o.PostProcess = document =>
+                {
+                    document.Info = new NSwag.OpenApiInfo
+                    {
+                        Title = "Kijk API",
+                        Description = "Kijk api to manage households",
+                        Version = "0.5",
+                        Contact = new NSwag.OpenApiContact()
+                        {
+                            Name = "Github",
+                            Url = "https://github.com/maxstue/kijk"
+                        }
+                    };
+                };
 
-                // To Enable authorization using Swagger (JWT)
-                o.AddSecurityDefinition(
+                o.AddSecurity(
                     "oAuth2",
+                    Enumerable.Empty<string>(),
                     new OpenApiSecurityScheme
                     {
-                        Type = SecuritySchemeType.OAuth2,
+                        Type = OpenApiSecuritySchemeType.OAuth2,
+                        Description = "Kijk Authentication",
                         Flows = new OpenApiOAuthFlows
                         {
                             AuthorizationCode = new OpenApiOAuthFlow
                             {
-                                AuthorizationUrl =
-                                    new Uri($"{appSettings.AzureAd.Instance}{appSettings.AzureAd.TenantId}/oauth2/v2.0/authorize"),
-                                TokenUrl =
-                                    new Uri($"{appSettings.AzureAd.Instance}{appSettings.AzureAd.TenantId}/oauth2/v2.0/token"),
+                                AuthorizationUrl = $"{appSettings.AzureAd.Instance}{appSettings.AzureAd.TenantId}/oauth2/v2.0/authorize",
+                                TokenUrl = $"{appSettings.AzureAd.Instance}{appSettings.AzureAd.TenantId}/oauth2/v2.0/token",
                                 Scopes = { { appSettings.AzureAd.Scopes, "Web Api access" } }
                             }
                         }
                     });
+
+                o.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("oAuth2"));
             });
         return services;
     }

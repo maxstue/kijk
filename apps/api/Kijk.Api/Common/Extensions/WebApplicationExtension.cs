@@ -2,6 +2,8 @@
 using Kijk.Api.Endpoints;
 using Kijk.Api.Persistence;
 
+using NSwag.AspNetCore;
+
 namespace Kijk.Api.Common.Extensions;
 
 public static class WebApplicationExtension
@@ -10,24 +12,22 @@ public static class WebApplicationExtension
     {
         var appSettings = app.Configuration.Get<AppSettings>();
 
-        app.UseSwagger(
+        app.UseOpenApi();
+        app.UseSwaggerUi3(
             c =>
             {
-                c.RouteTemplate = "swagger/{documentName}/swagger.json";
-            });
-        app.UseSwaggerUI(
-            c =>
-            {
-                c.UseRequestInterceptor(
-                    "(req) => { req.headers['Authorization'] = 'Bearer ' + window?.swaggerUIRedirectOauth2?.auth?.token?.access_token; return req; }");
+                // c.UseRequestInterceptor("(req) => { req.headers['Authorization'] = 'Bearer ' + window?.swaggerUIRedirectOauth2?.auth?.token?.access_token; return req; }");
 
-                c.OAuthClientId(appSettings?.AzureAd.ClientId);
-                c.OAuthUsePkce();
-                c.OAuthScopes(appSettings?.AzureAd.Scopes);
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Kijk Api v1.00");
+                c.PersistAuthorization = true;
+                c.OAuth2Client = new OAuth2ClientSettings
+                {
+                    ClientId = appSettings?.AzureAd.ClientId,
+                    AppName = "kijk",
+                    AdditionalQueryStringParameters = { { "foo", "bar" } },
+                    Scopes = { appSettings?.AzureAd.Scopes },
+                    UsePkceWithAuthorizationCodeGrant = true,
+                };
             });
-        app.UseReDoc();
-
         return app;
     }
 
@@ -50,10 +50,15 @@ public static class WebApplicationExtension
     public static WebApplication MapCustomEndpoints(this WebApplication app)
     {
         app.Map("/", () => Results.Redirect("/swagger"));
-        var apiGroup = app.MapGroup("/api");
-        // .RequireAuthorization(AppConstants.Policies.All);
 
+        var apiGroup = app.MapGroup("/api")
+            .WithGroupName("api")
+            .WithTags("api")
+            .WithOpenApi();
+
+        // .RequireAuthorization(AppConstants.Policies.All);
         // apiGroup.WithOpenApi(); // disabled until this is fixed "https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2625"
+
         apiGroup.RequirePerUserRateLimit();
 
         apiGroup.MapWeatherEndpoints();

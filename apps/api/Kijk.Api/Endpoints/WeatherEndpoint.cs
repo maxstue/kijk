@@ -14,8 +14,6 @@ public static class WeatherEndpoint
         var group = endpointRouteBuilder.MapGroup("/w");
 
         group.MapGet("/", GetAllWeathers);
-        group.MapGet("/auth", GetAllWeathers);
-            // .RequireAuthorization(AppConstants.Roles.Admin);
         group.MapGet("/{id:guid}", GetWeatherById);
         group.MapPost("/", CreateWeather).AddEndpointFilter<ValidationFilter<WeatherDTO>>();
         group.MapPut("/{id:guid}", UpdateWeather);
