@@ -1,13 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿using Kijk.Api.Common.Utils;
 
-using Kijk.Api.Common.Utils;
+using NetEscapades.EnumGenerators;
 
 namespace Kijk.Api.Common.Models;
 
 /// <summary>
 ///     Error types.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[EnumExtensions]
 public enum ErrorType
 {
     Failure,
@@ -21,6 +21,7 @@ public enum ErrorType
 ///     Success types.
 ///     Only used to determine the HttpStatusCode in <see cref="ResponseUtils.CreateTypedResult{TP}" />.
 /// </summary>
+[EnumExtensions]
 public enum SuccessType
 {
     Ok,

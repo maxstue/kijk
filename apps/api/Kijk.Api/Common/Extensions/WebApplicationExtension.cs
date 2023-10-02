@@ -21,10 +21,10 @@ public static class WebApplicationExtension
                 c.PersistAuthorization = true;
                 c.OAuth2Client = new OAuth2ClientSettings
                 {
-                    ClientId = appSettings?.AzureAd.ClientId,
+                    ClientId = appSettings?.Auth.ClientId,
                     AppName = "kijk",
                     AdditionalQueryStringParameters = { { "foo", "bar" } },
-                    Scopes = { appSettings?.AzureAd.Scopes },
+                    Scopes = { appSettings?.Auth.Scopes },
                     UsePkceWithAuthorizationCodeGrant = true,
                 };
             });
@@ -34,9 +34,7 @@ public static class WebApplicationExtension
     public static async Task<WebApplication> UseInitDb(this WebApplication app)
     {
         var connectionString = app.Configuration.GetConnectionString("DefaultConnection");
-        Log.ForContext(typeof(WebApplicationExtension)).Information(
-            "Ensuring database exists and is up to date at connection string '{ConnectionString}'",
-            connectionString);
+        Log.ForContext(typeof(WebApplicationExtension)).Information("Ensuring database exists and is up to date");
 
         // Migrate latest database changes during startup
         using var scope = app.Services.CreateScope();

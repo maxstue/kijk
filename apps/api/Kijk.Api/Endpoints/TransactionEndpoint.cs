@@ -4,6 +4,7 @@ using Kijk.Api.Common.Filters;
 using Kijk.Api.Common.Models;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Kijk.Api.Endpoints;
 
@@ -22,7 +23,7 @@ public static class TransactionEndpoint
         return endpointRouteBuilder;
     }
 
-    private static async Task<IResult> GetAll(ITransactionService service, CurrentUser user)
+    private static async Task<IResult> GetAll(ITransactionService service, CurrentUser user, IOptions<AppSettings> options)
     {
         var result = await service.GetAll();
         return result.ToResponse("Erfolgreich geladen");

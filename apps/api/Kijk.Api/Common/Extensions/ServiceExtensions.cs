@@ -25,7 +25,21 @@ public static class ServiceExtensions
     public static IServiceCollection RegisterModules(this IServiceCollection services)
     {
         services.RegisterAppModule()
+            .RegisterAppModule()
             .RegisterTransactionModule();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomAppSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        // TODO: split into multiple smaller settings objects
+        services.AddScoped<IValidator<AppSettings>, AppSettingsValidator>();
+
+        services.AddOptions<AppSettings>()
+            .BindConfiguration("")
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         return services;
     }
@@ -56,11 +70,11 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddCustomOpenApi(this IServiceCollection services, IConfiguration configuration)
     {
-        var appSettings = configuration.Get<AppSettings>();
+        var authSettings = configuration.GetSection("Auth").Get<Auth>();
 
-        if (appSettings is null)
+        if (authSettings is null)
         {
-            throw new Exception($"Keine Appsettings gefunden, {appSettings}");
+            throw new Exception($"No auth settings found, {authSettings}");
         }
 
         services.AddEndpointsApiExplorer();
@@ -69,16 +83,12 @@ public static class ServiceExtensions
             {
                 o.PostProcess = document =>
                 {
-                    document.Info = new NSwag.OpenApiInfo
+                    document.Info = new OpenApiInfo
                     {
                         Title = "Kijk API",
                         Description = "Kijk api to manage households",
                         Version = "0.5",
-                        Contact = new NSwag.OpenApiContact()
-                        {
-                            Name = "Github",
-                            Url = "https://github.com/maxstue/kijk"
-                        }
+                        Contact = new NSwag.OpenApiContact() { Name = "Github", Url = "https://github.com/maxstue/kijk" }
                     };
                 };
 
@@ -93,9 +103,9 @@ public static class ServiceExtensions
                         {
                             AuthorizationCode = new OpenApiOAuthFlow
                             {
-                                AuthorizationUrl = $"{appSettings.AzureAd.Instance}{appSettings.AzureAd.TenantId}/oauth2/v2.0/authorize",
-                                TokenUrl = $"{appSettings.AzureAd.Instance}{appSettings.AzureAd.TenantId}/oauth2/v2.0/token",
-                                Scopes = { { appSettings.AzureAd.Scopes, "Web Api access" } }
+                                AuthorizationUrl = $"{authSettings.Instance}{authSettings.TenantId}/oauth2/v2.0/authorize",
+                                TokenUrl = $"{authSettings.Instance}{authSettings.TenantId}/oauth2/v2.0/token",
+                                Scopes = { { authSettings.Scopes, "Web Api access" } }
                             }
                         }
                     });
@@ -142,13 +152,6 @@ public static class ServiceExtensions
     {
         ValidatorOptions.Global.DisplayNameResolver = (_, member, _) => member?.Name.Humanize().Titleize();
         ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("de");
-
-        return services;
-    }
-
-    public static IServiceCollection AddCustomAppSettings(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.Configure<AppSettings>(configuration);
 
         return services;
     }

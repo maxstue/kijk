@@ -13,6 +13,7 @@ Log.Information("Application is starting ...");
 // ##### Add services to the container. #####
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Host.UseSerilog(
     (context, services, configuration) =>
         configuration
@@ -20,7 +21,8 @@ builder.Host.UseSerilog(
             .ReadFrom.Services(services));
 
 builder.Services.AddAuthentication();
-    // .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+// .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
 // State that represents the current user from the request
 builder.Services.AddCurrentUser();
