@@ -15,7 +15,6 @@ const routeTree = rootRoute.addChildren([
 // Set up a Router instance
 export const router = new Router({
   routeTree,
-  defaultPreload: 'intent',
   context: {
     queryClient: queryClient,
   },

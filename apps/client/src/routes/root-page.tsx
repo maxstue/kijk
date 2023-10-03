@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { Link, Outlet } from '@tanstack/react-router';
-
-// import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/components/icons';
@@ -56,7 +55,7 @@ export function RootPage() {
           </Button>
         </div>
       )}
-      {/* <TanStackRouterDevtools position='bottom-right' /> */}
+      <TanStackRouterDevtools position='bottom-right' />
     </>
   );
 }
