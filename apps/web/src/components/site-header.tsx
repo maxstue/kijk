@@ -34,7 +34,7 @@ export function SiteHeader({ children, navItems = [] }: Props) {
                   className={cn(
                     'flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm',
                     pathname === item.href ? 'text-foreground' : 'text-foreground/60',
-                    item.disabled && 'cursor-not-allowed opacity-80'
+                    item.disabled && 'cursor-not-allowed opacity-80',
                   )}
                 >
                   {item.title}

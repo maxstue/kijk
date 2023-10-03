@@ -16,7 +16,7 @@ export function LandingnNavActions() {
         href='/'
         className={cn(
           buttonVariants({ variant: 'secondary', size: 'sm' }),
-          'px-4 hover:bg-muted-foreground hover:text-white'
+          'px-4 hover:bg-muted-foreground hover:text-white',
         )}
       >
         Login
