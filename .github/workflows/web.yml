@@ -1,14 +1,14 @@
-name: Nextjs CICD
+name: Web CI/CD
 
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ['apps/nextjs-web/**']
+    paths: ["apps/web/**"]
 
   pull_request:
     branches: ["main", "develop"]
-    paths: ['apps/nextjs-web/**']
+    paths: ["apps/web/**"]
 
 env:
   NODE_VERSION: "20.x"
@@ -17,7 +17,7 @@ env:
 
 defaults:
   run:
-    working-directory: ./apps/nextjs-web
+    working-directory: ./apps/web
 
 jobs:
   Format_Lint:
@@ -60,5 +60,5 @@ jobs:
       - name: "⬆️ Upload results to GitHub"
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: apps/nextjs-web/lint-results.sarif
+          sarif_file: apps/web/lint-results.sarif
           wait-for-processing: true
