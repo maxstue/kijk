@@ -60,5 +60,5 @@ jobs:
       - name: "⬆️ Upload results to GitHub"
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: ./apps/web/lint-results.sarif
+          sarif_file: lint-results.sarif
           wait-for-processing: true
