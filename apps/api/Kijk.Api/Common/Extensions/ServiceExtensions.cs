@@ -184,4 +184,17 @@ public static class ServiceExtensions
         return services;
     }
 
+    public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
+    {
+        var conString = configuration.GetConnectionString("DefaultConnection");
+        if (conString is null)
+        {
+            throw new Exception($"No connection string found, {conString}");
+        }
+
+        services.AddHealthChecks().AddNpgSql(conString, tags: new[] { "database", "postgresql" });
+
+        return services;
+    }
+
 }

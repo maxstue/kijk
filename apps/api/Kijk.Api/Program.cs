@@ -1,6 +1,10 @@
+using HealthChecks.UI.Client;
+
 using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
+
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -31,6 +35,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(
         AppConstants.Policies.All,
         policy => policy.RequireClaim("permissions").RequireCurrentUser().Build())
+
     // .AddPolicy(AppConstants.Policies.User, policy => policy.RequireRole(AppConstants.Roles.User).RequireCurrentUser().Build())
     // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
     .AddCurrentUserHandler();
@@ -42,7 +47,8 @@ builder.Services.ConfigureDatabase()
     .AddCustomRateLimiter()
     .AddCustomCompression()
     .AddCustomValidation()
-    .AddCustomControllerOptions();
+    .AddCustomControllerOptions()
+    .AddCustomHealthCheck(builder.Configuration);
 
 builder.Services.AddFusionCache(AppConstants.CacheNames.Base);
 
@@ -81,5 +87,6 @@ app.UseAuthorization();
 app.UseRateLimiter();
 
 app.MapCustomEndpoints();
+app.MapHealthChecks("/health", new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
 
 app.Run();
