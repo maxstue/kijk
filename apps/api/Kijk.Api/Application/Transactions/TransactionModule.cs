@@ -6,7 +6,7 @@ public static class TransactionModule
     {
         services.AddScoped<ITransactionService, TransactionService>();
 
-        services.AddScoped<IValidator<TransactionDto>, TransactionValidator>();
+        services.AddScoped<IValidator<CreateTransactionRequest>, TransactionValidator>();
 
         return services;
     }

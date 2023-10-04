@@ -8,22 +8,21 @@ public class TransactionService : ITransactionService
 {
     private readonly AppDbContext _dbContext;
     private readonly ILogger _logger = Log.ForContext<TransactionService>();
+    private readonly CurrentUser _currentUser;
 
-    public TransactionService(AppDbContext dbContext)
+    public TransactionService(AppDbContext dbContext, CurrentUser currentUser)
     {
         _dbContext = dbContext;
+        _currentUser = currentUser;
     }
 
-    public async Task<Result<TransactionDto>> Create(TransactionDto transactionDto, CancellationToken cancellationToken = default)
+    public async Task<Result<List<TransactionDto>>> GetAll(CancellationToken cancellationToken = default)
     {
         try
         {
-            var newTransaction = new Transaction { Name = transactionDto.Name };
-            
-            var resEntityEntry = await _dbContext.Transactions.AddAsync(newTransaction, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            
-            return new TransactionDto(resEntityEntry.Entity.Id, resEntityEntry.Entity.Name);
+            return await _dbContext.Transactions
+                .Select(x => new TransactionDto(x.Id, x.Name, x.Amount, x.Type, x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
+                .ToListAsync(cancellationToken);
         }
         catch (Exception e)
         {
@@ -38,7 +37,7 @@ public class TransactionService : ITransactionService
         {
             var entity = await _dbContext.Transactions
                 .Where(x => x.Id == id)
-                .Select(x => new TransactionDto(x.Id, x.Name))
+                .Select(x => new TransactionDto(x.Id, x.Name, x.Amount, x.Type, x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity is null)
@@ -55,13 +54,39 @@ public class TransactionService : ITransactionService
         }
     }
 
-    public async Task<Result<List<TransactionDto>>> GetAll(CancellationToken cancellationToken = default)
+    public async Task<Result<TransactionDto>> Create(CreateTransactionRequest createTransactionRequest, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _dbContext.Transactions
-                .Select(x => new TransactionDto(x.Id, x.Name))
+            var categories = await _dbContext.Categories
+                .Where(x => createTransactionRequest.CategoryIds.Contains(x.Id))
                 .ToListAsync(cancellationToken);
+
+            var user = await _dbContext.Users.FindAsync(new object?[] { _currentUser.Id }, cancellationToken);
+            if (user is null)
+            {
+                return TransactionErrors.Failure("User not found");
+            }
+
+            var newTransaction = new Transaction
+            {
+                Name = createTransactionRequest.Name,
+                Amount = createTransactionRequest.Amount,
+                Type = createTransactionRequest.Type,
+                Categories = categories,
+                User = user
+            };
+
+            var resEntityEntry = await _dbContext.Transactions.AddAsync(newTransaction, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            var entity = resEntityEntry.Entity;
+            return new TransactionDto(
+                entity.Id,
+                entity.Name,
+                entity.Amount,
+                entity.Type,
+                entity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
         }
         catch (Exception e)
         {
@@ -70,11 +95,17 @@ public class TransactionService : ITransactionService
         }
     }
 
-    public async Task<Result<TransactionDto>> Update(Guid id, TransactionDto transactionDto, CancellationToken cancellationToken = default)
+    public async Task<Result<TransactionDto>> Update(
+        Guid id,
+        UpdateTransactionRequest updateTransactionRequest,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var foundEntity = await _dbContext.Transactions.FindAsync(new object[] { id }, cancellationToken: cancellationToken);
+            var foundEntity = await _dbContext.Transactions
+                .Include(x => x.Categories)
+                .Where(x => x.Id == id)
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (foundEntity == null)
             {
@@ -82,10 +113,27 @@ public class TransactionService : ITransactionService
                 return TransactionErrors.NotFound();
             }
 
-            foundEntity.Name = transactionDto.Name;
+            foundEntity.Name = updateTransactionRequest.Name ?? foundEntity.Name;
+            foundEntity.Amount = updateTransactionRequest.Amount ?? foundEntity.Amount;
+            foundEntity.Type = updateTransactionRequest.Type ?? foundEntity.Type;
+
+            if (updateTransactionRequest.CategoryIds is not null && updateTransactionRequest.CategoryIds.Any())
+            {
+                var categories = await _dbContext.Categories
+                    .Where(x => updateTransactionRequest.CategoryIds.Contains(x.Id))
+                    .ToListAsync(cancellationToken);
+                
+                foundEntity.Categories = categories;
+            }
+
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return new TransactionDto(foundEntity.Id, foundEntity.Name);
+            return new TransactionDto(
+                id,
+                foundEntity.Name,
+                foundEntity.Amount,
+                foundEntity.Type,
+                foundEntity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
         }
         catch (Exception e)
         {
@@ -108,6 +156,7 @@ public class TransactionService : ITransactionService
 
             _dbContext.Transactions.Remove(foundEntity);
             await _dbContext.SaveChangesAsync(cancellationToken);
+            
             return true;
         }
         catch (Exception e)

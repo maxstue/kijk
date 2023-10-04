@@ -4,7 +4,6 @@ using Kijk.Api.Common.Filters;
 using Kijk.Api.Common.Models;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Kijk.Api.Endpoints;
 
@@ -15,19 +14,18 @@ public static class TransactionEndpoint
         var group = endpointRouteBuilder.MapGroup("/transaction");
 
         group.MapGet("/", GetAll);
-        group.MapGet("/auth", GetAll).RequireAuthorization(AppConstants.Policies.All);
         group.MapGet("/{id:guid}", GetById);
-        group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<TransactionDto>>();
+        group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<CreateTransactionRequest>>();
         group.MapPut("/{id:guid}", Update);
         group.MapDelete("/{id:guid}", DeleteById);
 
         return endpointRouteBuilder;
     }
 
-    private static async Task<IResult> GetAll(ITransactionService service, CurrentUser user, IOptions<AppSettings> options)
+    private static async Task<IResult> GetAll(ITransactionService service)
     {
         var result = await service.GetAll();
-        return result.ToResponse("Erfolgreich geladen");
+        return result.ToResponse("Successfully loaded");
     }
 
     private static async Task<IResult> GetById(ITransactionService service, Guid id, CancellationToken token)
@@ -36,15 +34,19 @@ public static class TransactionEndpoint
         return result.ToResponse("Successfully loaded");
     }
 
-    private static async Task<IResult> Create(ITransactionService service, [FromBody] TransactionDto transactionDto, CancellationToken token)
+    private static async Task<IResult> Create(ITransactionService service, CreateTransactionRequest transactionRequest, CancellationToken token)
     {
-        var result = await service.Create(transactionDto, token);
+        var result = await service.Create(transactionRequest, token);
         return result.ToResponse("Successfully created", SuccessType.Created);
     }
 
-    private static async Task<IResult> Update(ITransactionService service, Guid id, TransactionDto transactionDto, CancellationToken token)
+    private static async Task<IResult> Update(
+        ITransactionService service,
+        Guid id,
+        UpdateTransactionRequest transactionRequest,
+        CancellationToken token)
     {
-        var result = await service.Update(id, transactionDto, token);
+        var result = await service.Update(id, transactionRequest, token);
 
         return result.ToResponse("Successfully updated");
     }

@@ -1,3 +1,9 @@
-﻿namespace Kijk.Api.Application.Transactions;
+﻿using Kijk.Api.Domain.Entities;
 
-public record TransactionDto(Guid Id, string Name);
+namespace Kijk.Api.Application.Transactions;
+
+public record TransactionDto(Guid Id, string Name, decimal Amount, TransactionType Type, IEnumerable<CategoryDto> Categories);
+public record CreateTransactionRequest(string Name, decimal Amount, TransactionType Type, IEnumerable<Guid> CategoryIds);
+public record UpdateTransactionRequest(string? Name, decimal? Amount, TransactionType? Type, IEnumerable<Guid>? CategoryIds);
+
+public record CategoryDto(Guid Id, string Name, string Color);
