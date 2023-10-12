@@ -1,4 +1,6 @@
-﻿using Kijk.Api.Common.Models;
+﻿using System.Globalization;
+
+using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
@@ -16,12 +18,23 @@ public class TransactionService : ITransactionService
         _currentUser = currentUser;
     }
 
-    public async Task<Result<List<TransactionDto>>> GetAll(CancellationToken cancellationToken = default)
+    public async Task<Result<List<TransactionDto>>> GetBy(int year, string month, CancellationToken cancellationToken = default)
     {
         try
         {
+            var monthInt = DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month;
+
             return await _dbContext.Transactions
-                .Select(x => new TransactionDto(x.Id, x.Name, x.Amount, x.Type, x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
+                .AsNoTracking()
+                .Where(x => x.CreatedAt.Year == year && x.CreatedAt.Month == monthInt)
+                .Select(
+                    x => new TransactionDto(
+                        x.Id,
+                        x.Name,
+                        x.Amount,
+                        x.Type,
+                        x.ExecutedAt,
+                        x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
                 .ToListAsync(cancellationToken);
         }
         catch (Exception e)
@@ -37,7 +50,14 @@ public class TransactionService : ITransactionService
         {
             var entity = await _dbContext.Transactions
                 .Where(x => x.Id == id)
-                .Select(x => new TransactionDto(x.Id, x.Name, x.Amount, x.Type, x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
+                .Select(
+                    x => new TransactionDto(
+                        x.Id,
+                        x.Name,
+                        x.Amount,
+                        x.Type,
+                        x.ExecutedAt,
+                        x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity is null)
@@ -58,10 +78,6 @@ public class TransactionService : ITransactionService
     {
         try
         {
-            var categories = await _dbContext.Categories
-                .Where(x => createTransactionRequest.CategoryIds.Contains(x.Id))
-                .ToListAsync(cancellationToken);
-
             var user = await _dbContext.Users.FindAsync(new object?[] { _currentUser.Id }, cancellationToken);
             if (user is null)
             {
@@ -73,9 +89,19 @@ public class TransactionService : ITransactionService
                 Name = createTransactionRequest.Name,
                 Amount = createTransactionRequest.Amount,
                 Type = createTransactionRequest.Type,
-                Categories = categories,
-                User = user
+                ExecutedAt = createTransactionRequest.ExecutedAt,
+                User = user,
+                Categories = new ()
             };
+
+            if (createTransactionRequest.CategoryIds is not null && createTransactionRequest.CategoryIds.Any())
+            {
+                var categories = await _dbContext.Categories
+                    .Where(x => createTransactionRequest.CategoryIds.Contains(x.Id))
+                    .ToListAsync(cancellationToken);
+
+                newTransaction.Categories = categories;
+            }
 
             var resEntityEntry = await _dbContext.Transactions.AddAsync(newTransaction, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -86,6 +112,7 @@ public class TransactionService : ITransactionService
                 entity.Name,
                 entity.Amount,
                 entity.Type,
+                entity.ExecutedAt,
                 entity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
         }
         catch (Exception e)
@@ -116,13 +143,14 @@ public class TransactionService : ITransactionService
             foundEntity.Name = updateTransactionRequest.Name ?? foundEntity.Name;
             foundEntity.Amount = updateTransactionRequest.Amount ?? foundEntity.Amount;
             foundEntity.Type = updateTransactionRequest.Type ?? foundEntity.Type;
+            foundEntity.ExecutedAt = updateTransactionRequest.ExecutedAt ?? foundEntity.ExecutedAt;
 
             if (updateTransactionRequest.CategoryIds is not null && updateTransactionRequest.CategoryIds.Any())
             {
                 var categories = await _dbContext.Categories
                     .Where(x => updateTransactionRequest.CategoryIds.Contains(x.Id))
                     .ToListAsync(cancellationToken);
-                
+
                 foundEntity.Categories = categories;
             }
 
@@ -133,6 +161,7 @@ public class TransactionService : ITransactionService
                 foundEntity.Name,
                 foundEntity.Amount,
                 foundEntity.Type,
+                foundEntity.ExecutedAt,
                 foundEntity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
         }
         catch (Exception e)
@@ -156,7 +185,7 @@ public class TransactionService : ITransactionService
 
             _dbContext.Transactions.Remove(foundEntity);
             await _dbContext.SaveChangesAsync(cancellationToken);
-            
+
             return true;
         }
         catch (Exception e)

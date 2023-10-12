@@ -3,6 +3,8 @@
 using Microsoft.AspNetCore.Authentication;
 
 using Kijk.Api.Common.Models;
+using Kijk.Api.Domain.Entities;
+using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Common.Extensions;
 
@@ -21,19 +23,28 @@ public static class CurrentUserExtensions
     private sealed class ClaimsTransformation : IClaimsTransformation
     {
         private readonly CurrentUser _currentUser;
+        private readonly AppDbContext _dbContext;
 
-        public ClaimsTransformation(CurrentUser currentUser)
+        public ClaimsTransformation(CurrentUser currentUser, AppDbContext dbContext)
         {
             _currentUser = currentUser;
+            _dbContext = dbContext;
         }
 
-        public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
+        public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
+            var sub = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userEntity = await _dbContext.Users
+                .AsNoTracking()
+                .Where(x => x.AuthId == sub)
+                .FirstOrDefaultAsync();
+
             // We're not going to transform anything. We're using this as a hook into authorization
             // to set the current user without adding custom middleware.
             _currentUser.Principal = principal;
+            _currentUser.User = userEntity ?? new User { Name = AppConstants.CreateUserIdentifier };
 
-            return Task.FromResult(principal);
+            return await Task.FromResult(principal);
         }
     }
 }

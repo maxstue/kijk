@@ -29,6 +29,7 @@ builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddCurrentUser();
 
 // TODO only save sub/kinde.id and permissions/roles for a user, because you don't need more on the api level 
+// send user data on first "init" request and create the user from these data
 
 // TODO write into custom requirementshandler
 builder.Services.AddAuthorizationBuilder()

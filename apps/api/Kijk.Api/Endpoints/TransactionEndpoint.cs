@@ -13,7 +13,7 @@ public static class TransactionEndpoint
     {
         var group = endpointRouteBuilder.MapGroup("/transaction");
 
-        group.MapGet("/", GetAll);
+        group.MapGet("/", GetBy);
         group.MapGet("/{id:guid}", GetById);
         group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<CreateTransactionRequest>>();
         group.MapPut("/{id:guid}", Update);
@@ -22,9 +22,12 @@ public static class TransactionEndpoint
         return endpointRouteBuilder;
     }
 
-    private static async Task<IResult> GetAll(ITransactionService service)
+    private static async Task<IResult> GetBy(
+        ITransactionService service,
+        [FromQuery(Name = "year")] int year,
+        [FromQuery(Name = "month")] string month)
     {
-        var result = await service.GetAll();
+        var result = await service.GetBy(year, month);
         return result.ToResponse("Successfully loaded");
     }
 
@@ -34,7 +37,10 @@ public static class TransactionEndpoint
         return result.ToResponse("Successfully loaded");
     }
 
-    private static async Task<IResult> Create(ITransactionService service, CreateTransactionRequest transactionRequest, CancellationToken token)
+    private static async Task<IResult> Create(
+        ITransactionService service,
+        [FromBody] CreateTransactionRequest transactionRequest,
+        CancellationToken token)
     {
         var result = await service.Create(transactionRequest, token);
         return result.ToResponse("Successfully created", SuccessType.Created);
@@ -43,11 +49,10 @@ public static class TransactionEndpoint
     private static async Task<IResult> Update(
         ITransactionService service,
         Guid id,
-        UpdateTransactionRequest transactionRequest,
+        [FromBody] UpdateTransactionRequest transactionRequest,
         CancellationToken token)
     {
         var result = await service.Update(id, transactionRequest, token);
-
         return result.ToResponse("Successfully updated");
     }
 

@@ -4,19 +4,23 @@ using Kijk.Api.Domain;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence.Configs;
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 namespace Kijk.Api.Persistence;
 
 public class AppDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
-
+    private readonly IServiceProvider _serviceProvider;
+    
     public DbSet<User> Users => Set<User>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Category> Categories => Set<Category>();
 
-    public AppDbContext(IConfiguration configuration)
+    public AppDbContext(IConfiguration configuration, IServiceProvider serviceProvider)
     {
         _configuration = configuration;
+        _serviceProvider = serviceProvider;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,10 +33,12 @@ public class AppDbContext : DbContext
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {        
+    {
         options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
             .UseExceptionProcessor()
-            .UseSnakeCaseNamingConvention();
+            .UseSnakeCaseNamingConvention()
+            .AddInterceptors(_serviceProvider.GetServices<ISaveChangesInterceptor>());
+        
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

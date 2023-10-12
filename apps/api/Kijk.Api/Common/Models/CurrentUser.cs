@@ -1,28 +1,30 @@
 ﻿using System.Security.Claims;
 
+using Kijk.Api.Domain.Entities;
+
 namespace Kijk.Api.Common.Models;
 
 public class CurrentUser
 {
-    private const string NameClaim = "name";
     private const string PermissionsClaim = "permissions";
 
     public required ClaimsPrincipal Principal { get; set; }
 
-    public string Id => Principal.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                        throw new ArgumentNullException(ClaimTypes.NameIdentifier, "'NameIdentifier' not found");
+    public required User User { get; set; }
 
-    public string Name => Principal.FindFirstValue(NameClaim) ?? throw new ArgumentNullException(NameClaim, "'Name' not found");
+    public Guid Id => this.User?.Id ?? throw new ArgumentNullException(this.User?.Id.ToString(), "'Id' not found");
 
-    public string Email => Principal.FindFirstValue(ClaimTypes.Upn) ?? throw new ArgumentNullException(ClaimTypes.Upn, "'Upn/Email' not found");
+    public string AuthId => this.User?.AuthId ?? throw new ArgumentNullException(this.User?.AuthId, "'AuthId' not found");
 
-    public string Role => Principal.FindFirstValue(ClaimTypes.Role) ?? throw new ArgumentNullException(ClaimTypes.Role, "'Role' not found");
+    public string Name => this.User?.Name ?? throw new ArgumentNullException(this.User?.Name, "'Name' not found");
+
+    public string Email => this.User?.Email ?? throw new ArgumentNullException(ClaimTypes.Upn, "'Upn/Email' not found");
 
     public List<string> Permissions =>
         Principal.FindAll(PermissionsClaim).Select(x => x.Value).ToList() ??
         throw new ArgumentNullException(PermissionsClaim, "'Permissions' not found");
 
-    public bool IsAdmin => Principal.IsInRole(AppConstants.Roles.Admin);
+    public bool IsAdmin => this.Permissions.Contains(AppConstants.Roles.Admin);
 
-    public bool IsUser => Principal.IsInRole(AppConstants.Roles.User);
+    public bool IsUser => this.Permissions.Contains(AppConstants.Roles.Admin);
 }

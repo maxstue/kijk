@@ -17,5 +17,6 @@ public class Transaction : BaseEntity
 
     public User User { get; set; }
     public TransactionType Type { get; set; }
+    public DateTime ExecutedAt { get; set; }
     public List<Category> Categories { get; set; } = new();
 }

@@ -5,7 +5,7 @@ namespace Kijk.Api.Application.Transactions;
 
 public interface ITransactionService
 {
-    Task<Result<List<TransactionDto>>> GetAll(CancellationToken cancellationToken = default);
+    Task<Result<List<TransactionDto>>> GetBy(int year, string month, CancellationToken cancellationToken = default);
 
     Task<Result<TransactionDto>> GetById(Guid id, CancellationToken cancellationToken = default);
 

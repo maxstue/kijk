@@ -6,6 +6,7 @@ using Humanizer;
 
 using Kijk.Api.Application.App;
 using Kijk.Api.Application.Transactions;
+using Kijk.Api.Application.Users;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 using Kijk.Api.Persistence.Interceptors;
@@ -25,6 +26,7 @@ public static class ServiceExtensions
     {
         services.RegisterAppModule()
             .RegisterAppModule()
+            .RegisterUSerModule()
             .RegisterTransactionModule();
 
         return services;
@@ -130,11 +132,7 @@ public static class ServiceExtensions
     {
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
 
-        services.AddDbContext<AppDbContext>(
-            (sp, options) =>
-            {
-                options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-            });
+        services.AddDbContext<AppDbContext>();
 
         return services;
     }

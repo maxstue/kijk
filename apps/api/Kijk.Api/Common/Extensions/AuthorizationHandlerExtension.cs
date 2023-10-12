@@ -34,7 +34,7 @@ public static class AuthorizationHandlerExtensions
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CheckCurrentUserRequirement requirement)
         {
-            if (_currentUser is { Principal: not null })
+            if (_currentUser is { User.Name: not null } and { Principal: not null})
             {
                 context.Succeed(requirement);
             }
