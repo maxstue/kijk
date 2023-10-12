@@ -26,7 +26,7 @@ public class TransactionService : ITransactionService
 
             return await _dbContext.Transactions
                 .AsNoTracking()
-                .Where(x => x.CreatedAt.Year == year && x.CreatedAt.Month == monthInt)
+                .Where(x => x.ExecutedAt.Year == year && x.ExecutedAt.Month == monthInt)
                 .Select(
                     x => new TransactionDto(
                         x.Id,
