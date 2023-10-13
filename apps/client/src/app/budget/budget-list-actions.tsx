@@ -146,7 +146,7 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
         <Button type='button' className='bg-red-500' onClick={handleDelete} disabled={deleteMutation.isPending}>
           Delete
         </Button>
-        {deleteMutation.isPending && <Icons.spinner className='animate-spin bg-red-500' />}
+        {deleteMutation.isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
       </SheetFooter>
     </>
   );

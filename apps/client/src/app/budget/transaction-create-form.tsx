@@ -13,8 +13,8 @@ import { getMonthFromString } from '@/lib/utils';
 import { Months, TransactionType } from '@/types/app';
 
 interface Props {
-  year?: number;
-  month?: Months;
+  year: number;
+  month: Months;
   onClose?: () => void;
 }
 
@@ -22,10 +22,7 @@ export function TransactionCreateForm({ month, year, onClose }: Props) {
   const { isPending, mutate } = useCreateTransaction();
   const { toast } = useToast();
 
-  const creationDate =
-    typeof year !== 'undefined' && typeof month !== 'undefined'
-      ? new Date(`${Number(year)}-${getMonthFromString(month ?? 'april')}-${new Date().getDate()}`)
-      : new Date();
+  const creationDate = new Date(`${Number(year)}-${getMonthFromString(month ?? 'april')}-${new Date().getDate()}`);
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),

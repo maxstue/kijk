@@ -119,7 +119,7 @@ function DeleteAlertDialog({ category }: { category: Category }) {
           <AlertDialogAction onClick={handleDelete} disabled={isPending}>
             Delete
           </AlertDialogAction>
-          {isPending && <Icons.spinner className='animate-spin bg-red-500' />}
+          {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
         </AlertDialogFooter>
       </AlertDialogContent>
     </>
