@@ -48,7 +48,7 @@ type TypeToZodShape<T> = [T] extends [string | number | boolean | undefined | nu
 /**
  * A function that creates zod schemas from your own interfaces, with full autocomplete.
  *
- * @returns A typesage zod schema based on the interface.
+ * @returns A typesafe zod schema based on the interface.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function zodBuilder<TType extends Record<string, any>>() {
@@ -58,14 +58,21 @@ export function zodBuilder<TType extends Record<string, any>>() {
   };
 }
 
-export function formatStringToCurrency(value: string) {
-  const amount = parseFloat(value);
+export function formatStringToCurrency(value: string | number) {
+  const amount = typeof value === 'string' ? parseFloat(value) : value;
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',
   }).format(amount);
 }
 
-export function getMonthFromString(month: Months) {
-  return months.indexOf(month) + 1;
+export function getMonthFromString(month: string) {
+  if (isMonth(month)) {
+    return months.indexOf(month) + 1;
+  }
+  throw new Error(`The given string "${month}" is not a valid month`);
 }
+
+const isMonth = (b: string): b is Months => {
+  return months.includes(b as Months);
+};

@@ -1,6 +1,4 @@
-/**
- * @type {import("eslint").Linter.Config}
- */
+/** @type {import('eslint').Linter.Config} */
 module.exports = {
   root: true,
   env: { browser: true, es2020: true },
@@ -21,24 +19,25 @@ module.exports = {
     project: ['./tsconfig.json', './tsconfig.node.json'],
     tsconfigRootDir: __dirname,
   },
-  settings:{
-    "react": {
-      "version": "detect",
+  settings: {
+    react: {
+      version: 'detect',
     },
   },
   plugins: ['react-refresh'],
-   rules: {
+  rules: {
     // typescript
-    "@typescript-eslint/array-type": ["warn", { "default": "array-simple", "readonly": "array-simple" }],
+    '@typescript-eslint/array-type': ['warn', { default: 'array-simple', readonly: 'array-simple' }],
+    '@typescript-eslint/no-misused-promises': 'off',
+    '@typescript-eslint/no-empty-interface': [
+      'error',
+      {
+        allowSingleExtends: true,
+      },
+    ],
     // react
     'react-refresh/only-export-components': ['warn'],
-    "react/prop-types": ['error', { 'ignore': ['className', 'classNames', 'showOutsideDays'] }],
-    "react/no-unknown-property": ['error', { 'ignore': ['cmdk-input-wrapper'] }],
-    "@typescript-eslint/no-empty-interface": [
-    "error",
-    {
-      "allowSingleExtends": true
-    }
-  ]
+    'react/prop-types': ['error', { ignore: ['className', 'classNames', 'showOutsideDays'] }],
+    'react/no-unknown-property': ['error', { ignore: ['cmdk-input-wrapper'] }],
   },
-}
+};

@@ -2,18 +2,24 @@
 export type Optional<T> = T | undefined | null;
 export type Id<T = string> = T;
 
+export interface ApiResponse<T = unknown> {
+  data?: T;
+  message?: string;
+  state: 'Success' | 'Error';
+}
+
 export interface Transaction {
   id: string;
   name: string;
-  amount: string;
+  amount: number;
   type: TransactionType;
-  executedAt: Date;
+  executedAt: string;
   categories?: Category[];
 }
 
 export const TransactionType = {
-  EXPENSE: 'EXPENSE',
-  INCOME: 'INCOME',
+  EXPENSE: 'Expense',
+  INCOME: 'Income',
 } as const;
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];

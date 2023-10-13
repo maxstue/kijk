@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-react';
 
-import { CalendarDateRangePicker } from '@/app/dashboard/date-range-picker';
+import { DateRangePicker } from '@/app/dashboard/date-range-picker';
 import { Overview } from '@/app/dashboard/overview';
 import { RecentSales } from '@/app/dashboard/recent-sales';
 import { TeamSwitcher } from '@/app/dashboard/team-switcher';
@@ -17,7 +17,7 @@ export function DashboardPage() {
           <h2 className='text-3xl font-bold tracking-tight'>Dashboard</h2>
           <div className='flex items-center space-x-2'>
             <Suspense fallback={<div>Loading...</div>}>
-              <CalendarDateRangePicker />
+              <DateRangePicker />
             </Suspense>
             <Suspense fallback={<div>Loading...</div>}>
               <Button size='sm'>

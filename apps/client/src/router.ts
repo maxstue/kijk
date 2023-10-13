@@ -1,6 +1,7 @@
 import { Router } from '@tanstack/react-router';
 
 import { queryClient } from '@/lib/query-client';
+import { budgetRoute } from '@/routes/budget/budget-route';
 import { dashboardRoute } from '@/routes/dashboard/dashboard-route';
 import { rootRoute } from '@/routes/root-route';
 import { settingsIndexRoute } from '@/routes/settings/settings-index-route';
@@ -9,6 +10,7 @@ import { settingsSectionRoute } from '@/routes/settings/settings-section-route';
 
 const routeTree = rootRoute.addChildren([
   dashboardRoute,
+  budgetRoute,
   settingsRoute.addChildren([settingsIndexRoute, settingsSectionRoute]),
 ]);
 

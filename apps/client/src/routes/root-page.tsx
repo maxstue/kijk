@@ -1,7 +1,9 @@
-import { ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useEffect } from 'react';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { Link, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+
+import { useInitUser } from '@/app/root/use-init-user';
+// import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/components/icons';
@@ -25,26 +27,29 @@ export function RootPage() {
   return (
     <>
       {isAuthenticated && user ? (
-        <div className='flex min-h-screen flex-col'>
-          <header className='bg-background'>
-            <SiteHeader>
-              <div className='flex space-x-2'>
-                <div className='w-full flex-1 md:w-auto md:flex-none'>{/* TODO add <CommandMenu /> */}</div>
-                <nav className='flex items-center space-x-1'>
-                  <ThemeToggle />
-                </nav>
-                <div className='ml-auto flex items-center space-x-4'>
-                  <UserNav user={user} />
-                </div>
-              </div>
-            </SiteHeader>
-          </header>
-          <main className='container flex-1'>
-            <Outlet />
-            <Toaster />
-          </main>
-          {/* <SiteFooter /> */}
-        </div>
+        <Init>
+          <>
+            <div className='flex min-h-screen flex-col'>
+              <header className='bg-background'>
+                <SiteHeader>
+                  <div className='flex space-x-2'>
+                    <div className='w-full flex-1 md:w-auto md:flex-none'>{/* TODO add <CommandMenu /> */}</div>
+                    <nav className='flex items-center space-x-1'>
+                      <ThemeToggle />
+                    </nav>
+                    <div className='ml-auto flex items-center space-x-4'>
+                      <UserNav user={user} />
+                    </div>
+                  </div>
+                </SiteHeader>
+              </header>
+              <main className='container flex-1'>
+                <Outlet />
+                <Toaster />
+              </main>
+            </div>
+          </>
+        </Init>
       ) : (
         <div className='flex h-full w-full items-center justify-center gap-6'>
           <Button onClick={handleSignup} type='button'>
@@ -55,7 +60,7 @@ export function RootPage() {
           </Button>
         </div>
       )}
-      <TanStackRouterDevtools position='bottom-right' />
+      {/* <TanStackRouterDevtools position='bottom-right' /> */}
     </>
   );
 }
@@ -84,7 +89,7 @@ function SiteHeader({ children }: SProps) {
               Dashboard
             </Link>
             <Link
-              to={'/'}
+              to={'/budget'}
               className={cn(
                 'flex items-center text-lg font-medium text-foreground/60 transition-colors hover:text-foreground/80 data-[active]:text-foreground sm:text-sm',
                 false && 'cursor-not-allowed opacity-80',
@@ -109,62 +114,16 @@ function SiteHeader({ children }: SProps) {
   );
 }
 
-// function SiteFooter() {
-//   return (
-//     <footer className='border-t py-6 md:py-0'>
-//       <div className='container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row'>
-//         <div className='flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0'>
-//           kijk
-//           <p className='text-center text-sm leading-loose text-muted-foreground md:text-left'>
-//             Built by{' '}
-//             <a
-//               href='https://github.com/maxstue'
-//               target='_blank'
-//               rel='noreferrer'
-//               className='font-medium underline underline-offset-4'
-//             >
-//               maxstue
-//             </a>{' '}
-//             and inspired by{' '}
-//             <a
-//               href='https://github.com/shadcn/ui'
-//               target='_blank'
-//               rel='noreferrer'
-//               className='font-medium underline underline-offset-4'
-//             >
-//               shadcn/ui
-//             </a>
-//             . Hosted on{' '}
-//             <a
-//               href='https://vercel.com/'
-//               target='_blank'
-//               rel='noreferrer'
-//               className='font-medium underline underline-offset-4'
-//             >
-//               vercel
-//             </a>
-//             . Illustrations by{' '}
-//             <a
-//               href='https://popsy.co/'
-//               target='_blank'
-//               rel='noreferrer'
-//               className='font-medium underline underline-offset-4'
-//             >
-//               popsy
-//             </a>{' '}
-//             . The source code is available on{' '}
-//             <a
-//               href={siteConfig.links.github}
-//               target='_blank'
-//               rel='noreferrer'
-//               className='font-medium underline underline-offset-4'
-//             >
-//               GitHub
-//             </a>
-//             .
-//           </p>
-//         </div>
-//       </div>
-//     </footer>
-//   );
-// }
+function Init({ children }: PropsWithChildren) {
+  const { isSuccess, isPending, mutate } = useInitUser();
+
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
+
+  return (
+    <>
+      {isPending && <>Loading</>} {isSuccess ? children : <div>Fehler beim initialisieren</div>}
+    </>
+  );
+}

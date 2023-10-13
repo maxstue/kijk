@@ -15,7 +15,8 @@ function App() {
           <RouterProvider router={router} />
         </ThemeProvider>
       </AuthProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />
+      {/* <TanStackRouterDevtools position='bottom-right' router={router} /> */}
     </QueryClientProvider>
   );
 }
