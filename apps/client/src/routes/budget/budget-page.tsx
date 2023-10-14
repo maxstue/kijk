@@ -3,9 +3,9 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, DollarSign, Download, List, PlusCircle, Users } from 'lucide-react';
 
 import { budgetColumns } from '@/app/budget/budget-column';
-import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
 import { DataTable } from '@/components/data-table';
+import { TransactionCreateForm } from '@/components/transactions/transaction-create-form';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -40,6 +40,9 @@ export function BudgetPage() {
   const searchParams = useSearch({ from: budgetRoute.id });
   const month = searchParams.month ?? months[new Date().getMonth()];
   const year = searchParams.year ?? new Date().getFullYear();
+  const [showSheet, setShowSheet] = useState(false);
+
+  const handleClose = () => setShowSheet(false);
 
   const { data } = useGetTransactionsBy(year, month);
 
@@ -104,16 +107,16 @@ export function BudgetPage() {
                     data={data?.data ?? []}
                     columns={budgetColumns}
                     actions={
-                      <Sheet>
+                      <Sheet open={showSheet} onOpenChange={setShowSheet}>
                         <SheetTrigger asChild>
-                          <Button variant='outline'>New Transaction</Button>
+                          <Button variant='outline'>Create Transaction</Button>
                         </SheetTrigger>
                         <SheetContent>
                           <SheetHeader>
                             <SheetTitle>Create Transaction</SheetTitle>
                             <SheetDescription>Create a new transaction.</SheetDescription>
                           </SheetHeader>
-                          <TransactionCreateForm year={year} month={month} />
+                          <TransactionCreateForm year={year} month={month} onClose={handleClose} />
                         </SheetContent>
                       </Sheet>
                     }

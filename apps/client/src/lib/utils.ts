@@ -66,7 +66,7 @@ export function formatStringToCurrency(value: string | number) {
   }).format(amount);
 }
 
-export function getMonthFromString(month: string) {
+export function getMonthIndexFromString(month: string) {
   if (isMonth(month)) {
     return months.indexOf(month) + 1;
   }

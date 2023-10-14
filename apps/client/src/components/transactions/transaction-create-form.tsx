@@ -3,26 +3,38 @@ import { useForm } from 'react-hook-form';
 
 import { TransactionFormValues, transactionSchema } from '@/app/budget/schemas';
 import { useCreateTransaction } from '@/app/budget/use-create-transaction';
+import { DatePicker } from '@/components/date-picker';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { getMonthFromString } from '@/lib/utils';
+import { getMonthIndexFromString } from '@/lib/utils';
 import { Months, TransactionType } from '@/types/app';
 
-interface Props {
-  year: number;
-  month: Months;
-  onClose?: () => void;
-}
+type TProps =
+  | {
+      year: number;
+      month: Months;
+      fromCmd?: false;
+      onClose?: () => void;
+    }
+  | {
+      fromCmd: true;
+      onClose?: () => void;
+    };
 
-export function TransactionCreateForm({ month, year, onClose }: Props) {
+export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
   const { isPending, mutate } = useCreateTransaction();
   const { toast } = useToast();
 
-  const creationDate = new Date(`${Number(year)}-${getMonthFromString(month ?? 'april')}-${new Date().getDate()}`);
+  const year = 'year' in props ? props.year : new Date().getFullYear();
+  const month = 'month' in props ? props.month : (new Date().toLocaleString('default', { month: 'long' }) as Months);
+
+  const creationDate = fromCmd
+    ? new Date()
+    : new Date(`${Number(year)}-${getMonthIndexFromString(month ?? 'april')}-${new Date().getDate()}`);
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -104,6 +116,20 @@ export function TransactionCreateForm({ month, year, onClose }: Props) {
               </FormItem>
             )}
           />
+
+          {fromCmd && (
+            <FormField
+              control={form.control}
+              name='executedAt'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Execution date</FormLabel>
+                  <DatePicker date={field.value} setDate={field.onChange} {...field} />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <Button type='submit' disabled={isPending}>
             Add

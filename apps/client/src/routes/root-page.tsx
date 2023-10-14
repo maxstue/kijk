@@ -2,6 +2,7 @@ import { PropsWithChildren, ReactNode, useEffect } from 'react';
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { Link, Outlet } from '@tanstack/react-router';
 
+import { CommandMenu } from '@/app/root/command-menu';
 import { useInitUser } from '@/app/root/use-init-user';
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
@@ -33,7 +34,9 @@ export function RootPage() {
               <header className='bg-background'>
                 <SiteHeader>
                   <div className='flex space-x-2'>
-                    <div className='w-full flex-1 md:w-auto md:flex-none'>{/* TODO add <CommandMenu /> */}</div>
+                    <div className='w-full flex-1 md:w-auto md:flex-none'>
+                      <CommandMenu />
+                    </div>
                     <nav className='flex items-center space-x-1'>
                       <ThemeToggle />
                     </nav>
