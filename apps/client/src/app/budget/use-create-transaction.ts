@@ -12,7 +12,7 @@ export const useCreateTransaction = () => {
   return useMutation({
     mutationFn: async (data: { year?: number; month?: Months; newTransaction: TransactionFormValues }) => {
       return apiClient
-        .post('transaction', {
+        .post('transactions', {
           json: data.newTransaction,
           headers: { Authorization: `Bearer ${await getToken()}` },
         })

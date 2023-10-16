@@ -10,6 +10,9 @@ public class CurrentUser
 
     public required ClaimsPrincipal Principal { get; set; }
 
+    /// <summary>
+    /// This includes only the root level properties of the entity.
+    /// </summary>
     public required User User { get; set; }
 
     public Guid Id => this.User?.Id ?? throw new ArgumentNullException(this.User?.Id.ToString(), "'Id' not found");

@@ -9,7 +9,7 @@ export const useInitUser = () => {
   return useMutation({
     mutationFn: async () => {
       return apiClient
-        .post('user/init', {
+        .post('users/init', {
           json: user,
           headers: { Authorization: `Bearer ${await getToken()}` },
         })

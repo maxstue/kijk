@@ -57,8 +57,9 @@ public static class WebApplicationExtension
 
         apiGroup.RequirePerUserRateLimit();
 
-        apiGroup.MapTransactionEndpoints();
-        apiGroup.MapUserEndpoints();
+        apiGroup.MapTransactionsEndpoints();
+        apiGroup.MapUsersEndpoints();
+        apiGroup.MapCategoriesEndpoints();
 
         return app;
     }

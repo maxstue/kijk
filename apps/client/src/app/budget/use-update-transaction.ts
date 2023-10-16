@@ -17,7 +17,7 @@ export const useUpdateTransaction = () => {
       newTransaction: Partial<TransactionFormValues>;
     }) => {
       return apiClient
-        .put(`transaction/${data.transactionId}`, {
+        .put(`transactions/${data.transactionId}`, {
           json: data.newTransaction,
           headers: { Authorization: `Bearer ${await getToken()}` },
         })

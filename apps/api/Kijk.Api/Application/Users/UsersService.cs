@@ -1,23 +1,22 @@
-﻿using Kijk.Api.Application.Transactions;
-using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Application.Users;
 
-public class UserService : IUserService
+public class UsersService : IUsersService
 {
-    private readonly ILogger _logger = Log.ForContext<UserService>();
+    private readonly ILogger _logger = Log.ForContext<UsersService>();
     private readonly CurrentUser _currentUser;
     private readonly AppDbContext _dbContext;
 
-    public UserService(CurrentUser currentUser, AppDbContext dbContext)
+    public UsersService(CurrentUser currentUser, AppDbContext dbContext)
     {
         _currentUser = currentUser;
         _dbContext = dbContext;
     }
 
-    public async Task<Result<UserResponse>> Init(AuthUser authUser, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> InitAsync(AuthUser authUser, CancellationToken cancellationToken)
     {
         try
         {

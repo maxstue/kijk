@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Humanizer;
 
 using Kijk.Api.Application.App;
+using Kijk.Api.Application.Categories;
 using Kijk.Api.Application.Transactions;
 using Kijk.Api.Application.Users;
 using Kijk.Api.Common.Models;
@@ -26,8 +27,9 @@ public static class ServiceExtensions
     {
         services.RegisterAppModule()
             .RegisterAppModule()
-            .RegisterUSerModule()
-            .RegisterTransactionModule();
+            .RegisterUsersModule()
+            .RegisterTransactionsModule()
+            .RegisterCategoriesModule();
 
         return services;
     }

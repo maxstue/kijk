@@ -11,7 +11,7 @@ export const useGetTransactionsBy = (year: number, month: string) => {
     queryKey: ['transactions', 'getBy', year, month],
     queryFn: async () => {
       return apiClient
-        .get('transaction', {
+        .get('transactions', {
           searchParams: {
             year: year,
             month: month,

@@ -6,19 +6,19 @@ using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Application.Transactions;
 
-public class TransactionService : ITransactionService
+public class TransactionsService : ITransactionsService
 {
+    private readonly ILogger _logger = Log.ForContext<TransactionsService>();
     private readonly AppDbContext _dbContext;
-    private readonly ILogger _logger = Log.ForContext<TransactionService>();
     private readonly CurrentUser _currentUser;
 
-    public TransactionService(AppDbContext dbContext, CurrentUser currentUser)
+    public TransactionsService(AppDbContext dbContext, CurrentUser currentUser)
     {
         _dbContext = dbContext;
         _currentUser = currentUser;
     }
 
-    public async Task<Result<List<TransactionDto>>> GetBy(int year, string month, CancellationToken cancellationToken = default)
+    public async Task<Result<List<TransactionDto>>> GetByAsync(int year, string month, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -40,11 +40,11 @@ public class TransactionService : ITransactionService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionErrors.Failure(e.Message);
+            return TransactionsErrors.Failure(e.Message);
         }
     }
 
-    public async Task<Result<TransactionDto>> GetById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<TransactionDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -62,7 +62,7 @@ public class TransactionService : ITransactionService
 
             if (entity is null)
             {
-                return TransactionErrors.NotFound();
+                return TransactionsErrors.NotFound();
             }
 
             return entity;
@@ -70,18 +70,18 @@ public class TransactionService : ITransactionService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionErrors.Failure(e.Message);
+            return TransactionsErrors.Failure(e.Message);
         }
     }
 
-    public async Task<Result<TransactionDto>> Create(CreateTransactionRequest createTransactionRequest, CancellationToken cancellationToken = default)
+    public async Task<Result<TransactionDto>> CreateAsync(CreateTransactionRequest createTransactionRequest, CancellationToken cancellationToken = default)
     {
         try
         {
             var user = await _dbContext.Users.FindAsync(new object?[] { _currentUser.Id }, cancellationToken);
             if (user is null)
             {
-                return TransactionErrors.Failure("User not found");
+                return TransactionsErrors.Failure("User not found");
             }
 
             var newTransaction = new Transaction
@@ -118,11 +118,11 @@ public class TransactionService : ITransactionService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionErrors.Failure(e.Message);
+            return TransactionsErrors.Failure(e.Message);
         }
     }
 
-    public async Task<Result<TransactionDto>> Update(
+    public async Task<Result<TransactionDto>> UpdateAsync(
         Guid id,
         UpdateTransactionRequest updateTransactionRequest,
         CancellationToken cancellationToken = default)
@@ -137,7 +137,7 @@ public class TransactionService : ITransactionService
             if (foundEntity == null)
             {
                 _logger.Warning("Transaction with id {Id} could not be found", id);
-                return TransactionErrors.NotFound();
+                return TransactionsErrors.NotFound();
             }
 
             foundEntity.Name = updateTransactionRequest.Name ?? foundEntity.Name;
@@ -167,11 +167,11 @@ public class TransactionService : ITransactionService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionErrors.Failure();
+            return TransactionsErrors.Failure();
         }
     }
 
-    public async Task<Result<bool>> Delete(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -180,7 +180,7 @@ public class TransactionService : ITransactionService
             if (foundEntity == null)
             {
                 _logger.Warning("Transaction with id {Id} could not be found", id);
-                return TransactionErrors.NotFound();
+                return TransactionsErrors.NotFound();
             }
 
             _dbContext.Transactions.Remove(foundEntity);
@@ -191,7 +191,7 @@ public class TransactionService : ITransactionService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionErrors.Failure();
+            return TransactionsErrors.Failure();
         }
     }
 }

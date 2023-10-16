@@ -1,5 +1,4 @@
 using Kijk.Api.Application.Transactions;
-using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Filters;
 using Kijk.Api.Common.Models;
 
@@ -7,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Api.Endpoints;
 
-public static class TransactionEndpoint
+public static class TransactionsEndpoint
 {
-    public static IEndpointRouteBuilder MapTransactionEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
+    public static IEndpointRouteBuilder MapTransactionsEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
-        var group = endpointRouteBuilder.MapGroup("/transaction");
+        var group = endpointRouteBuilder.MapGroup("/transactions");
 
         group.MapGet("/", GetBy);
         group.MapGet("/{id:guid}", GetById);
@@ -23,42 +22,42 @@ public static class TransactionEndpoint
     }
 
     private static async Task<IResult> GetBy(
-        ITransactionService service,
+        ITransactionsService service,
         [FromQuery(Name = "year")] int year,
         [FromQuery(Name = "month")] string month)
     {
-        var result = await service.GetBy(year, month);
+        var result = await service.GetByAsync(year, month);
         return result.ToResponse("Successfully loaded");
     }
 
-    private static async Task<IResult> GetById(ITransactionService service, Guid id, CancellationToken token)
+    private static async Task<IResult> GetById(ITransactionsService service, Guid id, CancellationToken token)
     {
-        var result = await service.GetById(id, token);
+        var result = await service.GetByIdAsync(id, token);
         return result.ToResponse("Successfully loaded");
     }
 
     private static async Task<IResult> Create(
-        ITransactionService service,
+        ITransactionsService service,
         [FromBody] CreateTransactionRequest transactionRequest,
         CancellationToken token)
     {
-        var result = await service.Create(transactionRequest, token);
+        var result = await service.CreateAsync(transactionRequest, token);
         return result.ToResponse("Successfully created", SuccessType.Created);
     }
 
     private static async Task<IResult> Update(
-        ITransactionService service,
+        ITransactionsService service,
         Guid id,
         [FromBody] UpdateTransactionRequest transactionRequest,
         CancellationToken token)
     {
-        var result = await service.Update(id, transactionRequest, token);
+        var result = await service.UpdateAsync(id, transactionRequest, token);
         return result.ToResponse("Successfully updated");
     }
 
-    private static async Task<IResult> DeleteById(ITransactionService service, Guid id, CancellationToken token)
+    private static async Task<IResult> DeleteById(ITransactionsService service, Guid id, CancellationToken token)
     {
-        var result = await service.Delete(id, token);
+        var result = await service.DeleteAsync(id, token);
         return result.ToResponse("Successfully deleted");
     }
 }

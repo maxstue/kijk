@@ -11,7 +11,7 @@ export const useDeleteTransaction = () => {
   return useMutation({
     mutationFn: async (data: { transactionId: Id; year?: number; month?: Months }) => {
       return apiClient
-        .delete(`transaction/${data.transactionId}`, {
+        .delete(`transactions/${data.transactionId}`, {
           headers: { Authorization: `Bearer ${await getToken()}` },
         })
         .json();

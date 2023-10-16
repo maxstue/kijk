@@ -2,9 +2,8 @@
 
 namespace Kijk.Api.Application.Transactions;
 
-public static class TransactionErrors
+public static class TransactionsErrors
 {
-
     public static Error NotFound()
     {
         return Error.NotFound(ErrorCodes.NotFoundError, "Transaction not found");
@@ -17,6 +16,6 @@ public static class TransactionErrors
 
     public static class Codes
     {
-        internal const string PostValidationError = "ET0002";
+        internal const string PostValidationError = "ET0001";
     }
 }

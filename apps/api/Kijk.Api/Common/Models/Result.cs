@@ -1,4 +1,6 @@
-﻿namespace Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Utils;
+
+namespace Kijk.Api.Common.Models;
 
 /// <summary>
 ///     A discriminated union of value or a, error.
@@ -8,7 +10,7 @@ public readonly record struct Result<TValue>
 
     private static readonly Error NoFirstError = Error.Unexpected(
         "ErrorOr.NoFirstError",
-        "First error cannot be retrieved from a successful ErrorOr.");
+        "First error cannot be retrieved from a successful Result.");
 
     private readonly List<Error>? _errors = null;
     private readonly TValue? _value = default;
@@ -103,5 +105,23 @@ public readonly record struct Result<TValue>
     public async Task<TResult> MatchAsync<TResult>(Func<TValue, Task<TResult>> onValue, Func<List<Error>, Task<TResult>> onError)
     {
         return IsError ? await onError(Errors) : await onValue(Value);
+    }
+    
+    public IResult ToResponse(string? successMessage = default, SuccessType successType = SuccessType.Ok)
+    {
+        return this.Match(
+            obj =>
+            {
+                var response = ApiResponse<TValue>.Success(obj, successMessage);
+                var statusCode = ResponseUtils.ToStatusCode(successType);
+                return ResponseUtils.CreateTypedResult(response, statusCode);
+            },
+            errors =>
+            {
+                var firstError = errors.First();
+                var response = ApiResponse<Error>.Error(errors);
+                var statusCode = ResponseUtils.ToStatusCode(firstError.Type);
+                return ResponseUtils.CreateTypedResult(response, statusCode);
+            });
     }
 }
