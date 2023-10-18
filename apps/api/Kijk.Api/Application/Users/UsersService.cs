@@ -47,8 +47,8 @@ public class UsersService : IUsersService
                             x.Amount,
                             x.Type,
                             x.ExecutedAt,
-                            x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)))),
-                    newUserEntity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
+                            x.Categories.Select(c => c.MapToDto()))),
+                    newUserEntity.Categories.Select(c => c.MapToDto()));
             }
 
             var userEntity = await _dbContext.Users
@@ -75,8 +75,8 @@ public class UsersService : IUsersService
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)))),
-                userEntity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
+                        x.Categories.Select(c => c.MapToDto()))),
+                userEntity.Categories.Select(c => c.MapToDto()));
         }
         catch (Exception e)
         {

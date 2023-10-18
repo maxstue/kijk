@@ -14,6 +14,11 @@ public static class CategoriesErrors
         return Error.Failure(ErrorCodes.DefaultError, $"Category failure,  {message}");
     }
 
+    public static Error Validation(string message = "")
+    {
+        return Error.Validation(description: $"Validation error,  {message}");
+    }
+
     public static class Codes
     {
         internal const string PostValidationError = "EC0001";

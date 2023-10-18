@@ -13,5 +13,7 @@ public class CategoryConfig : IEntityTypeConfiguration<Category>
         builder.ToTable(nameof(Category).ToLower());
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Color).HasDefaultValue(AppConstants.Colors.Default);
+        builder.Property(x => x.Type).HasConversion<string>();
+
     }
 }

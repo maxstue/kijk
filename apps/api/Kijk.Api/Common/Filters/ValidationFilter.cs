@@ -17,7 +17,7 @@ public class ValidationFilter<T> : IEndpointFilter where T : class
         var objectToValidate = context.Arguments.SingleOrDefault(x => x?.GetType() == typeof(T)) as T;
         if (objectToValidate is null)
         {
-            var error = Error.Failure(ErrorCodes.ValidationError, $"Das Objekt vom Type '{typeof(T).Name}' darf nicht 'null' sein");
+            var error = Error.Failure(ErrorCodes.ValidationError, $"The object of Type '{typeof(T).Name}' must not be 'null'");
             var response = ApiResponse<IResult>.Error(error);
             var statusCode = ResponseUtils.ToStatusCode(error.Type);
             return ResponseUtils.CreateTypedResult(response, statusCode);
@@ -26,7 +26,7 @@ public class ValidationFilter<T> : IEndpointFilter where T : class
         var validationResult = await _validator.ValidateAsync(objectToValidate);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.Select(x => Error.Validation(ErrorCodes.ValidationError, $"{x.ErrorCode} - {x.ErrorMessage}"))
+            var errors = validationResult.Errors.Select(x => Error.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
                 .ToList();
             var response = ApiResponse<IResult>.Error(errors);
             var statusCode = ResponseUtils.ToStatusCode(errors[0].Type);

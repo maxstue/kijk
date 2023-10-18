@@ -34,7 +34,7 @@ public class TransactionsService : ITransactionsService
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
+                        x.Categories.Select(c => c.MapToDto())))
                 .ToListAsync(cancellationToken);
         }
         catch (Exception e)
@@ -57,7 +57,7 @@ public class TransactionsService : ITransactionsService
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color))))
+                        x.Categories.Select(c => c.MapToDto())))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity is null)
@@ -113,7 +113,7 @@ public class TransactionsService : ITransactionsService
                 entity.Amount,
                 entity.Type,
                 entity.ExecutedAt,
-                entity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
+                entity.Categories.Select(c => c.MapToDto()));
         }
         catch (Exception e)
         {
@@ -162,7 +162,7 @@ public class TransactionsService : ITransactionsService
                 foundEntity.Amount,
                 foundEntity.Type,
                 foundEntity.ExecutedAt,
-                foundEntity.Categories.Select(c => new CategoryDto(c.Id, c.Name, c.Color)));
+                foundEntity.Categories.Select(c => c.MapToDto()));
         }
         catch (Exception e)
         {

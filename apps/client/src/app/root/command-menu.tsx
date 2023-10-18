@@ -3,6 +3,7 @@ import { DialogProps } from '@radix-ui/react-alert-dialog';
 import { useNavigate } from '@tanstack/react-router';
 import { File, Laptop, Moon, SunMedium } from 'lucide-react';
 
+import { CategoryCreateForm } from '@/components/categories/categories-create-form';
 import { TransactionCreateForm } from '@/components/transactions/transaction-create-form';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,9 +24,13 @@ export function CommandMenu({ ...props }: DialogProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
+  const [sheetType, setSheetType] = useState<'category' | 'transaction'>();
   const { setTheme } = useTheme();
 
-  const handleClose = () => setShowSheet(false);
+  const handleClose = () => {
+    setShowSheet(false);
+    setSheetType(undefined);
+  };
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -83,9 +88,28 @@ export function CommandMenu({ ...props }: DialogProps) {
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
-            <CommandGroup>
-              <CommandItem key='create-transaction' onSelect={() => runCommand(() => setShowSheet(true))}>
+            <CommandGroup heading='Actions'>
+              <CommandItem
+                key='create-transaction'
+                onSelect={() =>
+                  runCommand(() => {
+                    setSheetType('transaction');
+                    setShowSheet(true);
+                  })
+                }
+              >
                 <SheetTrigger>Create transaction</SheetTrigger>
+              </CommandItem>
+              <CommandItem
+                key='create-category'
+                onSelect={() =>
+                  runCommand(() => {
+                    setSheetType('category');
+                    setShowSheet(true);
+                  })
+                }
+              >
+                <SheetTrigger>Create category</SheetTrigger>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
@@ -121,15 +145,40 @@ export function CommandMenu({ ...props }: DialogProps) {
         <SheetContent>
           {showSheet && (
             <>
-              <SheetHeader>
-                <SheetTitle>Create Transaction</SheetTitle>
-                <SheetDescription>Create a new transaction.</SheetDescription>
-              </SheetHeader>
-              <TransactionCreateForm fromCmd onClose={handleClose} />
+              {sheetType === 'transaction' && <TransactionSheet onClose={handleClose} />}
+              {sheetType === 'category' && <CategorySheet onClose={handleClose} />}
             </>
           )}
         </SheetContent>
       </Sheet>
+    </>
+  );
+}
+
+interface EdProps {
+  onClose: () => void;
+}
+
+function TransactionSheet({ onClose }: EdProps) {
+  return (
+    <>
+      <SheetHeader>
+        <SheetTitle>Create Transaction</SheetTitle>
+        <SheetDescription>Create a new transaction.</SheetDescription>
+      </SheetHeader>
+      <TransactionCreateForm fromCmd onClose={onClose} />
+    </>
+  );
+}
+
+function CategorySheet({ onClose }: EdProps) {
+  return (
+    <>
+      <SheetHeader>
+        <SheetTitle>Create Category</SheetTitle>
+        <SheetDescription>Create a new category.</SheetDescription>
+      </SheetHeader>
+      <CategoryCreateForm onClose={onClose} />
     </>
   );
 }

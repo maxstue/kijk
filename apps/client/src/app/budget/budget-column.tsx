@@ -10,22 +10,34 @@ import { Transaction } from '@/types/app';
 export const budgetColumns: Array<ColumnDef<Transaction>> = [
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: ({ column }) => {
+      return (
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Name
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: ({ column }) => {
+      return (
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Type
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'amount',
     header: ({ column }) => {
       return (
-        <div className='flex justify-end'>
-          <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-            Amount
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        </div>
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Amount
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
       );
     },
     cell: ({ row }) => {
@@ -33,7 +45,7 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
       const formattedAmount = formatStringToCurrency(row.getValue<number>('amount'));
 
       return (
-        <div className={cn(isExpense ? 'text-red-500' : 'text-green-500', 'text-right font-medium')}>
+        <div className={cn(isExpense ? 'text-red-500' : 'text-green-500', 'font-medium')}>
           {isExpense ? '-' : '+'}
           {formattedAmount}
         </div>
@@ -61,5 +73,11 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
   {
     id: 'actions',
     cell: ({ row }) => <BudgetListActions row={row} />,
+    enableColumnFilter: false,
+    enableSorting: false,
+    enableHiding: false,
+    header: undefined,
+    size: 0,
+    maxSize: 0,
   },
 ];

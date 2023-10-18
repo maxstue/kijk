@@ -1,6 +1,15 @@
 ﻿using Kijk.Api.Common.Models;
 
+using NetEscapades.EnumGenerators;
+
 namespace Kijk.Api.Domain.Entities;
+
+[EnumExtensions]
+public enum CategoryType
+{
+    Default,
+    User
+}
 
 public class Category : BaseEntity
 {
@@ -12,11 +21,14 @@ public class Category : BaseEntity
     /// </summary>
     public required string Color { get; set; }
 
+    public CategoryType Type { get; set; }
+
     public List<Transaction> Transactions { get; set; } = new();
+
     public List<User> Users { get; set; } = new();
 
     public CategoryDto MapToDto()
     {
-        return new CategoryDto(this.Id, this.Name, this.Color);
+        return new CategoryDto(this.Id, this.Name, this.Color, this.Type);
     }
 }

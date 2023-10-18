@@ -10,9 +10,6 @@ export const categorySchema = z.object({
       message: 'Color must be set',
     })
     .refine(startsWithHash, { message: 'The color need to start with a "#"' }),
-  userId: z.string().min(1, {
-    message: 'No user is set',
-  }),
 });
 
 function startsWithHash(value: string) {

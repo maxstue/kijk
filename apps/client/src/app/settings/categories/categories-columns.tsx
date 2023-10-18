@@ -1,25 +1,30 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { DataListRowActions } from '@/app/settings/categories/data-list-row-actions';
+import { DataListRowActions } from '@/app/settings/categories/categories-list-actions';
 import { Button } from '@/components/ui/button';
 import { Category } from '@/types/app';
 
 export const columns: Array<ColumnDef<Category>> = [
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: ({ column }) => {
+      return (
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Name
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'color',
     header: ({ column }) => {
       return (
-        <div className='flex justify-end'>
-          <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-            Color
-            <ArrowUpDown className='ml-2 h-4 w-4' />
-          </Button>
-        </div>
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Color
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </Button>
       );
     },
     cell: ({ row }) => {

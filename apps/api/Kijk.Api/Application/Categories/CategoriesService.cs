@@ -59,12 +59,16 @@ public class CategoriesService : ICategoriesService
 
             if (user.Categories.Any(c => string.Equals(c.Name, createCategoryRequest.Name, StringComparison.CurrentCultureIgnoreCase)))
             {
-                return CategoriesErrors.Failure($"A category with the name '{createCategoryRequest.Name}' already exists");
+                return CategoriesErrors.Validation($"A category with the name '{createCategoryRequest.Name}' already exists");
             }
 
             var newCategory = new Category
             {
-                Id = Guid.NewGuid(), Name = createCategoryRequest.Name, Color = createCategoryRequest.Color, Users = new List<User> { user }
+                Id = Guid.NewGuid(),
+                Name = createCategoryRequest.Name,
+                Color = createCategoryRequest.Color,
+                Users = new List<User> { user },
+                Type = CategoryType.User
             };
             var resEntity = await _dbContext.AddAsync(newCategory, cancellationToken);
 
@@ -135,12 +139,12 @@ public class CategoriesService : ICategoriesService
                 return Error.NotFound(description: $"‘User‘ with id '{_currentUser.Id}' was not found");
             }
 
-            if (user.Categories.Any(x => x.Id != id))
+            if (user.Categories.Find(x => x.Id != id) is null)
             {
                 _logger.Warning("User with id {UserId} was not allowed to delete the category with id {CategoryId}", _currentUser.Id, id);
                 return Error.NotFound(description: $"‘User‘ with id '{_currentUser.Id}' is not allowed to delete the category");
             }
-            
+
             var foundEntity = await _dbContext.Categories.FindAsync(new object[] { id }, cancellationToken);
 
             if (foundEntity == null)

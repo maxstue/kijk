@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useSearch } from '@tanstack/react-router';
 import { Row } from '@tanstack/react-table';
-import { parseISO } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-import { TransactionFormValues, transactionSchema } from '@/app/budget/schemas';
-import { useDeleteTransaction } from '@/app/budget/use-delete-transaction';
-import { useUpdateTransaction } from '@/app/budget/use-update-transaction';
-import { DatePicker } from '@/components/date-picker';
+import { CategoryFormValues, categorySchema } from '@/app/settings/categories/schemas';
+import { useDeleteCategory } from '@/app/settings/categories/use-delete-category';
+import { useUpdateCategory } from '@/app/settings/categories/use-update-category';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
@@ -23,7 +20,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Sheet,
   SheetClose,
@@ -35,28 +31,24 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
-import { cn, formatStringToCurrency } from '@/lib/utils';
-import { budgetRoute } from '@/routes/budget/budget-route';
-import { Months, months, Transaction, TransactionType } from '@/types/app';
+import { cn } from '@/lib/utils';
+import { Category } from '@/types/app';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
-export function BudgetListActions<TData extends Transaction>({ row }: DataTableRowActionsProps<TData>) {
+export function DataListRowActions<TData extends Category>({ row }: DataTableRowActionsProps<TData>) {
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
-  const searchParams = useSearch({ from: budgetRoute.id });
-  const month = searchParams.month ?? months[new Date().getMonth()];
-  const year = searchParams.year ?? new Date().getFullYear();
   const { toast } = useToast();
-  const transaction = row.original;
+  const category = row.original;
 
   const handleCopyId = async () => {
-    await navigator.clipboard.writeText(transaction.id);
+    await navigator.clipboard.writeText(category.id);
     toast({
-      title: `Successfully copied: ${row.original.name} `,
+      title: `Successfully copied: ${category.name} `,
       variant: 'default',
     });
   };
@@ -89,10 +81,8 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
           </DropdownMenuContent>
         </DropdownMenu>
         <SheetContent>
-          {sheetType === 'delete' && (
-            <Delete transaction={transaction} month={month} year={year} onClose={handleClose} />
-          )}
-          {sheetType === 'edit' && <Update transaction={transaction} month={month} year={year} onClose={handleClose} />}
+          {sheetType === 'delete' && <Delete category={category} onClose={handleClose} />}
+          {sheetType === 'edit' && <Update category={category} onClose={handleClose} />}
         </SheetContent>
       </Sheet>
     </Dialog>
@@ -100,23 +90,20 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
 }
 
 interface EdProps {
-  transaction: Transaction;
-  year: number;
-  month: Months;
+  category: Category;
   onClose: () => void;
 }
 
-function Delete({ transaction, year, month, onClose }: EdProps) {
-  const formattedAmount = formatStringToCurrency(transaction.amount);
-  const deleteMutation = useDeleteTransaction();
+function Delete({ category, onClose }: EdProps) {
+  const deleteMutation = useDeleteCategory();
   const { toast } = useToast();
 
   const handleDelete = () => {
     deleteMutation.mutate(
-      { transactionId: transaction.id, month: month, year: year },
+      { categoryId: category.id },
       {
         onSuccess() {
-          toast({ title: `Successfully deleted: ${transaction.name} ` });
+          toast({ title: `Successfully deleted: ${category.name} ` });
           onClose();
         },
       },
@@ -124,16 +111,23 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
   };
 
   return (
-    <>
+    <div className='space-y-8'>
       <SheetHeader>
-        <SheetTitle>Delete Transaction</SheetTitle>
-        <SheetDescription>This will irrevocably delete this transaction.</SheetDescription>
+        <SheetTitle>Delete Category</SheetTitle>
+        <SheetDescription>This will irrevocably delete this category.</SheetDescription>
       </SheetHeader>
-      <div>
-        <div className='ml-6 flex flex-col'>
-          <span>Name: {transaction.name}</span>
-          <span>Amount: {formattedAmount}</span>
-          <span>Type: {transaction.type}</span>
+      <div className='flex flex-col gap-3'>
+        <div className='flex w-1/2 flex-col'>
+          <div className='flex justify-between'>
+            <span className='font-bold'>Name:</span>
+            <span>{category.name}</span>
+          </div>
+          <div className='flex justify-between'>
+            <span className='font-bold'>Color:</span>
+            <span style={{ color: category.color }} className='blend-'>
+              {category.color}
+            </span>
+          </div>
         </div>
       </div>
       <SheetFooter>
@@ -147,22 +141,22 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
         </Button>
         {deleteMutation.isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
       </SheetFooter>
-    </>
+    </div>
   );
 }
 
-function Update({ transaction, month, year, onClose }: EdProps) {
-  const form = useForm<TransactionFormValues>({
-    resolver: zodResolver(transactionSchema),
-    values: { ...transaction, executedAt: parseISO(transaction.executedAt) },
+function Update({ category, onClose }: EdProps) {
+  const form = useForm<CategoryFormValues>({
+    resolver: zodResolver(categorySchema),
+    values: category,
     mode: 'onBlur',
   });
-  const updateTransaction = useUpdateTransaction();
+  const updateMutation = useUpdateCategory();
   const { toast } = useToast();
 
-  function onSubmit(data: TransactionFormValues) {
-    updateTransaction.mutate(
-      { newTransaction: data, transactionId: transaction.id, month: month, year: year },
+  function onSubmit(data: CategoryFormValues) {
+    updateMutation.mutate(
+      { category: data, categoryId: category.id },
       {
         onSuccess() {
           toast({ title: `Successfully updated: ${data.name} ` });
@@ -182,8 +176,8 @@ function Update({ transaction, month, year, onClose }: EdProps) {
   return (
     <>
       <SheetHeader>
-        <SheetTitle>Update {transaction.name}</SheetTitle>
-        <SheetDescription>Change the values of this transaction.</SheetDescription>
+        <SheetTitle>Update {category.name}</SheetTitle>
+        <SheetDescription>Change the values of this category.</SheetDescription>
       </SheetHeader>
       <div>
         <Form {...form}>
@@ -203,45 +197,13 @@ function Update({ transaction, month, year, onClose }: EdProps) {
             />
             <FormField
               control={form.control}
-              name='amount'
+              name='color'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Color</FormLabel>
                   <FormControl>
-                    <Input placeholder='Amount of money' {...field} />
+                    <Input type='color' placeholder='Color, e.g. `#123456`' {...field} onChange={field.onChange} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='type'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a transaction type' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value={TransactionType.EXPENSE}>Expense</SelectItem>
-                      <SelectItem value={TransactionType.INCOME}>Income</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='executedAt'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Execution date</FormLabel>
-                  <DatePicker date={field.value} setDate={field.onChange} {...field} />
                   <FormMessage />
                 </FormItem>
               )}
@@ -250,14 +212,14 @@ function Update({ transaction, month, year, onClose }: EdProps) {
             <div className='flex items-center justify-end gap-2'>
               <SheetFooter>
                 <SheetClose asChild>
-                  <Button type='button' variant='outline' disabled={updateTransaction.isPending}>
+                  <Button type='button' variant='outline' disabled={updateMutation.isPending}>
                     Cancel
                   </Button>
                 </SheetClose>
-                <Button type='submit' disabled={updateTransaction.isPending}>
+                <Button type='submit' disabled={updateMutation.isPending}>
                   Update
                 </Button>
-                {updateTransaction.isPending && <Icons.spinner className='animate-spin' />}
+                {updateMutation.isPending && <Icons.spinner className='animate-spin' />}
               </SheetFooter>
             </div>
           </form>

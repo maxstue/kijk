@@ -8,6 +8,12 @@ export interface ApiResponse<T = unknown> {
   state: 'Success' | 'Error';
 }
 
+export interface ApiError {
+  code: string;
+  message: string;
+  type: string;
+}
+
 export interface Transaction {
   id: string;
   name: string;
@@ -41,13 +47,18 @@ export const months = [
 
 export type Months = (typeof months)[number];
 
+export const CategotyType = {
+  DEFAULT: 'Default',
+  USER: 'User',
+} as const;
+
+export type CategotyType = (typeof CategotyType)[keyof typeof CategotyType];
+
 export interface Category {
   id: Id;
   name: string;
   color: string;
-  transactions?: Transaction[];
-  user?: User;
-  userId: string;
+  type: CategotyType;
 }
 
 export interface User {

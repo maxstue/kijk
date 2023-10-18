@@ -118,7 +118,7 @@ function SiteHeader({ children }: SProps) {
 }
 
 function Init({ children }: PropsWithChildren) {
-  const { isSuccess, isPending, mutate } = useInitUser();
+  const { isSuccess, isPending, isError, mutate } = useInitUser();
 
   useEffect(() => {
     mutate();
@@ -126,7 +126,13 @@ function Init({ children }: PropsWithChildren) {
 
   return (
     <>
-      {isPending && <>Loading</>} {isSuccess ? children : <div>Fehler beim initialisieren</div>}
+      {isPending && (
+        <div className='flex items-center justify-center'>
+          <Icons.spinner className='h-12 w-12 animate-spin' />
+        </div>
+      )}
+      {isSuccess && children}
+      {isError && <div className='text-red-400'>Error during initialisation</div>}
     </>
   );
 }
