@@ -1,8 +1,8 @@
 import { Suspense, useState } from 'react';
 import { BarChart3, Hash, List } from 'lucide-react';
 
-import { columns } from '@/app/settings/categories/categories-columns';
-import { CategoryCreateForm } from '@/components/categories/categories-create-form';
+import { categoryColumns, categoryDefaultSort } from '@/app/settings/categories/categories-columns';
+import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
 import { DataTable } from '@/components/data-table';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
@@ -56,7 +56,8 @@ function Categories() {
   return (
     <DataTable
       data={data?.data ?? []}
-      columns={columns}
+      columns={categoryColumns}
+      defaultSort={categoryDefaultSort}
       actions={
         <Sheet open={showSheet} onOpenChange={setShowSheet}>
           <SheetTrigger asChild>

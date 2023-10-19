@@ -12,7 +12,7 @@ export const transactionSchema = z.object({
   type: z.enum([TransactionType.EXPENSE, TransactionType.INCOME], {
     description: 'The type needs to be "Expense" or "Income"',
   }),
-  categoryIds: z.any().array().optional(),
+  categoryId: z.string().uuid().optional(),
   executedAt: z.date(),
 });
 

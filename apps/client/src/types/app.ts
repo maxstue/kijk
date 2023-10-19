@@ -20,7 +20,7 @@ export interface Transaction {
   amount: number;
   type: TransactionType;
   executedAt: string;
-  categories?: Category[];
+  category?: Category;
 }
 
 export const TransactionType = {

@@ -47,7 +47,7 @@ public class UsersService : IUsersService
                             x.Amount,
                             x.Type,
                             x.ExecutedAt,
-                            x.Categories.Select(c => c.MapToDto()))),
+                            x.Category?.MapToDto())),
                     newUserEntity.Categories.Select(c => c.MapToDto()));
             }
 
@@ -75,7 +75,7 @@ public class UsersService : IUsersService
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Categories.Select(c => c.MapToDto()))),
+                        x.Category?.MapToDto())),
                 userEntity.Categories.Select(c => c.MapToDto()));
         }
         catch (Exception e)

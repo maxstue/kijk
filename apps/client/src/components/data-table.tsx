@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnSort,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -20,10 +21,11 @@ interface Props<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>;
   data: TData[];
   actions?: ReactNode;
+  defaultSort?: ColumnSort;
 }
 
-export function DataTable<TData, TValue>({ columns, data, actions }: Props<TData, TValue>) {
-  const [amountSorting, setAmountSorting] = useState<SortingState>([]);
+export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }: Props<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
@@ -31,12 +33,12 @@ export function DataTable<TData, TValue>({ columns, data, actions }: Props<TData
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setAmountSorting,
+    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
-      sorting: amountSorting,
+      sorting: sorting,
       columnFilters,
     },
   });

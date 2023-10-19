@@ -2,6 +2,6 @@
 
 namespace Kijk.Api.Application.Transactions;
 
-public record CreateTransactionRequest(string Name, decimal Amount, TransactionType Type, DateTime ExecutedAt, IEnumerable<Guid>? CategoryIds);
+public record CreateTransactionRequest(string Name, decimal Amount, TransactionType Type, DateTime ExecutedAt, Guid? CategoryId);
 
-public record UpdateTransactionRequest(string? Name, decimal? Amount, TransactionType? Type, DateTime? ExecutedAt, IEnumerable<Guid>? CategoryIds);
+public record UpdateTransactionRequest(string? Name, decimal? Amount, TransactionType? Type, DateTime? ExecutedAt, Guid? CategoryId);

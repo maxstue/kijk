@@ -1,11 +1,14 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 
 import { BudgetListActions } from '@/app/budget/budget-list-actions';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn, formatStringToCurrency } from '@/lib/utils';
-import { Transaction } from '@/types/app';
+import { Category, Transaction } from '@/types/app';
+
+export const budgetDefaultSort: ColumnSort = { desc: true, id: 'executedAt' };
 
 export const budgetColumns: Array<ColumnDef<Transaction>> = [
   {
@@ -20,13 +23,21 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
     },
   },
   {
-    accessorKey: 'type',
+    accessorKey: 'category',
     header: ({ column }) => {
       return (
         <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Type
+          Name
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
+      );
+    },
+    cell: ({ getValue }) => {
+      const category = getValue<Category | undefined>();
+      return category ? (
+        <Badge style={{ backgroundColor: category.color }}>{category.name}</Badge>
+      ) : (
+        <span className='text-muted-foreground'>-</span>
       );
     },
   },
@@ -41,7 +52,7 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
       );
     },
     cell: ({ row }) => {
-      const isExpense = row.getValue<string>('type').toLowerCase() === 'EXPENSE'.toLowerCase();
+      const isExpense = row.original.type.toLowerCase() === 'EXPENSE'.toLowerCase();
       const formattedAmount = formatStringToCurrency(row.getValue<number>('amount'));
 
       return (

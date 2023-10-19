@@ -3,8 +3,8 @@ import { DialogProps } from '@radix-ui/react-alert-dialog';
 import { useNavigate } from '@tanstack/react-router';
 import { File, Laptop, Moon, SunMedium } from 'lucide-react';
 
-import { CategoryCreateForm } from '@/components/categories/categories-create-form';
-import { TransactionCreateForm } from '@/components/transactions/transaction-create-form';
+import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
+import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
 import { Button } from '@/components/ui/button';
 import {
   CommandDialog,
@@ -142,7 +142,7 @@ export function CommandMenu({ ...props }: DialogProps) {
             </CommandGroup>
           </CommandList>
         </CommandDialog>
-        <SheetContent>
+        <SheetContent className='space-y-8'>
           {showSheet && (
             <>
               {sheetType === 'transaction' && <TransactionSheet onClose={handleClose} />}

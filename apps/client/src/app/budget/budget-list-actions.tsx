@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { TransactionFormValues, transactionSchema } from '@/app/budget/schemas';
 import { useDeleteTransaction } from '@/app/budget/use-delete-transaction';
 import { useUpdateTransaction } from '@/app/budget/use-update-transaction';
+import { useGetCategories } from '@/app/settings/categories/use-get-categories';
 import { DatePicker } from '@/components/date-picker';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
@@ -124,16 +125,34 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
   };
 
   return (
-    <>
+    <div className='space-y-8'>
       <SheetHeader>
         <SheetTitle>Delete Transaction</SheetTitle>
         <SheetDescription>This will irrevocably delete this transaction.</SheetDescription>
       </SheetHeader>
       <div>
-        <div className='ml-6 flex flex-col'>
-          <span>Name: {transaction.name}</span>
-          <span>Amount: {formattedAmount}</span>
-          <span>Type: {transaction.type}</span>
+        <div className='flex w-2/3 flex-col'>
+          <div className='flex w-full justify-between'>
+            <span className='font-bold'>Name: </span>
+            <span>{transaction.name}</span>
+          </div>
+          <div className='flex w-full justify-between'>
+            <span className='font-bold'>Amount: </span>
+            <span>{formattedAmount}</span>
+          </div>
+          <div className='flex w-full justify-between'>
+            <span className='font-bold'>Type: </span>
+            <span>{transaction.type}</span>
+          </div>
+          <div className='flex w-full justify-between'>
+            <span className='font-bold'>Category: </span>
+            <span>
+              <div className='flex w-full items-center gap-2'>
+                <div style={{ backgroundColor: transaction.category?.color }} className='h-3 w-3 rounded'></div>
+                {transaction.category?.name}
+              </div>
+            </span>
+          </div>
         </div>
       </div>
       <SheetFooter>
@@ -147,20 +166,24 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
         </Button>
         {deleteMutation.isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
       </SheetFooter>
-    </>
+    </div>
   );
 }
 
 function Update({ transaction, month, year, onClose }: EdProps) {
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
-    values: { ...transaction, executedAt: parseISO(transaction.executedAt) },
+    values: { ...transaction, categoryId: transaction.category?.id, executedAt: parseISO(transaction.executedAt) },
     mode: 'onBlur',
   });
+
+  const categoryQuery = useGetCategories();
   const updateTransaction = useUpdateTransaction();
   const { toast } = useToast();
 
   function onSubmit(data: TransactionFormValues) {
+    console.log(data);
+
     updateTransaction.mutate(
       { newTransaction: data, transactionId: transaction.id, month: month, year: year },
       {
@@ -235,6 +258,35 @@ function Update({ transaction, month, year, onClose }: EdProps) {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name='categoryId'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select a category' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categoryQuery.data.data?.map((x) => (
+                        <SelectItem key={x.id} value={x.id}>
+                          <div className='flex w-full items-center gap-2'>
+                            <div style={{ backgroundColor: x.color }} className='h-3 w-3 rounded'></div>
+                            {x.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name='executedAt'

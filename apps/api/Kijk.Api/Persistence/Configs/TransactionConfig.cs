@@ -13,7 +13,7 @@ public class TransactionConfig : IEntityTypeConfiguration<Transaction>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Type).HasConversion<string>();
         
-        builder.HasMany(v => v.Categories).WithMany(c => c.Transactions);
+        builder.HasOne(v => v.Category).WithMany(c => c.Transactions);
 
     }
 }

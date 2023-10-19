@@ -6,7 +6,7 @@ public class CreateCategoryValidator : AbstractValidator<CreateCategoryRequest>
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithErrorCode(CategoriesErrors.Codes.PostValidationError).WithMessage("'Name‘ must be set")
-            .Length(4, 30).WithErrorCode(CategoriesErrors.Codes.PostValidationError).WithMessage("'Name‘ must be between 1 and 30 characters long");
+            .Length(4, 30).WithErrorCode(CategoriesErrors.Codes.PostValidationError).WithMessage("'Name‘ must be between 4 and 30 characters long");
         
         RuleFor(x => x.Color)
             .NotEmpty().WithErrorCode(CategoriesErrors.Codes.PostValidationError).WithMessage("'Color' must be set")

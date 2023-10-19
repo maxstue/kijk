@@ -55,47 +55,29 @@ public readonly record struct Result<TValue>
     /// <summary>
     ///     Creates an <see cref="Result{TValue}" /> from a a value.
     /// </summary>
-    public static Result<TValue> ToResult(TValue value)
-    {
-        return value;
-    }
+    public static Result<TValue> ToResult(TValue value) => value;
 
     /// <summary>
     ///     Creates an <see cref="Result{TValue}" /> from a value.
     /// </summary>
-    public static implicit operator Result<TValue>(TValue value)
-    {
-        return new Result<TValue>(value);
-    }
+    public static implicit operator Result<TValue>(TValue value) => new(value);
 
-    public static implicit operator Result<TValue>(Tuple<TValue, string> tuple)
-    {
-        return new Result<TValue>(tuple.Item1);
-    }
+    public static implicit operator Result<TValue>(Tuple<TValue, string> tuple) => new(tuple.Item1);
 
     /// <summary>
     ///     Creates an <see cref="Result{TValue}" /> from a list of errors.
     /// </summary>
-    public static Result<TValue> From(List<Error> errors)
-    {
-        return errors;
-    }
+    public static Result<TValue> From(List<Error> errors) => errors;
 
     /// <summary>
     ///     Creates an <see cref="Result{TValue}" /> from an error.
     /// </summary>
-    public static implicit operator Result<TValue>(Error error)
-    {
-        return new Result<TValue>(new List<Error> { error });
-    }
+    public static implicit operator Result<TValue>(Error error) => new(new List<Error> { error });
 
     /// <summary>
     ///     Creates an <see cref="Result{TValue}" /> from a list of errors.
     /// </summary>
-    public static implicit operator Result<TValue>(List<Error> errors)
-    {
-        return new Result<TValue>(errors);
-    }
+    public static implicit operator Result<TValue>(List<Error> errors) => new(errors);
 
     public TResult Match<TResult>(Func<TValue, TResult> onValue, Func<List<Error>, TResult> onError)
     {
@@ -106,7 +88,7 @@ public readonly record struct Result<TValue>
     {
         return IsError ? await onError(Errors) : await onValue(Value);
     }
-    
+
     public IResult ToResponse(string? successMessage = default, SuccessType successType = SuccessType.Ok)
     {
         return this.Match(

@@ -34,7 +34,7 @@ public class TransactionsService : ITransactionsService
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Categories.Select(c => c.MapToDto())))
+                        x.Category != null ? x.Category.MapToDto() : null))
                 .ToListAsync(cancellationToken);
         }
         catch (Exception e)
@@ -57,7 +57,7 @@ public class TransactionsService : ITransactionsService
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Categories.Select(c => c.MapToDto())))
+                        x.Category != null ? x.Category.MapToDto() : null))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity is null)
@@ -74,7 +74,9 @@ public class TransactionsService : ITransactionsService
         }
     }
 
-    public async Task<Result<TransactionDto>> CreateAsync(CreateTransactionRequest createTransactionRequest, CancellationToken cancellationToken = default)
+    public async Task<Result<TransactionDto>> CreateAsync(
+        CreateTransactionRequest createTransactionRequest,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -91,16 +93,22 @@ public class TransactionsService : ITransactionsService
                 Type = createTransactionRequest.Type,
                 ExecutedAt = createTransactionRequest.ExecutedAt,
                 User = user,
-                Categories = new ()
             };
 
-            if (createTransactionRequest.CategoryIds is not null && createTransactionRequest.CategoryIds.Any())
+            if (createTransactionRequest.CategoryId is not null)
             {
-                var categories = await _dbContext.Categories
-                    .Where(x => createTransactionRequest.CategoryIds.Contains(x.Id))
-                    .ToListAsync(cancellationToken);
+                var category = await _dbContext.Categories
+                    .FindAsync(new object?[] { createTransactionRequest.CategoryId }, cancellationToken: cancellationToken);
 
-                newTransaction.Categories = categories;
+                if (category is not null)
+                {
+                    newTransaction.Category = category;
+                }
+                else
+                {
+                    _logger.Warning("Error: The selected category with id {CategoryId}, doesn't exist", createTransactionRequest.CategoryId);
+                    return TransactionsErrors.Failure($"The selected category with id { createTransactionRequest.CategoryId}, doesn't exist");
+                }
             }
 
             var resEntityEntry = await _dbContext.Transactions.AddAsync(newTransaction, cancellationToken);
@@ -113,7 +121,7 @@ public class TransactionsService : ITransactionsService
                 entity.Amount,
                 entity.Type,
                 entity.ExecutedAt,
-                entity.Categories.Select(c => c.MapToDto()));
+                entity.Category?.MapToDto());
         }
         catch (Exception e)
         {
@@ -130,7 +138,7 @@ public class TransactionsService : ITransactionsService
         try
         {
             var foundEntity = await _dbContext.Transactions
-                .Include(x => x.Categories)
+                .Include(x => x.Category)
                 .Where(x => x.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -145,13 +153,20 @@ public class TransactionsService : ITransactionsService
             foundEntity.Type = updateTransactionRequest.Type ?? foundEntity.Type;
             foundEntity.ExecutedAt = updateTransactionRequest.ExecutedAt ?? foundEntity.ExecutedAt;
 
-            if (updateTransactionRequest.CategoryIds is not null && updateTransactionRequest.CategoryIds.Any())
+            if (updateTransactionRequest.CategoryId is not null)
             {
-                var categories = await _dbContext.Categories
-                    .Where(x => updateTransactionRequest.CategoryIds.Contains(x.Id))
-                    .ToListAsync(cancellationToken);
+                var category = await _dbContext.Categories
+                    .FindAsync(new object?[] { updateTransactionRequest.CategoryId }, cancellationToken: cancellationToken);
 
-                foundEntity.Categories = categories;
+                if (category is not null)
+                {
+                    foundEntity.Category = category;
+                }
+                else
+                {
+                    _logger.Warning("Error: The selected category with id {CategoryId}, doesn't exist", updateTransactionRequest.CategoryId);
+                    return TransactionsErrors.Failure($"The selected category with id { updateTransactionRequest.CategoryId}, doesn't exist");
+                }
             }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -162,7 +177,7 @@ public class TransactionsService : ITransactionsService
                 foundEntity.Amount,
                 foundEntity.Type,
                 foundEntity.ExecutedAt,
-                foundEntity.Categories.Select(c => c.MapToDto()));
+                foundEntity.Category?.MapToDto());
         }
         catch (Exception e)
         {

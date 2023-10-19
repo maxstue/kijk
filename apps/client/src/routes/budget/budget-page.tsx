@@ -2,10 +2,10 @@ import { ComponentPropsWithoutRef, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, DollarSign, Download, List, PlusCircle, Users } from 'lucide-react';
 
-import { budgetColumns } from '@/app/budget/budget-column';
+import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
+import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
 import { DataTable } from '@/components/data-table';
-import { TransactionCreateForm } from '@/components/transactions/transaction-create-form';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -106,12 +106,13 @@ export function BudgetPage() {
                   <DataTable
                     data={data?.data ?? []}
                     columns={budgetColumns}
+                    defaultSort={budgetDefaultSort}
                     actions={
                       <Sheet open={showSheet} onOpenChange={setShowSheet}>
                         <SheetTrigger asChild>
                           <Button variant='outline'>Create Transaction</Button>
                         </SheetTrigger>
-                        <SheetContent>
+                        <SheetContent className='space-y-8'>
                           <SheetHeader>
                             <SheetTitle>Create Transaction</SheetTitle>
                             <SheetDescription>Create a new transaction.</SheetDescription>

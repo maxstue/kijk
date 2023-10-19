@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
-import { CategoryFormValues, categorySchema } from '../../app/settings/categories/schemas';
+import { CategoryFormValues, categorySchema } from './schemas';
 
 interface Props {
   onClose?: () => void;

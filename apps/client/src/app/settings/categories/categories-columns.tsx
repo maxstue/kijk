@@ -1,11 +1,13 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { DataListRowActions } from '@/app/settings/categories/categories-list-actions';
 import { Button } from '@/components/ui/button';
 import { Category } from '@/types/app';
 
-export const columns: Array<ColumnDef<Category>> = [
+export const categoryDefaultSort: ColumnSort = { desc: false, id: 'name' };
+
+export const categoryColumns: Array<ColumnDef<Category>> = [
   {
     accessorKey: 'name',
     header: ({ column }) => {

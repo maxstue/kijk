@@ -8,10 +8,7 @@ public record ApiResponse<T>
 
     public string? Message { get; set; }
 
-    public static implicit operator ApiResponse<T>(T data)
-    {
-        return Success(data);
-    }
+    public static implicit operator ApiResponse<T>(T data) => Success(data);
 
     public static ApiResponse<T> Success(T data, string? message = default)
     {
