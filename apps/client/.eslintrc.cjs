@@ -9,6 +9,7 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
     'prettier',
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs', 'tailwind.config.js', 'postcss.config.js'],
@@ -36,7 +37,7 @@ module.exports = {
       },
     ],
     // react
-    'react-refresh/only-export-components': ['warn'],
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     'react/prop-types': ['error', { ignore: ['className', 'classNames', 'showOutsideDays'] }],
     'react/no-unknown-property': ['error', { ignore: ['cmdk-input-wrapper'] }],
   },
