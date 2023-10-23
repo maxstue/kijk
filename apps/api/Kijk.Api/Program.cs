@@ -61,9 +61,10 @@ var app = builder.Build();
 app.UseResponseCompression();
 app.UseSecurityHeaders();
 
+await app.UseInitDatabase(app.Environment);
+
 if (app.Environment.IsDevelopment())
 {
-    await app.UseInitDb();
     app.UseDeveloperExceptionPage();
     app.UseCustomOpenApi();
 }

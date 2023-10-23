@@ -19,6 +19,7 @@ public static class WebApplicationExtension
                 // c.UseRequestInterceptor("(req) => { req.headers['Authorization'] = 'Bearer ' + window?.swaggerUIRedirectOauth2?.auth?.token?.access_token; return req; }");
 
                 c.PersistAuthorization = true;
+
                 // c.OAuth2Client = new OAuth2ClientSettings
                 // {
                 //     ClientId = appSettings?.Auth.ClientId,
@@ -30,17 +31,13 @@ public static class WebApplicationExtension
         return app;
     }
 
-    public static async Task<WebApplication> UseInitDb(this WebApplication app)
+    public static async Task<WebApplication> UseInitDatabase(this WebApplication app, IWebHostEnvironment environment)
     {
-        var connectionString = app.Configuration.GetConnectionString("DefaultConnection");
-        Log.ForContext(typeof(WebApplicationExtension)).Information("Ensuring database exists and is up to date");
-
-        // Migrate latest database changes during startup
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        await dbContext.Database.MigrateAsync();
-
+        await AppDbInitializer.InitDb(dbContext, environment);
+        
         return app;
     }
 
@@ -53,6 +50,7 @@ public static class WebApplicationExtension
             .WithTags("api")
             .WithOpenApi()
             .RequireAuthorization(AppConstants.Policies.All);
+
         // apiGroup.WithOpenApi(); // disabled until this is fixed "https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2625"
 
         apiGroup.RequirePerUserRateLimit();
