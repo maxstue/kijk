@@ -1,12 +1,36 @@
 import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
-import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext } from 'react-hook-form';
+import {
+  Controller,
+  ControllerProps,
+  FieldPath,
+  FieldValues,
+  FormProvider,
+  SubmitErrorHandler,
+  SubmitHandler,
+  useFormContext,
+  UseFormReturn,
+} from 'react-hook-form';
 
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-const Form = FormProvider;
+interface Props<T extends FieldValues> extends Omit<React.ComponentProps<'form'>, 'onSubmit' | 'onInvalid'> {
+  form: UseFormReturn<T>;
+  onSubmit: SubmitHandler<T>;
+  onInvalid?: SubmitErrorHandler<T>;
+}
+
+function Form<T extends FieldValues>({ form, onSubmit, onInvalid, children, ...props }: Props<T>) {
+  return (
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} {...props}>
+        <fieldset disabled={form.formState.isSubmitting}>{children}</fieldset>
+      </form>
+    </FormProvider>
+  );
+}
 
 interface FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,

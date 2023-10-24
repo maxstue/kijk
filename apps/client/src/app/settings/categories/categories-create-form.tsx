@@ -1,10 +1,8 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-
 import { useCreateCategory } from '@/app/settings/categories/use-create-category';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
+import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,13 +16,12 @@ export function CategoryCreateForm({ onClose }: Props) {
   const { isPending, mutate } = useCreateCategory();
   const { toast } = useToast();
 
-  const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
+  const form = useZodForm({
     defaultValues: {
       name: '',
       color: '#000000',
     },
-    mode: 'onBlur',
+    schema: categorySchema,
   });
 
   function onSubmit(data: CategoryFormValues) {
@@ -53,40 +50,38 @@ export function CategoryCreateForm({ onClose }: Props) {
 
   return (
     <div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-          <FormField
-            control={form.control}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder='Name' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='color'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Color</FormLabel>
-                <FormControl>
-                  <Input type='color' placeholder='Color, e.g. `#123456`' {...field} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <Form form={form} onSubmit={onSubmit} className='space-y-8'>
+        <FormField
+          control={form.control}
+          name='name'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder='Name' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='color'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Color</FormLabel>
+              <FormControl>
+                <Input type='color' placeholder='Color, e.g. `#123456`' {...field} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <Button type='submit' disabled={isPending}>
-            Add
-          </Button>
-          {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
-        </form>
+        <Button type='submit' disabled={isPending}>
+          Add
+        </Button>
+        {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
       </Form>
     </div>
   );

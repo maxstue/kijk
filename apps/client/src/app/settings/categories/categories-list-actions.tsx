@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
-import { useForm } from 'react-hook-form';
 
 import { CategoryFormValues, categorySchema } from '@/app/settings/categories/schemas';
 import { useDeleteCategory } from '@/app/settings/categories/use-delete-category';
@@ -18,7 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
+import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import {
   Sheet,
@@ -146,8 +145,8 @@ function Delete({ category, onClose }: EdProps) {
 }
 
 function Update({ category, onClose }: EdProps) {
-  const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
+  const form = useZodForm({
+    schema: categorySchema,
     values: category,
     mode: 'onBlur',
   });
@@ -180,49 +179,47 @@ function Update({ category, onClose }: EdProps) {
         <SheetDescription>Change the values of this category.</SheetDescription>
       </SheetHeader>
       <div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit, handleError)} className='space-y-8'>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Name' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='color'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Color</FormLabel>
-                  <FormControl>
-                    <Input type='color' placeholder='Color, e.g. `#123456`' {...field} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <Form {...form} form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
+          <FormField
+            control={form.control}
+            name='name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder='Name' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='color'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
+                  <Input type='color' placeholder='Color, e.g. `#123456`' {...field} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <div className='flex items-center justify-end gap-2'>
-              <SheetFooter>
-                <SheetClose asChild>
-                  <Button type='button' variant='outline' disabled={updateMutation.isPending}>
-                    Cancel
-                  </Button>
-                </SheetClose>
-                <Button type='submit' disabled={updateMutation.isPending}>
-                  Update
+          <div className='flex items-center justify-end gap-2'>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button type='button' variant='outline' disabled={updateMutation.isPending}>
+                  Cancel
                 </Button>
-                {updateMutation.isPending && <Icons.spinner className='animate-spin' />}
-              </SheetFooter>
-            </div>
-          </form>
+              </SheetClose>
+              <Button type='submit' disabled={updateMutation.isPending}>
+                Update
+              </Button>
+              {updateMutation.isPending && <Icons.spinner className='animate-spin' />}
+            </SheetFooter>
+          </div>
         </Form>
       </div>
     </>

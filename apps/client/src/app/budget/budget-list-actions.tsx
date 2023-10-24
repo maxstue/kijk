@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearch } from '@tanstack/react-router';
 import { Row } from '@tanstack/react-table';
 import { parseISO } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
-import { useForm } from 'react-hook-form';
 
 import { TransactionFormValues, transactionSchema } from '@/app/budget/schemas';
 import { useDeleteTransaction } from '@/app/budget/use-delete-transaction';
@@ -22,7 +20,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
+import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -171,10 +170,10 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
 }
 
 function Update({ transaction, month, year, onClose }: EdProps) {
-  const form = useForm<TransactionFormValues>({
-    resolver: zodResolver(transactionSchema),
+  const form = useZodForm({
     values: { ...transaction, categoryId: transaction.category?.id, executedAt: parseISO(transaction.executedAt) },
     mode: 'onBlur',
+    schema: transactionSchema,
   });
 
   const categoryQuery = useGetCategories();
@@ -209,110 +208,108 @@ function Update({ transaction, month, year, onClose }: EdProps) {
         <SheetDescription>Change the values of this transaction.</SheetDescription>
       </SheetHeader>
       <div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit, handleError)} className='space-y-8'>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
+        <Form {...form} form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
+          <FormField
+            control={form.control}
+            name='name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder='Name' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='amount'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Amount</FormLabel>
+                <FormControl>
+                  <Input placeholder='Amount of money' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='type'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <Input placeholder='Name' {...field} />
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select a transaction type' />
+                    </SelectTrigger>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='amount'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <SelectContent>
+                    <SelectItem value={TransactionType.EXPENSE}>Expense</SelectItem>
+                    <SelectItem value={TransactionType.INCOME}>Income</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='categoryId'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <Input placeholder='Amount of money' {...field} />
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select a category' />
+                    </SelectTrigger>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='type'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a transaction type' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value={TransactionType.EXPENSE}>Expense</SelectItem>
-                      <SelectItem value={TransactionType.INCOME}>Income</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <SelectContent>
+                    {categoryQuery.data.data?.map((x) => (
+                      <SelectItem key={x.id} value={x.id}>
+                        <div className='flex w-full items-center gap-2'>
+                          <div style={{ backgroundColor: x.color }} className='h-3 w-3 rounded'></div>
+                          {x.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name='categoryId'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a category' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categoryQuery.data.data?.map((x) => (
-                        <SelectItem key={x.id} value={x.id}>
-                          <div className='flex w-full items-center gap-2'>
-                            <div style={{ backgroundColor: x.color }} className='h-3 w-3 rounded'></div>
-                            {x.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name='executedAt'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Execution date</FormLabel>
+                <DatePicker date={field.value} setDate={field.onChange} {...field} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name='executedAt'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Execution date</FormLabel>
-                  <DatePicker date={field.value} setDate={field.onChange} {...field} />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className='flex items-center justify-end gap-2'>
-              <SheetFooter>
-                <SheetClose asChild>
-                  <Button type='button' variant='outline' disabled={updateTransaction.isPending}>
-                    Cancel
-                  </Button>
-                </SheetClose>
-                <Button type='submit' disabled={updateTransaction.isPending}>
-                  Update
+          <div className='flex items-center justify-end gap-2'>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button type='button' variant='outline' disabled={updateTransaction.isPending}>
+                  Cancel
                 </Button>
-                {updateTransaction.isPending && <Icons.spinner className='animate-spin' />}
-              </SheetFooter>
-            </div>
-          </form>
+              </SheetClose>
+              <Button type='submit' disabled={updateTransaction.isPending}>
+                Update
+              </Button>
+              {updateTransaction.isPending && <Icons.spinner className='animate-spin' />}
+            </SheetFooter>
+          </div>
         </Form>
       </div>
     </>
