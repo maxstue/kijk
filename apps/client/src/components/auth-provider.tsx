@@ -1,5 +1,7 @@
 import { KindeProvider } from '@kinde-oss/kinde-auth-react';
 
+import { env } from '@/env';
+
 interface Props {
   children?: React.ReactNode;
 }
@@ -7,9 +9,9 @@ interface Props {
 export const AuthProvider = ({ children }: Props) => {
   return (
     <KindeProvider
-      clientId={import.meta.env.VITE_KINDE_CLIENT_ID as string}
-      domain={import.meta.env.VITE_KINDE_DOMAIN as string}
-      audience={import.meta.env.VITE_KINDE_AUDIENCE as string}
+      clientId={env.AuthClientId}
+      domain={env.AuthDomain}
+      audience={env.AuthAudience}
       logoutUri={window.location.origin}
       redirectUri={window.location.origin}
       isDangerouslyUseLocalStorage={process.env.NODE_ENV === 'development'}

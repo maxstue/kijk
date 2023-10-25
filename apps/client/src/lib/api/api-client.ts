@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+import { env } from '@/env';
 import { ApiError } from '@/types/app';
 
 /** Overrides axios requestoptions, so that the url prop is mandatory */
@@ -16,7 +17,7 @@ const onRejected = (error: AxiosError<ApiError>) => {
 };
 
 const baseInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL as string,
+  baseURL: env.ApiUrl,
 });
 
 /** The base api instance. */
