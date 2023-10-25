@@ -118,6 +118,9 @@ export function CommandMenu({ ...props }: DialogProps) {
               {settingsNav.map((item) => (
                 <CommandItem
                   key={item.label}
+                  // TODO fix this
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   onSelect={() => runCommand(() => navigate({ to: `/settings/${item.to}` }))}
                 >
                   <File className='mr-2 h-4 w-4' />

@@ -1,7 +1,7 @@
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { apiClient } from '@/lib/api-client';
+import { apiClient } from '@/lib/api/api-client';
 import { Id } from '@/types/app';
 
 export const useDeleteCategory = () => {
@@ -14,11 +14,10 @@ export const useDeleteCategory = () => {
 
   return useMutation({
     mutationFn: async (data: Data) => {
-      return apiClient
-        .delete(`categories/${data.categoryId}`, {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        })
-        .json();
+      return apiClient.delete({
+        url: `categories/${data.categoryId}`,
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ['categories'] });

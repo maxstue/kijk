@@ -15,7 +15,7 @@ import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 export function RootPage() {
-  const { login, register, isAuthenticated, user } = useKindeAuth();
+  const { login, register, user } = useKindeAuth();
 
   const handleSignup = () => {
     void register({});
@@ -27,7 +27,7 @@ export function RootPage() {
 
   return (
     <>
-      {isAuthenticated && user ? (
+      {user ? (
         <Init>
           <>
             <div className='flex min-h-screen flex-col'>

@@ -51,7 +51,7 @@ export function AppearanceForm() {
   }
 
   return (
-    <Form {...form} form={form} onSubmit={onSubmit} className='space-y-8'>
+    <Form form={form} onSubmit={onSubmit} className='space-y-8'>
       <FormField
         control={form.control}
         name='font'

@@ -32,7 +32,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { budgetRoute, BudgetSearch } from '@/routes/budget/budget-route';
+import { budgetRoute } from '@/routes/budget/budget-route';
 import { months } from '@/types/app';
 
 export function BudgetPage() {
@@ -48,10 +48,10 @@ export function BudgetPage() {
 
   useEffect(() => {
     if (typeof searchParams.year == 'undefined') {
-      void navigate({ search: (prev: BudgetSearch) => ({ ...prev, year: year }) });
+      void navigate({ search: (prev) => ({ ...prev, year: year }) });
     }
     if (typeof searchParams.month == 'undefined') {
-      void navigate({ search: (prev: BudgetSearch) => ({ ...prev, month: month }) });
+      void navigate({ search: (prev) => ({ ...prev, month: month }) });
     }
   }, [month, navigate, searchParams.month, searchParams.year, year]);
 
@@ -184,7 +184,7 @@ function YearSwitcher({ className }: YProps) {
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
-    void navigate({ search: (prev: BudgetSearch) => ({ ...prev, year: year }) });
+    void navigate({ search: (prev) => ({ ...prev, year: year }) });
   };
 
   return (

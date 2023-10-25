@@ -181,8 +181,6 @@ function Update({ transaction, month, year, onClose }: EdProps) {
   const { toast } = useToast();
 
   function onSubmit(data: TransactionFormValues) {
-    console.log(data);
-
     updateTransaction.mutate(
       { newTransaction: data, transactionId: transaction.id, month: month, year: year },
       {
@@ -208,7 +206,7 @@ function Update({ transaction, month, year, onClose }: EdProps) {
         <SheetDescription>Change the values of this transaction.</SheetDescription>
       </SheetHeader>
       <div>
-        <Form {...form} form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
+        <Form form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
           <FormField
             control={form.control}
             name='name'
@@ -229,7 +227,7 @@ function Update({ transaction, month, year, onClose }: EdProps) {
               <FormItem>
                 <FormLabel>Amount</FormLabel>
                 <FormControl>
-                  <Input placeholder='Amount of money' {...field} />
+                  <Input type='number' placeholder='Amount of money' {...field} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
