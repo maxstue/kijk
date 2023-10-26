@@ -5,6 +5,8 @@ const envSchema = z.object({
   Mode: z.enum(['development', 'production', 'test']).default('development'),
   // App
   ApiUrl: z.string().url(),
+  // Devtools
+  DevToolsLogger: z.string().transform((x) => x === 'true'),
   // Auth
   AuthClientId: z.string().trim().min(1),
   AuthDomain: z.string().trim().min(1),
@@ -16,6 +18,8 @@ const envParse = envSchema.safeParse({
   Mode: import.meta.env.MODE,
   // App
   ApiUrl: import.meta.env.VITE_API_URL,
+  // Devtools
+  DevToolsLogger: import.meta.env.VITE_DEVTOOLS_LOGGER,
   // Auth
   AuthClientId: import.meta.env.VITE_KINDE_CLIENT_ID,
   AuthDomain: import.meta.env.VITE_KINDE_DOMAIN,

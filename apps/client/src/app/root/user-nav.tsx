@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { settingsNav } from '@/lib/constants';
 import { getInitailChars } from '@/lib/utils';
+import { useThemeStore } from '@/stores/theme-store';
 import { User } from '@/types/app';
 
 interface Props {
@@ -24,6 +25,7 @@ interface Props {
 export function UserNav({ user }: Props) {
   const userInitials = getInitailChars(user.given_name);
   const { logout } = useKindeAuth();
+  const { radius } = useThemeStore();
 
   const handleSignOut = (event: Event) => {
     event.preventDefault();
@@ -40,7 +42,7 @@ export function UserNav({ user }: Props) {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className='w-56' align='end' forceMount>
+      <DropdownMenuContent key={radius} className='w-56 rounded-lg bg-background' align='end' forceMount>
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
             <p className='text-sm font-medium leading-none'>{user.given_name}</p>

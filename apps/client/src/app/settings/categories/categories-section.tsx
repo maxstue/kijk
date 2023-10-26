@@ -18,7 +18,7 @@ export function CategoriesSection() {
     <div className='space-y-6'>
       <div>
         <h3 className='text-lg font-medium'>Categories</h3>
-        <p className='text-sm text-muted-foreground'>Here you can manage you categories.</p>
+        <p className='text-sm text-muted-foreground'>Manage your categories. Create, update or delete them.</p>
       </div>
       <Separator />
       <div className='grid gap-4 lg:grid-cols-2'>

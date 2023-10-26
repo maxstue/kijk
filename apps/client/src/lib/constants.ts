@@ -15,3 +15,5 @@ export const settingsNav = [
   { to: 'notifications', label: 'Notifications', shortCutKey: undefined, icon: 'bellRing' },
   { to: 'categories', label: 'Categories', shortCutKey: undefined, icon: 'category' },
 ] as const;
+
+export const themeStorageKey = 'theme';

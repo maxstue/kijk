@@ -1,7 +1,12 @@
 import { clsx } from 'clsx';
+import { Draft } from 'immer';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
+import { create, StoreApi } from 'zustand';
+import { devtools } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
+import { env } from '@/env';
 import { Months, months, Optional } from '@/types/app';
 import type { ClassValue } from 'clsx';
 
@@ -75,4 +80,60 @@ export function getMonthIndexFromString(month: string) {
 
 const isMonth = (b: string): b is Months => {
   return months.includes(b as Months);
+};
+
+type ImmerSetter<T extends object> = (
+  nextStateOrUpdater: T | Partial<T> | ((state: Draft<T>) => void),
+  shouldReplace?: boolean | undefined,
+  actionType?:
+    | string
+    | {
+        type: unknown;
+      }
+    | undefined,
+) => void;
+
+/**
+ * Creates a new zustand store with middlwares. middlewares: immer, devtools devtools are disabled in prod build
+ *
+ * @param storeName The store name
+ * @param store The zustand store
+ * @returns A newly created store with all middlewares applied
+ */
+export const createStoreFactory = <T extends object>(
+  storeName: string,
+  store: (set: ImmerSetter<T>, get: StoreApi<T>['getState']) => T,
+) => create<T>()(devtools(immer(store), { store: `d-main/${storeName}`, name: 'd-main', enabled: env.DevToolsLogger }));
+
+const STORAGE_PREFIX = 'kijk-';
+
+// REFACTOR: use zod and simplify
+export const browserStorage = {
+  getItem<T>(key: string, storage: Storage = localStorage) {
+    const value = storage.getItem(STORAGE_PREFIX + key);
+    if (value === null) {
+      return undefined;
+    }
+    return JSON.parse(value) as T;
+  },
+
+  setItem<T>(key: string, item: T, storage: Storage = localStorage) {
+    storage.setItem(STORAGE_PREFIX + key, JSON.stringify(item));
+  },
+
+  hasItem(key: string, storage: Storage = localStorage, validator?: (value: string) => boolean) {
+    const arr = this.getItem(key, storage);
+    if (validator && arr != null) {
+      return validator(arr as string);
+    }
+    return arr != null;
+  },
+
+  removeItem(key: string, storage: Storage = localStorage) {
+    storage.removeItem(STORAGE_PREFIX + key);
+  },
+
+  clear(storage: Storage = localStorage) {
+    storage.clear();
+  },
 };

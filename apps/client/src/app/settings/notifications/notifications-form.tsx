@@ -48,7 +48,7 @@ export function NotificationsForm() {
     toast({
       title: 'You submitted the following values:',
       description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+        <pre className='mt-2 w-[340px] rounded bg-slate-950 p-4'>
           <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
         </pre>
       ),
@@ -96,7 +96,7 @@ export function NotificationsForm() {
             control={form.control}
             name='communication_emails'
             render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+              <FormItem className='flex flex-row items-center justify-between rounded border p-4'>
                 <div className='space-y-0.5'>
                   <FormLabel className='text-base'>Communication emails</FormLabel>
                   <FormDescription>Receive emails about your account activity.</FormDescription>
@@ -111,7 +111,7 @@ export function NotificationsForm() {
             control={form.control}
             name='marketing_emails'
             render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+              <FormItem className='flex flex-row items-center justify-between rounded border p-4'>
                 <div className='space-y-0.5'>
                   <FormLabel className='text-base'>Marketing emails</FormLabel>
                   <FormDescription>Receive emails about new products, features, and more.</FormDescription>
@@ -126,7 +126,7 @@ export function NotificationsForm() {
             control={form.control}
             name='social_emails'
             render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+              <FormItem className='flex flex-row items-center justify-between rounded border p-4'>
                 <div className='space-y-0.5'>
                   <FormLabel className='text-base'>Social emails</FormLabel>
                   <FormDescription>Receive emails for friend requests, follows, and more.</FormDescription>
@@ -141,7 +141,7 @@ export function NotificationsForm() {
             control={form.control}
             name='security_emails'
             render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+              <FormItem className='flex flex-row items-center justify-between rounded border p-4'>
                 <div className='space-y-0.5'>
                   <FormLabel className='text-base'>Security emails</FormLabel>
                   <FormDescription>Receive emails about your account activity and security.</FormDescription>

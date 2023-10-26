@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }
         />
         {actions}
       </div>
-      <div className='h-[500px] overflow-scroll rounded-md border'>
+      <div className='h-[500px] overflow-scroll rounded border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

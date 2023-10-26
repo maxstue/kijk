@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   // Base
   VITE_BASE_API_URL: string;
   VITE_API_URL: string;
+  // Devtools
+  VITE_DEVTOOLS_LOGGER: string;
   // Auth
   VITE_KINDE_CLIENT_ID: string;
   VITE_KINDE_DOMAIN: string;

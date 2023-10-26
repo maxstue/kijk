@@ -5,6 +5,7 @@ import { File, Laptop, Moon, SunMedium } from 'lucide-react';
 
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
+import { ThemeQuickCustomizer } from '@/components/theme-quick-customizer';
 import { Button } from '@/components/ui/button';
 import {
   CommandDialog,
@@ -16,16 +17,16 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { useTheme } from '@/hooks/use-theme';
 import { settingsNav } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { useThemeStoreActions } from '@/stores/theme-store';
 
 export function CommandMenu({ ...props }: DialogProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'category' | 'transaction'>();
-  const { setTheme } = useTheme();
+  const { setMode } = useThemeStoreActions();
 
   const handleClose = () => {
     setShowSheet(false);
@@ -54,21 +55,21 @@ export function CommandMenu({ ...props }: DialogProps) {
       <Button
         variant='outline'
         className={cn(
-          'relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64',
+          'relative h-9 w-full justify-start border-primary text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64',
         )}
         onClick={() => setOpen(true)}
         {...props}
       >
         <span className='hidden lg:inline-flex'>Search app...</span>
         <span className='inline-flex lg:hidden'>Search...</span>
-        <kbd className='pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex'>
+        <kbd className='pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none items-center gap-1 border border-primary bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex'>
           <span className='text-xs'>⌘</span>K
         </kbd>
       </Button>
       <Sheet open={showSheet} onOpenChange={setShowSheet}>
         <CommandDialog open={open} onOpenChange={setOpen}>
-          <CommandInput placeholder='Type a command or search...' />
-          <CommandList>
+          <CommandInput className='bg-background' placeholder='Type a command or search...' />
+          <CommandList className='bg-background'>
             <CommandEmpty>No results found.</CommandEmpty>
 
             <CommandGroup heading='Links'>
@@ -130,17 +131,20 @@ export function CommandMenu({ ...props }: DialogProps) {
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading='Theme'>
-              <CommandItem onSelect={() => runCommand(() => setTheme('light'))}>
+              <CommandItem onSelect={() => runCommand(() => setMode('light'))}>
                 <SunMedium className='mr-2 h-4 w-4' />
                 Light
               </CommandItem>
-              <CommandItem onSelect={() => runCommand(() => setTheme('dark'))}>
+              <CommandItem onSelect={() => runCommand(() => setMode('dark'))}>
                 <Moon className='mr-2 h-4 w-4' />
                 Dark
               </CommandItem>
-              <CommandItem onSelect={() => runCommand(() => setTheme('system'))}>
+              <CommandItem onSelect={() => runCommand(() => setMode('system'))}>
                 <Laptop className='mr-2 h-4 w-4' />
                 System
+              </CommandItem>
+              <CommandItem value='theme-quick'>
+                <ThemeQuickCustomizer />
               </CommandItem>
             </CommandGroup>
           </CommandList>

@@ -3,7 +3,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from '@tanstack/react-router';
 
 import { AuthProvider } from '@/components/auth-provider';
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeModeSwitcher } from '@/components/theme-mode-switcher';
+import { ThemeSwitcher } from '@/components/theme-switcher';
+import { ThemeWrapper } from '@/components/theme-wrapper';
 import { baseInstance } from '@/lib/api/api-client';
 import { ApiInterceptors } from '@/lib/api/api-client-provider';
 import { queryClient } from '@/lib/query-client';
@@ -14,9 +16,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ApiInterceptors client={baseInstance}>
-          <ThemeProvider defaultTheme='light' storageKey='kijk-theme'>
+          <ThemeWrapper>
             <RouterProvider router={router} />
-          </ThemeProvider>
+            <ThemeSwitcher />
+            <ThemeModeSwitcher />
+          </ThemeWrapper>
         </ApiInterceptors>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />

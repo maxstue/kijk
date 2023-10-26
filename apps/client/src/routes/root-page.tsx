@@ -8,7 +8,7 @@ import { useInitUser } from '@/app/root/use-init-user';
 
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/components/icons';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { siteConfig } from '@/lib/constants';
@@ -30,15 +30,15 @@ export function RootPage() {
       {user ? (
         <Init>
           <>
-            <div className='flex min-h-screen flex-col'>
-              <header className='bg-background'>
+            <div className='flex min-h-screen flex-col bg-background'>
+              <header>
                 <SiteHeader>
                   <div className='flex space-x-2'>
                     <div className='w-full flex-1 md:w-auto md:flex-none'>
                       <CommandMenu />
                     </div>
                     <nav className='flex items-center space-x-1'>
-                      <ThemeToggle />
+                      <ThemeModeToggle />
                     </nav>
                     <div className='ml-auto flex items-center space-x-4'>
                       <UserNav user={user} />
