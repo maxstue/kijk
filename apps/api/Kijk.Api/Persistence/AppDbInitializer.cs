@@ -6,22 +6,22 @@ public static class AppDbInitializer
 {
     private static readonly List<Category> DefaultCategories = new()
     {
-        new Category { Name = "Income", Color = "#232e4b" },
-        new Category { Name = "Other Income", Color = "#232e4b" },
-        new Category { Name = "Cash", Color = "#325e33" },
-        new Category { Name = "Insurance", Color = "#795c5e" },
-        new Category { Name = "Vacation", Color = "#e36d4f" },
-        new Category { Name = "Food", Color = "#e6b84b" },
-        new Category { Name = "Insurance", Color = "#795c5e" },
-        new Category { Name = "Shopping", Color = "#66d2d8" },
-        new Category { Name = "Transportation", Color = "#7d10a4" },
-        new Category { Name = "Mobility", Color = "#bb8934" },
-        new Category { Name = "Living", Color = "#e222e6" },
-        new Category { Name = "Other Expense", Color = "#496b83" },
-        new Category { Name = "Pets", Color = "#6a7456" },
-        new Category { Name = "Children", Color = "#c046ea" },
-        new Category { Name = "Entertainment", Color = "#6babe4" },
-        new Category { Name = "Education", Color = "#da3e48" },
+        Category.Create("Income", "#232e4b"),
+        Category.Create("Other Income", "#232e4b"),
+        Category.Create("Cash", "#325e33"),
+        Category.Create("Insurance", "#795c5e"),
+        Category.Create("Vacation", "#e36d4f"),
+        Category.Create("Food", "#e6b84b"),
+        Category.Create("Shopping", "#66d2d8"),
+        Category.Create("Transportation", "#7d10a4"),
+        Category.Create("Mobility", "#e222e6"),
+        Category.Create("Living", "#232e4b"),
+        Category.Create("Other Expense", "#496b83"),
+        Category.Create("Pets", "#6a7456"),
+        Category.Create("Children", "#c046ea"),
+        Category.Create("Entertainment", "#232e4b"),
+        Category.Create("Subscription", "#BA93F8"),
+        Category.Create("Education", "#da3e48"),
     };
 
     public static async Task InitDb(AppDbContext dbContext, IWebHostEnvironment environment)

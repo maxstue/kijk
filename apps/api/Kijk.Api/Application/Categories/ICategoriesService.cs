@@ -8,11 +8,11 @@ namespace Kijk.Api.Application.Categories;
 /// </summary>
 public interface ICategoriesService
 {
-    Task<Result<List<CategoryDto>>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<AppResult<List<CategoryDto>>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<Result<CategoryDto>> CreateAsync(CreateCategoryRequest createCategoryRequest, CancellationToken cancellationToken = default);
+    Task<AppResult<CategoryDto>> CreateAsync(CreateCategoryRequest createCategoryRequest, CancellationToken cancellationToken = default);
 
-    Task<Result<CategoryDto>> UpdateAsync(Guid id, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default);
+    Task<AppResult<CategoryDto>> UpdateAsync(Guid id, UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken = default);
 
-    Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<AppResult<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -1,10 +1,14 @@
+using System.Text;
+
 using HealthChecks.UI.Client;
 
 using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -23,19 +27,36 @@ builder.Host.UseSerilog(
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services));
 
-builder.Services.AddAuthentication().AddJwtBearer();
+builder.Services.AddAuthentication(
+    o =>
+    {
+        o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(
+    o =>
+    {
+        o.IncludeErrorDetails = true;
+        o.SaveToken = true;
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey =
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("Authentication:IssuerSigningKey") ?? string.Empty)),
+            ValidateIssuer = false,
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration.GetValue<string>("Authentication:ValidAudience"),
+        };
+    });
 
 // State that represents the current user from the request
 builder.Services.AddCurrentUser();
-
-// TODO only save sub/kinde.id and permissions/roles for a user, because you don't need more on the api level 
-// send user data on first "init" request and create the user from these data
 
 // TODO write into custom requirementshandler
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(
         AppConstants.Policies.All,
-        policy => policy.RequireClaim("permissions").RequireCurrentUser().Build())
+        policy => policy.RequireRole("authenticated").RequireCurrentUser().Build())
 
     // .AddPolicy(AppConstants.Policies.User, policy => policy.RequireRole(AppConstants.Roles.User).RequireCurrentUser().Build())
     // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())

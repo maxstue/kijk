@@ -3,7 +3,7 @@
 /// <summary>
 ///     Represents an error.
 /// </summary>
-public readonly record struct Error
+public readonly record struct AppError
 {
     /// <summary>
     ///     Gets the error type.
@@ -20,7 +20,7 @@ public readonly record struct Error
     /// </summary>
     public string Message { get; }
 
-    private Error(string code, string message, ErrorType type)
+    private AppError(string code, string message, ErrorType type)
     {
         Code = code;
         Message = message;
@@ -28,65 +28,65 @@ public readonly record struct Error
     }
 
     /// <summary>
-    ///     Creates an <see cref="Error" /> of type <see cref="ErrorType.Failure" /> from a code and description.
+    ///     Creates an basic <see cref="AppError" /> of type <see cref="ErrorType.Basic" /> from a code and description.
     /// </summary>
     /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error Failure(
-        string code = ErrorCodes.DefaultError,
-        string description = "A failure has occurred.")
+    public static AppError Basic(
+        string code = AppErrorCodes.DefaultError,
+        string description = "An error has occurred.")
     {
-        return new Error(code, description, ErrorType.Failure);
+        return new AppError(code, $"Error, {description}", ErrorType.Basic);
     }
 
     /// <summary>
-    ///     Creates an <see cref="Error" /> of type <see cref="ErrorType.Unexpected" /> from a code and description.
+    ///     Creates an <see cref="AppError" /> of type <see cref="ErrorType.Unexpected" /> from a code and description.
     /// </summary>
     /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error Unexpected(
-        string code = ErrorCodes.UnexpectedError,
+    public static AppError Unexpected(
+        string code = AppErrorCodes.UnexpectedError,
         string description = "An unexpected error has occurred.")
     {
-        return new Error(code, description, ErrorType.Unexpected);
+        return new AppError(code, $"An 'unexpected' error, {description}", ErrorType.Unexpected);
     }
 
     /// <summary>
-    ///     Creates an <see cref="Error" /> of type <see cref="ErrorType.Validation" /> from a code and description.
+    ///     Creates an <see cref="AppError" /> of type <see cref="ErrorType.Validation" /> from a code and description.
     /// </summary>
     /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error Validation(
-        string code = ErrorCodes.ValidationError,
-        string description = "A validation error has occurred.")
+    public static AppError Validation(
+        string code = AppErrorCodes.ValidationError,
+        string description = "A 'validation' error has occurred.")
     {
-        return new Error(code, description, ErrorType.Validation);
+        return new AppError(code, description, ErrorType.Validation);
     }
 
     /// <summary>
-    ///     Creates an <see cref="Error" /> of type <see cref="ErrorType.NotFound" /> from a code and description.
+    ///     Creates an <see cref="AppError" /> of type <see cref="ErrorType.NotFound" /> from a code and description.
     /// </summary>
     /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error NotFound(
-        string code = ErrorCodes.NotFoundError,
+    public static AppError NotFound(
+        string code = AppErrorCodes.NotFoundError,
         string description = "A 'Not Found' error has occurred.")
     {
-        return new Error(code, description, ErrorType.NotFound);
+        return new AppError(code, $"'Not found' error, {description}", ErrorType.NotFound);
     }
 
     /// <summary>
-    ///     Creates an <see cref="Error" /> with the given numeric <paramref name="type" />,
+    ///     Creates an <see cref="AppError" /> with the given numeric <paramref name="type" />,
     ///     <paramref name="code" />, and <paramref name="description" />.
     /// </summary>
     /// <param name="type">An integer value which represents the type of error that occurred.</param>
     /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error Custom(
+    public static AppError Custom(
         ErrorType type,
         string code,
         string description)
     {
-        return new Error(code, description, type);
+        return new AppError(code, description, type);
     }
 }

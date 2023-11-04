@@ -27,8 +27,8 @@ public static class ExceptionHandlerMiddleware
                                 "Something went wrong: {ContextFeatureError}",
                                 exceptionHandlerFeature.Error.Message);
 
-                            var error = Error.Unexpected(
-                                ErrorCodes.UnexpectedError,
+                            var error = AppError.Unexpected(
+                                AppErrorCodes.UnexpectedError,
                                 $"Ups, etwas ist schief gelaufen. {exceptionHandlerFeature.Error.Message}");
                             var json = JsonSerializer.Serialize(ApiResponse<IResult>.Error(error));
                             await context.Response.WriteAsync(json);

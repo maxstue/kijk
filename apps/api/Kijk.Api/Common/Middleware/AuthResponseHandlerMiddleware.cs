@@ -19,7 +19,7 @@ public static class AuthResponseHandlerMiddleware
                 {
                     await context.Response.WriteAsync(
                         JsonSerializer.Serialize(
-                            ApiResponse<IResult>.Error(new List<Error> { Error.Failure(ErrorCodes.AuthenticationError, "Token ist nicht valide") })));
+                            ApiResponse<IResult>.Error(new List<AppError> { AppError.Basic(AppErrorCodes.AuthenticationError, "Token ist nicht valide") })));
                 }
 
                 if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
@@ -27,7 +27,7 @@ public static class AuthResponseHandlerMiddleware
                     await context.Response.WriteAsync(
                         JsonSerializer.Serialize(
                             ApiResponse<IResult>.Error(
-                                new List<Error> { Error.Failure(ErrorCodes.AuthorizationError, "Role ist nicht ausreichend") })));
+                                new List<AppError> { AppError.Basic(AppErrorCodes.AuthorizationError, "Role ist nicht ausreichend") })));
                 }
             });
     }

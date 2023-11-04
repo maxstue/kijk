@@ -1,4 +1,4 @@
-﻿using Kijk.Api.Domain.Entities;
+﻿using Kijk.Api.Common.Models;
 
 namespace Kijk.Api.Application.Transactions;
 
@@ -7,16 +7,16 @@ public class CreateTransactionsValidator : AbstractValidator<CreateTransactionRe
     public CreateTransactionsValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithErrorCode(TransactionsErrors.Codes.PostValidationError).WithMessage("'Name‘ must be set")
-            .Length(4, 30).WithErrorCode(TransactionsErrors.Codes.PostValidationError).WithMessage("'Name‘ must be between 1 and 30 characters long");
+            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
+            .Length(4, 30).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be between 1 and 30 characters long");
 
         RuleFor(x => x.Amount)
-            .NotEmpty().WithErrorCode(TransactionsErrors.Codes.PostValidationError).WithMessage("'Amount' must be set");
+            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Amount' must be set");
 
         RuleFor(x => x.Type)
-            .IsInEnum().WithErrorCode(TransactionsErrors.Codes.PostValidationError).WithMessage("'Type' is not a valid transaction type");
+            .IsInEnum().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Type' is not a valid transaction type");
 
         RuleFor(x => x.ExecutedAt)
-            .NotEmpty().WithErrorCode(TransactionsErrors.Codes.PostValidationError).WithMessage("'ExecutedAt' must be set");
+            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'ExecutedAt' must be set");
     }
 }

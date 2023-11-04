@@ -7,8 +7,7 @@ public interface IUsersService
     /// <summary>
     /// Creates a new user or retrieves an existing user by the set <see cref="CurrentUser"/>.
     /// </summary>
-    /// <param name="authUser">The user initials.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A loaded User from database.</returns>
-    Task<Result<UserResponse>> InitAsync(AuthUser authUser, CancellationToken cancellationToken = default);
+    Task<AppResult<UserResponse>> InitAsync(CancellationToken cancellationToken = default);
 }

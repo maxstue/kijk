@@ -15,18 +15,18 @@ public record ApiResponse<T>
         return new ApiResponse<T> { Status = ResponseStatus.Success, Data = data, Message = message };
     }
 
-    public static ApiResponse<List<Error>> Error(string errorMessage)
+    public static ApiResponse<List<AppError>> Error(string errorMessage)
     {
-        return new ApiResponse<List<Error>> { Status = ResponseStatus.Error, Message = errorMessage, Data = new List<Error>() };
+        return new ApiResponse<List<AppError>> { Status = ResponseStatus.Error, Message = errorMessage, Data = new List<AppError>() };
     }
 
-    public static ApiResponse<List<Error>> Error(List<Error> error, string? errorMessage = default)
+    public static ApiResponse<List<AppError>> Error(List<AppError> error, string? errorMessage = default)
     {
-        return new ApiResponse<List<Error>> { Status = ResponseStatus.Error, Message = errorMessage, Data = error };
+        return new ApiResponse<List<AppError>> { Status = ResponseStatus.Error, Message = errorMessage, Data = error };
     }
 
-    public static ApiResponse<List<Error>> Error(Error error, string? errorMessage = default)
+    public static ApiResponse<List<AppError>> Error(AppError appError, string? errorMessage = default)
     {
-        return new ApiResponse<List<Error>> { Status = ResponseStatus.Error, Message = errorMessage, Data = new List<Error> { error } };
+        return new ApiResponse<List<AppError>> { Status = ResponseStatus.Error, Message = errorMessage, Data = new List<AppError> { appError } };
     }
 }

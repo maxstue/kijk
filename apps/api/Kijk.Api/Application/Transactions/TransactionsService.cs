@@ -18,7 +18,7 @@ public class TransactionsService : ITransactionsService
         _currentUser = currentUser;
     }
 
-    public async Task<Result<List<TransactionDto>>> GetByAsync(int year, string month, CancellationToken cancellationToken = default)
+    public async Task<AppResult<List<TransactionDto>>> GetByAsync(int year, string month, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -40,11 +40,11 @@ public class TransactionsService : ITransactionsService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionsErrors.Failure(e.Message);
+            return AppError.Basic(e.Message);
         }
     }
 
-    public async Task<Result<TransactionDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<AppResult<TransactionDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -62,7 +62,7 @@ public class TransactionsService : ITransactionsService
 
             if (entity is null)
             {
-                return TransactionsErrors.NotFound();
+                return AppError.NotFound($"Transaction for Id '{id}' was not found.");
             }
 
             return entity;
@@ -70,11 +70,11 @@ public class TransactionsService : ITransactionsService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionsErrors.Failure(e.Message);
+            return AppError.Basic(e.Message);
         }
     }
 
-    public async Task<Result<TransactionDto>> CreateAsync(
+    public async Task<AppResult<TransactionDto>> CreateAsync(
         CreateTransactionRequest createTransactionRequest,
         CancellationToken cancellationToken = default)
     {
@@ -83,17 +83,15 @@ public class TransactionsService : ITransactionsService
             var user = await _dbContext.Users.FindAsync(new object?[] { _currentUser.Id }, cancellationToken);
             if (user is null)
             {
-                return TransactionsErrors.Failure("User not found");
+                return AppError.NotFound($"User for id '{_currentUser.Id}' was not found");
             }
 
-            var newTransaction = new Transaction
-            {
-                Name = createTransactionRequest.Name,
-                Amount = createTransactionRequest.Amount,
-                Type = createTransactionRequest.Type,
-                ExecutedAt = createTransactionRequest.ExecutedAt,
-                User = user,
-            };
+            var newTransaction = Transaction.Create(
+                createTransactionRequest.Name,
+                createTransactionRequest.Amount,
+                createTransactionRequest.Type,
+                createTransactionRequest.ExecutedAt,
+                user);
 
             if (createTransactionRequest.CategoryId is not null)
             {
@@ -107,7 +105,7 @@ public class TransactionsService : ITransactionsService
                 else
                 {
                     _logger.Warning("Error: The selected category with id {CategoryId}, doesn't exist", createTransactionRequest.CategoryId);
-                    return TransactionsErrors.Failure($"The selected category with id { createTransactionRequest.CategoryId}, doesn't exist");
+                    return AppError.NotFound($"The selected category with id '{createTransactionRequest.CategoryId}', doesn't exist");
                 }
             }
 
@@ -126,11 +124,11 @@ public class TransactionsService : ITransactionsService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionsErrors.Failure(e.Message);
+            return AppError.Basic(e.Message);
         }
     }
 
-    public async Task<Result<TransactionDto>> UpdateAsync(
+    public async Task<AppResult<TransactionDto>> UpdateAsync(
         Guid id,
         UpdateTransactionRequest updateTransactionRequest,
         CancellationToken cancellationToken = default)
@@ -145,7 +143,7 @@ public class TransactionsService : ITransactionsService
             if (foundEntity == null)
             {
                 _logger.Warning("Transaction with id {Id} could not be found", id);
-                return TransactionsErrors.NotFound();
+                return AppError.NotFound($"Transaction with id '{id}' could not be found");
             }
 
             foundEntity.Name = updateTransactionRequest.Name ?? foundEntity.Name;
@@ -165,7 +163,7 @@ public class TransactionsService : ITransactionsService
                 else
                 {
                     _logger.Warning("Error: The selected category with id {CategoryId}, doesn't exist", updateTransactionRequest.CategoryId);
-                    return TransactionsErrors.Failure($"The selected category with id { updateTransactionRequest.CategoryId}, doesn't exist");
+                    return AppError.Basic($"The selected category with id '{updateTransactionRequest.CategoryId}', doesn't exist");
                 }
             }
 
@@ -182,11 +180,11 @@ public class TransactionsService : ITransactionsService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionsErrors.Failure();
+            return AppError.Basic();
         }
     }
 
-    public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<AppResult<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -195,7 +193,7 @@ public class TransactionsService : ITransactionsService
             if (foundEntity == null)
             {
                 _logger.Warning("Transaction with id {Id} could not be found", id);
-                return TransactionsErrors.NotFound();
+                return AppError.NotFound($"Transaction with id {id} could not be found");
             }
 
             _dbContext.Transactions.Remove(foundEntity);
@@ -206,7 +204,7 @@ public class TransactionsService : ITransactionsService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return TransactionsErrors.Failure();
+            return AppError.Basic();
         }
     }
 }

@@ -11,15 +11,24 @@ public enum CategoryType
     User
 }
 
-public class Category : BaseEntity
+public sealed class Category : BaseEntity
 {
-    public required string Name { get; set; }
+
+    private Category(Guid id, string name, string color, CategoryType type, List<User> users) : base(id)
+    {
+        Name = name;
+        Color = color;
+        Type = type;
+        Users = users;
+    }
+
+    public string Name { get; set; }
 
     /// <summary>
     /// A color which represents the category.
     /// IMPORTANT: needs to be a hex-color.
     /// </summary>
-    public required string Color { get; set; }
+    public string Color { get; set; }
 
     public CategoryType Type { get; set; }
 
@@ -27,8 +36,8 @@ public class Category : BaseEntity
 
     public List<User> Users { get; set; } = new();
 
-    public CategoryDto MapToDto()
-    {
-        return new CategoryDto(this.Id, this.Name, this.Color, this.Type);
-    }
+    public static Category Create(string name, string color, CategoryType type = CategoryType.Default, User? user = default) =>
+        new(Guid.NewGuid(), name, color, type, user is null ? new List<User>() : new List<User> { user });
+
+    public CategoryDto MapToDto() => new(this.Id, this.Name, this.Color, this.Type);
 }

@@ -1,4 +1,6 @@
-﻿using Kijk.Api.Common.Models;
+﻿using System.Security.Cryptography;
+
+using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
@@ -16,23 +18,22 @@ public class UsersService : IUsersService
         _dbContext = dbContext;
     }
 
-    public async Task<Result<UserResponse>> InitAsync(AuthUser authUser, CancellationToken cancellationToken)
+    public async Task<AppResult<UserResponse>> InitAsync(CancellationToken cancellationToken)
     {
         try
         {
             if (_currentUser.User.Name == AppConstants.CreateUserIdentifier)
             {
-                var newUser = new User
-                {
-                    Id = Guid.NewGuid(),
-                    AuthId = authUser.Id,
-                    Name = authUser.GivenName ?? AppConstants.CreateUserIdentifier,
-                    Email = authUser?.Email
-                };
+                var newUser = User.Create(
+                    _currentUser.AuthId,
+                    AppConstants.CreateUserIdentifier + "-" + new Random().Next(),
+                    _currentUser.Email,
+                    true);
 
                 var newUserEntry = await _dbContext.Users.AddAsync(newUser, cancellationToken);
                 var newUserEntity = newUserEntry.Entity;
 
+                // TODO add defaultCategories 
                 await _dbContext.SaveChangesAsync(cancellationToken);
 
                 return new UserResponse(
@@ -59,9 +60,13 @@ public class UsersService : IUsersService
 
             if (userEntity is null)
             {
-                _logger.Warning("Error: User not found but also no createIdentifier was set");
-                return UserErrors.NotFound();
+                _logger.Warning("Error: User not found but also no 'CreateUserIdentifier' was set");
+                return AppError.NotFound();
             }
+
+            userEntity.FirstTime = false;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return new UserResponse(
                 userEntity.Id,
@@ -81,7 +86,7 @@ public class UsersService : IUsersService
         catch (Exception e)
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
-            return UserErrors.Failure(e.Message);
+            return AppError.Basic(e.Message);
         }
     }
 }

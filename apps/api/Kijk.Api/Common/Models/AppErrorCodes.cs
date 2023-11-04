@@ -13,7 +13,7 @@
 ///     example:
 ///     "EA0001": E = Error, A = Auth group/feature, 0001 = first error in group
 /// </remarks>
-public readonly record struct ErrorCodes
+public readonly record struct AppErrorCodes
 {
     public const string DefaultError = "E0001";
     public const string UnexpectedError = "E0002";

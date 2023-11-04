@@ -34,6 +34,8 @@ public static class CurrentUserExtensions
         public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
             var sub = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var email = principal.FindFirstValue(ClaimTypes.Email);
+
             var userEntity = await _dbContext.Users
                 .AsNoTracking()
                 .Where(x => x.AuthId == sub)
@@ -42,7 +44,11 @@ public static class CurrentUserExtensions
             // We're not going to transform anything. We're using this as a hook into authorization
             // to set the current user without adding custom middleware.
             _currentUser.Principal = principal;
-            _currentUser.User = userEntity ?? new User { Name = AppConstants.CreateUserIdentifier };
+            _currentUser.User = userEntity ?? User.Create(
+                sub,
+                AppConstants.CreateUserIdentifier,
+                email,
+                true);
 
             return await Task.FromResult(principal);
         }

@@ -10,10 +10,12 @@ namespace Kijk.Api.Common.Models;
 [EnumExtensions]
 public enum ErrorType
 {
-    Failure,
+    Basic,
     Validation,
     Conflict,
     NotFound,
+    Authentication,
+    Authorization,
     Unexpected
 }
 

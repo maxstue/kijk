@@ -1,7 +1,4 @@
 ﻿using Kijk.Api.Application.Users;
-using Kijk.Api.Common.Models;
-
-using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Api.Endpoints;
 
@@ -11,14 +8,14 @@ public static class UsersEndpoint
     {
         var group = endpointRouteBuilder.MapGroup("/users");
 
-        group.MapPost("/init", Init);
+        group.MapGet("/init", Init);
 
         return endpointRouteBuilder;
     }
 
-    private static async Task<IResult> Init(IUsersService service, [FromBody] AuthUser authUser)
+    private static async Task<IResult> Init(IUsersService service)
     {
-        var result = await service.InitAsync(authUser);
+        var result = await service.InitAsync();
         return result.ToResponse("Successfully initialized");
     }
 }
