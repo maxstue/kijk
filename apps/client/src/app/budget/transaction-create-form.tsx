@@ -9,7 +9,7 @@ import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { cn, getMonthIndexFromString } from '@/lib/utils';
+import { getMonthIndexFromString } from '@/lib/utils';
 import { Months, TransactionType } from '@/types/app';
 
 type TProps =
