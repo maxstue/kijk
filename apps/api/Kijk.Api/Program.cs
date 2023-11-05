@@ -5,6 +5,7 @@ using HealthChecks.UI.Client;
 using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
+using Kijk.Api.Common.Options;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -42,10 +43,10 @@ builder.Services.AddAuthentication(
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("Authentication:IssuerSigningKey") ?? string.Empty)),
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:IssuerSigningKey") ?? string.Empty)),
             ValidateIssuer = false,
             ValidateAudience = true,
-            ValidAudience = builder.Configuration.GetValue<string>("Authentication:ValidAudience"),
+            ValidAudience = builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:ValidAudience"),
         };
     });
 

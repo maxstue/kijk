@@ -36,7 +36,7 @@ import { budgetRoute } from '@/routes/budget/budget-route';
 import { months } from '@/types/app';
 
 export function BudgetPage() {
-  const navigate = useNavigate({ from: budgetRoute.id });
+  const navigate = useNavigate();
   const searchParams = useSearch({ from: budgetRoute.id });
   const month = searchParams.month ?? months[new Date().getMonth()];
   const year = searchParams.year ?? new Date().getFullYear();
@@ -144,7 +144,6 @@ function MonthNav({ className, ...props }: MProps) {
         return (
           <Link
             key={item}
-            from={budgetRoute.id}
             search={(prev) => ({ ...prev, month: item })}
             className={cn(
               buttonVariants({ variant: 'ghost' }),
@@ -178,7 +177,7 @@ function YearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
   const searchParams = useSearch({ from: budgetRoute.id });
-  const navigate = useNavigate({ from: budgetRoute.id });
+  const navigate = useNavigate();
 
   const selectedYear = searchParams.year ?? new Date().getFullYear().toString() ?? yearGroups[0].years[0];
 

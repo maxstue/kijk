@@ -8,10 +8,8 @@ const envSchema = z.object({
   // Devtools
   DevToolsLogger: z.string().transform((x) => x === 'true'),
   // Auth
-  AuthClientId: z.string().trim().min(1),
-  AuthDomain: z.string().trim().min(1),
-  AuthAudience: z.string().trim().min(1),
-  AuthRedirectUrl: z.string().url(),
+  AuthUrl: z.string().trim().min(1),
+  AuthKey: z.string().trim().min(1),
 });
 
 const envParse = envSchema.safeParse({
@@ -21,10 +19,8 @@ const envParse = envSchema.safeParse({
   // Devtools
   DevToolsLogger: import.meta.env.VITE_DEVTOOLS_LOGGER,
   // Auth
-  AuthClientId: import.meta.env.VITE_KINDE_CLIENT_ID,
-  AuthDomain: import.meta.env.VITE_KINDE_DOMAIN,
-  AuthAudience: import.meta.env.VITE_KINDE_AUDIENCE,
-  AuthRedirectUrl: import.meta.env.VITE_KINDE_REDIRECT_URL,
+  AuthUrl: import.meta.env.VITE_SUPABASE_URL,
+  AuthKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
 });
 
 if (!envParse.success) {

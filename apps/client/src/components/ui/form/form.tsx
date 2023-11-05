@@ -26,7 +26,9 @@ function Form<T extends FieldValues>({ form, onSubmit, onInvalid, children, ...p
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} {...props}>
-        <fieldset disabled={form.formState.isSubmitting}>{children}</fieldset>
+        <fieldset disabled={form.formState.isSubmitting} className={props.className}>
+          {children}
+        </fieldset>
       </form>
     </FormProvider>
   );

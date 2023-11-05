@@ -1,70 +1,41 @@
-import { PropsWithChildren, ReactNode, useEffect } from 'react';
-import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
+import { PropsWithChildren, ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet } from '@tanstack/react-router';
 
 import { CommandMenu } from '@/app/root/command-menu';
-import { useInitUser } from '@/app/root/use-init-user';
-// import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/components/icons';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
-import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
+import { userApi } from '@/lib/api/user-api';
 import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 export function RootPage() {
-  const { login, register, user } = useKindeAuth();
-
-  const handleSignup = () => {
-    void register({});
-  };
-
-  const handleSignin = () => {
-    void login({});
-  };
-
   return (
-    <>
-      {user ? (
-        <Init>
-          <>
-            <div className='flex min-h-screen flex-col bg-background'>
-              <header>
-                <SiteHeader>
-                  <div className='flex space-x-2'>
-                    <div className='w-full flex-1 md:w-auto md:flex-none'>
-                      <CommandMenu />
-                    </div>
-                    <nav className='flex items-center space-x-1'>
-                      <ThemeModeToggle />
-                    </nav>
-                    <div className='ml-auto flex items-center space-x-4'>
-                      <UserNav user={user} />
-                    </div>
-                  </div>
-                </SiteHeader>
-              </header>
-              <main className='container flex-1'>
-                <Outlet />
-                <Toaster />
-              </main>
+    <Init>
+      <div className='flex min-h-screen flex-col bg-background'>
+        <header>
+          <SiteHeader>
+            <div className='flex space-x-2'>
+              <div className='w-full flex-1 md:w-auto md:flex-none'>
+                <CommandMenu />
+              </div>
+              <nav className='flex items-center space-x-1'>
+                <ThemeModeToggle />
+              </nav>
+              <div className='ml-auto flex items-center space-x-4'>
+                <UserNav />
+              </div>
             </div>
-          </>
-        </Init>
-      ) : (
-        <div className='flex h-full w-full items-center justify-center gap-6'>
-          <Button onClick={handleSignup} type='button'>
-            Sign up
-          </Button>
-          <Button onClick={handleSignin} type='button'>
-            Sign in
-          </Button>
-        </div>
-      )}
-      {/* <TanStackRouterDevtools position='bottom-right' /> */}
-    </>
+          </SiteHeader>
+        </header>
+        <main className='container flex-1'>
+          <Outlet />
+          <Toaster />
+        </main>
+      </div>
+    </Init>
   );
 }
 
@@ -118,21 +89,17 @@ function SiteHeader({ children }: SProps) {
 }
 
 function Init({ children }: PropsWithChildren) {
-  const { isSuccess, isPending, isError, mutate } = useInitUser();
-
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
+  const { isSuccess, isFetching, isError } = useQuery(userApi.userInit);
 
   return (
     <>
-      {isPending && (
+      {isFetching && (
         <div className='flex items-center justify-center'>
           <Icons.spinner className='h-12 w-12 animate-spin' />
         </div>
       )}
-      {isSuccess && children}
       {isError && <div className='text-red-400'>Error during initialisation</div>}
+      {isSuccess && children}
     </>
   );
 }

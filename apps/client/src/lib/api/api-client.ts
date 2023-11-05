@@ -1,6 +1,7 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 import { env } from '@/env';
+import { supabase } from '@/lib/supabase-client';
 import { ApiError } from '@/types/app';
 
 /** Overrides axios requestoptions, so that the url prop is mandatory */
@@ -19,6 +20,37 @@ const onRejected = (error: AxiosError<ApiError>) => {
 const baseInstance = axios.create({
   baseURL: env.ApiUrl,
 });
+
+async function onRequest(request: InternalAxiosRequestConfig) {
+  request.headers.set('Authorization', `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`);
+  request.headers.setContentType('application/json');
+  return request;
+}
+
+// Do something with respone data. Any 2** statusCode will trigger this function
+function onResponse(response: AxiosResponse) {
+  return response;
+}
+
+// Do something with respone error. Any statusCode outside 2** will trigger this function
+async function onResponseError(error: AxiosError) {
+  return Promise.reject(error);
+}
+
+function onRequestError(error: AxiosError) {
+  return Promise.reject(error);
+  // TODO handle 401
+  // const errInterceptor = (error) => {
+  //   if (error.response.status === 401) {
+  //     //redirect logic here
+  //   }
+
+  //   return Promise.reject();
+  // };
+}
+
+baseInstance.interceptors.request.use(onRequest, onRequestError);
+baseInstance.interceptors.response.use(onResponse, onResponseError);
 
 /** The base api instance. */
 const apiClient = {

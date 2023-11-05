@@ -9,7 +9,7 @@ import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { getMonthIndexFromString } from '@/lib/utils';
+import { cn, getMonthIndexFromString } from '@/lib/utils';
 import { Months, TransactionType } from '@/types/app';
 
 type TProps =
@@ -67,7 +67,7 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
   }
 
   return (
-    <Form form={form} onSubmit={onSubmit} className='space-y-8'>
+    <Form form={form} onSubmit={onSubmit} className='space-y-4'>
       <FormField
         control={form.control}
         name='name'
@@ -115,7 +115,6 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
           </FormItem>
         )}
       />
-
       <FormField
         control={form.control}
         name='categoryId'
@@ -128,10 +127,13 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
                   <SelectValue placeholder='Select a category' />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent className='h-[calc(100dvh_*_0.3)] overflow-auto p-1'>
                 {categoryQuery.data.data?.map((x) => (
                   <SelectItem key={x.id} value={x.id}>
-                    {x.name}
+                    <div className='flex items-center justify-start gap-2'>
+                      <div className={'h-3 w-3 rounded-full p-1'} style={{ backgroundColor: x.color }} />
+                      <span>{x.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -140,7 +142,6 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
           </FormItem>
         )}
       />
-
       {fromCmd && (
         <FormField
           control={form.control}
@@ -156,9 +157,8 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
       )}
 
       <Button type='submit' disabled={isPending}>
-        Add
+        {isPending ? <Icons.spinner className='h-5 w-5 animate-spin' /> : 'Add'}
       </Button>
-      {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
     </Form>
   );
 }

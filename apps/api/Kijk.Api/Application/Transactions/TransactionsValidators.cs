@@ -8,7 +8,7 @@ public class CreateTransactionsValidator : AbstractValidator<CreateTransactionRe
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
-            .Length(4, 30).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be between 1 and 30 characters long");
+            .Length(2, 50).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be between 2 and 50 characters long");
 
         RuleFor(x => x.Amount)
             .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Amount' must be set");

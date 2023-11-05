@@ -11,21 +11,11 @@ public enum TransactionType
 
 public sealed class Transaction : BaseEntity
 {
-    private Transaction(Guid id, string name, decimal amount, TransactionType type, DateTime executedAt, User user, Category? category) : base(id)
-    {
-        Name = name;
-        Amount = amount;
-        Type = type;
-        ExecutedAt = executedAt;
-        User = user;
-        Category = category;
-    }
+    public required string Name { get; set; }
 
-    public string Name { get; set; }
+    public required decimal Amount { get; set; }
 
-    public decimal Amount { get; set; }
-
-    public User User { get; set; }
+    public required User User { get; set; }
 
     public TransactionType Type { get; set; }
 
@@ -39,6 +29,17 @@ public sealed class Transaction : BaseEntity
         TransactionType type,
         DateTime executedAt,
         User user,
-        Category? category = default) =>
-        new(Guid.NewGuid(), name, amount, type, executedAt, user, category);
+        Category? category = default)
+    {
+        return new Transaction
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Amount = amount,
+            Type = type,
+            ExecutedAt = executedAt,
+            User = user,
+            Category = category
+        };
+    }
 }

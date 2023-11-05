@@ -1,4 +1,3 @@
-import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '@/lib/api/api-client';
@@ -11,7 +10,6 @@ interface Options {
 }
 
 export const useCreateCategory = () => {
-  const { getToken } = useKindeAuth();
   const queryClient = useQueryClient();
 
   return useMutation<ApiResponse<Category>, ApiResponse<ApiError[]>, Options>({
@@ -19,7 +17,6 @@ export const useCreateCategory = () => {
       return apiClient.post<ApiResponse<Category>>({
         url: 'categories',
         data: data.category,
-        headers: { Authorization: `Bearer ${await getToken()}` },
       });
     },
     async onSuccess() {

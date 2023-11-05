@@ -103,7 +103,7 @@ type ImmerSetter<T extends object> = (
 export const createStoreFactory = <T extends object>(
   storeName: string,
   store: (set: ImmerSetter<T>, get: StoreApi<T>['getState']) => T,
-) => create<T>()(devtools(immer(store), { store: `d-main/${storeName}`, name: 'd-main', enabled: env.DevToolsLogger }));
+) => create<T>()(devtools(immer(store), { store: `kijk/${storeName}`, name: 'kijk', enabled: env.DevToolsLogger }));
 
 const STORAGE_PREFIX = 'kijk-';
 

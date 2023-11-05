@@ -1,5 +1,4 @@
-import { useKindeAuth } from '@kinde-oss/kinde-auth-react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -15,21 +14,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { settingsNav } from '@/lib/constants';
 import { getInitailChars } from '@/lib/utils';
+import { useAuthStore, useAuthStoreActions } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
-import { User } from '@/types/app';
 
-interface Props {
-  user: User;
-}
-
-export function UserNav({ user }: Props) {
-  const userInitials = getInitailChars(user.given_name);
-  const { logout } = useKindeAuth();
+export function UserNav() {
+  const { logout } = useAuthStoreActions();
+  const { session } = useAuthStore();
+  const userInitials = getInitailChars(session?.user.email);
   const { radius } = useThemeStore();
+  const navigate = useNavigate();
 
   const handleSignOut = (event: Event) => {
     event.preventDefault();
-    logout().catch(console.warn);
+    logout()
+      .then(() => navigate({ to: '/', replace: true }))
+      .catch(console.warn);
   };
 
   return (
@@ -37,7 +36,7 @@ export function UserNav({ user }: Props) {
       <DropdownMenuTrigger asChild>
         <Button variant='ghost' size='icon' className='relative h-8 w-8 rounded-full'>
           <Avatar className='h-8 w-8'>
-            <AvatarImage src='/avatars/01.png' alt={user.given_name ?? userInitials} />
+            <AvatarImage src='/avatars/01.png' alt={session?.user.email ?? userInitials} />
             <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
         </Button>
@@ -45,8 +44,8 @@ export function UserNav({ user }: Props) {
       <DropdownMenuContent key={radius} className='w-56 rounded-lg bg-background' align='end' forceMount>
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
-            <p className='text-sm font-medium leading-none'>{user.given_name}</p>
-            <p className='text-xs leading-none text-muted-foreground'>{user.email}</p>
+            <p className='text-sm font-medium leading-none'>{session?.user.email}</p>
+            <p className='text-xs leading-none text-muted-foreground'>{session?.user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

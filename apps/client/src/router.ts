@@ -1,17 +1,21 @@
 import { Router } from '@tanstack/react-router';
 
 import { queryClient } from '@/lib/query-client';
+import { authRoute } from '@/routes/auth/auth-route';
 import { budgetRoute } from '@/routes/budget/budget-route';
 import { dashboardRoute } from '@/routes/dashboard/dashboard-route';
-import { rootRoute } from '@/routes/root-route';
+import { authenticatedRoute, rootRoute } from '@/routes/root-route';
 import { settingsIndexRoute } from '@/routes/settings/settings-index-route';
 import { settingsRoute } from '@/routes/settings/settings-route';
 import { settingsSectionRoute } from '@/routes/settings/settings-section-route';
 
 const routeTree = rootRoute.addChildren([
-  dashboardRoute,
-  budgetRoute,
-  settingsRoute.addChildren([settingsIndexRoute, settingsSectionRoute]),
+  authRoute,
+  authenticatedRoute.addChildren([
+    dashboardRoute,
+    budgetRoute,
+    settingsRoute.addChildren([settingsIndexRoute, settingsSectionRoute]),
+  ]),
 ]);
 
 // Set up a Router instance
@@ -19,6 +23,7 @@ export const router = new Router({
   routeTree,
   context: {
     queryClient: queryClient,
+    session: undefined,
   },
 });
 

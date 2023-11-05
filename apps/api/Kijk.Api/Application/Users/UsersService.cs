@@ -24,16 +24,18 @@ public class UsersService : IUsersService
         {
             if (_currentUser.User.Name == AppConstants.CreateUserIdentifier)
             {
+                var defaultCategories = await _dbContext.Categories.Where(x => x.Type == CategoryType.Default).ToListAsync(cancellationToken);
+
                 var newUser = User.Create(
                     _currentUser.AuthId,
                     AppConstants.CreateUserIdentifier + "-" + new Random().Next(),
                     _currentUser.Email,
+                    defaultCategories,
                     true);
 
                 var newUserEntry = await _dbContext.Users.AddAsync(newUser, cancellationToken);
                 var newUserEntity = newUserEntry.Entity;
 
-                // TODO add defaultCategories 
                 await _dbContext.SaveChangesAsync(cancellationToken);
 
                 return new UserResponse(

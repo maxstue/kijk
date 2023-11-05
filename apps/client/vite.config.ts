@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
         eslint: { lintCommand: 'lint' },
         typescript: { tsconfigPath: './tsconfig.json' },
         enableBuild: false,
-        overlay: { position: 'br' },
+        overlay: false,
       }),
     ],
   };

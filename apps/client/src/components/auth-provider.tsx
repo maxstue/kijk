@@ -1,22 +1,28 @@
-import { KindeProvider } from '@kinde-oss/kinde-auth-react';
+import { useEffect } from 'react';
 
-import { env } from '@/env';
+import { supabase } from '@/lib/supabase-client';
+import { useAuthStoreActions } from '@/stores/auth-store';
 
 interface Props {
   children?: React.ReactNode;
 }
 
 export const AuthProvider = ({ children }: Props) => {
-  return (
-    <KindeProvider
-      clientId={env.AuthClientId}
-      domain={env.AuthDomain}
-      audience={env.AuthAudience}
-      logoutUri={window.location.origin}
-      redirectUri={window.location.origin}
-      isDangerouslyUseLocalStorage={process.env.NODE_ENV === 'development'}
-    >
-      {children}
-    </KindeProvider>
-  );
+  const { setSession } = useAuthStoreActions();
+
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [setSession]);
+
+  return <>{children}</>;
 };

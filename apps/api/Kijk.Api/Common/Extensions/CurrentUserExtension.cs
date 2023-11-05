@@ -48,7 +48,7 @@ public static class CurrentUserExtensions
                 sub,
                 AppConstants.CreateUserIdentifier,
                 email,
-                true);
+                firstTime: true);
 
             return await Task.FromResult(principal);
         }

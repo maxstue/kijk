@@ -9,6 +9,7 @@ using Kijk.Api.Application.Categories;
 using Kijk.Api.Application.Transactions;
 using Kijk.Api.Application.Users;
 using Kijk.Api.Common.Models;
+using Kijk.Api.Common.Options;
 using Kijk.Api.Persistence;
 using Kijk.Api.Persistence.Interceptors;
 
@@ -36,13 +37,8 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddCustomAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        // TODO: split into multiple smaller settings objects
-        services.AddScoped<IValidator<AppSettings>, AppSettingsValidator>();
-
-        services.AddOptions<AppSettings>()
-            .BindConfiguration("")
-            .ValidateFluentValidation()
-            .ValidateOnStart();
+        services.ConfigureOptions<AuthConfigureOptions>();
+        services.ConfigureOptions<ConnectionStringsConfigureOptions>();
 
         return services;
     }
@@ -73,7 +69,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddCustomOpenApi(this IServiceCollection services, IConfiguration configuration)
     {
-        var authSettings = configuration.GetSection("Auth").Get<Auth>();
+        var authSettings = configuration.GetSection(AuthOptions.AuthOptionsPath).Get<AuthOptions>();
 
         if (authSettings is null)
         {
@@ -186,7 +182,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
     {
-        var conString = configuration.GetConnectionString("DefaultConnection");
+        var conString = configuration.GetConnectionString(nameof(ConnectionStringsOptions.DefaultConnection));
         if (conString is null)
         {
             throw new Exception($"No connection string found, {conString}");
