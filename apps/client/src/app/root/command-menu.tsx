@@ -119,10 +119,9 @@ export function CommandMenu({ ...props }: DialogProps) {
               {settingsNav.map((item) => (
                 <CommandItem
                   key={item.label}
-                  // TODO fix this
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  onSelect={() => runCommand(() => navigate({ to: `/settings/${item.to}` }))}
+                  onSelect={() =>
+                    runCommand(() => navigate({ to: `/settings/$section`, params: { section: item.to } }))
+                  }
                 >
                   <File className='mr-2 h-4 w-4' />
                   {item.label}
@@ -131,15 +130,15 @@ export function CommandMenu({ ...props }: DialogProps) {
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading='Theme'>
-              <CommandItem onSelect={() => runCommand(() => setMode('light'))}>
+              <CommandItem value='theme-light' onSelect={() => runCommand(() => setMode('light'))}>
                 <SunMedium className='mr-2 h-4 w-4' />
                 Light
               </CommandItem>
-              <CommandItem onSelect={() => runCommand(() => setMode('dark'))}>
+              <CommandItem value='theme-dark' onSelect={() => runCommand(() => setMode('dark'))}>
                 <Moon className='mr-2 h-4 w-4' />
                 Dark
               </CommandItem>
-              <CommandItem onSelect={() => runCommand(() => setMode('system'))}>
+              <CommandItem value='theme-system' onSelect={() => runCommand(() => setMode('system'))}>
                 <Laptop className='mr-2 h-4 w-4' />
                 System
               </CommandItem>

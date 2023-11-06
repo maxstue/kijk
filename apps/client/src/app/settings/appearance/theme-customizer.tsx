@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useThemeStore, useThemeStoreActions } from '@/stores/theme-store';
 
 export function ThemeCustomizer() {
-  const { theme: activeTheme, mode, radius } = useThemeStore();
+  const { theme: activeTheme, mode } = useThemeStore();
   const { setMode, setTheme } = useThemeStoreActions();
 
   return (
@@ -57,7 +57,7 @@ export function ThemeCustomizer() {
             })}
           </div>
         </div>
-        <div className='space-y-1.5'>
+        {/* <div className='space-y-1.5'>
           <Label className='text-xs'>Radius</Label>
           <div className='grid grid-cols-5 gap-2'>
             {['0', '0.3', '0.5', '0.75', '1.0'].map((value) => {
@@ -74,7 +74,7 @@ export function ThemeCustomizer() {
               );
             })}
           </div>
-        </div>
+        </div> */}
         <div className='space-y-1.5'>
           <Label className='text-xs'>Mode</Label>
           <div className='grid grid-cols-3 gap-2'>

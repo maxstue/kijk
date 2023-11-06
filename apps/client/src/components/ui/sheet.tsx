@@ -1,10 +1,9 @@
 import * as React from 'react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { cva } from 'class-variance-authority';
 import { X } from 'lucide-react';
+import { tv, VariantProps } from 'tailwind-variants';
 
 import { cn } from '@/lib/utils';
-import type { VariantProps } from 'class-variance-authority';
 
 const Sheet = SheetPrimitive.Root;
 
@@ -21,7 +20,7 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      'fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-50 bg-background/30 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       className,
     )}
     {...props}
@@ -30,21 +29,19 @@ const SheetOverlay = React.forwardRef<
 ));
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
-const sheetVariants = cva(
-  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out max-sm:inset-x-0 max-sm:bottom-0 max-sm:border-t max-sm:data-[state=closed]:slide-out-to-bottom max-sm:data-[state=open]:slide-in-from-bottom',
-  {
-    variants: {
-      side: {
-        left: 'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
-        right:
-          'sm:inset-y-0 sm:right-0 sm:h-full sm:w-3/4  sm:max-w-sm sm:border-l sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right',
-      },
-    },
-    defaultVariants: {
-      side: 'right',
+const sheetVariants = tv({
+  base: 'fixed z-50 gap-4 rounded-lg bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out max-sm:inset-x-0 max-sm:bottom-0 max-sm:m-4 max-sm:rounded max-sm:border max-sm:data-[state=closed]:slide-out-to-bottom max-sm:data-[state=open]:slide-in-from-bottom',
+  variants: {
+    side: {
+      left: 'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
+      right:
+        'sm:inset-y-0 sm:right-0 sm:h-full sm:w-3/4  sm:max-w-sm sm:border-l sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right',
     },
   },
-);
+  defaultVariants: {
+    side: 'right',
+  },
+});
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
