@@ -8,6 +8,7 @@ import { immer } from 'zustand/middleware/immer';
 
 import { env } from '@/env';
 import { Months, months, Optional } from '@/types/app';
+import { AppError } from '@/types/errors';
 import type { ClassValue } from 'clsx';
 
 export function cn(...inputs: ClassValue[]) {
@@ -75,7 +76,7 @@ export function getMonthIndexFromString(month: string) {
   if (isMonth(month)) {
     return months.indexOf(month) + 1;
   }
-  throw new Error(`The given string "${month}" is not a valid month`);
+  throw new AppError({ type: 'VALIDATION', message: `The given string "${month}" is not a valid month` });
 }
 
 const isMonth = (b: string): b is Months => {

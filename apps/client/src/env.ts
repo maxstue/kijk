@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { AppError } from '@/types/errors';
+
 const envSchema = z.object({
   // Base
   Mode: z.enum(['development', 'production', 'test']).default('development'),
@@ -25,7 +27,7 @@ const envParse = envSchema.safeParse({
 
 if (!envParse.success) {
   console.error('[env.ts]', envParse.error.issues);
-  throw new Error('There is an error with the environment variables');
+  throw new AppError({ type: 'ENVIRONMENT', message: 'There is an error with the environment variables' });
 }
 
 export const env = envParse.data;

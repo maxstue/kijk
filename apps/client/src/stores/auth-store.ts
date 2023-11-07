@@ -4,6 +4,7 @@ import { StoreApi, UseBoundStore } from 'zustand';
 import { supabase } from '@/lib/supabase-client';
 import { createStoreFactory } from '@/lib/utils';
 import { Optional } from '@/types/app';
+import { AppError } from '@/types/errors';
 
 interface State {
   session: Optional<Session>;
@@ -35,7 +36,7 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
       if (client != null) {
         return client;
       }
-      throw new Error('The ‘supabase‘ instance is not defined');
+      throw new AppError({ type: 'AUTHENTICATION', message: 'The ‘supabase‘ instance is not defined' });
     },
     setSession(session) {
       set((state) => {

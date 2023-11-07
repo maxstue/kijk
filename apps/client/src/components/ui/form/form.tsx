@@ -15,6 +15,7 @@ import {
 
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { AppError } from '@/types/errors';
 
 interface Props<T extends FieldValues> extends Omit<React.ComponentProps<'form'>, 'onSubmit' | 'onInvalid'> {
   form: UseFormReturn<T>;
@@ -64,7 +65,7 @@ const useFormField = () => {
   const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
-    throw new Error('useFormField should be used within <FormField>');
+    throw new AppError({ type: 'VALIDATION', message: 'useFormField should be used within <FormField>' });
   }
 
   const { id } = itemContext;
