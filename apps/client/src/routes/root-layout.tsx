@@ -1,41 +1,47 @@
-import { PropsWithChildren, ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Link, Outlet } from '@tanstack/react-router';
+import { PropsWithChildren, ReactNode, Suspense } from 'react';
+import { Link, Outlet } from 'react-router-dom';
 
 import { CommandMenu } from '@/app/root/command-menu';
+import { useInitUser } from '@/app/root/use-init-user';
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/components/icons';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { Toaster } from '@/components/ui/toaster';
-import { userApi } from '@/lib/api/user-api';
 import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { lazyComponent } from '@/utils/async-loader';
 
-export function RootPage() {
+const Loader = lazyComponent(() => import('@/components/loader').then((e) => ({ default: e.Loader })));
+
+export function RootLayout() {
   return (
-    <Init>
-      <div className='flex min-h-screen flex-col bg-background'>
-        <header>
-          <SiteHeader>
-            <div className='flex space-x-2'>
-              <div className='w-full flex-1 md:w-auto md:flex-none'>
-                <CommandMenu />
+    <Suspense fallback={<Loader />}>
+      <Init>
+        <div className='flex min-h-screen flex-col bg-background'>
+          <header>
+            <SiteHeader>
+              <div className='flex space-x-2'>
+                <div className='w-full flex-1 md:w-auto md:flex-none'>
+                  <CommandMenu />
+                </div>
+                <nav className='flex items-center space-x-1'>
+                  <ThemeModeToggle />
+                </nav>
+                <div className='ml-auto flex items-center space-x-4'>
+                  <UserNav />
+                </div>
               </div>
-              <nav className='flex items-center space-x-1'>
-                <ThemeModeToggle />
-              </nav>
-              <div className='ml-auto flex items-center space-x-4'>
-                <UserNav />
-              </div>
-            </div>
-          </SiteHeader>
-        </header>
-        <main className='container flex-1'>
-          <Outlet />
-          <Toaster />
-        </main>
-      </div>
-    </Init>
+            </SiteHeader>
+          </header>
+          <main className='container flex-1'>
+            <Suspense fallback={<Loader />}>
+              <Outlet />
+            </Suspense>
+            <Toaster />
+          </main>
+        </div>
+      </Init>
+    </Suspense>
   );
 }
 
@@ -89,17 +95,7 @@ function SiteHeader({ children }: SProps) {
 }
 
 function Init({ children }: PropsWithChildren) {
-  const { isSuccess, isFetching, isError } = useQuery(userApi.userInit);
+  useInitUser();
 
-  return (
-    <>
-      {isFetching && (
-        <div className='flex items-center justify-center'>
-          <Icons.spinner className='h-12 w-12 animate-spin' />
-        </div>
-      )}
-      {isError && <div className='text-red-400'>Error during initialisation</div>}
-      {isSuccess && children}
-    </>
-  );
+  return children;
 }

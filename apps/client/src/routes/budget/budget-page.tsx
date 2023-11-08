@@ -1,6 +1,6 @@
-import { ComponentPropsWithoutRef, useEffect, useState } from 'react';
-import { Link, useNavigate, useSearch } from '@tanstack/react-router';
+import { ComponentPropsWithoutRef, Suspense, useEffect, useState } from 'react';
 import { Check, ChevronsUpDown, DollarSign, Download, List, PlusCircle, Users } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
@@ -32,28 +32,27 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { budgetRoute } from '@/routes/budget/budget-route';
-import { months } from '@/types/app';
+import { Months, months } from '@/types/app';
 
 export function BudgetPage() {
   const navigate = useNavigate();
-  const searchParams = useSearch({ from: budgetRoute.id });
-  const month = searchParams.month ?? months[new Date().getMonth()];
-  const year = searchParams.year ?? new Date().getFullYear();
   const [showSheet, setShowSheet] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const month = (searchParams.get('month') ?? months[new Date().getMonth()]) as Months;
+  const year = (searchParams.get('year') ?? new Date().getFullYear()) as number;
 
   const handleClose = () => setShowSheet(false);
 
   const { data } = useGetTransactionsBy(year, month);
 
   useEffect(() => {
-    if (typeof searchParams.year == 'undefined') {
-      void navigate({ search: (prev) => ({ ...prev, year: year }) });
+    if (typeof year == 'undefined') {
+      setSearchParams((prev) => ({ ...prev, year }));
     }
-    if (typeof searchParams.month == 'undefined') {
-      void navigate({ search: (prev) => ({ ...prev, month: month }) });
+    if (typeof month == 'undefined') {
+      setSearchParams((prev) => ({ ...prev, month }));
     }
-  }, [month, navigate, searchParams.month, searchParams.year, year]);
+  }, [navigate, month, year, setSearchParams]);
 
   return (
     <div className='space-y-6 pt-10'>
@@ -91,7 +90,7 @@ export function BudgetPage() {
                   <Users className='h-4 w-4 text-muted-foreground' />
                 </CardHeader>
                 <CardContent>
-                  {/*TODO <div className='text-2xl font-bold'>&quot;Hier dann Chart&quot;</div> */}
+                  <div className='text-xs text-gray-400'>Chart comming soon</div>
                 </CardContent>
               </Card>
             </div>
@@ -117,7 +116,9 @@ export function BudgetPage() {
                             <SheetTitle>Create Transaction</SheetTitle>
                             <SheetDescription>Create a new transaction.</SheetDescription>
                           </SheetHeader>
-                          <TransactionCreateForm year={year} month={month} onClose={handleClose} />
+                          <Suspense>
+                            <TransactionCreateForm year={year} month={month} onClose={handleClose} />
+                          </Suspense>
                         </SheetContent>
                       </Sheet>
                     }
@@ -135,26 +136,29 @@ export function BudgetPage() {
 type MProps = React.HTMLAttributes<HTMLElement>;
 
 function MonthNav({ className, ...props }: MProps) {
-  const searchParams = useSearch({ from: budgetRoute.id });
-  const currentMonth = searchParams.month ?? months[new Date().getMonth()];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentMonth = (searchParams.get('month') ?? months[new Date().getMonth()]) as Months;
+
+  const handleNavigate = (item: Months) => {
+    setSearchParams((prev) => ({ ...prev, month: item }));
+  };
 
   return currentMonth ? (
     <nav className={cn('flex overflow-auto lg:flex-col', className)} {...props}>
       {months.map((item) => {
         return (
-          <Link
+          <Button
             key={item}
-            search={(prev) => ({ ...prev, month: item })}
+            variant='ghost'
+            onClick={() => handleNavigate(item)}
             className={cn(
               buttonVariants({ variant: 'ghost' }),
-              currentMonth === item
-                ? 'bg-muted-foreground text-white hover:bg-muted-foreground hover:text-white'
-                : 'hover:bg-muted-foreground hover:text-white ',
+              currentMonth === item ? 'bg-primary text-primary-foreground' : '',
               'justify-start',
             )}
           >
             {item}
-          </Link>
+          </Button>
         );
       })}
     </nav>
@@ -176,14 +180,13 @@ type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 function YearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
-  const searchParams = useSearch({ from: budgetRoute.id });
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const selectedYear = searchParams.year ?? new Date().getFullYear().toString() ?? yearGroups[0].years[0];
+  const selectedYear = (searchParams.get('year') ?? new Date().getFullYear() ?? yearGroups[0].years[0]) as number;
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
-    void navigate({ search: (prev) => ({ ...prev, year: year }) });
+    setSearchParams((prev) => ({ ...prev, year }));
   };
 
   return (

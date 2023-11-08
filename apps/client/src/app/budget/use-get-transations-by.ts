@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { apiClient } from '@/lib/api/api-client';
 import { ApiResponse, Transaction } from '@/types/app';
 
-export const useGetTransactionsBy = (year: number, month: string) => {
-  return useQuery({
+const getTransactions = (year: number, month: string) =>
+  queryOptions({
     queryKey: ['transactions', 'getBy', year, month],
     queryFn: async () => {
       return apiClient.get<ApiResponse<Transaction[]>>({
@@ -13,4 +13,5 @@ export const useGetTransactionsBy = (year: number, month: string) => {
       });
     },
   });
-};
+
+export const useGetTransactionsBy = (year: number, month: string) => useQuery(getTransactions(year, month));

@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -97,9 +96,6 @@ export function ProfileForm() {
                 <SelectItem value='m@support.com'>m@support.com</SelectItem>
               </SelectContent>
             </Select>
-            <FormDescription>
-              You can manage verified email addresses in your <Link href='/examples/forms'>email settings</Link>.
-            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

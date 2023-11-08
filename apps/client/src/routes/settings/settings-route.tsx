@@ -1,9 +1,16 @@
-import { lazyRouteComponent, Route } from '@tanstack/react-router';
+import { Navigate, RouteObject } from 'react-router-dom';
 
-import { authenticatedRoute } from '@/routes/root-route';
+import { AppRouteError } from '@/components/app-route-error';
+import { SettingsSectionPage } from '@/routes/settings/settings-section-page';
 
-export const settingsRoute = new Route({
-  getParentRoute: () => authenticatedRoute,
+export const settingsRoute = {
   path: 'settings',
-  component: lazyRouteComponent(() => import('./settings-page'), 'SettingsPage'),
-});
+  async lazy() {
+    return { Component: (await import('./settings-page')).default };
+  },
+  children: [
+    { index: true, element: <Navigate to='profile' /> },
+    { path: ':section', element: <SettingsSectionPage /> },
+  ],
+  errorElement: <AppRouteError />,
+} as RouteObject;

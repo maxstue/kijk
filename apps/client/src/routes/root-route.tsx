@@ -1,40 +1,29 @@
-import { Session } from '@supabase/supabase-js';
-import { redirect, Route, RouterContext } from '@tanstack/react-router';
+import { redirect, RouteObject } from 'react-router-dom';
 
-import { ErrorSimple } from '@/components/error-simple';
-import { userApi } from '@/lib/api/user-api';
+import { userInitQuery } from '@/app/root/use-init-user';
+import { AppRouteError } from '@/components/app-route-error';
 import { queryClient } from '@/lib/query-client';
 import { supabase } from '@/lib/supabase-client';
-import { router } from '@/router';
+import { budgetRoute } from '@/routes/budget/budget-route';
+import { dashboardRoute } from '@/routes/dashboard/dashboard-route';
+import { settingsRoute } from '@/routes/settings/settings-route';
 
-import { RootPage } from './root-page';
+import { RootLayout } from './root-layout';
 
-const routerContext = new RouterContext<{ queryClient: typeof queryClient; session?: Session }>();
-
-export const rootRoute = routerContext.createRootRoute({
-  errorComponent: (error: unknown) => <ErrorSimple error={error as Error} />,
-});
-
-export const authenticatedRoute = new Route({
-  getParentRoute: () => rootRoute,
+export const authenticatedRoute = {
   id: 'authenticatedRoute',
   path: '',
-  beforeLoad: async () => {
+  loader: async ({ request }) => {
     const session = await supabase.auth.getSession();
-
     if (!session.data.session?.access_token) {
-      throw redirect({
-        to: '/auth',
-        search: {
-          // Use the current location to power a redirect after login
-          redirect: router.state.location.href,
-        },
-      });
+      const params = new URLSearchParams();
+      params.set('from', new URL(request.url).pathname);
+      throw redirect('/auth' + `?${params.toString()}`);
     }
+    await queryClient.ensureQueryData(userInitQuery);
     return { session };
   },
-  loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(userApi.userInit);
-  },
-  component: RootPage,
-});
+  element: <RootLayout />,
+  errorElement: <AppRouteError />,
+  children: [dashboardRoute, budgetRoute, settingsRoute],
+} as RouteObject;

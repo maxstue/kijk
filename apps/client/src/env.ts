@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { logger } from '@/lib/logger';
 import { AppError } from '@/types/errors';
 
 const envSchema = z.object({
@@ -26,8 +27,13 @@ const envParse = envSchema.safeParse({
 });
 
 if (!envParse.success) {
-  console.error('[env.ts]', envParse.error.issues);
-  throw new AppError({ type: 'ENVIRONMENT', message: 'There is an error with the environment variables' });
+  logger.error({ errors: envParse.error.issues });
+  throw new AppError({
+    type: 'ENVIRONMENT',
+    message: `There is an error with the environment variables. ${envParse.error.issues
+      .map((x) => `[${x.path.at(0)}] ${x.code}: ${x.message}`)
+      .join('; ')}`,
+  });
 }
 
 export const env = envParse.data;

@@ -1,9 +1,5 @@
-import { lazyRouteComponent, Route } from '@tanstack/react-router';
+import { RouteObject } from 'react-router-dom';
 
-import { rootRoute } from '@/routes/root-route';
+import { AuthPage } from '@/routes/auth/auth-page';
 
-export const authRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: 'auth',
-  component: lazyRouteComponent(() => import('./auth-page'), 'AuthPage'),
-});
+export const authRoute = { path: 'auth', element: <AuthPage /> } as RouteObject;
