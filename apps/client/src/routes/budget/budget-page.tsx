@@ -67,12 +67,14 @@ export function BudgetPage() {
         <p className='text-muted-foreground'>Manage your Expenses and Incomes.</p>
       </div>
       <Separator className='my-6' />
+      {/* Sidebar */}
       <div className='flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0'>
-        <aside className='space-y-6 lg:w-1/5'>
+        <aside className='flex h-full flex-col gap-4 lg:w-1/5'>
           <YearSwitcher />
           <MonthNav />
         </aside>
-        <div className='flex-1 pb-12'>
+        {/* Content */}
+        <div className='flex-1'>
           <div className='flex flex-col space-y-4'>
             <div className='flex justify-end'>
               <Button size='sm' disabled>
@@ -153,7 +155,7 @@ function MonthNav({ className, ...props }: MProps) {
   };
 
   return currentMonth ? (
-    <nav className={cn('flex gap-2 overflow-auto pt-2 lg:h-[calc(100dvh_*_0.9)] lg:flex-col', className)} {...props}>
+    <nav className={cn('flex gap-2 overflow-auto py-2 lg:h-[calc(100dvh_*_0.60)] lg:flex-col', className)} {...props}>
       {months.map((item) => {
         return (
           <Button

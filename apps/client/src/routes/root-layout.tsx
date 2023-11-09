@@ -1,7 +1,8 @@
-import { PropsWithChildren, ReactNode, Suspense } from 'react';
+import { PropsWithChildren, Suspense } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
 import { CommandMenu } from '@/app/root/command-menu';
+import { Footer } from '@/app/root/footer';
 import { useInitUser } from '@/app/root/use-init-user';
 import { UserNav } from '@/app/root/user-nav';
 import { AsyncLoader } from '@/components/async-loader';
@@ -37,17 +38,14 @@ export function RootLayout() {
             </Suspense>
             <Toaster />
           </main>
+          <Footer />
         </div>
       </Init>
     </Suspense>
   );
 }
 
-interface SProps {
-  children?: ReactNode;
-}
-
-function SiteHeader({ children }: SProps) {
+function SiteHeader({ children }: PropsWithChildren) {
   return (
     <header className='supports-backdrop-blur:bg-background/60 sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm backdrop-blur'>
       <div className='container flex h-14 items-center'>
@@ -94,6 +92,5 @@ function SiteHeader({ children }: SProps) {
 
 function Init({ children }: PropsWithChildren) {
   useInitUser();
-
   return children;
 }

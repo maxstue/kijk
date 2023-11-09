@@ -10,7 +10,7 @@ import { settingsRoute } from '@/routes/settings/settings-route';
 
 import { RootLayout } from './root-layout';
 
-export const authenticatedRoute = {
+export const rootRoute = {
   id: 'authenticatedRoute',
   path: '',
   loader: async ({ request }) => {

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { apiClient } from '@/lib/api/api-client';
+import { apiClient } from '@/lib/api-client';
 import { Id, Months } from '@/types/app';
 
 export const useDeleteTransaction = () => {

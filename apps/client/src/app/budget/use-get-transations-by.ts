@@ -1,6 +1,6 @@
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
-import { apiClient } from '@/lib/api/api-client';
+import { apiClient } from '@/lib/api-client';
 import { ApiResponse, Transaction } from '@/types/app';
 
 const getTransactions = (year: number, month: string) =>
