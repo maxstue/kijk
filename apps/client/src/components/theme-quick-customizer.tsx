@@ -6,13 +6,24 @@ import { themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { useThemeStore, useThemeStoreActions } from '@/stores/theme-store';
 
-export function ThemeQuickCustomizer() {
+interface Props {
+  onSelect?: () => void;
+}
+
+const quickThemes = ['zinc', 'rose', 'blue', 'green', 'orange'] as const;
+
+export function ThemeQuickCustomizer({ onSelect }: Props) {
   const { setTheme } = useThemeStoreActions();
   const { mode, theme: activeTheme } = useThemeStore();
 
+  const handleSelectTheme = (theme: (typeof themes)[number]['name']) => {
+    setTheme(theme);
+    onSelect?.();
+  };
+
   return (
     <div className='flex items-center gap-2'>
-      {['zinc', 'rose', 'blue', 'green', 'orange'].map((color) => {
+      {quickThemes.map((color) => {
         const theme = themes.find((theme) => theme.name === color);
         const isQuickThemeActive = activeTheme === color;
 
@@ -21,7 +32,7 @@ export function ThemeQuickCustomizer() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => setTheme(theme.name)}
+                  onClick={() => handleSelectTheme(theme.name)}
                   className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs',
                     isQuickThemeActive ? 'border-[--theme-primary]' : 'border-transparent',

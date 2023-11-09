@@ -28,7 +28,7 @@ export function CommandMenu({ ...props }: DialogProps) {
   const [sheetType, setSheetType] = useState<'category' | 'transaction'>();
   const { setMode } = useThemeStoreActions();
 
-  const handleClose = () => {
+  const handleCloseSheet = () => {
     setShowSheet(false);
     setSheetType(undefined);
   };
@@ -138,7 +138,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                 System
               </CommandItem>
               <CommandItem value='theme-quick'>
-                <ThemeQuickCustomizer />
+                <ThemeQuickCustomizer onSelect={() => setOpen(false)} />
               </CommandItem>
             </CommandGroup>
           </CommandList>
@@ -146,8 +146,8 @@ export function CommandMenu({ ...props }: DialogProps) {
         <SheetContent className='space-y-8'>
           {showSheet && (
             <Suspense>
-              {sheetType === 'transaction' && <TransactionSheet onClose={handleClose} />}
-              {sheetType === 'category' && <CategorySheet onClose={handleClose} />}
+              {sheetType === 'transaction' && <TransactionSheet onClose={handleCloseSheet} />}
+              {sheetType === 'category' && <CategorySheet onClose={handleCloseSheet} />}
             </Suspense>
           )}
         </SheetContent>
