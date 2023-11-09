@@ -4,18 +4,16 @@ import { Link, Outlet } from 'react-router-dom';
 import { CommandMenu } from '@/app/root/command-menu';
 import { useInitUser } from '@/app/root/use-init-user';
 import { UserNav } from '@/app/root/user-nav';
+import { AsyncLoader } from '@/components/async-loader';
 import { Icons } from '@/components/icons';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { Toaster } from '@/components/ui/toaster';
 import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { lazyComponent } from '@/utils/async-loader';
-
-const Loader = lazyComponent(() => import('@/components/loader').then((e) => ({ default: e.Loader })));
 
 export function RootLayout() {
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense fallback={<AsyncLoader />}>
       <Init>
         <div className='flex min-h-screen flex-col bg-background'>
           <header>
@@ -34,7 +32,7 @@ export function RootLayout() {
             </SiteHeader>
           </header>
           <main className='container flex-1'>
-            <Suspense fallback={<Loader />}>
+            <Suspense fallback={<AsyncLoader />}>
               <Outlet />
             </Suspense>
             <Toaster />

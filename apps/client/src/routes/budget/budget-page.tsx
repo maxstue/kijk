@@ -46,13 +46,19 @@ export function BudgetPage() {
   const { data } = useGetTransactionsBy(year, month);
 
   useEffect(() => {
-    if (typeof year == 'undefined') {
-      setSearchParams((prev) => ({ ...prev, year }));
+    if (searchParams.get('year') == null) {
+      setSearchParams((prev) => {
+        prev.set('year', year.toString());
+        return prev;
+      });
     }
-    if (typeof month == 'undefined') {
-      setSearchParams((prev) => ({ ...prev, month }));
+    if (searchParams.get('month') == null) {
+      setSearchParams((prev) => {
+        prev.set('month', month);
+        return prev;
+      });
     }
-  }, [navigate, month, year, setSearchParams]);
+  }, [navigate, month, year, setSearchParams, searchParams]);
 
   return (
     <div className='space-y-6 pt-10'>
@@ -140,11 +146,14 @@ function MonthNav({ className, ...props }: MProps) {
   const currentMonth = (searchParams.get('month') ?? months[new Date().getMonth()]) as Months;
 
   const handleNavigate = (item: Months) => {
-    setSearchParams((prev) => ({ ...prev, month: item }));
+    setSearchParams((prev) => {
+      prev.set('month', item);
+      return prev;
+    });
   };
 
   return currentMonth ? (
-    <nav className={cn('flex overflow-auto lg:flex-col', className)} {...props}>
+    <nav className={cn('flex gap-2 overflow-auto pt-2 lg:h-[calc(100dvh_*_0.9)] lg:flex-col', className)} {...props}>
       {months.map((item) => {
         return (
           <Button
@@ -154,7 +163,7 @@ function MonthNav({ className, ...props }: MProps) {
             className={cn(
               buttonVariants({ variant: 'ghost' }),
               currentMonth === item ? 'bg-primary text-primary-foreground' : '',
-              'justify-start',
+              'mx-2 justify-start',
             )}
           >
             {item}
@@ -186,7 +195,10 @@ function YearSwitcher({ className }: YProps) {
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
-    setSearchParams((prev) => ({ ...prev, year }));
+    setSearchParams((prev) => {
+      prev.set('year', year.toString());
+      return prev;
+    });
   };
 
   return (
