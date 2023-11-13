@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { ArrowDownIcon, InfoIcon } from 'lucide-react';
-import { useNavigate, useRouteError } from 'react-router-dom';
+import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export function AppRouteError() {
@@ -19,16 +19,11 @@ export function AppRouteError() {
       <Card className='rounded'>
         <CardHeader className='flex w-full flex-col items-center justify-center gap-2'>
           <InfoIcon className='h-24 w-24 text-orange-400' />
-          <CardTitle>Etwas ist schief gelaufen !</CardTitle>
+          <CardTitle>Oups, something went wrong!</CardTitle>
         </CardHeader>
         <CardContent>
           <div className='flex flex-col gap-2'>
-            <CardDescription>Oups, es scheint als wäre ein fehler aufgetreten.</CardDescription>
-            {error instanceof Error ? (
-              <AuthError error={error} />
-            ) : (
-              <BasicError message={JSON.stringify(error?.toString())} />
-            )}
+            {error instanceof Error ? <AuthError error={error} /> : <BasicError error={error} />}
           </div>
         </CardContent>
         <CardFooter>
@@ -45,8 +40,19 @@ export function AppRouteError() {
   );
 }
 
-const BasicError = (props: { message: string }) => {
-  return <div>{props.message}</div>;
+const BasicError = ({ error }: { error: unknown }) => {
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div className='flex flex-col gap-2'>
+        <div className='text-bold text-muted-foreground'>{error.statusText}:</div>
+        {error.status === 404 && <div>This page doesn&apos;t exist!</div>}
+        {error.status === 503 && <div>Looks like our API is down</div>}
+        {error.status === 418 && <div>🫖</div>}
+      </div>
+    );
+  }
+
+  return <div>Something unexpected happened. {JSON.stringify(error)}</div>;
 };
 
 const AuthError = (props: { error: Error }) => {
