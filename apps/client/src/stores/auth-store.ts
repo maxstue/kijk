@@ -1,9 +1,9 @@
-import { AuthResponse, AuthTokenResponse, Session, SupabaseClient, User } from '@supabase/supabase-js';
+import { AuthResponse, AuthTokenResponse, OAuthResponse, Session, SupabaseClient, User } from '@supabase/supabase-js';
 import { StoreApi, UseBoundStore } from 'zustand';
 
 import { supabase } from '@/lib/supabase-client';
 import { createStoreFactory } from '@/lib/utils';
-import { Optional } from '@/types/app';
+import { AllowedProviders, Optional } from '@/types/app';
 import { AppError } from '@/types/errors';
 
 interface State {
@@ -17,6 +17,7 @@ interface State {
     setSession: (session: Optional<Session>) => void;
     login: (email: string, password: string) => Promise<AuthTokenResponse>;
     register: (email: string, password: string) => Promise<AuthResponse>;
+    signInWith: (provider: AllowedProviders) => Promise<OAuthResponse>;
     logout: () => Promise<void>;
   };
 }
@@ -50,6 +51,11 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
     },
     async register(email: string, password: string) {
       return await supabase.auth.signUp({ email, password });
+    },
+    async signInWith(provider) {
+      return await supabase.auth.signInWithOAuth({
+        provider: provider,
+      });
     },
     async logout() {
       await supabase.auth.signOut();
