@@ -7,5 +7,6 @@ public record UserResponse(
     string? AuthId,
     string? Name,
     string? Email,
+    bool? FirstTime,
     IEnumerable<TransactionDto> Transactions,
     IEnumerable<CategoryDto> Categories);

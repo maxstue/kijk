@@ -43,6 +43,7 @@ public class UsersService : IUsersService
                     newUserEntity.AuthId,
                     newUserEntity.Name,
                     newUserEntity.Email,
+                    newUserEntity.FirstTime,
                     newUserEntity.Transactions.Select(
                         x => new TransactionDto(
                             x.Id,
@@ -66,7 +67,7 @@ public class UsersService : IUsersService
                 return AppError.NotFound();
             }
 
-            userEntity.FirstTime = false;
+            // userEntity.FirstTime = false;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -75,6 +76,7 @@ public class UsersService : IUsersService
                 userEntity.AuthId,
                 userEntity.Name,
                 userEntity.Email,
+                userEntity.FirstTime,
                 userEntity.Transactions.Select(
                     x => new TransactionDto(
                         x.Id,

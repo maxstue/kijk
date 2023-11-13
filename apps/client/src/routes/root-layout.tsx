@@ -3,7 +3,6 @@ import { Link, Outlet } from 'react-router-dom';
 
 import { CommandMenu } from '@/app/root/command-menu';
 import { Footer } from '@/app/root/footer';
-import { useInitUser } from '@/app/root/use-init-user';
 import { UserNav } from '@/app/root/user-nav';
 import { AsyncLoader } from '@/components/async-loader';
 import { Icons } from '@/components/icons';
@@ -15,32 +14,30 @@ import { cn } from '@/lib/utils';
 export function RootLayout() {
   return (
     <Suspense fallback={<AsyncLoader />}>
-      <Init>
-        <div className='flex min-h-screen flex-col bg-background'>
-          <header>
-            <SiteHeader>
-              <div className='flex space-x-2'>
-                <div className='w-full flex-1 md:w-auto md:flex-none'>
-                  <CommandMenu />
-                </div>
-                <nav className='flex items-center space-x-1'>
-                  <ThemeModeToggle />
-                </nav>
-                <div className='ml-auto flex items-center space-x-4'>
-                  <UserNav />
-                </div>
+      <div className='flex min-h-screen flex-col bg-background'>
+        <header>
+          <SiteHeader>
+            <div className='flex space-x-2'>
+              <div className='w-full flex-1 md:w-auto md:flex-none'>
+                <CommandMenu />
               </div>
-            </SiteHeader>
-          </header>
-          <main className='container flex-1'>
-            <Suspense fallback={<AsyncLoader />}>
-              <Outlet />
-            </Suspense>
-            <Toaster />
-          </main>
-          <Footer />
-        </div>
-      </Init>
+              <nav className='flex items-center space-x-1'>
+                <ThemeModeToggle />
+              </nav>
+              <div className='ml-auto flex items-center space-x-4'>
+                <UserNav />
+              </div>
+            </div>
+          </SiteHeader>
+        </header>
+        <main className='container flex-1'>
+          <Suspense fallback={<AsyncLoader />}>
+            <Outlet />
+          </Suspense>
+          <Toaster />
+        </main>
+        <Footer />
+      </div>
     </Suspense>
   );
 }
@@ -88,9 +85,4 @@ function SiteHeader({ children }: PropsWithChildren) {
       </div>
     </header>
   );
-}
-
-function Init({ children }: PropsWithChildren) {
-  useInitUser();
-  return children;
 }
