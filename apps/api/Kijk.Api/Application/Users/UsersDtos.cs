@@ -10,3 +10,6 @@ public record UserResponse(
     bool? FirstTime,
     IEnumerable<TransactionDto> Transactions,
     IEnumerable<CategoryDto> Categories);
+
+public record UserInitRequest(string? UserName, bool? UseDefaultCategories);
+public record UserUpdateRequest(string? UserName, bool? UseDefaultCategories);

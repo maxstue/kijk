@@ -22,10 +22,17 @@ public class TransactionsService : ITransactionsService
     {
         try
         {
+            var user = await _dbContext.Users.FindAsync(new object?[] { _currentUser.Id }, cancellationToken);
+            if (user is null)
+            {
+                return AppError.NotFound($"User for id '{_currentUser.Id}' was not found");
+            }
+
             var monthInt = DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month;
 
             return await _dbContext.Transactions
                 .AsNoTracking()
+                .Where(x => x.User.Id == user.Id)
                 .Where(x => x.ExecutedAt.Year == year && x.ExecutedAt.Month == monthInt)
                 .Select(
                     x => new TransactionDto(

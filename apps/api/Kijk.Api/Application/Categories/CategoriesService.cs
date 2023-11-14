@@ -132,7 +132,7 @@ public class CategoriesService : ICategoriesService
                 return AppError.NotFound(description: $"‘User‘ with id '{_currentUser.Id}' was not found");
             }
 
-            if (user.Categories.Find(x => x.Id != id) is null)
+            if (user.Categories.Find(x => x.Id == id) is null)
             {
                 _logger.Warning("User with id '{UserId}' was not allowed to delete the category with id {CategoryId}", _currentUser.Id, id);
                 return AppError.NotFound(description: $"‘User‘ with id '{_currentUser.Id}' is not allowed to delete the category");
@@ -144,6 +144,12 @@ public class CategoriesService : ICategoriesService
             {
                 _logger.Warning("Category with id {Id} could not be found", id);
                 return AppError.NotFound($"Category with id '{id}' could not be found");
+            }
+            
+            if (foundEntity.Type == CategoryType.Default)
+            {
+                _logger.Warning("Category with id {Id} could not be deleted, because it is of type 'Default'", id);
+                return AppError.NotFound($"Category with id {id} could not be deleted, because it is of type 'Default'");
             }
 
             _dbContext.Categories.Remove(foundEntity);

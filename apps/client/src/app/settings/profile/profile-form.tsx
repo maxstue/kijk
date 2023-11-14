@@ -1,6 +1,9 @@
-import { z } from 'zod';
+import { useMemo } from 'react';
 
+import { UserUpdateFormValues, userUpdateSchema } from '@/app/settings/profile/schemas';
+import { useUpdateUser } from '@/app/settings/profile/user-update-user';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -12,58 +15,43 @@ import {
 } from '@/components/ui/form/form';
 import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-
-const profileFormSchema = z.object({
-  username: z
-    .string()
-    .min(2, {
-      message: 'Username must be at least 2 characters.',
-    })
-    .max(30, {
-      message: 'Username must not be longer than 30 characters.',
-    }),
-  email: z
-    .string({
-      required_error: 'Please select an email to display.',
-    })
-    .email(),
-  bio: z.string().max(160).min(4),
-});
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  username: '',
-  bio: 'I own a computer.',
-};
+import { useAuthStore } from '@/stores/auth-store';
 
 export function ProfileForm() {
+  const { user } = useAuthStore();
   const form = useZodForm({
-    schema: profileFormSchema,
-    defaultValues,
+    schema: userUpdateSchema,
+    values: {
+      userName: user?.name ?? '',
+      useDefaultCategories: useMemo(
+        () => (user?.categories && user?.categories.some((x) => x.type === 'Default')) ?? true,
+        [user?.categories],
+      ),
+    },
     mode: 'onBlur',
   });
+  const { mutate } = useUpdateUser();
+  const { formState } = form;
 
-  function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+  function onSubmit(data: UserUpdateFormValues) {
+    if (user?.id) {
+      mutate(data, {
+        onSuccess() {
+          toast({
+            title: 'Successfully updated',
+            variant: 'default',
+          });
+        },
+      });
+    }
   }
 
   return (
     <Form form={form} onSubmit={onSubmit} className='space-y-8'>
       <FormField
         control={form.control}
-        name='username'
+        name='userName'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Username</FormLabel>
@@ -71,53 +59,31 @@ export function ProfileForm() {
               <Input placeholder='max' {...field} />
             </FormControl>
             <FormDescription>
-              This is your public display name. It can be your real name or a pseudonym. You can only change this once
-              every 30 days.
+              This is your public display name. It can be your real name or a pseudonym.
             </FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
-      <FormField
-        control={form.control}
-        name='email'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Email</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <div className='flex w-full items-center '>
+        <FormField
+          control={form.control}
+          name='useDefaultCategories'
+          render={({ field }) => (
+            <FormItem className='flex w-full items-end justify-start gap-2'>
+              <FormLabel>Use default Categories</FormLabel>
               <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder='Select a verified email to display' />
-                </SelectTrigger>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} placeholder='Categories' />
               </FormControl>
-              <SelectContent>
-                <SelectItem value='m@example.com'>m@example.com</SelectItem>
-                <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                <SelectItem value='m@support.com'>m@support.com</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name='bio'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Bio</FormLabel>
-            <FormControl>
-              <Textarea placeholder='Tell us a little bit about yourself' className='resize-none' {...field} />
-            </FormControl>
-            <FormDescription>
-              You can <span>@mention</span> other users and organizations to link to them.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
-      <Button type='submit'>Update profile</Button>
+      <Button type='submit' disabled={!formState.isDirty}>
+        Update profile
+      </Button>
     </Form>
   );
 }

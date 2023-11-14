@@ -64,11 +64,15 @@ export interface Category {
   type: CategotyType;
 }
 
-export interface User {
+export interface AppUser {
   id: Id;
   name: Optional<string>;
   email: Optional<string>;
   firstTime: Optional<boolean>;
   transactions: Optional<Transaction[]>;
   categories: Optional<Category[]>;
+}
+
+export interface User_Metadata {
+  user_name: Optional<string>;
 }

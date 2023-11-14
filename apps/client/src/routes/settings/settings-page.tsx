@@ -39,7 +39,7 @@ function SettingsNavLink({
   label: (typeof settingsNav)[number]['label'];
   icon: (typeof settingsNav)[number]['icon'];
 }) {
-  const match = useMatch(`settings/${to}`);
+  const match = useMatch(`home/settings/${to}`);
   const Icon = Icons[icon || 'arrowRight'];
 
   return (

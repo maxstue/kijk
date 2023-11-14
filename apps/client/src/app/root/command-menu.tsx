@@ -83,7 +83,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                 Home
               </CommandItem>
 
-              <CommandItem key='budget' onSelect={() => runCommand(() => navigate('/budget'))}>
+              <CommandItem key='budget' onSelect={() => runCommand(() => navigate('budget'))}>
                 <File className='mr-2 h-4 w-4' />
                 Budget
               </CommandItem>
@@ -117,7 +117,7 @@ export function CommandMenu({ ...props }: DialogProps) {
 
             <CommandGroup heading='Settings'>
               {settingsNav.map((item) => (
-                <CommandItem key={item.label} onSelect={() => runCommand(() => navigate(`/settings/${item.to}`))}>
+                <CommandItem key={item.label} onSelect={() => runCommand(() => navigate(`settings/${item.to}`))}>
                   <File className='mr-2 h-4 w-4' />
                   {item.label}
                 </CommandItem>

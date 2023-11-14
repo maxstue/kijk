@@ -62,7 +62,7 @@ function SiteHeader({ children }: PropsWithChildren) {
               Dashboard
             </Link>
             <Link
-              to={'/budget'}
+              to={'budget'}
               className={cn(
                 'flex items-center text-lg font-medium text-foreground/60 transition-colors hover:text-foreground/80 data-[active]:text-foreground sm:text-sm',
                 false && 'cursor-not-allowed opacity-80',

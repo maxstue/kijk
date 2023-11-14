@@ -8,14 +8,28 @@ public static class UsersEndpoint
     {
         var group = endpointRouteBuilder.MapGroup("/users");
 
-        group.MapGet("/init", Init);
+        group.MapGet("/sign-in", SignInAsync);
+        group.MapPut("/init", InitAsync);
+        group.MapPut("/", UpdateAsync);
 
         return endpointRouteBuilder;
     }
 
-    private static async Task<IResult> Init(IUsersService service)
+    private static async Task<IResult> SignInAsync(IUsersService service)
     {
-        var result = await service.InitAsync();
+        var result = await service.SignInAsync();
+        return result.ToResponse("Successfully signed in");
+    }
+
+    private static async Task<IResult> InitAsync(IUsersService service, UserInitRequest userInitRequest)
+    {
+        var result = await service.InitAsync(userInitRequest);
         return result.ToResponse("Successfully initialized");
+    }
+
+    private static async Task<IResult> UpdateAsync(IUsersService service, UserUpdateRequest userUpdateRequest)
+    {
+        var result = await service.UpdateAsync(userUpdateRequest);
+        return result.ToResponse("Successfully updated");
     }
 }

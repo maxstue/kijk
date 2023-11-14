@@ -1,20 +1,21 @@
-import { AuthResponse, AuthTokenResponse, OAuthResponse, Session, SupabaseClient, User } from '@supabase/supabase-js';
+import { AuthResponse, AuthTokenResponse, OAuthResponse, Session, SupabaseClient } from '@supabase/supabase-js';
 import { StoreApi, UseBoundStore } from 'zustand';
 
 import { supabase } from '@/lib/supabase-client';
 import { createStoreFactory } from '@/lib/utils';
-import { AllowedProviders, Optional } from '@/types/app';
+import { AllowedProviders, AppUser, Optional } from '@/types/app';
 import { AppError } from '@/types/errors';
 
 interface State {
   session: Optional<Session>;
-  user: Optional<User>;
+  user: Optional<AppUser>;
   isAuthenticated: boolean;
   supabase?: SupabaseClient;
   actions: {
     setSupabase: (client: SupabaseClient) => void;
     getSupabase: () => SupabaseClient;
     setSession: (session: Optional<Session>) => void;
+    setUser: (user: AppUser) => void;
     login: (email: string, password: string) => Promise<AuthTokenResponse>;
     register: (email: string, password: string) => Promise<AuthResponse>;
     signInWith: (provider: AllowedProviders) => Promise<OAuthResponse>;
@@ -42,8 +43,12 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
     setSession(session) {
       set((state) => {
         state.session = session;
-        state.user = session?.user;
         state.isAuthenticated = !!session?.access_token;
+      });
+    },
+    setUser(user) {
+      set((state) => {
+        state.user = user;
       });
     },
     async login(email: string, password: string) {

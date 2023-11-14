@@ -2,27 +2,36 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { UserStepFormValues } from '@/app/welcome/schemas';
+import { useInitUser } from '@/app/welcome/use-init-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
 import { ThemeQuickCustomizer } from '@/components/theme-quick-customizer';
 import { Button } from '@/components/ui/button';
 import { Step, StepConfig, Steps } from '@/components/ui/stepper';
 import { useStepper } from '@/hooks/use-stepper';
+import { useAuthStore } from '@/stores/auth-store';
+import { User_Metadata } from '@/types/app';
 
 const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Theme' }, { label: 'Finish' }] satisfies StepConfig[];
 
 export default function WelcomePage() {
-  const [userStep, setUserStep] = useState<UserStepFormValues>({ userName: '', useDefaultCategories: true });
+  const { session } = useAuthStore();
+  const [userStep, setUserStep] = useState<UserStepFormValues>({
+    userName: (session?.user?.user_metadata as User_Metadata).user_name ?? '',
+    useDefaultCategories: true,
+  });
   const navigate = useNavigate();
+  const { mutate } = useInitUser();
   const { nextStep, prevStep, activeStep, isDisabledStep, isLastStep, isOptionalStep } = useStepper({
     initialStep: 0,
     steps,
   });
 
   const handleFinish = () => {
-    console.log(userStep);
-
-    // TODO update user with, new user Endpoint to set firstTime
-    void navigate('/home', { replace: true });
+    mutate(userStep, {
+      onSuccess() {
+        navigate('/', { replace: true });
+      },
+    });
   };
 
   return (

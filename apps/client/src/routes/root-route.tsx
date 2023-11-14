@@ -1,6 +1,6 @@
 import { redirect, RouteObject } from 'react-router-dom';
 
-import { userInitQuery } from '@/app/root/use-init-user';
+import { userSignInQuery } from '@/app/root/use-signin-user';
 import { AppRouteError } from '@/components/app-route-error';
 import { queryClient } from '@/lib/query-client';
 import { supabase } from '@/lib/supabase-client';
@@ -9,6 +9,7 @@ import { dashboardRoute } from '@/routes/dashboard/dashboard-route';
 import NoMatch from '@/routes/no-match';
 import { settingsRoute } from '@/routes/settings/settings-route';
 import { welcomeRoute } from '@/routes/welcome/welcome-route';
+import { useAuthStore } from '@/stores/auth-store';
 
 import { RootLayout } from './root-layout';
 
@@ -16,10 +17,12 @@ const rootRoute = {
   id: 'rootRoute',
   path: '',
   loader: async () => {
-    const data = await queryClient.ensureQueryData(userInitQuery);
+    const data = await queryClient.ensureQueryData(userSignInQuery);
     if (data.data?.firstTime) {
       return redirect('/home/welcome');
     }
+    useAuthStore.setState((c) => ({ ...c, user: data.data }));
+
     return null;
   },
   element: <RootLayout />,
@@ -37,7 +40,8 @@ export const privateRoute = {
       params.set('from', new URL(request.url).pathname);
       throw redirect('/auth' + `?${params.toString()}`);
     }
-    await queryClient.ensureQueryData(userInitQuery);
+    const data = await queryClient.ensureQueryData(userSignInQuery);
+    useAuthStore.setState((c) => ({ ...c, user: data.data }));
     return { session };
   },
   errorElement: <AppRouteError />,
