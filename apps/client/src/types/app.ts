@@ -14,6 +14,9 @@ export interface ApiError {
   type: string;
 }
 
+export const Allowed_Providers = ['github'] as const;
+export type AllowedProviders = (typeof Allowed_Providers)[number];
+
 export interface Transaction {
   id: string;
   name: string;
@@ -61,11 +64,15 @@ export interface Category {
   type: CategotyType;
 }
 
-export interface User {
-  id?: Id | null;
-  name?: string | null;
-  email?: string | null;
-  given_name: string | null;
-  family_name: string | null;
-  picture?: string | null;
+export interface AppUser {
+  id: Id;
+  name: Optional<string>;
+  email: Optional<string>;
+  firstTime: Optional<boolean>;
+  transactions: Optional<Transaction[]>;
+  categories: Optional<Category[]>;
+}
+
+export interface User_Metadata {
+  user_name: Optional<string>;
 }

@@ -1,16 +1,16 @@
 import { Dispatch, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { authRoute } from '@/routes/auth/auth-route';
 import { useAuthStoreActions } from '@/stores/auth-store';
 
 export function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Register'>('Login');
 
+  // TODO add back button to navigate to the "web"-app
   return (
     <>
       {show === 'Register' && <Register toLogin={setShow} />}
@@ -34,7 +34,7 @@ function Register({ toLogin }: { toLogin: Dispatch<React.SetStateAction<'Login' 
         variant: 'destructive',
       });
     }
-    await navigate({ to: '/' });
+    navigate('/');
   };
 
   return (
@@ -60,6 +60,8 @@ function Login({ toRegister }: { toRegister: Dispatch<React.SetStateAction<'Logi
   const { login } = useAuthStoreActions();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get('from') ?? '/';
 
   const handleLogin = async (email: string, password: string) => {
     const result = await login(email.toLowerCase(), password);
@@ -71,7 +73,7 @@ function Login({ toRegister }: { toRegister: Dispatch<React.SetStateAction<'Logi
         variant: 'destructive',
       });
     }
-    await navigate({ from: authRoute.id, to: '/' });
+    navigate(from);
   };
 
   return (

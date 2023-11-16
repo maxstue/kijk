@@ -70,13 +70,17 @@ export function DataListRowActions<TData extends Category>({ row }: DataTableRow
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={void handleCopyId}>Copy Id</DropdownMenuItem>
-            <SheetTrigger asChild onClick={() => setSheetType('edit')}>
-              <DropdownMenuItem>Update</DropdownMenuItem>
-            </SheetTrigger>
-            <DropdownMenuSeparator />
-            <SheetTrigger asChild onClick={() => setSheetType('delete')}>
-              <DropdownMenuItem className={cn('focus:bg-red-500 focus:text-white')}>Delete</DropdownMenuItem>
-            </SheetTrigger>
+            {category.type !== 'Default' && (
+              <>
+                <SheetTrigger asChild onClick={() => setSheetType('edit')}>
+                  <DropdownMenuItem>Update</DropdownMenuItem>
+                </SheetTrigger>
+                <DropdownMenuSeparator />
+                <SheetTrigger asChild onClick={() => setSheetType('delete')}>
+                  <DropdownMenuItem className={cn('focus:bg-red-500 focus:text-white')}>Delete</DropdownMenuItem>
+                </SheetTrigger>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         <SheetContent>
@@ -179,7 +183,7 @@ function Update({ category, onClose }: EdProps) {
         <SheetDescription>Change the values of this category.</SheetDescription>
       </SheetHeader>
       <div>
-        <Form {...form} form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
+        <Form form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
           <FormField
             control={form.control}
             name='name'

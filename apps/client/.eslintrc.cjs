@@ -30,6 +30,8 @@ module.exports = {
     // typescript
     '@typescript-eslint/array-type': ['warn', { default: 'array-simple', readonly: 'array-simple' }],
     '@typescript-eslint/no-misused-promises': 'off',
+    '@typescript-eslint/no-unsafe-return': 'warn', // TODO remove after stepper is official
+    '@typescript-eslint/no-unsafe-member-access': 'warn', // TODO remove after stepper is official
     '@typescript-eslint/no-empty-interface': [
       'error',
       {

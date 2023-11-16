@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useSearch } from '@tanstack/react-router';
+import { Suspense, useState } from 'react';
 import { Row } from '@tanstack/react-table';
 import { parseISO } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 import { TransactionFormValues, transactionSchema } from '@/app/budget/schemas';
 import { useDeleteTransaction } from '@/app/budget/use-delete-transaction';
@@ -36,7 +36,6 @@ import {
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { cn, formatStringToCurrency } from '@/lib/utils';
-import { budgetRoute } from '@/routes/budget/budget-route';
 import { Months, months, Transaction, TransactionType } from '@/types/app';
 
 interface DataTableRowActionsProps<TData> {
@@ -47,10 +46,10 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
-  const searchParams = useSearch({ from: budgetRoute.id });
-  const month = searchParams.month ?? months[new Date().getMonth()];
-  const year = searchParams.year ?? new Date().getFullYear();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const month = (searchParams.get('month') ?? months[new Date().getMonth()]) as Months;
+  const year = (searchParams.get('year') ?? new Date().getFullYear()) as number;
   const transaction = row.original;
 
   const handleCopyId = async () => {
@@ -89,10 +88,14 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
           </DropdownMenuContent>
         </DropdownMenu>
         <SheetContent>
-          {sheetType === 'delete' && (
-            <Delete transaction={transaction} month={month} year={year} onClose={handleClose} />
-          )}
-          {sheetType === 'edit' && <Update transaction={transaction} month={month} year={year} onClose={handleClose} />}
+          <Suspense>
+            {sheetType === 'delete' && (
+              <Delete transaction={transaction} month={month} year={year} onClose={handleClose} />
+            )}
+            {sheetType === 'edit' && (
+              <Update transaction={transaction} month={month} year={year} onClose={handleClose} />
+            )}
+          </Suspense>
         </SheetContent>
       </Sheet>
     </Dialog>

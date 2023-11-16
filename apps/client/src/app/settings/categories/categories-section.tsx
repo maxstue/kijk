@@ -22,7 +22,15 @@ export function CategoriesSection() {
       </div>
       <Separator />
       <div className='grid gap-4 lg:grid-cols-2'>
-        <CategoriesInfo />
+        <Suspense
+          fallback={
+            <div className='flex items-center justify-center'>
+              <Icons.spinner className='animate-spin' />
+            </div>
+          }
+        >
+          <CategoriesInfo />
+        </Suspense>
       </div>
       <div className='w-full'>
         <Card>

@@ -7,6 +7,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useAuthStoreActions } from '@/stores/auth-store';
+import { AllowedProviders } from '@/types/app';
 
 interface UserAuthFormProps {
   className?: string;
@@ -24,18 +26,23 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: UserAuthFormProp
     mode: 'onBlur',
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { signInWith } = useAuthStoreActions();
 
-  async function handleSugbmit(data: AuthSchema) {
+  async function handleEmailSubmit(data: AuthSchema) {
     setIsLoading(true);
-
     await onSubmit(data.email.toLowerCase(), data.password);
+    setIsLoading(false);
+  }
 
+  async function handleSignInWith(provider: AllowedProviders) {
+    setIsLoading(true);
+    await signInWith(provider);
     setIsLoading(false);
   }
 
   return (
     <div className={cn('grid gap-6', className)}>
-      <Form form={form} onSubmit={handleSugbmit} className='space-y-8'>
+      <Form form={form} onSubmit={handleEmailSubmit} className='space-y-8'>
         <div className='grid gap-2'>
           <div className='grid gap-1'>
             <FormField
@@ -82,6 +89,14 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: UserAuthFormProp
           <span className='bg-background px-2 text-muted-foreground'>Or continue with</span>
         </div>
       </div>
+      <Button variant='outline' onClick={() => handleSignInWith('github')} disabled={isLoading}>
+        {isLoading ? (
+          <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
+        ) : (
+          <Icons.gitHub className='mr-2 h-4 w-4' />
+        )}{' '}
+        Github
+      </Button>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,15 +19,15 @@ import { useThemeStore } from '@/stores/theme-store';
 
 export function UserNav() {
   const { logout } = useAuthStoreActions();
-  const { session } = useAuthStore();
-  const userInitials = getInitailChars(session?.user.email);
+  const { user } = useAuthStore();
+  const userInitials = getInitailChars(user?.email);
   const { radius } = useThemeStore();
   const navigate = useNavigate();
 
   const handleSignOut = (event: Event) => {
     event.preventDefault();
     logout()
-      .then(() => navigate({ to: '/', replace: true }))
+      .then(() => navigate('/auth', { replace: true }))
       .catch(console.warn);
   };
 
@@ -36,7 +36,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant='ghost' size='icon' className='relative h-8 w-8 rounded-full'>
           <Avatar className='h-8 w-8'>
-            <AvatarImage src='/avatars/01.png' alt={session?.user.email ?? userInitials} />
+            <AvatarImage src='/avatars/01.png' alt={user?.email ?? userInitials} />
             <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
         </Button>
@@ -44,15 +44,15 @@ export function UserNav() {
       <DropdownMenuContent key={radius} className='w-56 rounded-lg bg-background' align='end' forceMount>
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
-            <p className='text-sm font-medium leading-none'>{session?.user.email}</p>
-            <p className='text-xs leading-none text-muted-foreground'>{session?.user.email}</p>
+            <p className='text-sm font-medium leading-none'>{user?.name}</p>
+            <p className='text-xs leading-none text-muted-foreground'>{user?.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {settingsNav.map(({ to, label, shortCutKey }) => (
             <DropdownMenuItem key={label} asChild className='cursor-pointer'>
-              <Link to={'/settings/$section'} params={{ section: to }} className='flex w-full'>
+              <Link to={`settings/${to}`} className='flex w-full'>
                 {label}
                 {shortCutKey && <DropdownMenuShortcut>{shortCutKey}</DropdownMenuShortcut>}
               </Link>

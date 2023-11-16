@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { DialogProps } from '@radix-ui/react-alert-dialog';
-import { useNavigate } from '@tanstack/react-router';
 import { File, Laptop, Moon, SunMedium } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
@@ -28,7 +28,7 @@ export function CommandMenu({ ...props }: DialogProps) {
   const [sheetType, setSheetType] = useState<'category' | 'transaction'>();
   const { setMode } = useThemeStoreActions();
 
-  const handleClose = () => {
+  const handleCloseSheet = () => {
     setShowSheet(false);
     setSheetType(undefined);
   };
@@ -76,14 +76,14 @@ export function CommandMenu({ ...props }: DialogProps) {
               <CommandItem
                 key='Home'
                 onSelect={() => {
-                  runCommand(() => navigate({ to: '/' }));
+                  runCommand(() => navigate('/'));
                 }}
               >
                 <File className='mr-2 h-4 w-4' />
                 Home
               </CommandItem>
 
-              <CommandItem key='budget' onSelect={() => runCommand(() => navigate({ to: '/budget' }))}>
+              <CommandItem key='budget' onSelect={() => runCommand(() => navigate('budget'))}>
                 <File className='mr-2 h-4 w-4' />
                 Budget
               </CommandItem>
@@ -117,12 +117,7 @@ export function CommandMenu({ ...props }: DialogProps) {
 
             <CommandGroup heading='Settings'>
               {settingsNav.map((item) => (
-                <CommandItem
-                  key={item.label}
-                  onSelect={() =>
-                    runCommand(() => navigate({ to: `/settings/$section`, params: { section: item.to } }))
-                  }
-                >
+                <CommandItem key={item.label} onSelect={() => runCommand(() => navigate(`settings/${item.to}`))}>
                   <File className='mr-2 h-4 w-4' />
                   {item.label}
                 </CommandItem>
@@ -143,17 +138,17 @@ export function CommandMenu({ ...props }: DialogProps) {
                 System
               </CommandItem>
               <CommandItem value='theme-quick'>
-                <ThemeQuickCustomizer />
+                <ThemeQuickCustomizer onSelect={() => setOpen(false)} />
               </CommandItem>
             </CommandGroup>
           </CommandList>
         </CommandDialog>
         <SheetContent className='space-y-8'>
           {showSheet && (
-            <>
-              {sheetType === 'transaction' && <TransactionSheet onClose={handleClose} />}
-              {sheetType === 'category' && <CategorySheet onClose={handleClose} />}
-            </>
+            <Suspense>
+              {sheetType === 'transaction' && <TransactionSheet onClose={handleCloseSheet} />}
+              {sheetType === 'category' && <CategorySheet onClose={handleCloseSheet} />}
+            </Suspense>
           )}
         </SheetContent>
       </Sheet>
@@ -172,7 +167,9 @@ function TransactionSheet({ onClose }: EdProps) {
         <SheetTitle>Create Transaction</SheetTitle>
         <SheetDescription>Create a new transaction.</SheetDescription>
       </SheetHeader>
-      <TransactionCreateForm fromCmd onClose={onClose} />
+      <Suspense>
+        <TransactionCreateForm fromCmd onClose={onClose} />
+      </Suspense>
     </>
   );
 }
@@ -184,7 +181,9 @@ function CategorySheet({ onClose }: EdProps) {
         <SheetTitle>Create Category</SheetTitle>
         <SheetDescription>Create a new category.</SheetDescription>
       </SheetHeader>
-      <CategoryCreateForm onClose={onClose} />
+      <Suspense>
+        <CategoryCreateForm onClose={onClose} />
+      </Suspense>
     </>
   );
 }

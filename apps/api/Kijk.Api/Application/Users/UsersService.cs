@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
@@ -18,19 +16,17 @@ public class UsersService : IUsersService
         _dbContext = dbContext;
     }
 
-    public async Task<AppResult<UserResponse>> InitAsync(CancellationToken cancellationToken)
+    public async Task<AppResult<UserResponse>> SignInAsync(CancellationToken cancellationToken)
     {
         try
         {
             if (_currentUser.User.Name == AppConstants.CreateUserIdentifier)
             {
-                var defaultCategories = await _dbContext.Categories.Where(x => x.Type == CategoryType.Default).ToListAsync(cancellationToken);
-
                 var newUser = User.Create(
                     _currentUser.AuthId,
                     AppConstants.CreateUserIdentifier + "-" + new Random().Next(),
                     _currentUser.Email,
-                    defaultCategories,
+                    default,
                     true);
 
                 var newUserEntry = await _dbContext.Users.AddAsync(newUser, cancellationToken);
@@ -43,6 +39,7 @@ public class UsersService : IUsersService
                     newUserEntity.AuthId,
                     newUserEntity.Name,
                     newUserEntity.Email,
+                    newUserEntity.FirstTime,
                     newUserEntity.Transactions.Select(
                         x => new TransactionDto(
                             x.Id,
@@ -66,7 +63,55 @@ public class UsersService : IUsersService
                 return AppError.NotFound();
             }
 
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return new UserResponse(
+                userEntity.Id,
+                userEntity.AuthId,
+                userEntity.Name,
+                userEntity.Email,
+                userEntity.FirstTime,
+                userEntity.Transactions.Select(
+                    x => new TransactionDto(
+                        x.Id,
+                        x.Name,
+                        x.Amount,
+                        x.Type,
+                        x.ExecutedAt,
+                        x.Category?.MapToDto())),
+                userEntity.Categories.Select(c => c.MapToDto()));
+        }
+        catch (Exception e)
+        {
+            _logger.Warning(e, "Error: {Error}", e.Message);
+            return AppError.Basic(e.Message);
+        }
+    }
+
+    public async Task<AppResult<UserResponse>> InitAsync(UserInitRequest userInitRequest, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var userEntity = await _dbContext.Users
+                .Include(x => x.Transactions)
+                .Include(x => x.Categories)
+                .Where(x => x.Id == _currentUser.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (userEntity is null)
+            {
+                _logger.Warning("Error: User not found");
+                return AppError.NotFound();
+            }
+
             userEntity.FirstTime = false;
+            userEntity.Name = userInitRequest.UserName;
+
+            if (userInitRequest.UseDefaultCategories is true)
+            {
+                var defaultCategories = await _dbContext.Categories.Where(x => x.Type == CategoryType.Default).ToListAsync(cancellationToken);
+                userEntity.Categories = defaultCategories;
+            }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -75,6 +120,61 @@ public class UsersService : IUsersService
                 userEntity.AuthId,
                 userEntity.Name,
                 userEntity.Email,
+                userEntity.FirstTime,
+                userEntity.Transactions.Select(
+                    x => new TransactionDto(
+                        x.Id,
+                        x.Name,
+                        x.Amount,
+                        x.Type,
+                        x.ExecutedAt,
+                        x.Category?.MapToDto())),
+                userEntity.Categories.Select(c => c.MapToDto()));
+        }
+        catch (Exception e)
+        {
+            _logger.Warning(e, "Error: {Error}", e.Message);
+            return AppError.Basic(e.Message);
+        }
+    }
+
+    public async Task<AppResult<UserResponse>> UpdateAsync(UserUpdateRequest userUpdateRequest, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var userEntity = await _dbContext.Users
+                .Include(x => x.Transactions)
+                .Include(x => x.Categories)
+                .Where(x => x.Id == _currentUser.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (userEntity is null)
+            {
+                _logger.Warning("Error: User not found");
+                return AppError.NotFound();
+            }
+
+            userEntity.FirstTime = false;
+            userEntity.Name = userUpdateRequest.UserName;
+
+            var defaultCategories = await _dbContext.Categories.Where(x => x.Type == CategoryType.Default).ToListAsync(cancellationToken);
+            if (userUpdateRequest.UseDefaultCategories is true)
+            {
+                userEntity.Categories.AddRange(defaultCategories);
+            }
+            if (userUpdateRequest.UseDefaultCategories is false)
+            {
+                userEntity.Categories.RemoveAll(x => defaultCategories.Select(c => c.Id).Contains(x.Id));
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return new UserResponse(
+                userEntity.Id,
+                userEntity.AuthId,
+                userEntity.Name,
+                userEntity.Email,
+                userEntity.FirstTime,
                 userEntity.Transactions.Select(
                     x => new TransactionDto(
                         x.Id,

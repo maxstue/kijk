@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { TransactionFormValues } from '@/app/budget/schemas';
-import { apiClient } from '@/lib/api/api-client';
+import { apiClient } from '@/lib/api-client';
 import { Months } from '@/types/app';
 
 export const useCreateTransaction = () => {

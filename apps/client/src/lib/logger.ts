@@ -1,12 +1,5 @@
 import { ILogObj, Logger } from 'tslog';
 
-// const SillyLevel = 0;
-// const TraceLevel = 1;
-// const DebugLevel = 2;
-// const InfoLevel = 3;
-// const WarnLevel = 4;
-// const ErrorLevel = 6;
-
 interface LogMetaData extends ILogObj {
   _meta?: {
     runtime: string;

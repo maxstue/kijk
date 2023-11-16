@@ -136,6 +136,11 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
                     </div>
                   </SelectItem>
                 ))}
+                {categoryQuery.data.data && categoryQuery.data.data.length <= 0 ? (
+                  <div className='flex items-center justify-center gap-2'>
+                    <div className='text-primary'>No items available</div>
+                  </div>
+                ) : null}
               </SelectContent>
             </Select>
             <FormMessage />

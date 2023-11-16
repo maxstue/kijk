@@ -1,9 +1,10 @@
-import { lazyRouteComponent, Route } from '@tanstack/react-router';
+import { RouteObject } from 'react-router-dom';
 
-import { authenticatedRoute } from '@/routes/root-route';
+import { AppRouteError } from '@/components/app-route-error';
+import { DashboardPage } from '@/routes/dashboard/dashboard-page';
 
-export const dashboardRoute = new Route({
-  getParentRoute: () => authenticatedRoute,
-  path: '/',
-  component: lazyRouteComponent(() => import('./dashboard-page'), 'DashboardPage'),
-});
+export const dashboardRoute = {
+  index: true,
+  element: <DashboardPage />,
+  errorElement: <AppRouteError />,
+} as RouteObject;
