@@ -1,11 +1,14 @@
 import { ComponentPropsWithoutRef, Suspense, useEffect, useState } from 'react';
-import { Check, ChevronsUpDown, DollarSign, Download, List, PlusCircle, Users } from 'lucide-react';
+import { Calendar, Check, ChevronsUpDown, DollarSign, List, PlusCircle, Users } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
+import { BudgetMonthCalendar } from '@/app/budget/budget-month-calender';
+import { BudgetYearCalendar } from '@/app/budget/budget-year-calendar';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
 import { DataTable } from '@/components/data-table';
+import { Loader } from '@/components/loader';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -76,10 +79,19 @@ export function BudgetPage() {
         {/* Content */}
         <div className='flex-1'>
           <div className='flex flex-col space-y-4'>
-            <div className='flex justify-end'>
-              <Button size='sm' disabled>
-                <Download className='h-4 w-4' />
-              </Button>
+            {/* TODO make collapsabel */}
+            <div className='flex w-full'>
+              <Card className='w-full'>
+                <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                  <CardTitle className='text-sm font-medium'>Year overview</CardTitle>
+                  <Calendar className='h-4 w-4 text-muted-foreground' />
+                </CardHeader>
+                <CardContent className='py-2'>
+                  <Suspense fallback={<Loader className='h-4 w-4' />}>
+                    <BudgetYearCalendar year={year} />
+                  </Suspense>
+                </CardContent>
+              </Card>
             </div>
             <div className='grid gap-4 lg:grid-cols-2'>
               <Card>
@@ -94,11 +106,13 @@ export function BudgetPage() {
               </Card>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                  <CardTitle className='text-sm font-medium'>Year Overview</CardTitle>
+                  <CardTitle className='text-sm font-medium'>Month Overview</CardTitle>
                   <Users className='h-4 w-4 text-muted-foreground' />
                 </CardHeader>
                 <CardContent>
-                  <div className='text-xs text-gray-400'>Chart comming soon</div>
+                  <Suspense fallback={<Loader className='h-4 w-4' />}>
+                    <BudgetMonthCalendar year={year} month={month} />
+                  </Suspense>
                 </CardContent>
               </Card>
             </div>

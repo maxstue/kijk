@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 
+using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
@@ -18,7 +19,7 @@ public class TransactionsService : ITransactionsService
         _currentUser = currentUser;
     }
 
-    public async Task<AppResult<List<TransactionDto>>> GetByAsync(int year, string month, CancellationToken cancellationToken = default)
+    public async Task<AppResult<List<TransactionDto>>> GetByAsync(int? year, string? month, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -28,12 +29,13 @@ public class TransactionsService : ITransactionsService
                 return AppError.NotFound($"User for id '{_currentUser.Id}' was not found");
             }
 
-            var monthInt = DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month;
+            var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month : -1;
 
             return await _dbContext.Transactions
                 .AsNoTracking()
                 .Where(x => x.User.Id == user.Id)
-                .Where(x => x.ExecutedAt.Year == year && x.ExecutedAt.Month == monthInt)
+                .If(year != null, (q) => q.Where(x => x.ExecutedAt.Year == year))
+                .If(monthInt != -1, (q) => q.Where(x => x.ExecutedAt.Month == monthInt))
                 .Select(
                     x => new TransactionDto(
                         x.Id,

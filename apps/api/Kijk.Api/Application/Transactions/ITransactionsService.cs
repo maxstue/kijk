@@ -5,7 +5,7 @@ namespace Kijk.Api.Application.Transactions;
 
 public interface ITransactionsService
 {
-    Task<AppResult<List<TransactionDto>>> GetByAsync(int year, string month, CancellationToken cancellationToken = default);
+    Task<AppResult<List<TransactionDto>>> GetByAsync(int? year, string? month, CancellationToken cancellationToken = default);
 
     Task<AppResult<TransactionDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 

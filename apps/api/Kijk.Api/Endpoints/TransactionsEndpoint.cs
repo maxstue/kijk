@@ -23,8 +23,8 @@ public static class TransactionsEndpoint
 
     private static async Task<IResult> GetBy(
         ITransactionsService service,
-        [FromQuery(Name = "year")] int year,
-        [FromQuery(Name = "month")] string month)
+        [FromQuery(Name = "year")] int? year,
+        [FromQuery(Name = "month")] string? month)
     {
         var result = await service.GetByAsync(year, month);
         return result.ToResponse("Successfully loaded");
