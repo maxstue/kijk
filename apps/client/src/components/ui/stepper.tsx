@@ -86,7 +86,6 @@ export const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
     const childArr = React.Children.toArray(children);
 
     const stepCount = childArr.length;
-
     const renderHorizontalContent = () => {
       if (activeStep <= childArr.length) {
         return React.Children.map(childArr[activeStep], (node) => {
@@ -129,7 +128,8 @@ export const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
           )}
         >
           {React.Children.map(children, (child, i) => {
-            const isCompletedStep = (React.isValidElement(child) && child.props.isCompletedStep) ?? i < activeStep;
+            const isCompletedStep = ((React.isValidElement(child) && child.props.isCompletedStep) ??
+              i < activeStep) as boolean;
             const isLastStep = i === stepCount - 1;
             const isCurrentStep = i === activeStep;
 
