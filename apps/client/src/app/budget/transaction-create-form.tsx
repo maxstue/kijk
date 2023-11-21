@@ -50,7 +50,7 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
 
   function onSubmit(data: TransactionFormValues) {
     mutate(
-      { year: year, month: month, newTransaction: { ...data } },
+      { newTransaction: { ...data } },
       {
         onError(error) {
           toast({ title: error.name, description: error.message, variant: 'destructive' });

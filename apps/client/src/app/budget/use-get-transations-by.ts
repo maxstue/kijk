@@ -3,7 +3,7 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { ApiResponse, Transaction } from '@/types/app';
 
-const getTransactions = (year?: number, month?: string) => {
+export const getTransactions = (year?: number, month?: string) => {
   const y = year ? year.toString() : undefined;
   const m = month ? month : undefined;
 

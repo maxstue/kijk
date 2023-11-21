@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef, Suspense, useEffect, useState } from 'react';
-import { Calendar, Check, ChevronDown, ChevronsUpDown, DollarSign, List, PlusCircle, Users } from 'lucide-react';
+import { Check, ChevronDown, ChevronsUpDown, DollarSign, List, PlusCircle, Users } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
