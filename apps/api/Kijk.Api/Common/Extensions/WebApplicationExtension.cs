@@ -9,7 +9,7 @@ public static class WebApplicationExtension
     public static WebApplication UseCustomOpenApi(this WebApplication app)
     {
         app.UseOpenApi();
-        app.UseSwaggerUi3(
+        app.UseSwaggerUi(
             c =>
             {
                 c.PersistAuthorization = true;
