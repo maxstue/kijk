@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 
 import { Loader } from '@/components/loader';
+import { cn } from '@/lib/utils';
 
 interface Props {
   delay?: number;
+  className?: string;
 }
 
-export function AsyncLoader({ delay = 250 }: Props) {
+export function AsyncLoader({ className, delay = 250 }: Props) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -19,5 +21,5 @@ export function AsyncLoader({ delay = 250 }: Props) {
     };
   }, [delay]);
 
-  return show ? <Loader /> : null;
+  return show ? <Loader className={cn(className)} /> : null;
 }

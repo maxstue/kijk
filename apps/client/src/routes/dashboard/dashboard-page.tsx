@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-react';
 
 import { DateRangePicker } from '@/app/dashboard/date-range-picker';
@@ -16,15 +15,11 @@ export function DashboardPage() {
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-3xl font-bold tracking-tight'>Dashboard</h2>
           <div className='flex items-center space-x-2'>
-            <Suspense fallback={<div>Loading...</div>}>
-              <DateRangePicker />
-            </Suspense>
-            <Suspense fallback={<div>Loading...</div>}>
-              <Button size='sm'>
-                <Download className='mr-2 h-4 w-4' />
-                Download
-              </Button>
-            </Suspense>
+            <DateRangePicker />
+            <Button size='sm'>
+              <Download className='mr-2 h-4 w-4' />
+              Download
+            </Button>
           </div>
         </div>
         <Tabs defaultValue='overview' className='space-y-4'>
