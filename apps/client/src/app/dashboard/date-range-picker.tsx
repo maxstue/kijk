@@ -21,7 +21,7 @@ export function DateRangePicker({ className }: React.HTMLAttributes<HTMLDivEleme
         <PopoverTrigger asChild>
           <Button
             id='date'
-            variant={'outline'}
+            variant='outline'
             size='sm'
             className={cn('w-[240px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
           >

@@ -28,6 +28,6 @@ public static class ResponseUtils
 
     public static IResult CreateTypedResult<TP>(ApiResponse<TP> response, int statusCode)
     {
-        return TypedResults.Json(response, default, "application/json", statusCode);
+        return TypedResults.Json(response, contentType: "application/json", statusCode: statusCode);
     }
 }
