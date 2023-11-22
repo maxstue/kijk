@@ -192,5 +192,4 @@ public static class ServiceExtensions
 
         return services;
     }
-
 }

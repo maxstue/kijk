@@ -1,7 +1,12 @@
 ﻿using System.Net;
+using System.Security.Authentication;
 using System.Text.Json;
 
 using Kijk.Api.Common.Models;
+
+using Microsoft.AspNetCore.Diagnostics;
+
+using Sentry;
 
 namespace Kijk.Api.Common.Middleware;
 
@@ -17,18 +22,28 @@ public static class AuthResponseHandlerMiddleware
 
                 if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
                 {
-                    await context.Response.WriteAsync(
-                        JsonSerializer.Serialize(
-                            ApiResponse<IResult>.Error(new List<AppError> { AppError.Basic(AppErrorCodes.AuthenticationError, "Token ist nicht valide") })));
+                    var resp = ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthenticationError, "Token is not valid")]);
+                    SentToSentry(resp);
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
                 }
 
                 if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
                 {
-                    await context.Response.WriteAsync(
-                        JsonSerializer.Serialize(
-                            ApiResponse<IResult>.Error(
-                                new List<AppError> { AppError.Basic(AppErrorCodes.AuthorizationError, "Role ist nicht ausreichend") })));
+                    var resp =
+                        ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthorizationError, "Role is not sufficient")]);
+                    SentToSentry(resp);
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
                 }
+            });
+    }
+
+    private static void SentToSentry(ApiResponse<List<AppError>> resp)
+    {
+        SentrySdk.CaptureEvent(
+            new SentryEvent(new AuthenticationException(resp.Data?[0].Message)),
+            o =>
+            {
+                o.SetExtra("Response", resp);
             });
     }
 }
