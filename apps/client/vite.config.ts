@@ -22,6 +22,9 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: true,
     },
+    server: {
+      port: 5004,
+    },
     plugins: [
       react(),
       sentryVitePlugin({
