@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import * as Sentry from '@sentry/react';
 import { ArrowDownIcon, InfoIcon } from 'lucide-react';
 import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
 
@@ -13,6 +14,10 @@ export function AppRouteError() {
   const handleGotToRoot = () => {
     void navigate('/', { replace: true });
   };
+
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
 
   return (
     <div className='flex h-[100dvh] w-full items-center justify-center'>

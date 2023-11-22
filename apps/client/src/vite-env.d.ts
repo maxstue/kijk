@@ -12,7 +12,8 @@ interface ImportMetaEnv {
   // Auth
   VITE_SUPABASE_URL: string;
   VITE_SUPABASE_ANON_KEY: string;
-  // VITE_KINDE_REDIRECT_URL: string;
+  // Sentry
+  VITE_SENTRY_DSN: string;
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv;

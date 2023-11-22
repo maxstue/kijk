@@ -5,6 +5,10 @@ import App from './App.tsx';
 
 import './index.css';
 
+import { createSentry } from '@/lib/error-tracking.ts';
+
+createSentry();
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
