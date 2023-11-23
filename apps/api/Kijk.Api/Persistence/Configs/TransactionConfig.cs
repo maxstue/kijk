@@ -1,4 +1,4 @@
-using Kijk.Api.Domain.Entities;
+﻿using Kijk.Api.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,7 +12,7 @@ public class TransactionConfig : IEntityTypeConfiguration<Transaction>
         builder.ToTable(nameof(Transaction).ToLower());
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Type).HasConversion<string>();
-        
+
         builder.HasOne(v => v.Category).WithMany(c => c.Transactions);
 
     }

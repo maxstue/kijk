@@ -1,10 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
-
-using Microsoft.AspNetCore.Diagnostics;
-
 using Kijk.Api.Common.Models;
-
+using Microsoft.AspNetCore.Diagnostics;
 using Sentry;
 
 namespace Kijk.Api.Common.Middleware;

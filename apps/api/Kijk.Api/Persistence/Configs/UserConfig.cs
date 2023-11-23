@@ -1,4 +1,4 @@
-using Kijk.Api.Domain.Entities;
+﻿using Kijk.Api.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,7 +12,7 @@ public class UserConfig : IEntityTypeConfiguration<User>
         builder.ToTable(nameof(User).ToLower());
         builder.HasKey(x => x.Id);
         builder.HasIndex(x => x.AuthId);
-        
+
         builder.Property(x => x.FirstTime).HasDefaultValue(true);
 
         builder.HasMany(x => x.Transactions).WithOne(x => x.User).OnDelete(DeleteBehavior.Cascade);

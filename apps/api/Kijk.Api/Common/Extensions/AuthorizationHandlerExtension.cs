@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-
-using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Kijk.Api.Common.Extensions;
 
@@ -34,7 +33,7 @@ public static class AuthorizationHandlerExtensions
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CheckCurrentUserRequirement requirement)
         {
-            if (_currentUser is { User.AuthId: not null } and { Principal: not null})
+            if (_currentUser is { User.AuthId: not null } and { Principal: not null })
             {
                 context.Succeed(requirement);
             }

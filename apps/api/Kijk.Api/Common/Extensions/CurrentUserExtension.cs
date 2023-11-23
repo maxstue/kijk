@@ -1,10 +1,8 @@
 ﻿using System.Security.Claims;
-
-using Microsoft.AspNetCore.Authentication;
-
 using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Kijk.Api.Common.Extensions;
 
