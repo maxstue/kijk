@@ -41,6 +41,7 @@ jobs:
       - name: 🧪 Test
         run: dotnet test "Kijk.Api/Kijk.Api.csproj" --configuration Release --no-build
   deploy:
+    needs: [basic]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     name: Deploy ✈️
     runs-on: ubuntu-latest
