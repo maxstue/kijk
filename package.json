@@ -24,13 +24,9 @@
     "build:client": "pnpm run --filter \"kijk-client\" build",
     "clean:all": "pnpm run --parallel -r clean:all",
     "lint:all": "pnpm run --parallel -r lint",
-    "format:check-all": "pnpm run --parallel -r format:check",
-    "pre-commit": "pnpm run --filter \"kijk*\" pre-commit",
-    "prepare": "husky install"
+    "format:check-all": "pnpm run --parallel -r format:check"
   },
   "devDependencies": {
-    "@microsoft/eslint-formatter-sarif": "^3.0.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.2.2"
+    "@microsoft/eslint-formatter-sarif": "^3.0.0"
   }
 }
