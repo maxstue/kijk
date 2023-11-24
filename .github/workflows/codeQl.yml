@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ["!.github/workflows/**"]
+    paths: ["apps/**", "packages/**"]
   pull_request:
     branches: ["main", "develop"]
-    paths: ["!.github/workflows/**"]
+    paths: ["apps/**", "packages/**"]
 
 permissions:
   pull-requests: read # allows SonarCloud to decorate PRs with analysis results
