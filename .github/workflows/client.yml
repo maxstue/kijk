@@ -53,13 +53,5 @@ jobs:
         run: pnpm format:check
 
       - name: "🔍 Lint"
-        run:  |
-          pnpm lint --format @microsoft/eslint-formatter-sarif --output-file client-lint-results.sarif
-          cat client-lint-results.sarif
+        run:  pnpm lint
         continue-on-error: true
-
-      - name: "⬆️ Upload results to GitHub"
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: ./apps/client/client-lint-results.sarif
-          wait-for-processing: true
