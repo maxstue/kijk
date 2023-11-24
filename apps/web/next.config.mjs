@@ -7,10 +7,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   experimental: {
-    appDir: true,
-    // typedRoutes: true,
     serverActions: true,
-    serverComponentsExternalPackages: ['@prisma/client'],
     nextScriptWorkers: true,
   },
   /** We already do linting and typechecking as separate tasks in CI */

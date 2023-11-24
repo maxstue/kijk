@@ -28,9 +28,9 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
     private static void UpdateEntities(DbContext? context)
     {
         if (context == null) return;
-        
+
         var changedEntries = context.ChangeTracker.Entries<BaseEntity>();
-        
+
         foreach (var entry in changedEntries)
         {
             if (entry.State == EntityState.Added)

@@ -13,6 +13,9 @@ const envSchema = z.object({
   // Auth
   AuthUrl: z.string().trim().min(1),
   AuthKey: z.string().trim().min(1),
+  SiteUrl: z.string().trim().min(1),
+  // Sentry
+  SentryDsn: z.string().optional(),
 });
 
 const envParse = envSchema.safeParse({
@@ -24,6 +27,8 @@ const envParse = envSchema.safeParse({
   // Auth
   AuthUrl: import.meta.env.VITE_SUPABASE_URL,
   AuthKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  SiteUrl: import.meta.env.VITE_SUPABASE_SITE_URL,
+  SentryDsn: import.meta.env.VITE_SENTRY_DSN,
 });
 
 if (!envParse.success) {

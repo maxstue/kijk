@@ -41,15 +41,20 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
     <PackageReference Include="NSwag.AspNetCore" Version="14.0.0-preview010" />
     <PackageReference Include="Riok.Mapperly" Version="3.2.0" />
+    <PackageReference Include="Sentry.AspNetCore" Version="4.0.0-beta.1" />
+    <PackageReference Include="Sentry.Serilog" Version="4.0.0-beta.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.0"/>
     <PackageReference Include="ZiggyCreatures.FusionCache" Version="0.24.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </Content>
     <Content Include="..\.dockerignore">
       <Link>.dockerignore</Link>
     </Content>
-    <Content Update="appsettings.Development.json">
+    <Content Update="appsettings.Production.json">
       <DependentUpon>appsettings.json</DependentUpon>
     </Content>
   </ItemGroup>

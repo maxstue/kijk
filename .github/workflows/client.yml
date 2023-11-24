@@ -1,13 +1,13 @@
-name: Web CI/CD 🕸️
+name: Client CI/CD 💻
 
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ["apps/web/**"]
+    paths: ["apps/client/**"]
   pull_request:
     branches: ["main", "develop"]
-    paths: ["apps/web/**"]
+    paths: ["apps/client/**"]
 
 env:
   NODE_VERSION: "20.x"
@@ -16,7 +16,7 @@ env:
 
 defaults:
   run:
-    working-directory: ./apps/web
+    working-directory: ./apps/client
 
 jobs:
   basic:
@@ -53,5 +53,5 @@ jobs:
         run: pnpm format:check
 
       - name: "🔍 Lint"
-        run: pnpm lint
+        run:  pnpm lint
         continue-on-error: true

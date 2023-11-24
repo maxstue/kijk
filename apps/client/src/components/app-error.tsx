@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import * as Sentry from '@sentry/react';
 import { ArrowDownIcon, InfoIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,10 @@ export function AppError({ error, resetErrorBoundary }: Props) {
     window.location.href = '/';
     // void navigate({ to: '/', replace: true });
   };
+
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
 
   return (
     <div className='flex h-[100dvh] w-full items-center justify-center'>

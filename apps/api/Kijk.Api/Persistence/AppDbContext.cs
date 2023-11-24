@@ -1,6 +1,6 @@
 ﻿using EntityFramework.Exceptions.PostgreSQL;
 
-using Kijk.Api.Domain;
+using Kijk.Api.Common.Options;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence.Configs;
 
@@ -12,7 +12,7 @@ public class AppDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
-    
+
     public DbSet<User> Users => Set<User>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Category> Categories => Set<Category>();
@@ -34,11 +34,11 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
+        options.UseNpgsql(_configuration.GetConnectionString(ConnectionStringsOptions.DefaultConnectionStringPath))
             .UseExceptionProcessor()
             .UseSnakeCaseNamingConvention()
             .AddInterceptors(_serviceProvider.GetServices<ISaveChangesInterceptor>());
-        
+
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

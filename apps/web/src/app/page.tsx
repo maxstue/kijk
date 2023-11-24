@@ -4,6 +4,8 @@ import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/button';
 
+import { env } from '../env.mjs';
+
 export default function Page() {
   return (
     <>
@@ -17,8 +19,7 @@ export default function Page() {
             together.
           </p>
           <div className='space-x-4'>
-            {/* TODO link to login of app */}
-            <Link href='/' className={cn(buttonVariants({ size: 'lg' }))}>
+            <Link href={env.NEXT_PUBLIC_CLIENT_URL} className={cn(buttonVariants({ size: 'lg' }))}>
               Get Started
             </Link>
             <Link

@@ -1,4 +1,4 @@
-using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

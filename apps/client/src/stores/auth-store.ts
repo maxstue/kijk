@@ -1,6 +1,7 @@
 import { AuthResponse, AuthTokenResponse, OAuthResponse, Session, SupabaseClient } from '@supabase/supabase-js';
 import { StoreApi, UseBoundStore } from 'zustand';
 
+import { env } from '@/env';
 import { supabase } from '@/lib/supabase-client';
 import { createStoreFactory } from '@/lib/utils';
 import { AllowedProviders, AppUser, Optional } from '@/types/app';
@@ -60,6 +61,9 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
     async signInWith(provider) {
       return await supabase.auth.signInWithOAuth({
         provider: provider,
+        options: {
+          redirectTo: env.SiteUrl,
+        },
       });
     },
     async logout() {

@@ -1,4 +1,4 @@
-using Kijk.Api.Application.Transactions;
+﻿using Kijk.Api.Application.Transactions;
 using Kijk.Api.Common.Filters;
 using Kijk.Api.Common.Models;
 

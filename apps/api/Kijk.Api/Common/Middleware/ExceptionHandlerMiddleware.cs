@@ -1,9 +1,8 @@
 ﻿using System.Net;
 using System.Text.Json;
-
-using Microsoft.AspNetCore.Diagnostics;
-
 using Kijk.Api.Common.Models;
+using Microsoft.AspNetCore.Diagnostics;
+using Sentry;
 
 namespace Kijk.Api.Common.Middleware;
 
@@ -23,6 +22,7 @@ public static class ExceptionHandlerMiddleware
                         var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
                         if (exceptionHandlerFeature is not null)
                         {
+                            SentrySdk.CaptureException(exceptionHandlerFeature.Error);
                             Log.ForContext(typeof(ExceptionHandlerMiddleware)).Error(
                                 "Something went wrong: {ContextFeatureError}",
                                 exceptionHandlerFeature.Error.Message);

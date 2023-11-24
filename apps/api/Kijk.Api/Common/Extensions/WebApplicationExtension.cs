@@ -23,7 +23,7 @@ public static class WebApplicationExtension
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         await AppDbInitializer.InitDb(dbContext, environment);
-        
+
         return app;
     }
 

@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using HealthChecks.UI.Client;
 
@@ -15,6 +15,11 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .WriteTo.Console()
+    .WriteTo.Sentry(
+        opt =>
+        {
+            opt.InitializeSdk = false;
+        })
     .CreateBootstrapLogger();
 
 Log.Information("Application is starting ...");
@@ -22,11 +27,15 @@ Log.Information("Application is starting ...");
 // ##### Add services to the container. #####
 var builder = WebApplication.CreateBuilder(args);
 
+builder.UseErrorTracking();
+
 builder.Host.UseSerilog(
     (context, services, configuration) =>
         configuration
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services));
+
+builder.Services.AddSentryTunneling();
 
 builder.Services.AddAuthentication(
     o =>
@@ -43,7 +52,8 @@ builder.Services.AddAuthentication(
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:IssuerSigningKey") ?? string.Empty)),
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:IssuerSigningKey") ?? string.Empty)),
             ValidateIssuer = false,
             ValidateAudience = true,
             ValidAudience = builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:ValidAudience"),
@@ -85,10 +95,11 @@ app.UseSecurityHeaders();
 
 await app.UseInitDatabase(app.Environment);
 
+app.UseCustomOpenApi();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseCustomOpenApi();
 }
 else
 {
@@ -109,6 +120,8 @@ app.UseAuthorization();
 
 // Needs to ba after Auth so we have user data
 app.UseRateLimiter();
+
+app.UseSentryTunneling();
 
 app.MapCustomEndpoints();
 app.MapHealthChecks("/health", new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });

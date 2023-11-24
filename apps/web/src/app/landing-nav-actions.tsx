@@ -5,15 +5,16 @@ import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/button';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 
+import { env } from '../env.mjs';
+
 export function LandingnNavActions() {
   return (
     <div className='flex space-x-3'>
       <nav className='flex items-center space-x-1'>
         <ThemeModeToggle />
       </nav>
-      {/* TODO link to login of app */}
       <Link
-        href='/'
+        href={env.NEXT_PUBLIC_CLIENT_URL}
         className={cn(
           buttonVariants({ variant: 'secondary', size: 'sm' }),
           'px-4 hover:bg-muted-foreground hover:text-white',

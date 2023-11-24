@@ -145,7 +145,7 @@ public class CategoriesService : ICategoriesService
                 _logger.Warning("Category with id {Id} could not be found", id);
                 return AppError.NotFound($"Category with id '{id}' could not be found");
             }
-            
+
             if (foundEntity.Type == CategoryType.Default)
             {
                 _logger.Warning("Category with id {Id} could not be deleted, because it is of type 'Default'", id);

@@ -242,19 +242,19 @@ export const Step = React.forwardRef<HTMLDivElement, StepAndStatusProps>((props,
 
   const Icon = React.useMemo(() => CustomIcon ?? null, [CustomIcon]);
 
-  const Success = React.useMemo(() => CustomSuccessIcon ?? <Check />, [CustomSuccessIcon]);
+  const SuccessIson = React.useMemo(() => CustomSuccessIcon ?? <Check />, [CustomSuccessIcon]);
 
-  const Error = React.useMemo(() => CustomErrorIcon ?? <X />, [CustomErrorIcon]);
+  const ErrorIcon = React.useMemo(() => CustomErrorIcon ?? <X />, [CustomErrorIcon]);
 
   const RenderIcon = React.useMemo(() => {
-    if (isCompletedStep) return Success;
+    if (isCompletedStep) return SuccessIson;
     if (isCurrentStep) {
-      if (isError) return Error;
+      if (isError) return ErrorIcon;
       if (isLoading) return <Loader2 className='animate-spin' />;
     }
     if (Icon) return Icon;
     return (index || 0) + 1;
-  }, [isCompletedStep, Success, isCurrentStep, Icon, index, isError, Error, isLoading]);
+  }, [isCompletedStep, SuccessIson, isCurrentStep, Icon, index, isError, ErrorIcon, isLoading]);
 
   return (
     <div

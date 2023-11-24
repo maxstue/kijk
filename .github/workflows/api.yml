@@ -1,0 +1,53 @@
+name: Api CI/CD 🚀
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: ["apps/api/**"]
+  pull_request:
+    branches: ["main", "develop"]
+    paths: ["apps/api/**"]
+
+env:
+  DOTNET_VERSION: "8.0.x"
+
+defaults:
+  run:
+    working-directory: ./apps/api
+
+jobs:
+  basic:
+    name: "🚀 Build, Lint/Format & Test"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 📦 Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 📂 Install dependencies
+        run: dotnet restore "Kijk.Api/Kijk.Api.csproj"
+
+      - name: 🧱 Build
+        run: dotnet build "Kijk.Api/Kijk.Api.csproj" -c Release --no-restore
+
+      - name: 🧱 Lint
+        run: dotnet format --verify-no-changes --verbosity detailed --exclude 'Kijk.Api/Persistence/Migrations/'
+
+      - name: 🧪 Test
+        run: dotnet test "Kijk.Api/Kijk.Api.csproj" --configuration Release --no-build
+  deploy:
+    needs: [basic]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    name: Deploy ✈️
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
