@@ -188,7 +188,7 @@ public static class ServiceExtensions
             throw new Exception($"No connection string found, {conString}");
         }
 
-        services.AddHealthChecks().AddNpgSql(conString, tags: new[] { "database", "postgresql" });
+        services.AddHealthChecks().AddNpgSql(conString, tags: ["database", "postgresql"]);
 
         return services;
     }

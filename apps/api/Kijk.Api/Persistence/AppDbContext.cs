@@ -1,6 +1,6 @@
 ﻿using EntityFramework.Exceptions.PostgreSQL;
 
-using Kijk.Api.Domain;
+using Kijk.Api.Common.Options;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence.Configs;
 
@@ -34,7 +34,7 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
+        options.UseNpgsql(_configuration.GetConnectionString(ConnectionStringsOptions.DefaultConnectionStringPath))
             .UseExceptionProcessor()
             .UseSnakeCaseNamingConvention()
             .AddInterceptors(_serviceProvider.GetServices<ISaveChangesInterceptor>());

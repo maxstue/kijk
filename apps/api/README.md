@@ -10,5 +10,5 @@
 6. Create the database with this command `dotnet ef database update`
 7. Build and start the "api" project
 8. Open a browser to get to the swagger website
-    - Or import the OpenApi spec in "Postman" or "Insomnia"
+   - Or import the OpenApi spec in "Postman" or "Insomnia"
 9. Now the api project should be setup correctly 🚀

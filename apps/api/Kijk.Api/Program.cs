@@ -95,10 +95,11 @@ app.UseSecurityHeaders();
 
 await app.UseInitDatabase(app.Environment);
 
+app.UseCustomOpenApi();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseCustomOpenApi();
 }
 else
 {
