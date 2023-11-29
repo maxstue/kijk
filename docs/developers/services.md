@@ -1,21 +1,22 @@
 # Services and Tools
 
+> This documentation is still work in progress, you will find unfinished or empty sections.
+
 A list of services and tools used in this project:
 
 **Analytics, Tracking, Logging, Quality**:
 
 - [sentry](https://docs.sentry.io/?original_referrer=https%3A%2F%2Fdocs.sentry.io%2F)
-- [umami](https://umami.is/),
 - [sonarcloud](https://www.sonarsource.com/products/sonarcloud/)
 
 **Auth**:
 
-- next-auth
+- supabase auth
 
 **Dev**:
 
-- next
+- vite
 - react
 - tailwindcss
+  - shadcn/ui
 - pnpm
-- vscode-workspace
