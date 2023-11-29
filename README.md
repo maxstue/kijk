@@ -15,40 +15,35 @@
 
 ---
 
-<p align="center"> The next household app for managing your expenses and your energy consumption.
-
+<p align="center"> The next household app for managing your expenses/income, your energy consumption and maybe more in the future 🤖
 <br>
 
 </p>
 
 > This documentation is still work in progress, you will find unfinished or empty sections.
 
-## Motivation
+## 📝 Table of Contents
+
+- [Motivation](#motivation)
+- [Getting Started](#getting_started)
+- [Developer Guide](#developer-guide)
+- [Deployment](#deployment)
+- [Built Using](#built_using)
+- [Contributing](../CONTRIBUTING.md)
+- [Acknowledgments](#acknowledgement)
+
+## 🧐 Motivation <a name = "motivation"></a>
 
 > Comming soon
 
 Feel free to explore the codebase to get inspiration for your own project or help with this project 🫶
 
-## 📝 Table of Contents
-
-- [About](#about)
-- [Getting Started](#getting_started)
-- [Deployment](#deployment)
-- [Usage](#usage)
-- [Built Using](#built_using)
-- [Contributing](../CONTRIBUTING.md)
-- [Authors](#authors)
-- [Acknowledgments](#acknowledgement)
-
-## 🧐 About <a name = "about"></a>
-
-Write about 1-2 paragraphs describing the purpose of your project.
-
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
+If you want to use the live production app go to this [link](https://kijk-client.vercel.app/) and feel free to leave some feedback on our [discussion board](https://github.com/maxstue/kijk/discussions).
+And if you are a developer and want to contribute to this project please go [here](#developer-guide) for more information.
 
-## Developer Guide
+## 🖥️ Developer Guide <a name = "developer-guide"></a>
 
 Please refer to the contributing [guide](./docs/) for how to install Kijk from sources.
 
