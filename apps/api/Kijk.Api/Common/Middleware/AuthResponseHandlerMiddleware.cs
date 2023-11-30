@@ -39,11 +39,11 @@ public static class AuthResponseHandlerMiddleware
 
     private static void SentToSentry(ApiResponse<List<AppError>> resp)
     {
-        SentrySdk.CaptureEvent(
-            new SentryEvent(new AuthenticationException(resp.Data?[0].Message)),
-            o =>
-            {
-                o.SetExtra("Response", resp);
-            });
+        var sentryEvent = new SentryEvent();
+        var sentryMessage = new SentryMessage { Message = resp.Data?[0].Message };
+        sentryEvent.Message = sentryMessage;
+        sentryEvent.SetExtra("Response", resp);
+        
+        SentrySdk.CaptureEvent(sentryEvent);
     }
 }
