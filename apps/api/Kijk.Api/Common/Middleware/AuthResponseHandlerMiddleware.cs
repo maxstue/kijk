@@ -1,10 +1,7 @@
 ﻿using System.Net;
-using System.Security.Authentication;
 using System.Text.Json;
 
 using Kijk.Api.Common.Models;
-
-using Microsoft.AspNetCore.Diagnostics;
 
 using Sentry;
 
@@ -39,11 +36,12 @@ public static class AuthResponseHandlerMiddleware
 
     private static void SentToSentry(ApiResponse<List<AppError>> resp)
     {
-        var sentryEvent = new SentryEvent();
-        var sentryMessage = new SentryMessage { Message = resp.Data?[0].Message };
-        sentryEvent.Message = sentryMessage;
-        sentryEvent.SetExtra("Response", resp);
-        
-        SentrySdk.CaptureEvent(sentryEvent);
+        SentrySdk.CaptureMessage(
+            resp.Data?[0].Message ?? "AuthError: Token or role is not valid",
+            opt =>
+            {
+                opt.SetExtra("Response", resp);
+                opt.SetExtra("Code", resp.Data?[0].Code);
+            });
     }
 }
