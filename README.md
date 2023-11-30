@@ -15,12 +15,12 @@
 
 ---
 
-<p align="center"> The next household app for managing your expenses/income, your energy consumption and maybe more in the future 🤖
+<p align="center"> Meet <strong>Kijk</strong>: the open-source household app for effortless financial management and energy monitoring. It's your all-in-one solution, simplifying expense tracking, income management, and energy consumption monitoring.
 <br>
 
 </p>
 
-> This documentation is still work in progress, you will find unfinished or empty sections.
+> This Project is still under development
 
 ## 📝 Table of Contents
 
@@ -34,9 +34,10 @@
 
 ## 🧐 Motivation <a name = "motivation"></a>
 
-> Comming soon
+At the core of Kijk is my motivation to explore new technologies while crafting an app that caters to every user, including myself. I embarked on this journey to create a household app that simplifies financial management and energy monitoring, driven by my own need for such a tool.
+I invite you, as new users, to join this project. Let's collaborate on this open-source project, combining our skills to make Kijk an even more valuable asset for household management. Your participation and contributions will not only enhance the app's features but also ensure that it addresses a wider array of needs and preferences. Together, we can shape a tool that empowers us all to manage our homes efficiently and effortlessly.
 
-Feel free to explore the codebase to get inspiration for your own project or help with this project 🫶
+Feel free to explore the codebase to get inspiration or help with this project 🫶
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
@@ -63,3 +64,4 @@ The deployed system runs on [vercel](https://vercel.com/) and [fly.io](https://f
 
 - [shadcn/ui](https://github.com/shadcn-ui/ui)
 - [The Documentation Compendium](https://github.com/kylelobo/The-Documentation-Compendium)
+- openAi for helping with writing texts 🤖
