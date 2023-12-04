@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
         authToken: env.SENTRY_AUTH_TOKEN,
         org: 'maxstue',
         project: 'kijk-client',
+        telemetry: env.SENTRY_ENABLE_TELEMETRY === 'true',
       }),
       checker({
         eslint: { lintCommand: 'lint' },

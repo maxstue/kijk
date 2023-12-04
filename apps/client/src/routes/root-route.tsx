@@ -10,13 +10,16 @@ import NoMatch from '@/routes/no-match';
 import { settingsRoute } from '@/routes/settings/settings-route';
 import { welcomeRoute } from '@/routes/welcome/welcome-route';
 import { useAuthStore } from '@/stores/auth-store';
+import { getSession } from '@/utils/router.utils';
 
 import { RootLayout } from './root-layout';
 
 const rootRoute = {
   id: 'rootRoute',
   path: '',
-  loader: async () => {
+  loader: async ({ request }) => {
+    // NOTE needed as a fallback for when the user refreshes the page. https://github.com/remix-run/react-router/discussions/9564
+    await getSession(request.url);
     const data = await queryClient.ensureQueryData(userSignInQuery);
     if (data.data?.firstTime) {
       return redirect('/home/welcome');
@@ -34,12 +37,7 @@ export const privateRoute = {
   id: 'privateRoute',
   path: 'home',
   loader: async ({ request }) => {
-    const session = await supabase.auth.getSession();
-    if (!session.data.session?.access_token) {
-      const params = new URLSearchParams();
-      params.set('from', new URL(request.url).pathname);
-      throw redirect('/auth' + `?${params.toString()}`);
-    }
+    const session = await getSession(request.url);
     const data = await queryClient.ensureQueryData(userSignInQuery);
     useAuthStore.setState((c) => ({ ...c, user: data.data }));
     return { session };
