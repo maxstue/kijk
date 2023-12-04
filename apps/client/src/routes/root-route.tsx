@@ -3,7 +3,6 @@ import { redirect, RouteObject } from 'react-router-dom';
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { AppRouteError } from '@/components/app-route-error';
 import { queryClient } from '@/lib/query-client';
-import { supabase } from '@/lib/supabase-client';
 import { budgetRoute } from '@/routes/budget/budget-route';
 import { dashboardRoute } from '@/routes/dashboard/dashboard-route';
 import NoMatch from '@/routes/no-match';
