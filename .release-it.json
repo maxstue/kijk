@@ -9,7 +9,7 @@
   },
   "github": {
     "release": true,
-    "releaseName": "v${version}"
+    "releaseName": "${version}"
   },
   "plugins": {
     "@csmith/release-it-calver-plugin": {
