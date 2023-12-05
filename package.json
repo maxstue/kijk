@@ -24,9 +24,13 @@
     "build:client": "pnpm run --filter \"kijk-client\" build",
     "clean:all": "pnpm run --parallel -r clean:all",
     "lint:all": "pnpm run --parallel -r lint",
-    "format:check-all": "pnpm run --parallel -r format:check"
+    "format:check-all": "pnpm run --parallel -r format:check",
+    "release": "release-it"
   },
   "devDependencies": {
-    "@microsoft/eslint-formatter-sarif": "^3.0.0"
+    "@csmith/release-it-calver-plugin": "^2023.11.0",
+    "@microsoft/eslint-formatter-sarif": "^3.0.0",
+    "@release-it/conventional-changelog": "^8.0.1",
+    "release-it": "^17.0.0"
   }
 }
