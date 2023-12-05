@@ -11,6 +11,12 @@
     "release": true,
     "releaseName": "v${version}"
   },
+  "plugins": {
+    "@csmith/release-it-calver-plugin": {
+      "format": "yyyy.mm.minor",
+      "increment": "calendar"
+    }
+  },
   "npm": {
     "publish": false
   }
