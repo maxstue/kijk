@@ -31,6 +31,7 @@
     "@csmith/release-it-calver-plugin": "^2023.11.0",
     "@microsoft/eslint-formatter-sarif": "^3.0.0",
     "@release-it/conventional-changelog": "^8.0.1",
+    "auto-changelog": "^2.4.0",
     "release-it": "^17.0.0"
   }
 }
