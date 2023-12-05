@@ -1,0 +1,39 @@
+name: Release
+on: workflow_dispatch
+
+env:
+  NODE_VERSION: "20.x"
+  PNPM_VERSION: "8"
+  CI: ${{ vars.CI }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v3
+
+      - name: "🔧 Install pnpm"
+        uses: pnpm/action-setup@v2
+        id: pnpm-install
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: "🔧 Use Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: "📦 Install dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "Initialize git"
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "maxstue2304@gmail.com"
+
+      - name: "🚀 Release"
+        run: pnpm run release --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
