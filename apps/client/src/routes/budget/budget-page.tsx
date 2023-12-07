@@ -103,7 +103,6 @@ export function BudgetPage() {
                   </Suspense>
                 </CardContent>
               </Card>
-              Y
             </div>
 
             <div className='w-full'>
