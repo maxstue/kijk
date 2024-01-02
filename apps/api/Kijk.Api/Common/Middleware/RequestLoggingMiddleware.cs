@@ -1,0 +1,26 @@
+﻿using Microsoft.Extensions.Primitives;
+
+using Serilog.Context;
+
+namespace Kijk.Api.Common.Middleware;
+
+public class RequestLoggingMiddleware : IMiddleware
+{
+    private const string CorrelationIdHeaderName = "X-Correlation-ID";
+
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        string correlationId = GetCorrelationId(context);
+
+        using (LogContext.PushProperty("CorrelationId", correlationId))
+        {
+            await next(context);
+        }
+    }
+
+    private static string GetCorrelationId(HttpContext context)
+    {
+        context.Request.Headers.TryGetValue(CorrelationIdHeaderName, out StringValues correlationId);
+        return correlationId.FirstOrDefault() ?? context.TraceIdentifier;
+    }
+}

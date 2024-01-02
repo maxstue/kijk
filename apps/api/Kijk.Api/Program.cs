@@ -73,6 +73,8 @@ builder.Services.AddAuthorizationBuilder()
     // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
     .AddCurrentUserHandler();
 
+builder.Services.AddScoped<RequestLoggingMiddleware>();
+
 builder.Services.ConfigureDatabase()
     .AddCustomAppSettings(builder.Configuration)
     .AddCustomCors(builder.Configuration)
@@ -109,7 +111,15 @@ else
 app.UseCustomExceptionHandler();
 app.UseCustomAuthResponseHandler();
 
-app.UseSerilogRequestLogging();
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseSerilogRequestLogging(
+    opt =>
+    {
+        opt.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            diagnosticContext.Set("CorrelationId", httpContext.GetCorrelationId());
+        };
+    });
 app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All });
 app.UseCors(AppConstants.Policies.Cors);
 
