@@ -1,19 +1,21 @@
-import { redirect, RouteObject } from 'react-router-dom';
+import { redirect, Route } from '@tanstack/react-router';
 
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { AppRouteError } from '@/components/app-route-error';
 import { queryClient } from '@/lib/query-client';
+import { privateRoute } from '@/routes/root-route';
 import WelcomePage from '@/routes/welcome/welcome-page';
 
-export const welcomeRoute = {
-  path: 'welcome',
-  loader: async () => {
+export const welcomeRoute = new Route({
+  getParentRoute: () => privateRoute,
+  path: '/welcome',
+  beforeLoad: async () => {
     const data = await queryClient.ensureQueryData(userSignInQuery);
     if (data.data?.firstTime == false) {
-      return redirect('/');
+      throw redirect({ to: '/home' });
     }
     return null;
   },
-  element: <WelcomePage />,
-  errorElement: <AppRouteError />,
-} as RouteObject;
+  component: WelcomePage,
+  errorComponent: AppRouteError,
+});

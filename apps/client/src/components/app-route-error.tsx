@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/react';
+import { useNavigate } from '@tanstack/react-router';
 import { ArrowDownIcon, InfoIcon } from 'lucide-react';
-import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-export function AppRouteError() {
-  const error = useRouteError();
+interface Props {
+  error?: unknown;
+}
+
+export function AppRouteError({ error }: Props) {
   const navigate = useNavigate();
 
   const handleGotToRoot = () => {
-    void navigate('/', { replace: true });
+    void navigate({ to: '/', replace: true });
   };
 
   useEffect(() => {
@@ -45,17 +48,17 @@ export function AppRouteError() {
   );
 }
 
-const BasicError = ({ error }: { error: unknown }) => {
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div className='flex flex-col gap-2'>
-        <div className='text-bold text-muted-foreground'>{error.statusText}:</div>
-        {error.status === 404 && <div>This page doesn&apos;t exist!</div>}
-        {error.status === 503 && <div>Looks like our API is down</div>}
-        {error.status === 418 && <div>🫖</div>}
-      </div>
-    );
-  }
+// TODO
+const BasicError = ({ error }: { error?: unknown }) => {
+  return (
+    <div className='flex flex-col gap-2'>
+      <div>Error {JSON.stringify(error)}</div>
+      {/* <div className='text-bold text-muted-foreground'>{error.statusText}:</div>
+      {error.status === 404 && <div>This page doesn&apos;t exist!</div>}
+      {error.status === 503 && <div>Looks like our API is down</div>}
+      {error.status === 418 && <div>🫖</div>} */}
+    </div>
+  );
 
   return <div>Something unexpected happened. {JSON.stringify(error)}</div>;
 };

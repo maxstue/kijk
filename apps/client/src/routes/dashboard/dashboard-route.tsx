@@ -1,10 +1,12 @@
-import { RouteObject } from 'react-router-dom';
+import { Route } from '@tanstack/react-router';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { DashboardPage } from '@/routes/dashboard/dashboard-page';
+import { rootIndexRoute } from '@/routes/root-route';
 
-export const dashboardRoute = {
-  index: true,
-  element: <DashboardPage />,
-  errorElement: <AppRouteError />,
-} as RouteObject;
+export const dashboardRoute = new Route({
+  getParentRoute: () => rootIndexRoute,
+  path: '/dashboard',
+  component: DashboardPage,
+  errorComponent: AppRouteError,
+});

@@ -1,5 +1,5 @@
 import { PropsWithChildren, Suspense } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from '@tanstack/react-router';
 
 import { CommandMenu } from '@/app/root/command-menu';
 import { Footer } from '@/app/root/footer';

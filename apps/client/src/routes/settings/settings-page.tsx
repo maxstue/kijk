@@ -1,4 +1,4 @@
-import { Link, Outlet, useMatch } from 'react-router-dom';
+import { Link, Outlet, useMatch } from '@tanstack/react-router';
 
 import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
@@ -6,6 +6,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { settingsNav } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { settingsSectionRoute } from '@/routes/settings/settings-route';
 
 export default function SettingsPage() {
   return (
@@ -43,7 +44,7 @@ function SettingsNavLink({
   label: (typeof settingsNav)[number]['label'];
   icon: (typeof settingsNav)[number]['icon'];
 }) {
-  const match = useMatch(`home/settings/${to}`);
+  const match = useMatch({ from: settingsSectionRoute.id, select: (prev) => prev.params.section === to });
   const Icon = Icons[icon || 'arrowRight'];
 
   return (

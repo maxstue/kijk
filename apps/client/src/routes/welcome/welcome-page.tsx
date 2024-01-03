@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 
 import { UserStepFormValues } from '@/app/welcome/schemas';
 import { useInitUser } from '@/app/welcome/use-init-user';
@@ -20,7 +20,7 @@ export default function WelcomePage() {
     userName: (session?.user?.user_metadata as User_Metadata).user_name ?? '',
     useDefaultCategories: true,
   });
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/' });
   const { mutate } = useInitUser();
   const { nextStep, prevStep, activeStep, isDisabledStep, isLastStep, isOptionalStep } = useStepper({
     initialStep: 0,
@@ -29,8 +29,8 @@ export default function WelcomePage() {
 
   const handleFinish = () => {
     mutate(userStep, {
-      onSuccess() {
-        navigate('/', { replace: true });
+      async onSuccess() {
+        await navigate({ to: '/', replace: true });
       },
     });
   };

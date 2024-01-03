@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { DialogProps } from '@radix-ui/react-alert-dialog';
+import { useNavigate } from '@tanstack/react-router';
 import { File, Laptop, Moon, SunMedium } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import { useThemeStoreActions } from '@/stores/theme-store';
 
 export function CommandMenu({ ...props }: DialogProps) {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/' });
   const [open, setOpen] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'category' | 'transaction'>();
@@ -74,14 +74,14 @@ export function CommandMenu({ ...props }: DialogProps) {
               <CommandItem
                 key='Home'
                 onSelect={() => {
-                  runCommand(() => navigate('/'));
+                  runCommand(() => navigate({ to: '/' }));
                 }}
               >
                 <File className='mr-2 h-4 w-4' />
                 Home
               </CommandItem>
 
-              <CommandItem key='budget' onSelect={() => runCommand(() => navigate('budget'))}>
+              <CommandItem key='budget' onSelect={() => runCommand(() => navigate({ to: '/home/budget' }))}>
                 <File className='mr-2 h-4 w-4' />
                 Budget
               </CommandItem>
@@ -115,7 +115,10 @@ export function CommandMenu({ ...props }: DialogProps) {
 
             <CommandGroup heading='Settings'>
               {settingsNav.map((item) => (
-                <CommandItem key={item.label} onSelect={() => runCommand(() => navigate(`settings/${item.to}`))}>
+                <CommandItem
+                  key={item.label}
+                  onSelect={() => runCommand(() => navigate({ to: 'settings/$section', params: { section: item.to } }))}
+                >
                   <File className='mr-2 h-4 w-4' />
                   {item.label}
                 </CommandItem>

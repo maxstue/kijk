@@ -1,5 +1,5 @@
 import { Dispatch, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { redirect, useNavigate, useSearch } from '@tanstack/react-router';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { Head } from '@/components/head';
@@ -24,7 +24,7 @@ export function AuthPage() {
 function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
   const { register } = useAuthStoreActions();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/auth' });
 
   const handleRegister = async (email: string, password: string) => {
     const result = await register(email.toLowerCase(), password);
@@ -36,7 +36,7 @@ function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign 
         variant: 'destructive',
       });
     }
-    navigate('/');
+    void navigate({ to: '/' });
   };
 
   return (
@@ -62,8 +62,8 @@ function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign U
   const { login } = useAuthStoreActions();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const from = searchParams.get('from') ?? '/';
+  const search = useSearch({ from: '/auth' });
+  const from = search.from ?? '/';
 
   const handleLogin = async (email: string, password: string) => {
     const result = await login(email.toLowerCase(), password);
@@ -75,7 +75,7 @@ function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign U
         variant: 'destructive',
       });
     }
-    navigate(from);
+    void navigate({ to: from, replace: true });
   };
 
   return (

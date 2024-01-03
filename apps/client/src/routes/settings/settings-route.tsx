@@ -1,16 +1,35 @@
-import { Navigate, RouteObject } from 'react-router-dom';
+import { Route } from '@tanstack/react-router';
 
 import { AppRouteError } from '@/components/app-route-error';
+import { rootIndexRoute } from '@/routes/root-route';
 import { SettingsSectionPage } from '@/routes/settings/settings-section-page';
 
-export const settingsRoute = {
-  path: 'settings',
-  async lazy() {
-    return { Component: (await import('./settings-page')).default };
+// export const settingsRoute = {
+//   path: 'settings',
+//   async lazy() {
+//     return { Component: (await import('./settings-page')).default };
+//   },
+//   children: [
+//     { index: true, element: <Navigate to='profile' /> },
+//     { path: ':section', element: <SettingsSectionPage /> },
+//   ],
+//   errorElement: <AppRouteError />,
+// } as RouteObject;
+
+export const settingsRoute = new Route({
+  getParentRoute: () => rootIndexRoute,
+  path: '/settings',
+  beforeLoad: async ({ navigate, location }) => {
+    if (location.pathname === '/settings') {
+      await navigate({ to: '$section', params: { section: 'profile' } });
+    }
   },
-  children: [
-    { index: true, element: <Navigate to='profile' /> },
-    { path: ':section', element: <SettingsSectionPage /> },
-  ],
-  errorElement: <AppRouteError />,
-} as RouteObject;
+  component: SettingsSectionPage,
+  errorComponent: AppRouteError,
+});
+
+export const settingsSectionRoute = new Route({
+  getParentRoute: () => settingsRoute,
+  path: '$section',
+  component: SettingsSectionPage,
+});

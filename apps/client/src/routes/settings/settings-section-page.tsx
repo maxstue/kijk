@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from '@tanstack/react-router';
 
 import { AccountSection } from '@/app/settings/account/account-section';
 import { AppearanceSection } from '@/app/settings/appearance/appearance-section';
@@ -6,10 +6,10 @@ import { CategoriesSection } from '@/app/settings/categories/categories-section'
 import { NotificationsSection } from '@/app/settings/notifications/notifications-section';
 import { ProfileSection } from '@/app/settings/profile/profile-section';
 import { Head } from '@/components/head';
-import { settingsNav } from '@/lib/constants';
+import { settingsSectionRoute } from '@/routes/settings/settings-route';
 
 export function SettingsSectionPage() {
-  const params = useParams<{ section: (typeof settingsNav)[number]['to'] }>();
+  const params = useParams({ from: settingsSectionRoute.id });
 
   return (
     <>
