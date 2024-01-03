@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserStepFormValues } from '@/app/welcome/schemas';
 import { useInitUser } from '@/app/welcome/use-init-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
+import { Head } from '@/components/head';
 import { ThemeQuickCustomizer } from '@/components/theme-quick-customizer';
 import { Button } from '@/components/ui/button';
 import { Step, StepConfig, Steps } from '@/components/ui/stepper';
@@ -35,39 +36,42 @@ export default function WelcomePage() {
   };
 
   return (
-    <div className='flex h-[100dvh] w-full items-center justify-center'>
-      <div className='flex w-3/5 flex-col gap-6'>
-        <Steps activeStep={activeStep} className='px-24'>
-          {steps.map((step, index) => (
-            <Step index={index} key={index} {...step}>
-              <div className='flex h-[calc(100dvh_*_0.5)] w-full flex-col bg-muted p-6'>
-                {index === 0 && <StepZero />}
-                {index === 1 && <StepOne value={userStep} setuserStep={setUserStep} />}
-                {index === 2 && <StepTwo />}
-                {index === 3 && <Finish />}
-              </div>
-            </Step>
-          ))}
-        </Steps>
-        <div className='flex items-center justify-end'>
-          <div className='flex w-1/4 gap-2'>
-            <Button onClick={prevStep} disabled={isDisabledStep} className='w-full'>
-              Prev
-            </Button>
-            {!isLastStep && (
-              <Button onClick={nextStep} className='w-full'>
-                {isOptionalStep ? 'Skip' : 'Next'}
+    <>
+      <Head title='Welcome' />
+      <div className='flex h-[100dvh] w-full items-center justify-center'>
+        <div className='flex w-3/5 flex-col gap-6'>
+          <Steps activeStep={activeStep} className='px-24'>
+            {steps.map((step, index) => (
+              <Step index={index} key={index} {...step}>
+                <div className='flex h-[calc(100dvh_*_0.5)] w-full flex-col bg-muted p-6'>
+                  {index === 0 && <StepZero />}
+                  {index === 1 && <StepOne value={userStep} setuserStep={setUserStep} />}
+                  {index === 2 && <StepTwo />}
+                  {index === 3 && <Finish />}
+                </div>
+              </Step>
+            ))}
+          </Steps>
+          <div className='flex items-center justify-end'>
+            <div className='flex w-1/4 gap-2'>
+              <Button onClick={prevStep} disabled={isDisabledStep} className='w-full'>
+                Prev
               </Button>
-            )}
-            {isLastStep && (
-              <Button onClick={handleFinish} className='w-full'>
-                Finish
-              </Button>
-            )}
+              {!isLastStep && (
+                <Button onClick={nextStep} className='w-full'>
+                  {isOptionalStep ? 'Skip' : 'Next'}
+                </Button>
+              )}
+              {isLastStep && (
+                <Button onClick={handleFinish} className='w-full'>
+                  Finish
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

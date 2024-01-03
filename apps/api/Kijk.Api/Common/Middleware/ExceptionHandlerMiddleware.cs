@@ -6,6 +6,7 @@ using Sentry;
 
 namespace Kijk.Api.Common.Middleware;
 
+// REFACTOR use new IExceptionHandler middleware
 public static class ExceptionHandlerMiddleware
 {
     public static void UseCustomExceptionHandler(this IApplicationBuilder app)

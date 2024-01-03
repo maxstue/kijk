@@ -2,24 +2,26 @@ import { Dispatch, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
+import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthStoreActions } from '@/stores/auth-store';
 
 export function AuthPage() {
-  const [show, setShow] = useState<'Login' | 'Register'>('Login');
+  const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
 
   // TODO add back button to navigate to the "web"-app
   return (
     <>
-      {show === 'Register' && <Register toLogin={setShow} />}
-      {show === 'Login' && <Login toRegister={setShow} />}
+      <Head title={show} />
+      {show === 'Sign Up' && <SignUp goto={setShow} />}
+      {show === 'Login' && <Login goto={setShow} />}
     </>
   );
 }
 
-function Register({ toLogin }: { toLogin: Dispatch<React.SetStateAction<'Login' | 'Register'>> }) {
+function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
   const { register } = useAuthStoreActions();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -47,7 +49,7 @@ function Register({ toLogin }: { toLogin: Dispatch<React.SetStateAction<'Login' 
         </div>
         <UserAuthForm onSubmit={handleRegister} btnLabel='Sign Up' />
         <p className='px-8 text-center text-sm text-muted-foreground'>
-          <Button variant='link' onClick={() => toLogin('Login')}>
+          <Button variant='link' onClick={() => goto('Login')}>
             Have an account? Sign In
           </Button>
         </p>
@@ -56,7 +58,7 @@ function Register({ toLogin }: { toLogin: Dispatch<React.SetStateAction<'Login' 
   );
 }
 
-function Login({ toRegister }: { toRegister: Dispatch<React.SetStateAction<'Login' | 'Register'>> }) {
+function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
   const { login } = useAuthStoreActions();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -86,7 +88,7 @@ function Login({ toRegister }: { toRegister: Dispatch<React.SetStateAction<'Logi
         </div>
         <UserAuthForm onSubmit={handleLogin} btnLabel='Login' />
         <p className='px-8 text-center text-sm text-muted-foreground'>
-          <Button variant='link' onClick={() => toRegister('Register')}>
+          <Button variant='link' onClick={() => goto('Sign Up')}>
             Don&apos;t have an account? Sign Up
           </Button>
         </p>
