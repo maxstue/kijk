@@ -112,14 +112,7 @@ app.UseCustomExceptionHandler();
 app.UseCustomAuthResponseHandler();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
-app.UseSerilogRequestLogging(
-    opt =>
-    {
-        opt.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-        {
-            diagnosticContext.Set("CorrelationId", httpContext.GetCorrelationId());
-        };
-    });
+app.UseSerilogRequestLogging();
 app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All });
 app.UseCors(AppConstants.Policies.Cors);
 

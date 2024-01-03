@@ -10,8 +10,7 @@ public class RequestLoggingMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        string correlationId = GetCorrelationId(context);
-
+        var correlationId = GetCorrelationId(context);
         using (LogContext.PushProperty("CorrelationId", correlationId))
         {
             await next(context);
