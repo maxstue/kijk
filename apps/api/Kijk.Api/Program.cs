@@ -54,7 +54,9 @@ builder.Services.AddAuthentication(
             ValidateIssuerSigningKey = true,
             IssuerSigningKey =
                 new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:IssuerSigningKey") ?? string.Empty)),
+                    Encoding.UTF8.GetBytes(
+                        builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:IssuerSigningKey") ??
+                        string.Empty)),
             ValidateIssuer = false,
             ValidateAudience = true,
             ValidAudience = builder.Configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:ValidAudience"),
@@ -110,7 +112,7 @@ else
     app.UseHsts();
 }
 
-app.UseExceptionHandler();
+app.UseExceptionHandler(_ => { });
 app.UseCustomAuthResponseHandler();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
