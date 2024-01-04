@@ -1,5 +1,4 @@
 import { Suspense, useState } from 'react';
-import { useSearch } from '@tanstack/react-router';
 import { Row } from '@tanstack/react-table';
 import { parseISO } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
@@ -36,6 +35,7 @@ import {
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { cn, formatStringToCurrency } from '@/lib/utils';
+import { budgetRoute } from '@/routes/budget/budget-route';
 import { Months, months, Transaction, TransactionType } from '@/types/app';
 
 interface DataTableRowActionsProps<TData> {
@@ -46,10 +46,10 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
-  const searchParams = useSearch({ from: '/home/budget' });
+  const searchParams = budgetRoute.useSearch();
   const { toast } = useToast();
   const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
-  const year = (searchParams.year ?? new Date().getFullYear()) as number;
+  const year = searchParams.year ?? new Date().getFullYear();
   const transaction = row.original;
 
   const handleCopyId = async () => {

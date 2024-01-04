@@ -1,18 +1,18 @@
-import { redirect, Route } from '@tanstack/react-router';
+import { Route } from '@tanstack/react-router';
 
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { AppRouteError } from '@/components/app-route-error';
 import { queryClient } from '@/lib/query-client';
-import { privateRoute } from '@/routes/root-route';
+import { homeRoute } from '@/routes/home-route';
 import WelcomePage from '@/routes/welcome/welcome-page';
 
 export const welcomeRoute = new Route({
-  getParentRoute: () => privateRoute,
+  getParentRoute: () => homeRoute,
   path: '/welcome',
-  beforeLoad: async () => {
+  beforeLoad: async ({ navigate }) => {
     const data = await queryClient.ensureQueryData(userSignInQuery);
     if (data.data?.firstTime == false) {
-      throw redirect({ to: '/home' });
+      void navigate({ to: '/home' });
     }
     return null;
   },

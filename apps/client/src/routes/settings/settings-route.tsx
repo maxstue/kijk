@@ -1,7 +1,7 @@
 import { Route } from '@tanstack/react-router';
 
 import { AppRouteError } from '@/components/app-route-error';
-import { rootIndexRoute } from '@/routes/root-route';
+import { homeLayoutRoute } from '@/routes/home-route';
 import { SettingsSectionPage } from '@/routes/settings/settings-section-page';
 
 // export const settingsRoute = {
@@ -17,7 +17,7 @@ import { SettingsSectionPage } from '@/routes/settings/settings-section-page';
 // } as RouteObject;
 
 export const settingsRoute = new Route({
-  getParentRoute: () => rootIndexRoute,
+  getParentRoute: () => homeLayoutRoute,
   path: '/settings',
   beforeLoad: async ({ navigate, location }) => {
     if (location.pathname === '/settings') {

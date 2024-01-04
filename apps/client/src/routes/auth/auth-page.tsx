@@ -1,11 +1,12 @@
 import { Dispatch, useState } from 'react';
-import { redirect, useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { authRoute } from '@/routes/auth/auth-route';
 import { useAuthStoreActions } from '@/stores/auth-store';
 
 export function AuthPage() {
@@ -62,7 +63,7 @@ function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign U
   const { login } = useAuthStoreActions();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const search = useSearch({ from: '/auth' });
+  const search = authRoute.useSearch();
   const from = search.from ?? '/';
 
   const handleLogin = async (email: string, password: string) => {
@@ -75,7 +76,7 @@ function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign U
         variant: 'destructive',
       });
     }
-    void navigate({ to: from, replace: true });
+    void navigate({ to: from, params: true });
   };
 
   return (

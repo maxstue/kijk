@@ -52,7 +52,7 @@ export function UserNav() {
         <DropdownMenuGroup>
           {settingsNav.map(({ to, label, shortCutKey }) => (
             <DropdownMenuItem key={label} asChild className='cursor-pointer'>
-              <Link to={`settings/$section`} params={{ section: to }} className='flex w-full'>
+              <Link preload={false} to={`/home/settings/$section`} params={{ section: to }} className='flex w-full'>
                 {label}
                 {shortCutKey && <DropdownMenuShortcut>{shortCutKey}</DropdownMenuShortcut>}
               </Link>

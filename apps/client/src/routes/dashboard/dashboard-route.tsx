@@ -2,10 +2,10 @@ import { Route } from '@tanstack/react-router';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { DashboardPage } from '@/routes/dashboard/dashboard-page';
-import { rootIndexRoute } from '@/routes/root-route';
+import { homeLayoutRoute } from '@/routes/home-route';
 
 export const dashboardRoute = new Route({
-  getParentRoute: () => rootIndexRoute,
+  getParentRoute: () => homeLayoutRoute,
   path: '/dashboard',
   component: DashboardPage,
   errorComponent: AppRouteError,

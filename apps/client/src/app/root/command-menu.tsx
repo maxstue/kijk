@@ -117,7 +117,9 @@ export function CommandMenu({ ...props }: DialogProps) {
               {settingsNav.map((item) => (
                 <CommandItem
                   key={item.label}
-                  onSelect={() => runCommand(() => navigate({ to: 'settings/$section', params: { section: item.to } }))}
+                  onSelect={() =>
+                    runCommand(() => navigate({ to: '/home/settings/$section', params: { section: item.to } }))
+                  }
                 >
                   <File className='mr-2 h-4 w-4' />
                   {item.label}
