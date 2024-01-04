@@ -2,6 +2,7 @@
 
 using HealthChecks.UI.Client;
 
+using Kijk.Api.Common;
 using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
@@ -73,6 +74,7 @@ builder.Services.AddAuthorizationBuilder()
     // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
     .AddCurrentUserHandler();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddScoped<RequestLoggingMiddleware>();
 
 builder.Services.ConfigureDatabase()
@@ -108,7 +110,7 @@ else
     app.UseHsts();
 }
 
-app.UseCustomExceptionHandler();
+app.UseExceptionHandler();
 app.UseCustomAuthResponseHandler();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
