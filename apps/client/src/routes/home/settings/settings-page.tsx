@@ -6,9 +6,9 @@ import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { settingsNav } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { settingsSectionRoute } from '@/routes/settings/settings-route';
+import { settingsSectionRoute } from '@/routes/home/settings/settings-route';
 
-export default function SettingsPage() {
+export function SettingsPage() {
   return (
     <>
       <Head title='Settings' />
@@ -44,18 +44,14 @@ function SettingsNavLink({
   label: (typeof settingsNav)[number]['label'];
   icon: (typeof settingsNav)[number]['icon'];
 }) {
-  const match = useMatch({ from: settingsSectionRoute.id, select: (prev) => prev.params.section === to });
   const Icon = Icons[icon || 'arrowRight'];
 
   return (
     <Link
       key={label}
       to={to}
-      className={cn(
-        buttonVariants({ variant: 'ghost' }),
-        match && 'bg-primary text-primary-foreground',
-        'justify-start',
-      )}
+      className={cn(buttonVariants({ variant: 'ghost' }), 'justify-start')}
+      activeProps={{ className: 'bg-primary text-primary-foreground' }}
     >
       <Icon className='mr-2 h-4 w-4' />
       {label}

@@ -37,7 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { budgetRoute } from '@/routes/budget/budget-route';
+import { budgetRoute } from '@/routes/home/budget/budget-route';
 import { Months, months } from '@/types/app';
 
 export function BudgetPage() {

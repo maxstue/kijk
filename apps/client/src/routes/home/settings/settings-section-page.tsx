@@ -6,7 +6,7 @@ import { CategoriesSection } from '@/app/settings/categories/categories-section'
 import { NotificationsSection } from '@/app/settings/notifications/notifications-section';
 import { ProfileSection } from '@/app/settings/profile/profile-section';
 import { Head } from '@/components/head';
-import { settingsSectionRoute } from '@/routes/settings/settings-route';
+import { settingsSectionRoute } from '@/routes/home/settings/settings-route';
 
 export function SettingsSectionPage() {
   const params = useParams({ from: settingsSectionRoute.id });

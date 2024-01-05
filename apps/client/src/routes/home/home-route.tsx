@@ -3,7 +3,7 @@ import { Route } from '@tanstack/react-router';
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { AppRouteError } from '@/components/app-route-error';
 import { rootRoute } from '@/router';
-import { HomeLayout } from '@/routes/home-layout';
+import { HomeLayout } from '@/routes/home/home-layout';
 import { useAuthStore } from '@/stores/auth-store';
 import { getSession } from '@/utils/router.utils';
 

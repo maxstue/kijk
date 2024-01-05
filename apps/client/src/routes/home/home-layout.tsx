@@ -10,8 +10,8 @@ import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { Toaster } from '@/components/ui/toaster';
 import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { budgetRoute } from '@/routes/budget/budget-route';
-import { dashboardRoute } from '@/routes/dashboard/dashboard-route';
+import { budgetRoute } from '@/routes/home/budget/budget-route';
+import { dashboardRoute } from '@/routes/home/dashboard/dashboard-route';
 
 export function HomeLayout() {
   return (

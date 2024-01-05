@@ -3,8 +3,8 @@ import { Route } from '@tanstack/react-router';
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { AppRouteError } from '@/components/app-route-error';
 import { queryClient } from '@/lib/query-client';
-import { homeRoute } from '@/routes/home-route';
-import WelcomePage from '@/routes/welcome/welcome-page';
+import { homeRoute } from '@/routes/home/home-route';
+import WelcomePage from '@/routes/home/welcome/welcome-page';
 
 export const welcomeRoute = new Route({
   getParentRoute: () => homeRoute,

@@ -35,7 +35,7 @@ import {
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { cn, formatStringToCurrency } from '@/lib/utils';
-import { budgetRoute } from '@/routes/budget/budget-route';
+import { budgetRoute } from '@/routes/home/budget/budget-route';
 import { Months, months, Transaction, TransactionType } from '@/types/app';
 
 interface DataTableRowActionsProps<TData> {

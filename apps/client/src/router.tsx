@@ -4,16 +4,16 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { NotFoundRoute, Outlet, rootRouteWithContext, Route, Router } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import { AppError } from '@/components/app-error';
+import { AppRouteError } from '@/components/app-route-error';
 import { AsyncLoader } from '@/components/async-loader';
 import { queryClient } from '@/lib/query-client';
 import { authRoute } from '@/routes/auth/auth-route';
-import { budgetRoute } from '@/routes/budget/budget-route';
-import { dashboardRoute } from '@/routes/dashboard/dashboard-route';
-import { homeIndexRoute, homeLayoutRoute, homeRoute } from '@/routes/home-route';
+import { budgetRoute } from '@/routes/home/budget/budget-route';
+import { dashboardRoute } from '@/routes/home/dashboard/dashboard-route';
+import { homeIndexRoute, homeLayoutRoute, homeRoute } from '@/routes/home/home-route';
+import { settingsRoute, settingsSectionRoute } from '@/routes/home/settings/settings-route';
+import { welcomeRoute } from '@/routes/home/welcome/welcome-route';
 import NoMatch from '@/routes/no-match';
-import { settingsRoute, settingsSectionRoute } from '@/routes/settings/settings-route';
-import { welcomeRoute } from '@/routes/welcome/welcome-route';
 import { Optional } from '@/types/app';
 
 // const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
@@ -44,7 +44,6 @@ export const rootRoute = rootRouteWithContext<{ queryClient: QueryClient; sessio
 const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute,
-  notFoundRoute,
   homeRoute.addChildren([
     welcomeRoute,
     homeLayoutRoute.addChildren([
@@ -66,8 +65,9 @@ export const router = new Router({
     queryClient,
     session: undefined,
   },
+  notFoundRoute: notFoundRoute,
   defaultPendingComponent: () => <AsyncLoader />,
-  defaultErrorComponent: ({ error }) => <AppError error={error as unknown} />,
+  defaultErrorComponent: AppRouteError,
 });
 
 declare module '@tanstack/react-router' {
