@@ -3,7 +3,6 @@ import { RouterProvider } from '@tanstack/react-router';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { AppError } from '@/components/app-error';
-import { AsyncLoader } from '@/components/async-loader';
 import { AuthProvider } from '@/components/auth-provider';
 import { ThemeModeSwitcher } from '@/components/theme-mode-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
@@ -17,7 +16,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ThemeWrapper>
-            <RouterProvider router={router} defaultPendingComponent={AsyncLoader} />
+            <RouterProvider router={router} />
             <ThemeSwitcher />
             <ThemeModeSwitcher />
           </ThemeWrapper>

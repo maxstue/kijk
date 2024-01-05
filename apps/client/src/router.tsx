@@ -11,7 +11,7 @@ import { authRoute } from '@/routes/auth/auth-route';
 import { budgetRoute } from '@/routes/home/budget/budget-route';
 import { dashboardRoute } from '@/routes/home/dashboard/dashboard-route';
 import { homeIndexRoute, homeLayoutRoute, homeRoute } from '@/routes/home/home-route';
-import { settingsRoute, settingsSectionRoute } from '@/routes/home/settings/settings-route';
+import { settingsIndexRoute, settingsRoute, settingsSectionRoute } from '@/routes/home/settings/settings-route';
 import { welcomeRoute } from '@/routes/home/welcome/welcome-route';
 import NoMatch from '@/routes/no-match';
 import { Optional } from '@/types/app';
@@ -50,17 +50,18 @@ const routeTree = rootRoute.addChildren([
       homeIndexRoute,
       dashboardRoute,
       budgetRoute,
-      settingsRoute.addChildren([settingsSectionRoute]),
+      settingsRoute.addChildren([settingsIndexRoute, settingsSectionRoute]),
     ]),
   ]),
 ]);
 
 export const router = new Router({
   routeTree,
-  defaultPreload: false, // 'intent'
+  defaultPreload: 'intent',
   // Since we're using React Query, we don't want loader calls to ever be stale
   // This will ensure that the loader is always called when the route is preloaded or visited
   defaultPreloadStaleTime: 0,
+  defaultPreloadDelay: 500,
   context: {
     queryClient,
     session: undefined,

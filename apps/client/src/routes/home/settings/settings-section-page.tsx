@@ -8,7 +8,7 @@ import { ProfileSection } from '@/app/settings/profile/profile-section';
 import { Head } from '@/components/head';
 import { settingsSectionRoute } from '@/routes/home/settings/settings-route';
 
-export function SettingsSectionPage() {
+export default function SettingsSectionPage() {
   const params = useParams({ from: settingsSectionRoute.id });
 
   return (

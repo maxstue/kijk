@@ -7,6 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { authRoute } from '@/routes/auth/auth-route';
 import { useAuthStoreActions } from '@/stores/auth-store';
 import { AllowedProviders } from '@/types/app';
 
@@ -27,6 +28,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: UserAuthFormProp
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { signInWith } = useAuthStoreActions();
+  const searchparams = authRoute.useSearch();
 
   async function handleEmailSubmit(data: AuthSchema) {
     setIsLoading(true);
@@ -36,7 +38,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: UserAuthFormProp
 
   async function handleSignInWith(provider: AllowedProviders) {
     setIsLoading(true);
-    await signInWith(provider);
+    await signInWith(provider, searchparams.from);
     setIsLoading(false);
   }
 

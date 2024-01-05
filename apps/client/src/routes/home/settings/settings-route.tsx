@@ -1,11 +1,9 @@
-import { Route } from '@tanstack/react-router';
+import { lazyRouteComponent, Route } from '@tanstack/react-router';
 import * as z from 'zod';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { settingsTo } from '@/lib/constants';
 import { homeLayoutRoute } from '@/routes/home/home-route';
-import { SettingsPage } from '@/routes/home/settings/settings-page';
-import { SettingsSectionPage } from '@/routes/home/settings/settings-section-page';
 
 export const settingsIndexRoute = new Route({
   getParentRoute: () => settingsRoute,
@@ -22,7 +20,7 @@ export const settingsIndexRoute = new Route({
 export const settingsRoute = new Route({
   getParentRoute: () => homeLayoutRoute,
   path: '/settings',
-  component: SettingsPage,
+  component: lazyRouteComponent(() => import('@/routes/home/settings/settings-page')),
   errorComponent: AppRouteError,
 });
 
@@ -33,6 +31,6 @@ export const settingsSectionRoute = new Route({
   parseParams: (params) => {
     return { section: sectionSchema.parse(params.section) };
   },
-  component: SettingsSectionPage,
+  component: lazyRouteComponent(() => import('@/routes/home/settings/settings-section-page')),
   errorComponent: AppRouteError,
 });

@@ -1,4 +1,4 @@
-import { Link, Outlet, useMatch } from '@tanstack/react-router';
+import { Link, Outlet } from '@tanstack/react-router';
 
 import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
@@ -6,9 +6,8 @@ import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { settingsNav } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { settingsSectionRoute } from '@/routes/home/settings/settings-route';
 
-export function SettingsPage() {
+export default function SettingsPage() {
   return (
     <>
       <Head title='Settings' />

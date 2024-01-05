@@ -1,8 +1,7 @@
-import { Route } from '@tanstack/react-router';
+import { lazyRouteComponent, Route } from '@tanstack/react-router';
 import * as z from 'zod';
 
 import { AppRouteError } from '@/components/app-route-error';
-import { BudgetPage } from '@/routes/home/budget/budget-page';
 import { homeLayoutRoute } from '@/routes/home/home-route';
 import { Months, months } from '@/types/app';
 
@@ -21,6 +20,6 @@ export const budgetRoute = new Route({
   getParentRoute: () => homeLayoutRoute,
   path: '/budget',
   validateSearch: searchSchema,
-  component: BudgetPage,
+  component: lazyRouteComponent(() => import('@/routes/home/budget/budget-page')),
   errorComponent: AppRouteError,
 });

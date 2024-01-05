@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils';
 import { budgetRoute } from '@/routes/home/budget/budget-route';
 import { Months, months } from '@/types/app';
 
-export function BudgetPage() {
+export default function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
   const navigate = useNavigate({ from: budgetRoute.fullPath });
   const searchParams = budgetRoute.useSearch();

@@ -27,8 +27,7 @@ export const homeLayoutRoute = new Route({
 export const homeRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/home',
-  beforeLoad: async ({ location, context: { queryClient, session: pSession }, navigate }) => {
-    console.log('homeRoute', location.href, pSession);
+  beforeLoad: async ({ location, context: { queryClient }, navigate }) => {
     const session = await getSession(location.href);
     const data = await queryClient.ensureQueryData(userSignInQuery);
     useAuthStore.setState((c) => ({ ...c, user: data.data }));
