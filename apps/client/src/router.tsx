@@ -1,52 +1,28 @@
-import { Session } from '@supabase/supabase-js';
-import { QueryClient } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { NotFoundRoute, Outlet, rootRouteWithContext, Route, Router } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { Router } from '@tanstack/react-router';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { AsyncLoader } from '@/components/async-loader';
 import { queryClient } from '@/lib/query-client';
 import { authRoute } from '@/routes/auth/auth-route';
-import { budgetRoute } from '@/routes/home/budget/budget-route';
-import { dashboardRoute } from '@/routes/home/dashboard/dashboard-route';
-import { homeIndexRoute, homeLayoutRoute, homeRoute } from '@/routes/home/home-route';
-import { settingsIndexRoute, settingsRoute, settingsSectionRoute } from '@/routes/home/settings/settings-route';
-import { welcomeRoute } from '@/routes/home/welcome/welcome-route';
-import NoMatch from '@/routes/no-match';
-import { Optional } from '@/types/app';
+import { notFoundRoute } from '@/routes/not-found-route';
+import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
+import { dashboardRoute } from '@/routes/protected/home/dashboard/dashboard-route';
+import { homeIndexRoute, homeRoute } from '@/routes/protected/home/home-route';
+import { settingsIndexRoute, settingsRoute } from '@/routes/protected/home/settings/settings-route';
+import { settingsSectionRoute } from '@/routes/protected/home/settings/settings-section-route';
+import { protectedRoute } from '@/routes/protected/protected-route';
+import { welcomeRoute } from '@/routes/protected/welcome/welcome-route';
+import { rootIndexRoute } from '@/routes/root-index-route';
+import { rootRoute } from '@/routes/root-route';
 
 // const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
 
-const indexRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  beforeLoad: async ({ navigate }) => {
-    await navigate({ to: '/home' });
-  },
-});
-
-const notFoundRoute = new NotFoundRoute({
-  getParentRoute: () => rootRoute,
-  component: () => <NoMatch />,
-});
-
-export const rootRoute = rootRouteWithContext<{ queryClient: QueryClient; session: Optional<Session> }>()({
-  component: () => (
-    <>
-      <Outlet />
-      <TanStackRouterDevtools position='bottom-left' />
-      <ReactQueryDevtools buttonPosition='bottom-right' />
-    </>
-  ),
-});
-
 const routeTree = rootRoute.addChildren([
-  indexRoute,
+  rootIndexRoute,
   authRoute,
-  homeRoute.addChildren([
+  protectedRoute.addChildren([
     welcomeRoute,
-    homeLayoutRoute.addChildren([
+    homeRoute.addChildren([
       homeIndexRoute,
       dashboardRoute,
       budgetRoute,

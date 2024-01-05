@@ -44,6 +44,7 @@ export function DataListRowActions<TData extends Category>({ row }: DataTableRow
   const { toast } = useToast();
   const category = row.original;
 
+  // TODO doesn't work anymore
   const handleCopyId = async () => {
     await navigator.clipboard.writeText(category.id);
     toast({

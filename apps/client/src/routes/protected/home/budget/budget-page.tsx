@@ -37,7 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { budgetRoute } from '@/routes/home/budget/budget-route';
+import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
 import { Months, months } from '@/types/app';
 
 export default function BudgetPage() {
@@ -52,8 +52,6 @@ export default function BudgetPage() {
   const { data } = useGetTransactionsBy(year, month);
 
   useEffect(() => {
-    console.log(searchParams);
-
     if (searchParams.year == null) {
       void navigate({ search: (prev) => ({ ...prev, year: year }) });
     }
@@ -206,7 +204,6 @@ function MonthNav({ className, ...props }: MProps) {
   );
 }
 
-// TODO dont hardcode, safe in DB or get currentyear
 const yearGroups = [
   {
     label: 'Years',

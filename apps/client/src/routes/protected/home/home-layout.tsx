@@ -10,10 +10,10 @@ import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { Toaster } from '@/components/ui/toaster';
 import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { budgetRoute } from '@/routes/home/budget/budget-route';
-import { dashboardRoute } from '@/routes/home/dashboard/dashboard-route';
+import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
+import { dashboardRoute } from '@/routes/protected/home/dashboard/dashboard-route';
 
-export function HomeLayout() {
+export default function HomeLayout() {
   return (
     <Suspense fallback={<AsyncLoader />}>
       <div className='flex min-h-screen flex-col bg-background'>

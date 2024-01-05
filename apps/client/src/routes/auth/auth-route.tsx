@@ -2,8 +2,8 @@ import { Route } from '@tanstack/react-router';
 import * as z from 'zod';
 
 import { supabase } from '@/lib/supabase-client';
-import { rootRoute } from '@/router';
 import { AuthPage } from '@/routes/auth/auth-page';
+import { rootRoute } from '@/routes/root-route';
 
 const authSearchSchema = z.object({
   from: z.string().optional(),
@@ -21,7 +21,6 @@ export const authRoute = new Route({
     }
 
     return navigate({ to: search?.from ?? '/home' });
-    // return { session };
   },
   component: AuthPage,
 });
