@@ -14,34 +14,34 @@ public static class AuthResponseHandlerMiddleware
         app.Use(
             async (context, next) =>
             {
-                await next();
-                context.Response.ContentType = "application/json";
+            await next();
+            context.Response.ContentType = "application/json";
 
-                if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
-                {
-                    var resp = ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthenticationError, "Token is not valid")]);
-                    SentToSentry(resp);
-                    await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
-                }
-
-                if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
-                {
-                    var resp =
-                        ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthorizationError, "Role is not sufficient")]);
-                    SentToSentry(resp);
-                    await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
-                }
-            });
-    }
-
-    private static void SentToSentry(ApiResponse<List<AppError>> resp)
-    {
-        SentrySdk.CaptureMessage(
-            resp.Data?[0].Message ?? "AuthError: Token or role is not valid",
-            opt =>
+            if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
             {
-                opt.SetExtra("Response", resp);
-                opt.SetExtra("Code", resp.Data?[0].Code);
-            });
+                var resp = ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthenticationError, "Token is not valid")]);
+        SentToSentry(resp);
+        await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
     }
+
+                if (context.Response.StatusCode == (int) HttpStatusCode.Forbidden)
+    {
+        var resp =
+            ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthorizationError, "Role is not sufficient")]);
+        SentToSentry(resp);
+        await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
+    }
+});
+    }
+
+private static void SentToSentry(ApiResponse<List<AppError>> resp)
+{
+    SentrySdk.CaptureMessage(
+        resp.Data?[0].Message ?? "AuthError: Token or role is not valid",
+        opt =>
+        {
+            opt.SetExtra("Response", resp);
+            opt.SetExtra("Code", resp.Data?[0].Code);
+        });
+}
 }
