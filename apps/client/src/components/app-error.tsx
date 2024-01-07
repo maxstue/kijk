@@ -12,15 +12,12 @@ interface Props {
 }
 
 export function AppError({ error, resetErrorBoundary }: Props) {
-  // const navigate = useNavigate();
-
   const handleReset = () => {
     resetErrorBoundary?.();
   };
 
   const handleGotToRoot = () => {
     window.location.href = '/';
-    // void navigate({ to: '/', replace: true });
   };
 
   useEffect(() => {
@@ -36,7 +33,7 @@ export function AppError({ error, resetErrorBoundary }: Props) {
         </CardHeader>
         <CardContent>
           <CardDescription className='flex flex-col gap-2'>
-            <div>Oups, es scheint als wäre ein fehler aufgetreten.</div>
+            <div>Oups, it seems an error happened</div>
             {error instanceof Error ? (
               <AuthError error={error} />
             ) : (
@@ -48,11 +45,11 @@ export function AppError({ error, resetErrorBoundary }: Props) {
           <div className='flex w-full items-center justify-center'>
             <div className='flex w-1/2 flex-col gap-4'>
               <Button color='primary' onClick={handleGotToRoot}>
-                Zur Startseite
+                Go to home
               </Button>
               {typeof resetErrorBoundary === 'undefined' && (
                 <Button color='secondary' onClick={handleReset}>
-                  Nochmal versuchen
+                  Try again
                 </Button>
               )}
             </div>
@@ -82,7 +79,8 @@ const AuthError = (props: { error: Error }) => {
         tabIndex={0}
         onClick={() => setShowMore((c) => !c)}
       >
-        Mehr anzeigen <ArrowDownIcon className={cn('h-3 w-3 text-orange-400', showMore ? 'rotate-180' : '')} />
+        {showMore ? 'Hide' : 'Show'}{' '}
+        <ArrowDownIcon className={cn('h-3 w-3 text-orange-400', showMore ? 'rotate-180' : '')} />
       </div>
       {showMore && (
         <div className='h-[300px] overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>

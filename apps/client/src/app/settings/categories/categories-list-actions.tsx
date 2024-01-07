@@ -44,9 +44,8 @@ export function DataListRowActions<TData extends Category>({ row }: DataTableRow
   const { toast } = useToast();
   const category = row.original;
 
-  // TODO doesn't work anymore
-  const handleCopyId = async () => {
-    await navigator.clipboard.writeText(category.id);
+  const handleCopyName = async () => {
+    await navigator.clipboard.writeText(category.name);
     toast({
       title: `Successfully copied: ${category.name} `,
       variant: 'default',
@@ -70,7 +69,7 @@ export function DataListRowActions<TData extends Category>({ row }: DataTableRow
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={void handleCopyId}>Copy Id</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
             {category.type !== 'Default' && (
               <>
                 <SheetTrigger asChild onClick={() => setSheetType('edit')}>

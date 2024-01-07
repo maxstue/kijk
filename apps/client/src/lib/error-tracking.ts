@@ -18,7 +18,6 @@ export const createSentry = () =>
       // }
       new Sentry.Replay(),
     ],
-    // TODO add tunnel and disable for local env and add sentry to logger.ts
     // Performance Monitoring
     tracesSampleRate: 0.5,
 

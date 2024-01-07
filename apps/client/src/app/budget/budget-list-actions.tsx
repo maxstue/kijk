@@ -52,8 +52,8 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
   const year = searchParams.year ?? new Date().getFullYear();
   const transaction = row.original;
 
-  const handleCopyId = async () => {
-    await navigator.clipboard.writeText(transaction.id);
+  const handleCopyName = async () => {
+    await navigator.clipboard.writeText(transaction.name);
     toast({
       title: `Successfully copied: ${row.original.name} `,
       variant: 'default',
@@ -77,7 +77,7 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={void handleCopyId}>Copy Id</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
             <SheetTrigger asChild onClick={() => setSheetType('edit')}>
               <DropdownMenuItem>Update</DropdownMenuItem>
             </SheetTrigger>
