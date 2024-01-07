@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export function DashboardPage() {
+export default function DashboardPage() {
   return (
     <>
       <Head title='Dashboard' />
@@ -34,9 +34,6 @@ export function DashboardPage() {
                 </TabsTrigger>
                 <TabsTrigger value='reports' disabled>
                   Reports
-                </TabsTrigger>
-                <TabsTrigger value='notifications' disabled>
-                  Notifications
                 </TabsTrigger>
               </TabsList>
               <TeamSwitcher />

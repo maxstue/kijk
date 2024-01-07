@@ -1,6 +1,4 @@
-import React from 'react';
 import * as Sentry from '@sentry/react';
-import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
 
 import { env } from '@/env';
 
@@ -8,18 +6,18 @@ export const createSentry = () =>
   Sentry.init({
     dsn: env.SentryDsn,
     integrations: [
-      new Sentry.BrowserTracing({
-        routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-          React.useEffect,
-          useLocation,
-          useNavigationType,
-          createRoutesFromChildren,
-          matchRoutes,
-        ),
-      }),
+      new Sentry.BrowserTracing(),
+      // {
+      //   routingInstrumentation: Sentry.reactRouterV6Instrumentation(
+      //     React.useEffect,
+      //     useLocation,
+      //     useNavigationType,
+      //     createRoutesFromChildren,
+      //     matchRoutes,
+      //   ),
+      // }
       new Sentry.Replay(),
     ],
-    // TODO add tunnel and disable for local env and add sentry to logger.ts
     // Performance Monitoring
     tracesSampleRate: 0.5,
 

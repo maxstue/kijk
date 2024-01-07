@@ -1,10 +1,8 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { RouterProvider } from '@tanstack/react-router';
 import { ErrorBoundary } from 'react-error-boundary';
-import { RouterProvider } from 'react-router-dom';
 
 import { AppError } from '@/components/app-error';
-import { AsyncLoader } from '@/components/async-loader';
 import { AuthProvider } from '@/components/auth-provider';
 import { ThemeModeSwitcher } from '@/components/theme-mode-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
@@ -18,12 +16,11 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ThemeWrapper>
-            <RouterProvider router={router} fallbackElement={<AsyncLoader />} />
+            <RouterProvider router={router} />
             <ThemeSwitcher />
             <ThemeModeSwitcher />
           </ThemeWrapper>
         </AuthProvider>
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-right' />
       </QueryClientProvider>
     </ErrorBoundary>
   );

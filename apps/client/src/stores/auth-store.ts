@@ -19,7 +19,7 @@ interface State {
     setUser: (user: AppUser) => void;
     login: (email: string, password: string) => Promise<AuthTokenResponse>;
     register: (email: string, password: string) => Promise<AuthResponse>;
-    signInWith: (provider: AllowedProviders) => Promise<OAuthResponse>;
+    signInWith: (provider: AllowedProviders, from?: string) => Promise<OAuthResponse>;
     logout: () => Promise<void>;
   };
 }
@@ -58,11 +58,12 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
     async register(email: string, password: string) {
       return await supabase.auth.signUp({ email, password });
     },
-    async signInWith(provider) {
+    async signInWith(provider, from?: string) {
       return await supabase.auth.signInWithOAuth({
         provider: provider,
+        // TODO redirection does not work
         options: {
-          redirectTo: env.SiteUrl,
+          redirectTo: from ?? env.SiteUrl,
         },
       });
     },

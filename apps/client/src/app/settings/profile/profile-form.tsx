@@ -73,7 +73,7 @@ export function ProfileForm() {
             <FormItem className='flex w-full items-end justify-start gap-2'>
               <FormLabel>Use default Categories</FormLabel>
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} placeholder='Categories' />
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>

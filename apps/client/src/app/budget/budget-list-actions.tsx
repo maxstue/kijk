@@ -2,7 +2,6 @@ import { Suspense, useState } from 'react';
 import { Row } from '@tanstack/react-table';
 import { parseISO } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
 
 import { TransactionFormValues, transactionSchema } from '@/app/budget/schemas';
 import { useDeleteTransaction } from '@/app/budget/use-delete-transaction';
@@ -36,6 +35,7 @@ import {
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { cn, formatStringToCurrency } from '@/lib/utils';
+import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
 import { Months, months, Transaction, TransactionType } from '@/types/app';
 
 interface DataTableRowActionsProps<TData> {
@@ -46,14 +46,14 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
-  const [searchParams] = useSearchParams();
+  const searchParams = budgetRoute.useSearch();
   const { toast } = useToast();
-  const month = (searchParams.get('month') ?? months[new Date().getMonth()]) as Months;
-  const year = (searchParams.get('year') ?? new Date().getFullYear()) as number;
+  const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
+  const year = searchParams.year ?? new Date().getFullYear();
   const transaction = row.original;
 
-  const handleCopyId = async () => {
-    await navigator.clipboard.writeText(transaction.id);
+  const handleCopyName = async () => {
+    await navigator.clipboard.writeText(transaction.name);
     toast({
       title: `Successfully copied: ${row.original.name} `,
       variant: 'default',
@@ -77,7 +77,7 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={void handleCopyId}>Copy Id</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
             <SheetTrigger asChild onClick={() => setSheetType('edit')}>
               <DropdownMenuItem>Update</DropdownMenuItem>
             </SheetTrigger>

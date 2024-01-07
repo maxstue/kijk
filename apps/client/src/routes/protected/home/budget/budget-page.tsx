@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, Suspense, useEffect, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { Check, ChevronDown, ChevronsUpDown, DollarSign, List, PlusCircle, Users } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
 import { BudgetMonthCalendar } from '@/app/budget/budget-month-calender';
@@ -37,33 +37,28 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
 import { Months, months } from '@/types/app';
 
-export function BudgetPage() {
-  const navigate = useNavigate();
+export default function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const month = (searchParams.get('month') ?? months[new Date().getMonth()]) as Months;
-  const year = (searchParams.get('year') ?? new Date().getFullYear()) as number;
+  const navigate = useNavigate({ from: budgetRoute.fullPath });
+  const searchParams = budgetRoute.useSearch();
+  const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
+  const year = searchParams.year ?? new Date().getFullYear();
 
   const handleClose = () => setShowSheet(false);
 
   const { data } = useGetTransactionsBy(year, month);
 
   useEffect(() => {
-    if (searchParams.get('year') == null) {
-      setSearchParams((prev) => {
-        prev.set('year', year.toString());
-        return prev;
-      });
+    if (searchParams.year == null) {
+      void navigate({ search: (prev) => ({ ...prev, year: year }) });
     }
-    if (searchParams.get('month') == null) {
-      setSearchParams((prev) => {
-        prev.set('month', month);
-        return prev;
-      });
+    if (searchParams.month == null) {
+      void navigate({ search: (prev) => ({ ...prev, month }) });
     }
-  }, [navigate, month, year, setSearchParams, searchParams]);
+  }, [navigate, month, year, searchParams]);
 
   return (
     <>
@@ -177,14 +172,12 @@ function YearCalenderCard({ year }: { year: number }) {
 }
 
 function MonthNav({ className, ...props }: MProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const currentMonth = (searchParams.get('month') ?? months[new Date().getMonth()]) as Months;
+  const searchParams = budgetRoute.useSearch();
+  const navigate = useNavigate({ from: budgetRoute.fullPath });
+  const currentMonth = (searchParams.month ?? months[new Date().getMonth()]) as Months;
 
   const handleNavigate = (item: Months) => {
-    setSearchParams((prev) => {
-      prev.set('month', item);
-      return prev;
-    });
+    void navigate({ search: (prev) => ({ ...prev, month: item }) });
   };
 
   return currentMonth ? (
@@ -211,7 +204,6 @@ function MonthNav({ className, ...props }: MProps) {
   );
 }
 
-// TODO dont hardcode, safe in DB or get currentyear
 const yearGroups = [
   {
     label: 'Years',
@@ -224,16 +216,14 @@ type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 function YearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = budgetRoute.useSearch();
+  const navigate = useNavigate({ from: budgetRoute.fullPath });
 
-  const selectedYear = (searchParams.get('year') ?? new Date().getFullYear() ?? yearGroups[0].years[0]) as number;
+  const selectedYear = searchParams.year ?? new Date().getFullYear() ?? yearGroups[0].years[0];
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
-    setSearchParams((prev) => {
-      prev.set('year', year.toString());
-      return prev;
-    });
+    void navigate({ search: (prev) => ({ ...prev, year: year }) });
   };
 
   return (

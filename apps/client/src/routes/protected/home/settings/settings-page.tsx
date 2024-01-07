@@ -1,4 +1,4 @@
-import { Link, Outlet, useMatch } from 'react-router-dom';
+import { Link, Outlet } from '@tanstack/react-router';
 
 import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
@@ -43,18 +43,14 @@ function SettingsNavLink({
   label: (typeof settingsNav)[number]['label'];
   icon: (typeof settingsNav)[number]['icon'];
 }) {
-  const match = useMatch(`home/settings/${to}`);
   const Icon = Icons[icon || 'arrowRight'];
 
   return (
     <Link
       key={label}
       to={to}
-      className={cn(
-        buttonVariants({ variant: 'ghost' }),
-        match && 'bg-primary text-primary-foreground',
-        'justify-start',
-      )}
+      className={cn(buttonVariants({ variant: 'ghost' }), 'justify-start')}
+      activeProps={{ className: 'bg-primary text-primary-foreground' }}
     >
       <Icon className='mr-2 h-4 w-4' />
       {label}

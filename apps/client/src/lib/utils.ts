@@ -98,7 +98,7 @@ type ImmerSetter<T extends object> = (
   actionType?:
     | string
     | {
-        type: unknown;
+        type: string;
       }
     | undefined,
 ) => void;

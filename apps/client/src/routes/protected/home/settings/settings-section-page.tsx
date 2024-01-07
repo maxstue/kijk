@@ -1,15 +1,13 @@
-import { useParams } from 'react-router-dom';
-
 import { AccountSection } from '@/app/settings/account/account-section';
 import { AppearanceSection } from '@/app/settings/appearance/appearance-section';
 import { CategoriesSection } from '@/app/settings/categories/categories-section';
 import { NotificationsSection } from '@/app/settings/notifications/notifications-section';
 import { ProfileSection } from '@/app/settings/profile/profile-section';
 import { Head } from '@/components/head';
-import { settingsNav } from '@/lib/constants';
+import { settingsSectionRoute } from '@/routes/protected/home/settings/settings-section-route';
 
-export function SettingsSectionPage() {
-  const params = useParams<{ section: (typeof settingsNav)[number]['to'] }>();
+export default function SettingsSectionPage() {
+  const params = settingsSectionRoute.useParams();
 
   return (
     <>

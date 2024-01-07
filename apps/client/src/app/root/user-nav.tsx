@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,12 @@ export function UserNav() {
   const { user } = useAuthStore();
   const userInitials = getInitailChars(user?.email);
   const { radius } = useThemeStore();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/' });
 
   const handleSignOut = (event: Event) => {
     event.preventDefault();
     logout()
-      .then(() => navigate('/auth', { replace: true }))
+      .then(() => navigate({ to: '/auth', replace: true }))
       .catch(console.warn);
   };
 
@@ -52,7 +52,7 @@ export function UserNav() {
         <DropdownMenuGroup>
           {settingsNav.map(({ to, label, shortCutKey }) => (
             <DropdownMenuItem key={label} asChild className='cursor-pointer'>
-              <Link to={`settings/${to}`} className='flex w-full'>
+              <Link to={`/home/settings/$section`} params={{ section: to }} className='flex w-full'>
                 {label}
                 {shortCutKey && <DropdownMenuShortcut>{shortCutKey}</DropdownMenuShortcut>}
               </Link>
