@@ -1,17 +1,27 @@
 version = 1
 
+exclude_patterns = [
+  "public/**",
+  "dist/**"
+]
+
 [[analyzers]]
 name = "secrets"
+enabled = true
 
 [[analyzers]]
 name = "javascript"
+enabled = true
 
   [analyzers.meta]
   plugins = ["react"]
+  dialect = "typescript"
+  module_system = "es-modules"
   environment = [
     "browser",
     "vitest"
   ]
+  skip_doc_coverage = ["class-expression", "method-definition"]
 
 [[transformers]]
 name = "prettier"
