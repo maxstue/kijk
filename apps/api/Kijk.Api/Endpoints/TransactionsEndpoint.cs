@@ -18,11 +18,13 @@ public static class TransactionsEndpoint
         group.MapPut("/{id:guid}", Update);
         group.MapDelete("/{id:guid}", DeleteById);
 
+        group.MapGet("/years", GetYears);
+
         return endpointRouteBuilder;
     }
 
     private static async Task<IResult> GetBy(
-        ITransactionsService service,
+        TransactionsService service,
         [FromQuery(Name = "year")] int? year,
         [FromQuery(Name = "month")] string? month)
     {
@@ -30,14 +32,14 @@ public static class TransactionsEndpoint
         return result.ToResponse("Successfully loaded");
     }
 
-    private static async Task<IResult> GetById(ITransactionsService service, Guid id, CancellationToken token)
+    private static async Task<IResult> GetById(TransactionsService service, Guid id, CancellationToken token)
     {
         var result = await service.GetByIdAsync(id, token);
         return result.ToResponse("Successfully loaded");
     }
 
     private static async Task<IResult> Create(
-        ITransactionsService service,
+        TransactionsService service,
         [FromBody] CreateTransactionRequest transactionRequest,
         CancellationToken token)
     {
@@ -46,7 +48,7 @@ public static class TransactionsEndpoint
     }
 
     private static async Task<IResult> Update(
-        ITransactionsService service,
+        TransactionsService service,
         Guid id,
         [FromBody] UpdateTransactionRequest transactionRequest,
         CancellationToken token)
@@ -55,9 +57,20 @@ public static class TransactionsEndpoint
         return result.ToResponse("Successfully updated");
     }
 
-    private static async Task<IResult> DeleteById(ITransactionsService service, Guid id, CancellationToken token)
+    private static async Task<IResult> DeleteById(TransactionsService service, Guid id, CancellationToken token)
     {
         var result = await service.DeleteAsync(id, token);
         return result.ToResponse("Successfully deleted");
+    }
+
+    /// <summary>
+    ///     Retrieves all years that have transactions and all yeats in between.
+    /// </summary>
+    /// <param name="service">The transaction service </param>
+    /// <returns>A list of years </returns>
+    private static async Task<IResult> GetYears(TransactionsService service)
+    {
+        var result = await service.GetYearsAsync();
+        return result.ToResponse("Successfully loaded");
     }
 }

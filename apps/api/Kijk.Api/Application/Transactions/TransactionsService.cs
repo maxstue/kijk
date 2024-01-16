@@ -7,31 +7,23 @@ using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Application.Transactions;
 
-public class TransactionsService : ITransactionsService
+public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser)
 {
     private readonly ILogger _logger = Log.ForContext<TransactionsService>();
-    private readonly AppDbContext _dbContext;
-    private readonly CurrentUser _currentUser;
-
-    public TransactionsService(AppDbContext dbContext, CurrentUser currentUser)
-    {
-        _dbContext = dbContext;
-        _currentUser = currentUser;
-    }
 
     public async Task<AppResult<List<TransactionDto>>> GetByAsync(int? year, string? month, CancellationToken cancellationToken = default)
     {
         try
         {
-            var user = await _dbContext.Users.FindAsync(new object?[] { _currentUser.Id }, cancellationToken);
+            var user = await dbContext.Users.FindAsync(new object?[] { currentUser.Id }, cancellationToken);
             if (user is null)
             {
-                return AppError.NotFound($"User for id '{_currentUser.Id}' was not found");
+                return AppError.NotFound($"User for id '{currentUser.Id}' was not found");
             }
 
             var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month : -1;
 
-            return await _dbContext.Transactions
+            return await dbContext.Transactions
                 .AsNoTracking()
                 .Where(x => x.User.Id == user.Id)
                 .If(year != null, (q) => q.Where(x => x.ExecutedAt.Year == year))
@@ -57,7 +49,7 @@ public class TransactionsService : ITransactionsService
     {
         try
         {
-            var entity = await _dbContext.Transactions
+            var entity = await dbContext.Transactions
                 .Where(x => x.Id == id)
                 .Select(
                     x => new TransactionDto(
@@ -89,10 +81,10 @@ public class TransactionsService : ITransactionsService
     {
         try
         {
-            var user = await _dbContext.Users.FindAsync(new object?[] { _currentUser.Id }, cancellationToken);
+            var user = await dbContext.Users.FindAsync(new object?[] { currentUser.Id }, cancellationToken);
             if (user is null)
             {
-                return AppError.NotFound($"User for id '{_currentUser.Id}' was not found");
+                return AppError.NotFound($"User for id '{currentUser.Id}' was not found");
             }
 
             var newTransaction = Transaction.Create(
@@ -104,7 +96,7 @@ public class TransactionsService : ITransactionsService
 
             if (createTransactionRequest.CategoryId is not null)
             {
-                var category = await _dbContext.Categories
+                var category = await dbContext.Categories
                     .FindAsync(new object?[] { createTransactionRequest.CategoryId }, cancellationToken: cancellationToken);
 
                 if (category is not null)
@@ -118,8 +110,8 @@ public class TransactionsService : ITransactionsService
                 }
             }
 
-            var resEntityEntry = await _dbContext.Transactions.AddAsync(newTransaction, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            var resEntityEntry = await dbContext.Transactions.AddAsync(newTransaction, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             var entity = resEntityEntry.Entity;
             return new TransactionDto(
@@ -144,7 +136,7 @@ public class TransactionsService : ITransactionsService
     {
         try
         {
-            var foundEntity = await _dbContext.Transactions
+            var foundEntity = await dbContext.Transactions
                 .Include(x => x.Category)
                 .Where(x => x.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
@@ -162,7 +154,7 @@ public class TransactionsService : ITransactionsService
 
             if (updateTransactionRequest.CategoryId is not null)
             {
-                var category = await _dbContext.Categories
+                var category = await dbContext.Categories
                     .FindAsync(new object?[] { updateTransactionRequest.CategoryId }, cancellationToken: cancellationToken);
 
                 if (category is not null)
@@ -176,7 +168,7 @@ public class TransactionsService : ITransactionsService
                 }
             }
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return new TransactionDto(
                 id,
@@ -197,7 +189,7 @@ public class TransactionsService : ITransactionsService
     {
         try
         {
-            var foundEntity = await _dbContext.Transactions.FindAsync(new object[] { id }, cancellationToken);
+            var foundEntity = await dbContext.Transactions.FindAsync(new object[] { id }, cancellationToken);
 
             if (foundEntity == null)
             {
@@ -205,8 +197,8 @@ public class TransactionsService : ITransactionsService
                 return AppError.NotFound($"Transaction with id {id} could not be found");
             }
 
-            _dbContext.Transactions.Remove(foundEntity);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            dbContext.Transactions.Remove(foundEntity);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -214,6 +206,43 @@ public class TransactionsService : ITransactionsService
         {
             _logger.Warning(e, "Error: {Error}", e.Message);
             return AppError.Basic();
+        }
+    }
+
+    /// <summary>
+    ///     Retrieves all years that have transactions and all yeats in between.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns>A list of years </returns>
+    public async Task<AppResult<YearDto>> GetYearsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var user = await dbContext.Users.FindAsync([currentUser.Id], cancellationToken);
+            if (user is null)
+            {
+                return AppError.NotFound($"User for id '{currentUser.Id}' was not found");
+            }
+
+            var yearsWithTransactions = await dbContext.Transactions
+                .AsNoTracking()
+                .Where(x => x.User.Id == user.Id)
+                .Select(x => x.ExecutedAt.Year)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            List<int> years = [];
+            for (int i = yearsWithTransactions.Min(); i <= yearsWithTransactions.Max(); i++)
+            {
+                years.Add(i);
+            }
+
+            return new YearDto(years.OrderByDescending(x => x).ToList());
+        }
+        catch (Exception e)
+        {
+            _logger.Warning(e, "Error: {Error}", e.Message);
+            return AppError.Basic(e.Message);
         }
     }
 }
