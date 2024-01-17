@@ -232,7 +232,8 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
                 .ToListAsync(cancellationToken);
 
             List<int> years = [];
-            for (int i = yearsWithTransactions.Min(); i <= yearsWithTransactions.Max(); i++)
+            var currentYear = DateTime.UtcNow.Year;
+            for (int i = yearsWithTransactions.Min(); i <= currentYear; i++)
             {
                 years.Add(i);
             }

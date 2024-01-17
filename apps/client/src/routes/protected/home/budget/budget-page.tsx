@@ -1,12 +1,16 @@
-import { ComponentPropsWithoutRef, Suspense, useEffect, useState } from 'react';
+import { ComponentPropsWithoutRef, Suspense, useCallback, useEffect, useState } from 'react';
+import { DialogClose } from '@radix-ui/react-dialog';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { Check, ChevronDown, ChevronsUpDown, DollarSign, List, PlusCircle, Users } from 'lucide-react';
+import * as z from 'zod';
 
 import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
 import { BudgetMonthCalendar } from '@/app/budget/budget-month-calender';
 import { BudgetYearCalendar } from '@/app/budget/budget-year-calendar';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
+import { getYears, useGetYears } from '@/app/budget/use-get-years';
 import { AsyncLoader } from '@/components/async-loader';
 import { DataTable } from '@/components/data-table';
 import { Head } from '@/components/head';
@@ -31,34 +35,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
+import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
 import { Months, months } from '@/types/app';
 
 export default function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
-  const navigate = useNavigate({ from: budgetRoute.fullPath });
   const searchParams = budgetRoute.useSearch();
   const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
   const year = searchParams.year ?? new Date().getFullYear();
+  const { data } = useGetTransactionsBy(year, month);
 
   const handleClose = () => setShowSheet(false);
 
-  const { data } = useGetTransactionsBy(year, month);
-
-  useEffect(() => {
-    if (searchParams.year == null) {
-      void navigate({ search: (prev) => ({ ...prev, year: year }) });
-    }
-    if (searchParams.month == null) {
-      void navigate({ search: (prev) => ({ ...prev, month }) });
-    }
-  }, [navigate, month, year, searchParams]);
+  // TODO load years in loader and await them inside component
+  // TODO load months in loader and await them inside component
 
   return (
     <>
@@ -72,8 +70,12 @@ export default function BudgetPage() {
         {/* Sidebar */}
         <div className='flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0'>
           <aside className='flex h-full flex-col gap-4 lg:w-1/5'>
-            <YearSwitcher />
-            <MonthNav />
+            <Suspense fallback={<AsyncLoader />}>
+              <YearSwitcher />
+            </Suspense>
+            <Suspense fallback={<AsyncLoader />}>
+              <MonthNav />
+            </Suspense>
           </aside>
           {/* Content */}
           <div className='flex-1'>
@@ -172,9 +174,16 @@ function YearCalenderCard({ year }: { year: number }) {
 }
 
 function MonthNav({ className, ...props }: MProps) {
-  const searchParams = budgetRoute.useSearch();
   const navigate = useNavigate({ from: budgetRoute.fullPath });
+  const searchParams = budgetRoute.useSearch();
   const currentMonth = (searchParams.month ?? months[new Date().getMonth()]) as Months;
+  const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
+
+  useEffect(() => {
+    if (searchParams.month == null) {
+      void navigate({ search: (prev) => ({ ...prev, month }) });
+    }
+  }, [navigate, month, searchParams]);
 
   const handleNavigate = (item: Months) => {
     void navigate({ search: (prev) => ({ ...prev, month: item }) });
@@ -204,13 +213,6 @@ function MonthNav({ className, ...props }: MProps) {
   );
 }
 
-const yearGroups = [
-  {
-    label: 'Years',
-    years: [2023, 2022],
-  },
-];
-
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
 function YearSwitcher({ className }: YProps) {
@@ -218,12 +220,35 @@ function YearSwitcher({ className }: YProps) {
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
   const searchParams = budgetRoute.useSearch();
   const navigate = useNavigate({ from: budgetRoute.fullPath });
+  const { data } = useGetYears();
 
-  const selectedYear = searchParams.year ?? new Date().getFullYear() ?? yearGroups[0].years[0];
+  const selectedYear = searchParams.year ?? new Date().getFullYear() ?? data.data?.years.at(0);
+
+  const validateDefaultYear = useCallback(
+    () =>
+      searchParams.year == null ||
+      (searchParams.year && data.data?.years.length && !data.data?.years.includes(Number(searchParams.year))),
+    [data.data?.years, searchParams.year],
+  );
+
+  useEffect(() => {
+    if (validateDefaultYear()) {
+      void navigate({ search: (prev) => ({ ...prev, year: new Date().getFullYear() }) });
+    }
+  }, [navigate, searchParams.year, validateDefaultYear]);
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
     void navigate({ search: (prev) => ({ ...prev, year: year }) });
+  };
+
+  const handleNewYearClick = () => {
+    setOpen(false);
+    setShowNewYearDialog(true);
+  };
+
+  const handleCloseNewYearDialog = () => {
+    setShowNewYearDialog(false);
   };
 
   return (
@@ -247,27 +272,24 @@ function YearSwitcher({ className }: YProps) {
             <CommandList>
               <CommandInput placeholder='Search Year...' />
               <CommandEmpty>No Year found.</CommandEmpty>
-              {yearGroups.map((group) => (
-                <CommandGroup key={group.label} heading={group.label}>
-                  {group.years.map((year) => (
-                    <CommandItem key={year} onSelect={(y) => handleSelectYear(Number(y))} className='text-sm'>
-                      {year}
-                      <Check className={cn('ml-auto h-4 w-4', selectedYear === year ? 'opacity-100' : 'opacity-0')} />
+              <Suspense fallback={<AsyncLoader />}>
+                <CommandGroup key='years' heading='Years'>
+                  {data.data?.years.map((yearData) => (
+                    <CommandItem key={yearData} onSelect={(y) => handleSelectYear(Number(y))} className='text-sm'>
+                      {yearData}
+                      <Check
+                        className={cn('ml-auto h-4 w-4', selectedYear === yearData ? 'opacity-100' : 'opacity-0')}
+                      />
                     </CommandItem>
                   ))}
                 </CommandGroup>
-              ))}
+              </Suspense>
             </CommandList>
             <CommandSeparator />
             <CommandList>
               <CommandGroup>
                 <DialogTrigger asChild>
-                  <CommandItem
-                    onSelect={() => {
-                      setOpen(false);
-                      setShowNewYearDialog(true);
-                    }}
-                  >
+                  <CommandItem onSelect={handleNewYearClick}>
                     <PlusCircle className='mr-2 h-5 w-5' />
                     Add new year
                   </CommandItem>
@@ -278,26 +300,90 @@ function YearSwitcher({ className }: YProps) {
         </PopoverContent>
       </Popover>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add new Year</DialogTitle>
-          <DialogDescription>Add a new year to manage.</DialogDescription>
-        </DialogHeader>
-        <div>
-          <div className='space-y-4 py-2 pb-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='name'>Year</Label>
-              <Input id='name' placeholder={(new Date().getFullYear() + 1).toString()} />
-            </div>
+      <AddNewYearDialog onClose={handleCloseNewYearDialog} />
+    </Dialog>
+  );
+}
+
+const yearSchema = z.object({
+  year: z.coerce.number().min(1970).max(9999),
+});
+
+type YearFormValues = z.infer<typeof yearSchema>;
+
+function AddNewYearDialog({ onClose }: { onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate({ from: budgetRoute.fullPath });
+  const form = useZodForm({
+    values: { year: new Date().getFullYear() + 1 },
+    mode: 'onBlur',
+    schema: yearSchema,
+  });
+
+  const { toast } = useToast();
+
+  function onSubmit(data: YearFormValues) {
+    const response = queryClient.getQueryData(getYears.queryKey);
+    if (response?.data?.years.includes(data.year)) {
+      form.setError('year', { message: 'Year already exists' });
+      return;
+    }
+
+    queryClient.setQueryData(getYears.queryKey, (old) =>
+      old
+        ? {
+            ...old,
+            data: { years: [...(old.data?.years ?? []), data.year].sort((a, b) => b - a) },
+          }
+        : old,
+    );
+    void navigate({ search: (prev) => ({ ...prev, year: data.year }) });
+    onClose();
+  }
+  const handleError = () => {
+    toast({
+      title: `Error adding new year`,
+      variant: 'destructive',
+    });
+  };
+
+  const onCancel = () => {
+    form.reset();
+  };
+
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Add new Year</DialogTitle>
+        <DialogDescription>Add a new year to manage.</DialogDescription>
+      </DialogHeader>
+      <Form form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
+        <div className='space-y-4 py-2 pb-4'>
+          <div className='space-y-2'>
+            <FormField
+              control={form.control}
+              name='year'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Year</FormLabel>
+                  <FormControl>
+                    <Input type='number' placeholder={(new Date().getFullYear() + 1).toString()} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant='outline' onClick={() => setShowNewYearDialog(false)}>
-            Cancel
-          </Button>
+          <DialogClose asChild>
+            <Button type='button' onClick={onCancel} variant='outline'>
+              Cancel
+            </Button>
+          </DialogClose>
           <Button type='submit'>Continue</Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </Form>
+    </DialogContent>
   );
 }

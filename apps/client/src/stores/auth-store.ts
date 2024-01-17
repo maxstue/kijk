@@ -31,6 +31,8 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
   actions: {
     setSupabase(client) {
       set((state) => {
+        // TODO fix this type error
+        // @ts-ignore
         state.supabase = client;
       });
     },
