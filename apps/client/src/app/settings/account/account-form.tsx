@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
-import * as z from 'zod';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';

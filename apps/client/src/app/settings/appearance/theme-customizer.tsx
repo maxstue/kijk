@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { CSSProperties } from 'react';
 import { CheckIcon, MoonIcon, SunIcon, Undo2 } from 'lucide-react';
 
 import { ThemeWrapper } from '@/components/theme-wrapper';
@@ -41,7 +41,7 @@ export function ThemeCustomizer() {
                   style={
                     {
                       '--theme-primary': `hsl(${theme?.activeColor[mode === 'dark' ? 'dark' : 'light']})`,
-                    } as React.CSSProperties
+                    } as CSSProperties
                   }
                 >
                   <span

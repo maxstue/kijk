@@ -1,5 +1,5 @@
 import { Route } from '@tanstack/react-router';
-import * as z from 'zod';
+import { z } from 'zod';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { settingsTo } from '@/lib/constants';

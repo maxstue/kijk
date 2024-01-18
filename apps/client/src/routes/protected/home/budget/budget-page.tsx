@@ -3,7 +3,7 @@ import { DialogClose } from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { Check, ChevronDown, ChevronsUpDown, DollarSign, List, PlusCircle, Users } from 'lucide-react';
-import * as z from 'zod';
+import { z } from 'zod';
 
 import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
 import { BudgetMonthCalendar } from '@/app/budget/budget-month-calender';

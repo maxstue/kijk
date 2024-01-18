@@ -1,5 +1,5 @@
 import { lazyRouteComponent, Route } from '@tanstack/react-router';
-import * as z from 'zod';
+import { z } from 'zod';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { homeRoute } from '@/routes/protected/home/home-route';
