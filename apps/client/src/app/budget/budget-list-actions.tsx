@@ -35,7 +35,7 @@ import {
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { cn, formatStringToCurrency } from '@/lib/utils';
-import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
+import { Route } from '@/routes/_protected/home/budget';
 import { Months, months, Transaction, TransactionType } from '@/types/app';
 
 interface DataTableRowActionsProps<TData> {
@@ -46,7 +46,7 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
-  const searchParams = budgetRoute.useSearch();
+  const searchParams = Route.useSearch();
   const { toast } = useToast();
   const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
   const year = searchParams.year ?? new Date().getFullYear();

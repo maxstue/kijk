@@ -1,36 +1,16 @@
+// Import the generated route tree
 import { Router } from '@tanstack/react-router';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { AsyncLoader } from '@/components/async-loader';
 import { queryClient } from '@/lib/query-client';
-import { authRoute } from '@/routes/auth/auth-route';
-import { notFoundRoute } from '@/routes/not-found-route';
-import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
-import { dashboardRoute } from '@/routes/protected/home/dashboard/dashboard-route';
-import { homeIndexRoute, homeRoute } from '@/routes/protected/home/home-route';
-import { settingsIndexRoute, settingsRoute } from '@/routes/protected/home/settings/settings-route';
-import { settingsSectionRoute } from '@/routes/protected/home/settings/settings-section-route';
-import { protectedRoute } from '@/routes/protected/protected-route';
-import { welcomeRoute } from '@/routes/protected/welcome/welcome-route';
-import { rootIndexRoute } from '@/routes/root-index-route';
-import { rootRoute } from '@/routes/root-route';
+
+// import { Route as notFoundRoute } from './routes/__404';
+import { routeTree } from './routeTree.gen';
 
 // const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
 
-const routeTree = rootRoute.addChildren([
-  rootIndexRoute,
-  authRoute,
-  protectedRoute.addChildren([
-    welcomeRoute,
-    homeRoute.addChildren([
-      homeIndexRoute,
-      dashboardRoute,
-      budgetRoute,
-      settingsRoute.addChildren([settingsIndexRoute, settingsSectionRoute]),
-    ]),
-  ]),
-]);
-
+// Create a new router instance
 export const router = new Router({
   routeTree,
   defaultPreload: 'intent',
@@ -42,11 +22,12 @@ export const router = new Router({
     queryClient,
     session: undefined,
   },
-  notFoundRoute: notFoundRoute,
+  // notFoundRoute: notFoundRoute,
   defaultPendingComponent: () => <AsyncLoader />,
   defaultErrorComponent: AppRouteError,
 });
 
+// Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;

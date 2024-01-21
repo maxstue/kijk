@@ -1,5 +1,6 @@
 import path from 'path';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import checker from 'vite-plugin-checker';
@@ -27,6 +28,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      TanStackRouterVite(),
       sentryVitePlugin({
         authToken: env.SENTRY_AUTH_TOKEN,
         org: 'maxstue',

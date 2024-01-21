@@ -1,15 +1,34 @@
 import { Dispatch, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { FileRoute, useNavigate } from '@tanstack/react-router';
+import { z } from 'zod';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { authRoute } from '@/routes/auth/auth-route';
+import { supabase } from '@/lib/supabase-client';
 import { useAuthStoreActions } from '@/stores/auth-store';
 
-export function AuthPage() {
+const authSearchSchema = z.object({
+  from: z.string().optional(),
+});
+
+export const Route = new FileRoute('/auth/').createRoute({
+  validateSearch: authSearchSchema,
+  beforeLoad: async ({ navigate, search }) => {
+    const session = await supabase.auth.getSession();
+
+    if (!session.data.session?.access_token) {
+      return null;
+    }
+
+    return navigate({ to: search?.from ?? '/home' });
+  },
+  component: AuthPage,
+});
+
+function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
 
   // TODO add back button to navigate to the "web"-app
@@ -63,7 +82,7 @@ function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign U
   const { login } = useAuthStoreActions();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const search = authRoute.useSearch();
+  const search = Route.useSearch();
   const from = search.from ?? '/';
 
   const handleLogin = async (email: string, password: string) => {

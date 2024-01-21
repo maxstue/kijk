@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef, Suspense, useCallback, useEffect, useState } from 'react';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { FileRoute, useNavigate } from '@tanstack/react-router';
 import { Check, ChevronDown, ChevronsUpDown, DollarSign, List, PlusCircle, Users } from 'lucide-react';
 import { z } from 'zod';
 
@@ -11,6 +11,7 @@ import { BudgetYearCalendar } from '@/app/budget/budget-year-calendar';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
 import { getYears, useGetYears } from '@/app/budget/use-get-years';
+import { AppRouteError } from '@/components/app-route-error';
 import { AsyncLoader } from '@/components/async-loader';
 import { DataTable } from '@/components/data-table';
 import { Head } from '@/components/head';
@@ -43,12 +44,26 @@ import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { budgetRoute } from '@/routes/protected/home/budget/budget-route';
 import { Months, months } from '@/types/app';
 
-export default function BudgetPage() {
+const searchSchema = z.object({
+  month: z
+    .string()
+    .transform((x) => x as Months)
+    .optional()
+    .catch(months[new Date().getMonth()] as Months),
+  year: z.number().optional().catch(new Date().getFullYear()),
+});
+
+export const Route = new FileRoute('/_protected/home/budget').createRoute({
+  validateSearch: searchSchema,
+  component: BudgetPage,
+  errorComponent: AppRouteError,
+});
+
+function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
-  const searchParams = budgetRoute.useSearch();
+  const searchParams = Route.useSearch();
   const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
   const year = searchParams.year ?? new Date().getFullYear();
   const { data } = useGetTransactionsBy(year, month);
@@ -174,8 +189,8 @@ function YearCalenderCard({ year }: { year: number }) {
 }
 
 function MonthNav({ className, ...props }: MProps) {
-  const navigate = useNavigate({ from: budgetRoute.fullPath });
-  const searchParams = budgetRoute.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const searchParams = Route.useSearch();
   const currentMonth = (searchParams.month ?? months[new Date().getMonth()]) as Months;
   const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
 
@@ -218,8 +233,8 @@ type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 function YearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
-  const searchParams = budgetRoute.useSearch();
-  const navigate = useNavigate({ from: budgetRoute.fullPath });
+  const searchParams = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const { data } = useGetYears();
 
   const selectedYear = searchParams.year ?? new Date().getFullYear() ?? data.data?.years.at(0);
@@ -313,7 +328,7 @@ type YearFormValues = z.infer<typeof yearSchema>;
 
 function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate({ from: budgetRoute.fullPath });
+  const navigate = useNavigate({ from: Route.fullPath });
   const form = useZodForm({
     values: { year: new Date().getFullYear() + 1 },
     mode: 'onBlur',

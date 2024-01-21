@@ -1,8 +1,20 @@
 import React from 'react';
+import { Session } from '@supabase/supabase-js';
+import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Outlet } from '@tanstack/react-router';
+import { Outlet, rootRouteWithContext } from '@tanstack/react-router';
 
-export default function RootPage() {
+import { Optional } from '@/types/app';
+
+// TODO: add notfound route
+
+export const Route = rootRouteWithContext<{ queryClient: QueryClient; session: Optional<Session> }>()({
+  component: RootPage,
+});
+
+function RootPage() {
+  console.log('root');
+
   return (
     <>
       <Outlet />
