@@ -18,7 +18,7 @@ public static class TransactionsEndpoint
         group.MapPut("/{id:guid}", Update);
         group.MapDelete("/{id:guid}", DeleteById);
 
-        group.MapGet("/years", GetYears);
+        group.MapGet("/years", GetYearsAsync);
 
         return endpointRouteBuilder;
     }
@@ -68,7 +68,7 @@ public static class TransactionsEndpoint
     /// </summary>
     /// <param name="service">The transaction service </param>
     /// <returns>A list of years </returns>
-    private static async Task<IResult> GetYears(TransactionsService service)
+    private static async Task<IResult> GetYearsAsync(TransactionsService service)
     {
         var result = await service.GetYearsAsync();
         return result.ToResponse("Successfully loaded");

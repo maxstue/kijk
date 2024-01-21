@@ -342,7 +342,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   }
   const handleError = () => {
     toast({
-      title: `Error adding new year`,
+      title: 'Error adding new year',
       variant: 'destructive',
     });
   };
