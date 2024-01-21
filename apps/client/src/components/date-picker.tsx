@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { forwardRef } from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 
@@ -12,7 +12,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   setDate: (date?: Date) => void;
 }
 
-const DatePicker = React.forwardRef<HTMLInputElement, Props>(({ className, date, setDate, ...props }, ref) => {
+const DatePicker = forwardRef<HTMLInputElement, Props>(({ className, date, setDate, ...props }, ref) => {
   return (
     <Popover>
       <PopoverTrigger asChild>

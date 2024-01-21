@@ -2,6 +2,9 @@
 export type Optional<T> = T | undefined | null;
 export type Id<T = string> = T;
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Autocomplete<Keys extends string> = Keys | (string & {});
+
 export interface ApiResponse<T = unknown> {
   data?: T;
   message?: string;

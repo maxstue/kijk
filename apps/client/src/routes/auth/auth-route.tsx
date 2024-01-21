@@ -1,5 +1,5 @@
 import { Route } from '@tanstack/react-router';
-import * as z from 'zod';
+import { z } from 'zod';
 
 import { supabase } from '@/lib/supabase-client';
 import { AuthPage } from '@/routes/auth/auth-page';

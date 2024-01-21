@@ -4,7 +4,7 @@ public static class TransactionsModule
 {
     public static IServiceCollection RegisterTransactionsModule(this IServiceCollection services)
     {
-        services.AddScoped<ITransactionsService, TransactionsService>();
+        services.AddScoped<TransactionsService>();
 
         services.AddScoped<IValidator<CreateTransactionRequest>, CreateTransactionsValidator>();
 
