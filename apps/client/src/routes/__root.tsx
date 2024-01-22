@@ -11,8 +11,6 @@ interface RootRouteContext {
   session: Optional<Session>;
 }
 
-// TODO: add notfound route
-
 export const Route = rootRouteWithContext<RootRouteContext>()({
   component: RootPage,
 });

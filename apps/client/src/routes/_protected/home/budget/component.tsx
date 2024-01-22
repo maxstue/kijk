@@ -12,7 +12,6 @@ import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
 import { AsyncLoader } from '@/components/async-loader';
 import { DataTable } from '@/components/data-table';
 import { Head } from '@/components/head';
-import { Loader } from '@/components/loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -29,9 +28,6 @@ export const component = function BudgetPage() {
   const { data } = useGetTransactionsBy(year, month);
 
   const handleClose = () => setShowSheet(false);
-
-  // TODO load years in loader and await them inside component
-  // TODO load months in loader and await them inside component
 
   return (
     <>
@@ -73,7 +69,7 @@ export const component = function BudgetPage() {
                     <Users className='h-4 w-4 text-muted-foreground' />
                   </CardHeader>
                   <CardContent>
-                    <Suspense fallback={<Loader className='h-4 w-4' />}>
+                    <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
                       <BudgetMonthCalendar year={year} month={month} />
                     </Suspense>
                   </CardContent>

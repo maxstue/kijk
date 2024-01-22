@@ -1,12 +1,10 @@
-// Import the generated route tree
 import { Router } from '@tanstack/react-router';
 
 import { AppRouteError } from '@/components/app-route-error';
 import { AsyncLoader } from '@/components/async-loader';
 import { queryClient } from '@/lib/query-client';
-
-// import { Route as notFoundRoute } from './routes/__404';
-import { routeTree } from './routeTree.gen';
+import { NotFoundRoute } from '@/routes/-not-found';
+import { routeTree } from '@/routeTree.gen';
 
 // const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
 
@@ -22,7 +20,7 @@ export const router = new Router({
     queryClient,
     session: undefined,
   },
-  // notFoundRoute: notFoundRoute,
+  notFoundRoute: NotFoundRoute,
   defaultPendingComponent: () => <AsyncLoader />,
   defaultErrorComponent: AppRouteError,
 });
