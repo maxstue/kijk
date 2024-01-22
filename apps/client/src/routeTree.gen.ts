@@ -6,8 +6,8 @@ import { FileRoute, lazyRouteComponent } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ProtectedImport } from './routes/_protected'
+import { Route as AuthRouteImport } from './routes/auth/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthIndexImport } from './routes/auth/index'
 import { Route as ProtectedWelcomeImport } from './routes/_protected/welcome'
 import { Route as ProtectedHomeImport } from './routes/_protected/home'
 import { Route as ProtectedHomeSettingsRouteImport } from './routes/_protected/home/settings/route'
@@ -27,13 +27,18 @@ const ProtectedRoute = ProtectedImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthRouteRoute = AuthRouteImport.update({
+  path: '/auth',
+  getParentRoute: () => rootRoute,
+} as any).update({
+  component: lazyRouteComponent(
+    () => import('./routes/auth/component'),
+    'component',
+  ),
+})
+
 const IndexRoute = IndexImport.update({
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AuthIndexRoute = AuthIndexImport.update({
-  path: '/auth/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,6 +121,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/auth': {
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/_protected': {
       preLoaderRoute: typeof ProtectedImport
       parentRoute: typeof rootRoute
@@ -127,10 +136,6 @@ declare module '@tanstack/react-router' {
     '/_protected/welcome': {
       preLoaderRoute: typeof ProtectedWelcomeImport
       parentRoute: typeof ProtectedImport
-    }
-    '/auth/': {
-      preLoaderRoute: typeof AuthIndexImport
-      parentRoute: typeof rootRoute
     }
     '/_protected/home/budget': {
       preLoaderRoute: typeof ProtectedHomeBudgetRouteImport
@@ -155,6 +160,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
+  AuthRouteRoute,
   ProtectedRoute.addChildren([
     ProtectedHomeRoute.addChildren([
       ProtectedHomeBudgetRouteRoute,
@@ -165,5 +171,4 @@ export const routeTree = rootRoute.addChildren([
     ]),
     ProtectedWelcomeRoute,
   ]),
-  AuthIndexRoute,
 ])

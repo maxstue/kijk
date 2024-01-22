@@ -7,6 +7,7 @@ import { AuthProvider } from '@/components/auth-provider';
 import { ThemeModeSwitcher } from '@/components/theme-mode-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { ThemeWrapper } from '@/components/theme-wrapper';
+import { Toaster } from '@/components/ui/toaster';
 import { queryClient } from '@/lib/query-client';
 import { router } from '@/router';
 
@@ -19,6 +20,7 @@ function App() {
             <RouterProvider router={router} />
             <ThemeSwitcher />
             <ThemeModeSwitcher />
+            <Toaster />
           </ThemeWrapper>
         </AuthProvider>
       </QueryClientProvider>

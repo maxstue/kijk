@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useZodForm } from '@/components/ui/form/use-zod-form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Route } from '@/routes/auth';
+import { Route } from '@/routes/auth/route';
 import { useAuthStoreActions } from '@/stores/auth-store';
 import { AllowedProviders } from '@/types/app';
 

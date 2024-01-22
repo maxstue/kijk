@@ -8,7 +8,6 @@ import { AppRouteError } from '@/components/app-route-error';
 import { AsyncLoader } from '@/components/async-loader';
 import { Icons } from '@/components/icons';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
-import { Toaster } from '@/components/ui/toaster';
 import { siteConfig } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +37,6 @@ function HomeLayout() {
         </header>
         <main className='container flex-1'>
           <Outlet />
-          <Toaster />
         </main>
         <Footer />
       </div>
