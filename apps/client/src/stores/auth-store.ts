@@ -63,9 +63,8 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
     async signInWith(provider, from?: string) {
       return await supabase.auth.signInWithOAuth({
         provider: provider,
-        // TODO redirection does not work
         options: {
-          redirectTo: from ?? env.SiteUrl,
+          redirectTo: `${env.SiteUrl}${from ? `${from}/` : '/home/'}`,
         },
       });
     },

@@ -1,20 +1,34 @@
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { FileRoute, useNavigate } from '@tanstack/react-router';
 
+import { userSignInQuery } from '@/app/root/use-signin-user';
 import { UserStepFormValues } from '@/app/welcome/schemas';
 import { useInitUser } from '@/app/welcome/use-init-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
+import { AppRouteError } from '@/components/app-route-error';
 import { Head } from '@/components/head';
 import { ThemeQuickCustomizer } from '@/components/theme-quick-customizer';
 import { Button } from '@/components/ui/button';
 import { Step, StepConfig, Steps } from '@/components/ui/stepper';
 import { useStepper } from '@/hooks/use-stepper';
+import { queryClient } from '@/lib/query-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { User_Metadata } from '@/types/app';
 
+export const Route = new FileRoute('/_protected/welcome').createRoute({
+  beforeLoad: async ({ navigate }) => {
+    const data = await queryClient.ensureQueryData(userSignInQuery);
+    if (data.data?.firstTime == false) {
+      void navigate({ to: '/home' });
+    }
+  },
+  component: WelcomePage,
+  errorComponent: AppRouteError,
+});
+
 const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Theme' }, { label: 'Finish' }] satisfies StepConfig[];
 
-export default function WelcomePage() {
+function WelcomePage() {
   const { session } = useAuthStore();
   const [userStep, setUserStep] = useState<UserStepFormValues>({
     userName: (session?.user?.user_metadata as User_Metadata).user_name ?? '',

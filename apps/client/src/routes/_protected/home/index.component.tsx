@@ -1,22 +1,22 @@
 import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-react';
 
-import { DateRangePicker } from '@/app/dashboard/date-range-picker';
-import { Overview } from '@/app/dashboard/overview';
-import { RecentSales } from '@/app/dashboard/recent-sales';
-import { TeamSwitcher } from '@/app/dashboard/team-switcher';
+import { DateRangePicker } from '@/app/home/date-range-picker';
+import { Overview } from '@/app/home/overview';
+import { RecentSales } from '@/app/home/recent-sales';
+import { TeamSwitcher } from '@/app/home/team-switcher';
 import { Head } from '@/components/head';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function DashboardPage() {
+export const component = function HomeIndexPage() {
   return (
     <>
-      <Head title='Dashboard' />
+      <Head title='Home' />
       <div className='flex flex-col'>
         <div className='flex-1 space-y-4 pt-6'>
           <div className='flex items-center justify-between space-y-2'>
-            <h2 className='text-3xl font-bold tracking-tight'>Dashboard</h2>
+            <h2 className='text-3xl font-bold tracking-tight'>Home</h2>
             <div className='flex items-center space-x-2'>
               <DateRangePicker />
               <Button size='sm'>
@@ -107,4 +107,4 @@ export default function DashboardPage() {
       </div>
     </>
   );
-}
+};

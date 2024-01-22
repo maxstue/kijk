@@ -15,6 +15,8 @@ interface ImportMetaEnv {
   VITE_SUPABASE_SITE_URL: string;
   // Sentry
   VITE_SENTRY_DSN: string;
+  VITE_SENTRY_ENABLE_TELEMETRY: string;
+  VITE_SENTRY_ENABLE: string;
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv;

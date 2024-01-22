@@ -1,8 +1,21 @@
 import React from 'react';
+import { Session } from '@supabase/supabase-js';
+import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Outlet } from '@tanstack/react-router';
+import { Outlet, rootRouteWithContext } from '@tanstack/react-router';
 
-export default function RootPage() {
+import { Optional } from '@/types/app';
+
+interface RootRouteContext {
+  queryClient: QueryClient;
+  session: Optional<Session>;
+}
+
+export const Route = rootRouteWithContext<RootRouteContext>()({
+  component: RootPage,
+});
+
+function RootPage() {
   return (
     <>
       <Outlet />

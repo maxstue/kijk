@@ -1,4 +1,4 @@
-import { Link, Outlet } from '@tanstack/react-router';
+import { FileRoute, Link, Outlet } from '@tanstack/react-router';
 
 import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
@@ -7,7 +7,16 @@ import { Separator } from '@/components/ui/separator';
 import { settingsNav } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
-export default function SettingsPage() {
+export const Route = new FileRoute('/_protected/home/settings').createRoute({
+  beforeLoad: async ({ location, navigate }) => {
+    if (location.pathname === '/home/settings') {
+      await navigate({ to: '$section', params: { section: 'profile' } });
+    }
+  },
+  component: SettingsPage,
+});
+
+function SettingsPage() {
   return (
     <>
       <Head title='Settings' />

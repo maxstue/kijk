@@ -1,17 +1,13 @@
-import { Route } from '@tanstack/react-router';
+import { FileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { supabase } from '@/lib/supabase-client';
-import { AuthPage } from '@/routes/auth/auth-page';
-import { rootRoute } from '@/routes/root-route';
 
 const authSearchSchema = z.object({
   from: z.string().optional(),
 });
 
-export const authRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/auth',
+export const Route = new FileRoute('/auth').createRoute({
   validateSearch: authSearchSchema,
   beforeLoad: async ({ navigate, search }) => {
     const session = await supabase.auth.getSession();
@@ -22,5 +18,4 @@ export const authRoute = new Route({
 
     return navigate({ to: search?.from ?? '/home' });
   },
-  component: AuthPage,
 });

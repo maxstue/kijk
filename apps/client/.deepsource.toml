@@ -2,7 +2,8 @@ version = 1
 
 exclude_patterns = [
   "public/**",
-  "dist/**"
+  "dist/**",
+  "src/routeTree.gen.ts"
 ]
 
 [[analyzers]]
@@ -22,6 +23,3 @@ enabled = true
     "vitest"
   ]
   skip_doc_coverage = ["class-expression", "method-definition"]
-
-[[transformers]]
-name = "prettier"
