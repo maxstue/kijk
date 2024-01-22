@@ -12,8 +12,6 @@ export const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log(session);
-
       setSession(session);
     });
 

@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
   // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
   const env = loadEnv(mode, process.cwd(), '');
+
   return {
     define: {
       SHORT_APP_VERSION: JSON.stringify(env.npm_package_version.split('-')[0]),
@@ -21,7 +22,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      sourcemap: true,
+      sourcemap: env.SENTRY_ENABLE === 'true',
     },
     server: {
       port: 5004,
@@ -34,6 +35,7 @@ export default defineConfig(({ mode }) => {
         org: 'maxstue',
         project: 'kijk-client',
         telemetry: env.SENTRY_ENABLE_TELEMETRY === 'true',
+        disable: env.SENTRY_ENABLE === 'false',
       }),
       checker({
         eslint: { lintCommand: 'lint' },

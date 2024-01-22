@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/react';
-import { useNavigate } from '@tanstack/react-router';
+import { ErrorRouteProps, useNavigate } from '@tanstack/react-router';
 import { ArrowDownIcon, InfoIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-interface Props {
-  error?: unknown;
-}
-
-export function AppRouteError({ error }: Props) {
+export function AppRouteError({ error, info }: ErrorRouteProps) {
   const navigate = useNavigate();
 
   const handleGotToRoot = () => {
@@ -19,8 +15,8 @@ export function AppRouteError({ error }: Props) {
   };
 
   useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
+    Sentry.captureException(error, { extra: { info } });
+  }, [error, info]);
 
   return (
     <div className='flex h-[90dvh] w-full items-center justify-center'>

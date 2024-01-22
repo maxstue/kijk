@@ -1,28 +1,22 @@
-import { FileRoute } from '@tanstack/react-router';
 import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-react';
 
 import { DateRangePicker } from '@/app/home/date-range-picker';
 import { Overview } from '@/app/home/overview';
 import { RecentSales } from '@/app/home/recent-sales';
 import { TeamSwitcher } from '@/app/home/team-switcher';
-import { AppRouteError } from '@/components/app-route-error';
 import { Head } from '@/components/head';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export const Route = new FileRoute('/_protected/home/').createRoute({
-  component: HomeIndexPage,
-  errorComponent: AppRouteError,
-  beforeLoad: () => {
-    console.log('home');
-  },
-});
+// export const Route = new FileRoute('/_protected/home/').createRoute({
+//   component: HomeIndexPage,
+// });
 
-function HomeIndexPage() {
+export const component = function HomeIndexPage() {
   return (
     <>
-      <Head title='Dashboard' />
+      <Head title='Home' />
       <div className='flex flex-col'>
         <div className='flex-1 space-y-4 pt-6'>
           <div className='flex items-center justify-between space-y-2'>
@@ -117,4 +111,4 @@ function HomeIndexPage() {
       </div>
     </>
   );
-}
+};

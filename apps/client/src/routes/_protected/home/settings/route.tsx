@@ -1,6 +1,5 @@
 import { FileRoute, Link, Outlet } from '@tanstack/react-router';
 
-import { AppRouteError } from '@/components/app-route-error';
 import { Head } from '@/components/head';
 import { Icons } from '@/components/icons';
 import { buttonVariants } from '@/components/ui/button';
@@ -15,7 +14,6 @@ export const Route = new FileRoute('/_protected/home/settings').createRoute({
     }
   },
   component: SettingsPage,
-  errorComponent: AppRouteError,
 });
 
 function SettingsPage() {

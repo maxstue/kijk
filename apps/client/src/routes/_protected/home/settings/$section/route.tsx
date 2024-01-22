@@ -6,7 +6,6 @@ import { AppearanceSection } from '@/app/settings/appearance/appearance-section'
 import { CategoriesSection } from '@/app/settings/categories/categories-section';
 import { NotificationsSection } from '@/app/settings/notifications/notifications-section';
 import { ProfileSection } from '@/app/settings/profile/profile-section';
-import { AppRouteError } from '@/components/app-route-error';
 import { Head } from '@/components/head';
 import { settingsTo } from '@/lib/constants';
 
@@ -17,7 +16,6 @@ export const Route = new FileRoute('/_protected/home/settings/$section').createR
     return { section: sectionSchema.parse(params.section) };
   },
   component: SettingsSectionPage,
-  errorComponent: AppRouteError, // REFACTOR better error styling
 });
 
 function SettingsSectionPage() {

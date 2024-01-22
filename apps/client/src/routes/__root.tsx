@@ -6,15 +6,18 @@ import { Outlet, rootRouteWithContext } from '@tanstack/react-router';
 
 import { Optional } from '@/types/app';
 
+interface RootRouteContext {
+  queryClient: QueryClient;
+  session: Optional<Session>;
+}
+
 // TODO: add notfound route
 
-export const Route = rootRouteWithContext<{ queryClient: QueryClient; session: Optional<Session> }>()({
+export const Route = rootRouteWithContext<RootRouteContext>()({
   component: RootPage,
 });
 
 function RootPage() {
-  console.log('root');
-
   return (
     <>
       <Outlet />

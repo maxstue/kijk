@@ -14,8 +14,6 @@ export const Route = new FileRoute('/_protected').createRoute({
       void navigate({ to: '/welcome', replace: true });
     }
 
-    console.log('protected');
-
     return { session };
   },
 });
