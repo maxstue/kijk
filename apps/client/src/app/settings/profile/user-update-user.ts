@@ -10,7 +10,7 @@ export const useUpdateUser = () => {
   const { setUser } = useAuthStoreActions();
 
   return useMutation({
-    mutationFn: async (data: UserUpdateFormValues) => {
+    mutationFn: (data: UserUpdateFormValues) => {
       return apiClient.put<ApiResponse<AppUser>>({
         url: `users`,
         data: { userName: data.userName, useDefaultCategories: data.useDefaultCategories },

@@ -11,7 +11,7 @@ export const useDeleteCategory = () => {
   }
 
   return useMutation({
-    mutationFn: async (data: Data) => {
+    mutationFn: (data: Data) => {
       return apiClient.delete({
         url: `categories/${data.categoryId}`,
       });

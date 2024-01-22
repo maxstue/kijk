@@ -7,7 +7,7 @@ export const useInitUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: UserStepFormValues) => {
+    mutationFn: (data: UserStepFormValues) => {
       return apiClient.put({
         url: `users/init`,
         data: data,

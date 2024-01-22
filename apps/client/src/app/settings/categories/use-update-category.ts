@@ -9,7 +9,7 @@ export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { categoryId: Id; category: CategoryFormValues }) => {
+    mutationFn: (data: { categoryId: Id; category: CategoryFormValues }) => {
       return apiClient.put({
         url: `categories/${data.categoryId}`,
         data: data.category,
