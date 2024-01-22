@@ -64,7 +64,7 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
       return await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: env.SiteUrl + `${from ? `${from}/` : '/'}`,
+          redirectTo: env.SiteUrl + `${from ? `${from}/` : '/home/'}`,
         },
       });
     },
