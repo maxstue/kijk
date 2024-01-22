@@ -23,6 +23,3 @@ enabled = true
     "vitest"
   ]
   skip_doc_coverage = ["class-expression", "method-definition"]
-
-[[transformers]]
-name = "prettier"
