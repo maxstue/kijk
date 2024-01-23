@@ -1,13 +1,10 @@
 ﻿using System.Text;
-
 using HealthChecks.UI.Client;
-
 using Kijk.Api.Common;
 using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +25,7 @@ Log.Information("Application is starting ...");
 // ##### Add services to the container. #####
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpClient();
 builder.UseErrorTracking();
 
 builder.Host.UseSerilog(

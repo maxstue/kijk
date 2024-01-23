@@ -7,6 +7,7 @@ const envSchema = z.object({
   // Base
   Mode: z.enum(['development', 'production', 'test']).default('development'),
   // App
+  BaseApiUrl: z.string().url(),
   ApiUrl: z.string().url(),
   // Devtools
   DevToolsLogger: z.string().transform((x) => x === 'true'),
@@ -21,6 +22,7 @@ const envSchema = z.object({
 const envParse = envSchema.safeParse({
   Mode: import.meta.env.MODE,
   // App
+  BaseApiUrl: import.meta.env.VITE_BASE_API_URL,
   ApiUrl: import.meta.env.VITE_API_URL,
   // Devtools
   DevToolsLogger: import.meta.env.VITE_DEVTOOLS_LOGGER,
