@@ -32,6 +32,7 @@ const authStore = createStoreFactory<State>('auth-store', (set, get) => ({
     setSupabase(client) {
       set((state) => {
         // TODO fix this type error
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         state.supabase = client;
       });
