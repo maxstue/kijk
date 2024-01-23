@@ -7,6 +7,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended-type-checked',
     'plugin:@typescript-eslint/stylistic-type-checked',
     'plugin:react-hooks/recommended',
+    'plugin:react-perf/recommended',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
     'plugin:@tanstack/eslint-plugin-query/recommended',
@@ -42,5 +43,9 @@ module.exports = {
     'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     'react/prop-types': ['error', { ignore: ['className', 'classNames', 'showOutsideDays'] }],
     'react/no-unknown-property': ['error', { ignore: ['cmdk-input-wrapper'] }],
+    // react-perf
+    'react-perf/jsx-no-new-function-as-prop': 'warn',
+    'react-perf/jsx-no-new-object-as-prop': 'warn',
+    'react-perf/jsx-no-new-array-as-prop': 'warn',
   },
 };
