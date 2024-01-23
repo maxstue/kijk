@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Outlet, rootRouteWithContext } from '@tanstack/react-router';
 
+import { AsyncLoader } from '@/components/async-loader';
 import { Optional } from '@/types/app';
 
 interface RootRouteContext {
@@ -17,11 +18,11 @@ export const Route = rootRouteWithContext<RootRouteContext>()({
 
 function RootPage() {
   return (
-    <>
+    <Suspense fallback={<AsyncLoader />}>
       <Outlet />
       <TanStackRouterDevtools initialIsOpen={false} position='bottom-left' />
       <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-right' />
-    </>
+    </Suspense>
   );
 }
 

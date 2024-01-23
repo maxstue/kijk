@@ -19,7 +19,7 @@ export const createSentry = () =>
       new Sentry.Replay(),
     ],
     // Performance Monitoring
-    tracesSampleRate: 0.5,
+    tracesSampleRate: 0.25,
 
     // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/yourserver\.io\/api/],
