@@ -1,29 +1,36 @@
-import { Dispatch, useState } from 'react';
+import { Dispatch, useCallback, useState } from 'react';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
-import { Icons } from '@/components/icons';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { useAuthStoreActions } from '@/stores/auth-store';
+import { Icons } from '@/shared/components/icons';
+import { Button } from '@/shared/components/ui/button';
+import { useToast } from '@/shared/hooks/use-toast';
+import { useAuthStoreActions } from '@/shared/stores/auth-store';
 
 export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
   const [success, setSuccess] = useState<boolean>(false);
   const { register } = useAuthStoreActions();
   const { toast } = useToast();
 
-  const handleRegister = async (email: string, password: string) => {
-    const result = await register(email.toLowerCase(), password);
+  const handleRegister = useCallback(
+    async (email: string, password: string) => {
+      const result = await register(email.toLowerCase(), password);
 
-    if (result.error != null) {
-      toast({
-        title: 'Something went wrong.',
-        description: result.error.message ?? 'Your sign in request failed. Please try again.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setSuccess(true);
-  };
+      if (result.error != null) {
+        toast({
+          title: 'Something went wrong.',
+          description: result.error.message ?? 'Your sign in request failed. Please try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setSuccess(true);
+    },
+    [register, toast],
+  );
+
+  const handleGoToLogin = useCallback(() => {
+    goto('Login');
+  }, [goto]);
 
   return (
     <div className='container flex h-screen w-screen flex-col items-center justify-center'>
@@ -42,7 +49,7 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
           <UserAuthForm onSubmit={handleRegister} btnLabel='Sign Up' />
         )}
         <p className='px-8 text-center text-sm text-muted-foreground'>
-          <Button variant='link' onClick={() => goto('Login')}>
+          <Button variant='link' onClick={handleGoToLogin}>
             Have an account? Sign In
           </Button>
         </p>

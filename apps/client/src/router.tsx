@@ -1,10 +1,10 @@
 import { Router } from '@tanstack/react-router';
 
-import { AppRouteError } from '@/components/app-route-error';
-import { AsyncLoader } from '@/components/async-loader';
-import { queryClient } from '@/lib/query-client';
 import { NotFoundRoute } from '@/routes/-not-found';
 import { routeTree } from '@/routeTree.gen';
+import { AppRouteError } from '@/shared/components/app-route-error';
+import { AsyncLoader } from '@/shared/components/async-loader';
+import { queryClient } from '@/shared/lib/query-client';
 
 // const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
 

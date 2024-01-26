@@ -3,10 +3,10 @@ import { format, parseISO } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 
 import { BudgetListActions } from '@/app/budget/budget-list-actions';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { cn, formatStringToCurrency } from '@/lib/utils';
-import { Category, Transaction } from '@/types/app';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { cn, formatStringToCurrency } from '@/shared/lib/utils';
+import { Category, Transaction } from '@/shared/types/app';
 
 export const budgetDefaultSort: ColumnSort = { desc: true, id: 'executedAt' };
 

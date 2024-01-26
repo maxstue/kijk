@@ -5,7 +5,7 @@ import App from './App.tsx';
 
 import './index.css';
 
-import { createSentry } from '@/lib/error-tracking.ts';
+import { createSentry } from '@/shared/lib/error-tracking.ts';
 
 createSentry();
 

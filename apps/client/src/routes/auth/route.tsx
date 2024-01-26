@@ -1,7 +1,7 @@
 import { FileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
-import { supabase } from '@/lib/supabase-client';
+import { supabase } from '@/shared/lib/supabase-client';
 
 const authSearchSchema = z.object({
   from: z.string().optional(),

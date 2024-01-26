@@ -1,19 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { TransactionFormValues } from '@/app/budget/schemas';
-import { apiClient } from '@/lib/api-client';
-import { ApiResponse, months, Transaction } from '@/types/app';
+import { createTransaction } from '@/shared/api/transactions';
+import { months } from '@/shared/types/app';
 
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { newTransaction: TransactionFormValues }) => {
-      return apiClient.post<ApiResponse<Transaction>>({
-        url: 'transactions',
-        data: data.newTransaction,
-      });
-    },
+    mutationFn: async (data: { newTransaction: TransactionFormValues }) => createTransaction(data.newTransaction),
     async onSuccess(_, variables) {
       await queryClient.invalidateQueries({
         queryKey: [

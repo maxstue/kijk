@@ -1,10 +1,10 @@
 import { useCreateCategory } from '@/app/settings/categories/use-create-category';
-import { Icons } from '@/components/icons';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
-import { useZodForm } from '@/components/ui/form/use-zod-form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { Icons } from '@/shared/components/icons';
+import { Button } from '@/shared/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Input } from '@/shared/components/ui/input';
+import { useToast } from '@/shared/hooks/use-toast';
 
 import { CategoryFormValues, categorySchema } from './schemas';
 

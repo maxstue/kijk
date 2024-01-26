@@ -1,5 +1,5 @@
 import { ThemeCustomizer } from '@/app/settings/appearance/theme-customizer';
-import { ThemeQuickCustomizer } from '@/components/theme-quick-customizer';
+import { ThemeQuickCustomizer } from '@/shared/components/theme-quick-customizer';
 
 export function AppearanceForm() {
   return (

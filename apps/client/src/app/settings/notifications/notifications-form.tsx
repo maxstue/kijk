@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/shared/components/ui/button';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -10,11 +10,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form/form';
-import { useZodForm } from '@/components/ui/form/use-zod-form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Switch } from '@/components/ui/switch';
-import { toast } from '@/hooks/use-toast';
+} from '@/shared/components/ui/form/form';
+import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group';
+import { Switch } from '@/shared/components/ui/switch';
+import { toast } from '@/shared/hooks/use-toast';
 
 const notificationsFormSchema = z.object({
   type: z.enum(['all', 'mentions', 'none'], {

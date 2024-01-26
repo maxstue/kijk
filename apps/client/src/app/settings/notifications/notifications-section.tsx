@@ -1,5 +1,5 @@
 import { NotificationsForm } from '@/app/settings/notifications/notifications-form';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/shared/components/ui/separator';
 
 export function NotificationsSection() {
   return (

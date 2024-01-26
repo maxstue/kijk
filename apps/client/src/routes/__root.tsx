@@ -4,8 +4,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Outlet, rootRouteWithContext } from '@tanstack/react-router';
 
-import { AsyncLoader } from '@/components/async-loader';
-import { Optional } from '@/types/app';
+import { AsyncLoader } from '@/shared/components/async-loader';
+import { Optional } from '@/shared/types/app';
 
 interface RootRouteContext {
   queryClient: QueryClient;

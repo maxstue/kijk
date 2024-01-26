@@ -3,13 +3,20 @@ import { BarChart3, Hash, List } from 'lucide-react';
 
 import { categoryColumns, categoryDefaultSort } from '@/app/settings/categories/categories-columns';
 import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
-import { DataTable } from '@/components/data-table';
-import { Icons } from '@/components/icons';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { CategotyType } from '@/types/app';
+import { DataTable } from '@/shared/components/data-table';
+import { Icons } from '@/shared/components/icons';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Separator } from '@/shared/components/ui/separator';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/shared/components/ui/sheet';
+import { CategotyType } from '@/shared/types/app';
 
 import { useGetCategories } from './use-get-categories';
 

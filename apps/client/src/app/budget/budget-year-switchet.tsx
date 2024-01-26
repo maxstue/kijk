@@ -5,9 +5,9 @@ import { RouteApi, useNavigate } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
 
-import { getYears, useGetYears } from '@/app/budget/use-get-years';
-import { AsyncLoader } from '@/components/async-loader';
-import { Button } from '@/components/ui/button';
+import { getYearsQuery, useGetYears } from '@/app/budget/use-get-years';
+import { AsyncLoader } from '@/shared/components/async-loader';
+import { Button } from '@/shared/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -16,7 +16,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/components/ui/command';
+} from '@/shared/components/ui/command';
 import {
   Dialog,
   DialogContent,
@@ -25,13 +25,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
-import { useZodForm } from '@/components/ui/form/use-zod-form';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+} from '@/shared/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Input } from '@/shared/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { useToast } from '@/shared/hooks/use-toast';
+import { cn } from '@/shared/lib/utils';
 
 const route = new RouteApi({ id: '/_protected/home/budget' });
 
@@ -145,13 +145,13 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   const { toast } = useToast();
 
   function onSubmit(data: YearFormValues) {
-    const response = queryClient.getQueryData(getYears.queryKey);
+    const response = queryClient.getQueryData(getYearsQuery.queryKey);
     if (response?.data?.years.includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
       return;
     }
 
-    queryClient.setQueryData(getYears.queryKey, (old) =>
+    queryClient.setQueryData(getYearsQuery.queryKey, (old) =>
       old
         ? {
             ...old,

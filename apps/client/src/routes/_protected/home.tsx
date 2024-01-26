@@ -4,12 +4,12 @@ import { FileRoute, Link, Outlet } from '@tanstack/react-router';
 import { CommandMenu } from '@/app/root/command-menu';
 import { Footer } from '@/app/root/footer';
 import { UserNav } from '@/app/root/user-nav';
-import { AppRouteError } from '@/components/app-route-error';
-import { AsyncLoader } from '@/components/async-loader';
-import { Icons } from '@/components/icons';
-import { ThemeModeToggle } from '@/components/theme-mode-toggle';
-import { siteConfig } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { AppRouteError } from '@/shared/components/app-route-error';
+import { AsyncLoader } from '@/shared/components/async-loader';
+import { Icons } from '@/shared/components/icons';
+import { ThemeModeToggle } from '@/shared/components/theme-mode-toggle';
+import { siteConfig } from '@/shared/lib/constants';
+import { cn } from '@/shared/lib/utils';
 
 export const Route = new FileRoute('/_protected/home').createRoute({
   component: HomeLayout,

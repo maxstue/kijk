@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { TransactionFormValues } from '@/app/budget/schemas';
-import { apiClient } from '@/lib/api-client';
-import { Id, Months } from '@/types/app';
+import { updateTransaction } from '@/shared/api/transactions';
+import { Id, Months } from '@/shared/types/app';
 
 export const useUpdateTransaction = () => {
   const queryClient = useQueryClient();
@@ -13,12 +13,7 @@ export const useUpdateTransaction = () => {
       year?: number;
       month?: Months;
       newTransaction: Partial<TransactionFormValues>;
-    }) => {
-      return apiClient.put({
-        url: `transactions/${data.transactionId}`,
-        data: data.newTransaction,
-      });
-    },
+    }) => updateTransaction(data.transactionId, data.newTransaction),
     async onSuccess(_, variables) {
       await queryClient.invalidateQueries({ queryKey: ['transactions', 'getBy', variables.year, variables.month] });
     },

@@ -1,7 +1,7 @@
 import { FileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
-import { Months, months } from '@/types/app';
+import { Months, months } from '@/shared/types/app';
 
 const searchSchema = z.object({
   month: z

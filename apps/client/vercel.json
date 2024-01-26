@@ -11,7 +11,7 @@
       ]
     },
     {
-      "source": "./assets/(.*)",
+      "source": "./shared/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

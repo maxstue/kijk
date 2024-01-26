@@ -4,10 +4,10 @@ import { DateRangePicker } from '@/app/home/date-range-picker';
 import { Overview } from '@/app/home/overview';
 import { RecentSales } from '@/app/home/recent-sales';
 import { TeamSwitcher } from '@/app/home/team-switcher';
-import { Head } from '@/components/head';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Head } from '@/shared/components/head';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
 export const component = function HomeIndexPage() {
   return (

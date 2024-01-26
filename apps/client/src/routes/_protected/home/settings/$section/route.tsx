@@ -6,8 +6,8 @@ import { AppearanceSection } from '@/app/settings/appearance/appearance-section'
 import { CategoriesSection } from '@/app/settings/categories/categories-section';
 import { NotificationsSection } from '@/app/settings/notifications/notifications-section';
 import { ProfileSection } from '@/app/settings/profile/profile-section';
-import { Head } from '@/components/head';
-import { settingsTo } from '@/lib/constants';
+import { Head } from '@/shared/components/head';
+import { settingsTo } from '@/shared/lib/constants';
 
 const sectionSchema = z.enum(settingsTo);
 
