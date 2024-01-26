@@ -8,7 +8,7 @@ export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { newTransaction: TransactionFormValues }) => createTransaction(data.newTransaction),
+    mutationFn: (data: { newTransaction: TransactionFormValues }) => createTransaction(data.newTransaction),
     async onSuccess(_, variables) {
       await queryClient.invalidateQueries({
         queryKey: [

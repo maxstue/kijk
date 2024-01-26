@@ -33,7 +33,7 @@ function onResponse(response: AxiosResponse) {
 }
 
 // Do something with respone error. Any statusCode outside 2** will trigger this function
-async function onResponseError(error: AxiosError) {
+function onResponseError(error: AxiosError) {
   return Promise.reject(error);
 }
 

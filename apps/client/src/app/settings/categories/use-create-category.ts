@@ -12,7 +12,7 @@ export const useCreateCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation<ApiResponse<Category>, ApiResponse<ApiError[]>, Options>({
-    mutationFn: async (data: Options) => createCategory(data.category),
+    mutationFn: (data: Options) => createCategory(data.category),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
