@@ -15,7 +15,7 @@ export const useZodForm = <S extends ZodSchema>({ schema, ...formProps }: UseZod
 
   const handleInvalidFormState = (errors: FieldErrors<TypeOf<S>>) =>
     toast({
-      title: `Error: Form validation`,
+      title: 'Error: Form validation',
       description: `Correcterrors: ${errors.root?.type} - ${errors.root?.message}`,
       variant: 'destructive',
     });

@@ -12,7 +12,7 @@ export function getYears(signal?: AbortSignal) {
   });
 }
 
-export async function getTransactionById(year?: string, month?: string, signal?: AbortSignal) {
+export function getTransactionById(year?: string, month?: string, signal?: AbortSignal) {
   return apiClient.get<ApiResponse<Transaction[]>>({
     url: ENDPOINT,
     params: { year, month },
@@ -20,7 +20,7 @@ export async function getTransactionById(year?: string, month?: string, signal?:
   });
 }
 
-export async function createTransaction(data: TransactionFormValues, signal?: AbortSignal) {
+export function createTransaction(data: TransactionFormValues, signal?: AbortSignal) {
   return apiClient.post<ApiResponse<Transaction>>({
     url: ENDPOINT,
     data,
@@ -28,11 +28,7 @@ export async function createTransaction(data: TransactionFormValues, signal?: Ab
   });
 }
 
-export async function updateTransaction(
-  transactionId: string,
-  data: Partial<TransactionFormValues>,
-  signal?: AbortSignal,
-) {
+export function updateTransaction(transactionId: string, data: Partial<TransactionFormValues>, signal?: AbortSignal) {
   return apiClient.put<ApiResponse<Transaction>>({
     url: `${ENDPOINT}/${transactionId}`,
     data,
@@ -40,7 +36,7 @@ export async function updateTransaction(
   });
 }
 
-export async function deleteTransaction(transactionId: string, signal?: AbortSignal) {
+export function deleteTransaction(transactionId: string, signal?: AbortSignal) {
   return apiClient.delete<ApiResponse<Transaction>>({
     url: `${ENDPOINT}/${transactionId}`,
     signal,

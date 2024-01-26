@@ -54,7 +54,7 @@ baseInstance.interceptors.response.use(onResponse, onResponseError);
 
 /** The base api instance. */
 const apiClient = {
-  async get<TReturn = unknown>(options: RequestOptions) {
+  get<TReturn = unknown>(options: RequestOptions) {
     const { url, abort } = options;
     return baseInstance
       .get<TReturn>(url, { ...options, signal: abort?.signal })
@@ -62,7 +62,7 @@ const apiClient = {
       .catch(onRejected);
   },
 
-  async post<TReturn = unknown>(options: RequestOptions) {
+  post<TReturn = unknown>(options: RequestOptions) {
     const { url, abort, data } = options;
     return baseInstance
       .post<TReturn>(url, data, { ...options, signal: abort?.signal })
@@ -70,7 +70,7 @@ const apiClient = {
       .catch(onRejected);
   },
 
-  async put<TReturn = unknown>(options: RequestOptions) {
+  put<TReturn = unknown>(options: RequestOptions) {
     const { url, abort, data } = options;
     return baseInstance
       .put<TReturn>(url, data, { ...options, signal: abort?.signal })
@@ -78,7 +78,7 @@ const apiClient = {
       .catch(onRejected);
   },
 
-  async delete<TReturn = unknown>(options: RequestOptions) {
+  delete<TReturn = unknown>(options: RequestOptions) {
     const { url, abort, data } = options;
     return baseInstance
       .delete<TReturn>(url, { ...options, data, signal: abort?.signal })
