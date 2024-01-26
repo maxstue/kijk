@@ -24,5 +24,5 @@ export const AuthProvider = ({ children }: Props) => {
     return () => subscription.unsubscribe();
   }, [setSession]);
 
-  return <>{children}</>;
+  return children;
 };

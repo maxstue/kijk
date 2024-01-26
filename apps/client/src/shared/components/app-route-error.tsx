@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import * as Sentry from '@sentry/react';
 import { ErrorRouteProps, useNavigate } from '@tanstack/react-router';
 import { ArrowDownIcon, InfoIcon } from 'lucide-react';
@@ -10,9 +10,9 @@ import { cn } from '@/shared/lib/utils';
 export function AppRouteError({ error, info }: ErrorRouteProps) {
   const navigate = useNavigate();
 
-  const handleGotToRoot = () => {
+  const handleGotToRoot = useCallback(() => {
     void navigate({ to: '/', replace: true });
-  };
+  }, [navigate]);
 
   useEffect(() => {
     Sentry.captureException(error, { extra: { info } });
@@ -47,6 +47,8 @@ export function AppRouteError({ error, info }: ErrorRouteProps) {
 const PrettyError = (props: { error?: unknown }) => {
   const [showMore, setShowMore] = useState(false);
 
+  const handleToggleMore = useCallback(() => setShowMore((c) => !c), []);
+
   return (
     <div className='flex flex-col justify-center gap-2'>
       <div className='flex gap-2'>
@@ -63,22 +65,19 @@ const PrettyError = (props: { error?: unknown }) => {
         className='flex cursor-pointer items-center gap-1 text-xs text-gray-400'
         role='button'
         tabIndex={0}
-        onClick={() => setShowMore((c) => !c)}
+        onClick={handleToggleMore}
       >
         {showMore ? 'Hide' : 'Show'}{' '}
         <ArrowDownIcon className={cn('h-3 w-3 text-orange-400', showMore ? 'rotate-180' : '')} />
       </div>
-      {showMore && (
-        <>
-          {props.error instanceof Error ? (
-            <div className='h-[200px] overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>
-          ) : (
-            <div className='h-[200px] overflow-auto rounded border border-gray-400 p-4'>
-              {JSON.stringify(props.error)}
-            </div>
-          )}
-        </>
-      )}
+      {showMore &&
+        (props.error instanceof Error ? (
+          <div className='h-[200px] overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>
+        ) : (
+          <div className='h-[200px] overflow-auto rounded border border-gray-400 p-4'>
+            {JSON.stringify(props.error)}
+          </div>
+        ))}
     </div>
   );
 };
