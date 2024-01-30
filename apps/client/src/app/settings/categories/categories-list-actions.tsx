@@ -5,9 +5,9 @@ import { MoreHorizontal } from 'lucide-react';
 import { CategoryFormValues, categorySchema } from '@/app/settings/categories/schemas';
 import { useDeleteCategory } from '@/app/settings/categories/use-delete-category';
 import { useUpdateCategory } from '@/app/settings/categories/use-update-category';
-import { Icons } from '@/components/icons';
-import { Button } from '@/components/ui/button';
-import { Dialog } from '@/components/ui/dialog';
+import { Icons } from '@/shared/components/icons';
+import { Button } from '@/shared/components/ui/button';
+import { Dialog } from '@/shared/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +15,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
-import { useZodForm } from '@/components/ui/form/use-zod-form';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/dropdown-menu';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Input } from '@/shared/components/ui/input';
 import {
   Sheet,
   SheetClose,
@@ -28,10 +28,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import { Category } from '@/types/app';
+} from '@/shared/components/ui/sheet';
+import { useToast } from '@/shared/hooks/use-toast';
+import { cn } from '@/shared/lib/utils';
+import { Category } from '@/shared/types/app';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

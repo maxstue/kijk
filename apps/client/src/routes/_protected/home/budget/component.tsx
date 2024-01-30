@@ -9,14 +9,21 @@ import { BudgetYearCalenderCard } from '@/app/budget/budget-year-calender-card';
 import { BudgetYearSwitcher } from '@/app/budget/budget-year-switchet';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
-import { AsyncLoader } from '@/components/async-loader';
-import { DataTable } from '@/components/data-table';
-import { Head } from '@/components/head';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Months, months } from '@/types/app';
+import { AsyncLoader } from '@/shared/components/async-loader';
+import { DataTable } from '@/shared/components/data-table';
+import { Head } from '@/shared/components/head';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Separator } from '@/shared/components/ui/separator';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/shared/components/ui/sheet';
+import { Months, months } from '@/shared/types/app';
 
 const route = new RouteApi({ id: '/_protected/home/budget' });
 

@@ -1,12 +1,12 @@
 import { CSSProperties } from 'react';
 import { CheckIcon, MoonIcon, SunIcon, Undo2 } from 'lucide-react';
 
-import { ThemeWrapper } from '@/components/theme-wrapper';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { themes } from '@/lib/themes';
-import { cn } from '@/lib/utils';
-import { useThemeStore, useThemeStoreActions } from '@/stores/theme-store';
+import { ThemeWrapper } from '@/shared/components/theme-wrapper';
+import { Button } from '@/shared/components/ui/button';
+import { Label } from '@/shared/components/ui/label';
+import { themes } from '@/shared/lib/themes';
+import { cn } from '@/shared/lib/utils';
+import { useThemeStore, useThemeStoreActions } from '@/shared/stores/theme-store';
 
 export function ThemeCustomizer() {
   const { theme: activeTheme, mode } = useThemeStore();

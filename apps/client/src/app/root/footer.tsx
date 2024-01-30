@@ -1,4 +1,4 @@
-import { AppVersion } from '@/components/app-version';
+import { AppVersion } from '@/shared/components/app-version';
 
 export function Footer() {
   return (

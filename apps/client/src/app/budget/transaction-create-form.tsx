@@ -1,16 +1,16 @@
 import { TransactionFormValues, transactionSchema } from '@/app/budget/schemas';
 import { useCreateTransaction } from '@/app/budget/use-create-transaction';
 import { useGetCategories } from '@/app/settings/categories/use-get-categories';
-import { DatePicker } from '@/components/date-picker';
-import { Icons } from '@/components/icons';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
-import { useZodForm } from '@/components/ui/form/use-zod-form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { getMonthIndexFromString } from '@/lib/utils';
-import { Months, TransactionType } from '@/types/app';
+import { DatePicker } from '@/shared/components/date-picker';
+import { Icons } from '@/shared/components/icons';
+import { Button } from '@/shared/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Input } from '@/shared/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { useToast } from '@/shared/hooks/use-toast';
+import { getMonthIndexFromString } from '@/shared/lib/utils';
+import { Months, TransactionType } from '@/shared/types/app';
 
 type TProps =
   | {

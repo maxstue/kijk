@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { ResponsiveTimeRange } from '@nivo/calendar';
 
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
-import { formatStringDateToOnlyDateString, groupBy } from '@/lib/utils';
-import { Months, months } from '@/types/app';
+import { formatStringDateToOnlyDateString, groupBy } from '@/shared/lib/utils';
+import { Months, months } from '@/shared/types/app';
 
 interface Props {
   year: number;

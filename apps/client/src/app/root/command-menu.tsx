@@ -5,8 +5,8 @@ import { File, Laptop, Moon, SunMedium } from 'lucide-react';
 
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
-import { ThemeQuickCustomizer } from '@/components/theme-quick-customizer';
-import { Button } from '@/components/ui/button';
+import { ThemeQuickCustomizer } from '@/shared/components/theme-quick-customizer';
+import { Button } from '@/shared/components/ui/button';
 import {
   CommandDialog,
   CommandEmpty,
@@ -15,11 +15,18 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/components/ui/command';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { settingsNav } from '@/lib/constants';
-import { cn } from '@/lib/utils';
-import { useThemeStoreActions } from '@/stores/theme-store';
+} from '@/shared/components/ui/command';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/shared/components/ui/sheet';
+import { settingsNav } from '@/shared/lib/constants';
+import { cn } from '@/shared/lib/utils';
+import { useThemeStoreActions } from '@/shared/stores/theme-store';
 
 export function CommandMenu({ ...props }: DialogProps) {
   const navigate = useNavigate({ from: '/' });

@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Login } from '@/app/auth/login';
 import { SignUp } from '@/app/auth/sign-up';
-import { Head } from '@/components/head';
+import { Head } from '@/shared/components/head';
 
 export const component = function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { apiClient } from '@/lib/api-client';
-import { Id } from '@/types/app';
+import { deleteCategory } from '@/shared/api/categories';
+import type { Id } from '@/shared/types/app';
 
 export const useDeleteCategory = () => {
   const queryClient = useQueryClient();
@@ -11,11 +11,7 @@ export const useDeleteCategory = () => {
   }
 
   return useMutation({
-    mutationFn: (data: Data) => {
-      return apiClient.delete({
-        url: `categories/${data.categoryId}`,
-      });
-    },
+    mutationFn: (data: Data) => deleteCategory(data.categoryId),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ['categories'] });
     },

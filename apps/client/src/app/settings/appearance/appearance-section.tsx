@@ -1,5 +1,5 @@
 import { AppearanceForm } from '@/app/settings/appearance/appearance-form';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/shared/components/ui/separator';
 
 export function AppearanceSection() {
   return (

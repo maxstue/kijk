@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Button } from '@/shared/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,11 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { settingsNav } from '@/lib/constants';
-import { getInitailChars } from '@/lib/utils';
-import { useAuthStore, useAuthStoreActions } from '@/stores/auth-store';
-import { useThemeStore } from '@/stores/theme-store';
+} from '@/shared/components/ui/dropdown-menu';
+import { settingsNav } from '@/shared/lib/constants';
+import { getInitailChars } from '@/shared/lib/utils';
+import { useAuthStore, useAuthStoreActions } from '@/shared/stores/auth-store';
+import { useThemeStore } from '@/shared/stores/theme-store';
 
 export function UserNav() {
   const { logout } = useAuthStoreActions();

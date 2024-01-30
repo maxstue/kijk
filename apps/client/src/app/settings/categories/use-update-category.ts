@@ -1,20 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { apiClient } from '@/lib/api-client';
-import { Id } from '@/types/app';
-
-import { CategoryFormValues } from './schemas';
+import { updateCategory } from '@/shared/api/categories';
+import type { Id } from '@/shared/types/app';
+import type { CategoryFormValues } from './schemas';
 
 export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { categoryId: Id; category: CategoryFormValues }) => {
-      return apiClient.put({
-        url: `categories/${data.categoryId}`,
-        data: data.category,
-      });
-    },
+    mutationFn: (data: { categoryId: Id; category: CategoryFormValues }) => updateCategory(data),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ['categories'] });
     },

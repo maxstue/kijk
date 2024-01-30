@@ -5,15 +5,15 @@ import { userSignInQuery } from '@/app/root/use-signin-user';
 import { UserStepFormValues } from '@/app/welcome/schemas';
 import { useInitUser } from '@/app/welcome/use-init-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
-import { AppRouteError } from '@/components/app-route-error';
-import { Head } from '@/components/head';
-import { ThemeQuickCustomizer } from '@/components/theme-quick-customizer';
-import { Button } from '@/components/ui/button';
-import { Step, StepConfig, Steps } from '@/components/ui/stepper';
-import { useStepper } from '@/hooks/use-stepper';
-import { queryClient } from '@/lib/query-client';
-import { useAuthStore } from '@/stores/auth-store';
-import { User_Metadata } from '@/types/app';
+import { AppRouteError } from '@/shared/components/app-route-error';
+import { Head } from '@/shared/components/head';
+import { ThemeQuickCustomizer } from '@/shared/components/theme-quick-customizer';
+import { Button } from '@/shared/components/ui/button';
+import { Step, StepConfig, Steps } from '@/shared/components/ui/stepper';
+import { useStepper } from '@/shared/hooks/use-stepper';
+import { queryClient } from '@/shared/lib/query-client';
+import { useAuthStore } from '@/shared/stores/auth-store';
+import { User_Metadata } from '@/shared/types/app';
 
 export const Route = new FileRoute('/_protected/welcome').createRoute({
   beforeLoad: async ({ navigate }) => {

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { ResponsiveCalendar } from '@nivo/calendar';
 
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
-import { formatStringDateToOnlyDateString, groupBy } from '@/lib/utils';
+import { formatStringDateToOnlyDateString, groupBy } from '@/shared/lib/utils';
 
 interface Props {
   year: number;

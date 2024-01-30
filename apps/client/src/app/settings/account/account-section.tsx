@@ -1,5 +1,5 @@
 import { AccountForm } from '@/app/settings/account/account-form';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/shared/components/ui/separator';
 
 export function AccountSection() {
   return (

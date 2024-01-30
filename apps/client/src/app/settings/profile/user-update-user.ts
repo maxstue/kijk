@@ -1,21 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { UserUpdateFormValues } from '@/app/settings/profile/schemas';
-import { apiClient } from '@/lib/api-client';
-import { useAuthStoreActions } from '@/stores/auth-store';
-import { ApiResponse, AppUser } from '@/types/app';
+import { updateUser } from '@/shared/api/users';
+import { useAuthStoreActions } from '@/shared/stores/auth-store';
 
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   const { setUser } = useAuthStoreActions();
 
   return useMutation({
-    mutationFn: (data: UserUpdateFormValues) => {
-      return apiClient.put<ApiResponse<AppUser>>({
-        url: `users`,
-        data: { userName: data.userName, useDefaultCategories: data.useDefaultCategories },
-      });
-    },
+    mutationFn: updateUser,
     async onSuccess(data) {
       queryClient.setQueryData(['users', 'sign-in'], data);
       await queryClient.invalidateQueries({ queryKey: ['categories'] });

@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 
 import { UserUpdateFormValues, userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/user-update-user';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/shared/components/ui/button';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -12,11 +12,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form/form';
-import { useZodForm } from '@/components/ui/form/use-zod-form';
-import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
-import { useAuthStore } from '@/stores/auth-store';
+} from '@/shared/components/ui/form/form';
+import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Input } from '@/shared/components/ui/input';
+import { toast } from '@/shared/hooks/use-toast';
+import { useAuthStore } from '@/shared/stores/auth-store';
 
 export function ProfileForm() {
   const { user } = useAuthStore();

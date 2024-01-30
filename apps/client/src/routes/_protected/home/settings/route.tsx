@@ -1,11 +1,11 @@
 import { FileRoute, Link, Outlet } from '@tanstack/react-router';
 
-import { Head } from '@/components/head';
-import { Icons } from '@/components/icons';
-import { buttonVariants } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { settingsNav } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { Head } from '@/shared/components/head';
+import { Icons } from '@/shared/components/icons';
+import { buttonVariants } from '@/shared/components/ui/button';
+import { Separator } from '@/shared/components/ui/separator';
+import { settingsNav } from '@/shared/lib/constants';
+import { cn } from '@/shared/lib/utils';
 
 export const Route = new FileRoute('/_protected/home/settings').createRoute({
   beforeLoad: async ({ location, navigate }) => {

@@ -1,5 +1,5 @@
 import { ProfileForm } from '@/app/settings/profile/profile-form';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/shared/components/ui/separator';
 
 export function ProfileSection() {
   return (

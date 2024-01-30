@@ -2,8 +2,8 @@ import { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { DataListRowActions } from '@/app/settings/categories/categories-list-actions';
-import { Button } from '@/components/ui/button';
-import { Category } from '@/types/app';
+import { Button } from '@/shared/components/ui/button';
+import { Category } from '@/shared/types/app';
 
 export const categoryDefaultSort: ColumnSort = { desc: false, id: 'name' };
 

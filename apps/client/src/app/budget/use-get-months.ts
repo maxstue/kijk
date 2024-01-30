@@ -1,10 +1,10 @@
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
-import { months } from '@/types/app';
+import { months } from '@/shared/types/app';
 
-const getMonths = queryOptions({
+const getMonthsQuery = queryOptions({
   queryKey: ['transactions', 'months', months],
   queryFn: () => months,
 });
 
-export const useGetMonths = () => useSuspenseQuery(getMonths);
+export const useGetMonths = () => useSuspenseQuery(getMonthsQuery);

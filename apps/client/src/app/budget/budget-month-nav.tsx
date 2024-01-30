@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { RouteApi, useNavigate } from '@tanstack/react-router';
 
-import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Months, months } from '@/types/app';
+import { Button, buttonVariants } from '@/shared/components/ui/button';
+import { cn } from '@/shared/lib/utils';
+import { Months, months } from '@/shared/types/app';
 
 const route = new RouteApi({ id: '/_protected/home/budget' });
 

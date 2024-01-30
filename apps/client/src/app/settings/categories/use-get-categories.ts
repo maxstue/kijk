@@ -1,15 +1,10 @@
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
-import { apiClient } from '@/lib/api-client';
-import { ApiResponse, Category } from '@/types/app';
+import { getCategories } from '@/shared/api/categories';
 
-const getCategories = queryOptions({
+const getCategoriesQuery = queryOptions({
   queryKey: ['categories'],
-  queryFn: async () => {
-    return apiClient.get<ApiResponse<Category[]>>({
-      url: 'categories',
-    });
-  },
+  queryFn: ({ signal }) => getCategories(signal),
 });
 
-export const useGetCategories = () => useSuspenseQuery(getCategories);
+export const useGetCategories = () => useSuspenseQuery(getCategoriesQuery);

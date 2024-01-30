@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
 import { UserStepFormValues, userStepSchema } from '@/app/welcome/schemas';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form/form';
-import { useZodForm } from '@/components/ui/form/use-zod-form';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Input } from '@/shared/components/ui/input';
+import { cn } from '@/shared/lib/utils';
 
 interface Props {
   className?: string;

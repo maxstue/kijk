@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TransactionType } from '@/types/app';
+import { TransactionType } from '@/shared/types/app';
 
 export const transactionSchema = z.object({
   name: z.string().min(2, {
