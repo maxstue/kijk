@@ -38,8 +38,8 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
   }
 
   const handleSignInWithGithub = useCallback(
-    () =>
-      async (provider: AllowedProviders = 'github') => {
+    (provider: AllowedProviders = 'github') =>
+      async () => {
         setIsLoading(true);
         await signInWith(provider, searchparams.from);
         setIsLoading(false);
@@ -71,7 +71,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
           <span className='bg-background px-2 text-muted-foreground'>Or continue with</span>
         </div>
       </div>
-      <Button variant='outline' onClick={handleSignInWithGithub} disabled={isLoading}>
+      <Button variant='outline' onClick={handleSignInWithGithub()} disabled={isLoading}>
         {isLoading ? (
           <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
         ) : (
