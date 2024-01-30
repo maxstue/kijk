@@ -4,9 +4,8 @@ import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import checker from 'vite-plugin-checker';
-
-// import { createHtmlPlugin } from 'vite-plugin-html';
-// import { ManifestOptions, VitePWA } from 'vite-plugin-pwa';
+import { createHtmlPlugin } from 'vite-plugin-html';
+import { ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 
 import devManifest from './public/dev/site.json';
 import prodManifest from './public/prod/site.json';
@@ -38,28 +37,28 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       TanStackRouterVite(),
-      // VitePWA({
-      //   registerType: 'autoUpdate',
-      //   devOptions: {
-      //     enabled: false,
-      //   },
-      //   includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
-      //   manifest: mode === 'development' ? (devManifest as ManifestOptions) : (prodManifest as ManifestOptions),
-      // }),
-      // createHtmlPlugin({
-      //   minify: true,
-      //   inject: {
-      //     data: {
-      //       MODE: mode,
-      //       injectLogos: `
-      //           <link rel="icon" href="${iconPath}/favicon.ico" sizes="any" />
-      //           <link rel="apple-touch-icon" sizes="180x180" href="${iconPath}/apple-touch-icon.png" />
-      //           <link rel="icon" href="${iconPath}/favicon-32x32.png" type="image/png" sizes="32x32" />
-      //           <link rel="icon" href="${iconPath}/favicon-16x16.png" type="image/png" sizes="16x16" />
-      //           `,
-      //     },
-      //   },
-      // }),
+      VitePWA({
+        registerType: 'autoUpdate',
+        devOptions: {
+          enabled: false,
+        },
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+        manifest: mode === 'development' ? (devManifest as ManifestOptions) : (prodManifest as ManifestOptions),
+      }),
+      createHtmlPlugin({
+        minify: true,
+        inject: {
+          data: {
+            MODE: mode,
+            injectLogos: `
+                <link rel="icon" href="${iconPath}/favicon.ico" sizes="any" />
+                <link rel="apple-touch-icon" sizes="180x180" href="${iconPath}/apple-touch-icon.png" />
+                <link rel="icon" href="${iconPath}/favicon-32x32.png" type="image/png" sizes="32x32" />
+                <link rel="icon" href="${iconPath}/favicon-16x16.png" type="image/png" sizes="16x16" />
+                `,
+          },
+        },
+      }),
       sentryVitePlugin({
         authToken: env.SENTRY_AUTH_TOKEN,
         org: 'maxstue',
