@@ -7,25 +7,22 @@ export const createSentry = () =>
     dsn: env.SentryDsn,
     integrations: [
       new Sentry.BrowserTracing(),
-      // {
-      //   routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-      //     React.useEffect,
-      //     useLocation,
-      //     useNavigationType,
-      //     createRoutesFromChildren,
-      //     matchRoutes,
-      //   ),
-      // }
-      new Sentry.Replay(),
+      new Sentry.BrowserProfilingIntegration(),
+      new Sentry.Replay({
+        maskAllText: true,
+        blockAllMedia: true,
+      }),
     ],
     // tunneling
     tunnel: `${env.BaseApiUrl}/tunnel`,
     // Performance Monitoring
-    tracesSampleRate: 0.25,
+    tracesSampleRate: 0.3,
+
+    profilesSampleRate: 0.3,
 
     // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/kijk-api.fly\.dev\/api/, /^https:\/\/kijk-client.vercel\.app/],
     // Session Replay
     replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+    replaysOnErrorSampleRate: 0.5, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
   });

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -11,7 +12,7 @@ import { ThemeWrapper } from '@/shared/components/theme-wrapper';
 import { Toaster } from '@/shared/components/ui/toaster';
 import { queryClient } from '@/shared/lib/query-client';
 
-function App() {
+const App = Sentry.withProfiler(function App() {
   return (
     <ErrorBoundary FallbackComponent={AppError}>
       <QueryClientProvider client={queryClient}>
@@ -26,6 +27,6 @@ function App() {
       </QueryClientProvider>
     </ErrorBoundary>
   );
-}
+});
 
 export default App;
