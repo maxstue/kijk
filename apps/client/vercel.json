@@ -2,16 +2,16 @@
   "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "headers": [
     {
-      "source": "./favicon.ico",
+      "source": "/index.html",
       "headers": [
         {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600000"
+          "key": "Document-Policy",
+          "value": "js-profiling"
         }
       ]
     },
     {
-      "source": "./shared/assets/(.*)",
+      "source": "/(.*\\.(js|css))$",
       "headers": [
         {
           "key": "Cache-Control",
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "source": "./(.*).{png,jpg,jpeg,svg,gif,webp,avif}",
+      "source": "/(.*\\.(png|jpg|gif|svg|woff2?|eot|ttf|otf|ico))$",
       "headers": [
         {
           "key": "Cache-Control",
