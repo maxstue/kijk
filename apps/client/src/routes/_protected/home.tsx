@@ -50,7 +50,7 @@ function SiteHeader({ children }: PropsWithChildren) {
       <div className='container flex h-14 items-center'>
         <div className='mr-4 hidden md:flex'>
           <Link to={'/home'} className='mr-6 flex items-center space-x-2'>
-            <Icons.logo className='h-6 w-6' />
+            <Icons.logo className='h-6 w-6 text-primary' />
             <span className='hidden font-bold sm:inline-block'>{siteConfig.name}</span>
           </Link>
           <nav className='hidden gap-6 md:flex'>
