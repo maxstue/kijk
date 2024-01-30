@@ -4,12 +4,13 @@
     <meta charset="UTF-8" />
     <title>Kijk</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#191A23" />
     <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
 
-    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <!-- App Icons -->
+    <!-- <%- injectLogos %> -->
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
@@ -80,5 +81,12 @@
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- <% if (MODE==='production' ) { %>
+    <script>
+      if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
+        __REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function () {};
+      }
+    </script>
+    <% } %> -->
   </body>
 </html>
