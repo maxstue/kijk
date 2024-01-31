@@ -10,7 +10,6 @@ export const useUpdateUser = () => {
   return useMutation({
     mutationFn: updateUser,
     async onSuccess(data) {
-      queryClient.setQueryData(['users', 'sign-in'], data);
       await queryClient.invalidateQueries({ queryKey: ['categories'] });
       if (data.data) {
         setUser(data.data);
