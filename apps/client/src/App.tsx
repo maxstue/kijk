@@ -6,6 +6,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { router } from '@/router';
 import { AppError } from '@/shared/components/app-error';
 import { AuthProvider } from '@/shared/components/auth-provider';
+import DevModeIndicator from '@/shared/components/dev-mode-indicator';
 import { ThemeModeSwitcher } from '@/shared/components/theme-mode-switcher';
 import { ThemeSwitcher } from '@/shared/components/theme-switcher';
 import { ThemeWrapper } from '@/shared/components/theme-wrapper';
@@ -18,6 +19,7 @@ const App = Sentry.withProfiler(function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ThemeWrapper>
+            <DevModeIndicator />
             <RouterProvider router={router} />
             <ThemeSwitcher />
             <ThemeModeSwitcher />
