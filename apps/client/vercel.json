@@ -9,24 +9,6 @@
           "value": "js-profiling"
         }
       ]
-    },
-    {
-      "source": "/(.*\\.(js|css))$",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*\\.(png|jpg|gif|svg|woff2?|eot|ttf|otf|ico))$",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31556952, immutable"
-        }
-      ]
     }
   ]
 }
