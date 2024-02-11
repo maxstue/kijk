@@ -19,7 +19,7 @@ public static class ApplicationExtensions
         return applicationBuilder;
     }
 
-    public static async Task<IApplicationBuilder> UseInitDatabase(this IApplicationBuilder applicationBuilder, IWebHostEnvironment environment)
+    public static async Task<IApplicationBuilder> UseInitDatabaseAsync(this IApplicationBuilder applicationBuilder, IWebHostEnvironment environment)
     {
         var app = (WebApplication)applicationBuilder;
         using var scope = app.Services.CreateScope();

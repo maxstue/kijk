@@ -16,14 +16,13 @@ public sealed class User : BaseEntity
 
     public User SetDefaultCategories(bool? useDefaultCategories, List<Category> defaultCategories)
     {
-        switch (useDefaultCategories)
+        if (useDefaultCategories == true)
         {
-            case true:
-                Categories.AddRange(defaultCategories);
-                break;
-            case false:
-                Categories.RemoveAll(x => defaultCategories.Select(c => c.Id).Contains(x.Id));
-                break;
+            Categories.AddRange(defaultCategories);
+        }
+        else if (useDefaultCategories == false)
+        {
+            Categories.RemoveAll(x => defaultCategories.Select(c => c.Id).Contains(x.Id));
         }
 
         return this;

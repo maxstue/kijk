@@ -34,7 +34,7 @@ builder.Services
 // ##### Configure the HTTP request pipeline. #####
 var app = builder.Build();
 
-await app.UseInitDatabase(app.Environment);
+await app.UseInitDatabaseAsync(app.Environment);
 
 app.UseResponseCompression()
     .UseSecurityHeaders()
