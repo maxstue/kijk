@@ -1,24 +1,22 @@
 ﻿using System.Net;
 using System.Text.Json;
-
 using Kijk.Api.Common.Models;
-
 using Sentry;
 
 namespace Kijk.Api.Common.Middleware;
 
 public static class AuthResponseHandlerMiddleware
 {
-    public static void UseCustomAuthResponseHandler(this IApplicationBuilder app)
+    public static IApplicationBuilder UseAuthExceptionHandler(this IApplicationBuilder app)
     {
         app.Use(
             async (context, next) =>
             {
                 await next();
-                context.Response.ContentType = "application/json";
 
                 if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
                 {
+                    context.Response.ContentType = "application/json";
                     var resp = ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthenticationError, "Token is not valid")]);
                     SentToSentry(resp);
                     await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
@@ -26,12 +24,14 @@ public static class AuthResponseHandlerMiddleware
 
                 if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
                 {
+                    context.Response.ContentType = "application/json";
                     var resp =
                         ApiResponse<IResult>.Error([AppError.Basic(AppErrorCodes.AuthorizationError, "Role is not sufficient")]);
                     SentToSentry(resp);
                     await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
                 }
             });
+        return app;
     }
 
     private static void SentToSentry(ApiResponse<List<AppError>> resp)

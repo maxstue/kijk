@@ -8,7 +8,7 @@ namespace Kijk.Api.Common.Extensions;
 public static class RateLimitExtensions
 {
 
-    public static IServiceCollection AddCustomRateLimiter(this IServiceCollection services)
+    public static IServiceCollection AddRateLimitiPolicy(this IServiceCollection services)
     {
         return services.AddRateLimiter(
             options =>

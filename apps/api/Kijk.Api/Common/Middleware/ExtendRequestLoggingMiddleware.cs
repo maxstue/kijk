@@ -4,7 +4,7 @@ using Serilog.Context;
 
 namespace Kijk.Api.Common.Middleware;
 
-public class RequestLoggingMiddleware : IMiddleware
+public class ExtendRequestLoggingMiddleware : IMiddleware
 {
     private const string CorrelationIdHeaderName = "X-Correlation-ID";
 

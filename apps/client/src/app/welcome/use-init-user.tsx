@@ -13,8 +13,7 @@ export const useInitUser = () => {
         data: data,
       });
     },
-    onSuccess(data) {
-      queryClient.setQueryData(['users', 'sign-in'], data);
+    onSuccess() {
       void queryClient.invalidateQueries({ queryKey: ['users', 'sign-in'] });
     },
   });

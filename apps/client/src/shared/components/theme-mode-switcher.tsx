@@ -20,5 +20,16 @@ export function ThemeModeSwitcher() {
     root.classList.add(mode);
   }, [mode]);
 
+  useEffect(() => {
+    const root = window.document.documentElement;
+
+    const listener = (e: MediaQueryListEvent) => {
+      root.classList.remove('light', 'dark');
+      root.classList.add(e.matches ? 'dark' : 'light');
+    };
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
+  }, []);
+
   return null;
 }

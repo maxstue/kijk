@@ -4,7 +4,7 @@ public static class UsersModule
 {
     public static IServiceCollection RegisterUsersModule(this IServiceCollection services)
     {
-        services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<UsersService>();
         return services;
     }
 }

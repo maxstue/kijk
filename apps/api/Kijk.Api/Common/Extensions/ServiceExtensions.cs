@@ -1,9 +1,8 @@
 ﻿using System.Globalization;
 using System.IO.Compression;
+using System.Text;
 using System.Text.Json.Serialization;
-
 using Humanizer;
-
 using Kijk.Api.Application.App;
 using Kijk.Api.Application.Categories;
 using Kijk.Api.Application.Transactions;
@@ -12,11 +11,10 @@ using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
 using Kijk.Api.Persistence;
 using Kijk.Api.Persistence.Interceptors;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-
+using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
@@ -24,7 +22,7 @@ namespace Kijk.Api.Common.Extensions;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection RegisterModules(this IServiceCollection services)
+    public static IServiceCollection AddModules(this IServiceCollection services)
     {
         services.RegisterAppModule()
             .RegisterAppModule()
@@ -35,7 +33,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCustomAppSettings(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.ConfigureOptions<AuthConfigureOptions>();
         services.ConfigureOptions<ConnectionStringsConfigureOptions>();
@@ -43,7 +41,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
     {
         var allowedOrigins = configuration.GetSection("Cors").Get<string[]>();
         if (allowedOrigins is null)
@@ -67,7 +65,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCustomOpenApi(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddOpenApi(this IServiceCollection services, IConfiguration configuration)
     {
         var authSettings = configuration.GetSection(AuthOptions.AuthOptionsPath).Get<AuthOptions>();
 
@@ -126,7 +124,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection ConfigureDatabase(this IServiceCollection services)
+    public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
 
@@ -135,7 +133,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCustomCompression(this IServiceCollection services)
+    public static IServiceCollection AddCompression(this IServiceCollection services)
     {
         services.AddResponseCompression(
             options =>
@@ -161,7 +159,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCustomValidation(this IServiceCollection services)
+    public static IServiceCollection AddValidation(this IServiceCollection services)
     {
         ValidatorOptions.Global.DisplayNameResolver = (_, member, _) => member?.Name.Humanize().Titleize();
         ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("de");
@@ -169,7 +167,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCustomControllerOptions(this IServiceCollection services)
+    public static IServiceCollection AddControllerOptions(this IServiceCollection services)
     {
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -180,7 +178,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddHealthCheck(this IServiceCollection services, IConfiguration configuration)
     {
         var conString = configuration.GetConnectionString(nameof(ConnectionStringsOptions.DefaultConnection));
         if (conString is null)
@@ -190,6 +188,55 @@ public static class ServiceExtensions
 
         services.AddHealthChecks().AddNpgSql(conString, tags: ["database", "postgresql"]);
 
+        return services;
+    }
+
+    public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddAuthentication(
+            o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(
+            o =>
+            {
+                o.IncludeErrorDetails = true;
+                o.SaveToken = true;
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(
+                                configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:IssuerSigningKey") ??
+                                string.Empty)),
+                    ValidateIssuer = false,
+                    ValidateAudience = true,
+                    ValidAudience = configuration.GetValue<string>($"{AuthOptions.AuthOptionsPath}:ValidAudience"),
+                };
+            });
+
+        // State that represents the current user from the request
+        services.AddCurrentUser();
+
+        // TODO write into custom requirementshandler
+        services.AddAuthorizationBuilder()
+            .AddPolicy(
+                AppConstants.Policies.All,
+                policy => policy.RequireRole("authenticated").RequireCurrentUser().Build())
+
+            // .AddPolicy(AppConstants.Policies.User, policy => policy.RequireRole(AppConstants.Roles.User).RequireCurrentUser().Build())
+            // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
+            .AddCurrentUserHandler();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCache(this IServiceCollection services)
+    {
+        services.AddFusionCache(AppConstants.CacheNames.Base);
         return services;
     }
 }

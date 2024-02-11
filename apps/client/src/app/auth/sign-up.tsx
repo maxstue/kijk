@@ -36,7 +36,7 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
     <div className='container flex h-screen w-screen flex-col items-center justify-center'>
       <div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]'>
         <div className='flex flex-col space-y-2 text-center'>
-          <Icons.logo className='mx-auto h-12 w-12' />
+          <Icons.logo className='mx-auto h-12 w-12 text-primary' />
           <h1 className='text-2xl font-semibold tracking-tight'>Create an account</h1>
           <p className='text-sm text-muted-foreground'>Enter your credentials below to create your account</p>
         </div>

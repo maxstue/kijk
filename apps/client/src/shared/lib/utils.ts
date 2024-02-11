@@ -11,6 +11,7 @@ import { Months, months, Optional } from '@/shared/types/app';
 import { AppError } from '@/shared/types/errors';
 import type { ClassValue } from 'clsx';
 
+// REFACTOR split into smaller files
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
