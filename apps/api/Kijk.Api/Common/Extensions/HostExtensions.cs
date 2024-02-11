@@ -5,7 +5,6 @@ public static class HostExtensions
     public static WebApplicationBuilder AddErrorTracking(this WebApplicationBuilder builder)
     {
         builder.WebHost.UseSentry();
-        builder.Services.AddSentryTunneling();
 
         return builder;
     }

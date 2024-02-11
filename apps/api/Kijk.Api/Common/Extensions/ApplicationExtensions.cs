@@ -50,13 +50,6 @@ public static class ApplicationExtensions
         return app;
     }
 
-    public static IApplicationBuilder MapErrorTracking(this IApplicationBuilder applicationBuilder)
-    {
-        applicationBuilder.UseSentryTunneling();
-        
-        return applicationBuilder;
-    }
-
     public static IApplicationBuilder MapHealthCheck(this IApplicationBuilder applicationBuilder)
     {
         var app = (IEndpointRouteBuilder)applicationBuilder;

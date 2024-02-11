@@ -55,7 +55,6 @@ app.UseExceptionHandler(_ => { })
 // Needs to ba after Auth so we have user data
 app.UseRateLimiter()
     .MapCustomEndpoints()
-    .MapErrorTracking()
     .MapHealthCheck();
 
 app.Run();
