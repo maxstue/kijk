@@ -33,10 +33,20 @@ export default defineConfig(({ mode }) => {
       TanStackRouterVite(),
       VitePWA({
         registerType: 'autoUpdate',
+        workbox: {
+          globPatterns: ['**/*.{js,css,html}'],
+        },
         devOptions: {
           enabled: false,
         },
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+        includeAssets: [
+          'favicon.ico',
+          'apple-touch-icon.png',
+          'mask-icon.svg',
+          'fonts/*.ttf',
+          './**/*.png',
+          './**/*.svg',
+        ],
         manifest: {
           name: 'Kijk',
           short_name: 'Kijk',
