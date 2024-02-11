@@ -9,7 +9,7 @@ public static class UsersEndpoint
         var group = endpointRouteBuilder.MapGroup("/users");
 
         group.MapGet("/sign-in", SignInAsync);
-        group.MapGet("/me", InitAsync);
+        group.MapGet("/me", MeAsync);
 
         group.MapPut("/init", InitAsync);
         group.MapPut("/", UpdateAsync);
