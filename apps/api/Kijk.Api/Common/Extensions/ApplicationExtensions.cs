@@ -54,7 +54,7 @@ public static class ApplicationExtensions
     {
         var app = (IEndpointRouteBuilder)applicationBuilder;
         app.MapHealthChecks("/health", new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
-        
+
         return applicationBuilder;
     }
 }
