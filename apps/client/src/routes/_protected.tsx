@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_protected')({
     const session = await getSessionOrRedirect(location.href);
     return { session };
   },
-  pendingComponent: () => <InitLaoder />,
+  pendingComponent: InitLaoder,
   component: Protected,
 });
 
