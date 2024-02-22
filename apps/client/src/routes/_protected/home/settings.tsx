@@ -63,6 +63,7 @@ function SettingsNavLink({
       key={label}
       to={to}
       className={cn(buttonVariants({ variant: 'ghost' }), 'justify-start')}
+      // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
       activeProps={{ className: 'bg-primary text-primary-foreground' }}
     >
       <Icon className='mr-2 h-4 w-4' />

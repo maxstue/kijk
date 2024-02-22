@@ -1,5 +1,5 @@
-import { Suspense, useState } from 'react';
-import { createFileRoute, RouteApi } from '@tanstack/react-router';
+import { Suspense, useCallback, useState } from 'react';
+import { createFileRoute, getRouteApi } from '@tanstack/react-router';
 import { DollarSign, List, Users } from 'lucide-react';
 import { z } from 'zod';
 
@@ -45,7 +45,7 @@ export const Route = createFileRoute('/_protected/home/budget')({
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
 });
 
-const route = new RouteApi({ id: '/_protected/home/budget' });
+const route = getRouteApi('/_protected/home/budget');
 
 function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
@@ -54,7 +54,9 @@ function BudgetPage() {
   const year = searchParams.year ?? new Date().getFullYear();
   const { data } = useGetTransactionsBy(year, month);
 
-  const handleClose = () => setShowSheet(false);
+  const handleClose = useCallback(() => setShowSheet(false), []);
+
+  const transactions = data?.data ?? [];
 
   return (
     <>
@@ -111,7 +113,7 @@ function BudgetPage() {
                   </CardHeader>
                   <CardContent>
                     <DataTable
-                      data={data?.data ?? []}
+                      data={transactions}
                       columns={budgetColumns}
                       defaultSort={budgetDefaultSort}
                       actions={

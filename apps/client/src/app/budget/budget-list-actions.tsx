@@ -1,5 +1,5 @@
-import { Suspense, useState } from 'react';
-import { RouteApi } from '@tanstack/react-router';
+import { Suspense, useCallback, useState } from 'react';
+import { getRouteApi } from '@tanstack/react-router';
 import { Row } from '@tanstack/react-table';
 import { parseISO } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
@@ -38,7 +38,7 @@ import { useToast } from '@/shared/hooks/use-toast';
 import { cn, formatStringToCurrency } from '@/shared/lib/utils';
 import { Months, months, Transaction, TransactionType } from '@/shared/types/app';
 
-const route = new RouteApi({ id: '/_protected/home/budget' });
+const route = getRouteApi('/_protected/home/budget');
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -62,10 +62,10 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
     });
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setShowSheet(false);
     setSheetType(undefined);
-  };
+  }, []);
 
   return (
     <Dialog open={showEdit} onOpenChange={setShowEdit}>
@@ -197,12 +197,12 @@ function Update({ transaction, month, year, onClose }: EdProps) {
     );
   }
 
-  const handleError = () => {
+  const handleError = useCallback(() => {
     toast({
       title: `Error updating`,
       variant: 'destructive',
     });
-  };
+  }, [toast]);
 
   return (
     <>
