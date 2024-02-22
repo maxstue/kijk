@@ -9,7 +9,7 @@ import { Separator } from '@/shared/components/ui/separator';
 import { settingsNav } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/utils';
 
-export const Route = createFileRoute('/_protected/home/settings/')({
+export const Route = createFileRoute('/_protected/home/settings')({
   beforeLoad: async ({ location, navigate }) => {
     if (location.pathname === '/home/settings') {
       await navigate({ to: '$section', params: { section: 'profile' } });

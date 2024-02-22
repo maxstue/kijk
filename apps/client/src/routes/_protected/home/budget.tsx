@@ -1,6 +1,7 @@
 import { Suspense, useState } from 'react';
-import { RouteApi } from '@tanstack/react-router';
+import { createFileRoute, RouteApi } from '@tanstack/react-router';
 import { DollarSign, List, Users } from 'lucide-react';
+import { z } from 'zod';
 
 import { budgetColumns, budgetDefaultSort } from '@/app/budget/budget-column';
 import { BudgetMonthCalendar } from '@/app/budget/budget-month-calender';
@@ -9,8 +10,10 @@ import { BudgetYearCalenderCard } from '@/app/budget/budget-year-calender-card';
 import { BudgetYearSwitcher } from '@/app/budget/budget-year-switchet';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
+import { AppRouteError } from '@/shared/components/app-route-error';
 import { DataTable } from '@/shared/components/data-table';
 import { Head } from '@/shared/components/head';
+import { NotFound } from '@/shared/components/not-found';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
@@ -25,9 +28,26 @@ import {
 } from '@/shared/components/ui/sheet';
 import { Months, months } from '@/shared/types/app';
 
+const searchSchema = z.object({
+  month: z
+    .string()
+    .transform((x) => x as Months)
+    .optional()
+    .catch(months[new Date().getMonth()] as Months),
+  year: z.number().optional().catch(new Date().getFullYear()),
+});
+
+export const Route = createFileRoute('/_protected/home/budget')({
+  validateSearch: searchSchema,
+  component: BudgetPage,
+  notFoundComponent: NotFound,
+  errorComponent: AppRouteError,
+  pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
+});
+
 const route = new RouteApi({ id: '/_protected/home/budget' });
 
-export const component = function BudgetPage() {
+function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
   const searchParams = route.useSearch();
   const month = (searchParams.month ?? months[new Date().getMonth()]) as Months;
@@ -120,4 +140,4 @@ export const component = function BudgetPage() {
       </div>
     </>
   );
-};
+}

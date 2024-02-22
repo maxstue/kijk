@@ -13,10 +13,8 @@ import { settingsTo } from '@/shared/lib/constants';
 
 const sectionSchema = z.enum(settingsTo);
 
-export const Route = createFileRoute('/_protected/home/settings/$section/')({
-  parseParams: (params) => {
-    return { section: sectionSchema.parse(params.section) };
-  },
+export const Route = createFileRoute('/_protected/home/settings/$section')({
+  parseParams: (params) => ({ section: sectionSchema.parse(params.section) }),
   component: SettingsSectionPage,
   errorComponent: ({ info, error }) => <AppRouteError info={info} error={error} />,
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
