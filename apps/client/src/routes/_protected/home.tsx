@@ -1,19 +1,20 @@
 import { PropsWithChildren, Suspense } from 'react';
-import { FileRoute, Link, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 
 import { CommandMenu } from '@/app/root/command-menu';
 import { Footer } from '@/app/root/footer';
 import { UserNav } from '@/app/root/user-nav';
 import { AppRouteError } from '@/shared/components/app-route-error';
-import { AsyncLoader } from '@/shared/components/async-loader';
 import { Icons } from '@/shared/components/icons';
 import { ThemeModeToggle } from '@/shared/components/theme-mode-toggle';
+import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { siteConfig } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/utils';
 
-export const Route = new FileRoute('/_protected/home').createRoute({
+export const Route = createFileRoute('/_protected/home')({
   component: HomeLayout,
   errorComponent: AppRouteError,
+  pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
 });
 
 function HomeLayout() {
@@ -36,7 +37,9 @@ function HomeLayout() {
           </SiteHeader>
         </header>
         <main className='container flex-1'>
-          <Outlet />
+          <Suspense fallback={<AsyncLoader className='h-6 w-6' />}>
+            <Outlet />
+          </Suspense>
         </main>
         <Footer />
       </div>

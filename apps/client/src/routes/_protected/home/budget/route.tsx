@@ -1,6 +1,7 @@
-import { FileRoute } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
+import { NotFound } from '@/shared/components/not-found';
 import { Months, months } from '@/shared/types/app';
 
 const searchSchema = z.object({
@@ -12,6 +13,7 @@ const searchSchema = z.object({
   year: z.number().optional().catch(new Date().getFullYear()),
 });
 
-export const Route = new FileRoute('/_protected/home/budget').createRoute({
+export const Route = createFileRoute('/_protected/home/budget')({
   validateSearch: searchSchema,
+  notFoundComponent: NotFound,
 });

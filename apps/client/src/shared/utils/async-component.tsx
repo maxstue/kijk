@@ -1,6 +1,6 @@
 import { ComponentType, FC, lazy, Suspense, useEffect, useState } from 'react';
 
-import { Loader } from '@/shared/components/loader';
+import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 
 interface LoaderDefaultOptions {
   delay: number;
@@ -120,7 +120,7 @@ function lazyComponent(
   loadComponent: LoadComponent,
   additionalProps?: AnyProps,
   loaderOptions: LoaderDefaultOptions = loaderDefaultOptions,
-  FallbackWaiting: FC = Loader,
+  FallbackWaiting: FC = AsyncLoader,
 ) {
   const Fallback = loaderOptions.delay ? getDelayedFallback(FallbackWaiting, loaderOptions.delay) : FallbackWaiting;
 

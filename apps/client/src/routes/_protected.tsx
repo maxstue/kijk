@@ -1,19 +1,31 @@
-import { FileRoute } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 
-import { userSignInQuery } from '@/app/root/use-signin-user';
+import { useSignInUser } from '@/app/root/use-signin-user';
+import { InitLaoder } from '@/shared/components/ui/loaders/init-laoder';
 import { useAuthStore } from '@/shared/stores/auth-store';
 import { getSessionOrRedirect } from '@/shared/utils/router.utils';
 
-export const Route = new FileRoute('/_protected').createRoute({
-  beforeLoad: async ({ location, context: { queryClient }, navigate }) => {
+export const Route = createFileRoute('/_protected')({
+  beforeLoad: async ({ location }) => {
     const session = await getSessionOrRedirect(location.href);
-    const data = await queryClient.ensureQueryData(userSignInQuery);
-    useAuthStore.setState((c) => ({ ...c, user: data.data }));
-
-    if (data.data?.firstTime == true) {
-      void navigate({ to: '/welcome', replace: true });
-    }
-
     return { session };
+  },
+  pendingComponent: () => <InitLaoder />,
+  component: () => {
+    const navigate = useNavigate({ from: Route.fullPath });
+    const query = useSignInUser();
+
+    useEffect(() => {
+      if (query.isSuccess && query.data.data) {
+        useAuthStore.setState((c) => ({ ...c, user: query.data.data }));
+
+        if (query.data.data?.firstTime == true) {
+          void navigate({ to: '/welcome', replace: true });
+        }
+      }
+    }, [query.status]);
+
+    return <Outlet />;
   },
 });

@@ -1,15 +1,22 @@
+import { createFileRoute } from '@tanstack/react-router';
 import { Activity, CreditCard, DollarSign, Download, Users } from 'lucide-react';
 
 import { DateRangePicker } from '@/app/home/date-range-picker';
 import { Overview } from '@/app/home/overview';
 import { RecentSales } from '@/app/home/recent-sales';
 import { TeamSwitcher } from '@/app/home/team-switcher';
+import { AppRouteError } from '@/shared/components/app-route-error';
 import { Head } from '@/shared/components/head';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
-export const component = function HomeIndexPage() {
+export const Route = createFileRoute('/_protected/home/')({
+  component: HomeIndexPage,
+  errorComponent: ({ error, info }) => <AppRouteError error={error} info={info} />,
+});
+
+function HomeIndexPage() {
   return (
     <>
       <Head title='Home' />
@@ -107,4 +114,4 @@ export const component = function HomeIndexPage() {
       </div>
     </>
   );
-};
+}

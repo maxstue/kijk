@@ -6,7 +6,6 @@ import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
 
 import { getYearsQuery, useGetYears } from '@/app/budget/use-get-years';
-import { AsyncLoader } from '@/shared/components/async-loader';
 import { Button } from '@/shared/components/ui/button';
 import {
   Command,
@@ -29,6 +28,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
+import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { useToast } from '@/shared/hooks/use-toast';
 import { cn } from '@/shared/lib/utils';

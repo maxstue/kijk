@@ -9,11 +9,11 @@ import { BudgetYearCalenderCard } from '@/app/budget/budget-year-calender-card';
 import { BudgetYearSwitcher } from '@/app/budget/budget-year-switchet';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
-import { AsyncLoader } from '@/shared/components/async-loader';
 import { DataTable } from '@/shared/components/data-table';
 import { Head } from '@/shared/components/head';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { Separator } from '@/shared/components/ui/separator';
 import {
   Sheet,

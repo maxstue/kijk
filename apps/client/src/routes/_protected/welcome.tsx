@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { UserStepFormValues } from '@/app/welcome/schemas';
@@ -15,7 +15,7 @@ import { queryClient } from '@/shared/lib/query-client';
 import { useAuthStore } from '@/shared/stores/auth-store';
 import { User_Metadata } from '@/shared/types/app';
 
-export const Route = new FileRoute('/_protected/welcome').createRoute({
+export const Route = createFileRoute('/_protected/welcome')({
   beforeLoad: async ({ navigate }) => {
     const data = await queryClient.ensureQueryData(userSignInQuery);
     if (data.data?.firstTime == false) {

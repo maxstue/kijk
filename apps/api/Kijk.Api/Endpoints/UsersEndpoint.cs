@@ -23,7 +23,6 @@ public static class UsersEndpoint
     private static async Task<IResult> SignInAsync(UsersService service, CancellationToken cancellationToken)
     {
         var result = await service.SignInAsync(cancellationToken);
-        await Task.Delay(10000, cancellationToken);
         return result.ToResponse("Successfully signed in");
     }
 

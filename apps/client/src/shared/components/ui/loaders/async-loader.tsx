@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Loader } from '@/shared/components/loader';
+import { Loader } from '@/shared/components/ui/loaders/loader';
 import { cn } from '@/shared/lib/utils';
 
 interface Props {

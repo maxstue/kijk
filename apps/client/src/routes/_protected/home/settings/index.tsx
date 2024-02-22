@@ -1,19 +1,23 @@
-import { FileRoute, Link, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 
+import { AppRouteError } from '@/shared/components/app-route-error';
 import { Head } from '@/shared/components/head';
 import { Icons } from '@/shared/components/icons';
+import { NotFound } from '@/shared/components/not-found';
 import { buttonVariants } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import { settingsNav } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/utils';
 
-export const Route = new FileRoute('/_protected/home/settings').createRoute({
+export const Route = createFileRoute('/_protected/home/settings/')({
   beforeLoad: async ({ location, navigate }) => {
     if (location.pathname === '/home/settings') {
       await navigate({ to: '$section', params: { section: 'profile' } });
     }
   },
   component: SettingsPage,
+  notFoundComponent: NotFound,
+  errorComponent: ({ info, error }) => <AppRouteError info={info} error={error} />,
 });
 
 function SettingsPage() {
