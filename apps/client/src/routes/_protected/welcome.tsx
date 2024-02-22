@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
 import { userSignInQuery } from '@/app/root/use-signin-user';
@@ -41,13 +41,13 @@ function WelcomePage() {
     steps,
   });
 
-  const handleFinish = () => {
+  const handleFinish = useCallback(() => {
     mutate(userStep, {
       async onSuccess() {
         await navigate({ to: '/', replace: true });
       },
     });
-  };
+  }, [mutate, navigate, userStep]);
 
   return (
     <>

@@ -12,20 +12,22 @@ export const Route = createFileRoute('/_protected')({
     return { session };
   },
   pendingComponent: () => <InitLaoder />,
-  component: () => {
-    const navigate = useNavigate({ from: Route.fullPath });
-    const query = useSignInUser();
-
-    useEffect(() => {
-      if (query.isSuccess && query.data.data) {
-        useAuthStore.setState((c) => ({ ...c, user: query.data.data }));
-
-        if (query.data.data?.firstTime == true) {
-          void navigate({ to: '/welcome', replace: true });
-        }
-      }
-    }, [query.status]);
-
-    return <Outlet />;
-  },
+  component: Protected,
 });
+
+function Protected() {
+  const navigate = useNavigate({ from: Route.fullPath });
+  const query = useSignInUser();
+
+  useEffect(() => {
+    if (query.isSuccess && query.data.data) {
+      useAuthStore.setState((c) => ({ ...c, user: query.data.data }));
+
+      if (query.data.data?.firstTime == true) {
+        void navigate({ to: '/welcome', replace: true });
+      }
+    }
+  }, [navigate, query.data.data, query.isSuccess, query.status]);
+
+  return <Outlet />;
+}

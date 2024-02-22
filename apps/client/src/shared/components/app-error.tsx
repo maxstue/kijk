@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import * as Sentry from '@sentry/react';
 import { ArrowDownIcon, InfoIcon } from 'lucide-react';
 
@@ -12,13 +12,13 @@ interface Props {
 }
 
 export function AppError({ error, resetErrorBoundary }: Props) {
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     resetErrorBoundary?.();
-  };
+  }, [resetErrorBoundary]);
 
-  const handleGotToRoot = () => {
+  const handleGotToRoot = useCallback(() => {
     window.location.href = '/';
-  };
+  }, []);
 
   useEffect(() => {
     Sentry.captureException(error);
@@ -67,6 +67,8 @@ const BasicError = (props: { message: string }) => {
 const AuthError = (props: { error: Error }) => {
   const [showMore, setShowMore] = useState(false);
 
+  const handleClick = useCallback(() => setShowMore((c) => !c), []);
+
   return (
     <div className='flex flex-col gap-2'>
       <div className='flex gap-2'>
@@ -77,7 +79,7 @@ const AuthError = (props: { error: Error }) => {
         className='flex cursor-pointer items-center gap-1 text-xs text-gray-400'
         role='button'
         tabIndex={0}
-        onClick={() => setShowMore((c) => !c)}
+        onClick={handleClick}
       >
         {showMore ? 'Hide' : 'Show'}{' '}
         <ArrowDownIcon className={cn('h-3 w-3 text-orange-400', showMore ? 'rotate-180' : '')} />

@@ -1,7 +1,8 @@
-const { fontFamily } = require('tailwindcss/defaultTheme');
+import { fontFamily } from 'tailwindcss/defaultTheme';
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import type { Config } from 'tailwindcss';
+
+export default {
   darkMode: ['class'],
   content: ['src/routes/**/*.{ts,tsx}', 'src/shared/components/**/*.{ts,tsx}', 'src/app/**/*.{ts,tsx}'],
   theme: {
@@ -86,10 +87,10 @@ module.exports = {
         },
         fade: {
           '0%, 100%': {
-            opacity: 0,
+            opacity: '0',
           },
           '50%': {
-            opacity: 100,
+            opacity: '100',
           },
         },
       },
@@ -101,4 +102,4 @@ module.exports = {
     },
   },
   plugins: [require('tailwindcss-animate')],
-};
+} satisfies Config;

@@ -15,8 +15,6 @@ import { Toaster } from '@/shared/components/ui/toaster';
 import { queryClient } from '@/shared/lib/query-client';
 
 const App = Sentry.withProfiler(function App() {
-  console.log('App');
-
   return (
     <ErrorBoundary fallbackRender={AppError}>
       <QueryClientProvider client={queryClient}>
