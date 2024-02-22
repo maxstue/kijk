@@ -36,9 +36,6 @@ public static class ApplicationExtensions
         app.Map("/", () => Results.Redirect("/swagger"));
 
         var apiGroup = app.MapGroup("/api")
-            .WithGroupName("api")
-            .WithTags("api")
-            .WithOpenApi()
             .RequireAuthorization(AppConstants.Policies.All);
 
         apiGroup.RequirePerUserRateLimit();

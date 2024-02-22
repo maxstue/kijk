@@ -6,7 +6,10 @@ public static class UsersEndpoint
 {
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
-        var group = endpointRouteBuilder.MapGroup("/users");
+        var group = endpointRouteBuilder.MapGroup("/users")
+            .WithGroupName("Users")
+            .WithTags("Users")
+            .WithOpenApi();
 
         group.MapGet("/sign-in", SignInAsync);
         group.MapGet("/me", MeAsync);
@@ -20,6 +23,7 @@ public static class UsersEndpoint
     private static async Task<IResult> SignInAsync(UsersService service, CancellationToken cancellationToken)
     {
         var result = await service.SignInAsync(cancellationToken);
+        await Task.Delay(10000, cancellationToken);
         return result.ToResponse("Successfully signed in");
     }
 

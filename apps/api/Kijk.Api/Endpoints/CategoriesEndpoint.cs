@@ -10,7 +10,10 @@ public static class CategoriesEndpoint
 {
     public static IEndpointRouteBuilder MapCategoriesEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
-        var group = endpointRouteBuilder.MapGroup("/categories");
+        var group = endpointRouteBuilder.MapGroup("/categories")
+            .WithGroupName("Categories")
+            .WithTags("Categories")
+            .WithOpenApi();
 
         group.MapGet("/", GetAll);
         group.MapPost("", Create).AddEndpointFilter<ValidationFilter<CreateCategoryRequest>>();

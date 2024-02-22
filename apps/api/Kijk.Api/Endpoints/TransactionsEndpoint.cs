@@ -10,7 +10,10 @@ public static class TransactionsEndpoint
 {
     public static IEndpointRouteBuilder MapTransactionsEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
-        var group = endpointRouteBuilder.MapGroup("/transactions");
+        var group = endpointRouteBuilder.MapGroup("/transactions")
+            .WithGroupName("Transactions")
+            .WithTags("Transactions")
+            .WithOpenApi();
 
         group.MapGet("/", GetBy);
         group.MapGet("/{id:guid}", GetById);
