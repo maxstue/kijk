@@ -6,7 +6,7 @@ import { AppearanceSection } from '@/app/settings/appearance/appearance-section'
 import { CategoriesSection } from '@/app/settings/categories/categories-section';
 import { NotificationsSection } from '@/app/settings/notifications/notifications-section';
 import { ProfileSection } from '@/app/settings/profile/profile-section';
-import { AppRouteError } from '@/shared/components/app-route-error';
+import { AppError } from '@/shared/components/errors/app-error';
 import { Head } from '@/shared/components/head';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { settingsTo } from '@/shared/lib/constants';
@@ -16,7 +16,7 @@ const sectionSchema = z.enum(settingsTo);
 export const Route = createFileRoute('/_protected/home/settings/$section')({
   parseParams: (params) => ({ section: sectionSchema.parse(params.section) }),
   component: SettingsSectionPage,
-  errorComponent: ({ info, error }) => <AppRouteError info={info} error={error} />,
+  errorComponent: ({ info, error }) => <AppError info={info} error={error} />,
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
 });
 

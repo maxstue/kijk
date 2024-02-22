@@ -1,7 +1,7 @@
 import { createRouter } from '@tanstack/react-router';
 
 import { routeTree } from '@/routeTree.gen';
-import { AppRouteError } from '@/shared/components/app-route-error';
+import { AppError } from '@/shared/components/errors/app-error';
 import { NotFound } from '@/shared/components/not-found';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { queryClient } from '@/shared/lib/query-client';
@@ -22,7 +22,7 @@ export const router = createRouter({
   },
   globalNotFound: NotFound,
   defaultPendingComponent: () => <AsyncLoader className='h-6 w-6' />,
-  defaultErrorComponent: AppRouteError,
+  defaultErrorComponent: AppError,
 });
 
 // Register the router instance for type safety

@@ -5,7 +5,7 @@ import { DateRangePicker } from '@/app/home/date-range-picker';
 import { Overview } from '@/app/home/overview';
 import { RecentSales } from '@/app/home/recent-sales';
 import { TeamSwitcher } from '@/app/home/team-switcher';
-import { AppRouteError } from '@/shared/components/app-route-error';
+import { AppError } from '@/shared/components/errors/app-error';
 import { Head } from '@/shared/components/head';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui
 
 export const Route = createFileRoute('/_protected/home/')({
   component: HomeIndexPage,
-  errorComponent: ({ error, info }) => <AppRouteError error={error} info={info} />,
+  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
 });
 
 function HomeIndexPage() {

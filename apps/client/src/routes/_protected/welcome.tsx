@@ -5,7 +5,7 @@ import { userSignInQuery } from '@/app/root/use-signin-user';
 import { UserStepFormValues } from '@/app/welcome/schemas';
 import { useInitUser } from '@/app/welcome/use-init-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
-import { AppRouteError } from '@/shared/components/app-route-error';
+import { AppError } from '@/shared/components/errors/app-error';
 import { Head } from '@/shared/components/head';
 import { ThemeQuickCustomizer } from '@/shared/components/theme-quick-customizer';
 import { Button } from '@/shared/components/ui/button';
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/_protected/welcome')({
     }
   },
   component: WelcomePage,
-  errorComponent: AppRouteError,
+  errorComponent: AppError,
 });
 
 const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Theme' }, { label: 'Finish' }] satisfies StepConfig[];

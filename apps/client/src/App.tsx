@@ -5,8 +5,8 @@ import { RouterProvider } from '@tanstack/react-router';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { router } from '@/router';
-import { AppError } from '@/shared/components/app-error';
 import { AuthProvider } from '@/shared/components/auth-provider';
+import { AppError } from '@/shared/components/errors/app-error';
 import { ThemeModeSwitcher } from '@/shared/components/theme-mode-switcher';
 import { ThemeSwitcher } from '@/shared/components/theme-switcher';
 import { ThemeWrapper } from '@/shared/components/theme-wrapper';

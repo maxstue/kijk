@@ -10,8 +10,8 @@ import { BudgetYearCalenderCard } from '@/app/budget/budget-year-calender-card';
 import { BudgetYearSwitcher } from '@/app/budget/budget-year-switchet';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
-import { AppRouteError } from '@/shared/components/app-route-error';
 import { DataTable } from '@/shared/components/data-table';
+import { AppError } from '@/shared/components/errors/app-error';
 import { Head } from '@/shared/components/head';
 import { NotFound } from '@/shared/components/not-found';
 import { Button } from '@/shared/components/ui/button';
@@ -41,7 +41,7 @@ export const Route = createFileRoute('/_protected/home/budget')({
   validateSearch: searchSchema,
   component: BudgetPage,
   notFoundComponent: NotFound,
-  errorComponent: AppRouteError,
+  errorComponent: AppError,
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
 });
 

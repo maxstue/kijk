@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { Login } from '@/app/auth/login';
 import { SignUp } from '@/app/auth/sign-up';
+import { AppError } from '@/shared/components/errors/app-error';
 import { Head } from '@/shared/components/head';
 import { supabase } from '@/shared/lib/supabase-client';
 
@@ -23,11 +24,11 @@ export const Route = createFileRoute('/auth')({
     return navigate({ to: search?.from ?? '/home' });
   },
   component: AuthPage,
+  errorComponent: AppError,
 });
 
 function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
-
   // TODO add back button to navigate to the "web"-app
   return (
     <>

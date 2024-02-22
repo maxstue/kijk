@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 
-import { AppRouteError } from '@/shared/components/app-route-error';
+import { AppError } from '@/shared/components/errors/app-error';
 import { Head } from '@/shared/components/head';
 import { Icons } from '@/shared/components/icons';
 import { NotFound } from '@/shared/components/not-found';
@@ -17,7 +17,7 @@ export const Route = createFileRoute('/_protected/home/settings')({
   },
   component: SettingsPage,
   notFoundComponent: NotFound,
-  errorComponent: ({ info, error }) => <AppRouteError info={info} error={error} />,
+  errorComponent: ({ info, error }) => <AppError info={info} error={error} />,
 });
 
 function SettingsPage() {
