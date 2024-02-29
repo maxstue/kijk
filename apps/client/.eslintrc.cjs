@@ -33,6 +33,7 @@ module.exports = {
     '@typescript-eslint/no-misused-promises': 'off',
     '@typescript-eslint/no-unsafe-return': 'warn', // TODO remove after stepper is official
     '@typescript-eslint/no-unsafe-member-access': 'warn', // TODO remove after stepper is official
+    '@typescript-eslint/no-import-type-side-effects': 'warn',
     '@typescript-eslint/no-empty-interface': [
       'error',
       {
