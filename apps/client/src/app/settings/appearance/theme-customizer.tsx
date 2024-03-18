@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, useCallback } from 'react';
 import { CheckIcon, MoonIcon, SunIcon, Undo2 } from 'lucide-react';
 
 import { ThemeWrapper } from '@/shared/components/theme-wrapper';
@@ -12,6 +12,10 @@ export function ThemeCustomizer() {
   const { theme: activeTheme, mode } = useThemeStore();
   const { setMode, setTheme } = useThemeStoreActions();
 
+  const handleClicked = useCallback(() => {
+    setTheme('zinc', 0.5);
+  }, [setTheme]);
+
   return (
     <ThemeWrapper className='flex flex-col space-y-4 md:space-y-6'>
       <div className='flex items-start'>
@@ -19,7 +23,7 @@ export function ThemeCustomizer() {
           <div className='font-semibold leading-none tracking-tight'>Customize</div>
           <div className='text-xs text-muted-foreground'>Pick a style and color for your components.</div>
         </div>
-        <Button variant='ghost' size='icon' className='ml-auto border-primary' onClick={() => setTheme('zinc', 0.5)}>
+        <Button variant='ghost' size='icon' className='ml-auto border-primary' onClick={handleClicked}>
           <Undo2 />
           <span className='sr-only'>Reset</span>
         </Button>

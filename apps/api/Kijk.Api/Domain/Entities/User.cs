@@ -2,15 +2,20 @@
 
 public sealed class User : BaseEntity
 {
-    public string? AuthId { get; private set; }
+    public required string AuthId { get; init; }
 
-    public string? Name { get; set; }
+    public required string Name { get; set; }
 
     public string? Email { get; set; }
 
-    public bool? FirstTime { get; set; }
+    public string? Image { get; set; }
 
-    public List<Transaction> Transactions { get; set; } = [];
+    public bool FirstTime { get; set; }
+
+    public List<UserHousehold> UserHouseholds { get; set; } = [];
+
+    public List<Budget> Budgets { get; set; } = [];
+    public List<Account> Accounts { get; set; } = [];
 
     public List<Category> Categories { get; set; } = [];
 
@@ -28,7 +33,12 @@ public sealed class User : BaseEntity
         return this;
     }
 
-    public static User Create(string? authId, string name, string? email, List<Category>? categories = default, bool? firstTime = false)
+    public static User Create(
+        string authId,
+        string name,
+        string? email,
+        List<Category>? categories = null,
+        bool firstTime = false)
     {
         return new User
         {
@@ -37,7 +47,7 @@ public sealed class User : BaseEntity
             Name = name,
             Email = email,
             FirstTime = firstTime,
-            Categories = categories ?? new List<Category>()
+            Categories = categories ?? [],
         };
     }
 }

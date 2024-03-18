@@ -34,7 +34,7 @@ const envParse = envSchema.safeParse({
 });
 
 if (!envParse.success) {
-  logger.error({ errors: envParse.error.issues });
+  logger.error('env invalid', { errors: envParse.error.issues });
   throw new AppError({
     type: 'ENVIRONMENT',
     message: `There is an error with the environment variables. ${envParse.error.issues

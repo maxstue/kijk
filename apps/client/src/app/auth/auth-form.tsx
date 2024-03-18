@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ControllerRenderProps } from 'react-hook-form';
 
 import { AuthSchema, authSchema } from '@/app/auth/schemas';
-import { Route } from '@/routes/auth/route';
+import { Route } from '@/routes/auth';
 import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';

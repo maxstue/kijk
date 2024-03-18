@@ -72,7 +72,9 @@ dotnet_style_prefer_auto_properties = true:silent
 dotnet_style_prefer_conditional_expression_over_assignment = true:silent
 dotnet_style_prefer_conditional_expression_over_return = true:silent
 
-dotnet_diagnostic.CA1813.severity = suggestion
+# dotnet_diagnostic.CA1813.severity = suggestion
+dotnet_diagnostic.CA1802.severity = warning
+dotnet_diagnostic.CA1810.severity = warning
 
 ###############################
 # Naming Conventions          #

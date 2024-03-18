@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { BarChart3, Hash, List } from 'lucide-react';
 
 import { categoryColumns, categoryDefaultSort } from '@/app/settings/categories/categories-columns';
@@ -66,7 +66,7 @@ function Categories() {
   const { data } = useGetCategories();
   const [showSheet, setShowSheet] = useState(false);
 
-  const handleClose = () => setShowSheet(false);
+  const handleClose = useCallback(() => setShowSheet(false), []);
 
   return (
     <DataTable

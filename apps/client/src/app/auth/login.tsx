@@ -1,5 +1,5 @@
 import { Dispatch, useCallback } from 'react';
-import { RouteApi, useNavigate } from '@tanstack/react-router';
+import { getRouteApi, useNavigate } from '@tanstack/react-router';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { Icons } from '@/shared/components/icons';
@@ -7,7 +7,7 @@ import { Button } from '@/shared/components/ui/button';
 import { useToast } from '@/shared/hooks/use-toast';
 import { useAuthStoreActions } from '@/shared/stores/auth-store';
 
-const route = new RouteApi({ id: '/auth' });
+const route = getRouteApi('/auth');
 
 export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
   const { login } = useAuthStoreActions();

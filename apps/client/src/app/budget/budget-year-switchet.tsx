@@ -1,12 +1,11 @@
 import { ComponentPropsWithoutRef, Suspense, useCallback, useEffect, useState } from 'react';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { useQueryClient } from '@tanstack/react-query';
-import { RouteApi, useNavigate } from '@tanstack/react-router';
+import { getRouteApi, useNavigate } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
 
 import { getYearsQuery, useGetYears } from '@/app/budget/use-get-years';
-import { AsyncLoader } from '@/shared/components/async-loader';
 import { Button } from '@/shared/components/ui/button';
 import {
   Command,
@@ -29,11 +28,12 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
+import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { useToast } from '@/shared/hooks/use-toast';
 import { cn } from '@/shared/lib/utils';
 
-const route = new RouteApi({ id: '/_protected/home/budget' });
+const route = getRouteApi('/_protected/home/budget');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
@@ -64,14 +64,14 @@ export function BudgetYearSwitcher({ className }: YProps) {
     void navigate({ search: (prev) => ({ ...prev, year: year }) });
   };
 
-  const handleNewYearClick = () => {
+  const handleNewYearClick = useCallback(() => {
     setOpen(false);
     setShowNewYearDialog(true);
-  };
+  }, []);
 
-  const handleCloseNewYearDialog = () => {
+  const handleCloseNewYearDialog = useCallback(() => {
     setShowNewYearDialog(false);
-  };
+  }, []);
 
   return (
     <Dialog open={showNewYearDialog} onOpenChange={setShowNewYearDialog}>
@@ -162,16 +162,16 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
     void navigate({ search: (prev) => ({ ...prev, year: data.year }) });
     onClose();
   }
-  const handleError = () => {
+  const handleError = useCallback(() => {
     toast({
       title: 'Error adding new year',
       variant: 'destructive',
     });
-  };
+  }, [toast]);
 
-  const onCancel = () => {
+  const onCancel = useCallback(() => {
     form.reset();
-  };
+  }, [form]);
 
   return (
     <DialogContent>

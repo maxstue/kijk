@@ -2,9 +2,9 @@ import { Suspense, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 import { BudgetYearCalendar } from '@/app/budget/budget-year-calendar';
-import { AsyncLoader } from '@/shared/components/async-loader';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { cn } from '@/shared/lib/utils';
 
 export function BudgetYearCalenderCard({ year }: { year: number }) {

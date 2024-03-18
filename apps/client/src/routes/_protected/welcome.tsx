@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { FileRoute, useNavigate } from '@tanstack/react-router';
+import { useCallback, useState } from 'react';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { UserStepFormValues } from '@/app/welcome/schemas';
 import { useInitUser } from '@/app/welcome/use-init-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
-import { AppRouteError } from '@/shared/components/app-route-error';
+import { AppError } from '@/shared/components/errors/app-error';
 import { Head } from '@/shared/components/head';
 import { ThemeQuickCustomizer } from '@/shared/components/theme-quick-customizer';
 import { Button } from '@/shared/components/ui/button';
@@ -15,7 +15,7 @@ import { queryClient } from '@/shared/lib/query-client';
 import { useAuthStore } from '@/shared/stores/auth-store';
 import { User_Metadata } from '@/shared/types/app';
 
-export const Route = new FileRoute('/_protected/welcome').createRoute({
+export const Route = createFileRoute('/_protected/welcome')({
   beforeLoad: async ({ navigate }) => {
     const data = await queryClient.ensureQueryData(userSignInQuery);
     if (data.data?.firstTime == false) {
@@ -23,7 +23,7 @@ export const Route = new FileRoute('/_protected/welcome').createRoute({
     }
   },
   component: WelcomePage,
-  errorComponent: AppRouteError,
+  errorComponent: AppError,
 });
 
 const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Theme' }, { label: 'Finish' }] satisfies StepConfig[];
@@ -41,13 +41,13 @@ function WelcomePage() {
     steps,
   });
 
-  const handleFinish = () => {
+  const handleFinish = useCallback(() => {
     mutate(userStep, {
       async onSuccess() {
         await navigate({ to: '/', replace: true });
       },
     });
-  };
+  }, [mutate, navigate, userStep]);
 
   return (
     <>

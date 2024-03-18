@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 
@@ -44,18 +44,18 @@ export function DataListRowActions<TData extends Category>({ row }: DataTableRow
   const { toast } = useToast();
   const category = row.original;
 
-  const handleCopyName = async () => {
+  const handleCopyName = useCallback(async () => {
     await navigator.clipboard.writeText(category.name);
     toast({
       title: `Successfully copied: ${category.name} `,
       variant: 'default',
     });
-  };
+  }, [category.name, toast]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setShowSheet(false);
     setSheetType(undefined);
-  };
+  }, []);
 
   return (
     <Dialog open={showEdit} onOpenChange={setShowEdit}>
@@ -101,7 +101,7 @@ function Delete({ category, onClose }: EdProps) {
   const deleteMutation = useDeleteCategory();
   const { toast } = useToast();
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     deleteMutation.mutate(
       { categoryId: category.id },
       {
@@ -111,7 +111,7 @@ function Delete({ category, onClose }: EdProps) {
         },
       },
     );
-  };
+  }, [category.id, category.name, deleteMutation, onClose, toast]);
 
   return (
     <div className='space-y-8'>
@@ -169,12 +169,12 @@ function Update({ category, onClose }: EdProps) {
     );
   }
 
-  const handleError = () => {
+  const handleError = useCallback(() => {
     toast({
       title: `Error updating`,
       variant: 'destructive',
     });
-  };
+  }, [toast]);
 
   return (
     <>

@@ -1,15 +1,15 @@
-import { Router } from '@tanstack/react-router';
+import { createRouter } from '@tanstack/react-router';
 
-import { NotFoundRoute } from '@/routes/-not-found';
 import { routeTree } from '@/routeTree.gen';
-import { AppRouteError } from '@/shared/components/app-route-error';
-import { AsyncLoader } from '@/shared/components/async-loader';
+import { AppError } from '@/shared/components/errors/app-error';
+import { NotFound } from '@/shared/components/not-found';
+import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { queryClient } from '@/shared/lib/query-client';
 
 // const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouter(createBrowserRouter);
 
 // Create a new router instance
-export const router = new Router({
+export const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
   // Since we're using React Query, we don't want loader calls to ever be stale
@@ -20,9 +20,9 @@ export const router = new Router({
     queryClient,
     session: undefined,
   },
-  notFoundRoute: NotFoundRoute,
-  defaultPendingComponent: () => <AsyncLoader />,
-  defaultErrorComponent: AppRouteError,
+  globalNotFound: NotFound,
+  defaultPendingComponent: () => <AsyncLoader className='h-6 w-6' />,
+  defaultErrorComponent: AppError,
 });
 
 // Register the router instance for type safety

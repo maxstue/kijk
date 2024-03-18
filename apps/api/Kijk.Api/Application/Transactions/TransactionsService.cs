@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-
 using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
@@ -11,11 +10,18 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
 {
     private readonly ILogger _logger = Log.ForContext<TransactionsService>();
 
+    /// <summary>
+    ///     Retrieves all transactions for the current user by year and month.
+    /// </summary>
+    /// <param name="year"></param>
+    /// <param name="month"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<AppResult<List<TransactionDto>>> GetByAsync(int? year, string? month, CancellationToken cancellationToken = default)
     {
         try
         {
-            var user = await dbContext.Users.FindAsync(new object?[] { currentUser.Id }, cancellationToken);
+            var user = await dbContext.Users.FindAsync([currentUser.Id], cancellationToken);
             if (user is null)
             {
                 return AppError.NotFound($"User for id '{currentUser.Id}' was not found");
@@ -23,11 +29,12 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
 
             var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month : -1;
 
-            return await dbContext.Transactions
+            return await dbContext.Accounts
                 .AsNoTracking()
-                .Where(x => x.User.Id == user.Id)
-                .If(year != null, (q) => q.Where(x => x.ExecutedAt.Year == year))
-                .If(monthInt != -1, (q) => q.Where(x => x.ExecutedAt.Month == monthInt))
+                .Where(x => x.UserId == user.Id)
+                .SelectMany(x => x.Transactions)
+                .If(year != null, q => q.Where(x => x.ExecutedAt.Year == year))
+                .If(monthInt != -1, q => q.Where(x => x.ExecutedAt.Month == monthInt))
                 .Select(
                     x => new TransactionDto(
                         x.Id,
@@ -35,7 +42,7 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Category != null ? x.Category.MapToDto() : null))
+                        CategoryDto.Create(x.Category)))
                 .ToListAsync(cancellationToken);
         }
         catch (Exception e)
@@ -58,7 +65,7 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
                         x.Amount,
                         x.Type,
                         x.ExecutedAt,
-                        x.Category != null ? x.Category.MapToDto() : null))
+                        CategoryDto.Create(x.Category)))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity is null)
@@ -81,27 +88,32 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
     {
         try
         {
-            var user = await dbContext.Users.FindAsync(new object?[] { currentUser.Id }, cancellationToken);
+            var user = await dbContext.Users.FindAsync([currentUser.Id], cancellationToken);
             if (user is null)
             {
                 return AppError.NotFound($"User for id '{currentUser.Id}' was not found");
             }
 
-            var newTransaction = Transaction.Create(
-                createTransactionRequest.Name,
-                createTransactionRequest.Amount,
-                createTransactionRequest.Type,
-                createTransactionRequest.ExecutedAt,
-                user);
+            var account = await dbContext.Accounts
+                .Where(x => x.Id == createTransactionRequest.AccountId)
+                .Where(x => x.UserId == user.Id)
+                .FirstOrDefaultAsync(cancellationToken);
 
+            if (account is null)
+            {
+                _logger.Warning("Error: Account with id {AccountId} could not be found", createTransactionRequest.AccountId);
+                return AppError.NotFound($"Account with id '{createTransactionRequest.AccountId}' could not be found");
+            }
+
+            Category? category;
             if (createTransactionRequest.CategoryId is not null)
             {
-                var category = await dbContext.Categories
-                    .FindAsync(new object?[] { createTransactionRequest.CategoryId }, cancellationToken: cancellationToken);
+                var foundCategory = await dbContext.Categories
+                    .FindAsync([createTransactionRequest.CategoryId], cancellationToken: cancellationToken);
 
-                if (category is not null)
+                if (foundCategory is not null)
                 {
-                    newTransaction.Category = category;
+                    category = foundCategory;
                 }
                 else
                 {
@@ -109,6 +121,26 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
                     return AppError.NotFound($"The selected category with id '{createTransactionRequest.CategoryId}', doesn't exist");
                 }
             }
+            else
+            {
+                category = await dbContext.Categories
+                    .Where(x => x.Type == CategoryType.Default && x.Name == "Uncategorized")
+                    .FirstOrDefaultAsync(cancellationToken);
+            }
+
+            if (category is null)
+            {
+                _logger.Warning("Category could not be set");
+                return AppError.NotFound("Category could not be set");
+            }
+
+            var newTransaction = Transaction.Create(
+                createTransactionRequest.Name,
+                createTransactionRequest.Amount,
+                createTransactionRequest.Type,
+                createTransactionRequest.ExecutedAt,
+                account,
+                category);
 
             var resEntityEntry = await dbContext.Transactions.AddAsync(newTransaction, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -120,7 +152,7 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
                 entity.Amount,
                 entity.Type,
                 entity.ExecutedAt,
-                entity.Category?.MapToDto());
+                CategoryDto.Create(entity.Category));
         }
         catch (Exception e)
         {
@@ -176,7 +208,7 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
                 foundEntity.Amount,
                 foundEntity.Type,
                 foundEntity.ExecutedAt,
-                foundEntity.Category?.MapToDto());
+                CategoryDto.Create(foundEntity.Category));
         }
         catch (Exception e)
         {
@@ -224,9 +256,10 @@ public class TransactionsService(AppDbContext dbContext, CurrentUser currentUser
                 return AppError.NotFound($"User for id '{currentUser.Id}' was not found");
             }
 
-            var yearsWithTransactions = await dbContext.Transactions
+            var yearsWithTransactions = await dbContext.Accounts
                 .AsNoTracking()
-                .Where(x => x.User.Id == user.Id)
+                .Where(x => x.UserId == user.Id)
+                .SelectMany(x => x.Transactions)
                 .Select(x => x.ExecutedAt.Year)
                 .Distinct()
                 .ToListAsync(cancellationToken);

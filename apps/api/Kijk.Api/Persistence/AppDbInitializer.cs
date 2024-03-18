@@ -4,8 +4,8 @@ namespace Kijk.Api.Persistence;
 
 public static class AppDbInitializer
 {
-    private static readonly List<Category> DefaultCategories = new()
-    {
+    private static readonly List<Category> DefaultCategories =
+    [
         Category.Create("Income", "#232e4b"),
         Category.Create("Other Income", "#232e4b"),
         Category.Create("Cash", "#325e33"),
@@ -22,7 +22,8 @@ public static class AppDbInitializer
         Category.Create("Entertainment", "#232e4b"),
         Category.Create("Subscription", "#BA93F8"),
         Category.Create("Education", "#da3e48"),
-    };
+        Category.Create("Uncategorized", "#616161")
+    ];
 
     public static async Task InitDb(AppDbContext dbContext, IWebHostEnvironment environment)
     {

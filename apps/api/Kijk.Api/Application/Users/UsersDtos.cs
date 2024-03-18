@@ -15,7 +15,9 @@ public record UserResponse(
     string? Name,
     string? Email,
     bool? FirstTime,
-    IEnumerable<TransactionDto>? Transactions,
+    IEnumerable<UserHouseholdDto>? Households,
+    IEnumerable<BudgetDto>? Budgets,
+    IEnumerable<AccountDto>? Accounts,
     IEnumerable<CategoryDto>? Categories);
 
 public record UserInitRequest(string? UserName, bool? UseDefaultCategories);
