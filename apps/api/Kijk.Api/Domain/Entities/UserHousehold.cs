@@ -10,7 +10,7 @@ public sealed class UserHousehold : BaseEntity
     public Guid HouseholdId { get; set; }
     public required Household Household { get; set; }
     public required Role Role { get; set; }
-    
+
     /// <summary>
     ///     A boolean which represents if the household is the default for the user.
     /// </summary>

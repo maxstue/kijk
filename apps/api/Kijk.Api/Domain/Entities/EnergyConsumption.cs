@@ -8,9 +8,9 @@ public sealed class EnergyConsumption : BaseEntity
     public string? Description { get; set; }
     public required decimal Value { get; set; }
     public required EnergyConsumptionType Type { get; set; }
-    
+
     public Guid HouseholdId { get; set; }
-    
+
     public static EnergyConsumption Create(
         string name,
         EnergyConsumptionType type,

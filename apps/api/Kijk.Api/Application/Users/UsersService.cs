@@ -185,7 +185,7 @@ public class UsersService(CurrentUser currentUser, AppDbContext dbContext)
                 _logger.Warning("Error: User not found");
                 return AppError.NotFound();
             }
-            
+
             if (userUpdateRequest.UserName is null)
             {
                 _logger.Warning("User name is null");

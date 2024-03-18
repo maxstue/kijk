@@ -11,12 +11,12 @@ public sealed class EnergyConsumptionLimit : BaseEntity
     public required bool Active { get; set; }
     public required EnergyConsumptionType Type { get; set; }
     public required DateTime LastOccurrence { get; set; }
-    
+
     public Guid CreatedById { get; set; }
     public required User CreatedBy { get; set; }
-    
+
     public Guid HouseholdId { get; set; }
-    
+
     public static EnergyConsumptionLimit Create(
         string name,
         decimal limit,
@@ -42,5 +42,5 @@ public sealed class EnergyConsumptionLimit : BaseEntity
             HouseholdId = householdId
         };
     }
-    
+
 }

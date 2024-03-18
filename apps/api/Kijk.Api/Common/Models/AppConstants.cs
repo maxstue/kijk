@@ -38,7 +38,7 @@ public static class AppConstants
     {
         public const string Base = "Base";
     }
-    
+
     public static class DefaultValues
     {
         public const string Currency = "EUR";

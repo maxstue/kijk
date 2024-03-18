@@ -17,12 +17,12 @@ public class HouseholdConfig : IEntityTypeConfiguration<Household>
             .WithOne(x => x.Household)
             .HasForeignKey(x => x.HouseholdId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasMany(x => x.EnergyConsumptions)
             .WithOne()
             .HasForeignKey(x => x.HouseholdId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasMany(x => x.EnergyConsumptionLimits)
             .WithOne()
             .HasForeignKey(x => x.HouseholdId)

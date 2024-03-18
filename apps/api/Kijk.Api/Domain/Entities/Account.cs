@@ -8,12 +8,12 @@ public sealed class Account : BaseEntity
     ///     The user who owns the account.
     /// </summary>
     public Guid UserId { get; set; }
-    
+
     /// <summary>
     ///     The household the account belongs to.
     /// </summary>
     public Guid HouseholdId { get; set; }
-    
+
     public required string Name { get; set; }
     public decimal Balance { get; set; }
     public Visibility Visibility { get; set; }
