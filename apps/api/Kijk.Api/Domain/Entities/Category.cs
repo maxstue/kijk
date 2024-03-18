@@ -1,15 +1,6 @@
 ﻿using Kijk.Api.Common.Models;
 
-using NetEscapades.EnumGenerators;
-
 namespace Kijk.Api.Domain.Entities;
-
-[EnumExtensions]
-public enum CategoryType
-{
-    Default,
-    User
-}
 
 public sealed class Category : BaseEntity
 {
@@ -23,22 +14,17 @@ public sealed class Category : BaseEntity
 
     public CategoryType Type { get; set; }
 
-    public List<Transaction> Transactions { get; set; } = new();
+    public List<Transaction>? Transactions { get; set; }
 
-    public List<User> Users { get; set; } = new();
+    public List<User> Users { get; set; } = [];
 
-    public static Category Create(string name, string color, CategoryType type = CategoryType.Default, User? user = default)
-    {
-        return new Category
+    public static Category Create(string name, string color, CategoryType type = CategoryType.Default, User? user = default) =>
+        new()
         {
             Id = Guid.NewGuid(),
             Name = name,
             Color = color,
             Type = type,
-            Users = user is null ? new List<User>() : new List<User> { user },
-            Transactions = new List<Transaction>()
+            Users = user is null ? [] : [user]
         };
-    }
-
-    public CategoryDto MapToDto() => new(this.Id, this.Name, this.Color, this.Type);
 }

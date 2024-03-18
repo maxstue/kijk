@@ -8,6 +8,11 @@ namespace Kijk.Api.Endpoints;
 
 public static class CategoriesEndpoint
 {
+    /// <summary>
+    ///     Maps the endpoints for the categories.
+    /// </summary>
+    /// <param name="endpointRouteBuilder"></param>
+    /// <returns></returns>
     public static IEndpointRouteBuilder MapCategoriesEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
         var group = endpointRouteBuilder.MapGroup("/categories")
@@ -23,14 +28,14 @@ public static class CategoriesEndpoint
         return endpointRouteBuilder;
     }
 
-    private static async Task<IResult> GetAll(ICategoriesService service, CancellationToken token)
+    private static async Task<IResult> GetAll(CategoriesService service, CancellationToken token)
     {
         var result = await service.GetAllAsync(token);
         return result.ToResponse("Successfully loaded");
     }
 
     private static async Task<IResult> Create(
-        ICategoriesService service,
+        CategoriesService service,
         [FromBody] CreateCategoryRequest createCategoryRequest,
         CancellationToken token)
     {
@@ -39,7 +44,7 @@ public static class CategoriesEndpoint
     }
 
     private static async Task<IResult> Update(
-        ICategoriesService service,
+        CategoriesService service,
         Guid id,
         [FromBody] UpdateCategoryRequest updateCategoryRequest,
         CancellationToken token)
@@ -48,7 +53,7 @@ public static class CategoriesEndpoint
         return result.ToResponse("Successfully updated");
     }
 
-    private static async Task<IResult> DeleteById(ICategoriesService service, Guid id, CancellationToken token)
+    private static async Task<IResult> DeleteById(CategoriesService service, Guid id, CancellationToken token)
     {
         var result = await service.DeleteAsync(id, token);
         return result.ToResponse("Successfully deleted");

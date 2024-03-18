@@ -14,7 +14,7 @@ public static class UsersEndpoint
         group.MapGet("/sign-in", SignInAsync);
         group.MapGet("/me", MeAsync);
 
-        group.MapPut("/init", InitAsync);
+        group.MapPut("/welcome", WelcomeAsync);
         group.MapPut("/", UpdateAsync);
 
         return endpointRouteBuilder;
@@ -32,9 +32,9 @@ public static class UsersEndpoint
         return result.ToResponse("Successfully loaded");
     }
 
-    private static async Task<IResult> InitAsync(UsersService service, UserInitRequest userInitRequest, CancellationToken cancellationToken)
+    private static async Task<IResult> WelcomeAsync(UsersService service, UserInitRequest userInitRequest, CancellationToken cancellationToken)
     {
-        var result = await service.InitAsync(userInitRequest, cancellationToken);
+        var result = await service.WelcomeAsync(userInitRequest, cancellationToken);
         return result.ToResponse("Successfully initialized");
     }
 

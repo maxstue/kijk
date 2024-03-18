@@ -23,7 +23,7 @@ public static class ApplicationExtensions
     {
         var app = (WebApplication)applicationBuilder;
         using var scope = app.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         await AppDbInitializer.InitDb(dbContext, environment);
 

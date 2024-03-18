@@ -18,35 +18,30 @@ public static class CurrentUserExtensions
     /// <summary>
     ///     This class gets only called if <see cref="ClaimsPrincipal" /> is NOT null.
     /// </summary>
-    private sealed class ClaimsTransformation : IClaimsTransformation
+    private sealed class ClaimsTransformation(CurrentUser currentUser, AppDbContext dbContext) : IClaimsTransformation
     {
-        private readonly CurrentUser _currentUser;
-        private readonly AppDbContext _dbContext;
-
-        public ClaimsTransformation(CurrentUser currentUser, AppDbContext dbContext)
-        {
-            _currentUser = currentUser;
-            _dbContext = dbContext;
-        }
-
         public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
             var sub = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var email = principal.FindFirstValue(ClaimTypes.Email);
 
-            var userEntity = await _dbContext.Users
-                .AsNoTracking()
-                .Where(x => x.AuthId == sub)
-                .FirstOrDefaultAsync();
+            if (sub != null)
+            {
+                var email = principal.FindFirstValue(ClaimTypes.Email);
+                var userEntity = await dbContext.Users
+                    .AsNoTracking()
+                    .Where(x => x.AuthId == sub)
+                    .FirstOrDefaultAsync();
 
-            // We're not going to transform anything. We're using this as a hook into authorization
-            // to set the current user without adding custom middleware.
-            _currentUser.Principal = principal;
-            _currentUser.User = userEntity ?? User.Create(
-                sub,
-                AppConstants.CreateUserIdentifier,
-                email,
-                firstTime: true);
+                // We're not going to transform anything. We're using this as a hook into authorization
+                // to set the current user without adding custom middleware.
+                currentUser.Principal = principal;
+                currentUser.User = userEntity ?? User.Create(
+                    sub,
+                    AppConstants.CreateUserIdentifier,
+                    email,
+                    null,
+                    firstTime: true);
+            }
 
             return await Task.FromResult(principal);
         }

@@ -4,35 +4,33 @@ using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Application.Categories;
 
-/// <inheritdoc cref="ICategoriesService"/>
-public class CategoriesService : ICategoriesService
+/// <summary>
+/// Handles all logic related to <see cref="Category"/>
+/// </summary>
+public class CategoriesService(CurrentUser currentUser, AppDbContext dbContext)
 {
     private readonly ILogger _logger = Log.ForContext<CategoriesService>();
-    private readonly CurrentUser _currentUser;
-    private readonly AppDbContext _dbContext;
 
-    public CategoriesService(CurrentUser currentUser, AppDbContext dbContext)
-    {
-        _currentUser = currentUser;
-        _dbContext = dbContext;
-    }
-
-    /// <inheritdoc cref="ICategoriesService.GetAllAsync"/>
+    /// <summary>
+    ///     Retrieves all categories for the current user.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<AppResult<List<CategoryDto>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            var user = await _dbContext.Users
+            var user = await dbContext.Users
                 .Include(x => x.Categories)
-                .Where(x => x.Id == _currentUser.Id)
+                .Where(x => x.Id == currentUser.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user is null)
             {
-                return AppError.NotFound(description: $"User with id '{_currentUser.Id}' was not found");
+                return AppError.NotFound(description: $"User with id '{currentUser.Id}' was not found");
             }
 
-            return user.Categories.Select(x => x.MapToDto()).ToList();
+            return user.Categories.Select(CategoryDto.Create).ToList();
         }
         catch (Exception e)
         {
@@ -41,20 +39,25 @@ public class CategoriesService : ICategoriesService
         }
     }
 
-    /// <inheritdoc cref="ICategoriesService.CreateAsync"/>
+    /// <summary>
+    ///     Retrieves a single category by its id.
+    /// </summary>
+    /// <param name="createCategoryRequest"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<AppResult<CategoryDto>> CreateAsync(CreateCategoryRequest createCategoryRequest, CancellationToken cancellationToken = default)
     {
         try
         {
-            var user = await _dbContext.Users
+            var user = await dbContext.Users
                 .Include(x => x.Categories)
-                .Where(x => x.Id == _currentUser.Id)
+                .Where(x => x.Id == currentUser.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user is null)
             {
-                _logger.Warning("User with id {Id} could not be found", _currentUser.Id);
-                return AppError.NotFound(description: $"‘User‘ with id '{_currentUser.Id}' was not found");
+                _logger.Warning("User with id {Id} could not be found", currentUser.Id);
+                return AppError.NotFound(description: $"‘User‘ with id '{currentUser.Id}' was not found");
             }
 
             if (user.Categories.Any(c => string.Equals(c.Name, createCategoryRequest.Name, StringComparison.CurrentCultureIgnoreCase)))
@@ -63,11 +66,11 @@ public class CategoriesService : ICategoriesService
             }
 
             var newCategory = Category.Create(createCategoryRequest.Name, createCategoryRequest.Color, CategoryType.User, user);
-            var resEntity = await _dbContext.AddAsync(newCategory, cancellationToken);
+            var resEntity = await dbContext.AddAsync(newCategory, cancellationToken);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-            return resEntity.Entity.MapToDto();
+            return CategoryDto.Create(resEntity.Entity);
         }
         catch (Exception e)
         {
@@ -76,7 +79,13 @@ public class CategoriesService : ICategoriesService
         }
     }
 
-    /// <inheritdoc cref="ICategoriesService.UpdateAsync"/>
+    /// <summary>
+    ///     Updates a category by its id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="updateCategoryRequest"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<AppResult<CategoryDto>> UpdateAsync(
         Guid id,
         UpdateCategoryRequest updateCategoryRequest,
@@ -84,18 +93,18 @@ public class CategoriesService : ICategoriesService
     {
         try
         {
-            var user = await _dbContext.Users
+            var user = await dbContext.Users
                 .Include(x => x.Categories)
-                .Where(x => x.Id == _currentUser.Id)
+                .Where(x => x.Id == currentUser.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user is null)
             {
-                _logger.Warning("User with id {Id} could not be found", _currentUser.Id);
-                return AppError.NotFound(description: $"User with id '{_currentUser.Id}' was not found");
+                _logger.Warning("User with id {Id} could not be found", currentUser.Id);
+                return AppError.NotFound(description: $"User with id '{currentUser.Id}' was not found");
             }
 
-            var category = await _dbContext.Categories.FindAsync(new object?[] { id }, cancellationToken);
+            var category = await dbContext.Categories.FindAsync(new object?[] { id }, cancellationToken);
 
             if (category is null)
             {
@@ -105,9 +114,9 @@ public class CategoriesService : ICategoriesService
             category.Name = updateCategoryRequest.Name ?? category.Name;
             category.Color = updateCategoryRequest.Color ?? category.Color;
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-            return category.MapToDto();
+            return CategoryDto.Create(category);
         }
         catch (Exception e)
         {
@@ -116,29 +125,34 @@ public class CategoriesService : ICategoriesService
         }
     }
 
-    /// <inheritdoc cref="ICategoriesService.DeleteAsync"/>
+    /// <summary>
+    ///     Deletes a category by its id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<AppResult<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
-            var user = await _dbContext.Users
+            var user = await dbContext.Users
                 .Include(x => x.Categories)
-                .Where(x => x.Id == _currentUser.Id)
+                .Where(x => x.Id == currentUser.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user is null)
             {
-                _logger.Warning("User with id {Id} could not be found", _currentUser.Id);
-                return AppError.NotFound(description: $"‘User‘ with id '{_currentUser.Id}' was not found");
+                _logger.Warning("User with id {Id} could not be found", currentUser.Id);
+                return AppError.NotFound(description: $"‘User‘ with id '{currentUser.Id}' was not found");
             }
 
             if (user.Categories.Find(x => x.Id == id) is null)
             {
-                _logger.Warning("User with id '{UserId}' was not allowed to delete the category with id {CategoryId}", _currentUser.Id, id);
-                return AppError.NotFound(description: $"‘User‘ with id '{_currentUser.Id}' is not allowed to delete the category");
+                _logger.Warning("User with id '{UserId}' was not allowed to delete the category with id {CategoryId}", currentUser.Id, id);
+                return AppError.NotFound(description: $"‘User‘ with id '{currentUser.Id}' is not allowed to delete the category");
             }
 
-            var foundEntity = await _dbContext.Categories.FindAsync(new object[] { id }, cancellationToken);
+            var foundEntity = await dbContext.Categories.FindAsync(new object[] { id }, cancellationToken);
 
             if (foundEntity == null)
             {
@@ -152,9 +166,9 @@ public class CategoriesService : ICategoriesService
                 return AppError.NotFound($"Category with id {id} could not be deleted, because it is of type 'Default'");
             }
 
-            _dbContext.Categories.Remove(foundEntity);
+            dbContext.Categories.Remove(foundEntity);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }

@@ -22,10 +22,16 @@ public class UsersService(CurrentUser currentUser, AppDbContext dbContext)
             {
                 var newUser = User.Create(
                     currentUser.AuthId,
-                    AppConstants.CreateUserIdentifier + "-" + RandomNumberGenerator.GetInt32(0, Int32.MaxValue),
+                    $"{AppConstants.CreateUserIdentifier}-{RandomNumberGenerator.GetInt32(0, Int32.MaxValue)}",
                     currentUser.Email,
                     default,
                     true);
+
+                var newHouseHold = Household.Create("New Household", true);
+                var newUserHousehold = UserHousehold.Create(newUser, newHouseHold, Role.Admin, true);
+
+                await dbContext.Households.AddAsync(newHouseHold, cancellationToken);
+                await dbContext.UserHouseholds.AddAsync(newUserHousehold, cancellationToken);
 
                 var newUserEntry = await dbContext.Users.AddAsync(newUser, cancellationToken);
                 var newUserEntity = newUserEntry.Entity;
@@ -67,12 +73,12 @@ public class UsersService(CurrentUser currentUser, AppDbContext dbContext)
     }
 
     /// <summary>
-    ///     Initiates a newly created user.
+    ///     Updates a newly created user after the welcome page.
     /// </summary>
     /// <param name="userInitRequest">The user init settings.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A loaded User from database.</returns>
-    public async Task<AppResult<UserSmallResponse>> InitAsync(UserInitRequest userInitRequest, CancellationToken cancellationToken = default)
+    public async Task<AppResult<UserSmallResponse>> WelcomeAsync(UserInitRequest userInitRequest, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -84,6 +90,12 @@ public class UsersService(CurrentUser currentUser, AppDbContext dbContext)
             {
                 _logger.Warning("Error: User not found");
                 return AppError.NotFound();
+            }
+
+            if (userInitRequest.UserName is null)
+            {
+                _logger.Warning("User name is null");
+                return AppError.Validation("User name is null");
             }
 
             userEntity.FirstTime = false;
@@ -121,6 +133,12 @@ public class UsersService(CurrentUser currentUser, AppDbContext dbContext)
         try
         {
             var userEntity = await dbContext.Users
+                .Include(x => x.Accounts)
+                .ThenInclude(x => x.Transactions)
+                .Include(x => x.Categories)
+                .Include(x => x.Budgets)
+                .Include(x => x.UserHouseholds)
+                .ThenInclude(x => x.Household)
                 .Where(x => x.Id == currentUser.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -136,15 +154,10 @@ public class UsersService(CurrentUser currentUser, AppDbContext dbContext)
                 userEntity.Name,
                 userEntity.Email,
                 userEntity.FirstTime,
-                userEntity.Transactions.Select(
-                    x => new TransactionDto(
-                        x.Id,
-                        x.Name,
-                        x.Amount,
-                        x.Type,
-                        x.ExecutedAt,
-                        x.Category?.MapToDto())),
-                userEntity.Categories.Select(c => c.MapToDto()));
+                userEntity.UserHouseholds.Select(UserHouseholdDto.Create),
+                userEntity.Budgets.Select(BudgetDto.Create),
+                userEntity.Accounts.Select(AccountDto.Create),
+                userEntity.Categories.Select(CategoryDto.Create));
         }
         catch (Exception e)
         {
@@ -171,6 +184,12 @@ public class UsersService(CurrentUser currentUser, AppDbContext dbContext)
             {
                 _logger.Warning("Error: User not found");
                 return AppError.NotFound();
+            }
+            
+            if (userUpdateRequest.UserName is null)
+            {
+                _logger.Warning("User name is null");
+                return AppError.Validation("User name is null");
             }
 
             userEntity.FirstTime = false;

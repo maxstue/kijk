@@ -221,7 +221,7 @@ public static class ServiceExtensions
         // State that represents the current user from the request
         services.AddCurrentUser();
 
-        // TODO write into custom requirementshandler
+        // REFACTOR write into custom requirementshandler
         services.AddAuthorizationBuilder()
             .AddPolicy(
                 AppConstants.Policies.All,
