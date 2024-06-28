@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kijk.Api", "Kijk.Api\Kijk.Api.csproj", "{864226C8-F64E-450A-B026-783052D78AAB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{61A8A4BF-DF87-44EA-9C2F-6D432917846E}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+		package.json = package.json
+		.editorconfig = .editorconfig
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		..\..\docker-compose.yml = ..\..\docker-compose.yml
+		README.md = README.md
+		fly.toml = fly.toml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{864226C8-F64E-450A-B026-783052D78AAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{864226C8-F64E-450A-B026-783052D78AAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{864226C8-F64E-450A-B026-783052D78AAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{864226C8-F64E-450A-B026-783052D78AAB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

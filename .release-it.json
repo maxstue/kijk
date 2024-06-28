@@ -1,0 +1,24 @@
+{
+  "git": {
+    "requireBranch": "main",
+    "changelog": "pnpx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/main/templates/changelog-compact.hbs",
+    "commitMessage": "chore: release ${version}"
+  },
+  "hooks": {
+    "before:init": ["pnpm build"],
+    "after:bump": "pnpx auto-changelog -p"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "${version}"
+  },
+  "plugins": {
+    "@csmith/release-it-calver-plugin": {
+      "format": "yyyy.mm.minor",
+      "increment": "calendar"
+    }
+  },
+  "npm": {
+    "publish": false
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.format": true
+  },
+  "search.exclude": {
+    "package-lock.json": true,
+    "pnpm-lock.yaml": true,
+    "node_modules": true
+  },
+  "testing.automaticallyOpenPeekView": "never"
+}

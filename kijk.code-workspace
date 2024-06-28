@@ -1,0 +1,34 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "./"
+    },
+    {
+      "name": "apps",
+      "path": "./apps"
+    },
+    // TODO Workaround for https://stackoverflow.com/questions/47405315/visual-studio-code-and-subfolder-specific-settings/50305853#50305853
+    // {
+    //   "name": "apps/dotnet-api",
+    //   "path": "./apps/dotnet-api"
+    // },
+    // {
+    //   "name": "apps/nextjs-web",
+    //   "path": "./apps/nextjs-web"
+    // },
+    {
+      "name": "packages",
+      "path": "./packages"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "node_modules/": true,
+      "apps": true,
+      "packages": true
+    },
+    "dotnet.defaultSolution": "/Users/mast1/Documents/_Repos/_privat/kijk/apps/dotnet-api/KijkDotnetApi.sln",
+    "typescript.tsdk": "node_modules/typescript/lib"
+  }
+}

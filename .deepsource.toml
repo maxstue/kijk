@@ -1,0 +1,22 @@
+version = 1
+
+exclude_patterns = ["app/api/Kijk.Api/Persistence/Migrations/**"]
+
+[[analyzers]]
+name = "secrets"
+
+[[analyzers]]
+name = "csharp"
+
+[[analyzers]]
+name = "shell"
+
+[[analyzers]]
+name = "javascript"
+
+  [analyzers.meta]
+  plugins = ["react"]
+  environment = [
+    "browser",
+    "vitest"
+  ]

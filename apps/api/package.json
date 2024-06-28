@@ -1,0 +1,23 @@
+{
+  "name": "kijk-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Kijk api project.",
+  "keywords": [
+    "dotnet",
+    "c#",
+    "api"
+  ],
+  "author": {
+    "name": "Maximilian Stümpfl",
+    "url": "https://github.com/maxstue"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "dotnet watch run --project Kijk.Api/Kijk.Api.csproj --launch-profile https",
+    "build": "dotnet build \"Kijk.Api/Kijk.Api.csproj\" -c Release",
+    "lint": "dotnet format --verify-no-changes --verbosity detailed --exclude 'Kijk.Api/Persistence/Migrations/'",
+    "lint:fix": "dotnet format --exclude 'Kijk.Api/Persistence/Migrations/'",
+    "format": "dotnet format --verify-no-changes --verbosity detailed --exclude 'Kijk.Api/Persistence/Migrations/'"
+  }
+}

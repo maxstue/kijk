@@ -1,0 +1,7 @@
+node_modules
+**/.idea
+**/.DS_Store
+.DS_Store
+**/lint-results.sarif
+**/.env.production.local
+.vercel

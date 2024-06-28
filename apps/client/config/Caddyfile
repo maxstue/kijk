@@ -1,0 +1,47 @@
+# global options
+{
+	admin off # theres no need for the admin api
+	persist_config off # storage isn't persistent anyway
+	auto_https off # fly.io handles https for us, this would cause issues if left enabled
+
+	# runtime logs
+	log {
+		format json # set runtime log format to json mode
+	}
+	# server options
+	servers {
+		metrics
+	}
+}
+
+# site block
+:80 {
+	encode gzip
+	log {
+		format json # set access log format to json mode
+	}
+	handle {
+		# health check for fly.io
+		respond /health 200
+
+		root * /var/www/html
+
+		try_files {path}.html {path} /index.html
+		file_server
+
+		@static {
+			file
+			path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2
+		}
+		header @static Cache-Control "public, max-age=5184000"
+
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Document-Policy "js-profiling"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			X-XSS-Protection "1; mode=block"
+		}
+	}
+}

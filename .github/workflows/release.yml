@@ -1,0 +1,105 @@
+name: Release
+on: workflow_dispatch
+
+env:
+  NODE_VERSION: "20.x"
+  PNPM_VERSION: "9"
+  CI: ${{ vars.CI }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install pnpm"
+        uses: pnpm/action-setup@v3
+        id: pnpm-install
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: "🔧 Use Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: "📦 Install dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "Initialize git"
+        run: |
+          git config --global user.name "Release Workflow"
+          git config --global user.email "maxstue2304@gmail.com"
+
+      - name: "🚀 Release"
+        run: pnpm run release --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  api:
+    needs: [release]
+    name: Deploy 🚀
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  client:
+    needs: [release]
+    name: Deploy 🚀
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/client
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_CLIENT }}
+    steps:
+      - name: "🏝️ Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install Vercel CLI"
+        run: npm install --global vercel@latest
+
+      - name: "⬇️ Pull Vercel Environment Information"
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: "🧱 Build Project Artifacts"
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: "🚀 Deploy Project Artifacts to Vercel"
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  web:
+    needs: [release]
+    name: Deploy 🚀
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/web
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
+    steps:
+      - name: "🏝️ Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install Vercel CLI"
+        run: npm install --global vercel@latest
+
+      - name: "⬇️ Pull Vercel Environment Information"
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: "🧱 Build Project Artifacts"
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: "🚀 Deploy Project Artifacts to Vercel"
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
