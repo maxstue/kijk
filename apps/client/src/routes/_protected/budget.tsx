@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { DollarSign, List, Users } from 'lucide-react';
 import { z } from 'zod';
@@ -54,8 +54,16 @@ export const Route = createFileRoute('/_protected/budget')({
 function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
   const searchParams = Route.useSearch();
+  const navigate = Route.useNavigate();
 
   const handleClose = useCallback(() => setShowSheet(false), []);
+
+  useEffect(() => {
+    navigate({
+      to: '/budget',
+      search: (prev) => ({ ...prev, ...searchParams }),
+    });
+  }, [navigate, searchParams, searchParams.month, searchParams.year]);
 
   return (
     <>

@@ -51,7 +51,7 @@ export const AppSidebar = () => {
       </div>
       {/* Footer */}
       <div className='flex flex-col gap-2'>
-        <ExSidebarItem to='https://github.com/maxstue/kijk/discussions' leftSlot={<CircleHelpIcon className='h-4' />}>
+        <ExSidebarItem to={siteConfig.links.support} leftSlot={<CircleHelpIcon className='h-4' />}>
           <span className='text-sm font-medium'>Support</span>
         </ExSidebarItem>
       </div>

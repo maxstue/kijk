@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getRouteApi, useLocation, useNavigate } from '@tanstack/react-router';
+import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
 
@@ -41,7 +41,6 @@ export function BudgetYearSwitcher({ className }: YProps) {
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
   const searchParams = Route.useSearch();
   const navigate = Route.useNavigate();
-  const location = useLocation();
 
   const { data } = useGetYears();
   const queryClient = useQueryClient();
@@ -55,13 +54,6 @@ export function BudgetYearSwitcher({ className }: YProps) {
       years.push(Number(searchParams.year));
     }
   }, [queryClient, searchParams.year, years]);
-
-  // set year in the url when it is not set
-  useEffect(() => {
-    if (!location.search.year && location.pathname.includes('budget')) {
-      navigate({ to: '/budget', search: (prev) => ({ ...prev, year: searchParams.year }) });
-    }
-  }, [location.pathname, location.search.year, navigate, searchParams.year]);
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
@@ -138,7 +130,7 @@ type YearFormValues = z.infer<typeof yearSchema>;
 
 function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate({ from: '/budget' });
+  const navigate = Route.useNavigate();
   const form = useZodForm({
     values: { year: new Date().getFullYear() + 1 },
     mode: 'onBlur',
@@ -147,7 +139,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
 
   const { toast } = useToast();
 
-  function onSubmit(data: YearFormValues) {
+  function handleSubmit(data: YearFormValues) {
     const response = queryClient.getQueryData(getYearsQuery.queryKey);
     if (response?.data?.years.includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
@@ -162,9 +154,10 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
           }
         : old,
     );
-    navigate({ search: (prev) => ({ ...prev, year: data.year }) });
+    navigate({ to: '/budget', search: (prev) => ({ ...prev, year: data.year }) });
     onClose();
   }
+
   const handleError = useCallback(() => {
     toast({
       title: 'Error adding new year',
@@ -172,7 +165,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
     });
   }, [toast]);
 
-  const onCancel = useCallback(() => {
+  const handleCancel = useCallback(() => {
     form.reset();
   }, [form]);
 
@@ -182,7 +175,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
         <DialogTitle>Add new Year</DialogTitle>
         <DialogDescription>Add a new year to manage.</DialogDescription>
       </DialogHeader>
-      <Form form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
+      <Form form={form} onSubmit={handleSubmit} onInvalid={handleError} className='space-y-8'>
         <div className='space-y-4 py-2 pb-4'>
           <div className='space-y-2'>
             <FormField
@@ -201,7 +194,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <DialogFooter>
-          <Button type='button' onClick={onCancel} variant='outline'>
+          <Button type='button' onClick={handleCancel} variant='outline'>
             Cancel
           </Button>
           <Button type='submit'>Continue</Button>

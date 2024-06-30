@@ -1,26 +1,12 @@
-import { useEffect } from 'react';
-import { getRouteApi, Link, useLocation } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 
 import { buttonVariants } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/helpers';
 import { months } from '@/shared/types/app';
 
-const Route = getRouteApi('/_protected/budget');
-
 type Props = React.HTMLAttributes<HTMLElement>;
 
 export function BudgetMonthNav({ className, ...props }: Props) {
-  const navigate = Route.useNavigate();
-  const searchParams = Route.useSearch();
-  const location = useLocation();
-
-  // set month in the url when it is not set
-  useEffect(() => {
-    if (!location.search.month && location.pathname.includes('budget')) {
-      navigate({ to: '/budget', search: (prev) => ({ ...prev, month: searchParams.month }) });
-    }
-  }, [location.pathname, location.search.month, navigate, searchParams.month]);
-
   return (
     <nav className={cn('flex gap-2 overflow-auto py-2 lg:h-[calc(100dvh_*_0.60)] lg:flex-col', className)} {...props}>
       {months.map((item) => {
