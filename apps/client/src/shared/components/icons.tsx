@@ -10,6 +10,7 @@ import {
   FileText,
   HelpCircle,
   Image,
+  Info,
   Laptop,
   Loader2,
   LogOut,
@@ -63,6 +64,7 @@ export const Icons = {
   bellRing: BellRing,
   monitor: Monitor,
   category: Shapes,
+  info: Info,
   // custom Icons
   gitHub: ({ ...props }: LucideProps) => (
     <svg

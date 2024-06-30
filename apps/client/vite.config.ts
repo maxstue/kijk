@@ -40,8 +40,8 @@ export default defineConfig(({ mode }) => {
       port: 5004,
     },
     plugins: [
-      react(),
       TanStackRouterVite(),
+      react(),
       VitePWA({
         registerType: 'autoUpdate',
         workbox: {

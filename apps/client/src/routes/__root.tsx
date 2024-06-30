@@ -10,9 +10,6 @@ import { env } from '@/shared/env';
 const DevModeIndicator = lazy(() =>
   import('@/shared/components/dev-mode-indicator').then(({ DevModeIndicator }) => ({ default: DevModeIndicator })),
 );
-const DevModeBreakpoint = lazy(() =>
-  import('@/shared/components/dev-mode-breakpoint').then(({ DevModeBreakpoint }) => ({ default: DevModeBreakpoint })),
-);
 
 interface RootRouteContext {
   queryClient: QueryClient;
@@ -42,7 +39,6 @@ function DevMode() {
   return env.Mode === 'production' ? null : (
     <Suspense>
       <DevModeIndicator />
-      <DevModeBreakpoint />
     </Suspense>
   );
 }

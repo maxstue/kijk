@@ -9,7 +9,7 @@ export const useInitUser = () => {
   return useMutation({
     mutationFn: (data: UserStepFormValues) => {
       return apiClient.put({
-        url: `users/welcome`,
+        url: 'users/welcome',
         data: data,
       });
     },

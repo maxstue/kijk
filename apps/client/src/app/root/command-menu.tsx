@@ -1,5 +1,4 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import { DialogProps } from '@radix-ui/react-alert-dialog';
 import { useNavigate } from '@tanstack/react-router';
 import { File, Laptop, Moon, SunMedium } from 'lucide-react';
 
@@ -28,6 +27,7 @@ import { settingsNav } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/helpers';
 import { useThemeStoreActions } from '@/shared/stores/theme-store';
 import { months } from '@/shared/types/app';
+import type { DialogProps } from '@radix-ui/react-dialog';
 
 interface Props extends DialogProps {
   isCollapsed?: boolean;

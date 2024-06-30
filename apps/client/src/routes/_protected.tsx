@@ -4,7 +4,6 @@ import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { useSignInUser } from '@/app/root/use-signin-user';
 import { InitLaoder } from '@/shared/components/ui/loaders/init-laoder';
-import { cn } from '@/shared/lib/helpers';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/_protected')({
@@ -33,18 +32,22 @@ function Protected() {
         navigate({ to: '/welcome', replace: true });
       }
     }
-  }, [navigate, query.data.data, query.isSuccess, query.status]);
+  }, [isFirstTime, navigate, query.data.data, query.isSuccess, query.status]);
 
   return (
-    <main className={`bg-background text-primary`}>
-      <div className='flex h-[100dvh] w-screen'>
-        {isFirstTime ? null : <AppSidebar />}
-        <div className={cn('h-full flex-1 py-2', isFirstTime ? 'px-2' : 'pr-2')}>
-          <div className='h-full w-full overflow-auto rounded-md border bg-background-foreground/45 p-4'>
-            <Outlet />
-          </div>
+    <div className='relative isolate flex h-dvh w-full bg-background text-primary'>
+      {/* Sidebar */}
+      {isFirstTime ? null : (
+        <div className='fixed inset-y-0 left-0 min-w-64 max-w-64'>
+          <AppSidebar />
         </div>
-      </div>
-    </main>
+      )}
+      {/* Content */}
+      <main className='flex flex-1 flex-col py-2 pl-64 pr-2'>
+        <div className='grow overflow-auto rounded-md border bg-background-foreground/45 p-6'>
+          <Outlet />
+        </div>
+      </main>
+    </div>
   );
 }
