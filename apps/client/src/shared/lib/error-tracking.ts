@@ -8,9 +8,10 @@ export const createSentry = () =>
     dsn: env.SentryDsn,
     environment: env.Mode,
     integrations: [
-      Sentry.replayIntegration(),
+      Sentry.extraErrorDataIntegration(),
       Sentry.browserProfilingIntegration(),
       Sentry.tanstackRouterBrowserTracingIntegration(router),
+      Sentry.replayIntegration(),
     ],
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
@@ -27,7 +28,7 @@ export const createSentry = () =>
     // Capture Replay for 10% of all sessions,
     // plus for 100% of sessions with an error
     replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 0.2,
+    replaysOnErrorSampleRate: 1.0,
 
     // Set profilesSampleRate to 1.0 to profile every transaction.
     // Since profilesSampleRate is relative to tracesSampleRate,
