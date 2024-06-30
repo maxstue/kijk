@@ -78,7 +78,7 @@ const SidebarItem = ({
       key={to}
       to={to}
       preload={false}
-      activeOptions={{ exact: exact }}
+      activeOptions={{ exact: exact, includeSearch: false }}
       className={cn(
         buttonVariants({ variant: 'ghost' }),
         'group h-8 items-center justify-start gap-2 py-0.5 pl-1 text-primary/65 hover:bg-primary/[0.05] data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',
@@ -101,14 +101,6 @@ interface ExSidebarItemProps {
 
 const ExSidebarItem = ({ children, leftSlot, to, className = '' }: PropsWithChildren<ExSidebarItemProps>) => {
   return (
-    //     <a
-    //   href='https://kijk-ruby.vercel.app/'
-    //   rel='noopener noreferrer'
-    //   className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-    // >
-    //   <Undo2 className='h-4 w-4' />
-    //   To website
-    // </a>
     <a
       key={to}
       href={to}

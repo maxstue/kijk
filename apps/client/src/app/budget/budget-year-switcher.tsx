@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getRouteApi, useNavigate } from '@tanstack/react-router';
+import { getRouteApi, useLocation, useNavigate } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
 
@@ -32,15 +32,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/
 import { useToast } from '@/shared/hooks/use-toast';
 import { cn } from '@/shared/lib/helpers';
 
-const route = getRouteApi('/_protected/budget');
+const Route = getRouteApi('/_protected/budget');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
 export function BudgetYearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
-  const searchParams = route.useSearch();
-  const navigate = useNavigate({ from: '/budget' });
+  const searchParams = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const location = useLocation();
+
   const { data } = useGetYears();
   const queryClient = useQueryClient();
 
@@ -54,10 +56,12 @@ export function BudgetYearSwitcher({ className }: YProps) {
     }
   }, [queryClient, searchParams.year, years]);
 
-  // set year in the url when it changes
+  // set year in the url when it is not set
   useEffect(() => {
-    navigate({ search: (prev) => ({ ...prev, year: searchParams.year }) });
-  }, [navigate, searchParams.year]);
+    if (!location.search.year && location.pathname.includes('budget')) {
+      navigate({ to: '/budget', search: (prev) => ({ ...prev, year: searchParams.year }) });
+    }
+  }, [location.pathname, location.search.year, navigate, searchParams.year]);
 
   const handleSelectYear = (year: number) => {
     setOpen(false);

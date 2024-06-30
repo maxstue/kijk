@@ -43,8 +43,6 @@ export const Route = createFileRoute('/_protected/budget')({
   preSearchFilters: [
     (search) => ({
       ...search,
-      month: search.month,
-      year: search.year,
     }),
   ],
   validateSearch: searchSchema,
@@ -64,13 +62,13 @@ function BudgetPage() {
       <Head title='Budget' />
       <div className='space-y-6 pt-10'>
         <div className='space-y-0.5'>
-          <h2 className='text-2xl font-bold tracking-tight'>Expenses / Income</h2>
+          <h2 className='text-2xl font-bold tracking-tight'>Transactions</h2>
           <p className='text-muted-foreground'>Manage your Expenses and Incomes.</p>
         </div>
         <Separator className='my-6' />
         {/* Sidebar */}
         <div className='flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <aside className='flex h-full flex-col gap-4 lg:w-1/5'>
+          <aside className='flex h-full flex-col gap-4 lg:min-w-[20%]'>
             <BudgetTodayButton />
             <Suspense fallback={<AsyncLoader />}>
               <BudgetYearSwitcher />
