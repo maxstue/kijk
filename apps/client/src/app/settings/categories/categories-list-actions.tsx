@@ -172,7 +172,7 @@ function Update({ category, onClose }: EdProps) {
 
   const handleError = useCallback(() => {
     toast({
-      title: `Error updating`,
+      title: 'Error updating',
       variant: 'destructive',
     });
   }, [toast]);

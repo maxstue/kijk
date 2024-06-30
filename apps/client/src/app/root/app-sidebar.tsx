@@ -11,51 +11,49 @@ import { cn } from '@/shared/lib/helpers';
 
 export const AppSidebar = () => {
   return (
-    <aside className='h-full px-4 py-6'>
-      <div className='flex h-full flex-col justify-between'>
-        <div className='flex flex-col'>
-          <div className='flex w-full items-center justify-between py-1'>
-            <Link
-              to='/home'
-              className={cn(
-                buttonVariants({ variant: 'ghost' }),
-                'items-center justify-start gap-1 pl-1 hover:bg-transparent',
-              )}
-            >
-              <Icons.logo className='size-6' />
-              <div className='flex text-sm font-medium'>{siteConfig.name}</div>
-            </Link>
-            <UserNav />
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <div className='my-6'>
-              <CommandMenu />
-            </div>
-
-            <SidebarItem exact to='/home' leftSlot={<HomeIcon className='h-4' />}>
-              <span className='text-sm font-medium'>Dashboard</span>
-            </SidebarItem>
-
-            <SidebarItem to='/energy' leftSlot={<ZapIcon className='h-4' />}>
-              <span className='text-sm font-medium'>Energy</span>
-            </SidebarItem>
-
-            <SidebarItem to='/budget' leftSlot={<WalletIcon className='h-4' />}>
-              <span className='text-sm font-medium'>Transactions</span>
-            </SidebarItem>
-
-            <SidebarItem to='/settings' leftSlot={<SettingsIcon className='h-4' />}>
-              <span className='text-sm font-medium'>Settings</span>
-            </SidebarItem>
-          </div>
+    <aside className='flex h-full flex-col justify-between px-4 py-6'>
+      <div className='flex flex-col'>
+        <div className='flex w-full items-center justify-between py-1'>
+          <Link
+            to='/home'
+            className={cn(
+              buttonVariants({ variant: 'ghost' }),
+              'items-center justify-start gap-1 pl-1 hover:bg-transparent',
+            )}
+          >
+            <Icons.logo className='size-6' />
+            <div className='flex text-sm font-medium'>{siteConfig.name}</div>
+          </Link>
+          <UserNav />
         </div>
-        {/* Footer */}
+
         <div className='flex flex-col gap-2'>
-          <ExSidebarItem to='https://github.com/maxstue/kijk/issues' leftSlot={<CircleHelpIcon className='h-4' />}>
-            <span className='text-sm font-medium'>Support</span>
-          </ExSidebarItem>
+          <div className='my-6'>
+            <CommandMenu />
+          </div>
+
+          <SidebarItem exact to='/home' leftSlot={<HomeIcon className='h-4' />}>
+            <span className='text-sm font-medium'>Dashboard</span>
+          </SidebarItem>
+
+          <SidebarItem to='/energy' leftSlot={<ZapIcon className='h-4' />}>
+            <span className='text-sm font-medium'>Energy</span>
+          </SidebarItem>
+
+          <SidebarItem to='/budget' leftSlot={<WalletIcon className='h-4' />}>
+            <span className='text-sm font-medium'>Transactions</span>
+          </SidebarItem>
+
+          <SidebarItem to='/settings' leftSlot={<SettingsIcon className='h-4' />}>
+            <span className='text-sm font-medium'>Settings</span>
+          </SidebarItem>
         </div>
+      </div>
+      {/* Footer */}
+      <div className='flex flex-col gap-2'>
+        <ExSidebarItem to='https://github.com/maxstue/kijk/issues' leftSlot={<CircleHelpIcon className='h-4' />}>
+          <span className='text-sm font-medium'>Support</span>
+        </ExSidebarItem>
       </div>
     </aside>
   );
