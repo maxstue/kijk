@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { AccountSection } from '@/app/settings/account/account-section';
 import { AppearanceSection } from '@/app/settings/appearance/appearance-section';
 import { CategoriesSection } from '@/app/settings/categories/categories-section';
+import { InfoSection } from '@/app/settings/info/info-section';
 import { NotificationsSection } from '@/app/settings/notifications/notifications-section';
 import { ProfileSection } from '@/app/settings/profile/profile-section';
 import { AppError } from '@/shared/components/errors/app-error';
@@ -32,6 +33,7 @@ function SettingsSectionPage() {
         {params.section === 'appearance' && <AppearanceSection />}
         {params.section === 'categories' && <CategoriesSection />}
         {params.section === 'notifications' && <NotificationsSection />}
+        {params.section === 'info' && <InfoSection />}
       </div>
     </>
   );

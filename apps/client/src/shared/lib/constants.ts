@@ -7,7 +7,7 @@ export const siteConfig = {
   },
 } as const;
 
-export const settingsTo = ['profile', 'account', 'appearance', 'notifications', 'categories'] as const;
+export const settingsTo = ['profile', 'account', 'appearance', 'notifications', 'categories', 'info'] as const;
 
 /** Icon: available icons come from the "Icons" file */
 export const settingsNav = [
@@ -16,6 +16,7 @@ export const settingsNav = [
   { to: settingsTo[2], label: 'Appearance', shortCutKey: undefined, icon: 'monitor' },
   { to: settingsTo[3], label: 'Notifications', shortCutKey: undefined, icon: 'bellRing' },
   { to: settingsTo[4], label: 'Categories', shortCutKey: undefined, icon: 'category' },
+  { to: settingsTo[5], label: 'Info', shortCutKey: undefined, icon: 'info' },
 ] as const;
 
 export const themeStorageKey = 'theme';
