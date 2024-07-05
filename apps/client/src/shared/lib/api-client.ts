@@ -22,7 +22,7 @@ const baseInstance = axios.create({
 });
 
 async function onRequest(request: InternalAxiosRequestConfig) {
-  request.headers.set('Authorization', `Bearer ${(await authClient.session?.getToken()) ?? ''}`);
+  request.headers.set('Authorization', `Bearer ${(await authClient.getToken()) ?? ''}`);
   request.headers.setContentType('application/json');
   return request;
 }

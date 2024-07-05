@@ -16,7 +16,7 @@ const authSearchSchema = z.object({
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
   beforeLoad: ({ search, context: { authClient } }) => {
-    const session = authClient?.session;
+    const session = authClient?.getInstance()?.session;
 
     if (!session?.getToken()) {
       return;

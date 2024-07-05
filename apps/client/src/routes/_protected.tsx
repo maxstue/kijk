@@ -8,7 +8,7 @@ import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/_protected')({
   beforeLoad: async ({ location, context: { authClient } }) => {
-    const session = authClient.session;
+    const session = authClient.getInstance()?.session;
     const sessionToken = await session?.getToken();
     if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
       throw redirect({ to: '/auth', search: { from: location.href } });

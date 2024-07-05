@@ -1,7 +1,7 @@
-import { ClerkProvider } from '@clerk/clerk-react';
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from '@clerk/clerk-react';
 
+import { InitLaoder } from '@/shared/components/ui/loaders/init-laoder';
 import { env } from '@/shared/env';
-import { authClient } from '@/shared/lib/auth-client';
 
 interface Props {
   children?: React.ReactNode;
@@ -9,8 +9,11 @@ interface Props {
 
 export const AuthProvider = ({ children }: Props) => {
   return (
-    <ClerkProvider Clerk={authClient} publishableKey={env.AuthPublishableKey}>
-      {children}
+    <ClerkProvider publishableKey={env.AuthPublishableKey}>
+      <ClerkLoading>
+        <InitLaoder />
+      </ClerkLoading>
+      <ClerkLoaded>{children}</ClerkLoaded>
     </ClerkProvider>
   );
 };
