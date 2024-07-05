@@ -4,7 +4,7 @@ on: workflow_dispatch
 env:
   NODE_VERSION: "20.x"
   PNPM_VERSION: "9"
-  # CI: ${{ vars.CI }}
+  CI: ${{ vars.CI }}
 
 jobs:
   release:
