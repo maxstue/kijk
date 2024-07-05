@@ -98,8 +98,14 @@ jobs:
       - name: "🏝️ Checkout"
         uses: actions/checkout@v4
 
+      - name: "🔧 Install pnpm"
+        uses: pnpm/action-setup@v4
+        id: pnpm-install
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: "🔧 Install Vercel CLI"
-        run: pnpm add --global vercel@latest
+        run: pnpm add --global vercel@latest && vercel link --repo --yes --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: "⬇️ Pull Vercel Environment Information"
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
