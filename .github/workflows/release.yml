@@ -4,7 +4,7 @@ on: workflow_dispatch
 env:
   NODE_VERSION: "20.x"
   PNPM_VERSION: "9"
-  CI: ${{ vars.CI }}
+  CI: ${{ secrets.CI }}
 
 jobs:
   release:
@@ -65,6 +65,12 @@ jobs:
     steps:
       - name: "🏝️ Checkout"
         uses: actions/checkout@v4
+
+      - name: "🔧 Install pnpm"
+        uses: pnpm/action-setup@v4
+        id: pnpm-install
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - name: "🔧 Install Vercel CLI"
         run: pnpm add --global vercel@latest
