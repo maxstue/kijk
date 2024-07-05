@@ -73,7 +73,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: "🔧 Install Vercel CLI"
-        run: pnpm add --global vercel@latest
+        run: pnpm add --global vercel@latest && vercel link --repo --yes --token $VERCEL_TOKEN
 
       - name: "⬇️ Pull Vercel Environment Information"
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
