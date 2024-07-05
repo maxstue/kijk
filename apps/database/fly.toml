@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for kijk-db on 2024-04-01T18:49:24+02:00
+# fly.toml app configuration file generated for kijk-db on 2024-07-03T19:01:08+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -7,8 +7,8 @@ app = 'kijk-db'
 primary_region = 'ams'
 
 [env]
+  # FLY_SCALE_TO_ZERO = '1h'
   PRIMARY_REGION = 'ams'
-  FLY_SCALE_TO_ZERO = "1h"
 
 [[mounts]]
   source = 'pg_data'
@@ -19,7 +19,7 @@ primary_region = 'ams'
   internal_port = 5432
   auto_start_machines = true
 
-[[services.ports]]
+  [[services.ports]]
     port = 5432
     handlers = ['pg_tls']
 
@@ -33,7 +33,7 @@ primary_region = 'ams'
   internal_port = 5433
   auto_start_machines = true
 
-[[services.ports]]
+  [[services.ports]]
     port = 5433
     handlers = ['pg_tls']
 
