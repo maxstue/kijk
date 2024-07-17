@@ -34,7 +34,10 @@
     "@typescript-eslint/ban-ts-comment": "warn",
     "@typescript-eslint/no-empty-function": "error",
     "@typescript-eslint/no-shadow": ["warn"],
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
     "@typescript-eslint/require-await": "warn",
     "@typescript-eslint/no-misused-promises": [
       "error",

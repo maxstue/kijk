@@ -5,6 +5,10 @@
   "ignoreDependencies": ["shadcn-ui", "ts-node"],
   "ignore": ["src/middleware.ts"],
   "next": {
-    "entry": ["next.config.{js,ts,mjs}", "src/app/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"]
+    "entry": [
+      "next.config.{js,ts,mjs}",
+      "src/app/**/*.{ts,tsx}",
+      "src/components/**/*.{ts,tsx}"
+    ]
   }
 }
