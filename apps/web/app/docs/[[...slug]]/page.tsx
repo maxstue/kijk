@@ -1,18 +1,16 @@
-import { sourceUtils, type Page } from '@/app/source';
-import type { Metadata } from 'next';
-import { DocsPage, DocsBody } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 import { siteConfig } from '@/constants/config';
 import { cn } from '@/utils/cn';
-import { buttonVariants } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
 import { Card, Cards } from 'fumadocs-ui/components/card';
+import { DocsBody, DocsPage } from 'fumadocs-ui/page';
+import { Edit } from 'lucide-react';
 
-export default function Page({
-  params,
-}: {
-  params: { slug?: string[] };
-}) {
+import { sourceUtils } from '@/app/source';
+import { buttonVariants } from '@/components/ui/button';
+import type { Page } from '@/app/source';
+import type { Metadata } from 'next';
+
+export default function Page({ params }: { params: { slug?: string[] } }) {
   const page = sourceUtils.getPage(params.slug);
 
   if (page == null) {
@@ -26,34 +24,33 @@ export default function Page({
   const footer = (
     <a
       href={`https://github.com/maxstze/kijk/blob/main/${path}`}
-      target="_blank"
-      rel="noreferrer noopener"
+      target='_blank'
+      rel='noreferrer noopener'
       className={cn(
         buttonVariants({
           variant: 'secondary',
           size: 'sm',
-          className: 'text-xs gap-1.5',
+          className: 'gap-1.5 text-xs',
         }),
       )}
     >
-      <Edit className="size-3" />
+      <Edit className='size-3' />
       Edit on Github
     </a>
   );
   return (
-    <DocsPage toc={page.data.exports.toc} full={page.data.full}
+    <DocsPage
+      toc={page.data.exports.toc}
+      full={page.data.full}
       lastUpdate={page.data.exports.lastModified}
       tableOfContent={{
         footer,
       }}
-      tableOfContentPopover={{ footer }}>
+      tableOfContentPopover={{ footer }}
+    >
       <DocsBody>
-      <h1 className="text-3xl font-bold text-foreground sm:text-4xl">
-        {page.data.title}
-      </h1>
-      <p className="mb-8 text-lg text-muted-foreground">
-        {page.data.description}
-      </p>
+        <h1 className='text-3xl font-bold text-foreground sm:text-4xl'>{page.data.title}</h1>
+        <p className='mb-8 text-lg text-muted-foreground'>{page.data.description}</p>
         <MDX />
         {page.data.index ? <Category page={page} /> : null}
       </DocsBody>
@@ -64,10 +61,7 @@ export default function Page({
 function Category({ page }: { page: Page }): React.ReactElement {
   const filtered = sourceUtils
     .getPages()
-    .filter(
-      (item) =>
-        item.file.dirname === page.file.dirname && item.file.name !== 'index',
-    );
+    .filter((item) => item.file.dirname === page.file.dirname && item.file.name !== 'index');
 
   return (
     <Cards>
@@ -95,7 +89,7 @@ export function generateMetadata({ params }: { params: { slug?: string[] } }) {
   if (page == null) notFound();
 
   const title = page.data.title ?? siteConfig.name;
-  const description= page.data.description ?? siteConfig.description;
+  const description = page.data.description ?? siteConfig.description;
 
   return {
     title,

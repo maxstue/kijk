@@ -1,4 +1,3 @@
-
 /**
  * Example:
 class CustomError extends Error {

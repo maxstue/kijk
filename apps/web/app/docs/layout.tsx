@@ -1,9 +1,10 @@
-import { baseOptions } from "@/app/layout.config";
-import { sourceUtils } from "@/app/source";
-import { DocsLayout, DocsLayoutProps } from "fumadocs-ui/layout";
+import { modes } from '@/utils/mode';
 import { RootToggle } from 'fumadocs-ui/components/layout/root-toggle';
-import type { ReactNode } from "react";
-import { modes } from "@/utils/mode";
+import { DocsLayout, DocsLayoutProps } from 'fumadocs-ui/layout';
+
+import { baseOptions } from '@/app/layout.config';
+import { sourceUtils } from '@/app/source';
+import type { ReactNode } from 'react';
 
 // docs layout configuration
 const docsOptions: DocsLayoutProps = {
@@ -22,7 +23,7 @@ const docsOptions: DocsLayoutProps = {
           url: `/docs/${mode.param}`,
           icon: (
             <mode.icon
-              className="size-9 shrink-0 rounded-md bg-gradient-to-t from-background/80 p-1.5"
+              className='size-9 shrink-0 rounded-md bg-gradient-to-t from-background/80 p-1.5'
               style={{
                 backgroundColor: `hsl(var(--${mode.param}-color)/.3)`,
                 color: `hsl(var(--${mode.param}-color))`,

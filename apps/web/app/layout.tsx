@@ -1,9 +1,13 @@
 import { baseUrl } from '@/utils/metadata';
+
 import './global.css';
-import { RootProvider } from 'fumadocs-ui/provider';
+
 import { Inter } from 'next/font/google';
 import { Viewport } from 'next/types';
+import { RootProvider } from 'fumadocs-ui/provider';
+
 import type { ReactNode } from 'react';
+
 import { Body } from './layout.client';
 
 export const metadata = {
@@ -34,7 +38,7 @@ const inter = Inter({
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
+    <html lang='en' className={inter.className} suppressHydrationWarning>
       <Body>
         <RootProvider>{children}</RootProvider>
       </Body>

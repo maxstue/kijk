@@ -1,7 +1,9 @@
-import { Logo } from "@/components/logo";
-import { siteConfig } from "@/constants/config";
-import { HomeLayoutProps } from "fumadocs-ui/home-layout";
-import { NavChildren } from "./layout.client";
+import { siteConfig } from '@/constants/config';
+import { HomeLayoutProps } from 'fumadocs-ui/home-layout';
+
+import { Logo } from '@/components/logo';
+
+import { NavChildren } from './layout.client';
 
 // shared configuration
 export const baseOptions: HomeLayoutProps = {
@@ -9,13 +11,8 @@ export const baseOptions: HomeLayoutProps = {
   nav: {
     title: (
       <>
-        <Logo
-          className="size-4"
-          fill="currentColor"
-        />
-        <span className="font-medium max-md:[header_&]:hidden">
-          {siteConfig.name}
-        </span>
+        <Logo className='size-4' fill='currentColor' />
+        <span className='font-medium max-md:[header_&]:hidden'>{siteConfig.name}</span>
       </>
     ),
     enabled: true,
@@ -25,9 +22,9 @@ export const baseOptions: HomeLayoutProps = {
   },
   links: [
     {
-      text: "Documentation",
-      url: "/docs",
-      active: "nested-url",
+      text: 'Documentation',
+      url: '/docs',
+      active: 'nested-url',
     },
   ],
 };

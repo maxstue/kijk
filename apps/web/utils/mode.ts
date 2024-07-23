@@ -1,8 +1,6 @@
-import {
-  LayoutIcon,
-  LibraryIcon,
-  type LucideIcon,
-} from 'lucide-react';
+import { LayoutIcon, LibraryIcon } from 'lucide-react';
+
+import type { LucideIcon } from 'lucide-react';
 
 export interface Mode {
   param: string;
@@ -23,5 +21,5 @@ export const modes: Mode[] = [
     name: 'User',
     description: 'The user interface',
     icon: LayoutIcon,
-  }
+  },
 ];

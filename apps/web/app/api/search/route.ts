@@ -1,5 +1,6 @@
-import { sourceUtils } from '@/app/source';
 import { createSearchAPI } from 'fumadocs-core/search/server';
+
+import { sourceUtils } from '@/app/source';
 
 export const { GET } = createSearchAPI('advanced', {
   indexes: sourceUtils.getPages().map((page) => ({
