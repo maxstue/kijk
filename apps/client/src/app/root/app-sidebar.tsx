@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Link } from '@tanstack/react-router';
-import { CircleHelpIcon, HomeIcon, SettingsIcon, WalletIcon, ZapIcon } from 'lucide-react';
+import { CircleHelpIcon, ExternalLink, HomeIcon, SettingsIcon, WalletIcon, ZapIcon } from 'lucide-react';
 
 import { CommandMenu } from '@/app/root/command-menu';
 import { UserNav } from '@/app/root/user-nav';
@@ -52,7 +52,9 @@ export const AppSidebar = () => {
       {/* Footer */}
       <div className='flex flex-col gap-2'>
         <ExSidebarItem to={siteConfig.links.support} leftSlot={<CircleHelpIcon className='h-4' />}>
-          <span className='text-sm font-medium'>Support</span>
+          <div className='flex items-center gap-2 text-sm font-medium'>
+            Support <ExternalLink className='h-3.5 w-3.5' />
+          </div>
         </ExSidebarItem>
       </div>
     </aside>
