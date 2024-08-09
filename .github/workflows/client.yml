@@ -57,3 +57,6 @@ jobs:
 
       - name: "🔍 Lint"
         run: pnpm lint
+
+      - name: "🔍 Audit"
+        run: pnpm audit
