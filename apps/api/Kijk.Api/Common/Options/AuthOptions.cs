@@ -1,8 +1,11 @@
 ﻿namespace Kijk.Api.Common.Options;
 
-public class AuthOptions
+/// <summary>
+/// Binds the Auth configuration section to the AuthOptions class.
+/// </summary>
+public class AuthOptions : IConfigOptions
 {
-    public const string AuthOptionsPath = "Auth";
+    public static string SectionName => "Auth";
 
     public string Authority { get; set; } = default!;
 
