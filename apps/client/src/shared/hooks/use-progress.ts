@@ -20,7 +20,7 @@ export default function useProgress() {
         value.jump(0);
       }
 
-      const current = value.get() as number;
+      const current = value.get();
 
       let diff;
       if (current === 0) {

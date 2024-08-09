@@ -33,7 +33,9 @@ const DatePicker = forwardRef<HTMLInputElement, Props>(({ className, date, setDa
           mode='single'
           defaultMonth={date}
           selected={date}
-          onSelect={(e) => setDate(e)}
+          onSelect={(e) => {
+            setDate(e);
+          }}
         />
       </PopoverContent>
     </Popover>

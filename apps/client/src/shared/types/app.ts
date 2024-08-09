@@ -3,7 +3,6 @@ export type Optional<T> = T | undefined;
 export type Nullable<T> = T | null;
 export type Nullish<T> = T | undefined | null;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type Autocomplete<Keys extends string> = Keys | (string & {});
 
 export interface ApiResponse<T = unknown> {

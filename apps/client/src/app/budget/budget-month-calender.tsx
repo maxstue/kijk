@@ -19,7 +19,7 @@ export function BudgetMonthCalendar({ year, month }: Props) {
   const to = `${year}-${months.indexOf(month) + 1}-${tempDate.getDate()}`;
 
   const calValues = useMemo(() => {
-    if (data?.data == null) {
+    if (data.data == null) {
       return undefined;
     }
     const groupedByDate = groupBy(data.data, (x) => formatStringDateToOnlyDateString(x.executedAt));
@@ -27,7 +27,7 @@ export function BudgetMonthCalendar({ year, month }: Props) {
       day: x[0],
       value: x[1].length,
     }));
-  }, [data?.data]);
+  }, [data.data]);
 
   const maxValue = calValues ? calValues.length + 30 : 'auto';
 

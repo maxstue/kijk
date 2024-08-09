@@ -11,7 +11,7 @@ export function BudgetMonthOverview() {
   const searchParams = Route.useSearch();
 
   const { data } = useGetTransactionsBy(searchParams.year, searchParams.month);
-  const transactions = useMemo(() => data?.data ?? [], [data?.data]);
+  const transactions = useMemo(() => data.data ?? [], [data.data]);
 
   return <DataTable data={transactions} columns={budgetColumns} defaultSort={budgetDefaultSort} />;
 }

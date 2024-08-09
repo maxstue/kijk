@@ -10,7 +10,9 @@ import { cn } from '@/shared/lib/helpers';
 export function BudgetYearCalenderCard({ year }: { year: number }) {
   const [open, setOpen] = useState(false);
 
-  const handleToggle = () => setOpen((c) => !c);
+  const handleToggle = () => {
+    setOpen((c) => !c);
+  };
 
   return (
     <div className='flex w-full'>

@@ -18,12 +18,11 @@ import { useThemeStore } from '@/shared/stores/theme-store';
 export function UserNav() {
   const { signOut } = useAuth();
   const { user } = useUser();
-  const email = user?.emailAddresses?.[0]?.emailAddress;
+  const email = user?.emailAddresses[0]?.emailAddress;
   const userInitials = getInitailChars(email);
   const { radius } = useThemeStore();
   const navigate = useNavigate({ from: '/' });
 
-  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
   const handleSignOut = (event: Event) => {
     event.preventDefault();
     signOut()

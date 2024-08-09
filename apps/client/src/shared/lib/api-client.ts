@@ -12,9 +12,9 @@ interface RequestOptions<T = unknown> extends Omit<AxiosRequestConfig<T>, 'url'>
 }
 const onFulfilled = <TReturn>(res: AxiosResponse<TReturn, unknown>) => res.data;
 
-const onRejected = (error: AxiosError<ApiError>) => {
+const onRejected = (error: unknown) => {
   console.error(error);
-  return Promise.reject(error);
+  return Promise.reject(error as AxiosError<ApiError>);
 };
 
 const baseInstance = axios.create({

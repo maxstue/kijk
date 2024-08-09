@@ -78,11 +78,21 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
-            <SheetTrigger asChild onClick={() => setSheetType('edit')}>
+            <SheetTrigger
+              asChild
+              onClick={() => {
+                setSheetType('edit');
+              }}
+            >
               <DropdownMenuItem>Update</DropdownMenuItem>
             </SheetTrigger>
             <DropdownMenuSeparator />
-            <SheetTrigger asChild onClick={() => setSheetType('delete')}>
+            <SheetTrigger
+              asChild
+              onClick={() => {
+                setSheetType('delete');
+              }}
+            >
               <DropdownMenuItem className={cn('focus:bg-red-500 focus:text-white')}>Delete</DropdownMenuItem>
             </SheetTrigger>
           </DropdownMenuContent>

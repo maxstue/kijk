@@ -90,6 +90,7 @@ export const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
       if (activeStep <= childArr.length) {
         return React.Children.map(childArr[activeStep], (node) => {
           if (!React.isValidElement(node)) return;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           return React.Children.map(node.props.children, (childNode) => childNode);
         });
       }
@@ -268,7 +269,9 @@ export const Step = React.forwardRef<HTMLDivElement, StepAndStatusProps>((props,
         className,
       )}
       ref={ref}
-      onClick={() => handleClick(index)}
+      onClick={() => {
+        handleClick(index);
+      }}
       aria-disabled={!hasVisited}
     >
       <div className={cn('flex items-center gap-2', isLabelVertical ? 'flex-col' : '')}>
@@ -280,7 +283,7 @@ export const Step = React.forwardRef<HTMLDivElement, StepAndStatusProps>((props,
           disabled={!hasVisited}
           className={cn(
             'aspect-square h-12 w-12 rounded-full data-[highlighted=true]:bg-green-700 data-[highlighted=true]:text-white',
-            isCompletedStep ?? typeof RenderIcon !== 'number' ? 'px-3 py-2' : '',
+            (isCompletedStep ?? typeof RenderIcon !== 'number') ? 'px-3 py-2' : '',
             additionalClassName?.button,
           )}
           variant={isCurrentStep && isError ? 'destructive' : variant}
@@ -395,7 +398,7 @@ const Connector = React.memo(({ isCompletedStep, children, isLastStep }: Connect
     <Separator
       data-highlighted={isCompletedStep}
       className='flex h-[2px] min-h-[auto] flex-1 self-auto data-[highlighted=true]:bg-green-700'
-      orientation={isVertical ? 'vertical' : 'horizontal'}
+      orientation='horizontal'
     />
   );
 });

@@ -39,7 +39,7 @@ function getCallingFunction(error: Error) {
 
     const line = stack.split('\n')[2];
     const regex = /^.*at\s([a-zA-Z]+).*$/;
-    const groups = line.match(regex);
+    const groups = regex.exec(line);
 
     if (groups === null) return '--';
 

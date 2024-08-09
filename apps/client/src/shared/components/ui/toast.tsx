@@ -36,12 +36,13 @@ const toastVariants = tv({
   },
 });
 
-const Toast = forwardRef<
-  ElementRef<typeof ToastPrimitives.Root>,
-  ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
-  return <ToastPrimitives.Root ref={ref} className={cn(toastVariants({ variant }), className)} {...props} />;
-});
+type TToastProps = ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>;
+
+const Toast = forwardRef<ElementRef<typeof ToastPrimitives.Root>, TToastProps>(
+  ({ className, variant, ...props }: TToastProps, ref) => {
+    return <ToastPrimitives.Root ref={ref} className={cn(toastVariants({ variant }), className)} {...props} />;
+  },
+);
 Toast.displayName = ToastPrimitives.Root.displayName;
 
 const ToastAction = forwardRef<

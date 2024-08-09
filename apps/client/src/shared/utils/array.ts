@@ -7,34 +7,31 @@
  * @returns Returns an object with n-amount of lists as type "RT"
  */
 export const groupBy = <T, RT extends Record<string | number | symbol, T[]>>(
-  listToGroup: T[],
+  listToGroup: T[] | undefined,
   getKey: (item: T) => string,
   getUniqueKey?: (item: T) => string,
 ) => {
   if (listToGroup) {
-    return listToGroup.reduce(
-      (previous, obj) => {
-        const copyOfPrevious = previous;
-        const group = getKey(obj);
-        if (!copyOfPrevious[group]) {
-          copyOfPrevious[group] = [];
-        }
+    return listToGroup.reduce<Record<string, T[]>>((previous, obj) => {
+      const copyOfPrevious = previous;
+      const group = getKey(obj);
+      if (copyOfPrevious[group].length > 0) {
+        copyOfPrevious[group] = [];
+      }
 
-        if (Array.isArray(copyOfPrevious[group])) {
-          if (getUniqueKey != null) {
-            const foundIndex = previous[group].findIndex((x) => getUniqueKey(x) === getUniqueKey(obj));
-            if (foundIndex === -1) {
-              copyOfPrevious[group].push(obj);
-            }
-          } else {
+      if (Array.isArray(copyOfPrevious[group])) {
+        if (getUniqueKey != null) {
+          const foundIndex = previous[group].findIndex((x) => getUniqueKey(x) === getUniqueKey(obj));
+          if (foundIndex === -1) {
             copyOfPrevious[group].push(obj);
           }
+        } else {
+          copyOfPrevious[group].push(obj);
         }
+      }
 
-        return copyOfPrevious;
-      },
-      {} as Record<string, T[]>,
-    ) as RT;
+      return copyOfPrevious;
+    }, {}) as RT;
   }
   return {} as Record<string, T[]> as RT;
 };

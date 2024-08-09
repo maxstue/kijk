@@ -32,14 +32,16 @@ export function ThemeQuickCustomizer({ onSelect }: Props) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => handleSelectTheme(theme.name)}
+                  onClick={() => {
+                    handleSelectTheme(theme.name);
+                  }}
                   className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs',
                     isQuickThemeActive ? 'border-[--theme-primary]' : 'border-transparent',
                   )}
                   style={
                     {
-                      '--theme-primary': `hsl(${theme?.activeColor[mode === 'dark' ? 'dark' : 'light']})`,
+                      '--theme-primary': `hsl(${theme.activeColor[mode === 'dark' ? 'dark' : 'light']})`,
                     } as CSSProperties
                   }
                 >

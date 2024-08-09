@@ -1,4 +1,3 @@
-/* eslint-disable react-perf/jsx-no-new-function-as-prop */
 import { useState } from 'react';
 import * as Sentry from '@sentry/react';
 import { ErrorComponentProps } from '@tanstack/react-router';
@@ -51,7 +50,9 @@ export function AppError({ error, info, resetErrorBoundary }: Props) {
 const ShowMore = (props: { error?: unknown }) => {
   const [showMore, setShowMore] = useState(false);
 
-  const handleToggleMore = () => setShowMore((c) => !c);
+  const handleToggleMore = () => {
+    setShowMore((c) => !c);
+  };
 
   return (
     <div className='mt-3'>

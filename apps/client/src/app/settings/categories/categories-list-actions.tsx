@@ -73,11 +73,21 @@ export function DataListRowActions<TData extends Category>({ row }: DataTableRow
             <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
             {category.creatorType !== 'Default' && (
               <>
-                <SheetTrigger asChild onClick={() => setSheetType('edit')}>
+                <SheetTrigger
+                  asChild
+                  onClick={() => {
+                    setSheetType('edit');
+                  }}
+                >
                   <DropdownMenuItem>Update</DropdownMenuItem>
                 </SheetTrigger>
                 <DropdownMenuSeparator />
-                <SheetTrigger asChild onClick={() => setSheetType('delete')}>
+                <SheetTrigger
+                  asChild
+                  onClick={() => {
+                    setSheetType('delete');
+                  }}
+                >
                   <DropdownMenuItem className={cn('focus:bg-red-500 focus:text-white')}>Delete</DropdownMenuItem>
                 </SheetTrigger>
               </>

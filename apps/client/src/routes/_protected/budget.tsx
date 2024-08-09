@@ -56,7 +56,9 @@ function BudgetPage() {
   const searchParams = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const handleClose = useCallback(() => setShowSheet(false), []);
+  const handleClose = useCallback(() => {
+    setShowSheet(false);
+  }, []);
 
   useEffect(() => {
     navigate({

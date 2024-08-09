@@ -92,7 +92,13 @@ export function BudgetYearSwitcher({ className }: YProps) {
               <Suspense fallback={<AsyncLoader />}>
                 <CommandGroup key='years' heading='Years'>
                   {years.map((yearData) => (
-                    <CommandItem key={yearData} onSelect={(y) => handleSelectYear(Number(y))} className='text-sm'>
+                    <CommandItem
+                      key={yearData}
+                      onSelect={(y) => {
+                        handleSelectYear(Number(y));
+                      }}
+                      className='text-sm'
+                    >
                       {yearData}
                       <Check
                         className={cn('ml-auto h-4 w-4', selectedYear === yearData ? 'opacity-100' : 'opacity-0')}

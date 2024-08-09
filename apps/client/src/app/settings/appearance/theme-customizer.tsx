@@ -40,11 +40,13 @@ export function ThemeCustomizer() {
                   variant={'outline'}
                   size='sm'
                   key={theme.name}
-                  onClick={() => setTheme(theme.name)}
+                  onClick={() => {
+                    setTheme(theme.name);
+                  }}
                   className={cn('justify-start', isActive && 'border-2 border-primary')}
                   style={
                     {
-                      '--theme-primary': `hsl(${theme?.activeColor[mode === 'dark' ? 'dark' : 'light']})`,
+                      '--theme-primary': `hsl(${theme.activeColor[mode === 'dark' ? 'dark' : 'light']})`,
                     } as CSSProperties
                   }
                 >
@@ -87,7 +89,9 @@ export function ThemeCustomizer() {
               <Button
                 variant={'outline'}
                 size='sm'
-                onClick={() => setMode('light')}
+                onClick={() => {
+                  setMode('light');
+                }}
                 className={cn(mode === 'light' && 'border-2 border-primary')}
               >
                 <SunIcon className='mr-1 -translate-x-1' />
@@ -96,7 +100,9 @@ export function ThemeCustomizer() {
               <Button
                 variant={'outline'}
                 size='sm'
-                onClick={() => setMode('dark')}
+                onClick={() => {
+                  setMode('dark');
+                }}
                 className={cn(mode === 'dark' && 'border-2 border-primary')}
               >
                 <MoonIcon className='mr-1 -translate-x-1' />

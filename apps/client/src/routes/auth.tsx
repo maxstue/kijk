@@ -16,13 +16,13 @@ const authSearchSchema = z.object({
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
   beforeLoad: ({ search, context: { authClient } }) => {
-    const session = authClient?.getInstance()?.session;
+    const session = authClient.getInstance()?.session;
 
     if (!session?.getToken()) {
       return;
     }
 
-    throw redirect({ to: search?.from ?? '/' });
+    throw redirect({ to: search.from ?? '/' });
   },
   component: AuthPage,
 });

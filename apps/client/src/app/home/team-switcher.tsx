@@ -166,7 +166,12 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant='outline' onClick={() => setShowNewTeamDialog(false)}>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setShowNewTeamDialog(false);
+            }}
+          >
             Cancel
           </Button>
           <Button type='submit'>Continue</Button>

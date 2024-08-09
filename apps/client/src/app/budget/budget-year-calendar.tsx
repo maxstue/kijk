@@ -12,7 +12,7 @@ interface Props {
 export function BudgetYearCalendar({ year }: Props) {
   const { data } = useGetTransactionsBy(year);
 
-  const transactions = useMemo(() => data?.data ?? [], [data?.data]);
+  const transactions = useMemo(() => data.data ?? [], [data.data]);
 
   const from = `${year}-01-01`;
   const to = `${year}-12-31`;
