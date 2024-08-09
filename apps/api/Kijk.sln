@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		..\..\docker-compose.yml = ..\..\docker-compose.yml
 		README.md = README.md
 		fly.toml = fly.toml
+		..\..\.github\workflows\api.yml = ..\..\.github\workflows\api.yml
 	EndProjectSection
 EndProject
 Global
