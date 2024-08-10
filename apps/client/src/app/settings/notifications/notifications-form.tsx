@@ -48,14 +48,14 @@ export function NotificationsForm() {
       title: 'You submitted the following values:',
       description: (
         <pre className='mt-2 w-[340px] rounded bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
+          <code className='text-white'>{JSON.stringify(data, undefined, 2)}</code>
         </pre>
       ),
     });
   }
 
   return (
-    <Form form={form} onSubmit={onSubmit} className='space-y-8'>
+    <Form className='space-y-8' form={form} onSubmit={onSubmit}>
       <FormField
         control={form.control}
         name='type'
@@ -63,7 +63,7 @@ export function NotificationsForm() {
           <FormItem className='space-y-3'>
             <FormLabel>Notify me about...</FormLabel>
             <FormControl>
-              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+              <RadioGroup className='flex flex-col space-y-1' defaultValue={field.value} onValueChange={field.onChange}>
                 <FormItem className='flex items-center space-x-3 space-y-0'>
                   <FormControl>
                     <RadioGroupItem value='all' />
@@ -146,7 +146,7 @@ export function NotificationsForm() {
                   <FormDescription>Receive emails about your account activity and security.</FormDescription>
                 </div>
                 <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} disabled aria-readonly />
+                  <Switch aria-readonly disabled checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}

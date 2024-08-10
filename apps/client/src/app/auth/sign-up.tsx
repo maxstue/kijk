@@ -32,9 +32,9 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
         });
         await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
         setVerify(true);
-      } catch (err) {
+      } catch (error_) {
         setVerify(false);
-        const error = err as { errors: Array<{ message: string }> };
+        const error = error_ as { errors: Array<{ message: string }> };
         toast({
           title: 'Your sign in request failed. Please try again.',
           description: <div>{error.errors[0].message}</div>,
@@ -63,7 +63,7 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
             <Verify />
           </div>
         ) : (
-          <UserAuthForm onSubmit={handleRegister} btnLabel='Sign Up' />
+          <UserAuthForm btnLabel='Sign Up' onSubmit={handleRegister} />
         )}
         <p className='px-8 text-center text-sm text-muted-foreground'>
           <Button variant='link' onClick={handleGoToLogin}>
@@ -113,8 +113,8 @@ function Verify() {
           await setActive({ session: completeSignUp.createdSessionId });
           navigate({ to: from, replace: true });
         }
-      } catch (err) {
-        const error = err as { errors: Array<{ message: string }> };
+      } catch (error_) {
+        const error = error_ as { errors: Array<{ message: string }> };
         toast({
           title: 'Your sign up request failed. Please try again.',
           description: <div>{error.errors[0].message}</div>,

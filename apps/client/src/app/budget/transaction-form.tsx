@@ -26,7 +26,7 @@ interface Props extends PropsWithChildren {
 
 export function TransactionForm({ form, onSubmit, onInvalid, children }: Props) {
   return (
-    <Form form={form} onSubmit={onSubmit} onInvalid={onInvalid} className='space-y-4'>
+    <Form className='space-y-4' form={form} onInvalid={onInvalid} onSubmit={onSubmit}>
       <FormField control={form.control} name='name' render={NameField} />
       <FormField control={form.control} name='amount' render={AmountField} />
       <FormField control={form.control} name='type' render={TypeField} />
@@ -55,7 +55,7 @@ function AmountField({ field }: { field: ControllerRenderProps<TransactionFormVa
     <FormItem>
       <FormLabel>Amount</FormLabel>
       <FormControl>
-        <Input type='number' placeholder='Amount of money' {...field} onChange={field.onChange} />
+        <Input placeholder='Amount of money' type='number' {...field} onChange={field.onChange} />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -66,7 +66,7 @@ function TypeField({ field }: { field: ControllerRenderProps<TransactionFormValu
   return (
     <FormItem>
       <FormLabel>Type</FormLabel>
-      <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <Select defaultValue={field.value} onValueChange={field.onChange}>
         <FormControl>
           <SelectTrigger>
             <SelectValue placeholder='Select a transaction type' />
@@ -90,7 +90,7 @@ function CategorySelectField({ field }: { field: ControllerRenderProps<Transacti
       <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
         <FormItem>
           <FormLabel>Category</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select defaultValue={field.value} onValueChange={field.onChange}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder='Select a category' />

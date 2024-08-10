@@ -32,7 +32,7 @@ const themeStore = createStoreFactory<State>('theme-store', (set) => ({
       set((state) => {
         state.theme = theme;
 
-        if (radius != null) {
+        if (radius != undefined) {
           state.radius = radius;
         }
         browserStorage.setItem(themeStorageKey, { mode: state.mode, theme: state.theme, radius: state.radius });

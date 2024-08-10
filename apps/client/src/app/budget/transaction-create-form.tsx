@@ -71,8 +71,8 @@ export function TransactionCreateForm({ fromCmd, onClose, ...props }: TProps) {
   }
 
   return (
-    <TransactionForm form={form} onSubmit={onSubmit} onInvalid={handleError}>
-      <Button type='submit' disabled={isPending}>
+    <TransactionForm form={form} onInvalid={handleError} onSubmit={onSubmit}>
+      <Button disabled={isPending} type='submit'>
         {isPending ? <Icons.spinner className='h-5 w-5 animate-spin' /> : 'Add'}
       </Button>
     </TransactionForm>

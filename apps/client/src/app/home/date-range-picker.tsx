@@ -19,10 +19,10 @@ export function DateRangePicker({ className }: HTMLAttributes<HTMLDivElement>) {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            id='date'
-            variant='outline'
-            size='sm'
             className={cn('w-[240px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
+            id='date'
+            size='sm'
+            variant='outline'
           >
             <CalendarIcon className='mr-2 h-4 w-4' />
             {date?.from ? (
@@ -38,14 +38,14 @@ export function DateRangePicker({ className }: HTMLAttributes<HTMLDivElement>) {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-auto p-0' align='end'>
+        <PopoverContent align='end' className='w-auto p-0'>
           <Calendar
             initialFocus
-            mode='range'
             defaultMonth={date?.from}
+            mode='range'
+            numberOfMonths={2}
             selected={date}
             onSelect={setDate}
-            numberOfMonths={2}
           />
         </PopoverContent>
       </Popover>

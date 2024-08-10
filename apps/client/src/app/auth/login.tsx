@@ -30,7 +30,7 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
         if (completeLogin.status !== 'complete') {
           toast({
             title: 'Your login request failed. Please try again.',
-            description: <div>{JSON.stringify(completeLogin, null, 2)}</div>,
+            description: <div>{JSON.stringify(completeLogin, undefined, 2)}</div>,
             variant: 'destructive',
           });
         }
@@ -39,11 +39,11 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
           await setActive({ session: completeLogin.createdSessionId });
           navigate({ to: from, params: true });
         }
-      } catch (err) {
-        const error = err as { errors: Array<{ message: string }> };
+      } catch (error_) {
+        const error = error_ as { errors: Array<{ message: string }> };
         toast({
           title: 'Your login request failed. Please try again.',
-          description: <div>{error.errors[0].message}</div>,
+          description: <div>{error.errors[0]?.message}</div>,
           variant: 'destructive',
         });
       }
@@ -63,7 +63,7 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
           <h1 className='text-2xl font-semibold tracking-tight'>Welcome back</h1>
           <p className='text-sm text-muted-foreground'>Enter your credentials to log in to your account</p>
         </div>
-        <UserAuthForm onSubmit={handleLogin} btnLabel='Login' />
+        <UserAuthForm btnLabel='Login' onSubmit={handleLogin} />
         <p className='px-8 text-center text-sm text-muted-foreground'>
           <Button variant='link' onClick={handleGoToSignUp}>
             Don&apos;t have an account? Sign Up

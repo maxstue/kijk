@@ -36,9 +36,9 @@ function AuthPage() {
       <div className='m-6 flex flex-col'>
         <div>
           <a
+            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
             href='https://kijk-ruby.vercel.app/'
             rel='noopener noreferrer'
-            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
           >
             <Undo2 className='h-4 w-4' />
             To website

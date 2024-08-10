@@ -46,9 +46,9 @@ export function CommandMenu({ ...props }: Props) {
   }, []);
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
+    const down = (event: KeyboardEvent) => {
+      if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
         setOpen((o) => !o);
       }
     };
@@ -112,9 +112,9 @@ export function CommandMenu({ ...props }: Props) {
                 onSelect={runCommand(() =>
                   navigate({
                     to: '/budget',
-                    search: (prev) => ({
-                      ...prev,
-                      month: months[new Date().getMonth()],
+                    search: (previous) => ({
+                      ...previous,
+                      month: months[new Date().getMonth()]!,
                       year: new Date().getFullYear(),
                     }),
                   }),

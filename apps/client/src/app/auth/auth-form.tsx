@@ -51,7 +51,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
 
   return (
     <div className={cn('grid gap-6', className)}>
-      <Form form={form} onSubmit={handleEmailSubmit} className='space-y-8'>
+      <Form className='space-y-8' form={form} onSubmit={handleEmailSubmit}>
         <div className='grid gap-6'>
           <div className='grid gap-1'>
             <FormField control={form.control} name='email' render={EmailField} />
@@ -59,7 +59,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
           <div className='grid gap-1'>
             <FormField control={form.control} name='password' render={PasswordField} />
           </div>
-          <Button type='submit' disabled={isLoading}>
+          <Button disabled={isLoading} type='submit'>
             {!isLoading && btnLabel}
             {isLoading && <Icons.spinner className='h-5 w-5 animate-spin' />}
           </Button>
@@ -75,7 +75,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
       </div>
       {/* Social logins */}
       {Allowed_Providers.map((provider) => (
-        <Button key={provider} variant='outline' onClick={handleSignUp} disabled={isLoading}>
+        <Button key={provider} disabled={isLoading} variant='outline' onClick={handleSignUp}>
           {isLoading ? (
             <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
           ) : (
@@ -104,7 +104,7 @@ function PasswordField({
       <FormLabel>Password</FormLabel>
       <FormControl>
         {/* TODO add eye symbol to toggle input visability*/}
-        <Input type='password' placeholder='Password' {...field} />
+        <Input placeholder='Password' type='password' {...field} />
       </FormControl>
       <FormMessage />
     </FormItem>

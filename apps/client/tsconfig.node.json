@@ -5,8 +5,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    // disable to remove "reference"-error in root tsconfig
-    // "noEmit": false,
 
     /* Linting */
     "strictNullChecks": true

@@ -53,7 +53,7 @@ export function CategoryCreateForm({ onClose }: Props) {
 
   return (
     <div>
-      <Form form={form} onSubmit={onSubmit} className='space-y-8'>
+      <Form className='space-y-8' form={form} onSubmit={onSubmit}>
         <FormField
           control={form.control}
           name='name'
@@ -74,7 +74,7 @@ export function CategoryCreateForm({ onClose }: Props) {
             <FormItem>
               <FormLabel>Color</FormLabel>
               <FormControl>
-                <Input type='color' placeholder='Color, e.g. `#123456`' {...field} onChange={field.onChange} />
+                <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,7 +87,7 @@ export function CategoryCreateForm({ onClose }: Props) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select defaultValue={field.value} onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder='Select a category type' />
@@ -104,7 +104,7 @@ export function CategoryCreateForm({ onClose }: Props) {
           )}
         />
 
-        <Button type='submit' disabled={isPending}>
+        <Button disabled={isPending} type='submit'>
           Add
         </Button>
         {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}

@@ -32,9 +32,6 @@ export function ThemeQuickCustomizer({ onSelect }: Props) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => {
-                    handleSelectTheme(theme.name);
-                  }}
                   className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs',
                     isQuickThemeActive ? 'border-[--theme-primary]' : 'border-transparent',
@@ -44,6 +41,9 @@ export function ThemeQuickCustomizer({ onSelect }: Props) {
                       '--theme-primary': `hsl(${theme.activeColor[mode === 'dark' ? 'dark' : 'light']})`,
                     } as CSSProperties
                   }
+                  onClick={() => {
+                    handleSelectTheme(theme.name);
+                  }}
                 >
                   <span className={cn('flex h-6 w-6 items-center justify-center rounded-full bg-[--theme-primary]')}>
                     {isQuickThemeActive && <CheckIcon className='h-4 w-4 text-white' />}
@@ -56,7 +56,7 @@ export function ThemeQuickCustomizer({ onSelect }: Props) {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        ) : null;
+        ) : undefined;
       })}
       <div />
     </div>

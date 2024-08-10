@@ -48,7 +48,7 @@ export const createZustandContext = <TInitial, TStore extends StoreApi<any>>(
   getStore: (initial: TInitial) => TStore,
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Context = createContext(null as any as TStore);
+  const Context = createContext(undefined as any as TStore);
 
   const Provider = (props: { children?: React.ReactNode; initialValue: TInitial }) => {
     const [store] = useState(() => getStore(props.initialValue));

@@ -81,7 +81,7 @@ function Categories({ type }: { type: CategoryType }) {
 
   const filteredData = data.data?.[type] ?? [];
 
-  return <DataTable data={filteredData} columns={categoryColumns} defaultSort={categoryDefaultSort} />;
+  return <DataTable columns={categoryColumns} data={filteredData} defaultSort={categoryDefaultSort} />;
 }
 
 function CategoriesInfo() {

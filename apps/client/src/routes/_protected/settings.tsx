@@ -32,7 +32,7 @@ function SettingsPage() {
           <aside className='lg:w-1/5'>
             <nav className={cn('flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1')}>
               {settingsNav.map(({ to, label, icon }) => (
-                <SettingsNavLink key={to} to={to} label={label} icon={icon} />
+                <SettingsNavLink key={to} icon={icon} label={label} to={to} />
               ))}
             </nav>
           </aside>
@@ -59,8 +59,8 @@ function SettingsNavLink({
   return (
     <Link
       key={label}
-      to='/settings/$section'
       params={{ section: to }}
+      to='/settings/$section'
       className={cn(
         buttonVariants({ variant: 'ghost' }),
         'justify-start text-primary/65 data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',

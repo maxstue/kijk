@@ -33,7 +33,7 @@ export default function useProgress() {
 
       value.set(Math.min(current + diff, 99));
     },
-    state === 'in-progress' ? 750 : null,
+    state === 'in-progress' ? 750 : undefined,
   );
 
   useEffect(() => {
@@ -70,5 +70,9 @@ function rand(min: number, max: number) {
 }
 
 function secureRandom() {
-  return crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+  const possibleRandomValue = crypto.getRandomValues(new Uint32Array(1))[0];
+  if (possibleRandomValue !== undefined) {
+    return possibleRandomValue / 2 ** 32;
+  }
+  return 0;
 }

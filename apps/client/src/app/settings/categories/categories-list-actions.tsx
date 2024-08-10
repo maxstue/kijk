@@ -63,7 +63,7 @@ export function DataListRowActions<TData extends Category>({ row }: DataTableRow
       <Sheet open={showSheet} onOpenChange={setShowSheet}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
+            <Button className='h-8 w-8 p-0' variant='ghost'>
               <span className='sr-only'>Open menu</span>
               <MoreHorizontal className='h-4 w-4' />
             </Button>
@@ -138,7 +138,7 @@ function Delete({ category, onClose }: EdProps) {
           </div>
           <div className='flex justify-between'>
             <span className='font-bold'>Color:</span>
-            <span style={{ color: category.color }} className='blend-'>
+            <span className='blend-' style={{ color: category.color }}>
               {category.color}
             </span>
           </div>
@@ -146,11 +146,11 @@ function Delete({ category, onClose }: EdProps) {
       </div>
       <SheetFooter>
         <SheetClose asChild>
-          <Button type='button' variant='outline' disabled={deleteMutation.isPending}>
+          <Button disabled={deleteMutation.isPending} type='button' variant='outline'>
             Cancel
           </Button>
         </SheetClose>
-        <Button type='button' className='bg-red-500' onClick={handleDelete} disabled={deleteMutation.isPending}>
+        <Button className='bg-red-500' disabled={deleteMutation.isPending} type='button' onClick={handleDelete}>
           Delete
         </Button>
         {deleteMutation.isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
@@ -194,7 +194,7 @@ function Update({ category, onClose }: EdProps) {
         <SheetDescription>Change the values of this category.</SheetDescription>
       </SheetHeader>
       <div>
-        <Form form={form} onSubmit={onSubmit} onInvalid={handleError} className='space-y-8'>
+        <Form className='space-y-8' form={form} onInvalid={handleError} onSubmit={onSubmit}>
           <FormField
             control={form.control}
             name='name'
@@ -215,7 +215,7 @@ function Update({ category, onClose }: EdProps) {
               <FormItem>
                 <FormLabel>Color</FormLabel>
                 <FormControl>
-                  <Input type='color' placeholder='Color, e.g. `#123456`' {...field} onChange={field.onChange} />
+                  <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -228,7 +228,7 @@ function Update({ category, onClose }: EdProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select defaultValue={field.value} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder='Select a category type' />
@@ -248,11 +248,11 @@ function Update({ category, onClose }: EdProps) {
           <div className='flex items-center justify-end gap-2'>
             <SheetFooter>
               <SheetClose asChild>
-                <Button type='button' variant='outline' disabled={updateMutation.isPending}>
+                <Button disabled={updateMutation.isPending} type='button' variant='outline'>
                   Cancel
                 </Button>
               </SheetClose>
-              <Button type='submit' disabled={updateMutation.isPending}>
+              <Button disabled={updateMutation.isPending} type='submit'>
                 Update
               </Button>
               {updateMutation.isPending && <Icons.spinner className='animate-spin' />}

@@ -69,14 +69,14 @@ export function AccountForm() {
       title: 'You submitted the following values:',
       description: (
         <pre className='mt-2 w-[340px] rounded bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
+          <code className='text-white'>{JSON.stringify(data, undefined, 2)}</code>
         </pre>
       ),
     });
   }
 
   return (
-    <Form form={form} onSubmit={onSubmit} className='space-y-8'>
+    <Form className='space-y-8' form={form} onSubmit={onSubmit}>
       <FormField
         control={form.control}
         name='name'
@@ -101,21 +101,21 @@ export function AccountForm() {
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
-                    variant={'outline'}
                     className={cn('w-[240px] pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
+                    variant={'outline'}
                   >
                     {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                     <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className='w-auto p-0' align='start'>
+              <PopoverContent align='start' className='w-auto p-0'>
                 <Calendar
+                  autoFocus
+                  disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                   mode='single'
                   selected={field.value}
                   onSelect={field.onChange}
-                  disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>
@@ -134,9 +134,9 @@ export function AccountForm() {
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
-                    variant='outline'
-                    role='combobox'
                     className={cn('w-[200px] justify-between', !field.value && 'text-muted-foreground')}
+                    role='combobox'
+                    variant='outline'
                   >
                     {field.value
                       ? languages.find((language) => language.value === field.value)?.label
@@ -152,8 +152,8 @@ export function AccountForm() {
                   <CommandGroup>
                     {languages.map((language) => (
                       <CommandItem
-                        value={language.value}
                         key={language.value}
+                        value={language.value}
                         onSelect={(value) => {
                           form.setValue('language', value);
                         }}

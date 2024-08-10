@@ -19,7 +19,7 @@ export function BudgetYearCalenderCard({ year }: { year: number }) {
       <Card className='w-full'>
         <CardHeader className='flex flex-row items-center justify-between space-y-0'>
           <CardTitle className='text-sm font-medium'>Year overview</CardTitle>
-          <Button variant='ghost' className='' size='icon-sm' onClick={handleToggle}>
+          <Button className='' size='icon-sm' variant='ghost' onClick={handleToggle}>
             <ChevronDown className={cn('h-4 w-4 text-muted-foreground', open && 'rotate-180')} />
           </Button>
         </CardHeader>

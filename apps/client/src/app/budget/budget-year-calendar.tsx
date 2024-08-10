@@ -18,8 +18,8 @@ export function BudgetYearCalendar({ year }: Props) {
   const to = `${year}-12-31`;
 
   const calValues = useMemo(() => {
-    if (transactions == null) {
-      return undefined;
+    if (transactions == undefined) {
+      return;
     }
     const groupedByDate = groupBy(transactions, (x) => formatStringDateToOnlyDateString(x.executedAt));
     return Object.entries(groupedByDate).map((x) => ({
@@ -36,30 +36,25 @@ export function BudgetYearCalendar({ year }: Props) {
         <>
           <div className='my-1 h-40'>
             <ResponsiveCalendar
+              isInteractive
               data={calValues}
-              from={from}
-              to={to}
+              dayBorderColor='hsl(var(--background))'
+              dayBorderWidth={2}
               emptyColor='hsl(var(--calendar-value-empty))'
-              theme={{
-                background: 'hsl(var(--background))',
-                labels: {
-                  text: { fontSize: '13px', fill: 'hsl(var(--calendar-value-medium))' },
-                },
-              }}
+              from={from}
+              margin={{ top: 0, right: 0, bottom: 0, left: 40 }}
+              maxValue={maxValue}
+              minValue={1}
+              monthBorderColor='hsl(var(--background))'
+              monthSpacing={5}
+              to={to}
+              tooltip={CustomTooltip}
               colors={[
                 'hsl(var(--calendar-value-verylow))',
                 'hsl(var(--calendar-value-low))',
                 'hsl(var(--calendar-value-medium))',
                 'hsl(var(--calendar-value-high))',
               ]}
-              margin={{ top: 0, right: 0, bottom: 0, left: 40 }}
-              monthBorderColor='hsl(var(--background))'
-              dayBorderWidth={2}
-              dayBorderColor='hsl(var(--background))'
-              monthSpacing={5}
-              minValue={1}
-              maxValue={maxValue}
-              isInteractive
               legends={[
                 {
                   anchor: 'bottom-right',
@@ -72,7 +67,12 @@ export function BudgetYearCalendar({ year }: Props) {
                   itemDirection: 'right-to-left',
                 },
               ]}
-              tooltip={CustomTooltip}
+              theme={{
+                background: 'hsl(var(--background))',
+                labels: {
+                  text: { fontSize: '13px', fill: 'hsl(var(--calendar-value-medium))' },
+                },
+              }}
             />
           </div>
           {/* Legend */}
@@ -90,7 +90,7 @@ function CustomTooltip({ value, day, color }: { value: string; day: string; colo
   return (
     <div className='rounded bg-muted p-2'>
       <div className='flex items-center justify-start gap-2'>
-        <div style={{ backgroundColor: color }} className='h-4 w-4 rounded-full'></div>
+        <div className='h-4 w-4 rounded-full' style={{ backgroundColor: color }}></div>
         <div className='flex gap-2'>
           <div className='text-muted-foreground'>{day}:</div> <div className='font-bold'>{value}</div>
         </div>

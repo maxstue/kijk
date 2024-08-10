@@ -14,7 +14,7 @@ export function BudgetMonthNav({ className, ...props }: Props) {
           <Link
             key={item}
             preload={false}
-            search={(prev) => ({ ...prev, month: item })}
+            search={(previous) => ({ ...previous, month: item })}
             className={cn(
               buttonVariants({ variant: 'ghost' }),
               'justify-start text-primary/65 data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',

@@ -7,7 +7,7 @@ export const browserStorage = {
   getItem<T>(key: string, storage: Storage = localStorage) {
     const value = storage.getItem(STORAGE_PREFIX + key);
     if (value === null) {
-      return undefined;
+      return;
     }
     return JSON.parse(value) as T;
   },
@@ -17,11 +17,11 @@ export const browserStorage = {
   },
 
   hasItem(key: string, storage: Storage = localStorage, validator?: (value: string) => boolean) {
-    const arr = this.getItem(key, storage);
-    if (validator && arr != null) {
-      return validator(arr as string);
+    const array = this.getItem(key, storage);
+    if (validator && array != undefined) {
+      return validator(array as string);
     }
-    return arr != null;
+    return array != undefined;
   },
 
   removeItem(key: string, storage: Storage = localStorage) {

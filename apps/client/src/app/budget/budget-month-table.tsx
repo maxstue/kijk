@@ -8,10 +8,10 @@ import { DataTable } from '@/shared/components/data-table';
 const Route = getRouteApi('/_protected/budget');
 
 export function BudgetMonthOverview() {
-  const searchParams = Route.useSearch();
+  const searchParameters = Route.useSearch();
 
-  const { data } = useGetTransactionsBy(searchParams.year, searchParams.month);
+  const { data } = useGetTransactionsBy(searchParameters.year, searchParameters.month);
   const transactions = useMemo(() => data.data ?? [], [data.data]);
 
-  return <DataTable data={transactions} columns={budgetColumns} defaultSort={budgetDefaultSort} />;
+  return <DataTable columns={budgetColumns} data={transactions} defaultSort={budgetDefaultSort} />;
 }

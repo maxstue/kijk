@@ -2,7 +2,7 @@ import { Months, months } from '@/shared/types/app';
 import { AppError } from '@/shared/types/errors';
 
 export function formatStringToCurrency(value: string | number) {
-  const amount = typeof value === 'string' ? parseFloat(value) : value;
+  const amount = typeof value === 'string' ? Number.parseFloat(value) : value;
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',

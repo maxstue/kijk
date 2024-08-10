@@ -23,7 +23,7 @@ export function ThemeCustomizer() {
           <div className='font-semibold leading-none tracking-tight'>Customize</div>
           <div className='text-xs text-muted-foreground'>Pick a style and color for your components.</div>
         </div>
-        <Button variant='ghost' size='icon' className='ml-auto border-primary' onClick={handleClicked}>
+        <Button className='ml-auto border-primary' size='icon' variant='ghost' onClick={handleClicked}>
           <Undo2 />
           <span className='sr-only'>Reset</span>
         </Button>
@@ -37,18 +37,18 @@ export function ThemeCustomizer() {
 
               return (
                 <Button
-                  variant={'outline'}
-                  size='sm'
                   key={theme.name}
-                  onClick={() => {
-                    setTheme(theme.name);
-                  }}
                   className={cn('justify-start', isActive && 'border-2 border-primary')}
+                  size='sm'
+                  variant={'outline'}
                   style={
                     {
                       '--theme-primary': `hsl(${theme.activeColor[mode === 'dark' ? 'dark' : 'light']})`,
                     } as CSSProperties
                   }
+                  onClick={() => {
+                    setTheme(theme.name);
+                  }}
                 >
                   <span
                     className={cn(
@@ -87,23 +87,23 @@ export function ThemeCustomizer() {
             <>
               {/* TODO add system auto Button like in themeswitcher */}
               <Button
-                variant={'outline'}
+                className={cn(mode === 'light' && 'border-2 border-primary')}
                 size='sm'
+                variant={'outline'}
                 onClick={() => {
                   setMode('light');
                 }}
-                className={cn(mode === 'light' && 'border-2 border-primary')}
               >
                 <SunIcon className='mr-1 -translate-x-1' />
                 Light
               </Button>
               <Button
-                variant={'outline'}
+                className={cn(mode === 'dark' && 'border-2 border-primary')}
                 size='sm'
+                variant={'outline'}
                 onClick={() => {
                   setMode('dark');
                 }}
-                className={cn(mode === 'dark' && 'border-2 border-primary')}
               >
                 <MoonIcon className='mr-1 -translate-x-1' />
                 Dark

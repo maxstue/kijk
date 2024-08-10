@@ -39,25 +39,25 @@ type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 export function BudgetYearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
-  const searchParams = Route.useSearch();
+  const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
 
   const { data } = useGetYears();
   const queryClient = useQueryClient();
 
-  const selectedYear = searchParams.year ?? new Date().getFullYear() ?? data.data?.years.at(0);
+  const selectedYear = searchParameters.year ?? new Date().getFullYear() ?? data.data?.years.at(0);
   const years = useMemo(() => data.data?.years ?? [], [data.data?.years]);
 
   // add year from url to array if it doesn't exist
   useEffect(() => {
-    if (years.length > 0 && !years.includes(Number(searchParams.year))) {
-      years.push(Number(searchParams.year));
+    if (years.length > 0 && !years.includes(Number(searchParameters.year))) {
+      years.push(Number(searchParameters.year));
     }
-  }, [queryClient, searchParams.year, years]);
+  }, [queryClient, searchParameters.year, years]);
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
-    navigate({ search: (prev) => ({ ...prev, year: year }) });
+    navigate({ search: (previous) => ({ ...previous, year: year }) });
   };
 
   const handleNewYearClick = useCallback(() => {
@@ -74,11 +74,11 @@ export function BudgetYearSwitcher({ className }: YProps) {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant='outline'
-            role='combobox'
             aria-expanded={open}
             aria-label='Select a year'
             className={cn('w-full justify-between', className)}
+            role='combobox'
+            variant='outline'
           >
             {selectedYear}
             <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
@@ -94,10 +94,10 @@ export function BudgetYearSwitcher({ className }: YProps) {
                   {years.map((yearData) => (
                     <CommandItem
                       key={yearData}
+                      className='text-sm'
                       onSelect={(y) => {
                         handleSelectYear(Number(y));
                       }}
-                      className='text-sm'
                     >
                       {yearData}
                       <Check
@@ -160,7 +160,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
           }
         : old,
     );
-    navigate({ to: '/budget', search: (prev) => ({ ...prev, year: data.year }) });
+    navigate({ to: '/budget', search: (previous) => ({ ...previous, year: data.year }) });
     onClose();
   }
 
@@ -181,7 +181,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
         <DialogTitle>Add new Year</DialogTitle>
         <DialogDescription>Add a new year to manage.</DialogDescription>
       </DialogHeader>
-      <Form form={form} onSubmit={handleSubmit} onInvalid={handleError} className='space-y-8'>
+      <Form className='space-y-8' form={form} onInvalid={handleError} onSubmit={handleSubmit}>
         <div className='space-y-4 py-2 pb-4'>
           <div className='space-y-2'>
             <FormField
@@ -191,7 +191,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
                 <FormItem>
                   <FormLabel>Year</FormLabel>
                   <FormControl>
-                    <Input type='number' placeholder={(new Date().getFullYear() + 1).toString()} {...field} />
+                    <Input placeholder={(new Date().getFullYear() + 1).toString()} type='number' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -200,7 +200,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <DialogFooter>
-          <Button type='button' onClick={handleCancel} variant='outline'>
+          <Button type='button' variant='outline' onClick={handleCancel}>
             Cancel
           </Button>
           <Button type='submit'>Continue</Button>

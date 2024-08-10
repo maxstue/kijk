@@ -32,26 +32,26 @@ export const AppSidebar = () => {
             <CommandMenu />
           </div>
 
-          <SidebarItem exact to='/home' leftSlot={<HomeIcon className='h-4' />}>
+          <SidebarItem exact leftSlot={<HomeIcon className='h-4' />} to='/home'>
             <span className='text-sm font-medium'>Dashboard</span>
           </SidebarItem>
 
-          <SidebarItem to='/energy' leftSlot={<ZapIcon className='h-4' />}>
+          <SidebarItem leftSlot={<ZapIcon className='h-4' />} to='/energy'>
             <span className='text-sm font-medium'>Energy</span>
           </SidebarItem>
 
-          <SidebarItem to='/budget' leftSlot={<WalletIcon className='h-4' />}>
+          <SidebarItem leftSlot={<WalletIcon className='h-4' />} to='/budget'>
             <span className='text-sm font-medium'>Transactions</span>
           </SidebarItem>
 
-          <SidebarItem to='/settings' leftSlot={<SettingsIcon className='h-4' />}>
+          <SidebarItem leftSlot={<SettingsIcon className='h-4' />} to='/settings'>
             <span className='text-sm font-medium'>Settings</span>
           </SidebarItem>
         </div>
       </div>
       {/* Footer */}
       <div className='flex flex-col gap-2'>
-        <ExSidebarItem to={siteConfig.links.support} leftSlot={<CircleHelpIcon className='h-4' />}>
+        <ExSidebarItem leftSlot={<CircleHelpIcon className='h-4' />} to={siteConfig.links.support}>
           <div className='flex items-center gap-2 text-sm font-medium'>
             Support <ExternalLink className='h-3.5 w-3.5' />
           </div>
@@ -78,9 +78,9 @@ const SidebarItem = ({
   return (
     <Link
       key={to}
-      to={to}
-      preload={false}
       activeOptions={{ exact: exact, includeSearch: false }}
+      preload={false}
+      to={to}
       className={cn(
         buttonVariants({ variant: 'ghost' }),
         'group h-8 items-center justify-start gap-2 py-0.5 pl-1 text-primary/65 hover:bg-primary/[0.05] data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',

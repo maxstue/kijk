@@ -46,10 +46,10 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
-  const searchParams = route.useSearch();
+  const searchParameters = route.useSearch();
   const { toast } = useToast();
-  const month = searchParams.month ?? months[new Date().getMonth()];
-  const year = searchParams.year ?? new Date().getFullYear();
+  const month = searchParameters.month ?? months[new Date().getMonth()];
+  const year = searchParameters.year ?? new Date().getFullYear();
   const transaction = row.original;
 
   const handleCopyName = async () => {
@@ -70,7 +70,7 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
       <Sheet open={showSheet} onOpenChange={setShowSheet}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
+            <Button className='h-8 w-8 p-0' variant='ghost'>
               <span className='sr-only'>Open menu</span>
               <MoreHorizontal className='h-4 w-4' />
             </Button>
@@ -100,10 +100,10 @@ export function BudgetListActions<TData extends Transaction>({ row }: DataTableR
         <SheetContent>
           <Suspense>
             {sheetType === 'delete' && (
-              <Delete transaction={transaction} month={month} year={year} onClose={handleClose} />
+              <Delete month={month} transaction={transaction} year={year} onClose={handleClose} />
             )}
             {sheetType === 'edit' && (
-              <Update transaction={transaction} month={month} year={year} onClose={handleClose} />
+              <Update month={month} transaction={transaction} year={year} onClose={handleClose} />
             )}
           </Suspense>
         </SheetContent>
@@ -160,7 +160,7 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
             <span className='font-bold'>Category: </span>
             <span>
               <div className='flex w-full items-center gap-2'>
-                <div style={{ backgroundColor: transaction.category?.color }} className='h-3 w-3 rounded'></div>
+                <div className='h-3 w-3 rounded' style={{ backgroundColor: transaction.category?.color }}></div>
                 {transaction.category?.name}
               </div>
             </span>
@@ -169,11 +169,11 @@ function Delete({ transaction, year, month, onClose }: EdProps) {
       </div>
       <SheetFooter>
         <SheetClose asChild>
-          <Button type='button' variant='outline' disabled={deleteMutation.isPending}>
+          <Button disabled={deleteMutation.isPending} type='button' variant='outline'>
             Cancel
           </Button>
         </SheetClose>
-        <Button type='button' className='bg-red-500' onClick={handleDelete} disabled={deleteMutation.isPending}>
+        <Button className='bg-red-500' disabled={deleteMutation.isPending} type='button' onClick={handleDelete}>
           Delete
         </Button>
         {deleteMutation.isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
@@ -225,15 +225,15 @@ function Update({ transaction, month, year, onClose }: EdProps) {
         <SheetDescription>Change the values of this transaction.</SheetDescription>
       </SheetHeader>
       <div>
-        <TransactionForm form={form} onSubmit={onSubmit} onInvalid={handleError}>
+        <TransactionForm form={form} onInvalid={handleError} onSubmit={onSubmit}>
           <div className='flex items-center justify-end gap-2'>
             <SheetFooter>
               <SheetClose asChild>
-                <Button type='button' variant='outline' disabled={updateTransaction.isPending}>
+                <Button disabled={updateTransaction.isPending} type='button' variant='outline'>
                   Cancel
                 </Button>
               </SheetClose>
-              <Button type='submit' disabled={updateTransaction.isPending}>
+              <Button disabled={updateTransaction.isPending} type='submit'>
                 Update
               </Button>
               {updateTransaction.isPending && <Icons.spinner className='animate-spin' />}

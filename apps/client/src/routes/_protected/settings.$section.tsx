@@ -15,25 +15,25 @@ import { settingsTo } from '@/shared/lib/constants';
 const sectionSchema = z.enum(settingsTo);
 
 export const Route = createFileRoute('/_protected/settings/$section')({
-  parseParams: (params) => ({ section: sectionSchema.parse(params.section) }),
+  parseParams: (parameters) => ({ section: sectionSchema.parse(parameters.section) }),
   component: SettingsSectionPage,
-  errorComponent: ({ info, error }) => <AppError info={info} error={error} />,
+  errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
 });
 
 function SettingsSectionPage() {
-  const params = Route.useParams();
+  const parameters = Route.useParams();
 
   return (
     <>
-      <Head title={params.section} />
+      <Head title={parameters.section} />
       <div className='space-y-6'>
-        {params.section === 'profile' && <ProfileSection />}
-        {params.section === 'account' && <AccountSection />}
-        {params.section === 'appearance' && <AppearanceSection />}
-        {params.section === 'categories' && <CategoriesSection />}
-        {params.section === 'notifications' && <NotificationsSection />}
-        {params.section === 'info' && <InfoSection />}
+        {parameters.section === 'profile' && <ProfileSection />}
+        {parameters.section === 'account' && <AccountSection />}
+        {parameters.section === 'appearance' && <AppearanceSection />}
+        {parameters.section === 'categories' && <CategoriesSection />}
+        {parameters.section === 'notifications' && <NotificationsSection />}
+        {parameters.section === 'info' && <InfoSection />}
       </div>
     </>
   );

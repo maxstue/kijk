@@ -10,7 +10,7 @@ interface RequestOptions<T = unknown> extends Omit<AxiosRequestConfig<T>, 'url'>
   abort?: AbortController;
   data?: T;
 }
-const onFulfilled = <TReturn>(res: AxiosResponse<TReturn, unknown>) => res.data;
+const onFulfilled = <TReturn>(response: AxiosResponse<TReturn, unknown>) => response.data;
 
 const onRejected = (error: unknown) => {
   console.error(error);

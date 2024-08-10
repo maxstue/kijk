@@ -10,15 +10,15 @@ import { cn } from '@/shared/lib/helpers';
 
 type Props = { resetErrorBoundary?: () => void } & Partial<ErrorComponentProps>;
 
+const handleGotToRoot = () => {
+  window.location.href = '/';
+};
+
 export function AppError({ error, info, resetErrorBoundary }: Props) {
   Sentry.captureException(error, { extra: { info } });
 
   const handleReset = () => {
     resetErrorBoundary?.();
-  };
-
-  const handleGotToRoot = () => {
-    window.location.href = '/';
   };
 
   return (
@@ -35,7 +35,7 @@ export function AppError({ error, info, resetErrorBoundary }: Props) {
           <Button color='primary' onClick={handleGotToRoot}>
             Go to home
           </Button>
-          {typeof resetErrorBoundary !== 'undefined' && (
+          {resetErrorBoundary !== undefined && (
             <Button color='secondary' onClick={handleReset}>
               Try again
             </Button>

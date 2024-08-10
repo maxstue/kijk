@@ -22,7 +22,7 @@ const config = {
   ],
   importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"],
   importOrderTypeScriptVersion: "5.0.0",
-  tailwindFunctions: ["tv"],
+  tailwindFunctions: ["tv", "cls"],
   plugins: [
     "@ianvs/prettier-plugin-sort-imports",
     "./node_modules/prettier-plugin-jsdoc/dist/index.js",

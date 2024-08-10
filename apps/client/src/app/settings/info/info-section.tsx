@@ -21,19 +21,19 @@ export function InfoSection() {
         </div>
         <div className='flex gap-4'>
           <a
+            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
             href={`${env.WebUrl}/terms`}
             rel='noopener noreferrer'
             target='_blank'
-            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
           >
             Terms of service
             <ExternalLink className='h-4 w-4' />
           </a>
           <a
+            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
             href={`${env.WebUrl}/privacy`}
             rel='noopener noreferrer'
             target='_blank'
-            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
           >
             Privacy Policy
             <ExternalLink className='h-4 w-4' />

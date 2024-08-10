@@ -28,7 +28,6 @@ public static class CreateCategory
     public static RouteGroupBuilder MapCreateCategory(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPost("/", Handle)
-            .WithRequestValidation<CreateCategoryRequest>()
             .Produces<ApiResponse<CategoryDto>>()
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
@@ -38,21 +37,31 @@ public static class CreateCategory
     }
 
     /// <summary>
-    ///     Retrieves a single category by its id.
+    /// Retrieves a single category by its id.
     /// </summary>
     /// <param name="createCategoryRequest"></param>
+    /// <param name="validator"></param>
     /// <param name="dbContext"></param>
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     private static async Task<IResult> Handle(
         CreateCategoryRequest createCategoryRequest,
+        IValidator<CreateCategoryRequest> validator,
         AppDbContext dbContext,
         CurrentUser currentUser,
         CancellationToken cancellationToken)
     {
         try
         {
+            var validationResult = await validator.ValidateAsync(createCategoryRequest, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(x => AppError.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
+                    .ToList();
+                return TypedResults.BadRequest(ApiResponseBuilder.Error(errors));
+            }
+
             if (!Enum.TryParse<CategoryType>(createCategoryRequest.Type, true, out var categoryType))
             {
                 return TypedResults.BadRequest(ApiResponseBuilder.Error("Invalid category type"));

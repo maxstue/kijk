@@ -8,15 +8,16 @@ export function ThemeSwitcher() {
   const { theme } = useThemeStore();
 
   useEffect(() => {
-    document.body.classList.forEach((className) => {
+    for (const className of document.body.classList) {
       if (THEME_REGEX.test(className)) {
         document.body.classList.remove(className);
       }
-    });
+    }
 
     document.body.classList.add(`theme-${theme}`);
     return;
   }, [theme]);
 
-  return null;
+  // eslint-disable-next-line unicorn/no-useless-undefined
+  return undefined;
 }
