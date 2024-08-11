@@ -7,11 +7,10 @@ namespace Kijk.Api.Common.Extensions;
 /// </summary>
 public static class OptionsExtensions
 {
-    public static IHostApplicationBuilder Configure<TOptions>(this IHostApplicationBuilder builder) where TOptions : class, IConfigOptions
+    public static IServiceCollection ConfigureOptions<TOptions>(this IServiceCollection services, IConfiguration configuration)
+        where TOptions : class, IConfigOptions
     {
-        var section = builder.Configuration.GetSection(TOptions.SectionName);
-        builder.Services.Configure<TOptions>(section);
-        return builder;
+        return services.Configure<TOptions>(configuration.GetSection(TOptions.SectionName));
     }
 
     public static TOptions? GetConfigurationSection<TOptions>(this IHostApplicationBuilder builder)

@@ -37,8 +37,8 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        services.ConfigureOptions<AuthOptions>()
-            .ConfigureOptions<ConnectionOptions>();
+        services.ConfigureOptions<AuthOptions>(configuration)
+            .ConfigureOptions<ConnectionOptions>(configuration);
 
         return services;
     }
@@ -163,7 +163,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddHealthCheck(this IServiceCollection services, IConfiguration configuration)
     {
-        var conString = configuration.GetConnectionString(nameof(ConnectionOptions.SectionName));
+        var conString = configuration.GetConnectionString(ConnectionOptions.SectionName);
         if (conString is null)
         {
             throw new Exception($"No connection string found, {conString}");
@@ -184,8 +184,7 @@ public static class ServiceExtensions
                     x.TokenValidationParameters = new TokenValidationParameters()
                     {
                         // Disable audience validation as we aren't using it
-                        ValidateAudience = false,
-                        NameClaimType = ClaimTypes.NameIdentifier
+                        ValidateAudience = false, NameClaimType = ClaimTypes.NameIdentifier
                     };
                     x.Events = new JwtBearerEvents()
                     {
