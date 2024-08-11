@@ -4,7 +4,7 @@ import { routeTree } from '@/routeTree.gen';
 import { AppError } from '@/shared/components/errors/app-error';
 import { NotFound } from '@/shared/components/not-found';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { authClient } from '@/shared/lib/auth-client';
+import { AuthService } from '@/shared/lib/auth-client';
 import { queryClient } from '@/shared/lib/query-client';
 
 // Create a new router instance
@@ -17,7 +17,7 @@ export const router = createRouter({
   defaultPreloadDelay: 500,
   context: {
     queryClient,
-    authClient,
+    authClient: AuthService,
   },
   defaultNotFoundComponent: NotFound,
   defaultPendingComponent: () => <AsyncLoader className='h-6 w-6' />,

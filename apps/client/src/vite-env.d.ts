@@ -14,6 +14,9 @@ interface ImportMetaEnv {
   VITE_CLERK_PUBLISHABLE_KEY: string;
   // Sentry
   VITE_SENTRY_DSN: string;
+  // Posthog
+  VITE_POSTHOG_KEY: string;
+  VITE_POSTHOG_URL: string;
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv;

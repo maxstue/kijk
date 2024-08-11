@@ -16,6 +16,9 @@ const envSchema = z.object({
   AuthPublishableKey: z.string().trim().min(1),
   // Sentry
   SentryDsn: z.string().optional(),
+  // Posthog
+  PosthogKey: z.string().optional(),
+  PosthogUrl: z.string().optional(),
 });
 
 const envParse = envSchema.safeParse({
@@ -29,6 +32,9 @@ const envParse = envSchema.safeParse({
   // Auth
   AuthPublishableKey: import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
   SentryDsn: import.meta.env.VITE_SENTRY_DSN,
+  // Posthog
+  PosthogKey: import.meta.env.VITE_POSTHOG_KEY,
+  PosthogUrl: import.meta.env.VITE_POSTHOG_URL,
 });
 
 if (!envParse.success) {

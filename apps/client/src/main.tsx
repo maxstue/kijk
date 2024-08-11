@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { createSentry } from '@/shared/lib/error-tracking.ts';
+import { AnalyticsService } from '@/shared/lib/analytics-tracking.ts';
+import { ErrorService } from '@/shared/lib/error-tracking.ts';
 import { welcome } from '@/shared/utils/string.ts';
 
 import App from './app.tsx';
@@ -9,7 +10,8 @@ import App from './app.tsx';
 import './index.css';
 
 welcome();
-createSentry();
+ErrorService.init();
+AnalyticsService.init();
 
 ReactDOM.createRoot(document.querySelector('#app')!).render(
   <React.StrictMode>

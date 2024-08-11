@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 import { env } from '@/shared/env';
-import { authClient } from '@/shared/lib/auth-client';
+import { AuthService } from '@/shared/lib/auth-client';
 import { ApiError } from '@/shared/types/app';
 
 /** Overrides axios requestoptions, so that the url prop is mandatory */
@@ -22,7 +22,7 @@ const baseInstance = axios.create({
 });
 
 async function onRequest(request: InternalAxiosRequestConfig) {
-  request.headers.set('Authorization', `Bearer ${(await authClient.getToken()) ?? ''}`);
+  request.headers.set('Authorization', `Bearer ${(await AuthService.getToken()) ?? ''}`);
   request.headers.setContentType('application/json');
   return request;
 }

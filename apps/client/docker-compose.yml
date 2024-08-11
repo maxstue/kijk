@@ -20,6 +20,8 @@ services:
       - KIJK_CLERK_PUBLISHABLE_KEY=<Replace>
       - KIJK_SENTRY_DSN=<Replace>
       - KIJK_SENTRY_AUTH_TOKEN=<Replace>
+      - KIJK_POSTHOG_KEY=<Replace>
+      - KIJK_POSTHOG_URL=<Replace>
     volumes:
       - caddy-config:/config
       - caddy-data:/data

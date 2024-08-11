@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 
+import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { env } from '@/shared/env';
 import type { AuthClient } from '@/shared/lib/auth-client';
@@ -26,6 +27,9 @@ function RootPage() {
     <>
       <Outlet />
       <DevMode />
+      <Suspense>
+        <AnalyticsTracker />
+      </Suspense>
       <Suspense>
         <TanStackRouterDevtools initialIsOpen={false} position='top-right' />
         <ReactQueryDevtools buttonPosition='bottom-right' initialIsOpen={false} />

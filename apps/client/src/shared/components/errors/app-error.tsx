@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import * as Sentry from '@sentry/react';
 import { ErrorComponentProps } from '@tanstack/react-router';
 import { ArrowDownIcon } from 'lucide-react';
 
 import { ErrorImage } from '@/shared/components/errors/error-image';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { ErrorService } from '@/shared/lib/error-tracking';
 import { cn } from '@/shared/lib/helpers';
 
 type Props = { resetErrorBoundary?: () => void } & Partial<ErrorComponentProps>;
@@ -15,7 +15,7 @@ const handleGotToRoot = () => {
 };
 
 export function AppError({ error, info, resetErrorBoundary }: Props) {
-  Sentry.captureException(error, { extra: { info } });
+  ErrorService.captureException(error, { info });
 
   const handleReset = () => {
     resetErrorBoundary?.();

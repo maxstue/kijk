@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
-import * as Sentry from '@sentry/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
+import { PostHogProvider } from 'posthog-js/react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { router } from '@/router';
@@ -12,20 +12,24 @@ import { ThemeSwitcher } from '@/shared/components/theme-switcher';
 import { ThemeWrapper } from '@/shared/components/theme-wrapper';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { Toaster } from '@/shared/components/ui/toaster';
+import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { ErrorService } from '@/shared/lib/error-tracking';
 import { queryClient } from '@/shared/lib/query-client';
 
-const App = Sentry.withProfiler(function App() {
+const App = ErrorService.withProfiler(function App() {
   return (
     <ErrorBoundary fallbackRender={AppError}>
       <QueryClientProvider client={queryClient}>
         <Suspense fallback={<InitLoader />}>
           <AuthProvider>
-            <ThemeWrapper>
-              <RouterProvider router={router} />
-              <ThemeSwitcher />
-              <ThemeModeSwitcher />
-              <Toaster />
-            </ThemeWrapper>
+            <PostHogProvider client={AnalyticsService.getInstance()}>
+              <ThemeWrapper>
+                <RouterProvider router={router} />
+                <ThemeSwitcher />
+                <ThemeModeSwitcher />
+                <Toaster />
+              </ThemeWrapper>
+            </PostHogProvider>
           </AuthProvider>
         </Suspense>
       </QueryClientProvider>
