@@ -37,7 +37,7 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
         const error = error_ as { errors: Array<{ message: string }> };
         toast({
           title: 'Your sign in request failed. Please try again.',
-          description: <div>{error.errors[0].message}</div>,
+          description: <div>{error.errors[0]?.message}</div>,
           variant: 'destructive',
         });
       }
@@ -104,7 +104,7 @@ function Verify() {
         if (completeSignUp.status !== 'complete') {
           toast({
             title: 'Your sign up request failed. Please try again.',
-            description: <div>{JSON.stringify(completeSignUp, null, 2)}</div>,
+            description: <div>{JSON.stringify(completeSignUp, undefined, 2)}</div>,
             variant: 'destructive',
           });
         }
@@ -117,13 +117,14 @@ function Verify() {
         const error = error_ as { errors: Array<{ message: string }> };
         toast({
           title: 'Your sign up request failed. Please try again.',
-          description: <div>{error.errors[0].message}</div>,
+          description: <div>{error.errors[0]?.message}</div>,
           variant: 'destructive',
         });
       }
     },
     [from, isLoaded, navigate, setActive, signUp, toast],
   );
+
   return (
     <div className='mt-6 grid gap-6'>
       <Form form={form} onSubmit={handleVerify}>

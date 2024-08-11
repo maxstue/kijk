@@ -10,7 +10,7 @@ export function BudgetTodayButton() {
 
   const handleClick = () => {
     navigate({
-      search: (previous) => ({ ...previous, month: months[new Date().getMonth()], year: new Date().getFullYear() }),
+      search: (previous) => ({ ...previous, month: months[new Date().getMonth()]!, year: new Date().getFullYear() }),
     });
   };
 

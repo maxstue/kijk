@@ -40,7 +40,7 @@ export function DateRangePicker({ className }: HTMLAttributes<HTMLDivElement>) {
         </PopoverTrigger>
         <PopoverContent align='end' className='w-auto p-0'>
           <Calendar
-            initialFocus
+            autoFocus
             defaultMonth={date?.from}
             mode='range'
             numberOfMonths={2}
