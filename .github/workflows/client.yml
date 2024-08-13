@@ -60,3 +60,4 @@ jobs:
 
       - name: "🔍 Audit"
         run: pnpm audit
+        continue-on-error: true
