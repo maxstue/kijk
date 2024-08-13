@@ -5,7 +5,7 @@ import { AnalyticsService } from '@/shared/lib/analytics-tracking.ts';
 import { ErrorService } from '@/shared/lib/error-tracking.ts';
 import { welcome } from '@/shared/utils/string.ts';
 
-import App from './app_1.tsx';
+import App from './app.tsx';
 
 import './index.css';
 
