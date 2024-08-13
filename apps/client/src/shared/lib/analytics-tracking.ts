@@ -15,11 +15,7 @@ const AnalyticsService = {
     });
   },
 
-  getInstance: () => {
-    console.log('posthog', posthog);
-
-    return posthog;
-  },
+  getInstance: () => posthog,
 
   captureEvent: (event_name: string, properties?: Properties | null, options?: CaptureOptions) => {
     posthog.capture(event_name, properties, options);

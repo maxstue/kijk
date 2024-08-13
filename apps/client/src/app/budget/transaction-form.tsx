@@ -86,42 +86,40 @@ function CategorySelectField({ field }: { field: ControllerRenderProps<Transacti
   const categoryQuery = useGetCategories();
 
   return (
-    <>
-      <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-        <FormItem>
-          <FormLabel>Category</FormLabel>
-          <Select defaultValue={field.value} onValueChange={field.onChange}>
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder='Select a category' />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent className='h-[calc(100dvh_*_0.3)] overflow-auto p-1'>
-              {Object.entries(categoryQuery.data.data ?? {}).map(([key, values]) => (
-                <SelectGroup key={key}>
-                  <SelectLabel className='p-1 font-bold'>{key}</SelectLabel>
-                  {values.length > 0 ? (
-                    values.map((x) => (
-                      <SelectItem key={x.id} value={x.id}>
-                        <div className='flex items-center justify-start gap-2'>
-                          <div className={'h-3 w-3 rounded-full p-1'} style={{ backgroundColor: x.color }} />
-                          <span>{x.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className='flex items-center justify-center gap-2'>
-                      <div className='text-primary'>No items available</div>
-                    </div>
-                  )}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      </Suspense>
-    </>
+    <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
+      <FormItem>
+        <FormLabel>Category</FormLabel>
+        <Select defaultValue={field.value} onValueChange={field.onChange}>
+          <FormControl>
+            <SelectTrigger>
+              <SelectValue placeholder='Select a category' />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent className='h-[calc(100dvh_*_0.3)] overflow-auto p-1'>
+            {Object.entries(categoryQuery.data.data ?? {}).map(([key, values]) => (
+              <SelectGroup key={key}>
+                <SelectLabel className='p-1 font-bold'>{key}</SelectLabel>
+                {values.length > 0 ? (
+                  values.map((x) => (
+                    <SelectItem key={x.id} value={x.id}>
+                      <div className='flex items-center justify-start gap-2'>
+                        <div className={'h-3 w-3 rounded-full p-1'} style={{ backgroundColor: x.color }} />
+                        <span>{x.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className='flex items-center justify-center gap-2'>
+                    <div className='text-primary'>No items available</div>
+                  </div>
+                )}
+              </SelectGroup>
+            ))}
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    </Suspense>
   );
 }
 

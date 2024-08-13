@@ -84,31 +84,29 @@ export function ThemeCustomizer() {
         <div className='space-y-1.5'>
           <Label className='text-xs'>Mode</Label>
           <div className='grid grid-cols-3 gap-2'>
-            <>
-              {/* TODO add system auto Button like in themeswitcher */}
-              <Button
-                className={cn(mode === 'light' && 'border-2 border-primary')}
-                size='sm'
-                variant={'outline'}
-                onClick={() => {
-                  setMode('light');
-                }}
-              >
-                <SunIcon className='mr-1 -translate-x-1' />
-                Light
-              </Button>
-              <Button
-                className={cn(mode === 'dark' && 'border-2 border-primary')}
-                size='sm'
-                variant={'outline'}
-                onClick={() => {
-                  setMode('dark');
-                }}
-              >
-                <MoonIcon className='mr-1 -translate-x-1' />
-                Dark
-              </Button>
-            </>
+            {/* TODO add system auto Button like in themeswitcher */}
+            <Button
+              className={cn(mode === 'light' && 'border-2 border-primary')}
+              size='sm'
+              variant={'outline'}
+              onClick={() => {
+                setMode('light');
+              }}
+            >
+              <SunIcon className='mr-1 -translate-x-1' />
+              Light
+            </Button>
+            <Button
+              className={cn(mode === 'dark' && 'border-2 border-primary')}
+              size='sm'
+              variant={'outline'}
+              onClick={() => {
+                setMode('dark');
+              }}
+            >
+              <MoonIcon className='mr-1 -translate-x-1' />
+              Dark
+            </Button>
           </div>
         </div>
       </div>

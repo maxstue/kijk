@@ -32,8 +32,6 @@ export function CategoryCreateForm({ onClose }: Props) {
       { category: data },
       {
         onError(error) {
-          console.log(error);
-
           toast({
             title: `${error.data?.at(0)?.code}: ${error.data?.at(0)?.message}`,
             description: error.message,
