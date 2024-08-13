@@ -17,6 +17,7 @@ interface ImportMetaEnv {
   // Posthog
   VITE_POSTHOG_KEY: string;
   VITE_POSTHOG_URL: string;
+  VITE_POSTHOG_SURVEY_ID: string;
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv;

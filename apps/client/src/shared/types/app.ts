@@ -91,3 +91,7 @@ export interface AppUser {
 export interface User_Metadata {
   user_name: Optional<string>;
 }
+
+export const COOKIE_CONSENT_KEY = 'kijk_cookie_consent';
+
+export type CookieConsent = 'yes' | 'no' | 'undecided';

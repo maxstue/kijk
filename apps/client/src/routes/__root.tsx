@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 
+import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { env } from '@/shared/env';
@@ -26,6 +27,9 @@ function RootPage() {
   return (
     <>
       <Outlet />
+      <Suspense>
+        <AnalyticsBanner />
+      </Suspense>
       <DevMode />
       <Suspense>
         <AnalyticsTracker />

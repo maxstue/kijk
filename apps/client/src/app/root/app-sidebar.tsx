@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react';
 import { Link } from '@tanstack/react-router';
 import { CircleHelpIcon, ExternalLink, HomeIcon, SettingsIcon, WalletIcon, ZapIcon } from 'lucide-react';
 
+import { AppHelp } from '@/app/root/app-help';
 import { CommandMenu } from '@/app/root/command-menu';
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/shared/components/icons';
@@ -51,11 +52,7 @@ export const AppSidebar = () => {
       </div>
       {/* Footer */}
       <div className='flex flex-col gap-2'>
-        <ExSidebarItem leftSlot={<CircleHelpIcon className='h-4' />} to={siteConfig.links.support}>
-          <div className='flex items-center gap-2 text-sm font-medium'>
-            Support <ExternalLink className='h-3.5 w-3.5' />
-          </div>
-        </ExSidebarItem>
+        <AppHelp />
       </div>
     </aside>
   );
@@ -92,32 +89,5 @@ const SidebarItem = ({
         <div>{children}</div>
       </div>
     </Link>
-  );
-};
-
-interface ExSidebarItemProps {
-  leftSlot?: React.ReactNode;
-  className?: string;
-  to: string;
-}
-
-const ExSidebarItem = ({ children, leftSlot, to, className = '' }: PropsWithChildren<ExSidebarItemProps>) => {
-  return (
-    <a
-      key={to}
-      href={to}
-      rel='noopener noreferrer'
-      target='_blank'
-      className={cn(
-        buttonVariants({ variant: 'ghost' }),
-        'group h-8 items-center justify-start gap-2 py-0.5 pl-1 text-primary/65 hover:bg-primary/[0.05] data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',
-        className,
-      )}
-    >
-      <div className='size-4 shrink-0'>{leftSlot}</div>
-      <div className='flex w-auto flex-1 items-center justify-between gap-2 overflow-hidden'>
-        <div>{children}</div>
-      </div>
-    </a>
   );
 };

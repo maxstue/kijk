@@ -12,6 +12,7 @@ const AnalyticsService = {
       api_host: env.PosthogUrl,
       person_profiles: 'identified_only',
       capture_pageview: false,
+      autocapture: false,
     });
   },
 
