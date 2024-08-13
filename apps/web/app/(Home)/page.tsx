@@ -14,7 +14,7 @@ export default function HomePage() {
             The open-source household app for effortless financial management and energy monitoring.
           </p>
           <div className='space-x-4'>
-            <Link href={process.env.NEXT_PUBLIC_CLIENT_URL as string} className={cn(buttonVariants({ size: 'lg' }))}>
+            <Link href={process.env.NEXT_PUBLIC_CLIENT_URL ?? ''} className={cn(buttonVariants({ size: 'lg' }))}>
               Get Started
             </Link>
             <Link href={siteConfig.docs_user} className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}>
