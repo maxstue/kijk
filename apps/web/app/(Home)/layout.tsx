@@ -18,7 +18,7 @@ export default function Layout({ children }: { children: ReactNode }): React.Rea
 
 function Footer(): React.ReactElement {
   return (
-    <footer className='bg-card text-secondary-foreground mt-auto border-t py-8'>
+    <footer className='mt-auto border-t bg-card py-8 text-secondary-foreground'>
       <div className='container flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
         <div className='flex items-center gap-4'>
           <p className='text-sm font-semibold'>Kijk</p>

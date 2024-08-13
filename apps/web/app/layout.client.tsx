@@ -28,7 +28,7 @@ export function NavChildren(): React.ReactElement {
   const mode = useMode();
 
   return (
-    <div className='bg-muted/80 text-muted-foreground rounded-md border p-1 text-sm max-md:absolute max-md:left-1/2 max-md:-translate-x-1/2'>
+    <div className='rounded-md border bg-muted/80 p-1 text-sm text-muted-foreground max-md:absolute max-md:left-1/2 max-md:-translate-x-1/2'>
       {modes.map((m) => (
         <Link key={m.param} href={`/docs/${m.param}`} className={cn(itemVariants({ active: mode === m.param }))}>
           {m.name}

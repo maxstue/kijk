@@ -49,8 +49,8 @@ export default function Page({ params }: { params: { slug?: string[] } }) {
       tableOfContentPopover={{ footer }}
     >
       <DocsBody>
-        <h1 className='text-foreground text-3xl font-bold sm:text-4xl'>{page.data.title}</h1>
-        <p className='text-muted-foreground mb-8 text-lg'>{page.data.description}</p>
+        <h1 className='text-3xl font-bold text-foreground sm:text-4xl'>{page.data.title}</h1>
+        <p className='mb-8 text-lg text-muted-foreground'>{page.data.description}</p>
         <MDX />
         {page.data.index ? <Category page={page} /> : null}
       </DocsBody>
