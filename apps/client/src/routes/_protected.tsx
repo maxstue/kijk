@@ -4,6 +4,7 @@ import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { useSignInUser } from '@/app/root/use-signin-user';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
+import { cn } from '@/shared/lib/helpers';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/_protected')({
@@ -41,7 +42,7 @@ function Protected() {
         </div>
       )}
       {/* Content */}
-      <main className='flex flex-1 flex-col py-2 pl-64 pr-2'>
+      <main className={cn(isFirstTime ? 'p-2' : 'py-2 pl-64 pr-2', 'flex flex-1 flex-col')}>
         <div className='grow overflow-auto rounded-md border bg-background-foreground/45 p-6'>
           <Outlet />
         </div>
