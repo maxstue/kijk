@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Link } from '@tanstack/react-router';
-import { CircleHelpIcon, ExternalLink, HomeIcon, SettingsIcon, WalletIcon, ZapIcon } from 'lucide-react';
+import { HomeIcon, SettingsIcon, WalletIcon, ZapIcon } from 'lucide-react';
 
 import { AppHelp } from '@/app/root/app-help';
 import { CommandMenu } from '@/app/root/command-menu';
