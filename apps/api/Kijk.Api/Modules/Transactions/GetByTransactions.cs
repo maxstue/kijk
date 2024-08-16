@@ -44,7 +44,7 @@ public static class GetByTransactions
                 return TypedResults.NotFound($"User for id '{currentUser.Id}' was not found");
             }
 
-            var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month : -1;
+            var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month : -1;
 
             var response = await dbContext.Accounts
                 .AsNoTracking()

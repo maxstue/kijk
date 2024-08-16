@@ -40,11 +40,11 @@ export function DevModeIndicator() {
     <div className='absolute top-0 z-50 flex w-[100vw] flex-col items-center'>
       <div className='h-[2px] w-full bg-gradient-to-r from-background via-[#E87B35] to-background' />
       <div
+        className='flex items-center space-x-2 rounded-b bg-[#E87B35] px-2 pb-1.5 pt-0 text-xs text-white'
         role='button'
         tabIndex={-1}
         onMouseEnter={handleHover(true)}
         onMouseLeave={handleHover(false)}
-        className='flex items-center space-x-2 rounded-b bg-[#E87B35] px-2 pb-1.5 pt-0 text-xs text-white'
       >
         <div className=' '>{env.Mode}</div>
         <div className='h-4 w-px bg-gray-200' />

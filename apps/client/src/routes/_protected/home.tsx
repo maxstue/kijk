@@ -32,21 +32,21 @@ function HomeIndexPage() {
               </Button>
             </div>
           </div>
-          <Tabs defaultValue='overview' className='space-y-4'>
+          <Tabs className='space-y-4' defaultValue='overview'>
             <div className='flex justify-between'>
               <TabsList>
                 <TabsTrigger value='overview'>Overview</TabsTrigger>
-                <TabsTrigger value='analytics' disabled>
+                <TabsTrigger disabled value='analytics'>
                   Analytics
                 </TabsTrigger>
-                <TabsTrigger value='reports' disabled>
+                <TabsTrigger disabled value='reports'>
                   Reports
                 </TabsTrigger>
               </TabsList>
               <TeamSwitcher />
             </div>
 
-            <TabsContent value='overview' className='space-y-4'>
+            <TabsContent className='space-y-4' value='overview'>
               <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
                 <Card>
                   <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>

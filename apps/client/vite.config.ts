@@ -1,9 +1,9 @@
-import path from 'path';
+import path from 'node:path';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
-import checker from 'vite-plugin-checker';
+// import checker from 'vite-plugin-checker';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         // ts-config paths
-        '@': path.resolve(__dirname, './src'),
+        '@': path.resolve(import.meta.dirname, './src'),
       },
     },
     build: {
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
             if (name.includes('node_modules')) {
               return 'vendor';
             }
-            return null;
+            return;
           },
         },
       },
@@ -104,12 +104,12 @@ export default defineConfig(({ mode }) => {
           filesToDeleteAfterUpload: ['./dist/**/*.map'],
         },
       }),
-      checker({
-        eslint: { lintCommand: 'lint' },
-        typescript: { tsconfigPath: './tsconfig.json' },
-        enableBuild: false,
-        overlay: false,
-      }),
+      // checker({
+      //   eslint: { lintCommand: 'lint' },
+      //   typescript: { tsconfigPath: './tsconfig.json' },
+      //   enableBuild: false,
+      //   overlay: false,
+      // }),
     ],
   };
 });

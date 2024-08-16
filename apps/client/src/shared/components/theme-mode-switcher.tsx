@@ -23,13 +23,14 @@ export function ThemeModeSwitcher() {
   useEffect(() => {
     const root = window.document.documentElement;
 
-    const listener = (e: MediaQueryListEvent) => {
+    const listener = (event: MediaQueryListEvent) => {
       root.classList.remove('light', 'dark');
-      root.classList.add(e.matches ? 'dark' : 'light');
+      root.classList.add(event.matches ? 'dark' : 'light');
     };
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
   }, []);
 
-  return null;
+  // eslint-disable-next-line unicorn/no-useless-undefined
+  return undefined;
 }

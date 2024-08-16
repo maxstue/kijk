@@ -1,25 +1,24 @@
-/* eslint-disable react-perf/jsx-no-new-function-as-prop */
 import { useState } from 'react';
-import * as Sentry from '@sentry/react';
 import { ErrorComponentProps } from '@tanstack/react-router';
 import { ArrowDownIcon } from 'lucide-react';
 
 import { ErrorImage } from '@/shared/components/errors/error-image';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { ErrorService } from '@/shared/lib/error-tracking';
 import { cn } from '@/shared/lib/helpers';
 
 type Props = { resetErrorBoundary?: () => void } & Partial<ErrorComponentProps>;
 
+const handleGotToRoot = () => {
+  window.location.href = '/';
+};
+
 export function AppError({ error, info, resetErrorBoundary }: Props) {
-  Sentry.captureException(error, { extra: { info } });
+  ErrorService.captureException(error, { info });
 
   const handleReset = () => {
     resetErrorBoundary?.();
-  };
-
-  const handleGotToRoot = () => {
-    window.location.href = '/';
   };
 
   return (
@@ -36,7 +35,7 @@ export function AppError({ error, info, resetErrorBoundary }: Props) {
           <Button color='primary' onClick={handleGotToRoot}>
             Go to home
           </Button>
-          {typeof resetErrorBoundary !== 'undefined' && (
+          {resetErrorBoundary !== undefined && (
             <Button color='secondary' onClick={handleReset}>
               Try again
             </Button>
@@ -51,7 +50,9 @@ export function AppError({ error, info, resetErrorBoundary }: Props) {
 const ShowMore = (props: { error?: unknown }) => {
   const [showMore, setShowMore] = useState(false);
 
-  const handleToggleMore = () => setShowMore((c) => !c);
+  const handleToggleMore = () => {
+    setShowMore((c) => !c);
+  };
 
   return (
     <div className='mt-3'>

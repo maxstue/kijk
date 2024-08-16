@@ -1,7 +1,8 @@
 export const siteConfig = {
   name: 'kijk',
   url: 'https://kijk-maxstue.vercel.app/',
-  description: 'Beautifully designed Budget book built with shadcn/ui and nextjs',
+  email: 'mail:maxstue2304@gmail.com',
+  description: 'Beautifully designed household app built with shadcn/ui and nextjs',
   links: {
     github: 'https://github.com/maxstue/kijk',
     support: 'https://github.com/maxstue/kijk/discussions',

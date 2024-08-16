@@ -6,13 +6,8 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll.format": true
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.format": "explicit"
   },
-  "search.exclude": {
-    "package-lock.json": true,
-    "pnpm-lock.yaml": true,
-    "node_modules": true
-  },
-  "testing.automaticallyOpenPeekView": "never"
+  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }]
 }

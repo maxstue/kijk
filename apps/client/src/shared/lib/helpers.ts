@@ -41,7 +41,7 @@ type TypeToZodShape<T> = [T] extends [string | number | boolean | undefined | nu
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function zodBuilder<TType extends Record<string, any>>() {
   return <TShape extends TypeToZodShape<TType>>(shape: TShape): z.ZodObject<TType> => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
     return z.object(shape as any) as any;
   };
 }

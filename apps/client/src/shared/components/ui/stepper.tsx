@@ -83,17 +83,18 @@ export const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
     },
     ref,
   ) => {
-    const childArr = React.Children.toArray(children);
+    const childArray = React.Children.toArray(children);
 
-    const stepCount = childArr.length;
+    const stepCount = childArray.length;
     const renderHorizontalContent = () => {
-      if (activeStep <= childArr.length) {
-        return React.Children.map(childArr[activeStep], (node) => {
+      if (activeStep <= childArray.length) {
+        return React.Children.map(childArray[activeStep], (node) => {
           if (!React.isValidElement(node)) return;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           return React.Children.map(node.props.children, (childNode) => childNode);
         });
       }
-      return null;
+      return;
     };
 
     const isClickable = !!onClickStep;
@@ -127,14 +128,14 @@ export const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
             className,
           )}
         >
-          {React.Children.map(children, (child, i) => {
+          {React.Children.map(children, (child, index) => {
             const isCompletedStep = ((React.isValidElement(child) && child.props.isCompletedStep) ??
-              i < activeStep) as boolean;
-            const isLastStep = i === stepCount - 1;
-            const isCurrentStep = i === activeStep;
+              index < activeStep) as boolean;
+            const isLastStep = index === stepCount - 1;
+            const isCurrentStep = index === activeStep;
 
             const stepProps = {
-              index: i,
+              index: index,
               isCompletedStep,
               isCurrentStep,
               isLastStep,
@@ -144,7 +145,7 @@ export const Steps = React.forwardRef<HTMLDivElement, StepsProps>(
               return React.cloneElement(child, stepProps);
             }
 
-            return null;
+            return;
           })}
         </div>
         {orientation === 'horizontal' && renderHorizontalContent()}
@@ -240,7 +241,7 @@ export const Step = React.forwardRef<HTMLDivElement, StepAndStatusProps>((props,
     }
   };
 
-  const Icon = React.useMemo(() => CustomIcon ?? null, [CustomIcon]);
+  const Icon = React.useMemo(() => CustomIcon ?? undefined, [CustomIcon]);
 
   const SuccessIson = React.useMemo(() => CustomSuccessIcon ?? <Check />, [CustomSuccessIcon]);
 
@@ -259,6 +260,8 @@ export const Step = React.forwardRef<HTMLDivElement, StepAndStatusProps>((props,
   return (
     <div
       {...rest}
+      ref={ref}
+      aria-disabled={!hasVisited}
       className={cn(
         stepVariants({
           isLastStep,
@@ -267,41 +270,41 @@ export const Step = React.forwardRef<HTMLDivElement, StepAndStatusProps>((props,
         }),
         className,
       )}
-      ref={ref}
-      onClick={() => handleClick(index)}
-      aria-disabled={!hasVisited}
+      onClick={() => {
+        handleClick(index);
+      }}
     >
       <div className={cn('flex items-center gap-2', isLabelVertical ? 'flex-col' : '')}>
         <Button
           aria-current={isCurrentStep ? 'step' : undefined}
-          data-invalid={isCurrentStep && isError}
-          data-highlighted={isCompletedStep}
           data-clickable={isClickable}
+          data-highlighted={isCompletedStep}
+          data-invalid={isCurrentStep && isError}
           disabled={!hasVisited}
+          variant={isCurrentStep && isError ? 'destructive' : variant}
           className={cn(
             'aspect-square h-12 w-12 rounded-full data-[highlighted=true]:bg-green-700 data-[highlighted=true]:text-white',
-            isCompletedStep ?? typeof RenderIcon !== 'number' ? 'px-3 py-2' : '',
+            (isCompletedStep ?? typeof RenderIcon !== 'number') ? 'px-3 py-2' : '',
             additionalClassName?.button,
           )}
-          variant={isCurrentStep && isError ? 'destructive' : variant}
         >
           {RenderIcon}
         </Button>
         <StepLabel
-          label={label}
           description={description}
+          descriptionClassName={additionalClassName?.description}
+          label={label}
+          labelClassName={additionalClassName?.label}
           optional={optional}
           optionalLabel={optionalLabel}
-          labelClassName={additionalClassName?.label}
-          descriptionClassName={additionalClassName?.description}
           {...{ isCurrentStep }}
         />
       </div>
       <Connector
-        index={index}
-        isLastStep={isLastStep}
         hasLabel={!!label || !!description}
+        index={index}
         isCompletedStep={isCompletedStep ?? false}
+        isLastStep={isLastStep}
       >
         {(isCurrentStep ?? isCompletedStep) && children}
       </Connector>
@@ -355,7 +358,7 @@ const StepLabel = ({
       )}
       {!!description && <p className={cn('text-sm text-muted-foreground', descriptionClassName)}>{description}</p>}
     </div>
-  ) : null;
+  ) : undefined;
 };
 
 StepLabel.displayName = 'StepLabel';
@@ -388,14 +391,14 @@ const Connector = React.memo(({ isCompletedStep, children, isLastStep }: Connect
   }
 
   if (isLastStep) {
-    return null;
+    return;
   }
 
   return (
     <Separator
-      data-highlighted={isCompletedStep}
       className='flex h-[2px] min-h-[auto] flex-1 self-auto data-[highlighted=true]:bg-green-700'
-      orientation={isVertical ? 'vertical' : 'horizontal'}
+      data-highlighted={isCompletedStep}
+      orientation='horizontal'
     />
   );
 });

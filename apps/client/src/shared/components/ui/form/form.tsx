@@ -27,7 +27,7 @@ function Form<T extends FieldValues>({ form, onSubmit, onInvalid, children, ...p
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} {...props}>
-        <fieldset disabled={form.formState.isSubmitting} className={props.className}>
+        <fieldset className={props.className} disabled={form.formState.isSubmitting}>
           {children}
         </fieldset>
       </form>
@@ -116,9 +116,9 @@ const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.Compon
     return (
       <Slot
         ref={ref}
-        id={formItemId}
-        aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+        aria-describedby={error ? `${formDescriptionId} ${formMessageId}` : formDescriptionId}
         aria-invalid={!!error}
+        id={formItemId}
         {...props}
       />
     );
@@ -130,7 +130,7 @@ const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttribu
   ({ className, ...props }, ref) => {
     const { formDescriptionId } = useFormField();
 
-    return <p ref={ref} id={formDescriptionId} className={cn('text-sm text-muted-foreground', className)} {...props} />;
+    return <p ref={ref} className={cn('text-sm text-muted-foreground', className)} id={formDescriptionId} {...props} />;
   },
 );
 FormDescription.displayName = 'FormDescription';
@@ -138,14 +138,14 @@ FormDescription.displayName = 'FormDescription';
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => {
     const { error, formMessageId } = useFormField();
-    const body = error ? String(error?.message) : children;
+    const body = error ? String(error.message) : children;
 
     if (!body) {
-      return null;
+      return;
     }
 
     return (
-      <p ref={ref} id={formMessageId} className={cn('text-sm font-medium text-destructive', className)} {...props}>
+      <p ref={ref} className={cn('text-sm font-medium text-destructive', className)} id={formMessageId} {...props}>
         {body}
       </p>
     );

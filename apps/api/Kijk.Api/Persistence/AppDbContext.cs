@@ -26,7 +26,7 @@ public class AppDbContext(IConfiguration configuration, IServiceProvider service
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseNpgsql(configuration.GetConnectionString(ConnectionStringsOptions.DefaultConnectionStringPath))
+        options.UseNpgsql(configuration.GetConnectionString(ConnectionOptions.SectionName))
             .UseExceptionProcessor()
             .UseSnakeCaseNamingConvention()
             .AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());

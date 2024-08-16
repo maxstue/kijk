@@ -18,12 +18,11 @@ import { useThemeStore } from '@/shared/stores/theme-store';
 export function UserNav() {
   const { signOut } = useAuth();
   const { user } = useUser();
-  const email = user?.emailAddresses?.[0]?.emailAddress;
+  const email = user?.emailAddresses[0]?.emailAddress;
   const userInitials = getInitailChars(email);
   const { radius } = useThemeStore();
   const navigate = useNavigate({ from: '/' });
 
-  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
   const handleSignOut = (event: Event) => {
     event.preventDefault();
     signOut()
@@ -34,14 +33,14 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='ghost' size='icon' className='relative h-9 rounded-md hover:bg-primary/[0.05]'>
+        <Button className='relative h-9 rounded-md hover:bg-primary/[0.05]' size='icon' variant='ghost'>
           <Avatar className='h-6 w-6'>
-            <AvatarImage src='/avatars/01.png' alt={email ?? userInitials} />
+            <AvatarImage alt={email ?? userInitials} src='/avatars/01.png' />
             <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent key={radius} className='w-56 rounded-lg bg-background' align='end' forceMount>
+      <DropdownMenuContent key={radius} forceMount align='end' className='w-56 rounded-lg bg-background'>
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
             <p className='text-sm font-medium leading-none'>{user?.firstName}</p>

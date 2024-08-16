@@ -16,7 +16,12 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
     accessorKey: 'name',
     header: ({ column }) => {
       return (
-        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        <Button
+          variant='ghost'
+          onClick={() => {
+            column.toggleSorting(column.getIsSorted() === 'asc');
+          }}
+        >
           Name
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
@@ -27,7 +32,12 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
     accessorKey: 'category',
     header: ({ column }) => {
       return (
-        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        <Button
+          variant='ghost'
+          onClick={() => {
+            column.toggleSorting(column.getIsSorted() === 'asc');
+          }}
+        >
           Category
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
@@ -46,7 +56,12 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
     accessorKey: 'amount',
     header: ({ column }) => {
       return (
-        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        <Button
+          variant='ghost'
+          onClick={() => {
+            column.toggleSorting(column.getIsSorted() === 'asc');
+          }}
+        >
           Amount
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
@@ -69,7 +84,12 @@ export const budgetColumns: Array<ColumnDef<Transaction>> = [
     header: ({ column }) => {
       return (
         <div className='flex justify-end'>
-          <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          <Button
+            variant='ghost'
+            onClick={() => {
+              column.toggleSorting(column.getIsSorted() === 'asc');
+            }}
+          >
             Date
             <ArrowUpDown className='ml-2 h-4 w-4' />
           </Button>

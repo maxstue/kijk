@@ -5,7 +5,7 @@ export function RecentSales() {
     <div className='flex flex-col gap-6'>
       <div className='flex items-center gap-2'>
         <Avatar className='h-9 w-9'>
-          <AvatarImage src='/avatars/01.png' alt='Avatar' />
+          <AvatarImage alt='Avatar' src='/avatars/01.png' />
           <AvatarFallback>OM</AvatarFallback>
         </Avatar>
         <div>
@@ -16,7 +16,7 @@ export function RecentSales() {
       </div>
       <div className='flex items-center gap-2'>
         <Avatar className='h-9 w-9'>
-          <AvatarImage src='/avatars/02.png' alt='Avatar' />
+          <AvatarImage alt='Avatar' src='/avatars/02.png' />
           <AvatarFallback>JL</AvatarFallback>
         </Avatar>
         <div>
@@ -27,7 +27,7 @@ export function RecentSales() {
       </div>
       <div className='flex items-center gap-2'>
         <Avatar className='h-9 w-9'>
-          <AvatarImage src='/avatars/03.png' alt='Avatar' />
+          <AvatarImage alt='Avatar' src='/avatars/03.png' />
           <AvatarFallback>IN</AvatarFallback>
         </Avatar>
         <div>
@@ -38,7 +38,7 @@ export function RecentSales() {
       </div>
       <div className='flex items-center gap-2'>
         <Avatar className='h-9 w-9'>
-          <AvatarImage src='/avatars/04.png' alt='Avatar' />
+          <AvatarImage alt='Avatar' src='/avatars/04.png' />
           <AvatarFallback>WK</AvatarFallback>
         </Avatar>
         <div>
@@ -49,7 +49,7 @@ export function RecentSales() {
       </div>
       <div className='flex items-center gap-2'>
         <Avatar className='h-9 w-9'>
-          <AvatarImage src='/avatars/05.png' alt='Avatar' />
+          <AvatarImage alt='Avatar' src='/avatars/05.png' />
           <AvatarFallback>SD</AvatarFallback>
         </Avatar>
         <div>

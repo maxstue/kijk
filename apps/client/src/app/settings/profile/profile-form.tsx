@@ -46,7 +46,7 @@ export function ProfileForm() {
   }
 
   return (
-    <Form form={form} onSubmit={onSubmit} className='space-y-8'>
+    <Form className='space-y-8' form={form} onSubmit={onSubmit}>
       <FormField
         control={form.control}
         name='userName'
@@ -79,7 +79,7 @@ export function ProfileForm() {
         />
       </div>
 
-      <Button type='submit' disabled={!formState.isDirty}>
+      <Button disabled={!formState.isDirty} type='submit'>
         Update profile
       </Button>
     </Form>

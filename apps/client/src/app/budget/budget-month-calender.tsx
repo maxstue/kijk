@@ -14,20 +14,20 @@ interface Props {
 export function BudgetMonthCalendar({ year, month }: Props) {
   const { data } = useGetTransactionsBy(year, month);
 
-  const tempDate = new Date(year, months.indexOf(month) + 1, 0);
+  const temporaryDate = new Date(year, months.indexOf(month) + 1, 0);
   const from = `${year}-${months.indexOf(month) + 1}-01`;
-  const to = `${year}-${months.indexOf(month) + 1}-${tempDate.getDate()}`;
+  const to = `${year}-${months.indexOf(month) + 1}-${temporaryDate.getDate()}`;
 
   const calValues = useMemo(() => {
-    if (data?.data == null) {
-      return undefined;
+    if (data.data == undefined) {
+      return;
     }
     const groupedByDate = groupBy(data.data, (x) => formatStringDateToOnlyDateString(x.executedAt));
     return Object.entries(groupedByDate).map((x) => ({
       day: x[0],
       value: x[1].length,
     }));
-  }, [data?.data]);
+  }, [data.data]);
 
   const maxValue = calValues ? calValues.length + 30 : 'auto';
 
@@ -37,28 +37,23 @@ export function BudgetMonthCalendar({ year, month }: Props) {
         <>
           <div className='my-2 flex h-36 w-1/2 items-center justify-center'>
             <ResponsiveTimeRange
+              isInteractive
               data={calValues}
-              from={from}
-              to={to}
+              dayBorderColor='hsl(var(--background))'
+              dayBorderWidth={2}
               emptyColor='hsl(var(--calendar-value-empty))'
-              theme={{
-                background: 'hsl(var(--background))',
-                labels: {
-                  text: { fontSize: '13px', fill: 'hsl(var(--calendar-value-medium))' },
-                },
-              }}
+              from={from}
+              margin={{ top: 0, right: 40, bottom: 0, left: 10 }}
+              maxValue={maxValue}
+              minValue={1}
+              to={to}
+              tooltip={CustomTooltip}
               colors={[
                 'hsl(var(--calendar-value-verylow))',
                 'hsl(var(--calendar-value-low))',
                 'hsl(var(--calendar-value-medium))',
                 'hsl(var(--calendar-value-high))',
               ]}
-              dayBorderWidth={2}
-              dayBorderColor='hsl(var(--background))'
-              margin={{ top: 0, right: 40, bottom: 0, left: 10 }}
-              minValue={1}
-              maxValue={maxValue}
-              isInteractive
               legends={[
                 {
                   anchor: 'bottom-right',
@@ -71,7 +66,12 @@ export function BudgetMonthCalendar({ year, month }: Props) {
                   itemDirection: 'right-to-left',
                 },
               ]}
-              tooltip={CustomTooltip}
+              theme={{
+                background: 'hsl(var(--background))',
+                labels: {
+                  text: { fontSize: '13px', fill: 'hsl(var(--calendar-value-medium))' },
+                },
+              }}
             />
           </div>
           {/* Legend */}
@@ -89,7 +89,7 @@ function CustomTooltip({ value, day, color }: { value: string; day: string; colo
   return (
     <div className='rounded bg-muted p-2'>
       <div className='flex items-center justify-start gap-2'>
-        <div style={{ backgroundColor: color }} className='h-4 w-4 rounded-full'></div>
+        <div className='h-4 w-4 rounded-full' style={{ backgroundColor: color }}></div>
         <div className='flex gap-2'>
           <div className='text-muted-foreground'>{day}:</div> <div className='font-bold'>{value}</div>
         </div>

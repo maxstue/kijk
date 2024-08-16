@@ -32,12 +32,12 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
         });
         await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
         setVerify(true);
-      } catch (err) {
+      } catch (error_) {
         setVerify(false);
-        const error = err as { errors: Array<{ message: string }> };
+        const error = error_ as { errors: Array<{ message: string }> };
         toast({
           title: 'Your sign in request failed. Please try again.',
-          description: <div>{error.errors[0].message}</div>,
+          description: <div>{error.errors[0]?.message}</div>,
           variant: 'destructive',
         });
       }
@@ -63,7 +63,7 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
             <Verify />
           </div>
         ) : (
-          <UserAuthForm onSubmit={handleRegister} btnLabel='Sign Up' />
+          <UserAuthForm btnLabel='Sign Up' onSubmit={handleRegister} />
         )}
         <p className='px-8 text-center text-sm text-muted-foreground'>
           <Button variant='link' onClick={handleGoToLogin}>
@@ -104,7 +104,7 @@ function Verify() {
         if (completeSignUp.status !== 'complete') {
           toast({
             title: 'Your sign up request failed. Please try again.',
-            description: <div>{JSON.stringify(completeSignUp, null, 2)}</div>,
+            description: <div>{JSON.stringify(completeSignUp, undefined, 2)}</div>,
             variant: 'destructive',
           });
         }
@@ -113,17 +113,18 @@ function Verify() {
           await setActive({ session: completeSignUp.createdSessionId });
           navigate({ to: from, replace: true });
         }
-      } catch (err) {
-        const error = err as { errors: Array<{ message: string }> };
+      } catch (error_) {
+        const error = error_ as { errors: Array<{ message: string }> };
         toast({
           title: 'Your sign up request failed. Please try again.',
-          description: <div>{error.errors[0].message}</div>,
+          description: <div>{error.errors[0]?.message}</div>,
           variant: 'destructive',
         });
       }
     },
     [from, isLoaded, navigate, setActive, signUp, toast],
   );
+
   return (
     <div className='mt-6 grid gap-6'>
       <Form form={form} onSubmit={handleVerify}>

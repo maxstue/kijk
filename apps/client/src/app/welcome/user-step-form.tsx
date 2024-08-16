@@ -29,7 +29,7 @@ export function UserStepForm({ value, onNext, className }: Props) {
 
   return (
     <div className={cn('gridgap-6', className)}>
-      <Form form={form} onSubmit={onNext} onInvalid={form.handleInvalidFormState} className='space-y-8'>
+      <Form className='space-y-8' form={form} onInvalid={form.handleInvalidFormState} onSubmit={onNext}>
         <div className='grid gap-2'>
           <div className='grid gap-1'>
             <FormField

@@ -16,13 +16,13 @@ const authSearchSchema = z.object({
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
   beforeLoad: ({ search, context: { authClient } }) => {
-    const session = authClient?.getInstance()?.session;
+    const session = authClient.getInstance()?.session;
 
     if (!session?.getToken()) {
       return;
     }
 
-    throw redirect({ to: search?.from ?? '/' });
+    throw redirect({ to: search.from ?? '/' });
   },
   component: AuthPage,
 });
@@ -36,9 +36,9 @@ function AuthPage() {
       <div className='m-6 flex flex-col'>
         <div>
           <a
+            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
             href='https://kijk-ruby.vercel.app/'
             rel='noopener noreferrer'
-            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
           >
             <Undo2 className='h-4 w-4' />
             To website

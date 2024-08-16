@@ -37,8 +37,8 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        services.ConfigureOptions<AuthConfigureOptions>();
-        services.ConfigureOptions<ConnectionStringsConfigureOptions>();
+        services.ConfigureOptions<AuthOptions>(configuration)
+            .ConfigureOptions<ConnectionOptions>(configuration);
 
         return services;
     }
@@ -69,7 +69,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddOpenApi(this IServiceCollection services, IConfiguration configuration)
     {
-        var authSettings = configuration.GetSection(AuthOptions.AuthOptionsPath).Get<AuthOptions>();
+        var authSettings = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
 
         if (authSettings is null)
         {
@@ -163,7 +163,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddHealthCheck(this IServiceCollection services, IConfiguration configuration)
     {
-        var conString = configuration.GetConnectionString(nameof(ConnectionStringsOptions.DefaultConnection));
+        var conString = configuration.GetConnectionString(ConnectionOptions.SectionName);
         if (conString is null)
         {
             throw new Exception($"No connection string found, {conString}");

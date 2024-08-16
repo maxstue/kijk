@@ -12,8 +12,8 @@ type LoadComponent = () => Promise<{ default: ComponentType<unknown> }>;
 type AnyProps = Record<string, unknown>;
 
 function wait(ms: number) {
-  return new Promise((res) => {
-    setTimeout(res, ms);
+  return new Promise((response) => {
+    setTimeout(response, ms);
   });
 }
 
@@ -41,12 +41,16 @@ function getDelayedFallback(Fallback: FC, delay: number) {
     const [isDelayPassed, setIsDelayPassed] = useState(false);
 
     useEffect(() => {
-      const timerId = setTimeout(() => setIsDelayPassed(true), delay);
+      const timerId = setTimeout(() => {
+        setIsDelayPassed(true);
+      }, delay);
 
-      return () => clearTimeout(timerId);
+      return () => {
+        clearTimeout(timerId);
+      };
     }, []);
 
-    return isDelayPassed ? <Fallback {...props} /> : null;
+    return isDelayPassed ? <Fallback {...props} /> : undefined;
   };
 }
 

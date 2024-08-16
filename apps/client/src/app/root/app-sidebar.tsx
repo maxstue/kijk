@@ -1,7 +1,8 @@
 import { PropsWithChildren } from 'react';
 import { Link } from '@tanstack/react-router';
-import { CircleHelpIcon, HomeIcon, SettingsIcon, WalletIcon, ZapIcon } from 'lucide-react';
+import { HomeIcon, SettingsIcon, WalletIcon, ZapIcon } from 'lucide-react';
 
+import { AppHelp } from '@/app/root/app-help';
 import { CommandMenu } from '@/app/root/command-menu';
 import { UserNav } from '@/app/root/user-nav';
 import { Icons } from '@/shared/components/icons';
@@ -32,28 +33,26 @@ export const AppSidebar = () => {
             <CommandMenu />
           </div>
 
-          <SidebarItem exact to='/home' leftSlot={<HomeIcon className='h-4' />}>
+          <SidebarItem exact leftSlot={<HomeIcon className='h-4' />} to='/home'>
             <span className='text-sm font-medium'>Dashboard</span>
           </SidebarItem>
 
-          <SidebarItem to='/energy' leftSlot={<ZapIcon className='h-4' />}>
+          <SidebarItem leftSlot={<ZapIcon className='h-4' />} to='/energy'>
             <span className='text-sm font-medium'>Energy</span>
           </SidebarItem>
 
-          <SidebarItem to='/budget' leftSlot={<WalletIcon className='h-4' />}>
+          <SidebarItem leftSlot={<WalletIcon className='h-4' />} to='/budget'>
             <span className='text-sm font-medium'>Transactions</span>
           </SidebarItem>
 
-          <SidebarItem to='/settings' leftSlot={<SettingsIcon className='h-4' />}>
+          <SidebarItem leftSlot={<SettingsIcon className='h-4' />} to='/settings'>
             <span className='text-sm font-medium'>Settings</span>
           </SidebarItem>
         </div>
       </div>
       {/* Footer */}
       <div className='flex flex-col gap-2'>
-        <ExSidebarItem to={siteConfig.links.support} leftSlot={<CircleHelpIcon className='h-4' />}>
-          <span className='text-sm font-medium'>Support</span>
-        </ExSidebarItem>
+        <AppHelp />
       </div>
     </aside>
   );
@@ -76,9 +75,9 @@ const SidebarItem = ({
   return (
     <Link
       key={to}
-      to={to}
-      preload={false}
       activeOptions={{ exact: exact, includeSearch: false }}
+      preload={false}
+      to={to}
       className={cn(
         buttonVariants({ variant: 'ghost' }),
         'group h-8 items-center justify-start gap-2 py-0.5 pl-1 text-primary/65 hover:bg-primary/[0.05] data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',
@@ -90,32 +89,5 @@ const SidebarItem = ({
         <div>{children}</div>
       </div>
     </Link>
-  );
-};
-
-interface ExSidebarItemProps {
-  leftSlot?: React.ReactNode;
-  className?: string;
-  to: string;
-}
-
-const ExSidebarItem = ({ children, leftSlot, to, className = '' }: PropsWithChildren<ExSidebarItemProps>) => {
-  return (
-    <a
-      key={to}
-      href={to}
-      rel='noopener noreferrer'
-      target='_blank'
-      className={cn(
-        buttonVariants({ variant: 'ghost' }),
-        'group h-8 items-center justify-start gap-2 py-0.5 pl-1 text-primary/65 hover:bg-primary/[0.05] data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',
-        className,
-      )}
-    >
-      <div className='size-4 shrink-0'>{leftSlot}</div>
-      <div className='flex w-auto flex-1 items-center justify-between gap-2 overflow-hidden'>
-        <div>{children}</div>
-      </div>
-    </a>
   );
 };

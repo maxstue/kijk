@@ -3,8 +3,7 @@ export type Optional<T> = T | undefined;
 export type Nullable<T> = T | null;
 export type Nullish<T> = T | undefined | null;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type Autocomplete<Keys extends string> = Keys | (string & {});
+export type Autocomplete<TOptions extends string> = TOptions | (string & {});
 
 export interface ApiResponse<T = unknown> {
   data?: T;
@@ -92,3 +91,7 @@ export interface AppUser {
 export interface User_Metadata {
   user_name: Optional<string>;
 }
+
+export const COOKIE_CONSENT_KEY = 'kijk_cookie_consent';
+
+export type CookieConsent = 'yes' | 'no' | 'undecided';

@@ -12,7 +12,7 @@ on:
 env:
   NODE_VERSION: "20.x"
   PNPM_VERSION: "9"
-  CI: ${{ vars.CI }}
+  CI: ${{ secrets.CI }}
 
 defaults:
   run:

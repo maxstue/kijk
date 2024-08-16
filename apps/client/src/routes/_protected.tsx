@@ -3,7 +3,7 @@ import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-
 
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { useSignInUser } from '@/app/root/use-signin-user';
-import { InitLaoder } from '@/shared/components/ui/loaders/init-laoder';
+import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/_protected')({
@@ -17,7 +17,7 @@ export const Route = createFileRoute('/_protected')({
     return { session };
   },
   component: Protected,
-  pendingComponent: InitLaoder,
+  pendingComponent: InitLoader,
 });
 
 function Protected() {
@@ -27,17 +27,15 @@ function Protected() {
   const isFirstTime = query.data.data?.firstTime === true;
 
   useEffect(() => {
-    if (query.isSuccess && query.data.data) {
-      if (isFirstTime) {
-        navigate({ to: '/welcome', replace: true });
-      }
+    if (query.isSuccess && query.data.data && isFirstTime) {
+      navigate({ to: '/welcome', replace: true });
     }
   }, [isFirstTime, navigate, query.data.data, query.isSuccess, query.status]);
 
   return (
     <div className='relative isolate flex h-dvh w-full bg-background text-primary'>
       {/* Sidebar */}
-      {isFirstTime ? null : (
+      {isFirstTime ? undefined : (
         <div className='fixed inset-y-0 left-0 min-w-64 max-w-64'>
           <AppSidebar />
         </div>

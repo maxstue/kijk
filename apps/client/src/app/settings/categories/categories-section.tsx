@@ -23,7 +23,9 @@ import { useGetCategories } from './use-get-categories';
 export function CategoriesSection() {
   const [showSheet, setShowSheet] = useState(false);
 
-  const handleClose = useCallback(() => setShowSheet(false), []);
+  const handleClose = useCallback(() => {
+    setShowSheet(false);
+  }, []);
 
   return (
     <div className='space-y-6'>
@@ -79,14 +81,14 @@ function Categories({ type }: { type: CategoryType }) {
 
   const filteredData = data.data?.[type] ?? [];
 
-  return <DataTable data={filteredData} columns={categoryColumns} defaultSort={categoryDefaultSort} />;
+  return <DataTable columns={categoryColumns} data={filteredData} defaultSort={categoryDefaultSort} />;
 }
 
 function CategoriesInfo() {
   const { data } = useGetCategories();
 
   const dataCount = useMemo(() => {
-    if (data?.data === undefined) {
+    if (data.data === undefined) {
       return 0;
     }
 
@@ -94,7 +96,7 @@ function CategoriesInfo() {
   }, [data.data]);
 
   const customCount = useMemo(() => {
-    if (data?.data === undefined) {
+    if (data.data === undefined) {
       return 0;
     }
 

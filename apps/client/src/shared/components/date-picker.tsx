@@ -17,23 +17,25 @@ const DatePicker = forwardRef<HTMLInputElement, Props>(({ className, date, setDa
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          id='date'
-          variant={'outline'}
-          size='sm'
           className={cn('w-[240px] justify-start text-left font-normal', !date && 'text-muted-foreground', className)}
+          id='date'
+          size='sm'
+          variant={'outline'}
         >
           <CalendarIcon className='mr-2 h-4 w-4' />
           {date ? format(date, 'LLL dd, y') : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent ref={ref} className='w-auto p-0' align='end'>
+      <PopoverContent ref={ref} align='end' className='w-auto p-0'>
         <Calendar
           {...props}
-          initialFocus
-          mode='single'
+          autoFocus
           defaultMonth={date}
+          mode='single'
           selected={date}
-          onSelect={(e) => setDate(e)}
+          onSelect={(data) => {
+            setDate(data);
+          }}
         />
       </PopoverContent>
     </Popover>

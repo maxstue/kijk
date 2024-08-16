@@ -61,22 +61,22 @@ type TeamSwitcherProps = PopoverTriggerProps;
 export function TeamSwitcher({ className }: TeamSwitcherProps) {
   const [open, setOpen] = useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState<Team>(groups[0].teams[0]);
+  const [selectedTeam, setSelectedTeam] = useState<Team>(groups[0]!.teams[0]!);
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant='ghost'
-            size='sm'
-            role='combobox'
             aria-expanded={open}
             aria-label='Select a team'
             className={cn('w-[200px] justify-between', className)}
+            role='combobox'
+            size='sm'
+            variant='ghost'
           >
             <Avatar className='mr-2 h-5 w-5'>
-              <AvatarImage src={`https://avatar.vercel.sh/${selectedTeam.value}.png`} alt={selectedTeam.label} />
+              <AvatarImage alt={selectedTeam.label} src={`https://avatar.vercel.sh/${selectedTeam.value}.png`} />
               <AvatarFallback>SC</AvatarFallback>
             </Avatar>
             {selectedTeam.label}
@@ -93,14 +93,14 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
                   {group.teams.map((team) => (
                     <CommandItem
                       key={team.value}
+                      className='text-sm'
                       onSelect={() => {
                         setSelectedTeam(team);
                         setOpen(false);
                       }}
-                      className='text-sm'
                     >
                       <Avatar className='mr-2 h-5 w-5'>
-                        <AvatarImage src={`https://avatar.vercel.sh/${team.value}.png`} alt={team.label} />
+                        <AvatarImage alt={team.label} src={`https://avatar.vercel.sh/${team.value}.png`} />
                         <AvatarFallback>SC</AvatarFallback>
                       </Avatar>
                       {team.label}
@@ -166,7 +166,12 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant='outline' onClick={() => setShowNewTeamDialog(false)}>
+          <Button
+            variant='outline'
+            onClick={() => {
+              setShowNewTeamDialog(false);
+            }}
+          >
             Cancel
           </Button>
           <Button type='submit'>Continue</Button>

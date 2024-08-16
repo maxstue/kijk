@@ -22,11 +22,11 @@ export function useStepper({ initialStep, steps }: useStepper): useStepperReturn
   const [activeStep, setActiveStep] = React.useState(initialStep);
 
   const nextStep = () => {
-    setActiveStep((prev) => prev + 1);
+    setActiveStep((previous) => previous + 1);
   };
 
-  const prevStep = () => {
-    setActiveStep((prev) => prev - 1);
+  const previousStep = () => {
+    setActiveStep((previous) => previous - 1);
   };
 
   const resetSteps = () => {
@@ -45,7 +45,7 @@ export function useStepper({ initialStep, steps }: useStepper): useStepperReturn
 
   return {
     nextStep,
-    prevStep,
+    prevStep: previousStep,
     resetSteps,
     setStep,
     activeStep,
@@ -67,7 +67,9 @@ type MediaQueryCallback = (event: { matches: boolean; media: string }) => void;
  */
 function attachMediaListener(query: MediaQueryList, callback: MediaQueryCallback) {
   query.addEventListener('change', callback);
-  return () => query.removeEventListener('change', callback);
+  return () => {
+    query.removeEventListener('change', callback);
+  };
 }
 
 function getInitialValue(query: string, initialValue?: boolean) {
@@ -82,24 +84,23 @@ function getInitialValue(query: string, initialValue?: boolean) {
   return false;
 }
 
-export function useMediaQuery(
-  query: string,
-  initialValue?: boolean,
-  { getInitialValueInEffect }: UseMediaQueryOptions = {
-    getInitialValueInEffect: true,
-  },
-) {
-  const [matches, setMatches] = React.useState(getInitialValueInEffect ? false : getInitialValue(query, initialValue));
+export function useMediaQuery(query: string, initialValue?: boolean, mediaQueryOptions?: UseMediaQueryOptions) {
+  const mediaQueryDefaultOptions = { getInitialValueInEffect: true, ...mediaQueryOptions };
+  const [matches, setMatches] = React.useState(
+    mediaQueryDefaultOptions.getInitialValueInEffect ? false : getInitialValue(query, initialValue),
+  );
   const queryRef = React.useRef<MediaQueryList>();
 
   React.useEffect(() => {
     if ('matchMedia' in window) {
       queryRef.current = window.matchMedia(query);
       setMatches(queryRef.current.matches);
-      return attachMediaListener(queryRef.current, (event) => setMatches(event.matches));
+      return attachMediaListener(queryRef.current, (event) => {
+        setMatches(event.matches);
+      });
     }
 
-    return undefined;
+    return;
   }, [query]);
 
   return matches;

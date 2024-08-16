@@ -12,7 +12,12 @@ export const categoryColumns: Array<ColumnDef<Category>> = [
     accessorKey: 'name',
     header: ({ column }) => {
       return (
-        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        <Button
+          variant='ghost'
+          onClick={() => {
+            column.toggleSorting(column.getIsSorted() === 'asc');
+          }}
+        >
           Name
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
@@ -23,7 +28,12 @@ export const categoryColumns: Array<ColumnDef<Category>> = [
     accessorKey: 'color',
     header: ({ column }) => {
       return (
-        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        <Button
+          variant='ghost'
+          onClick={() => {
+            column.toggleSorting(column.getIsSorted() === 'asc');
+          }}
+        >
           Color
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>

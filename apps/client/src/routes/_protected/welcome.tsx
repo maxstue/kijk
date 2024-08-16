@@ -9,7 +9,7 @@ import { UserStepForm } from '@/app/welcome/user-step-form';
 import { Head } from '@/shared/components/head';
 import { ThemeQuickCustomizer } from '@/shared/components/theme-quick-customizer';
 import { Button } from '@/shared/components/ui/button';
-import { InitLaoder } from '@/shared/components/ui/loaders/init-laoder';
+import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { Step, StepConfig, Steps } from '@/shared/components/ui/stepper';
 import { useStepper } from '@/shared/hooks/use-stepper';
 import { queryClient } from '@/shared/lib/query-client';
@@ -22,7 +22,7 @@ export const Route = createFileRoute('/_protected/welcome')({
       throw redirect({ to: '/home' });
     }
   },
-  pendingComponent: InitLaoder,
+  pendingComponent: InitLoader,
   component: WelcomePage,
 });
 
@@ -56,10 +56,10 @@ function WelcomePage() {
         <div className='flex w-3/5 flex-col gap-6'>
           <Steps activeStep={activeStep} className='px-24'>
             {steps.map((step, index) => (
-              <Step index={index} key={step.label} {...step}>
+              <Step key={step.label} index={index} {...step}>
                 <div className='flex h-[calc(100dvh_*_0.5)] w-full flex-col bg-muted p-6'>
                   {index === 0 && <StepZero />}
-                  {index === 1 && <StepOne value={userStep} setuserStep={setUserStep} />}
+                  {index === 1 && <StepOne setuserStep={setUserStep} value={userStep} />}
                   {index === 2 && <StepTwo />}
                   {index === 3 && <Finish />}
                 </div>
@@ -68,16 +68,16 @@ function WelcomePage() {
           </Steps>
           <div className='flex items-center justify-end'>
             <div className='flex w-1/4 gap-2'>
-              <Button onClick={prevStep} disabled={isDisabledStep} className='w-full'>
+              <Button className='w-full' disabled={isDisabledStep} onClick={prevStep}>
                 Prev
               </Button>
               {!isLastStep && (
-                <Button onClick={nextStep} className='w-full'>
+                <Button className='w-full' onClick={nextStep}>
                   {isOptionalStep ? 'Skip' : 'Next'}
                 </Button>
               )}
               {isLastStep && (
-                <Button onClick={handleFinish} className='w-full'>
+                <Button className='w-full' onClick={handleFinish}>
                   Finish
                 </Button>
               )}
@@ -104,10 +104,10 @@ function StepZero() {
       <p className='w-2/3 text-muted-foreground'>
         If you have any questions, ideas, feedback or just want to say hello, just drop by at our{' '}
         <a
-          href='https://github.com/maxstue/kijk/discussions'
-          target='_blank'
-          rel='noopener noreferrer'
           className='cursor-pointer underline decoration-primary'
+          href='https://github.com/maxstue/kijk/discussions'
+          rel='noopener noreferrer'
+          target='_blank'
         >
           github
         </a>
@@ -131,7 +131,7 @@ function StepOne({
         <div className='text-muted-foreground'>Setup your username and categories</div>
         <div className='text-muted-foreground'>You can change this setting at a later date in you profile.</div>
       </div>
-      <UserStepForm value={value} onNext={setuserStep} className='w-2/3' />
+      <UserStepForm className='w-2/3' value={value} onNext={setuserStep} />
     </div>
   );
 }

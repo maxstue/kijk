@@ -31,7 +31,9 @@ const searchSchema = z.object({
   month: z
     .string()
     .transform((x) => x as Months)
-    .catch(months[new Date().getMonth()]),
+    // eslint-disable-next-line unicorn/prefer-top-level-await
+    .catch(months[new Date().getMonth()]!),
+  // eslint-disable-next-line unicorn/prefer-top-level-await
   year: z.number().catch(new Date().getFullYear()),
 });
 
@@ -53,17 +55,19 @@ export const Route = createFileRoute('/_protected/budget')({
 
 function BudgetPage() {
   const [showSheet, setShowSheet] = useState(false);
-  const searchParams = Route.useSearch();
+  const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const handleClose = useCallback(() => setShowSheet(false), []);
+  const handleClose = useCallback(() => {
+    setShowSheet(false);
+  }, []);
 
   useEffect(() => {
     navigate({
       to: '/budget',
-      search: (prev) => ({ ...prev, ...searchParams }),
+      search: (previous) => ({ ...previous, ...searchParameters }),
     });
-  }, [navigate, searchParams, searchParams.month, searchParams.year]);
+  }, [navigate, searchParameters, searchParameters.month, searchParameters.year]);
 
   return (
     <>
@@ -89,7 +93,7 @@ function BudgetPage() {
           <div className='flex-1'>
             <div className='flex flex-col space-y-4'>
               <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-                <BudgetYearCalenderCard year={searchParams.year} />
+                <BudgetYearCalenderCard year={searchParameters.year} />
               </Suspense>
               <div className='grid h-72 gap-4 lg:grid-cols-2'>
                 <Card>
@@ -109,7 +113,7 @@ function BudgetPage() {
                   </CardHeader>
                   <CardContent>
                     <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-                      <BudgetMonthCalendar year={searchParams.year} month={searchParams.month} />
+                      <BudgetMonthCalendar month={searchParameters.month} year={searchParameters.year} />
                     </Suspense>
                   </CardContent>
                 </Card>
@@ -127,8 +131,8 @@ function BudgetPage() {
                     </SheetHeader>
                     <Suspense>
                       <TransactionCreateForm
-                        year={searchParams.year}
-                        month={searchParams.month}
+                        month={searchParameters.month}
+                        year={searchParameters.year}
                         onClose={handleClose}
                       />
                     </Suspense>

@@ -46,15 +46,17 @@ export function CommandMenu({ ...props }: Props) {
   }, []);
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
+    const down = (event: KeyboardEvent) => {
+      if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
         setOpen((o) => !o);
       }
     };
 
     document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
+    return () => {
+      document.removeEventListener('keydown', down);
+    };
   }, []);
 
   const runCommand = useCallback(
@@ -110,9 +112,9 @@ export function CommandMenu({ ...props }: Props) {
                 onSelect={runCommand(() =>
                   navigate({
                     to: '/budget',
-                    search: (prev) => ({
-                      ...prev,
-                      month: months[new Date().getMonth()],
+                    search: (previous) => ({
+                      ...previous,
+                      month: months[new Date().getMonth()]!,
                       year: new Date().getFullYear(),
                     }),
                   }),
@@ -158,15 +160,30 @@ export function CommandMenu({ ...props }: Props) {
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading='Theme'>
-              <CommandItem value='theme-light' onSelect={runCommand(() => setMode('light'))}>
+              <CommandItem
+                value='theme-light'
+                onSelect={runCommand(() => {
+                  setMode('light');
+                })}
+              >
                 <SunMedium className='mr-2 h-4 w-4' />
                 Light
               </CommandItem>
-              <CommandItem value='theme-dark' onSelect={runCommand(() => setMode('dark'))}>
+              <CommandItem
+                value='theme-dark'
+                onSelect={runCommand(() => {
+                  setMode('dark');
+                })}
+              >
                 <Moon className='mr-2 h-4 w-4' />
                 Dark
               </CommandItem>
-              <CommandItem value='theme-system' onSelect={runCommand(() => setMode('system'))}>
+              <CommandItem
+                value='theme-system'
+                onSelect={runCommand(() => {
+                  setMode('system');
+                })}
+              >
                 <Laptop className='mr-2 h-4 w-4' />
                 System
               </CommandItem>

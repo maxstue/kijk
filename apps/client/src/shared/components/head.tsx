@@ -9,5 +9,6 @@ export const Head = memo(function Head({ title }: Props) {
     document.title = title ? `${title} | Kijk` : 'Kijk';
   }, [title]);
 
-  return null;
+  // eslint-disable-next-line unicorn/no-useless-undefined
+  return undefined;
 });
