@@ -3,7 +3,7 @@ export type Optional<T> = T | undefined;
 export type Nullable<T> = T | null;
 export type Nullish<T> = T | undefined | null;
 
-export type Autocomplete<Keys extends string> = Keys | (string & {});
+export type Autocomplete<TOptions extends string> = TOptions | (string & {});
 
 export interface ApiResponse<T = unknown> {
   data?: T;
