@@ -20,8 +20,10 @@ public class CurrentUser
     public string Email => this.User.Email ?? throw new ArgumentNullException(ClaimTypes.Upn, "'Upn/Email' not found");
 
     public List<string> Permissions => Principal.FindAll(PermissionsClaim).Select(x => x.Value).ToList();
-
+    
     public bool IsAdmin => this.Permissions.Contains(AppConstants.Roles.Admin);
-
+    
     public bool IsUser => this.Permissions.Contains(AppConstants.Roles.Admin);
+    
+    public Guid ActiveHouseholdId => this.User.HouseholdId;
 }

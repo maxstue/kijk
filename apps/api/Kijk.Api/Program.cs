@@ -64,6 +64,7 @@ try
     app.UseCors(AppConstants.Policies.Cors)
         .UseAuthentication()
         .UseAuthorization();
+    app.UseMiddleware<CurrentUserMiddleware>();
 
     app.UseResponseCompression();
 

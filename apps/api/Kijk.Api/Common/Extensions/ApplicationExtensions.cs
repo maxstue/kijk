@@ -18,8 +18,6 @@ public static class ApplicationExtensions
         applicationBuilder.UseSwaggerUI(
             c =>
             {
-                // c.UseRequestInterceptor(
-                //     "(req) => { req.headers['Authorization'] = 'Bearer ' + window?.swaggerUIRedirectOauth2?.auth?.token?.access_token; return req; }");
                 c.DefaultModelsExpandDepth(0);
                 c.DefaultModelExpandDepth(0);
                 c.SwaggerEndpoint("v1/swagger.json", "Kijk Api v1.00");

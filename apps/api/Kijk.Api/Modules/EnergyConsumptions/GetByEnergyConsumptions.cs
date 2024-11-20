@@ -4,16 +4,16 @@ using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Kijk.Api.Modules.Transactions;
+namespace Kijk.Api.Modules.EnergyConsumptions;
 
-public static class GetByTransactions
+public static class GetByEnergyConsumptions
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetByTransactions));
+    private static readonly ILogger Logger = Log.ForContext(typeof(GetByEnergyConsumptions));
 
-    public static RouteGroupBuilder MapGetByTransactions(this RouteGroupBuilder groupBuilder)
+    public static RouteGroupBuilder MapGetByEnergyConsumptions(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/", Handle)
-            .Produces<ApiResponse<List<TransactionDto>>>()
+            .Produces<ApiResponse<List<EnergyConsumptionDto>>>()
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
 
@@ -21,10 +21,11 @@ public static class GetByTransactions
     }
 
     /// <summary>
-    /// Retrieves all transactions for the current user by year and month.
+    /// Retrieves all energy consumptions for the current user by year, month and type.
     /// </summary>
     /// <param name="year"></param>
     /// <param name="month"></param>
+    /// <param name="type"></param>
     /// <param name="dbContext"></param>
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
@@ -32,35 +33,32 @@ public static class GetByTransactions
     private static async Task<IResult> Handle(
         [FromQuery(Name = "year")] int? year,
         [FromQuery(Name = "month")] string? month,
+        [FromQuery(Name = "type")] string? type,
         AppDbContext dbContext,
         CurrentUser currentUser,
         CancellationToken cancellationToken)
     {
         try
         {
-            var user = await dbContext.Users.FindAsync([currentUser.Id], cancellationToken);
-            if (user is null)
-            {
-                return TypedResults.NotFound($"User for id '{currentUser.Id}' was not found");
-            }
-
             var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month : -1;
 
-            var response = await dbContext.Accounts
+            var typeExists = Enum.TryParse<EnergyConsumptionType>(type, true, out var realType);
+
+            var response = await dbContext.EnergyConsumptions
                 .AsNoTracking()
-                .Where(x => x.UserId == user.Id)
-                .SelectMany(x => x.Transactions)
-                .If(year != null, q => q.Where(x => x.ExecutedAt.Year == year))
-                .If(monthInt != -1, q => q.Where(x => x.ExecutedAt.Month == monthInt))
+                .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
+                .If(year != null, q => q.Where(x => x.Date.Year == year))
+                .If(monthInt != -1, q => q.Where(x => x.Date.Month == monthInt))
+                .If(typeExists, q => q.Where(x => x.Type == realType))
                 .Select(
-                    x => new TransactionDto(
+                    x => new EnergyConsumptionDto(
                         x.Id,
                         x.Name,
-                        x.Amount,
-                        x.Type,
-                        x.ExecutedAt,
-                        CategoryDto.Create(x.Category)))
+                        x.Description,
+                        x.Value,
+                        x.Type, x.CreatedAt))
                 .ToListAsync(cancellationToken);
+
             return TypedResults.Ok(ApiResponseBuilder.Success(response));
         }
         catch (Exception e)

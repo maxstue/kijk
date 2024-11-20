@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Humanizer;
 using Kijk.Api.Common.Filters;
+using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
 using Kijk.Api.Modules.App;
@@ -97,7 +98,7 @@ public static class ServiceExtensions
                     {
                         {
                             new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "bearerAuth" } },
-                            new string[] { }
+                            []
                         }
                     });
 
@@ -187,7 +188,7 @@ public static class ServiceExtensions
                         ValidateAudience = false,
                         NameClaimType = ClaimTypes.NameIdentifier
                     };
-                    x.Events = new JwtBearerEvents()
+                    x.Events = new JwtBearerEvents
                     {
                         // Additional validation for AZP claim
                         OnTokenValidated = context =>
@@ -203,17 +204,14 @@ public static class ServiceExtensions
                     };
                 });
 
-        // State that represents the current user from the request
-        services.AddCurrentUser();
+        services.AddScoped<CurrentUser>();
+        services.AddTransient<CurrentUserMiddleware>();
 
         services.AddAuthorizationBuilder()
-            .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireCurrentUser().Build());
+            .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());
 
         // .AddPolicy(AppConstants.Policies.User, policy => policy.RequireRole(AppConstants.Roles.User).RequireCurrentUser().Build())
         // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
-
-        // add current user handler
-        services.AddScoped<IAuthorizationHandler, CheckCurrentUserAuthHandler>();
 
         return services;
     }

@@ -47,8 +47,16 @@ public record CategoryDto(Guid Id, string Name, string Color, CategoryType Type,
         new(category.Id, category.Name, category.Color, category.Type, category.CreatorType);
 }
 
-public record SimpleAuthUser(Guid Id, string AuthId, string Name, string? Email, bool? FirstTime = false)
+public record SimpleAuthUser(Guid Id, string AuthId, Guid HouseholdId, string Name, string? Email,  bool? FirstTime = false)
 {
     public static SimpleAuthUser Create(User user) =>
-        new(user.Id, user.AuthId, user.Name, user.Email, user.FirstTime);
+        new(user.Id, user.AuthId, user.GetActiveHouseHoldId(), user.Name, user.Email, user.FirstTime);
+}
+
+public record EnergyConsumptionDto(Guid Id, string Name, string? Description, decimal Value, EnergyConsumptionType Type, DateTime CreatedAt)
+{
+    public static EnergyConsumptionDto Create(EnergyConsumption energyConsumption) =>
+        new(
+            energyConsumption.Id, energyConsumption.Name, energyConsumption.Description, energyConsumption.Value, energyConsumption.Type,
+            energyConsumption.CreatedAt);
 }
