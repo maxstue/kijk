@@ -1,17 +1,7 @@
 import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
-import {
-  Controller,
-  ControllerProps,
-  FieldPath,
-  FieldValues,
-  FormProvider,
-  SubmitErrorHandler,
-  SubmitHandler,
-  useFormContext,
-  UseFormReturn,
-} from 'react-hook-form';
+import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, SubmitErrorHandler, SubmitHandler, useFormContext, UseFormReturn } from 'react-hook-form';
 
 import { Label } from '@/shared/components/ui/label';
 import { cn } from '@/shared/lib/helpers';
@@ -116,7 +106,7 @@ const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.Compon
     return (
       <Slot
         ref={ref}
-        aria-describedby={error ? `${formDescriptionId} ${formMessageId}` : formDescriptionId}
+        aria-describedby={error ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`}
         aria-invalid={!!error}
         id={formItemId}
         {...props}
@@ -138,7 +128,7 @@ FormDescription.displayName = 'FormDescription';
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => {
     const { error, formMessageId } = useFormField();
-    const body = error ? String(error.message) : children;
+    const body = error ? String(error?.message) : children;
 
     if (!body) {
       return;

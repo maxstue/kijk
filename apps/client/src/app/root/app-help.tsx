@@ -40,7 +40,7 @@ export function AppHelp() {
             <HelpCircle className='h-4 w-4' />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='mx-4 w-40 rounded-md border border-input bg-background-foreground p-2'>
+        <PopoverContent className='bg-background-foreground mx-4 w-40 rounded-md border border-input p-2'>
           <div className='flex flex-col gap-1'>
             <ExSidebarItem to={siteConfig.links.support}>
               <div className='flex items-center gap-2 text-sm font-medium'>

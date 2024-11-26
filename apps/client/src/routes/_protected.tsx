@@ -43,7 +43,7 @@ function Protected() {
       )}
       {/* Content */}
       <main className={cn(isFirstTime ? 'p-2' : 'py-2 pl-64 pr-2', 'flex flex-1 flex-col')}>
-        <div className='grow overflow-auto rounded-md border bg-background-foreground/45 p-6'>
+        <div className='bg-background-foreground/45 grow overflow-auto rounded-md border p-6'>
           <Outlet />
         </div>
       </main>

@@ -38,16 +38,16 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute('/_protected/budget')({
+  validateSearch: searchSchema,
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
-  loader: ({ deps: { month, year }, context: { queryClient } }) => {
-    return queryClient.ensureQueryData(getTransactionsQuery(year, month));
-  },
   preSearchFilters: [
     (search) => ({
       ...search,
     }),
   ],
-  validateSearch: searchSchema,
+  loader: ({ deps: { month, year }, context: { queryClient } }) => {
+    return queryClient.ensureQueryData(getTransactionsQuery(year, month));
+  },
   component: BudgetPage,
   notFoundComponent: NotFound,
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,

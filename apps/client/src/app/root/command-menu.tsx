@@ -84,7 +84,7 @@ export function CommandMenu({ ...props }: Props) {
         )}
         onClick={handleOpen(true)}
       >
-        {props.isCollapsed ? null : <span className='inline-flex'>Search...</span>}
+        {props.isCollapsed ? undefined : <span className='inline-flex'>Search...</span>}
 
         <kbd
           className={cn(

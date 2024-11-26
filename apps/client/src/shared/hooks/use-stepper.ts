@@ -77,8 +77,8 @@ function getInitialValue(query: string, initialValue?: boolean) {
     return initialValue;
   }
 
-  if (typeof window !== 'undefined' && 'matchMedia' in window) {
-    return window.matchMedia(query).matches;
+  if (typeof globalThis !== 'undefined' && 'matchMedia' in globalThis) {
+    return globalThis.matchMedia(query).matches;
   }
 
   return false;
@@ -92,8 +92,8 @@ export function useMediaQuery(query: string, initialValue?: boolean, mediaQueryO
   const queryRef = React.useRef<MediaQueryList>();
 
   React.useEffect(() => {
-    if ('matchMedia' in window) {
-      queryRef.current = window.matchMedia(query);
+    if ('matchMedia' in globalThis) {
+      queryRef.current = globalThis.matchMedia(query);
       setMatches(queryRef.current.matches);
       return attachMediaListener(queryRef.current, (event) => {
         setMatches(event.matches);

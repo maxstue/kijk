@@ -1,6 +1,7 @@
 // @ts-check
 import eslint from '@eslint/js';
 import tanstackQueryPlugin from '@tanstack/eslint-plugin-query';
+import tanstackRouterRouter from '@tanstack/eslint-plugin-router'
 import prettierConfig from 'eslint-config-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
@@ -99,8 +100,10 @@ const typescriptConfig = {
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const reactConfig = {
   name: 'react',
+  // @ts-ignore
   extends: [reactPlugin.configs.flat.recommended],
   plugins: {
+    // @ts-ignore
     'react-hooks': reactHooksPlugin,
     'react-refresh': reactRefreshPlugin,
   },
@@ -142,6 +145,7 @@ const unicornConfig = {
     'unicorn/no-array-reduce': 'warn',
     'unicorn/no-null': 'warn',
     'unicorn/no-useless-undefined': 'warn',
+    'unicorn/no-document-cookie': 'warn',
     'unicorn/filename-case': [
       'error',
       {
@@ -202,7 +206,7 @@ export default tseslint.config(
   prettierConfig,
   reactConfig,
   unicornConfig,
-  // @ts-ignore
+  ...tanstackRouterRouter.configs['flat/recommended'],
   ...tanstackQueryPlugin.configs['flat/recommended'],
   disableTypeChecked,
   ignoreFiles,
