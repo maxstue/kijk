@@ -23,7 +23,7 @@ public sealed class User : BaseEntity
     /// It should never be empty as it is set when the user is created.
     /// </summary>
     /// <returns></returns>
-    public Guid GetActiveHouseHoldId() => UserHouseholds.FirstOrDefault(x => x.IsDefault)?.HouseholdId ?? Guid.Empty;
+    public Guid GetActiveHouseHoldId() => UserHouseholds.Find(x => x.IsDefault)?.HouseholdId ?? Guid.Empty;
 
     public User SetDefaultCategories(bool? useDefaultCategories, List<Category> defaultCategories)
     {
@@ -44,16 +44,13 @@ public sealed class User : BaseEntity
         string name,
         string? email,
         List<Category>? categories = null,
-        bool firstTime = false)
+        bool firstTime = false) => new User
     {
-        return new User
-        {
-            Id = Guid.NewGuid(),
-            AuthId = authId,
-            Name = name,
-            Email = email,
-            FirstTime = firstTime,
-            Categories = categories ?? [],
-        };
-    }
+        Id = Guid.NewGuid(),
+        AuthId = authId,
+        Name = name,
+        Email = email,
+        FirstTime = firstTime,
+        Categories = categories ?? [],
+    };
 }

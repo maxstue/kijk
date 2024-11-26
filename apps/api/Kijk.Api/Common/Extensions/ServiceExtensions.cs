@@ -1,10 +1,11 @@
 ﻿using System.Globalization;
-using System.IO.Compression;
-using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+
+using EntityFramework.Exceptions.PostgreSQL;
+
 using Humanizer;
-using Kijk.Api.Common.Filters;
+
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
@@ -14,12 +15,10 @@ using Kijk.Api.Modules.Transactions;
 using Kijk.Api.Modules.Users;
 using Kijk.Api.Persistence;
 using Kijk.Api.Persistence.Interceptors;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 
 namespace Kijk.Api.Common.Extensions;
 
@@ -52,94 +51,58 @@ public static class ServiceExtensions
             throw new ArgumentNullException($"{allowedOrigins}", "Cors appsettings is null");
         }
 
-        services.AddCors(
-            options =>
-            {
-                options.AddPolicy(
-                    AppConstants.Policies.Cors,
-                    builder =>
-                    {
-                        builder.WithOrigins(allowedOrigins)
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    });
-            });
+        services.AddCors(options => options.AddPolicy(
+            AppConstants.Policies.Cors, builder => builder.WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()));
 
         return services;
     }
 
     public static IServiceCollection AddOpenApi(this IServiceCollection services, IConfiguration configuration)
     {
-        var authSettings = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
+        var appSettings = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
 
-        if (authSettings is null)
+        if (appSettings is null)
         {
-            throw new Exception($"No auth settings found, {authSettings}");
+            throw new Exception($"Keine AzureAdSettings gefunden, {appSettings}");
         }
 
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(
-            o =>
-            {
-                o.UseInlineDefinitionsForEnums();
-                o.SwaggerDoc("v1", new() { Version = "v1", Title = "Kijk API", Description = "Kijk API to manage your houses" });
-
-                o.AddSecurityDefinition(
-                    "bearerAuth",
-                    new OpenApiSecurityScheme
-                    {
-                        Type = SecuritySchemeType.Http,
-                        Scheme = "bearer",
-                        BearerFormat = "JWT",
-                        Description = "JWT Authorization header using the Bearer scheme."
-                    });
-                o.AddSecurityRequirement(
-                    new OpenApiSecurityRequirement
-                    {
-                        {
-                            new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "bearerAuth" } },
-                            []
-                        }
-                    });
-
-                var xmlFilename = $"{typeof(Program).Assembly.GetName().Name}.xml";
-                o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-            });
+        services.AddOpenApi("openapi", opt => opt.AddDocumentTransformer((document, _, _) =>
+        {
+            document.Info = new() { Version = "v1", Title = "Kijk API", Description = "Kijk API to manage your houses", };
+            opt.AddDocumentTransformer<BearerAuthSchemeTransformer>();
+            return Task.CompletedTask;
+        }));
         return services;
     }
 
-    public static IServiceCollection AddDatabase(this IServiceCollection services)
+    public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+        services.AddSingleton<AuditableEntityInterceptor>();
 
-        services.AddDbContext<AppDbContext>();
+        services.AddDbContextPool<AppDbContext>((sp, optionsBuilder) =>
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            // TODO use MapEnum and use database enums
+            optionsBuilder.UseNpgsql(connectionString, opt => opt.EnableRetryOnFailure())
+                .UseExceptionProcessor()
+                .UseSnakeCaseNamingConvention()
+                .AddInterceptors(sp.GetServices<AuditableEntityInterceptor>());
+        });
 
         return services;
     }
 
     public static IServiceCollection AddCompression(this IServiceCollection services)
     {
-        services.AddResponseCompression(
-            options =>
-            {
-                options.EnableForHttps = true;
-                options.Providers.Add<BrotliCompressionProvider>();
-                options.Providers.Add<GzipCompressionProvider>();
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes;
-            });
-
-        services.Configure<BrotliCompressionProviderOptions>(
-            options =>
-            {
-                options.Level = CompressionLevel.Optimal;
-            });
-
-        services.Configure<GzipCompressionProviderOptions>(
-            options =>
-            {
-                options.Level = CompressionLevel.SmallestSize;
-            });
-
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.Providers.Add<BrotliCompressionProvider>();
+            options.Providers.Add<GzipCompressionProvider>();
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes;
+        });
         return services;
     }
 
@@ -155,9 +118,7 @@ public static class ServiceExtensions
     {
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-        services.AddControllers().AddJsonOptions(
-            options =>
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         return services;
     }
@@ -181,12 +142,12 @@ public static class ServiceExtensions
             .AddJwtBearer(
                 x =>
                 {
+                    // Authority is the URL of your clerk instance
                     x.Authority = configuration["Auth:Authority"];
                     x.TokenValidationParameters = new TokenValidationParameters()
                     {
                         // Disable audience validation as we aren't using it
-                        ValidateAudience = false,
-                        NameClaimType = ClaimTypes.NameIdentifier
+                        ValidateAudience = false, NameClaimType = ClaimTypes.NameIdentifier
                     };
                     x.Events = new JwtBearerEvents
                     {
@@ -196,8 +157,10 @@ public static class ServiceExtensions
                             var azp = context.Principal?.FindFirstValue("azp");
 
                             // AuthorizedParty is the base URL of your frontend.
-                            if (string.IsNullOrEmpty(azp) || !azp.Equals(configuration["Auth:AuthorizedParty"]))
+                            if (string.IsNullOrEmpty(azp) || !azp.Equals(configuration["Auth:AuthorizedParty"], StringComparison.Ordinal))
+                            {
                                 context.Fail("AZP Claim is invalid or missing");
+                            }
 
                             return Task.CompletedTask;
                         }
@@ -216,8 +179,5 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCache(this IServiceCollection services)
-    {
-        return services;
-    }
+    public static IServiceCollection AddCache(this IServiceCollection services) => services;
 }

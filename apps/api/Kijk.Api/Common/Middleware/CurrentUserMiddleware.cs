@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
+
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 
@@ -22,6 +23,12 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
 
     private async Task<(bool, string?)> SetCurrentUser(HttpContext context)
     {
+        if (context.Request.Path == "/" || context.Request.Path == "/api/swagger" ||
+            (context.Request.Path.HasValue && context.Request.Path.Value.StartsWith("/api/openapi", StringComparison.InvariantCulture)))
+        {
+            return (true, null);
+        }
+
         var extAuthId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (extAuthId == null)
@@ -55,14 +62,11 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
         return (true, extAuthId);
     }
 
-    private Task<SimpleAuthUser?> GetUserFromDb(string sub)
-    {
-        return dbContext.Users
-            .AsNoTracking()
-            .Where(x => x.AuthId == sub)
-            .Select(x => SimpleAuthUser.Create(x))
-            .FirstOrDefaultAsync();
-    }
+    private Task<SimpleAuthUser?> GetUserFromDb(string sub) => dbContext.Users
+        .AsNoTracking()
+        .Where(x => x.AuthId == sub)
+        .Select(x => SimpleAuthUser.Create(x))
+        .FirstOrDefaultAsync();
 
     private static async Task HandleError(HttpContext context, string? extAuthId)
     {
@@ -72,14 +76,11 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
         await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
     }
 
-    private static void SentToSentry(ApiResponse<List<AppError>> resp)
-    {
-        SentrySdk.CaptureMessage(
-            resp.Data?[0].Message ?? "AuthError: Token or role is not valid",
-            opt =>
-            {
-                opt.SetExtra("Response", resp);
-                opt.SetExtra("Code", resp.Data?[0].Code);
-            });
-    }
+    private static void SentToSentry(ApiResponse<List<AppError>> resp) => SentrySdk.CaptureMessage(
+        resp.Data?[0].Message ?? "AuthError: Token or role is not valid",
+        opt =>
+        {
+            opt.SetExtra("Response", resp);
+            opt.SetExtra("Code", resp.Data?[0].Code);
+        });
 }

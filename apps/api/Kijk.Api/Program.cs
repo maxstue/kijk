@@ -1,15 +1,13 @@
-﻿using Kijk.Api.Common;
-using Kijk.Api.Common.Extensions;
+﻿using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Utils;
 
 Log.Logger = LoggerUtils.CreateRootLogger();
 
+Log.Information("Application is starting ...");
 try
 {
-    Log.Information("Application is starting ...");
-
     // ##### Add services to the container. #####
     var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +15,9 @@ try
     builder.AddLogging();
 
     builder.Services
-        .AddDatabase()
+        .AddDatabase(builder.Configuration)
         .AddAppSettings(builder.Configuration)
         .AddAuth(builder.Configuration)
-        .AddExceptionHandler<GlobalExceptionHandler>()
         .AddScoped<ExtendRequestLoggingMiddleware>()
         .AddHttpClient()
         .AddOpenApi(builder.Configuration)
@@ -36,57 +33,54 @@ try
     // ##### Configure the HTTP request pipeline. #####
     var app = builder.Build();
 
-    app.UseExceptionHandler(_ => { })
-        .UseAuthExceptionHandler();
-
+    app.MapOpenApi("api/{documentName}.json");
     if (app.Environment.IsDevelopment())
     {
-        app.ApplyMigrations();
-        app.UseDeveloperExceptionPage();
+        app.Map("/", () => Results.Redirect("api/swagger"));
     }
 
-    if (app.Environment.IsProduction())
-    {
-        app.UseHsts();
-    }
+    app.UseResponseCompression()
+        .UseSecurityHeaders()
+        .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder =>
+            // app.ApplyMigrations();
+            appBuilder.UseDeveloperExceptionPage())
+        .UseWhen(_ => !app.Environment.IsDevelopment(), appBuilder => appBuilder.UseHsts());
 
     app.ApplyInitialData();
 
-    app.UseHttpsRedirection();
-    app.UseSecurityHeaders()
-        .UseCustomOpenApi();
-
-    app.UseMiddleware<ExtendRequestLoggingMiddleware>()
-        .UseSerilogRequestLogging()
-        .UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All });
-
-    // Authentication, Authorization and Cors
-    app.UseCors(AppConstants.Policies.Cors)
+    app.UseGlobalExceptionHandler()
+        .UseAuthExceptionHandler()
+        .UseOpenApi()
+        .UseMiddleware<ExtendRequestLoggingMiddleware>()
+        .UseRequestLogging()
+        .UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All })
+        .UseCors(AppConstants.Policies.Cors)
+        .UseHttpsRedirection()
         .UseAuthentication()
         .UseAuthorization();
-    app.UseMiddleware<CurrentUserMiddleware>();
-
-    app.UseResponseCompression();
-
+    
     // Needs to ba after Auth so we have user data
+    app.UseMiddleware<CurrentUserMiddleware>();
     app.UseRateLimiter();
-
     app.MapApiEndpoints()
         .MapHealthCheck();
 
-    app.Run();
+    await app.RunAsync();
+    return 0;
 }
 catch (HostAbortedException)
 {
     //https://github.com/dotnet/efcore/issues/29809
     Log.Information("Application terminated expectedly by e.g. 'dotnet ef'");
+    return 1;
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Application terminated unexpectedly");
+    Log.Fatal(ex, "Unhandled exception");
+    return 1;
 }
 finally
 {
     Log.Information("Application is shutting down ...");
-    Log.CloseAndFlush();
+    await Log.CloseAndFlushAsync();
 }

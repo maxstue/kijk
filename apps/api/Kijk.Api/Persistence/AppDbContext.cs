@@ -1,11 +1,8 @@
-﻿using EntityFramework.Exceptions.PostgreSQL;
-using Kijk.Api.Common.Options;
-using Kijk.Api.Domain.Entities;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using Kijk.Api.Domain.Entities;
 
 namespace Kijk.Api.Persistence;
 
-public class AppDbContext(IConfiguration configuration, IServiceProvider serviceProvider) : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<Household> Households => Set<Household>();
     public DbSet<UserHousehold> UserHouseholds => Set<UserHousehold>();
@@ -24,19 +21,11 @@ public class AppDbContext(IConfiguration configuration, IServiceProvider service
         base.OnModelCreating(modelBuilder);
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
-        options.UseNpgsql(configuration.GetConnectionString(ConnectionOptions.SectionName))
-            .UseExceptionProcessor()
-            .UseSnakeCaseNamingConvention()
-            .AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
-    }
-
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder
             .Properties<DateTime>()
-            .HaveConversion(typeof(UtcDateTimeConverter));
+            .HaveConversion<UtcDateTimeConverter>();
 
         base.ConfigureConventions(configurationBuilder);
     }

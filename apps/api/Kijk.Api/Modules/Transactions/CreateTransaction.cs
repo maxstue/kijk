@@ -69,7 +69,7 @@ public static class CreateTransaction
             var accountId = createTransactionRequest.AccountId;
             if (accountId == null || accountId == Guid.Empty)
             {
-                accountId = user.Accounts.FirstOrDefault(x => x.Name == AppConstants.DefaultValues.AccountName)?.Id;
+                accountId = user.Accounts.Find(x => x.Name == AppConstants.DefaultValues.AccountName)?.Id;
             }
 
             var account = await dbContext.Accounts

@@ -7,7 +7,6 @@ namespace Kijk.Api.Persistence.Interceptors;
 
 public class AuditableEntityInterceptor : SaveChangesInterceptor
 {
-
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         UpdateEntities(eventData.Context);
@@ -27,7 +26,10 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
 
     private static void UpdateEntities(DbContext? context)
     {
-        if (context == null) return;
+        if (context == null)
+        {
+            return;
+        }
 
         var changedEntries = context.ChangeTracker.Entries<BaseEntity>();
 

@@ -17,6 +17,5 @@ public class CategoryConfig : IEntityTypeConfiguration<Category>
         builder.Property(x => x.Color).HasDefaultValue(AppConstants.Colors.Default);
         builder.Property(x => x.Type).HasConversion<string>();
         builder.Property(x => x.CreatorType).HasConversion<string>();
-
     }
 }

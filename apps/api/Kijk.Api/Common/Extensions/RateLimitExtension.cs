@@ -7,37 +7,32 @@ namespace Kijk.Api.Common.Extensions;
 
 public static class RateLimitExtensions
 {
+    public static IServiceCollection AddRateLimitPolicy(this IServiceCollection services) => services.AddRateLimiter(
+        options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    public static IServiceCollection AddRateLimitPolicy(this IServiceCollection services)
-    {
-        return services.AddRateLimiter(
-            options =>
+            options.AddPolicy(AppConstants.Policies.RateLimit, context =>
             {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                var username = context.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-                options.AddPolicy(
-                    AppConstants.Policies.RateLimit,
-                    context =>
+                // 100 Requests per 10sec per user
+                return RateLimitPartition.GetTokenBucketLimiter(
+                    username,
+                    _ => new TokenBucketRateLimiterOptions
                     {
-                        var username = context.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
-                        // 100 Requests per 10sec per user
-                        return RateLimitPartition.GetTokenBucketLimiter(
-                            username,
-                            _ => new TokenBucketRateLimiterOptions
-                            {
-                                ReplenishmentPeriod = TimeSpan.FromSeconds(10),
-                                AutoReplenishment = true,
-                                TokenLimit = 100,
-                                TokensPerPeriod = 100,
-                                QueueLimit = 100
-                            });
+                        ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+                        AutoReplenishment = true,
+                        TokenLimit = 100,
+                        TokensPerPeriod = 100,
+                        QueueLimit = 100
                     });
             });
-    }
+        });
 
-    public static IEndpointConventionBuilder RequirePerUserRateLimit(this IEndpointConventionBuilder builder)
+    public static RouteGroupBuilder RequirePerUserRateLimit(this RouteGroupBuilder builder)
     {
-        return builder.RequireRateLimiting(AppConstants.Policies.RateLimit);
+        builder.RequireRateLimiting(AppConstants.Policies.RateLimit);
+        return builder;
     }
 }

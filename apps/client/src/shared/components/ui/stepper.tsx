@@ -1,6 +1,6 @@
 import * as React from 'react';
+import { cva, VariantProps } from 'class-variance-authority';
 import { Check, Loader2, X } from 'lucide-react';
-import { tv, VariantProps } from 'tailwind-variants';
 
 import { useMediaQuery } from '@/shared/hooks/use-stepper';
 import { cn } from '@/shared/lib/helpers';
@@ -158,8 +158,7 @@ Steps.displayName = 'Steps';
 
 /** Step ********* */
 
-const stepVariants = tv({
-  base: 'relative flex flex-row gap-2',
+const stepVariants = cva('relative flex flex-row gap-2', {
   variants: {
     isLastStep: {
       true: 'flex-[0_0_auto] justify-end',
