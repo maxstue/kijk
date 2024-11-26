@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: 'kijk',
   url: 'https://kijk-maxstue.vercel.app/',
-  email: 'mail:maxstue2304@gmail.com',
+  email: 'mail:kijk@justmax.xyz',
   description: 'Beautifully designed household app built with shadcn/ui and nextjs',
   links: {
     github: 'https://github.com/maxstue/kijk',
