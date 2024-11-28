@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ExternalLink, LucideHeart, Send } from 'lucide-react';
 
 import { FeedbackFormValues, FeedbackSchema } from '@/app/root/schemas';
-import { Button, buttonVariants } from '@/shared/components/ui/button';
+import { Button } from '@/shared/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import {
@@ -25,7 +25,6 @@ import { env } from '@/shared/env';
 import { toast } from '@/shared/hooks/use-toast';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 import { siteConfig } from '@/shared/lib/constants';
-import { cn } from '@/shared/lib/helpers';
 
 interface Props extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {}
 
@@ -120,26 +119,3 @@ function FeedbackSheet({ onClose }: { onClose: () => void }) {
     </>
   );
 }
-
-interface ExSidebarItemProps {
-  to: string;
-}
-
-const ExSidebarItem = ({ children, to }: React.PropsWithChildren<ExSidebarItemProps>) => {
-  return (
-    <a
-      key={to}
-      href={to}
-      rel='noopener noreferrer'
-      target='_blank'
-      className={cn(
-        buttonVariants({ variant: 'ghost' }),
-        'group h-8 items-center justify-start gap-2 py-0.5 pl-1 text-primary/65 hover:bg-primary/[0.05] data-[status=active]:bg-primary data-[status=active]:text-primary-foreground',
-      )}
-    >
-      <div className='flex w-auto flex-1 items-center justify-between gap-2 overflow-hidden'>
-        <div>{children}</div>
-      </div>
-    </a>
-  );
-};
