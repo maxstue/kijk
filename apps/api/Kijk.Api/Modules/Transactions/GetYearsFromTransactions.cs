@@ -28,8 +28,7 @@ public static class GetYearsFromTransactions
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     private static async Task<IResult> Handle(
-        HttpRequest request,
-        AppDbContext dbContext,
+                AppDbContext dbContext,
         CurrentUser currentUser,
         CancellationToken cancellationToken)
     {

@@ -8,7 +8,7 @@ public sealed class EnergyConsumption : BaseEntity
     public string? Description { get; set; }
     public required decimal Value { get; set; }
     public required EnergyConsumptionType Type { get; set; }
-    
+
     /// <summary>
     /// Represents the date of the energy consumption.
     /// </summary>

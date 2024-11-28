@@ -37,7 +37,7 @@ jobs:
         run: dotnet build "Kijk.Api/Kijk.Api.csproj" -c Release --no-restore
 
       - name: 🧹 Format
-        run: dotnet format --verify-no-changes --verbosity detailed --exclude 'Kijk.Api/Persistence/Migrations/'
+        run: dotnet format --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
 
       - name: 🧪 Test
         run: dotnet test "Kijk.Api/Kijk.Api.csproj" --configuration Release --no-build

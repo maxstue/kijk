@@ -1,4 +1,5 @@
 ﻿using Kijk.Api.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Api.Persistence.Configs;

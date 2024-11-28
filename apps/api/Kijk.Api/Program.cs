@@ -58,7 +58,7 @@ try
         .UseHttpsRedirection()
         .UseAuthentication()
         .UseAuthorization();
-    
+
     // Needs to ba after Auth so we have user data
     app.UseMiddleware<CurrentUserMiddleware>();
     app.UseRateLimiter();

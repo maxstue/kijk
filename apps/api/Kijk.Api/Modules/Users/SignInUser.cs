@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+
 using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;

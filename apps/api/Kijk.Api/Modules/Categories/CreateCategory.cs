@@ -1,5 +1,4 @@
-﻿using Kijk.Api.Common.Extensions;
-using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
@@ -17,7 +16,7 @@ public class CreateCategoryValidator : AbstractValidator<CreateCategoryRequest>
 
         RuleFor(x => x.Color)
             .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Color' must be set")
-            .Must(x => x.StartsWith("#")).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Color' must start with a '#'");
+            .Must(x => x.StartsWith('#')).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Color' must start with a '#'");
     }
 }
 
