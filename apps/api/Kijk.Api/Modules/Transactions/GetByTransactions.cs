@@ -14,7 +14,7 @@ public static class GetByTransactions
 
     public static RouteGroupBuilder MapGetByTransactions(this RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet("/", Handle)
+        groupBuilder.MapGet("/", HandleAsync)
             .Produces<ApiResponse<List<TransactionDto>>>()
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
@@ -31,7 +31,7 @@ public static class GetByTransactions
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<IResult> Handle(
+    private static async Task<IResult> HandleAsync(
         [FromQuery(Name = "year")] int? year,
         [FromQuery(Name = "month")] string? month,
         AppDbContext dbContext,

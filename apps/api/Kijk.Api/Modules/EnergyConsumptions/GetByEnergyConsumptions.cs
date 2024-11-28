@@ -14,7 +14,7 @@ public static class GetByEnergyConsumptions
 
     public static RouteGroupBuilder MapGetByEnergyConsumptions(this RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet("/", Handle)
+        groupBuilder.MapGet("/", HandleAsync)
             .Produces<ApiResponse<List<EnergyConsumptionDto>>>()
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
@@ -32,7 +32,7 @@ public static class GetByEnergyConsumptions
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<IResult> Handle(
+    private static async Task<IResult> HandleAsync(
         [FromQuery(Name = "year")] int? year,
         [FromQuery(Name = "month")] string? month,
         [FromQuery(Name = "type")] string? type,
