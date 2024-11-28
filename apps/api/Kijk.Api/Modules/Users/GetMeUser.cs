@@ -3,7 +3,7 @@ using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Modules.Users;
 
-file record GetMeUserResponse(
+sealed file record GetMeUserResponse(
     Guid Id,
     string? AuthId,
     string? Name,

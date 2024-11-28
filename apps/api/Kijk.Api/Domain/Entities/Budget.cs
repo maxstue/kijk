@@ -31,9 +31,7 @@ public class Budget : BaseEntity
         Guid householdId,
         Guid userId,
         Category category,
-        DateOnly? endDate = default)
-    {
-        return new()
+        DateOnly? endDate = default) => new()
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -47,5 +45,4 @@ public class Budget : BaseEntity
             UserId = userId,
             Category = category
         };
-    }
 }

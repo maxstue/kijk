@@ -26,8 +26,5 @@ public static class ResponseUtils
         return statusCode;
     }
 
-    public static IResult CreateTypedResult<TP>(ApiResponse<TP> response, int statusCode)
-    {
-        return TypedResults.Json(response, contentType: "application/json", statusCode: statusCode);
-    }
+    public static IResult CreateTypedResult<TP>(ApiResponse<TP> response, int statusCode) => TypedResults.Json(response, contentType: "application/json", statusCode: statusCode);
 }

@@ -2,10 +2,8 @@
 
 public static class EnergyConsumptionsModule
 {
-    public static IServiceCollection AddEnergyConsumptionsModule(this IServiceCollection services)
-    {
+    public static IServiceCollection AddEnergyConsumptionsModule(this IServiceCollection services) =>
         // services.AddScoped<IValidator<CreateTransactionRequest>, CreateTransactionsValidator>();
 
-        return services;
-    }
+        services;
 }

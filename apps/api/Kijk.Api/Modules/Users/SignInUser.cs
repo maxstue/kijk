@@ -6,7 +6,7 @@ using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Modules.Users;
 
-file record SignInUserResponse(
+sealed file record SignInUserResponse(
     Guid Id,
     string? AuthId,
     string? Name,

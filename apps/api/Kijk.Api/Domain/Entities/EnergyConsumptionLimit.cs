@@ -26,9 +26,7 @@ public sealed class EnergyConsumptionLimit : BaseEntity
         DateTime lastOccurrence,
         User createdBy,
         Guid householdId,
-        string? description = default)
-    {
-        return new()
+        string? description = default) => new()
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -41,6 +39,5 @@ public sealed class EnergyConsumptionLimit : BaseEntity
             CreatedBy = createdBy,
             HouseholdId = householdId
         };
-    }
 
 }

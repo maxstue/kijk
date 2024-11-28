@@ -2,8 +2,5 @@
 
 public static class UsersModule
 {
-    public static IServiceCollection AddUsersModule(this IServiceCollection services)
-    {
-        return services;
-    }
+    public static IServiceCollection AddUsersModule(this IServiceCollection services) => services;
 }

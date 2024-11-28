@@ -7,12 +7,16 @@ namespace Kijk.Api.Common.Models;
 /// </summary>
 public readonly record struct AppResult<TValue>
 {
+#pragma warning disable S2743 // Static fields should not be used in generic types
     private static readonly AppError NoFirstAppError = AppError.Unexpected(
+#pragma warning restore S2743 // Static fields should not be used in generic types
         "ErrorOr.NoFirstError",
         "First error cannot be retrieved from a successful Result.");
 
     private readonly List<AppError>? _errors = null;
+#pragma warning disable IDE0032 // Use auto property
     private readonly TValue? _value = default;
+#pragma warning restore IDE0032 // Use auto property
 
     /// <summary>
     ///     Gets a value indicating whether the state is success.
@@ -37,7 +41,7 @@ public readonly record struct AppResult<TValue>
     /// <summary>
     ///     Gets the first error.
     /// </summary>
-    public AppError FirstAppError => !IsError ? NoFirstAppError : _errors!.First();
+    public AppError FirstAppError => !IsError ? NoFirstAppError : _errors![0];
 
     private AppResult(List<AppError> errors)
     {
@@ -66,26 +70,24 @@ public readonly record struct AppResult<TValue>
     /// <summary>
     ///     Creates an <see cref="AppResult{TValue}" /> from an error.
     /// </summary>
-    public static implicit operator AppResult<TValue>(AppError appError) => new(new List<AppError> { appError });
+    public static implicit operator AppResult<TValue>(AppError appError)
+    {
+        return new([appError]);
+    }
 
     /// <summary>
     ///     Creates an <see cref="AppResult{TValue}" /> from a list of errors.
     /// </summary>
-    public static implicit operator AppResult<TValue>(List<AppError> errors) => new(errors);
-
-    public TResult Match<TResult>(Func<TValue, TResult> onValue, Func<List<AppError>, TResult> onError)
+    public static implicit operator AppResult<TValue>(List<AppError> errors)
     {
-        return IsError ? onError(Errors) : onValue(Value);
+        return new(errors);
     }
 
-    public async Task<TResult> MatchAsync<TResult>(Func<TValue, Task<TResult>> onValue, Func<List<AppError>, Task<TResult>> onError)
-    {
-        return IsError ? await onError(Errors) : await onValue(Value);
-    }
+    public TResult Match<TResult>(Func<TValue, TResult> onValue, Func<List<AppError>, TResult> onError) => IsError ? onError(Errors) : onValue(Value);
 
-    public IResult ToResponse(string? successMessage = default, SuccessType successType = SuccessType.Ok)
-    {
-        return this.Match(
+    public async Task<TResult> MatchAsync<TResult>(Func<TValue, Task<TResult>> onValue, Func<List<AppError>, Task<TResult>> onError) => IsError ? await onError(Errors) : await onValue(Value);
+
+    public IResult ToResponse(string? successMessage = default, SuccessType successType = SuccessType.Ok) => this.Match(
             obj =>
             {
                 var response = ApiResponse<TValue>.Success(obj, successMessage);
@@ -94,10 +96,9 @@ public readonly record struct AppResult<TValue>
             },
             errors =>
             {
-                var firstError = errors.First();
+                var firstError = errors[0];
                 var response = ApiResponse<AppError>.Error(errors);
                 var statusCode = ResponseUtils.ToStatusCode(firstError.Type);
                 return ResponseUtils.CreateTypedResult(response, statusCode);
             });
-    }
 }

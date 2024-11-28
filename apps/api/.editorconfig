@@ -365,6 +365,7 @@ dotnet_naming_style.s_camelcase.capitalization = camel_case
 dotnet_diagnostic.1591.severity = none
 dotnet_diagnostic.IDE0053.severity = when_on_single_line
 dotnet_diagnostic.IDE0055.severity = none
+dotnet_diagnostic.IDE0023.severity = none
 # dotnet rules
 dotnet_diagnostic.CA1304.severity = none
 dotnet_diagnostic.CA1305.severity = none

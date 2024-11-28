@@ -22,9 +22,7 @@ public sealed class EnergyConsumption : BaseEntity
         decimal value,
         Guid householdId,
         DateTime date,
-        string? description = default)
-    {
-        return new()
+        string? description = default) => new()
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -34,5 +32,4 @@ public sealed class EnergyConsumption : BaseEntity
             Date = date,
             HouseholdId = householdId
         };
-    }
 }

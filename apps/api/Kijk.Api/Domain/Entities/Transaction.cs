@@ -25,9 +25,7 @@ public sealed class Transaction : BaseEntity
         TransactionType type,
         DateTime executedAt,
         Account account,
-        Category category)
-    {
-        return new()
+        Category category) => new()
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -38,5 +36,4 @@ public sealed class Transaction : BaseEntity
             Account = account,
             Category = category
         };
-    }
 }

@@ -3,7 +3,7 @@ using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Modules.Transactions;
 
-file record YearDto(List<int> Years);
+sealed file record YearDto(List<int> Years);
 
 public static class GetYearsFromTransactions
 {

@@ -10,23 +10,11 @@ public record ApiResponse<T>
 
     public static implicit operator ApiResponse<T>(T data) => Success(data);
 
-    public static ApiResponse<T> Success(T data, string? message = default)
-    {
-        return new ApiResponse<T> { Status = ResponseStatus.Success, Data = data, Message = message };
-    }
+    public static ApiResponse<T> Success(T data, string? message = default) => new() { Status = ResponseStatus.Success, Data = data, Message = message };
 
-    public static ApiResponse<List<AppError>> Error(string errorMessage)
-    {
-        return new ApiResponse<List<AppError>> { Status = ResponseStatus.Error, Message = errorMessage, Data = new List<AppError>() };
-    }
+    public static ApiResponse<List<AppError>> Error(string errorMessage) => new() { Status = ResponseStatus.Error, Message = errorMessage, Data = [] };
 
-    public static ApiResponse<List<AppError>> Error(List<AppError> error, string? errorMessage = default)
-    {
-        return new ApiResponse<List<AppError>> { Status = ResponseStatus.Error, Message = errorMessage, Data = error };
-    }
+    public static ApiResponse<List<AppError>> Error(List<AppError> error, string? errorMessage = default) => new() { Status = ResponseStatus.Error, Message = errorMessage, Data = error };
 
-    public static ApiResponse<List<AppError>> Error(AppError appError, string? errorMessage = default)
-    {
-        return new ApiResponse<List<AppError>> { Status = ResponseStatus.Error, Message = errorMessage, Data = new List<AppError> { appError } };
-    }
+    public static ApiResponse<List<AppError>> Error(AppError appError, string? errorMessage = default) => new() { Status = ResponseStatus.Error, Message = errorMessage, Data = new List<AppError> { appError } };
 }

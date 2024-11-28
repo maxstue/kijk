@@ -41,9 +41,7 @@ try
 
     app.UseResponseCompression()
         .UseSecurityHeaders()
-        .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder =>
-            // app.ApplyMigrations();
-            appBuilder.UseDeveloperExceptionPage())
+        .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder => appBuilder.UseDeveloperExceptionPage())
         .UseWhen(_ => !app.Environment.IsDevelopment(), appBuilder => appBuilder.UseHsts());
 
     app.ApplyInitialData();

@@ -62,17 +62,6 @@ public static class ApplicationExtensions
         return applicationBuilder;
     }
 
-    public static IApplicationBuilder ApplyMigrations(this IApplicationBuilder applicationBuilder)
-    {
-        using var scope = applicationBuilder.ApplicationServices.CreateScope();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        // dbContext.Database.MigrateAsync();
-        Log.ForContext(typeof(AppDbInitializer)).Information("Database migrations applied");
-
-        return applicationBuilder;
-    }
-
     public static WebApplication MapApiEndpoints(this WebApplication app)
     {
         var apiGroup = app.MapGroup("/api")

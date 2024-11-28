@@ -2,8 +2,5 @@
 
 public static class AppModule
 {
-    public static IServiceCollection RegisterAppModule(this IServiceCollection services)
-    {
-        return services;
-    }
+    public static IServiceCollection RegisterAppModule(this IServiceCollection services) => services;
 }

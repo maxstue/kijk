@@ -42,9 +42,7 @@ public class RecurringTransactions : BaseEntity
         Account account,
         Guid householdId,
         Frequency frequency,
-        DateOnly? endDate = default)
-    {
-        return new()
+        DateOnly? endDate = default) => new()
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -57,5 +55,4 @@ public class RecurringTransactions : BaseEntity
             Frequency = frequency,
             HouseholdId = householdId
         };
-    }
 }

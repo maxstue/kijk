@@ -5,7 +5,7 @@ namespace Kijk.Api.Modules.Users;
 
 public record WelcomeUserRequest(string? UserName, bool? UseDefaultCategories);
 
-file record WelcomeUserResponse(
+sealed file record WelcomeUserResponse(
     Guid Id,
     string? AuthId,
     string? Name,

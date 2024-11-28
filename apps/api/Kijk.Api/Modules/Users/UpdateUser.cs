@@ -5,7 +5,7 @@ namespace Kijk.Api.Modules.Users;
 
 public record UpdateUserRequest(string? UserName, bool? UseDefaultCategories);
 
-file record UserUpdateResponse(
+sealed file record UserUpdateResponse(
     Guid Id,
     string? AuthId,
     string? Name,
