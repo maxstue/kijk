@@ -176,9 +176,9 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   }, [form]);
 
   return (
-    <DialogContent>
+    <DialogContent aria-description='add new year modal' title='Add new year'>
       <DialogHeader>
-        <DialogTitle>Add new Year</DialogTitle>
+        <DialogTitle>Add new year</DialogTitle>
         <DialogDescription>Add a new year to manage.</DialogDescription>
       </DialogHeader>
       <Form className='space-y-8' form={form} onInvalid={handleError} onSubmit={handleSubmit}>

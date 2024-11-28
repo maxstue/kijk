@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
 
-import { Dialog, DialogContent } from '@/shared/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/shared/components/ui/dialog';
 import { cn } from '@/shared/lib/helpers';
 import type { DialogProps } from '@radix-ui/react-dialog';
 

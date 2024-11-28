@@ -1,11 +1,10 @@
-import { PropsWithChildren, useCallback, useState } from 'react';
-import { ExternalLink, HelpCircle, LucideHeart } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { ExternalLink, LucideHeart, Send } from 'lucide-react';
 
 import { FeedbackFormValues, FeedbackSchema } from '@/app/root/schemas';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import {
   Sheet,
   SheetContent,
@@ -14,6 +13,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/shared/components/ui/sheet';
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/shared/components/ui/sidebar';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { env } from '@/shared/env';
 import { toast } from '@/shared/hooks/use-toast';
@@ -21,7 +27,9 @@ import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 import { siteConfig } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/helpers';
 
-export function AppHelp() {
+interface Props extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {}
+
+export function NavSecondary({ ...props }: Props) {
   const [showFeedback, setShowFeedback] = useState(false);
 
   const handleCloseFeedback = useCallback(() => {
@@ -33,33 +41,31 @@ export function AppHelp() {
   }, []);
 
   return (
-    <Sheet open={showFeedback} onOpenChange={setShowFeedback}>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button className='bg-background-foreground' size='icon' variant='outline'>
-            <HelpCircle className='h-4 w-4' />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className='bg-background-foreground mx-4 w-40 rounded-md border border-input p-2'>
-          <div className='flex flex-col gap-1'>
-            <ExSidebarItem to={siteConfig.links.support}>
-              <div className='flex items-center gap-2 text-sm font-medium'>
-                Support <ExternalLink className='h-3.5 w-3.5' />
-              </div>
-            </ExSidebarItem>
-            <SheetTrigger asChild onClick={handleOpenFeedback}>
-              <Button
-                className='group h-8 items-center justify-start gap-2 py-0.5 pl-1 text-primary/65 hover:bg-primary/[0.05] data-[status=active]:bg-primary data-[status=active]:text-primary-foreground'
-                variant='ghost'
-              >
-                Feedback
-              </Button>
-            </SheetTrigger>
-          </div>
-        </PopoverContent>
+    <SidebarGroup {...props}>
+      <Sheet open={showFeedback} onOpenChange={setShowFeedback}>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem key='Support'>
+              <SidebarMenuButton asChild size='sm'>
+                <a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank'>
+                  <ExternalLink />
+                  <span>Support</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem key='Feedback'>
+              <SidebarMenuButton asChild size='sm'>
+                <SheetTrigger onClick={handleOpenFeedback}>
+                  <Send />
+                  <span>Feedback</span>
+                </SheetTrigger>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
         <FeedbackSheet onClose={handleCloseFeedback} />
-      </Popover>
-    </Sheet>
+      </Sheet>
+    </SidebarGroup>
   );
 }
 
@@ -119,7 +125,7 @@ interface ExSidebarItemProps {
   to: string;
 }
 
-const ExSidebarItem = ({ children, to }: PropsWithChildren<ExSidebarItemProps>) => {
+const ExSidebarItem = ({ children, to }: React.PropsWithChildren<ExSidebarItemProps>) => {
   return (
     <a
       key={to}

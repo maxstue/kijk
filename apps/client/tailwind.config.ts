@@ -7,7 +7,7 @@ export default {
   content: ['src/routes/**/*.{ts,tsx}', 'src/shared/components/**/*.{ts,tsx}', 'src/app/**/*.{ts,tsx}'],
   theme: {
     container: {
-      center: 'true',
+      center: true,
       padding: '2rem',
       screens: {
         '2xl': '1400px',
