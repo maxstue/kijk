@@ -21,6 +21,8 @@ public record ApiResponse<T>
 
     public static ApiResponse<List<AppError>> Error(AppError appError, string? errorMessage = default) => new()
     {
-        Status = ResponseStatus.Error, Message = errorMessage, Data = [appError]
+        Status = ResponseStatus.Error,
+        Message = errorMessage,
+        Data = [appError]
     };
 }

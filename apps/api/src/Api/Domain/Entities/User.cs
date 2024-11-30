@@ -45,12 +45,12 @@ public sealed class User : BaseEntity
         string? email,
         List<Category>? categories = null,
         bool firstTime = false) => new()
-    {
-        Id = Guid.NewGuid(),
-        AuthId = authId,
-        Name = name,
-        Email = email,
-        FirstTime = firstTime,
-        Categories = categories ?? []
-    };
+        {
+            Id = Guid.NewGuid(),
+            AuthId = authId,
+            Name = name,
+            Email = email,
+            FirstTime = firstTime,
+            Categories = categories ?? []
+        };
 }
