@@ -1,3 +1,4 @@
+using Kijk.Api.Common.Exceptions;
 using Kijk.Api.Common.Options;
 
 using Microsoft.AspNetCore.Authentication;
@@ -20,7 +21,7 @@ public sealed class BearerAuthSchemeTransformer(IAuthenticationSchemeProvider au
 
         if (appSettings is null)
         {
-            throw new Exception($"Keine AuthOptions gefunden, {appSettings}");
+            throw new NullException($"Keine AuthOptions gefunden, {appSettings}");
         }
 
         var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();

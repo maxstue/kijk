@@ -2,7 +2,6 @@
 
 using Kijk.Api.Common.Models;
 using Kijk.Api.Endpoints;
-using Kijk.Api.Persistence;
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
@@ -52,14 +51,14 @@ public static class ApplicationExtensions
         return applicationBuilder;
     }
 
-    public static IApplicationBuilder ApplyInitialData(this IApplicationBuilder applicationBuilder)
+    public static void ApplyInitialData(this IApplicationBuilder _)
     {
-        using var scope = applicationBuilder.ApplicationServices.CreateScope();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        // using var scope = applicationBuilder.ApplicationServices.CreateScope();
+        // using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        AppDbInitializer.InitDb(dbContext);
-
-        return applicationBuilder;
+        // TODO move into sql generation script
+        //   this breaks the auto generation of the openapi file
+        // AppDbInitializer.InitDb(dbContext);
     }
 
     public static WebApplication MapApiEndpoints(this WebApplication app)

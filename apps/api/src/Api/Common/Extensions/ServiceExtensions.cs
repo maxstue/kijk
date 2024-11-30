@@ -6,6 +6,7 @@ using EntityFramework.Exceptions.PostgreSQL;
 
 using Humanizer;
 
+using Kijk.Api.Common.Exceptions;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
@@ -65,7 +66,7 @@ public static class ServiceExtensions
 
         if (appSettings is null)
         {
-            throw new Exception($"Keine AzureAdSettings gefunden, {appSettings}");
+            throw new NullException($"Keine AzureAdSettings gefunden, {appSettings}");
         }
 
         services.AddOpenApi("openapi", opt => opt.AddDocumentTransformer((document, _, _) =>
@@ -128,7 +129,7 @@ public static class ServiceExtensions
         var conString = configuration.GetConnectionString(ConnectionOptions.SectionName);
         if (conString is null)
         {
-            throw new Exception($"No connection string found, {conString}");
+            throw new NullException($"No connection string found, {conString}");
         }
 
         services.AddHealthChecks().AddNpgSql(conString, tags: ["database", "postgresql"]);

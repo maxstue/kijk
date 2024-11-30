@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
 
+using Kijk.Api.Common.Exceptions;
+
 namespace Kijk.Api.Common.Models;
 
 public class CurrentUser
@@ -12,11 +14,11 @@ public class CurrentUser
 
     public Guid Id => this.User.Id;
 
-    public string AuthId => this.User.AuthId ?? throw new ArgumentNullException(this.User.AuthId, "'AuthId' not found");
+    public string AuthId => this.User.AuthId ?? throw new NullException("'AuthId' not found");
 
-    public string Name => this.User.Name ?? throw new ArgumentNullException(this.User.Name, "'Name' not found");
+    public string Name => this.User.Name ?? throw new NullException("'Name' not found");
 
-    public string Email => this.User.Email ?? throw new ArgumentNullException(ClaimTypes.Upn, "'Upn/Email' not found");
+    public string Email => this.User.Email ?? throw new NullException("'Upn/Email' not found");
 
     public IEnumerable<string> Permissions => Principal.FindAll(PermissionsClaim).Select(x => x.Value);
 
