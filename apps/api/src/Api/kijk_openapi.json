@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Kijk API",
+    "description": "Kijk API to manage your houses",
+    "version": "v1"
+  },
+  "paths": { },
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "JWT Authorization header using the Bearer scheme.",
+        "scheme": "bearer",
+        "bearerFormat": "Json Web Token"
+      }
+    }
+  }
+}

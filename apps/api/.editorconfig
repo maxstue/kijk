@@ -23,6 +23,10 @@ indent_size = 2
 [*.{yml,yaml}]
 indent_size = 2
 
+# Ignore paths
+[src/Api/Persistence/Migrations/*]
+generated_code = true
+
 #### .NET Coding Conventions ####
 [*.{cs,vb}]
 # Organize usings
@@ -363,7 +367,7 @@ dotnet_naming_style.s_camelcase.capitalization = camel_case
 
 # c# rules
 dotnet_diagnostic.1591.severity = none
-dotnet_diagnostic.IDE0053.severity = when_on_single_line
+dotnet_diagnostic.IDE0053.severity = false
 dotnet_diagnostic.IDE0055.severity = none
 dotnet_diagnostic.IDE0023.severity = none
 # dotnet rules

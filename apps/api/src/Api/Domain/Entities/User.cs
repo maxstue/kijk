@@ -44,13 +44,13 @@ public sealed class User : BaseEntity
         string name,
         string? email,
         List<Category>? categories = null,
-        bool firstTime = false) => new User
-        {
-            Id = Guid.NewGuid(),
-            AuthId = authId,
-            Name = name,
-            Email = email,
-            FirstTime = firstTime,
-            Categories = categories ?? [],
-        };
+        bool firstTime = false) => new()
+    {
+        Id = Guid.NewGuid(),
+        AuthId = authId,
+        Name = name,
+        Email = email,
+        FirstTime = firstTime,
+        Categories = categories ?? []
+    };
 }

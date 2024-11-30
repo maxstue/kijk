@@ -3,7 +3,7 @@ using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Modules.Transactions;
 
-sealed file record YearDto(List<int> Years);
+sealed file record YearsResponse(List<int> Years);
 
 public static class GetYearsFromTransactions
 {
@@ -22,15 +22,11 @@ public static class GetYearsFromTransactions
     /// <summary>
     ///     Retrieves all years that have transactions and all years in between.
     /// </summary>
-    /// <param name="request"></param>
     /// <param name="dbContext"></param>
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<IResult> Handle(
-                AppDbContext dbContext,
-        CurrentUser currentUser,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> Handle(AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
     {
         try
         {
@@ -51,12 +47,12 @@ public static class GetYearsFromTransactions
             List<int> years = [];
             var currentYear = DateTime.UtcNow.Year;
             var minDate = yearsWithTransactions.Count > 0 ? yearsWithTransactions.Min() : currentYear;
-            for (int i = minDate; i <= currentYear; i++)
+            for (var i = minDate; i <= currentYear; i++)
             {
                 years.Add(i);
             }
 
-            var response = new YearDto(years.OrderByDescending(x => x).ToList());
+            var response = new YearsResponse([.. years.OrderByDescending(x => x)]);
             return TypedResults.Ok(ApiResponseBuilder.Success(response));
         }
         catch (Exception e)

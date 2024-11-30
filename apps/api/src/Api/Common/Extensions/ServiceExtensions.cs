@@ -147,8 +147,7 @@ public static class ServiceExtensions
                     x.TokenValidationParameters = new TokenValidationParameters()
                     {
                         // Disable audience validation as we aren't using it
-                        ValidateAudience = false,
-                        NameClaimType = ClaimTypes.NameIdentifier
+                        ValidateAudience = false, NameClaimType = ClaimTypes.NameIdentifier
                     };
                     x.Events = new JwtBearerEvents
                     {

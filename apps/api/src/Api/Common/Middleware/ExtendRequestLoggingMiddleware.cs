@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-
-using Serilog.Context;
+﻿using Serilog.Context;
 
 namespace Kijk.Api.Common.Middleware;
 
@@ -19,7 +17,7 @@ public class ExtendRequestLoggingMiddleware : IMiddleware
 
     private static string GetCorrelationId(HttpContext context)
     {
-        context.Request.Headers.TryGetValue(CorrelationIdHeaderName, out StringValues correlationId);
+        context.Request.Headers.TryGetValue(CorrelationIdHeaderName, out var correlationId);
         return correlationId.FirstOrDefault() ?? context.TraceIdentifier;
     }
 }

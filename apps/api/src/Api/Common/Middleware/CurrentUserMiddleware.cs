@@ -10,37 +10,36 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var (isSuccess, extAuthId) = await SetCurrentUser(context);
+        var (isSuccess, errorMessage) = await SetCurrentUser(context);
         if (isSuccess)
         {
             await next(context);
         }
         else
         {
-            await HandleError(context, extAuthId);
+            await HandleError(context, errorMessage);
         }
     }
 
     private async Task<(bool, string?)> SetCurrentUser(HttpContext context)
     {
         if (context.Request.Path == "/" || context.Request.Path == "/api/swagger" ||
-            (context.Request.Path.HasValue && context.Request.Path.Value.StartsWith("/api/openapi", StringComparison.InvariantCulture)))
+            (context.Request.Path.HasValue && context.Request.Path.Value.StartsWith("/api/openapi", StringComparison.OrdinalIgnoreCase)))
         {
             return (true, null);
         }
 
         var extAuthId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
         if (extAuthId == null)
         {
-            return (false, extAuthId);
+            return (false, $"User for id '{extAuthId}' was not found");
         }
 
         var email = context.User.FindFirstValue(ClaimTypes.Email);
         var userEntity = await GetUserFromDb(extAuthId);
         currentUser.Principal = context.User;
 
-        if (context.Request.Path == "/sign-in" && userEntity is null)
+        if (context.Request.Path.ToString().Contains("sign-in") && userEntity is null)
         {
             // TODO use more values from token
             currentUser.User = new SimpleAuthUser(
@@ -50,28 +49,35 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
                 AppConstants.CreateUserIdentifier,
                 email,
                 true);
-            return (true, extAuthId);
+            return (true, null);
         }
 
-        if (userEntity is null || userEntity.HouseholdId == Guid.Empty)
+        if (userEntity is null)
         {
-            return (false, extAuthId);
+            return (false, $"User for id '{extAuthId}' was not found");
+        }
+
+        if (userEntity.HouseholdId == Guid.Empty)
+        {
+            return (false, "User has no household");
         }
 
         currentUser.User = userEntity;
-        return (true, extAuthId);
+        return (true, null);
     }
 
     private Task<SimpleAuthUser?> GetUserFromDb(string sub) => dbContext.Users
-        .AsNoTracking()
+        .Include(x => x.UserHouseholds)
         .Where(x => x.AuthId == sub)
         .Select(x => SimpleAuthUser.Create(x))
+        .AsNoTracking()
+        .AsSplitQuery()
         .FirstOrDefaultAsync();
 
-    private static async Task HandleError(HttpContext context, string? extAuthId)
+    private static async Task HandleError(HttpContext context, string? errorMessage)
     {
         context.Response.ContentType = "application/json";
-        var resp = ApiResponseBuilder.Error(AppError.Basic(AppErrorCodes.NotFoundError, $"User for id '{extAuthId}' was not found"));
+        var resp = ApiResponseBuilder.Error(AppError.Basic(AppErrorCodes.NotFoundError, errorMessage));
         SentToSentry(resp);
         await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
     }

@@ -44,7 +44,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("category_user", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Account", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Account", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,7 +103,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("accounts", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Budget", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Budget", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -181,7 +181,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("budgets", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Category", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -230,7 +230,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("categories", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumption", b =>
+            modelBuilder.Entity("Api.Domain.Entities.EnergyConsumption", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -285,7 +285,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("energy_consumptions", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumptionLimit", b =>
+            modelBuilder.Entity("Api.Domain.Entities.EnergyConsumptionLimit", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -359,7 +359,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("energy_consumption_limits", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Household", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Household", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -402,7 +402,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("households", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.RecurringTransactions", b =>
+            modelBuilder.Entity("Api.Domain.Entities.RecurringTransactions", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -488,7 +488,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("recurring_transactions", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -564,7 +564,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("transactions", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.User", b =>
+            modelBuilder.Entity("Api.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -620,7 +620,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.UserHousehold", b =>
+            modelBuilder.Entity("Api.Domain.Entities.UserHousehold", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -669,14 +669,14 @@ namespace Kijk.Api.Persistence.Migrations
 
             modelBuilder.Entity("CategoryUser", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.Category", null)
+                    b.HasOne("Api.Domain.Entities.Category", null)
                         .WithMany()
                         .HasForeignKey("CategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_category_user_categories_categories_id");
 
-                    b.HasOne("Kijk.Api.Domain.Entities.User", null)
+                    b.HasOne("Api.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -684,9 +684,9 @@ namespace Kijk.Api.Persistence.Migrations
                         .HasConstraintName("fk_category_user_users_users_id");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Account", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Account", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.User", null)
+                    b.HasOne("Api.Domain.Entities.User", null)
                         .WithMany("Accounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -694,16 +694,16 @@ namespace Kijk.Api.Persistence.Migrations
                         .HasConstraintName("fk_accounts_users_user_id");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Budget", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Budget", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.Category", "Category")
+                    b.HasOne("Api.Domain.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_budgets_categories_category_id");
 
-                    b.HasOne("Kijk.Api.Domain.Entities.User", null)
+                    b.HasOne("Api.Domain.Entities.User", null)
                         .WithMany("Budgets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -713,9 +713,9 @@ namespace Kijk.Api.Persistence.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumption", b =>
+            modelBuilder.Entity("Api.Domain.Entities.EnergyConsumption", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.Household", null)
+                    b.HasOne("Api.Domain.Entities.Household", null)
                         .WithMany("EnergyConsumptions")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -723,16 +723,16 @@ namespace Kijk.Api.Persistence.Migrations
                         .HasConstraintName("fk_energy_consumptions_households_household_id");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumptionLimit", b =>
+            modelBuilder.Entity("Api.Domain.Entities.EnergyConsumptionLimit", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.User", "CreatedBy")
+                    b.HasOne("Api.Domain.Entities.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_energy_consumption_limits_users_created_by_id");
 
-                    b.HasOne("Kijk.Api.Domain.Entities.Household", null)
+                    b.HasOne("Api.Domain.Entities.Household", null)
                         .WithMany("EnergyConsumptionLimits")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -742,16 +742,16 @@ namespace Kijk.Api.Persistence.Migrations
                     b.Navigation("CreatedBy");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.RecurringTransactions", b =>
+            modelBuilder.Entity("Api.Domain.Entities.RecurringTransactions", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.Account", "Account")
+                    b.HasOne("Api.Domain.Entities.Account", "Account")
                         .WithMany("RecurringTransactions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_recurring_transactions_accounts_account_id");
 
-                    b.HasOne("Kijk.Api.Domain.Entities.User", "User")
+                    b.HasOne("Api.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -763,25 +763,25 @@ namespace Kijk.Api.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Transaction", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.Account", "Account")
+                    b.HasOne("Api.Domain.Entities.Account", "Account")
                         .WithMany("Transactions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_transactions_accounts_account_id");
 
-                    b.HasOne("Kijk.Api.Domain.Entities.Category", "Category")
+                    b.HasOne("Api.Domain.Entities.Category", "Category")
                         .WithMany("Transactions")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_transactions_categories_category_id");
 
-                    b.HasOne("Kijk.Api.Domain.Entities.RecurringTransactions", null)
+                    b.HasOne("Api.Domain.Entities.RecurringTransactions", null)
                         .WithOne("LastTransaction")
-                        .HasForeignKey("Kijk.Api.Domain.Entities.Transaction", "RecurringTransactionId")
+                        .HasForeignKey("Api.Domain.Entities.Transaction", "RecurringTransactionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_transactions_recurring_transactions_recurring_transaction_id");
 
@@ -790,16 +790,16 @@ namespace Kijk.Api.Persistence.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.UserHousehold", b =>
+            modelBuilder.Entity("Api.Domain.Entities.UserHousehold", b =>
                 {
-                    b.HasOne("Kijk.Api.Domain.Entities.Household", "Household")
+                    b.HasOne("Api.Domain.Entities.Household", "Household")
                         .WithMany("UserHouseholds")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_households_households_household_id");
 
-                    b.HasOne("Kijk.Api.Domain.Entities.User", "User")
+                    b.HasOne("Api.Domain.Entities.User", "User")
                         .WithMany("UserHouseholds")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -811,19 +811,19 @@ namespace Kijk.Api.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Account", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Account", b =>
                 {
                     b.Navigation("RecurringTransactions");
 
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Category", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.Household", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Household", b =>
                 {
                     b.Navigation("EnergyConsumptionLimits");
 
@@ -832,12 +832,12 @@ namespace Kijk.Api.Persistence.Migrations
                     b.Navigation("UserHouseholds");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.RecurringTransactions", b =>
+            modelBuilder.Entity("Api.Domain.Entities.RecurringTransactions", b =>
                 {
                     b.Navigation("LastTransaction");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.User", b =>
+            modelBuilder.Entity("Api.Domain.Entities.User", b =>
                 {
                     b.Navigation("Accounts");
 

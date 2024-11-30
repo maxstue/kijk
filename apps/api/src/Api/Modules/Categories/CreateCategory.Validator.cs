@@ -1,6 +1,6 @@
-﻿// using Kijk.Api.Common.Models;
+﻿// using Api.Common.Models;
 //
-// namespace Kijk.Api.Modules.Categories;
+// namespace Api.Modules.Categories;
 //
 // public class CreateCategoryValidator : AbstractValidator<CreateCategoryRequest>
 // {

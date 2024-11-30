@@ -34,7 +34,7 @@ public readonly record struct AppError
     /// <param name="description">The error description.</param>
     public static AppError Basic(
         string code = AppErrorCodes.DefaultError,
-        string description = "An error has occurred.") => new AppError(code, $"Error, {description}", ErrorType.Basic);
+        string? description = "An error has occurred.") => new(code, $"Error, {description}", ErrorType.Basic);
 
     /// <summary>
     ///     Creates an <see cref="AppError" /> of type <see cref="ErrorType.Unexpected" /> from a code and description.
@@ -43,7 +43,7 @@ public readonly record struct AppError
     /// <param name="description">The error description.</param>
     public static AppError Unexpected(
         string code = AppErrorCodes.UnexpectedError,
-        string description = "An unexpected error has occurred.") => new AppError(code, $"An 'unexpected' error, {description}", ErrorType.Unexpected);
+        string description = "An unexpected error has occurred.") => new(code, $"An 'unexpected' error, {description}", ErrorType.Unexpected);
 
     /// <summary>
     ///     Creates an <see cref="AppError" /> of type <see cref="ErrorType.Validation" /> from a code and description.
@@ -52,7 +52,7 @@ public readonly record struct AppError
     /// <param name="description">The error description.</param>
     public static AppError Validation(
         string code = AppErrorCodes.ValidationError,
-        string description = "A 'validation' error has occurred.") => new AppError(code, description, ErrorType.Validation);
+        string description = "A 'validation' error has occurred.") => new(code, description, ErrorType.Validation);
 
     /// <summary>
     ///     Creates an <see cref="AppError" /> of type <see cref="ErrorType.NotFound" /> from a code and description.
@@ -61,7 +61,7 @@ public readonly record struct AppError
     /// <param name="description">The error description.</param>
     public static AppError NotFound(
         string code = AppErrorCodes.NotFoundError,
-        string description = "A 'Not Found' error has occurred.") => new AppError(code, $"'Not found' error, {description}", ErrorType.NotFound);
+        string description = "A 'Not Found' error has occurred.") => new(code, $"'Not found' error, {description}", ErrorType.NotFound);
 
     /// <summary>
     ///     Creates an <see cref="AppError" /> with the given numeric <paramref name="type" />,
@@ -73,5 +73,5 @@ public readonly record struct AppError
     public static AppError Custom(
         ErrorType type,
         string code,
-        string description) => new AppError(code, description, type);
+        string description) => new(code, description, type);
 }

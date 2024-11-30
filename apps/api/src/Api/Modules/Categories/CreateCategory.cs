@@ -77,7 +77,7 @@ public static class CreateCategory
                 return TypedResults.NotFound(ApiResponseBuilder.Error($"User with id '{currentUser.Id}' was not found"));
             }
 
-            if (user.Categories.Any(c => string.Equals(c.Name, createCategoryRequest.Name, StringComparison.CurrentCultureIgnoreCase)))
+            if (user.Categories.Any(c => string.Equals(c.Name, createCategoryRequest.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 return TypedResults.Conflict(ApiResponseBuilder.Error($"A category with the name '{createCategoryRequest.Name}' already exists"));
             }

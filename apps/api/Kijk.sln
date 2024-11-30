@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kijk.Api", "Kijk.Api\Kijk.Api.csproj", "{864226C8-F64E-450A-B026-783052D78AAB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "src\Api\Api.csproj", "{864226C8-F64E-450A-B026-783052D78AAB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{61A8A4BF-DF87-44EA-9C2F-6D432917846E}"
 	ProjectSection(SolutionItems) = preProject
@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{061A6C51-5834-45BC-A557-4FFE1CDF615D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,5 +30,8 @@ Global
 		{864226C8-F64E-450A-B026-783052D78AAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{864226C8-F64E-450A-B026-783052D78AAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{864226C8-F64E-450A-B026-783052D78AAB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{864226C8-F64E-450A-B026-783052D78AAB} = {061A6C51-5834-45BC-A557-4FFE1CDF615D}
 	EndGlobalSection
 EndGlobal
