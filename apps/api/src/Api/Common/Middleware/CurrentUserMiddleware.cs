@@ -23,8 +23,7 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
 
     private async Task<(bool, string?)> SetCurrentUser(HttpContext context)
     {
-        if (context.Request.Path == "/" || context.Request.Path == "/api/swagger" ||
-            (context.Request.Path.HasValue && context.Request.Path.Value.StartsWith("/api/openapi", StringComparison.OrdinalIgnoreCase)))
+        if (context.Request.Path == "/" || context.Request.Path.ToString().Contains("openapi"))
         {
             return (true, null);
         }

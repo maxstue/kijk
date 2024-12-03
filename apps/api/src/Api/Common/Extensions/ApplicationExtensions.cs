@@ -5,7 +5,7 @@ using Kijk.Api.Endpoints;
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-using Swashbuckle.AspNetCore.SwaggerUI;
+using Scalar.AspNetCore;
 
 namespace Kijk.Api.Common.Extensions;
 
@@ -38,16 +38,21 @@ public static class ApplicationExtensions
 
     public static IApplicationBuilder UseOpenApi(this IApplicationBuilder applicationBuilder)
     {
-        applicationBuilder.UseSwaggerUI(
-            c =>
-            {
-                c.SwaggerEndpoint("/api/openapi.json", "Kijk Api v1.0");
-                c.DefaultModelsExpandDepth(0);
-                c.DefaultModelExpandDepth(0);
-                c.DocExpansion(DocExpansion.None);
-                c.DocumentTitle = "SwaggerUI - Kijk Api";
-                c.RoutePrefix = "api/swagger";
-            });
+        var app = (WebApplication)applicationBuilder;
+        app.MapScalarApiReference(options =>
+        {
+            options.WithTitle("Kijk Api")
+                .WithOpenApiRoutePattern("/api/{documentName}.json")
+                .WithEndpointPrefix("/api/{documentName}")
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                .WithPreferredScheme("Bearer");
+            // INFO This can't be set at the moment, because it is currently a bug in the Scalar.AspNetCore package https://github.com/scalar/scalar/issues/3927
+            //     .WithHttpBearerAuthentication(bearer =>
+            //     {
+            // // set this via the appsettings
+            //         bearer.Token = ""
+            //     });
+        });
         return applicationBuilder;
     }
 

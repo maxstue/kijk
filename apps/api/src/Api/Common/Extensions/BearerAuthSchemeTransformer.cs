@@ -32,7 +32,7 @@ public sealed class BearerAuthSchemeTransformer(IAuthenticationSchemeProvider au
                 ["Bearer"] = new()
                 {
                     Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
+                    Scheme = "Bearer",
                     In = ParameterLocation.Header,
                     BearerFormat = "Json Web Token",
                     Description = "JWT Authorization header using the Bearer scheme."
@@ -43,11 +43,18 @@ public sealed class BearerAuthSchemeTransformer(IAuthenticationSchemeProvider au
             // Apply it as a requirement for all operations
             foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations))
             {
-                operation.Value.Security.Add(new OpenApiSecurityRequirement
+                var req = new OpenApiSecurityRequirement
                 {
                     [new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = "Bearer", Type = ReferenceType.SecurityScheme } }] =
                         Array.Empty<string>()
-                });
+                };
+
+                if (operation.Value.Security.Any())
+                {
+                    continue;
+                }
+
+                operation.Value.Security.Add(req);
             }
         }
     }

@@ -36,7 +36,7 @@ try
     app.MapOpenApi("api/{documentName}.json");
     if (app.Environment.IsDevelopment())
     {
-        app.Map("/", () => Results.Redirect("api/swagger"));
+        app.Map("/", () => Results.Redirect("api/openapi"));
     }
 
     app.UseResponseCompression()
