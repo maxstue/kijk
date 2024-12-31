@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "src\Api\Api.csproj", "{864226C8-F64E-450A-B026-783052D78AAB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{61A8A4BF-DF87-44EA-9C2F-6D432917846E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{61A8A4BF-DF87-44EA-9C2F-6D432917846E}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
 		package.json = package.json
