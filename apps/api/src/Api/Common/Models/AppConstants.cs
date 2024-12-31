@@ -1,7 +1,14 @@
-﻿namespace Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Middleware;
+
+namespace Kijk.Api.Common.Models;
 
 public static class AppConstants
 {
+    /// <summary>
+    /// These paths are allowed to be accessed without validating the current user.
+    /// It is only used in <see cref="CurrentUserMiddleware"/> to determine if the current user should be set.
+    /// </summary>
+    public static readonly string[] AllowedOpenApiPaths = ["openapi", "scalar", "favicon"];
 
     public const string CreateUserIdentifier = "CREATE_USER";
 
@@ -13,7 +20,7 @@ public static class AppConstants
         public const string Admin = "Admin";
         public const string User = "User";
 
-        public static readonly string[] All = { User, Admin };
+        public static readonly string[] All = [User, Admin];
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ public class UserHouseholdConfig : IEntityTypeConfiguration<UserHousehold>
     {
         builder.HasKey(x => new { x.UserId, x.HouseholdId });
         builder.HasIndex(x => x.IsDefault);
-        builder.Property(x => x.Role).HasConversion<string>();
+        // builder.Property(x => x.Role).HasConversion<string>();
 
         builder.HasOne(x => x.User)
             .WithMany(x => x.UserHouseholds)

@@ -53,9 +53,7 @@ public static class UpdateTransaction
 
             if (updateTransactionRequest.CategoryId is not null)
             {
-                var category = await dbContext.Categories
-                    .FindAsync(new object?[] { updateTransactionRequest.CategoryId }, cancellationToken: cancellationToken);
-
+                var category = await dbContext.Categories.FirstOrDefaultAsync(x => x.Id == updateTransactionRequest.CategoryId, cancellationToken);
                 if (category is not null)
                 {
                     foundEntity.Category = category;

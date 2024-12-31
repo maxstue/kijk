@@ -43,7 +43,7 @@ public static class CreateTransaction
     }
 
     /// <summary>
-    ///     Creates a new transaction.
+    /// Creates a new transaction.
     /// </summary>
     /// <param name="createTransactionRequest"></param>
     /// <param name="dbContext"></param>

@@ -33,10 +33,10 @@ try
     // ##### Configure the HTTP request pipeline. #####
     var app = builder.Build();
 
-    app.MapOpenApi("api/{documentName}.json");
+    app.MapOpenApi("{documentName}.json");
     if (app.Environment.IsDevelopment())
     {
-        app.Map("/", () => Results.Redirect("api/openapi"));
+        app.Map("/", () => Results.Redirect("openapi"));
     }
 
     app.UseResponseCompression()
@@ -44,7 +44,7 @@ try
         .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder => appBuilder.UseDeveloperExceptionPage())
         .UseWhen(_ => !app.Environment.IsDevelopment(), appBuilder => appBuilder.UseHsts());
 
-    app.ApplyInitialData();
+    app.MapStaticAssets();
 
     app.UseGlobalExceptionHandler()
         .UseAuthExceptionHandler()

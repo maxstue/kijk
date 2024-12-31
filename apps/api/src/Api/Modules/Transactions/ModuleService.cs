@@ -1,6 +1,6 @@
 ﻿namespace Kijk.Api.Modules.Transactions;
 
-public static class TransactionsModule
+public static class ModuleService
 {
     public static IServiceCollection AddTransactionsModule(this IServiceCollection services)
     {

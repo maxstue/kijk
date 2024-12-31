@@ -1,6 +1,3 @@
-using Kijk.Api.Common.Exceptions;
-using Kijk.Api.Common.Options;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
@@ -11,19 +8,10 @@ namespace Kijk.Api.Common.Extensions;
 /// Schema transformer for the OpenApi document to add the Oauth2 (Bearer) authentication.
 /// </summary>
 /// <param name="authenticationSchemeProvider"></param>
-/// <param name="configuration"></param>
-public sealed class BearerAuthSchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider, IConfiguration configuration)
-    : IOpenApiDocumentTransformer
+public sealed class BearerAuthSchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
 {
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        var appSettings = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
-
-        if (appSettings is null)
-        {
-            throw new NullException($"Keine AuthOptions gefunden, {appSettings}");
-        }
-
         var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
         if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer"))
         {
@@ -31,30 +19,19 @@ public sealed class BearerAuthSchemeTransformer(IAuthenticationSchemeProvider au
             {
                 ["Bearer"] = new()
                 {
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "Bearer",
-                    In = ParameterLocation.Header,
-                    BearerFormat = "Json Web Token",
-                    Description = "JWT Authorization header using the Bearer scheme."
+                    Type = SecuritySchemeType.Http, Scheme = "bearer", In = ParameterLocation.Header, BearerFormat = "Json Web Token"
                 }
             };
             document.Components ??= new OpenApiComponents();
             document.Components.SecuritySchemes = requirements;
-            // Apply it as a requirement for all operations
+
             foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations))
             {
-                var req = new OpenApiSecurityRequirement
+                operation.Value.Security.Add(new OpenApiSecurityRequirement
                 {
                     [new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = "Bearer", Type = ReferenceType.SecurityScheme } }] =
                         Array.Empty<string>()
-                };
-
-                if (operation.Value.Security.Any())
-                {
-                    continue;
-                }
-
-                operation.Value.Security.Add(req);
+                });
             }
         }
     }

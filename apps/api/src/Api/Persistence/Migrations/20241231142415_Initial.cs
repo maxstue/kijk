@@ -1,15 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Kijk.Api.Common.Models;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Kijk.Api.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class NewInitial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:Enum:account_type", "cash,checking,credit_card,investment,loan,other,savings")
+                .Annotation("Npgsql:Enum:budget_status", "active,completed,pending")
+                .Annotation("Npgsql:Enum:category_creator_type", "default,user")
+                .Annotation("Npgsql:Enum:category_type", "expense,income,other")
+                .Annotation("Npgsql:Enum:energy_consumption_type", "electricity,gas,water")
+                .Annotation("Npgsql:Enum:frequency", "bi_weekly,daily,monthly,quarterly,weekly,yearly")
+                .Annotation("Npgsql:Enum:role", "admin,member")
+                .Annotation("Npgsql:Enum:transaction_status", "completed,failed,pending")
+                .Annotation("Npgsql:Enum:transaction_type", "expense,income,transfer")
+                .Annotation("Npgsql:Enum:visibility", "private,public");
+
             migrationBuilder.CreateTable(
                 name: "categories",
                 columns: table => new
@@ -17,7 +31,8 @@ namespace Kijk.Api.Persistence.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     color = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: "#89CEA4"),
-                    type = table.Column<string>(type: "text", nullable: false),
+                    type = table.Column<CategoryType>(type: "category_type", nullable: false),
+                    creator_type = table.Column<CategoryCreatorType>(type: "category_creator_type", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -71,7 +86,8 @@ namespace Kijk.Api.Persistence.Migrations
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
                     value = table.Column<decimal>(type: "numeric", nullable: false),
-                    type = table.Column<string>(type: "text", nullable: false),
+                    type = table.Column<EnergyConsumptionType>(type: "energy_consumption_type", nullable: false),
+                    date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -97,8 +113,8 @@ namespace Kijk.Api.Persistence.Migrations
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     balance = table.Column<decimal>(type: "numeric", nullable: false),
-                    visibility = table.Column<string>(type: "text", nullable: false),
-                    type = table.Column<string>(type: "text", nullable: false),
+                    visibility = table.Column<Visibility>(type: "visibility", nullable: false),
+                    type = table.Column<AccountType>(type: "account_type", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -124,8 +140,8 @@ namespace Kijk.Api.Persistence.Migrations
                     actual_spending = table.Column<decimal>(type: "numeric", nullable: false),
                     start_date = table.Column<DateOnly>(type: "date", nullable: false),
                     end_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    status = table.Column<string>(type: "text", nullable: false),
-                    visibility = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<BudgetStatus>(type: "budget_status", nullable: false),
+                    visibility = table.Column<Visibility>(type: "visibility", nullable: false),
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     category_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -184,7 +200,7 @@ namespace Kijk.Api.Persistence.Migrations
                     limit = table.Column<decimal>(type: "numeric", nullable: false),
                     actual_value = table.Column<decimal>(type: "numeric", nullable: false),
                     active = table.Column<bool>(type: "boolean", nullable: false),
-                    type = table.Column<string>(type: "text", nullable: false),
+                    type = table.Column<EnergyConsumptionType>(type: "energy_consumption_type", nullable: false),
                     last_occurrence = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -215,7 +231,7 @@ namespace Kijk.Api.Persistence.Migrations
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    role = table.Column<string>(type: "text", nullable: false),
+                    role = table.Column<Role>(type: "role", nullable: false),
                     is_default = table.Column<bool>(type: "boolean", nullable: false),
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -251,7 +267,7 @@ namespace Kijk.Api.Persistence.Migrations
                     start_date = table.Column<DateOnly>(type: "date", nullable: false),
                     next_payment_date = table.Column<DateOnly>(type: "date", nullable: true),
                     end_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    frequency = table.Column<string>(type: "text", nullable: false),
+                    frequency = table.Column<Frequency>(type: "frequency", nullable: false),
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
                     last_transaction_id = table.Column<Guid>(type: "uuid", nullable: true),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -285,9 +301,9 @@ namespace Kijk.Api.Persistence.Migrations
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
                     amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    status = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<TransactionStatus>(type: "transaction_status", nullable: false),
                     account_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    type = table.Column<string>(type: "text", nullable: false),
+                    type = table.Column<TransactionType>(type: "transaction_type", nullable: false),
                     executed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     recurring_transaction_id = table.Column<Guid>(type: "uuid", nullable: true),
                     category_id = table.Column<Guid>(type: "uuid", nullable: false),

@@ -12,6 +12,7 @@ using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
 using Kijk.Api.Modules.App;
 using Kijk.Api.Modules.Categories;
+using Kijk.Api.Modules.EnergyConsumptions;
 using Kijk.Api.Modules.Transactions;
 using Kijk.Api.Modules.Users;
 using Kijk.Api.Persistence;
@@ -31,15 +32,15 @@ public static class ServiceExtensions
             .RegisterAppModule()
             .AddUsersModule()
             .AddTransactionsModule()
-            .AddCategoriesModule();
+            .AddCategoriesModule()
+            .AddEnergyConsumptionsModule();
 
         return services;
     }
 
     public static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        services.ConfigureOptions<AuthOptions>(configuration)
-            .ConfigureOptions<ConnectionOptions>(configuration);
+        services.ConfigureOptions<AuthOptions>(configuration).ConfigureOptions<ConnectionOptions>(configuration);
 
         return services;
     }
@@ -85,8 +86,20 @@ public static class ServiceExtensions
         services.AddDbContextPool<AppDbContext>((sp, optionsBuilder) =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            // TODO use MapEnum and use database enums
-            optionsBuilder.UseNpgsql(connectionString, opt => opt.EnableRetryOnFailure())
+            optionsBuilder.UseNpgsql(connectionString, opt =>
+                {
+                    opt.EnableRetryOnFailure();
+                    opt.MapEnum<TransactionType>()
+                        .MapEnum<EnergyConsumptionType>()
+                        .MapEnum<Role>()
+                        .MapEnum<CategoryType>()
+                        .MapEnum<CategoryCreatorType>()
+                        .MapEnum<Visibility>()
+                        .MapEnum<AccountType>()
+                        .MapEnum<Frequency>()
+                        .MapEnum<TransactionStatus>()
+                        .MapEnum<BudgetStatus>();
+                })
                 .UseExceptionProcessor()
                 .UseSnakeCaseNamingConvention()
                 .AddInterceptors(sp.GetServices<AuditableEntityInterceptor>());
@@ -99,7 +112,6 @@ public static class ServiceExtensions
     {
         services.AddResponseCompression(options =>
         {
-            options.EnableForHttps = true;
             options.Providers.Add<BrotliCompressionProvider>();
             options.Providers.Add<GzipCompressionProvider>();
             options.MimeTypes = ResponseCompressionDefaults.MimeTypes;
@@ -118,7 +130,6 @@ public static class ServiceExtensions
     public static IServiceCollection AddControllerOptions(this IServiceCollection services)
     {
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
         services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         return services;
@@ -148,8 +159,7 @@ public static class ServiceExtensions
                     x.TokenValidationParameters = new TokenValidationParameters()
                     {
                         // Disable audience validation as we aren't using it
-                        ValidateAudience = false,
-                        NameClaimType = ClaimTypes.NameIdentifier
+                        ValidateAudience = false, NameClaimType = ClaimTypes.NameIdentifier
                     };
                     x.Events = new JwtBearerEvents
                     {

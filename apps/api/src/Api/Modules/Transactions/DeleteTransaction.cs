@@ -31,8 +31,7 @@ public static class DeleteTransaction
     {
         try
         {
-            var foundEntity = await dbContext.Transactions.FindAsync(new object[] { id }, cancellationToken);
-
+            var foundEntity = await dbContext.Transactions.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (foundEntity == null)
             {
                 Logger.Warning("Transaction with id {Id} could not be found", id);

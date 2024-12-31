@@ -44,12 +44,8 @@ public static class CreateCategory
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<IResult> Handle(
-        CreateCategoryRequest createCategoryRequest,
-        IValidator<CreateCategoryRequest> validator,
-        AppDbContext dbContext,
-        CurrentUser currentUser,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> Handle(CreateCategoryRequest createCategoryRequest, IValidator<CreateCategoryRequest> validator,
+        AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
     {
         try
         {

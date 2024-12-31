@@ -24,10 +24,9 @@ public sealed class Category : BaseEntity
         string color,
         CategoryCreatorType creatorType = CategoryCreatorType.Default,
         CategoryType type = CategoryType.Other,
-        User? user = default) =>
+        User? user = null) =>
         new()
         {
-            Id = Guid.NewGuid(),
             Name = name,
             Color = color,
             CreatorType = creatorType,

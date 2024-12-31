@@ -52,11 +52,3 @@ public record SimpleAuthUser(Guid Id, string AuthId, Guid HouseholdId, string Na
     public static SimpleAuthUser Create(User user) =>
         new(user.Id, user.AuthId, user.GetActiveHouseHoldId(), user.Name, user.Email, user.FirstTime);
 }
-
-public record EnergyConsumptionDto(Guid Id, string Name, string? Description, decimal Value, EnergyConsumptionType Type, DateTime CreatedAt)
-{
-    public static EnergyConsumptionDto Create(EnergyConsumption energyConsumption) =>
-        new(
-            energyConsumption.Id, energyConsumption.Name, energyConsumption.Description, energyConsumption.Value, energyConsumption.Type,
-            energyConsumption.CreatedAt);
-}

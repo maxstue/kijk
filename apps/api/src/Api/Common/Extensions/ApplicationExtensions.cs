@@ -42,28 +42,18 @@ public static class ApplicationExtensions
         app.MapScalarApiReference(options =>
         {
             options.WithTitle("Kijk Api")
-                .WithOpenApiRoutePattern("/api/{documentName}.json")
-                .WithEndpointPrefix("/api/{documentName}")
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-                .WithPreferredScheme("Bearer");
-            // INFO This can't be set at the moment, because it is currently a bug in the Scalar.AspNetCore package https://github.com/scalar/scalar/issues/3927
-            //     .WithHttpBearerAuthentication(bearer =>
-            //     {
-            // // set this via the appsettings
-            //         bearer.Token = ""
-            //     });
+                .WithOpenApiRoutePattern("/{documentName}.json")
+                .WithEndpointPrefix("/{documentName}")
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+            
+            options.Favicon = "favicon.svg";
+            options.Authentication = new ScalarAuthenticationOptions
+            {
+                PreferredSecurityScheme = "Bearer",
+                Http = new HttpOptions { Bearer = new HttpBearerOptions { Token = app.Configuration["OpenApi:Token"] } }
+            };
         });
         return applicationBuilder;
-    }
-
-    public static void ApplyInitialData(this IApplicationBuilder _)
-    {
-        // using var scope = applicationBuilder.ApplicationServices.CreateScope();
-        // using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        // TODO move into sql generation script
-        //   this breaks the auto generation of the openapi file
-        // AppDbInitializer.InitDb(dbContext);
     }
 
     public static WebApplication MapApiEndpoints(this WebApplication app)
@@ -75,6 +65,7 @@ public static class ApplicationExtensions
         apiGroup.MapTransactionsEndpoints();
         apiGroup.MapUsersApi();
         apiGroup.MapCategoriesApi();
+        apiGroup.MapEnergyConsumptionsEndpoints();
 
         return app;
     }

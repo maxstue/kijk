@@ -1,6 +1,6 @@
 ﻿namespace Kijk.Api.Modules.Categories;
 
-public static class CategoriesModule
+public static class ModuleService
 {
     public static IServiceCollection AddCategoriesModule(this IServiceCollection services)
     {

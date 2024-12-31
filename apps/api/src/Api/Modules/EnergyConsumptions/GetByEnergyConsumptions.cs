@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Api.Modules.EnergyConsumptions;
 
+public record EnergyConsumptionResponse(Guid Id, string Name, string? Description, decimal Value, EnergyConsumptionType Type, DateTime Date);
+
 public static class GetByEnergyConsumptions
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(GetByEnergyConsumptions));
@@ -15,7 +17,7 @@ public static class GetByEnergyConsumptions
     public static RouteGroupBuilder MapGetByEnergyConsumptions(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/", HandleAsync)
-            .Produces<ApiResponse<List<EnergyConsumptionDto>>>()
+            .Produces<ApiResponse<List<EnergyConsumptionResponse>>>()
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
             .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
 
@@ -32,13 +34,8 @@ public static class GetByEnergyConsumptions
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<IResult> HandleAsync(
-        [FromQuery(Name = "year")] int? year,
-        [FromQuery(Name = "month")] string? month,
-        [FromQuery(Name = "type")] string? type,
-        AppDbContext dbContext,
-        CurrentUser currentUser,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync([FromQuery(Name = "year")] int? year, [FromQuery(Name = "month")] string? month,
+        [FromQuery(Name = "type")] string? type, AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
     {
         try
         {
@@ -53,12 +50,13 @@ public static class GetByEnergyConsumptions
                 .If(monthInt != -1, q => q.Where(x => x.Date.Month == monthInt))
                 .If(typeExists, q => q.Where(x => x.Type == realType))
                 .Select(
-                    x => new EnergyConsumptionDto(
+                    x => new EnergyConsumptionResponse(
                         x.Id,
                         x.Name,
                         x.Description,
                         x.Value,
-                        x.Type, x.CreatedAt))
+                        x.Type, 
+                        x.Date))
                 .ToListAsync(cancellationToken);
 
             return TypedResults.Ok(ApiResponseBuilder.Success(response));

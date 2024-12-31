@@ -10,21 +10,16 @@ public sealed class EnergyConsumption : BaseEntity
     public required EnergyConsumptionType Type { get; set; }
 
     /// <summary>
-    /// Represents the date of the energy consumption.
+    /// Represents the datetime of the energy consumption.
     /// </summary>
     public required DateTime Date { get; set; }
 
     public Guid HouseholdId { get; set; }
 
-    public static EnergyConsumption Create(
-        string name,
-        EnergyConsumptionType type,
-        decimal value,
-        Guid householdId,
-        DateTime date,
-        string? description = default) => new()
+    public static EnergyConsumption Create(string name, EnergyConsumptionType type, decimal value, Guid householdId, DateTime date,
+        string? description = null) =>
+        new()
         {
-            Id = Guid.NewGuid(),
             Name = name,
             Description = description,
             Type = type,
