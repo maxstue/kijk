@@ -5,8 +5,7 @@ namespace Kijk.Api.Common.Models;
 public record UserHouseholdDto(Guid Id, string Name, string? Description, string Role, bool IsDefault)
 {
     public static UserHouseholdDto Create(UserHousehold userHousehold) =>
-        new(
-            userHousehold.Id, userHousehold.Household.Name, userHousehold.Household.Description, userHousehold.Role.ToStringFast(),
+        new(userHousehold.Id, userHousehold.Household.Name, userHousehold.Household.Description, userHousehold.Role.ToStringFast(),
             userHousehold.IsDefault);
 }
 
@@ -23,10 +22,8 @@ public record BudgetDto(
     CategoryDto Category)
 {
     public static BudgetDto Create(Budget budget) =>
-        new(
-            budget.Id, budget.Name, budget.Limit, budget.ActualSpending, budget.Status, budget.Visibility, budget.HouseholdId, budget.StartDate,
-            budget.EndDate,
-            CategoryDto.Create(budget.Category));
+        new(budget.Id, budget.Name, budget.Limit, budget.ActualSpending, budget.Status, budget.Visibility, budget.HouseholdId, budget.StartDate,
+            budget.EndDate, CategoryDto.Create(budget.Category));
 }
 
 public record AccountDto(Guid Id, string Name, decimal Balance, string Type, IEnumerable<TransactionDto> Transactions)

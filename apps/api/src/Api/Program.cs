@@ -3,6 +3,8 @@ using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Utils;
 
+using Microsoft.AspNetCore.Http.Features;
+
 Log.Logger = LoggerUtils.CreateRootLogger();
 
 Log.Information("Application is starting ...");
@@ -14,7 +16,10 @@ try
     builder.AddErrorTracking();
     builder.AddLogging();
 
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
     builder.Services
+        .AddProblemDetail()
         .AddDatabase(builder.Configuration)
         .AddAppSettings(builder.Configuration)
         .AddAuth(builder.Configuration)
@@ -38,16 +43,17 @@ try
     {
         app.Map("/", () => Results.Redirect("openapi"));
     }
-
+    
+    app.UseStatusCodePages();
     app.UseResponseCompression()
         .UseSecurityHeaders()
         .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder => appBuilder.UseDeveloperExceptionPage())
         .UseWhen(_ => !app.Environment.IsDevelopment(), appBuilder => appBuilder.UseHsts());
-
+    
     app.MapStaticAssets();
 
-    app.UseGlobalExceptionHandler()
-        .UseAuthExceptionHandler()
+    app.UseExceptionHandler()
+        .UseMiddleware<AuthResponseHandlerMiddleware>()
         .UseOpenApi()
         .UseMiddleware<ExtendRequestLoggingMiddleware>()
         .UseRequestLogging()

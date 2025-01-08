@@ -11,12 +11,12 @@ public class CreateCategoryValidator : AbstractValidator<CreateCategoryRequest>
     public CreateCategoryValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
-            .Length(4, 30).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be between 4 and 30 characters long");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
+            .Length(4, 30).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be between 4 and 30 characters long");
 
         RuleFor(x => x.Color)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Color' must be set")
-            .Must(x => x.StartsWith('#')).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Color' must start with a '#'");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Color' must be set")
+            .Must(x => x.StartsWith('#')).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Color' must start with a '#'");
     }
 }
 
@@ -27,10 +27,10 @@ public static class CreateCategory
     public static RouteGroupBuilder MapCreateCategory(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPost("/", Handle)
-            .Produces<ApiResponse<CategoryDto>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest);
+            .Produces<CategoryDto>()
+            .Produces(StatusCodes.Status409Conflict)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status400BadRequest);
 
         return groupBuilder;
     }
@@ -52,14 +52,14 @@ public static class CreateCategory
             var validationResult = await validator.ValidateAsync(createCategoryRequest, cancellationToken);
             if (!validationResult.IsValid)
             {
-                var errors = validationResult.Errors.Select(x => AppError.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
+                var errors = validationResult.Errors.Select(x => Error.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
                     .ToList();
-                return TypedResults.BadRequest(ApiResponseBuilder.Error(errors));
+                return TypedResults.BadRequest(errors);
             }
 
             if (!Enum.TryParse<CategoryType>(createCategoryRequest.Type, true, out var categoryType))
             {
-                return TypedResults.BadRequest(ApiResponseBuilder.Error("Invalid category type"));
+                return TypedResults.BadRequest("Invalid category type");
             }
 
             var user = await dbContext.Users
@@ -70,12 +70,12 @@ public static class CreateCategory
             if (user is null)
             {
                 Logger.Warning("User with id {Id} could not be found", currentUser.Id);
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"User with id '{currentUser.Id}' was not found"));
+                return TypedResults.NotFound($"User with id '{currentUser.Id}' was not found");
             }
 
             if (user.Categories.Any(c => string.Equals(c.Name, createCategoryRequest.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                return TypedResults.Conflict(ApiResponseBuilder.Error($"A category with the name '{createCategoryRequest.Name}' already exists"));
+                return TypedResults.Conflict($"A category with the name '{createCategoryRequest.Name}' already exists");
             }
 
             var newCategory = Category.Create(createCategoryRequest.Name, createCategoryRequest.Color, CategoryCreatorType.User, categoryType, user);
@@ -83,12 +83,12 @@ public static class CreateCategory
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(CategoryDto.Create(resEntity.Entity)));
+            return TypedResults.Ok(CategoryDto.Create(resEntity.Entity));
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

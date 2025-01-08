@@ -7,7 +7,6 @@ public record UpdateEnergyConsumptionRequest(string? Name, decimal? Value, Energ
 
 public record UpdateEnergyConsumptionResponse(Guid Id, string Name, decimal Value, EnergyConsumptionType Type, DateTime Date);
 
-
 public static class UpdateEnergyConsumption
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(UpdateEnergyConsumption));
@@ -15,10 +14,9 @@ public static class UpdateEnergyConsumption
     public static RouteGroupBuilder MapUpdateEnergyConsumption(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPut("/{id:guid}", Handle)
-            .Produces<ApiResponse<UpdateEnergyConsumptionResponse>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest);
+            .Produces<UpdateEnergyConsumptionResponse>()
+            .Produces<List<Error>>(StatusCodes.Status404NotFound)
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest);
 
         return groupBuilder;
     }
@@ -34,13 +32,13 @@ public static class UpdateEnergyConsumption
 
             if (household is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Household for id '{currentUser.ActiveHouseholdId}' was not found"));
+                return TypedResults.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
             }
 
             var existingEnergyConsumption = await dbContext.EnergyConsumptions.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (existingEnergyConsumption is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Energy consumption for id '{id}' was not found"));
+                return TypedResults.NotFound($"Energy consumption for id '{id}' was not found");
             }
 
             existingEnergyConsumption.Name = updateEnergyConsumptionRequest.Name ?? existingEnergyConsumption.Name;
@@ -50,18 +48,18 @@ public static class UpdateEnergyConsumption
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(new UpdateEnergyConsumptionResponse(
+            return TypedResults.Ok(new UpdateEnergyConsumptionResponse(
                 existingEnergyConsumption.Id,
                 existingEnergyConsumption.Name,
                 existingEnergyConsumption.Value,
                 existingEnergyConsumption.Type,
                 existingEnergyConsumption.Date
-            )));
+            ));
         }
         catch (Exception e)
         {
             Logger.Error(e, "An error occurred while updating an energy consumption");
-            return TypedResults.InternalServerError(ApiResponseBuilder.Error("An error occurred while updating an energy consumption"));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

@@ -19,9 +19,9 @@ public static class GetByIdEnergyConsumption
     public static RouteGroupBuilder MapGetByIdEnergyConsumption(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/{id:guid}", Handle)
-            .Produces<ApiResponse<GetByIdEnergyConsumptionResponse>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
+            .Produces<GetByIdEnergyConsumptionResponse>()
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest)
+            .Produces<List<Error>>(StatusCodes.Status404NotFound);
 
         return groupBuilder;
     }
@@ -39,24 +39,21 @@ public static class GetByIdEnergyConsumption
         {
             var entity = await dbContext.EnergyConsumptions
                 .Where(x => x.Id == id)
-                .Select(
-                    x => new GetByIdEnergyConsumptionResponse(
-                        x.Id,
-                        x.Name,
-                        x.Description,
-                        x.Value,
-                        x.Type,
-                        x.CreatedAt))
+                .Select(x => new GetByIdEnergyConsumptionResponse(
+                    x.Id,
+                    x.Name,
+                    x.Description,
+                    x.Value,
+                    x.Type,
+                    x.CreatedAt))
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return entity is null
-                ? TypedResults.NotFound(ApiResponseBuilder.Error($"Energy consumption for Id '{id}' was not found."))
-                : TypedResults.Ok(ApiResponseBuilder.Success(entity));
+            return entity is null ? TypedResults.NotFound($"Energy consumption for Id '{id}' was not found.") : TypedResults.Ok(entity);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

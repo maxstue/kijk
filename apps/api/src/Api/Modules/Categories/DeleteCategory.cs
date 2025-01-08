@@ -10,10 +10,9 @@ public static class DeleteCategory
     public static RouteGroupBuilder MapDeleteCategory(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapDelete("/{id:guid}", Handle)
-            .Produces<ApiResponse<bool>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest);
+            .Produces<bool>()
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status400BadRequest);
 
         return groupBuilder;
     }
@@ -38,13 +37,13 @@ public static class DeleteCategory
             if (user is null)
             {
                 Logger.Warning("User with id {Id} could not be found", currentUser.Id);
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"User with id '{currentUser.Id}' was not found"));
+                return TypedResults.NotFound($"User with id '{currentUser.Id}' was not found");
             }
 
             if (user.Categories.Find(x => x.Id == id) is null)
             {
                 Logger.Warning("User with id '{UserId}' was not allowed to delete the category with id {CategoryId}", currentUser.Id, id);
-                return TypedResults.Conflict(ApiResponseBuilder.Error($"‘User‘ with id '{currentUser.Id}' is not allowed to delete the category"));
+                return TypedResults.Conflict($"‘User‘ with id '{currentUser.Id}' is not allowed to delete the category");
             }
 
             var foundEntity = await dbContext.Categories.FindAsync(new object[] { id }, cancellationToken);
@@ -52,14 +51,13 @@ public static class DeleteCategory
             if (foundEntity == null)
             {
                 Logger.Warning("Category with id {Id} could not be found", id);
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Category with id '{id}' could not be found"));
+                return TypedResults.NotFound($"Category with id '{id}' could not be found");
             }
 
             if (foundEntity.CreatorType == CategoryCreatorType.Default)
             {
                 Logger.Warning("Category with id {Id} could not be deleted, because it is of creator type 'Default'", id);
-                return TypedResults.Conflict(
-                    ApiResponseBuilder.Error($"Category with id '{id}' could not be deleted, because it is of creator type 'Default'"));
+                return TypedResults.Conflict($"Category with id '{id}' could not be deleted, because it is of creator type 'Default'");
             }
 
             dbContext.Categories.Remove(foundEntity);
@@ -71,7 +69,7 @@ public static class DeleteCategory
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

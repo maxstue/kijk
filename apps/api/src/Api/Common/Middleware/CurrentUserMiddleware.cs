@@ -1,12 +1,12 @@
 ﻿using System.Security.Claims;
-using System.Text.Json;
 
+using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 
 namespace Kijk.Api.Common.Middleware;
 
-public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUser) : IMiddleware
+public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService, AppDbContext dbContext, CurrentUser currentUser) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -17,13 +17,16 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
         }
         else
         {
-            await HandleError(context, errorMessage);
+            var problemDetails = Error.Custom(ErrorType.Authentication, ErrorCodes.AuthenticationError, errorMessage!)
+                .SentToSentry()
+                .ToProblemDetails();
+            await problemDetailsService.TryWriteAsync(new ProblemDetailsContext { HttpContext = context, ProblemDetails = problemDetails });
         }
     }
 
     private async Task<(bool, string?)> SetCurrentUser(HttpContext context)
     {
-        if (context.Request.Path == "/"  || AppConstants.AllowedOpenApiPaths.Any(x => context.Request.Path.ToString().Contains(x)))
+        if (context.Request.Path == "/" || AppConstants.AllowedOpenApiPaths.Any(x => context.Request.Path.ToString().Contains(x)))
         {
             return (true, null);
         }
@@ -40,7 +43,6 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
 
         if (context.Request.Path.ToString().Contains("sign-in") && userEntity is null)
         {
-            // TODO use more values from token
             currentUser.User = new SimpleAuthUser(
                 Guid.NewGuid(),
                 extAuthId,
@@ -72,20 +74,4 @@ public class CurrentUserMiddleware(AppDbContext dbContext, CurrentUser currentUs
         .AsNoTracking()
         .AsSplitQuery()
         .FirstOrDefaultAsync();
-
-    private static async Task HandleError(HttpContext context, string? errorMessage)
-    {
-        context.Response.ContentType = "application/json";
-        var resp = ApiResponseBuilder.Error(AppError.Basic(AppErrorCodes.NotFoundError, errorMessage));
-        SentToSentry(resp);
-        await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
-    }
-
-    private static void SentToSentry(ApiResponse<List<AppError>> resp) => SentrySdk.CaptureMessage(
-        resp.Data?[0].Message ?? "AuthError: Token or role is not valid",
-        opt =>
-        {
-            opt.SetExtra("Response", resp);
-            opt.SetExtra("Code", resp.Data?[0].Code);
-        });
 }

@@ -7,7 +7,7 @@ public class AuthOptions : IConfigOptions
 {
     public static string SectionName => "Auth";
 
-    public string Authority { get; set; } = default!;
+    public string Authority { get; set; } = null!;
 
-    public string AuthorizedParty { get; set; } = default!;
+    public string AuthorizedParty { get; set; } = null!;
 }

@@ -10,9 +10,9 @@ public static class DeleteEnergyConsumption
     public static RouteGroupBuilder MapDeleteEnergyConsumption(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapDelete("/{id:guid}", Handle)
-            .Produces<ApiResponse<bool>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
+            .Produces<bool>()
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest)
+            .Produces<List<Error>>(StatusCodes.Status404NotFound);
 
         return groupBuilder;
     }
@@ -26,18 +26,18 @@ public static class DeleteEnergyConsumption
             if (foundEntity == null)
             {
                 Logger.Warning("Energy consumption with id {Id} could not be found", id);
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Energy consumption with id '{id}' could not be found"));
+                return TypedResults.NotFound($"Energy consumption with id '{id}' could not be found");
             }
 
             dbContext.EnergyConsumptions.Remove(foundEntity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(true));
+            return TypedResults.Ok(true);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

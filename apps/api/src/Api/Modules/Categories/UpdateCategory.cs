@@ -12,10 +12,9 @@ public static class UpdateCategory
     public static RouteGroupBuilder MapUpdateCategory(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPut("/{id:guid}", Handle)
-            .Produces<ApiResponse<CategoryDto>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest);
+            .Produces<CategoryDto>()
+            .Produces<List<Error>>(StatusCodes.Status404NotFound)
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest);
 
         return groupBuilder;
     }
@@ -40,7 +39,7 @@ public static class UpdateCategory
         {
             if (!Enum.TryParse<CategoryType>(updateCategoryRequest.Type, true, out var categoryType))
             {
-                return TypedResults.BadRequest(ApiResponseBuilder.Error("Invalid category type"));
+                return TypedResults.BadRequest("Invalid category type");
             }
 
             var user = await dbContext.Users
@@ -51,14 +50,14 @@ public static class UpdateCategory
             if (user is null)
             {
                 Logger.Warning("User with id {Id} could not be found", currentUser.Id);
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"User with id '{currentUser.Id}' was not found"));
+                return TypedResults.NotFound($"User with id '{currentUser.Id}' was not found");
             }
 
             var category = await dbContext.Categories.FindAsync(new object?[] { id }, cancellationToken);
 
             if (category is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Category with id {id} was not found"));
+                return TypedResults.NotFound($"Category with id {id} was not found");
             }
 
             category.Name = updateCategoryRequest.Name ?? category.Name;
@@ -67,12 +66,12 @@ public static class UpdateCategory
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(CategoryDto.Create(category)));
+            return TypedResults.Ok(CategoryDto.Create(category));
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

@@ -17,9 +17,9 @@ public static class GetByEnergyConsumptions
     public static RouteGroupBuilder MapGetByEnergyConsumptions(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/", HandleAsync)
-            .Produces<ApiResponse<List<EnergyConsumptionResponse>>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
+            .Produces<List<EnergyConsumptionResponse>>()
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest)
+            .Produces<List<Error>>(StatusCodes.Status404NotFound);
 
         return groupBuilder;
     }
@@ -49,22 +49,21 @@ public static class GetByEnergyConsumptions
                 .If(year != null, q => q.Where(x => x.Date.Year == year))
                 .If(monthInt != -1, q => q.Where(x => x.Date.Month == monthInt))
                 .If(typeExists, q => q.Where(x => x.Type == realType))
-                .Select(
-                    x => new EnergyConsumptionResponse(
-                        x.Id,
-                        x.Name,
-                        x.Description,
-                        x.Value,
-                        x.Type, 
-                        x.Date))
+                .Select(x => new EnergyConsumptionResponse(
+                    x.Id,
+                    x.Name,
+                    x.Description,
+                    x.Value,
+                    x.Type,
+                    x.Date))
                 .ToListAsync(cancellationToken);
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(response));
+            return TypedResults.Ok(response);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

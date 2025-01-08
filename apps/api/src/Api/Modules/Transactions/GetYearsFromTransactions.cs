@@ -12,9 +12,9 @@ public static class GetYearsFromTransactions
     public static RouteGroupBuilder MapGetYearsFromTransactions(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/years", Handle)
-            .Produces<ApiResponse<List<int>>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
+            .Produces<List<int>>()
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest)
+            .Produces<List<Error>>(StatusCodes.Status404NotFound);
 
         return groupBuilder;
     }
@@ -33,7 +33,7 @@ public static class GetYearsFromTransactions
             var user = await dbContext.Users.FindAsync([currentUser.Id], cancellationToken);
             if (user is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"User for id '{currentUser.Id}' was not found"));
+                return TypedResults.NotFound($"User for id '{currentUser.Id}' was not found");
             }
 
             var yearsWithTransactions = await dbContext.Accounts
@@ -53,12 +53,12 @@ public static class GetYearsFromTransactions
             }
 
             var response = new YearsResponse([.. years.OrderByDescending(x => x)]);
-            return TypedResults.Ok(ApiResponseBuilder.Success(response));
+            return TypedResults.Ok(response);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

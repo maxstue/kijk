@@ -14,16 +14,16 @@ public class CreateEnergyConsumptionValidator : AbstractValidator<CreateEnergyCo
     public CreateEnergyConsumptionValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
-            .Length(2, 50).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be between 2 and 50 characters long");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
+            .Length(2, 50).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be between 2 and 50 characters long");
 
         RuleFor(x => x.Value)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Value' must be set");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Value' must be set");
 
         RuleFor(x => x.Type)
-            .IsInEnum().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Type' is not a valid energy consumption type");
+            .IsInEnum().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Type' is not a valid energy consumption type");
         RuleFor(x => x.Date)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Date' must be set");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Date' must be set");
     }
 }
 
@@ -35,10 +35,9 @@ public static class CreateEnergyConsumption
     {
         groupBuilder.MapPost("/", Handle)
             .WithRequestValidation<CreateEnergyConsumptionRequest>()
-            .Produces<ApiResponse<TransactionDto>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest);
+            .Produces<TransactionDto>()
+            .Produces<List<Error>>(StatusCodes.Status404NotFound)
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest);
 
         return groupBuilder;
     }
@@ -54,15 +53,15 @@ public static class CreateEnergyConsumption
 
             if (household is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Household for id '{currentUser.ActiveHouseholdId}' was not found"));
+                return TypedResults.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
             }
 
             var existingEnergyConsumption = await dbContext.EnergyConsumptions
                 .FirstOrDefaultAsync(x => x.Date.Date == TimeProvider.System.GetUtcNow().DateTime.Date, cancellationToken);
             if (existingEnergyConsumption is not null)
             {
-                return TypedResults.Conflict(ApiResponseBuilder.Error(
-                    $"Energy consumption for the given date '{TimeProvider.System.GetUtcNow().DateTime.Date}' already exists"));
+                return TypedResults.Conflict(
+                    $"Energy consumption for the given date '{TimeProvider.System.GetUtcNow().DateTime.Date}' already exists");
             }
 
 
@@ -77,20 +76,18 @@ public static class CreateEnergyConsumption
             dbContext.EnergyConsumptions.Add(energyConsumption);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            var response = new CreateEnergyConsumptionResponse(
+            return TypedResults.Ok(new CreateEnergyConsumptionResponse(
                 energyConsumption.Id,
                 energyConsumption.Name,
                 energyConsumption.Value,
                 energyConsumption.Type,
                 energyConsumption.Date
-            );
-
-            return TypedResults.Ok(ApiResponseBuilder.Success(response));
+            ));
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Logger.Error(ex, "Failed to create energy consumption");
-            return TypedResults.BadRequest(ApiResponseBuilder.Error("Failed to create energy consumption"));
+            Logger.Error(e, "Error: {Error}", e.Message);
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

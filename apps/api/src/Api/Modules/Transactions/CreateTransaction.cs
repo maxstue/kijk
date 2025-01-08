@@ -12,17 +12,17 @@ public class CreateTransactionsValidator : AbstractValidator<CreateTransactionRe
     public CreateTransactionsValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
-            .Length(2, 50).WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Name‘ must be between 2 and 50 characters long");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
+            .Length(2, 50).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be between 2 and 50 characters long");
 
         RuleFor(x => x.Amount)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Amount' must be set");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Amount' must be set");
 
         RuleFor(x => x.Type)
-            .IsInEnum().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'Type' is not a valid transaction type");
+            .IsInEnum().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Type' is not a valid transaction type");
 
         RuleFor(x => x.ExecutedAt)
-            .NotEmpty().WithErrorCode(AppErrorCodes.ValidationError).WithMessage("'ExecutedAt' must be set");
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'ExecutedAt' must be set");
     }
 }
 
@@ -34,10 +34,9 @@ public static class CreateTransaction
     {
         groupBuilder.MapPost("/", Handle)
             .WithRequestValidation<CreateTransactionRequest>()
-            .Produces<ApiResponse<TransactionDto>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest);
+            .Produces<TransactionDto>()
+            .Produces<List<Error>>(StatusCodes.Status404NotFound)
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest);
 
         return groupBuilder;
     }
@@ -63,7 +62,7 @@ public static class CreateTransaction
                 .FirstOrDefaultAsync(x => x.Id == currentUser.Id, cancellationToken);
             if (user is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"User for id '{currentUser.Id}' was not found"));
+                return TypedResults.NotFound($"User for id '{currentUser.Id}' was not found");
             }
 
             var accountId = createTransactionRequest.AccountId;
@@ -80,7 +79,7 @@ public static class CreateTransaction
             if (account is null)
             {
                 Logger.Warning("Error: Account with id {AccountId} could not be found", createTransactionRequest.AccountId);
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Account with id '{createTransactionRequest.AccountId}' could not be found"));
+                return TypedResults.NotFound($"Account with id '{createTransactionRequest.AccountId}' could not be found");
             }
 
             Category? category;
@@ -96,8 +95,7 @@ public static class CreateTransaction
                 else
                 {
                     Logger.Warning("Error: The selected category with id {CategoryId}, doesn't exist", createTransactionRequest.CategoryId);
-                    return TypedResults.NotFound(
-                        ApiResponseBuilder.Error($"The selected category with id '{createTransactionRequest.CategoryId}', doesn't exist"));
+                    return TypedResults.NotFound($"The selected category with id '{createTransactionRequest.CategoryId}', doesn't exist");
                 }
             }
             else
@@ -110,7 +108,7 @@ public static class CreateTransaction
             if (category is null)
             {
                 Logger.Warning("Category could not be set");
-                return TypedResults.NotFound(ApiResponseBuilder.Error("Category could not be set"));
+                return TypedResults.NotFound("Category could not be set");
             }
 
             var newTransaction = Transaction.Create(
@@ -125,20 +123,19 @@ public static class CreateTransaction
             await dbContext.SaveChangesAsync(cancellationToken);
 
             var entity = resEntityEntry.Entity;
-            var response = new TransactionDto(
+
+            return TypedResults.Ok(new TransactionDto(
                 entity.Id,
                 entity.Name,
                 entity.Amount,
                 entity.Type,
                 entity.ExecutedAt,
-                CategoryDto.Create(entity.Category));
-
-            return TypedResults.Ok(ApiResponseBuilder.Success(response));
+                CategoryDto.Create(entity.Category)));
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

@@ -47,13 +47,13 @@ public static class UpdateUser
             if (userEntity is null)
             {
                 Logger.Warning("Error: User not found");
-                return TypedResults.NotFound(ApiResponseBuilder.Error("Error: User not found"));
+                return TypedResults.NotFound("Error: User not found");
             }
 
             if (userUpdateRequest.UserName is null)
             {
                 Logger.Warning("User name is null");
-                return TypedResults.BadRequest(ApiResponseBuilder.Error("User name is null"));
+                return TypedResults.BadRequest("User name is null");
             }
 
             userEntity.FirstTime = false;
@@ -74,12 +74,12 @@ public static class UpdateUser
                 userEntity.FirstTime,
                 userUpdateRequest.UseDefaultCategories);
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(response));
+            return TypedResults.Ok(response);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

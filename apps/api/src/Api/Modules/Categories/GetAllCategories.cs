@@ -10,15 +10,15 @@ public static class GetAllCategories
     public static RouteGroupBuilder MapGetAllCategories(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("", Handle)
-            .Produces<ApiResponse<Dictionary<CategoryType, List<CategoryDto>>>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
+            .Produces<Dictionary<CategoryType, List<CategoryDto>>>()
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound);
 
         return groupBuilder;
     }
 
     /// <summary>
-    ///     Retrieves all categories for the current user.
+    /// Retrieves all categories for the current user.
     /// </summary>
     /// <param name="dbContext"></param>
     /// <param name="currentUser"></param>
@@ -35,7 +35,7 @@ public static class GetAllCategories
 
             if (user is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"User with id '{currentUser.Id}' was not found"));
+                return TypedResults.NotFound($"User with id '{currentUser.Id}' was not found");
             }
 
             var categories = user.Categories
@@ -44,12 +44,12 @@ public static class GetAllCategories
                 .Select(x => new { Type = x.Key, Categories = x.ToList() })
                 .ToDictionary(x => x.Type, x => x.Categories);
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(categories));
+            return TypedResults.Ok(categories);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

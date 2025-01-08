@@ -10,9 +10,9 @@ public static class GetByIdTransaction
     public static RouteGroupBuilder MapGetByIdTransaction(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/{id:guid}", Handle)
-            .Produces<ApiResponse<TransactionDto>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound);
+            .Produces<TransactionDto>()
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest)
+            .Produces<List<Error>>(StatusCodes.Status404NotFound);
 
         return groupBuilder;
     }
@@ -28,29 +28,28 @@ public static class GetByIdTransaction
     {
         try
         {
-            var entity = await dbContext.Transactions
+            var transaction = await dbContext.Transactions
                 .Where(x => x.Id == id)
-                .Select(
-                    x => new TransactionDto(
-                        x.Id,
-                        x.Name,
-                        x.Amount,
-                        x.Type,
-                        x.ExecutedAt,
-                        CategoryDto.Create(x.Category)))
+                .Select(x => new TransactionDto(
+                    x.Id,
+                    x.Name,
+                    x.Amount,
+                    x.Type,
+                    x.ExecutedAt,
+                    CategoryDto.Create(x.Category)))
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (entity is null)
+            if (transaction is null)
             {
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Transaction for Id '{id}' was not found."));
+                return TypedResults.NotFound($"Transaction for Id '{id}' was not found.");
             }
 
-            return TypedResults.Ok(ApiResponseBuilder.Success(entity));
+            return TypedResults.Ok(transaction);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

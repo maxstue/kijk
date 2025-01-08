@@ -19,6 +19,7 @@ using Kijk.Api.Persistence;
 using Kijk.Api.Persistence.Interceptors;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
 
@@ -59,6 +60,21 @@ public static class ServiceExtensions
                 .AllowAnyHeader()));
 
         return services;
+    }
+
+    public static IServiceCollection AddProblemDetail(this IServiceCollection services)
+    {
+        return services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = context =>
+            {
+                context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+                context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+
+                var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+                context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
+            };
+        });
     }
 
     public static IServiceCollection AddOpenApi(this IServiceCollection services, IConfiguration configuration)
@@ -181,12 +197,10 @@ public static class ServiceExtensions
 
         services.AddScoped<CurrentUser>();
         services.AddTransient<CurrentUserMiddleware>();
+        services.AddTransient<AuthResponseHandlerMiddleware>();
 
         services.AddAuthorizationBuilder()
             .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());
-
-        // .AddPolicy(AppConstants.Policies.User, policy => policy.RequireRole(AppConstants.Roles.User).RequireCurrentUser().Build())
-        // .AddPolicy(AppConstants.Policies.Admin, policy => policy.RequireRole(AppConstants.Roles.Admin).RequireCurrentUser().Build())
 
         return services;
     }

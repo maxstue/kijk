@@ -25,7 +25,7 @@ public static class GetMeUser
     }
 
     /// <summary>
-    ///     Gets the current user with all related data.
+    /// Gets the current user with all related data.
     /// </summary>
     /// <param name="dbContext"></param>
     /// <param name="currentUser"></param>
@@ -43,12 +43,14 @@ public static class GetMeUser
                 .Include(x => x.UserHouseholds)
                 .ThenInclude(x => x.Household)
                 .Where(x => x.Id == currentUser.Id)
+                .AsNoTracking()
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (userEntity is null)
             {
                 Logger.Warning("Error: User not found");
-                return TypedResults.NotFound(ApiResponseBuilder.Error("User not found"));
+                return TypedResults.NotFound("User not found");
             }
 
             var response = new GetMeUserResponse(
@@ -61,12 +63,12 @@ public static class GetMeUser
                 userEntity.Budgets.Select(BudgetDto.Create),
                 userEntity.Accounts.Select(AccountDto.Create),
                 userEntity.Categories.Select(CategoryDto.Create));
-            return TypedResults.Ok(ApiResponseBuilder.Success(response));
+            return TypedResults.Ok(response);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

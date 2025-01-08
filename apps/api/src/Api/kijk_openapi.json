@@ -34,7 +34,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfTransactionDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransactionDto"
+                  }
                 }
               }
             }
@@ -44,7 +47,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -54,7 +60,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -86,7 +95,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -96,17 +108,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTransactionDto"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "$ref": "#/components/schemas/TransactionDto"
                 }
               }
             }
@@ -116,7 +118,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -151,7 +156,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTransactionDto"
+                  "$ref": "#/components/schemas/TransactionDto"
                 }
               }
             }
@@ -161,7 +166,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -171,7 +179,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -214,7 +225,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTransactionDto"
+                  "$ref": "#/components/schemas/TransactionDto"
                 }
               }
             }
@@ -224,7 +235,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -234,7 +248,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -244,7 +261,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -277,7 +297,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                  "type": "boolean"
                 }
               }
             }
@@ -287,7 +307,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -297,7 +320,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -321,7 +347,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfint"
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
                 }
               }
             }
@@ -331,7 +361,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -341,7 +374,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -453,30 +489,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfDictionaryOfCategoryTypeAndListOfCategoryDto"
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CategoryDto2"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
-                }
-              }
-            }
+            "description": "Bad Request"
           },
           "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
-                }
-              }
-            }
+            "description": "Not Found"
           }
         },
         "security": [
@@ -505,40 +533,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfCategoryDto"
+                  "$ref": "#/components/schemas/CategoryDto2"
                 }
               }
             }
           },
           "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
-                }
-              }
-            }
+            "description": "Conflict"
           },
           "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
-                }
-              }
-            }
+            "description": "Not Found"
           },
           "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
-                }
-              }
-            }
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -580,17 +587,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfCategoryDto"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "$ref": "#/components/schemas/CategoryDto2"
                 }
               }
             }
@@ -600,7 +597,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -610,7 +610,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -643,40 +646,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfboolean"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "boolean"
                 }
               }
             }
           },
           "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
-                }
-              }
-            }
+            "description": "Not Found"
           },
           "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
-                }
-              }
-            }
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -721,7 +700,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfEnergyConsumptionResponse"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnergyConsumptionResponse"
+                  }
                 }
               }
             }
@@ -731,7 +713,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -741,7 +726,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -773,7 +761,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -783,17 +774,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTransactionDto"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "$ref": "#/components/schemas/TransactionDto"
                 }
               }
             }
@@ -803,7 +784,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -838,7 +822,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGetByIdEnergyConsumptionResponse"
+                  "$ref": "#/components/schemas/GetByIdEnergyConsumptionResponse"
                 }
               }
             }
@@ -848,7 +832,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -858,7 +845,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -901,17 +891,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfUpdateEnergyConsumptionResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "$ref": "#/components/schemas/UpdateEnergyConsumptionResponse"
                 }
               }
             }
@@ -921,7 +901,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -931,7 +914,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -964,7 +950,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                  "type": "boolean"
                 }
               }
             }
@@ -974,7 +960,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -984,7 +973,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfAppError"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
                 }
               }
             }
@@ -1000,196 +992,6 @@
   },
   "components": {
     "schemas": {
-      "ApiResponseOfboolean": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "boolean"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfCategoryDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/CategoryDto"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfDictionaryOfCategoryTypeAndListOfCategoryDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/CategoryDto2"
-              }
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfGetByIdEnergyConsumptionResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/GetByIdEnergyConsumptionResponse"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfListOfAppError": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AppError"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfListOfEnergyConsumptionResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EnergyConsumptionResponse"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfListOfint": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfListOfTransactionDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TransactionDto"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfTransactionDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/TransactionDto2"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfUpdateEnergyConsumptionResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/UpdateEnergyConsumptionResponse"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "AppError": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "$ref": "#/components/schemas/ErrorType"
-          },
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "CategoryCreatorType": {
         "enum": [
           "Default",
@@ -1383,9 +1185,24 @@
           "Water"
         ]
       },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ErrorType"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ErrorType": {
         "enum": [
-          "Basic",
           "Validation",
           "Conflict",
           "NotFound",
@@ -1427,8 +1244,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "nullable": true
+        }
       },
       "NullableOfEnergyConsumptionType": {
         "enum": [
@@ -1447,12 +1263,6 @@
           null
         ],
         "nullable": true
-      },
-      "ResponseStatus": {
-        "enum": [
-          "Success",
-          "Error"
-        ]
       },
       "TransactionDto": {
         "required": [
@@ -1487,41 +1297,6 @@
             "$ref": "#/components/schemas/CategoryDto"
           }
         }
-      },
-      "TransactionDto2": {
-        "required": [
-          "id",
-          "name",
-          "amount",
-          "type",
-          "executedAt",
-          "category"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "type": {
-            "$ref": "#/components/schemas/TransactionType"
-          },
-          "executedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "category": {
-            "$ref": "#/components/schemas/CategoryDto"
-          }
-        },
-        "nullable": true
       },
       "TransactionType": {
         "enum": [
@@ -1607,8 +1382,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "nullable": true
+        }
       },
       "UpdateTransactionRequest": {
         "required": [

@@ -66,7 +66,7 @@ public static class SignInUser
                     newUserEntity.Email,
                     newUserEntity.FirstTime,
                     newUserEntity.Categories.Where(c => c.CreatorType == CategoryCreatorType.Default).ToList().Count > 0);
-                return TypedResults.Ok(ApiResponseBuilder.Success(newUserResponse));
+                return TypedResults.Ok(newUserResponse);
             }
 
             var userEntity = await dbContext.Users
@@ -77,7 +77,7 @@ public static class SignInUser
             if (userEntity is null)
             {
                 Logger.Warning("Error: User not found but also no 'CreateUserIdentifier' was set");
-                return TypedResults.NotFound(ApiResponseBuilder.Error("User not found but also no 'CreateUserIdentifier' was set"));
+                return TypedResults.NotFound("User not found but also no 'CreateUserIdentifier' was set");
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -89,12 +89,12 @@ public static class SignInUser
                 userEntity.Email,
                 userEntity.FirstTime,
                 userEntity.Categories.Where(c => c.CreatorType == CategoryCreatorType.Default).ToList().Count > 0);
-            return TypedResults.Ok(ApiResponseBuilder.Success(updateUserResponse));
+            return TypedResults.Ok(updateUserResponse);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }

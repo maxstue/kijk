@@ -1,42 +1,26 @@
-﻿using System.Net;
-using System.Text.Json;
-
+﻿using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Models;
 
 namespace Kijk.Api.Common.Middleware;
 
-public static class AuthResponseHandlerMiddleware
+public class AuthResponseHandlerMiddleware(IProblemDetailsService problemDetailsService) : IMiddleware
 {
-    public static IApplicationBuilder UseAuthExceptionHandler(this IApplicationBuilder app)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        app.Use(async (context, next) =>
-        {
-            await next();
+        await next(context);
 
-            if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
-            {
-                context.Response.ContentType = "application/json";
-                var resp = ApiResponseBuilder.Error(AppError.Basic(AppErrorCodes.AuthenticationError, "Token is not valid"));
-                SentToSentry(resp);
-                await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
-            }
-
-            if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
-            {
-                context.Response.ContentType = "application/json";
-                var resp = ApiResponseBuilder.Error(AppError.Basic(AppErrorCodes.AuthorizationError, "Role is not sufficient"));
-                SentToSentry(resp);
-                await context.Response.WriteAsync(JsonSerializer.Serialize(resp));
-            }
-        });
-        return app;
+        var error = CreateError(context).SentToSentry();
+        await problemDetailsService.TryWriteAsync(new ProblemDetailsContext { HttpContext = context, ProblemDetails = error.ToProblemDetails() });
     }
 
-    private static void SentToSentry(ApiResponse<List<AppError>> resp) => SentrySdk.CaptureMessage(
-        resp.Data?[0].Message ?? "AuthError: Token or role is not valid",
-        opt =>
+    private static Error CreateError(HttpContext context)
+    {
+        var error = context.Response.StatusCode switch
         {
-            opt.SetExtra("Response", resp);
-            opt.SetExtra("Code", resp.Data?[0].Code);
-        });
+            StatusCodes.Status401Unauthorized => Error.Custom(ErrorType.Authentication, ErrorCodes.AuthenticationError, "You are not authenticated"),
+            StatusCodes.Status403Forbidden => Error.Custom(ErrorType.Authorization, ErrorCodes.AuthorizationError, "You are not authorized"),
+            _ => Error.Unexpected(description: "Unexpected error")
+        };
+        return error;
+    }
 }

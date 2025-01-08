@@ -12,10 +12,10 @@ public static class UpdateTransaction
     public static RouteGroupBuilder MapUpdateTransaction(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPut("/{id:guid}", Handle)
-            .Produces<ApiResponse<TransactionDto>>()
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status409Conflict)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<List<AppError>>>(StatusCodes.Status400BadRequest);
+            .Produces<TransactionDto>()
+            .Produces<List<Error>>(StatusCodes.Status409Conflict)
+            .Produces<List<Error>>(StatusCodes.Status404NotFound)
+            .Produces<List<Error>>(StatusCodes.Status400BadRequest);
         return groupBuilder;
     }
 
@@ -43,7 +43,7 @@ public static class UpdateTransaction
             if (foundEntity == null)
             {
                 Logger.Warning("Transaction with id {Id} could not be found", id);
-                return TypedResults.NotFound(ApiResponseBuilder.Error($"Transaction with id '{id}' could not be found"));
+                return TypedResults.NotFound($"Transaction with id '{id}' could not be found");
             }
 
             foundEntity.Name = updateTransactionRequest.Name ?? foundEntity.Name;
@@ -61,27 +61,24 @@ public static class UpdateTransaction
                 else
                 {
                     Logger.Warning("Error: The selected category with id {CategoryId}, doesn't exist", updateTransactionRequest.CategoryId);
-                    return TypedResults.Conflict(
-                        ApiResponseBuilder.Error($"The selected category with id '{updateTransactionRequest.CategoryId}', doesn't exist"));
+                    return TypedResults.Conflict($"The selected category with id '{updateTransactionRequest.CategoryId}', doesn't exist");
                 }
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            var response = new TransactionDto(
+            return TypedResults.Ok(new TransactionDto(
                 id,
                 foundEntity.Name,
                 foundEntity.Amount,
                 foundEntity.Type,
                 foundEntity.ExecutedAt,
-                CategoryDto.Create(foundEntity.Category));
-
-            return TypedResults.Ok(ApiResponseBuilder.Success(response));
+                CategoryDto.Create(foundEntity.Category)));
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(ApiResponseBuilder.Error(e.Message));
+            return TypedResults.BadRequest(e.Message);
         }
     }
 }
