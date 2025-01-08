@@ -2,12 +2,12 @@
 
 namespace Kijk.Api.Domain.Entities;
 
-public sealed class EnergyConsumption : BaseEntity
+public sealed class Energy : BaseEntity
 {
     public required string Name { get; set; }
     public string? Description { get; set; }
     public required decimal Value { get; set; }
-    public required EnergyConsumptionType Type { get; set; }
+    public required EnergyType Type { get; set; }
 
     /// <summary>
     /// Represents the datetime of the energy consumption.
@@ -16,7 +16,7 @@ public sealed class EnergyConsumption : BaseEntity
 
     public Guid HouseholdId { get; set; }
 
-    public static EnergyConsumption Create(string name, EnergyConsumptionType type, decimal value, Guid householdId, DateTime date,
+    public static Energy Create(string name, EnergyType type, decimal value, Guid householdId, DateTime date,
         string? description = null) =>
         new()
         {

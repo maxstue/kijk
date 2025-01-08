@@ -665,10 +665,10 @@
         ]
       }
     },
-    "/api/energy-consumptions": {
+    "/api/energies": {
       "get": {
         "tags": [
-          "EnergyConsumptions"
+          "Energies"
         ],
         "parameters": [
           {
@@ -702,7 +702,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/EnergyConsumptionResponse"
+                    "$ref": "#/components/schemas/EnergyResponse"
                   }
                 }
               }
@@ -743,13 +743,13 @@
       },
       "post": {
         "tags": [
-          "EnergyConsumptions"
+          "Energies"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateEnergyConsumptionRequest"
+                "$ref": "#/components/schemas/CreateEnergyRequest"
               }
             }
           },
@@ -800,10 +800,10 @@
         ]
       }
     },
-    "/api/energy-consumptions/{id}": {
+    "/api/energies/{id}": {
       "get": {
         "tags": [
-          "EnergyConsumptions"
+          "Energies"
         ],
         "parameters": [
           {
@@ -822,7 +822,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetByIdEnergyConsumptionResponse"
+                  "$ref": "#/components/schemas/GetByIdEnergyResponse"
                 }
               }
             }
@@ -862,7 +862,7 @@
       },
       "put": {
         "tags": [
-          "EnergyConsumptions"
+          "Energies"
         ],
         "parameters": [
           {
@@ -879,7 +879,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateEnergyConsumptionRequest"
+                "$ref": "#/components/schemas/UpdateEnergyRequest"
               }
             }
           },
@@ -891,7 +891,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UpdateEnergyConsumptionResponse"
+                  "$ref": "#/components/schemas/UpdateEnergyResponse"
                 }
               }
             }
@@ -931,7 +931,7 @@
       },
       "delete": {
         "tags": [
-          "EnergyConsumptions"
+          "Energies"
         ],
         "parameters": [
           {
@@ -1081,7 +1081,7 @@
           }
         }
       },
-      "CreateEnergyConsumptionRequest": {
+      "CreateEnergyRequest": {
         "required": [
           "name",
           "value",
@@ -1098,7 +1098,7 @@
             "format": "double"
           },
           "type": {
-            "$ref": "#/components/schemas/EnergyConsumptionType"
+            "$ref": "#/components/schemas/EnergyType"
           },
           "date": {
             "type": "string",
@@ -1143,7 +1143,7 @@
           }
         }
       },
-      "EnergyConsumptionResponse": {
+      "EnergyResponse": {
         "required": [
           "id",
           "name",
@@ -1170,7 +1170,7 @@
             "format": "double"
           },
           "type": {
-            "$ref": "#/components/schemas/EnergyConsumptionType"
+            "$ref": "#/components/schemas/EnergyType"
           },
           "date": {
             "type": "string",
@@ -1178,7 +1178,7 @@
           }
         }
       },
-      "EnergyConsumptionType": {
+      "EnergyType": {
         "enum": [
           "Electricity",
           "Gas",
@@ -1211,7 +1211,7 @@
           "Unexpected"
         ]
       },
-      "GetByIdEnergyConsumptionResponse": {
+      "GetByIdEnergyResponse": {
         "required": [
           "id",
           "name",
@@ -1238,7 +1238,7 @@
             "format": "double"
           },
           "type": {
-            "$ref": "#/components/schemas/EnergyConsumptionType"
+            "$ref": "#/components/schemas/EnergyType"
           },
           "createdAt": {
             "type": "string",
@@ -1246,7 +1246,7 @@
           }
         }
       },
-      "NullableOfEnergyConsumptionType": {
+      "NullableOfEnergyType": {
         "enum": [
           "Electricity",
           "Gas",
@@ -1326,7 +1326,7 @@
           }
         }
       },
-      "UpdateEnergyConsumptionRequest": {
+      "UpdateEnergyRequest": {
         "required": [
           "name",
           "value",
@@ -1345,7 +1345,7 @@
             "nullable": true
           },
           "type": {
-            "$ref": "#/components/schemas/NullableOfEnergyConsumptionType"
+            "$ref": "#/components/schemas/NullableOfEnergyType"
           },
           "date": {
             "type": "string",
@@ -1354,7 +1354,7 @@
           }
         }
       },
-      "UpdateEnergyConsumptionResponse": {
+      "UpdateEnergyResponse": {
         "required": [
           "id",
           "name",
@@ -1376,7 +1376,7 @@
             "format": "double"
           },
           "type": {
-            "$ref": "#/components/schemas/EnergyConsumptionType"
+            "$ref": "#/components/schemas/EnergyType"
           },
           "date": {
             "type": "string",
@@ -1472,7 +1472,7 @@
       "name": "Categories"
     },
     {
-      "name": "EnergyConsumptions"
+      "name": "Energies"
     }
   ]
 }

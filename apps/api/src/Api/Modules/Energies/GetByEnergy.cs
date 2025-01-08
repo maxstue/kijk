@@ -6,18 +6,18 @@ using Kijk.Api.Persistence;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Kijk.Api.Modules.EnergyConsumptions;
+namespace Kijk.Api.Modules.Energies;
 
-public record EnergyConsumptionResponse(Guid Id, string Name, string? Description, decimal Value, EnergyConsumptionType Type, DateTime Date);
+public record EnergyResponse(Guid Id, string Name, string? Description, decimal Value, EnergyType Type, DateTime Date);
 
-public static class GetByEnergyConsumptions
+public static class GetByEnergy
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetByEnergyConsumptions));
+    private static readonly ILogger Logger = Log.ForContext(typeof(GetByEnergy));
 
-    public static RouteGroupBuilder MapGetByEnergyConsumptions(this RouteGroupBuilder groupBuilder)
+    public static RouteGroupBuilder MapGetByEnergy(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/", HandleAsync)
-            .Produces<List<EnergyConsumptionResponse>>()
+            .Produces<List<EnergyResponse>>()
             .Produces<List<Error>>(StatusCodes.Status400BadRequest)
             .Produces<List<Error>>(StatusCodes.Status404NotFound);
 
@@ -41,15 +41,15 @@ public static class GetByEnergyConsumptions
         {
             var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month : -1;
 
-            var typeExists = Enum.TryParse<EnergyConsumptionType>(type, true, out var realType);
+            var typeExists = Enum.TryParse<EnergyType>(type, true, out var realType);
 
-            var response = await dbContext.EnergyConsumptions
+            var response = await dbContext.Energy
                 .AsNoTracking()
                 .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
                 .If(year != null, q => q.Where(x => x.Date.Year == year))
                 .If(monthInt != -1, q => q.Where(x => x.Date.Month == monthInt))
                 .If(typeExists, q => q.Where(x => x.Type == realType))
-                .Select(x => new EnergyConsumptionResponse(
+                .Select(x => new EnergyResponse(
                     x.Id,
                     x.Name,
                     x.Description,

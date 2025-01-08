@@ -11,7 +11,7 @@ public enum TransactionType
 }
 
 [EnumExtensions]
-public enum EnergyConsumptionType
+public enum EnergyType
 {
     Electricity,
     Gas,

@@ -25,7 +25,7 @@ namespace Kijk.Api.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "budget_status", new[] { "active", "completed", "pending" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "category_creator_type", new[] { "default", "user" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "category_type", new[] { "expense", "income", "other" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "energy_consumption_type", new[] { "electricity", "gas", "water" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "energy_type", new[] { "electricity", "gas", "water" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "frequency", new[] { "bi_weekly", "daily", "monthly", "quarterly", "weekly", "yearly" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "role", new[] { "admin", "member" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "transaction_status", new[] { "completed", "failed", "pending" });
@@ -232,7 +232,7 @@ namespace Kijk.Api.Persistence.Migrations
                     b.ToTable("categories", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumption", b =>
+            modelBuilder.Entity("Kijk.Api.Domain.Entities.Energy", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,8 +266,8 @@ namespace Kijk.Api.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.Property<EnergyConsumptionType>("Type")
-                        .HasColumnType("energy_consumption_type")
+                    b.Property<EnergyType>("Type")
+                        .HasColumnType("energy_type")
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -279,18 +279,18 @@ namespace Kijk.Api.Persistence.Migrations
                         .HasColumnName("value");
 
                     b.HasKey("Id")
-                        .HasName("pk_energy_consumptions");
+                        .HasName("pk_energy");
 
                     b.HasIndex("HouseholdId")
-                        .HasDatabaseName("ix_energy_consumptions_household_id");
+                        .HasDatabaseName("ix_energy_household_id");
 
                     b.HasIndex("Name")
-                        .HasDatabaseName("ix_energy_consumptions_name");
+                        .HasDatabaseName("ix_energy_name");
 
-                    b.ToTable("energy_consumptions", (string)null);
+                    b.ToTable("energy", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumptionLimit", b =>
+            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyLimit", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -340,8 +340,8 @@ namespace Kijk.Api.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.Property<EnergyConsumptionType>("Type")
-                        .HasColumnType("energy_consumption_type")
+                    b.Property<EnergyType>("Type")
+                        .HasColumnType("energy_type")
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -349,18 +349,18 @@ namespace Kijk.Api.Persistence.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_energy_consumption_limits");
+                        .HasName("pk_energy_limits");
 
                     b.HasIndex("CreatedById")
-                        .HasDatabaseName("ix_energy_consumption_limits_created_by_id");
+                        .HasDatabaseName("ix_energy_limits_created_by_id");
 
                     b.HasIndex("HouseholdId")
-                        .HasDatabaseName("ix_energy_consumption_limits_household_id");
+                        .HasDatabaseName("ix_energy_limits_household_id");
 
                     b.HasIndex("Name")
-                        .HasDatabaseName("ix_energy_consumption_limits_name");
+                        .HasDatabaseName("ix_energy_limits_name");
 
-                    b.ToTable("energy_consumption_limits", (string)null);
+                    b.ToTable("energy_limits", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Api.Domain.Entities.Household", b =>
@@ -713,31 +713,31 @@ namespace Kijk.Api.Persistence.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumption", b =>
+            modelBuilder.Entity("Kijk.Api.Domain.Entities.Energy", b =>
                 {
                     b.HasOne("Kijk.Api.Domain.Entities.Household", null)
-                        .WithMany("EnergyConsumptions")
+                        .WithMany("Energies")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_energy_consumptions_households_household_id");
+                        .HasConstraintName("fk_energy_households_household_id");
                 });
 
-            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyConsumptionLimit", b =>
+            modelBuilder.Entity("Kijk.Api.Domain.Entities.EnergyLimit", b =>
                 {
                     b.HasOne("Kijk.Api.Domain.Entities.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_energy_consumption_limits_users_created_by_id");
+                        .HasConstraintName("fk_energy_limits_users_created_by_id");
 
                     b.HasOne("Kijk.Api.Domain.Entities.Household", null)
-                        .WithMany("EnergyConsumptionLimits")
+                        .WithMany("EnergyLimits")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_energy_consumption_limits_households_household_id");
+                        .HasConstraintName("fk_energy_limits_households_household_id");
 
                     b.Navigation("CreatedBy");
                 });
@@ -825,9 +825,9 @@ namespace Kijk.Api.Persistence.Migrations
 
             modelBuilder.Entity("Kijk.Api.Domain.Entities.Household", b =>
                 {
-                    b.Navigation("EnergyConsumptionLimits");
+                    b.Navigation("Energies");
 
-                    b.Navigation("EnergyConsumptions");
+                    b.Navigation("EnergyLimits");
 
                     b.Navigation("UserHouseholds");
                 });

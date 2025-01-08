@@ -2,24 +2,24 @@ using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
-namespace Kijk.Api.Modules.EnergyConsumptions;
+namespace Kijk.Api.Modules.Energies;
 
-public record GetByIdEnergyConsumptionResponse(
+public record GetByIdEnergyResponse(
     Guid Id,
     string Name,
     string? Description,
     decimal Value,
-    EnergyConsumptionType Type,
+    EnergyType Type,
     DateTime CreatedAt);
 
-public static class GetByIdEnergyConsumption
+public static class GetByIdEnergy
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetByIdEnergyConsumption));
+    private static readonly ILogger Logger = Log.ForContext(typeof(GetByIdEnergy));
 
-    public static RouteGroupBuilder MapGetByIdEnergyConsumption(this RouteGroupBuilder groupBuilder)
+    public static RouteGroupBuilder MapGetByIdEnergy(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/{id:guid}", Handle)
-            .Produces<GetByIdEnergyConsumptionResponse>()
+            .Produces<GetByIdEnergyResponse>()
             .Produces<List<Error>>(StatusCodes.Status400BadRequest)
             .Produces<List<Error>>(StatusCodes.Status404NotFound);
 
@@ -27,7 +27,7 @@ public static class GetByIdEnergyConsumption
     }
 
     /// <summary>
-    /// Gets a <see cref="EnergyConsumption"/> by id.
+    /// Gets a <see cref="Energy"/> by id.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="dbContext"></param>
@@ -37,9 +37,10 @@ public static class GetByIdEnergyConsumption
     {
         try
         {
-            var entity = await dbContext.EnergyConsumptions
+            var entity = await dbContext.Energy
+                .AsNoTracking()
                 .Where(x => x.Id == id)
-                .Select(x => new GetByIdEnergyConsumptionResponse(
+                .Select(x => new GetByIdEnergyResponse(
                     x.Id,
                     x.Name,
                     x.Description,

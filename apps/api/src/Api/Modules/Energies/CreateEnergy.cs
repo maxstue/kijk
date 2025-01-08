@@ -3,15 +3,15 @@ using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
 
-namespace Kijk.Api.Modules.EnergyConsumptions;
+namespace Kijk.Api.Modules.Energies;
 
-public record CreateEnergyConsumptionRequest(string Name, decimal Value, EnergyConsumptionType Type, DateTime Date);
+public record CreateEnergyRequest(string Name, decimal Value, EnergyType Type, DateTime Date);
 
-public record CreateEnergyConsumptionResponse(Guid Id, string Name, decimal Value, EnergyConsumptionType Type, DateTime Date);
+public record CreateEnergyResponse(Guid Id, string Name, decimal Value, EnergyType Type, DateTime Date);
 
-public class CreateEnergyConsumptionValidator : AbstractValidator<CreateEnergyConsumptionRequest>
+public class CreateEnergyValidator : AbstractValidator<CreateEnergyRequest>
 {
-    public CreateEnergyConsumptionValidator()
+    public CreateEnergyValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
@@ -27,14 +27,14 @@ public class CreateEnergyConsumptionValidator : AbstractValidator<CreateEnergyCo
     }
 }
 
-public static class CreateEnergyConsumption
+public static class CreateEnergy
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(CreateEnergyConsumption));
+    private static readonly ILogger Logger = Log.ForContext(typeof(CreateEnergy));
 
-    public static RouteGroupBuilder MapCreateEnergyConsumption(this RouteGroupBuilder groupBuilder)
+    public static RouteGroupBuilder MapCreateEnergy(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPost("/", Handle)
-            .WithRequestValidation<CreateEnergyConsumptionRequest>()
+            .WithRequestValidation<CreateEnergyRequest>()
             .Produces<TransactionDto>()
             .Produces<List<Error>>(StatusCodes.Status404NotFound)
             .Produces<List<Error>>(StatusCodes.Status400BadRequest);
@@ -42,13 +42,13 @@ public static class CreateEnergyConsumption
         return groupBuilder;
     }
 
-    private static async Task<IResult> Handle(CreateEnergyConsumptionRequest createEnergyConsumptionRequest, AppDbContext dbContext,
+    private static async Task<IResult> Handle(CreateEnergyRequest createEnergyRequest, AppDbContext dbContext,
         CurrentUser currentUser, CancellationToken cancellationToken)
     {
         try
         {
             var household = await dbContext.Households
-                .Include(x => x.EnergyConsumptions)
+                .Include(x => x.Energies)
                 .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
 
             if (household is null)
@@ -56,32 +56,32 @@ public static class CreateEnergyConsumption
                 return TypedResults.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
             }
 
-            var existingEnergyConsumption = await dbContext.EnergyConsumptions
+            var foundEnergy = await dbContext.Energy
                 .FirstOrDefaultAsync(x => x.Date.Date == TimeProvider.System.GetUtcNow().DateTime.Date, cancellationToken);
-            if (existingEnergyConsumption is not null)
+            if (foundEnergy is not null)
             {
                 return TypedResults.Conflict(
                     $"Energy consumption for the given date '{TimeProvider.System.GetUtcNow().DateTime.Date}' already exists");
             }
 
 
-            var energyConsumption = EnergyConsumption.Create(
-                createEnergyConsumptionRequest.Name,
-                createEnergyConsumptionRequest.Type,
-                createEnergyConsumptionRequest.Value,
+            var energy = Energy.Create(
+                createEnergyRequest.Name,
+                createEnergyRequest.Type,
+                createEnergyRequest.Value,
                 household.Id,
-                createEnergyConsumptionRequest.Date
+                createEnergyRequest.Date
             );
 
-            dbContext.EnergyConsumptions.Add(energyConsumption);
+            dbContext.Energy.Add(energy);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return TypedResults.Ok(new CreateEnergyConsumptionResponse(
-                energyConsumption.Id,
-                energyConsumption.Name,
-                energyConsumption.Value,
-                energyConsumption.Type,
-                energyConsumption.Date
+            return TypedResults.Ok(new CreateEnergyResponse(
+                energy.Id,
+                energy.Name,
+                energy.Value,
+                energy.Type,
+                energy.Date
             ));
         }
         catch (Exception e)

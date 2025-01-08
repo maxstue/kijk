@@ -12,7 +12,7 @@ using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
 using Kijk.Api.Modules.App;
 using Kijk.Api.Modules.Categories;
-using Kijk.Api.Modules.EnergyConsumptions;
+using Kijk.Api.Modules.Energies;
 using Kijk.Api.Modules.Transactions;
 using Kijk.Api.Modules.Users;
 using Kijk.Api.Persistence;
@@ -34,7 +34,7 @@ public static class ServiceExtensions
             .AddUsersModule()
             .AddTransactionsModule()
             .AddCategoriesModule()
-            .AddEnergyConsumptionsModule();
+            .AddEnergyModule();
 
         return services;
     }
@@ -106,7 +106,7 @@ public static class ServiceExtensions
                 {
                     opt.EnableRetryOnFailure();
                     opt.MapEnum<TransactionType>()
-                        .MapEnum<EnergyConsumptionType>()
+                        .MapEnum<EnergyType>()
                         .MapEnum<Role>()
                         .MapEnum<CategoryType>()
                         .MapEnum<CategoryCreatorType>()

@@ -6,8 +6,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Household> Households => Set<Household>();
     public DbSet<UserHousehold> UserHouseholds => Set<UserHousehold>();
-    public DbSet<EnergyConsumption> EnergyConsumptions => Set<EnergyConsumption>();
-    public DbSet<EnergyConsumptionLimit> EnergyConsumptionLimits => Set<EnergyConsumptionLimit>();
+    public DbSet<Energy> Energy => Set<Energy>();
+    public DbSet<EnergyLimit> EnergyLimits => Set<EnergyLimit>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Budget> Budgets => Set<Budget>();

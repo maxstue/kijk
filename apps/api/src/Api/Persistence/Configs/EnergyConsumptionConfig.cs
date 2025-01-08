@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Api.Persistence.Configs;
 
-public class EnergyConsumptionConfig : IEntityTypeConfiguration<EnergyConsumption>
+public class EnergyConsumptionConfig : IEntityTypeConfiguration<Energy>
 {
-    public void Configure(EntityTypeBuilder<EnergyConsumption> builder)
+    public void Configure(EntityTypeBuilder<Energy> builder)
     {
         builder.HasKey(x => x.Id);
         builder.HasIndex(x => x.Name);

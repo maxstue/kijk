@@ -17,7 +17,7 @@ namespace Kijk.Api.Persistence.Migrations
                 .Annotation("Npgsql:Enum:budget_status", "active,completed,pending")
                 .Annotation("Npgsql:Enum:category_creator_type", "default,user")
                 .Annotation("Npgsql:Enum:category_type", "expense,income,other")
-                .Annotation("Npgsql:Enum:energy_consumption_type", "electricity,gas,water")
+                .Annotation("Npgsql:Enum:energy_type", "electricity,gas,water")
                 .Annotation("Npgsql:Enum:frequency", "bi_weekly,daily,monthly,quarterly,weekly,yearly")
                 .Annotation("Npgsql:Enum:role", "admin,member")
                 .Annotation("Npgsql:Enum:transaction_status", "completed,failed,pending")
@@ -79,14 +79,14 @@ namespace Kijk.Api.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "energy_consumptions",
+                name: "energy",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
                     value = table.Column<decimal>(type: "numeric", nullable: false),
-                    type = table.Column<EnergyConsumptionType>(type: "energy_consumption_type", nullable: false),
+                    type = table.Column<EnergyType>(type: "energy_type", nullable: false),
                     date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -95,9 +95,9 @@ namespace Kijk.Api.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_energy_consumptions", x => x.id);
+                    table.PrimaryKey("pk_energy", x => x.id);
                     table.ForeignKey(
-                        name: "fk_energy_consumptions_households_household_id",
+                        name: "fk_energy_households_household_id",
                         column: x => x.household_id,
                         principalTable: "households",
                         principalColumn: "id",
@@ -191,7 +191,7 @@ namespace Kijk.Api.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "energy_consumption_limits",
+                name: "energy_limits",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -200,7 +200,7 @@ namespace Kijk.Api.Persistence.Migrations
                     limit = table.Column<decimal>(type: "numeric", nullable: false),
                     actual_value = table.Column<decimal>(type: "numeric", nullable: false),
                     active = table.Column<bool>(type: "boolean", nullable: false),
-                    type = table.Column<EnergyConsumptionType>(type: "energy_consumption_type", nullable: false),
+                    type = table.Column<EnergyType>(type: "energy_type", nullable: false),
                     last_occurrence = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
                     household_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -210,15 +210,15 @@ namespace Kijk.Api.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_energy_consumption_limits", x => x.id);
+                    table.PrimaryKey("pk_energy_limits", x => x.id);
                     table.ForeignKey(
-                        name: "fk_energy_consumption_limits_households_household_id",
+                        name: "fk_energy_limits_households_household_id",
                         column: x => x.household_id,
                         principalTable: "households",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_energy_consumption_limits_users_created_by_id",
+                        name: "fk_energy_limits_users_created_by_id",
                         column: x => x.created_by_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -365,28 +365,28 @@ namespace Kijk.Api.Persistence.Migrations
                 column: "users_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_energy_consumption_limits_created_by_id",
-                table: "energy_consumption_limits",
-                column: "created_by_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_energy_consumption_limits_household_id",
-                table: "energy_consumption_limits",
+                name: "ix_energy_household_id",
+                table: "energy",
                 column: "household_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_energy_consumption_limits_name",
-                table: "energy_consumption_limits",
+                name: "ix_energy_name",
+                table: "energy",
                 column: "name");
 
             migrationBuilder.CreateIndex(
-                name: "ix_energy_consumptions_household_id",
-                table: "energy_consumptions",
+                name: "ix_energy_limits_created_by_id",
+                table: "energy_limits",
+                column: "created_by_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_energy_limits_household_id",
+                table: "energy_limits",
                 column: "household_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_energy_consumptions_name",
-                table: "energy_consumptions",
+                name: "ix_energy_limits_name",
+                table: "energy_limits",
                 column: "name");
 
             migrationBuilder.CreateIndex(
@@ -451,10 +451,10 @@ namespace Kijk.Api.Persistence.Migrations
                 name: "category_user");
 
             migrationBuilder.DropTable(
-                name: "energy_consumption_limits");
+                name: "energy");
 
             migrationBuilder.DropTable(
-                name: "energy_consumptions");
+                name: "energy_limits");
 
             migrationBuilder.DropTable(
                 name: "transactions");

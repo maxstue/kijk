@@ -1,13 +1,13 @@
 using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 
-namespace Kijk.Api.Modules.EnergyConsumptions;
+namespace Kijk.Api.Modules.Energies;
 
-public static class DeleteEnergyConsumption
+public static class DeleteEnergy
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(DeleteEnergyConsumption));
+    private static readonly ILogger Logger = Log.ForContext(typeof(DeleteEnergy));
 
-    public static RouteGroupBuilder MapDeleteEnergyConsumption(this RouteGroupBuilder groupBuilder)
+    public static RouteGroupBuilder MapDeleteEnergy(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapDelete("/{id:guid}", Handle)
             .Produces<bool>()
@@ -21,7 +21,7 @@ public static class DeleteEnergyConsumption
     {
         try
         {
-            var foundEntity = await dbContext.EnergyConsumptions
+            var foundEntity = await dbContext.Energy
                 .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
             if (foundEntity == null)
             {
@@ -29,7 +29,7 @@ public static class DeleteEnergyConsumption
                 return TypedResults.NotFound($"Energy consumption with id '{id}' could not be found");
             }
 
-            dbContext.EnergyConsumptions.Remove(foundEntity);
+            dbContext.Energy.Remove(foundEntity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return TypedResults.Ok(true);

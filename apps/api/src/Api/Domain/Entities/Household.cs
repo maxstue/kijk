@@ -11,8 +11,8 @@ public sealed class Household : BaseEntity
     public bool IsActive { get; set; }
 
     public List<UserHousehold> UserHouseholds { get; set; } = [];
-    public List<EnergyConsumption> EnergyConsumptions { get; set; } = [];
-    public List<EnergyConsumptionLimit> EnergyConsumptionLimits { get; set; } = [];
+    public List<Energy> Energies { get; set; } = [];
+    public List<EnergyLimit> EnergyLimits { get; set; } = [];
 
     public static Household Create(string name, bool isActive, string? description = default) =>
         new()
