@@ -22,7 +22,12 @@ export function NavMain({ items }: Props) {
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
           <SidebarMenuButton asChild tooltip={item.title}>
-            <Link key={item.url} activeOptions={{ exact: true, includeSearch: false }} to={item.url}>
+            <Link
+              key={item.url}
+              activeOptions={{ exact: false }}
+              activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground' }}
+              to={item.url}
+            >
               <item.icon />
               <span>{item.title}</span>
             </Link>

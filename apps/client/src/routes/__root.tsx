@@ -30,7 +30,9 @@ function RootPage() {
       <Suspense>
         <AnalyticsBanner />
       </Suspense>
-      <DevMode />
+      <Suspense>
+        <DevMode />
+      </Suspense>
       <Suspense>
         <AnalyticsTracker />
       </Suspense>
@@ -43,11 +45,7 @@ function RootPage() {
 }
 
 function DevMode() {
-  return env.Mode === 'production' ? undefined : (
-    <Suspense>
-      <DevModeIndicator />
-    </Suspense>
-  );
+  return env.Mode === 'production' ? undefined : <DevModeIndicator />;
 }
 
 const TanStackRouterDevtools =

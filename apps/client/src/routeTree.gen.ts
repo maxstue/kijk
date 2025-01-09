@@ -18,6 +18,7 @@ import { Route as ProtectedIndexImport } from './routes/_protected/index'
 import { Route as ProtectedWelcomeImport } from './routes/_protected/welcome'
 import { Route as ProtectedSettingsImport } from './routes/_protected/settings'
 import { Route as ProtectedHomeImport } from './routes/_protected/home'
+import { Route as ProtectedEnergyImport } from './routes/_protected/energy'
 import { Route as ProtectedBudgetImport } from './routes/_protected/budget'
 import { Route as ProtectedSettingsSectionImport } from './routes/_protected/settings.$section'
 
@@ -64,6 +65,12 @@ const ProtectedHomeRoute = ProtectedHomeImport.update({
   getParentRoute: () => ProtectedRoute,
 } as any)
 
+const ProtectedEnergyRoute = ProtectedEnergyImport.update({
+  id: '/energy',
+  path: '/energy',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+
 const ProtectedBudgetRoute = ProtectedBudgetImport.update({
   id: '/budget',
   path: '/budget',
@@ -106,6 +113,13 @@ declare module '@tanstack/react-router' {
       path: '/budget'
       fullPath: '/budget'
       preLoaderRoute: typeof ProtectedBudgetImport
+      parentRoute: typeof ProtectedImport
+    }
+    '/_protected/energy': {
+      id: '/_protected/energy'
+      path: '/energy'
+      fullPath: '/energy'
+      preLoaderRoute: typeof ProtectedEnergyImport
       parentRoute: typeof ProtectedImport
     }
     '/_protected/home': {
@@ -161,6 +175,7 @@ const ProtectedSettingsRouteWithChildren =
 
 interface ProtectedRouteChildren {
   ProtectedBudgetRoute: typeof ProtectedBudgetRoute
+  ProtectedEnergyRoute: typeof ProtectedEnergyRoute
   ProtectedHomeRoute: typeof ProtectedHomeRoute
   ProtectedSettingsRoute: typeof ProtectedSettingsRouteWithChildren
   ProtectedWelcomeRoute: typeof ProtectedWelcomeRoute
@@ -169,6 +184,7 @@ interface ProtectedRouteChildren {
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedBudgetRoute: ProtectedBudgetRoute,
+  ProtectedEnergyRoute: ProtectedEnergyRoute,
   ProtectedHomeRoute: ProtectedHomeRoute,
   ProtectedSettingsRoute: ProtectedSettingsRouteWithChildren,
   ProtectedWelcomeRoute: ProtectedWelcomeRoute,
@@ -184,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/budget': typeof ProtectedBudgetRoute
+  '/energy': typeof ProtectedEnergyRoute
   '/home': typeof ProtectedHomeRoute
   '/settings': typeof ProtectedSettingsRouteWithChildren
   '/welcome': typeof ProtectedWelcomeRoute
@@ -195,6 +212,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/budget': typeof ProtectedBudgetRoute
+  '/energy': typeof ProtectedEnergyRoute
   '/home': typeof ProtectedHomeRoute
   '/settings': typeof ProtectedSettingsRouteWithChildren
   '/welcome': typeof ProtectedWelcomeRoute
@@ -208,6 +226,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/_protected/budget': typeof ProtectedBudgetRoute
+  '/_protected/energy': typeof ProtectedEnergyRoute
   '/_protected/home': typeof ProtectedHomeRoute
   '/_protected/settings': typeof ProtectedSettingsRouteWithChildren
   '/_protected/welcome': typeof ProtectedWelcomeRoute
@@ -222,6 +241,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sso-callback'
     | '/budget'
+    | '/energy'
     | '/home'
     | '/settings'
     | '/welcome'
@@ -232,6 +252,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sso-callback'
     | '/budget'
+    | '/energy'
     | '/home'
     | '/settings'
     | '/welcome'
@@ -243,6 +264,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sso-callback'
     | '/_protected/budget'
+    | '/_protected/energy'
     | '/_protected/home'
     | '/_protected/settings'
     | '/_protected/welcome'
@@ -282,6 +304,7 @@ export const routeTree = rootRoute
       "filePath": "_protected.tsx",
       "children": [
         "/_protected/budget",
+        "/_protected/energy",
         "/_protected/home",
         "/_protected/settings",
         "/_protected/welcome",
@@ -296,6 +319,10 @@ export const routeTree = rootRoute
     },
     "/_protected/budget": {
       "filePath": "_protected/budget.tsx",
+      "parent": "/_protected"
+    },
+    "/_protected/energy": {
+      "filePath": "_protected/energy.tsx",
       "parent": "/_protected"
     },
     "/_protected/home": {

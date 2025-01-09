@@ -1,18 +1,18 @@
 import { apiClient } from '@/shared/lib/api-client';
 import type { CategoryFormValues } from '@/app/settings/categories/schemas';
-import type { ApiResponse, Category, GroupedCategory } from '@/shared/types/app';
+import type { Category, GroupedCategory } from '@/shared/types/app';
 
 const ENDPOINT = 'categories';
 
 export function getCategories(signal?: AbortSignal) {
-  return apiClient.get<ApiResponse<GroupedCategory>>({
+  return apiClient.get<GroupedCategory>({
     url: ENDPOINT,
     signal,
   });
 }
 
 export function createCategory(data: CategoryFormValues, signal?: AbortSignal) {
-  return apiClient.post<ApiResponse<Category>>({
+  return apiClient.post<Category>({
     url: ENDPOINT,
     data,
     signal,

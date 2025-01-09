@@ -1,9 +1,10 @@
 // @ts-check
 import eslint from '@eslint/js';
 import tanstackQueryPlugin from '@tanstack/eslint-plugin-query';
-import tanstackRouterRouter from '@tanstack/eslint-plugin-router'
+import tanstackRouterRouter from '@tanstack/eslint-plugin-router';
 import prettierConfig from 'eslint-config-prettier';
 import reactPlugin from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefreshPlugin from 'eslint-plugin-react-refresh';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
@@ -106,6 +107,7 @@ const reactConfig = {
     // @ts-ignore
     'react-hooks': reactHooksPlugin,
     'react-refresh': reactRefreshPlugin,
+    'react-compiler': reactCompiler,
   },
   settings: {
     react: {
@@ -113,6 +115,7 @@ const reactConfig = {
     },
   },
   rules: {
+    'react-compiler/react-compiler': 'error',
     'react/jsx-boolean-value': 'error',
     'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
     'react/jsx-no-target-blank': 'off',
@@ -142,6 +145,7 @@ const unicornConfig = {
   // @ts-ignore
   extends: [eslintPluginUnicorn.configs['flat/recommended']],
   rules: {
+    'unicorn/prefer-top-level-await': 'off',
     'unicorn/no-array-reduce': 'warn',
     'unicorn/no-null': 'warn',
     'unicorn/no-useless-undefined': 'warn',

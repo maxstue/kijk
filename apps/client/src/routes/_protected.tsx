@@ -26,13 +26,13 @@ function Protected() {
   const navigate = useNavigate({ from: Route.fullPath });
   const query = useSignInUser();
 
-  const isFirstTime = query.data.data?.firstTime === true;
+  const isFirstTime = query.data.firstTime === true;
 
   useEffect(() => {
-    if (query.isSuccess && query.data.data && isFirstTime) {
+    if (query.isSuccess && query.data && isFirstTime) {
       navigate({ to: '/welcome', replace: true });
     }
-  }, [isFirstTime, navigate, query.data.data, query.isSuccess, query.status]);
+  }, [isFirstTime, navigate, query.data, query.isSuccess, query.status]);
 
   return (
     <SidebarProvider>

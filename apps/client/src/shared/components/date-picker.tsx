@@ -32,6 +32,7 @@ const DatePicker = forwardRef<HTMLInputElement, Props>(({ className, date, setDa
           autoFocus
           defaultMonth={date}
           mode='single'
+          role='dialog'
           selected={date}
           onSelect={(data) => {
             setDate(data);

@@ -10,10 +10,10 @@ import { Sheet, SheetContent } from '@/shared/components/ui/sheet';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
+import { browserStorage } from '@/shared/lib/browser-storage';
 import { cn } from '@/shared/lib/helpers';
 
-const SIDEBAR_COOKIE_NAME = 'sidebar:state';
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const SIDEBAR_CLOSED_KEY = 'sidebar';
 const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
 const SIDEBAR_WIDTH_ICON = '3rem';
@@ -40,6 +40,13 @@ function useSidebar() {
   return context;
 }
 
+const getSidebarStateFromStorage = () => {
+  if (browserStorage.hasItem(SIDEBAR_CLOSED_KEY)) {
+    return browserStorage.getItem<boolean>(SIDEBAR_CLOSED_KEY);
+  }
+  return true;
+};
+
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {
@@ -53,8 +60,9 @@ const SidebarProvider = React.forwardRef<
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen);
+  const [_open, _setOpen] = React.useState(getSidebarStateFromStorage() ?? defaultOpen);
   const open = openProp ?? _open;
+
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === 'function' ? value(open) : value;
@@ -64,8 +72,7 @@ const SidebarProvider = React.forwardRef<
         _setOpen(openState);
       }
 
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      browserStorage.setItem(SIDEBAR_CLOSED_KEY, openState);
     },
     [setOpenProp, open],
   );

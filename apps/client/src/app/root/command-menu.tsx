@@ -112,7 +112,19 @@ export function CommandMenu({ ...props }: Props) {
                 <LayoutDashboard />
                 Home
               </CommandItem>
-              <CommandItem key='energy' disabled onSelect={runCommand(() => navigate({ to: '/' }))}>
+              <CommandItem
+                key='energy'
+                onSelect={runCommand(() =>
+                  navigate({
+                    to: '/energy',
+                    search: (previous) => ({
+                      ...previous,
+                      month: months[new Date().getMonth()]!,
+                      year: new Date().getFullYear(),
+                    }),
+                  }),
+                )}
+              >
                 <HousePlug />
                 Energy
               </CommandItem>

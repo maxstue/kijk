@@ -1,15 +1,13 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { DollarSign, List, Users } from 'lucide-react';
+import { Leaf, List, TrendingUp } from 'lucide-react';
 import { z } from 'zod';
 
-import { BudgetMonthCalendar } from '@/app/budget/budget-month-calender';
-import { BudgetMonthNav } from '@/app/budget/budget-month-nav';
-import { BudgetMonthTable } from '@/app/budget/budget-month-table';
-import { BudgetTodayButton } from '@/app/budget/budget-today-button';
-import { BudgetYearSwitcher } from '@/app/budget/budget-year-switcher';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { getTransactionsQuery } from '@/app/budget/use-get-transactions-by';
+import { EnergyTodayButton } from '@/app/energy/energy-today-button';
+import { EnergyMonthNav } from '@/app/energy/energy-year-nav';
+import { EnergyYearSwitcher } from '@/app/energy/energy-year-switcher';
 import { Head } from '@/shared/components/head';
 import { NotFound } from '@/shared/components/not-found';
 import { Button } from '@/shared/components/ui/button';
@@ -34,7 +32,7 @@ const searchSchema = z.object({
   year: z.number().catch(new Date().getFullYear()),
 });
 
-export const Route = createFileRoute('/_protected/budget')({
+export const Route = createFileRoute('/_protected/energy')({
   validateSearch: searchSchema,
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   preSearchFilters: [
@@ -45,12 +43,12 @@ export const Route = createFileRoute('/_protected/budget')({
   loader: ({ deps: { month, year }, context: { queryClient } }) => {
     return queryClient.ensureQueryData(getTransactionsQuery(year, month));
   },
-  component: BudgetPage,
+  component: EnergyPage,
   notFoundComponent: NotFound,
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
 });
 
-function BudgetPage() {
+function EnergyPage() {
   const [showSheet, setShowSheet] = useState(false);
   const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -61,29 +59,29 @@ function BudgetPage() {
 
   useEffect(() => {
     navigate({
-      to: '/budget',
+      to: '/energy',
       search: (previous) => ({ ...previous, ...searchParameters }),
     });
   }, [navigate, searchParameters, searchParameters.month, searchParameters.year]);
 
   return (
     <>
-      <Head title='Budget' />
+      <Head title='Energy' />
       <div className='space-y-6 pt-10'>
         <div className='space-y-0.5'>
-          <h2 className='text-2xl font-bold tracking-tight'>Transactions</h2>
-          <p className='text-muted-foreground'>Manage your Expenses and Incomes.</p>
+          <h2 className='text-2xl font-bold tracking-tight'>Energy</h2>
+          <p className='text-muted-foreground'>Manage your monthly energy consumption</p>
         </div>
         <Separator className='my-6' />
         {/* Sidebar */}
         <div className='flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0'>
           <aside className='flex h-full flex-col gap-4 lg:min-w-[20%]'>
-            <BudgetTodayButton />
+            <EnergyTodayButton />
             <Suspense fallback={<AsyncLoader />}>
-              <BudgetYearSwitcher />
+              <EnergyYearSwitcher />
             </Suspense>
             <Suspense fallback={<AsyncLoader />}>
-              <BudgetMonthNav />
+              <EnergyMonthNav />
             </Suspense>
           </aside>
           {/* Content */}
@@ -92,23 +90,22 @@ function BudgetPage() {
               <div className='grid gap-4 lg:grid-cols-2'>
                 <Card>
                   <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Balance</CardTitle>
-                    <DollarSign className='h-4 w-4 text-muted-foreground' />
+                    <CardTitle className='text-sm font-medium'>Consumption</CardTitle>
+                    <TrendingUp className='h-4 w-4 text-muted-foreground' />
                   </CardHeader>
                   <CardContent>
-                    <div className='text-2xl font-bold'>$4,231.89</div>
-                    <p className='text-xs text-muted-foreground'>+2.1% from last month</p>
+                    <div className='text-2xl font-bold'>156,78 Kwh</div>
+                    <p className='text-xs text-muted-foreground'>+1.8% from last month</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Month Overview</CardTitle>
-                    <Users className='h-4 w-4 text-muted-foreground' />
+                    <CardTitle className='text-sm font-medium'>Year Overview</CardTitle>
+                    <Leaf className='h-4 w-4 text-muted-foreground' />
                   </CardHeader>
                   <CardContent>
-                    <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-                      <BudgetMonthCalendar month={searchParameters.month} year={searchParameters.year} />
-                    </Suspense>
+                    <div className='text-2xl font-bold'>901,78 Kwh</div>
+                    <p className='text-xs text-muted-foreground'>+2.7% from last year</p>
                   </CardContent>
                 </Card>
               </div>
@@ -116,12 +113,12 @@ function BudgetPage() {
               <div className='flex w-full justify-end'>
                 <Sheet open={showSheet} onOpenChange={setShowSheet}>
                   <SheetTrigger asChild>
-                    <Button variant='outline'>Create Transaction</Button>
+                    <Button variant='outline'>Add Consumption</Button>
                   </SheetTrigger>
                   <SheetContent className='space-y-8'>
                     <SheetHeader>
-                      <SheetTitle>Create Transaction</SheetTitle>
-                      <SheetDescription>Create a new transaction.</SheetDescription>
+                      <SheetTitle>Add Consumption</SheetTitle>
+                      <SheetDescription>Add a new consumption.</SheetDescription>
                     </SheetHeader>
                     <Suspense>
                       <TransactionCreateForm
@@ -141,9 +138,7 @@ function BudgetPage() {
                     <List className='h-4 w-4 text-muted-foreground' />
                   </CardHeader>
                   <CardContent className='h-[calc(100dvh_*_0.4)]'>
-                    <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-                      <BudgetMonthTable />
-                    </Suspense>
+                    <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>{/* <EnergyMonthTable /> */}</Suspense>
                   </CardContent>
                 </Card>
               </div>

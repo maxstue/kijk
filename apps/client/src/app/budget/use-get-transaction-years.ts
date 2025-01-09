@@ -2,9 +2,9 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 import { getYears } from '@/shared/api/transactions';
 
-export const getYearsQuery = queryOptions({
+export const getTransactionYearsQuery = queryOptions({
   queryKey: ['transactions', 'years'],
   queryFn: ({ signal }) => getYears(signal),
 });
 
-export const useGetYears = () => useSuspenseQuery(getYearsQuery);
+export const useGetTransactionYears = () => useSuspenseQuery(getTransactionYearsQuery);

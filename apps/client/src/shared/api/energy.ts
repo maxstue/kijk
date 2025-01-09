@@ -3,7 +3,7 @@ import type { TransactionFormValues } from '@/app/budget/schemas';
 import type { Years } from '@/app/budget/types';
 import type { Transaction } from '@/shared/types/app';
 
-const ENDPOINT = 'transactions';
+const ENDPOINT = 'energies';
 
 export function getYears(signal?: AbortSignal) {
   return apiClient.get<Years>({
@@ -24,7 +24,7 @@ export function getYears(signal?: AbortSignal) {
  * @param signal The signal
  * @returns The list of transactions
  */
-export function getTransactionById(year?: string, month?: string, signal?: AbortSignal) {
+export function getEnergyById(year?: string, month?: string, signal?: AbortSignal) {
   return apiClient.get<Transaction[]>({
     url: ENDPOINT,
     params: { year, month },
@@ -32,7 +32,7 @@ export function getTransactionById(year?: string, month?: string, signal?: Abort
   });
 }
 
-export function createTransaction(data: TransactionFormValues, signal?: AbortSignal) {
+export function createEnergy(data: TransactionFormValues, signal?: AbortSignal) {
   return apiClient.post<Transaction>({
     url: ENDPOINT,
     data,
@@ -40,7 +40,7 @@ export function createTransaction(data: TransactionFormValues, signal?: AbortSig
   });
 }
 
-export function updateTransaction(transactionId: string, data: Partial<TransactionFormValues>, signal?: AbortSignal) {
+export function updateEnergy(transactionId: string, data: Partial<TransactionFormValues>, signal?: AbortSignal) {
   return apiClient.put<Transaction>({
     url: `${ENDPOINT}/${transactionId}`,
     data,
@@ -48,7 +48,7 @@ export function updateTransaction(transactionId: string, data: Partial<Transacti
   });
 }
 
-export function deleteTransaction(transactionId: string, signal?: AbortSignal) {
+export function deleteEnergy(transactionId: string, signal?: AbortSignal) {
   return apiClient.delete<Transaction>({
     url: `${ENDPOINT}/${transactionId}`,
     signal,

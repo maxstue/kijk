@@ -4,7 +4,7 @@ import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
 
-import { getTransactionYearsQuery, useGetTransactionYears } from '@/app/budget/use-get-transaction-years';
+import { getEnergyYearsQuery, useGetEnergyYears } from '@/app/energy/use-get-energy-years';
 import { Button } from '@/shared/components/ui/button';
 import {
   Command,
@@ -32,17 +32,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/
 import { useToast } from '@/shared/hooks/use-toast';
 import { cn } from '@/shared/lib/helpers';
 
-const Route = getRouteApi('/_protected/budget');
+const Route = getRouteApi('/_protected/energy');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-export function BudgetYearSwitcher({ className }: YProps) {
+export function EnergyYearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
   const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data } = useGetTransactionYears();
+  const { data } = useGetEnergyYears();
   const queryClient = useQueryClient();
 
   const selectedYear = searchParameters.year ?? new Date().getFullYear() ?? data?.years.at(0);
@@ -146,16 +146,16 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   const { toast } = useToast();
 
   function handleSubmit(data: YearFormValues) {
-    const response = queryClient.getQueryData(getTransactionYearsQuery.queryKey);
+    const response = queryClient.getQueryData(getEnergyYearsQuery.queryKey);
     if (response?.years.includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
       return;
     }
 
-    queryClient.setQueryData(getTransactionYearsQuery.queryKey, (old) => ({
+    queryClient.setQueryData(getEnergyYearsQuery.queryKey, (old) => ({
       years: [...(old?.years ?? []), data.year].sort((a, b) => b - a),
     }));
-    navigate({ to: '/budget', search: (previous) => ({ ...previous, year: data.year }) });
+    navigate({ to: '/energy', search: (previous) => ({ ...previous, year: data.year }) });
     onClose();
   }
 
