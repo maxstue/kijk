@@ -1,6 +1,8 @@
+using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Kijk.Api.Modules.Energies;
 
@@ -18,11 +20,7 @@ public static class GetByIdEnergy
 
     public static RouteGroupBuilder MapGetByIdEnergy(this RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet("/{id:guid}", Handle)
-            .Produces<GetByIdEnergyResponse>()
-            .Produces<List<Error>>(StatusCodes.Status400BadRequest)
-            .Produces<List<Error>>(StatusCodes.Status404NotFound);
-
+        groupBuilder.MapGet("/{id:guid}", Handle);
         return groupBuilder;
     }
 
@@ -33,7 +31,8 @@ public static class GetByIdEnergy
     /// <param name="dbContext"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<IResult> Handle(Guid id, AppDbContext dbContext, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<GetByIdEnergyResponse>, ProblemHttpResult>> Handle(Guid id, AppDbContext dbContext,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -49,12 +48,14 @@ public static class GetByIdEnergy
                     x.CreatedAt))
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return entity is null ? TypedResults.NotFound($"Energy consumption for Id '{id}' was not found.") : TypedResults.Ok(entity);
+            return entity is null
+                ? TypedResults.Problem(Error.NotFound($"Energy consumption for Id '{id}' was not found.").ToProblemDetails())
+                : TypedResults.Ok(entity);
         }
         catch (Exception e)
         {
             Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(e.Message);
+            return TypedResults.Problem(Error.Unexpected(description: e.Message).ToProblemDetails());
         }
     }
 }

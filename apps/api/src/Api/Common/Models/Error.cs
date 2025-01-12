@@ -46,33 +46,27 @@ public readonly record struct Error
         Description = description;
         Type = type;
     }
-    
+
     /// <summary>
     /// Creates an <see cref="Error" /> of type <see cref="ErrorType.Unexpected" /> from a code and description.
     /// </summary>
-    /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error Unexpected(
-        string? code = ErrorCodes.UnexpectedError,
-        string? description = "An unexpected error has occurred.") => new(code, $"An 'unexpected' error, {description}", ErrorType.Unexpected);
+    public static Error Unexpected(string description = "An unexpected error has occurred.") =>
+        new(ErrorCodes.UnexpectedError, description, ErrorType.Unexpected);
 
     /// <summary>
     /// Creates an <see cref="Error" /> of type <see cref="ErrorType.Validation" /> from a code and description.
     /// </summary>
-    /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error Validation(
-        string? code = ErrorCodes.ValidationError,
-        string? description = "A 'validation' error has occurred.") => new(code, description, ErrorType.Validation);
+    public static Error Validation(string description = "A 'validation' error has occurred.") =>
+        new(ErrorCodes.ValidationError, description, ErrorType.Validation);
 
     /// <summary>
     /// Creates an <see cref="Error" /> of type <see cref="ErrorType.NotFound" /> from a code and description.
     /// </summary>
-    /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error NotFound(
-        string? code = ErrorCodes.NotFoundError,
-        string? description = "A 'Not Found' error has occurred.") => new(code, $"'Not found' error, {description}", ErrorType.NotFound);
+    public static Error NotFound(string description = "A 'Not Found' error has occurred.") =>
+        new(ErrorCodes.NotFoundError, description, ErrorType.NotFound);
 
     /// <summary>
     /// Creates an <see cref="Error" /> with the given numeric <paramref name="type" />,
@@ -81,8 +75,14 @@ public readonly record struct Error
     /// <param name="type">An integer value which represents the type of error that occurred.</param>
     /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
-    public static Error Custom(
-        ErrorType type,
-        string code,
-        string description) => new(code, description, type);
+    public static Error Custom(ErrorType type, string code, string description) => new(code, description, type);
+
+
+    public static Error FromStatusCode(int statusCode) =>
+        statusCode switch
+        {
+            StatusCodes.Status401Unauthorized => Custom(ErrorType.Authentication, ErrorCodes.AuthenticationError, "You are not authenticated"),
+            StatusCodes.Status403Forbidden => Custom(ErrorType.Authorization, ErrorCodes.AuthorizationError, "You are not authorized"),
+            _ => Unexpected(description: "Unexpected error")
+        };
 }

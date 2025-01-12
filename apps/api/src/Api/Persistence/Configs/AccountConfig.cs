@@ -13,9 +13,6 @@ public class AccountConfig : IEntityTypeConfiguration<Account>
 
         builder.Property(x => x.Name).HasMaxLength(150);
 
-        // builder.Property(x => x.Type).HasConversion<string>();
-        // builder.Property(x => x.Visibility).HasConversion<string>();
-
         builder.HasMany(x => x.Transactions)
             .WithOne(x => x.Account)
             .HasForeignKey(x => x.AccountId)

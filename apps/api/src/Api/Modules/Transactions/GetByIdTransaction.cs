@@ -1,55 +1,41 @@
-﻿using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Extensions;
+using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Kijk.Api.Modules.Transactions;
 
 public static class GetByIdTransaction
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetByIdTransaction));
 
     public static RouteGroupBuilder MapGetByIdTransaction(this RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet("/{id:guid}", Handle)
-            .Produces<TransactionDto>()
-            .Produces<List<Error>>(StatusCodes.Status400BadRequest)
-            .Produces<List<Error>>(StatusCodes.Status404NotFound);
-
+        groupBuilder.MapGet("/{id:guid}", Handle);
         return groupBuilder;
     }
 
     /// <summary>
-    ///     Gets a transaction by id.
+    /// Gets a transaction by id.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="dbContext"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<IResult> Handle(Guid id, AppDbContext dbContext, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<TransactionDto>, ProblemHttpResult>> Handle(Guid id, AppDbContext dbContext, CancellationToken cancellationToken)
     {
-        try
-        {
-            var transaction = await dbContext.Transactions
-                .Where(x => x.Id == id)
-                .Select(x => new TransactionDto(
-                    x.Id,
-                    x.Name,
-                    x.Amount,
-                    x.Type,
-                    x.ExecutedAt,
-                    CategoryDto.Create(x.Category)))
-                .FirstOrDefaultAsync(cancellationToken);
+        var transaction = await dbContext.Transactions
+            .Where(x => x.Id == id)
+            .Select(x => new TransactionDto(
+                x.Id,
+                x.Name,
+                x.Amount,
+                x.Type,
+                x.ExecutedAt,
+                CategoryDto.Create(x.Category)))
+            .FirstOrDefaultAsync(cancellationToken);
 
-            if (transaction is null)
-            {
-                return TypedResults.NotFound($"Transaction for Id '{id}' was not found.");
-            }
-
-            return TypedResults.Ok(transaction);
-        }
-        catch (Exception e)
-        {
-            Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(e.Message);
-        }
+        return transaction is null
+            ? TypedResults.Problem(Error.NotFound($"Transaction for Id '{id}' was not found.").ToProblemDetails())
+            : TypedResults.Ok(transaction);
     }
 }

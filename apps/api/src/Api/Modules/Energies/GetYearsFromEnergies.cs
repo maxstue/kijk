@@ -1,14 +1,15 @@
-﻿using Kijk.Api.Common.Models;
+using Kijk.Api.Common.Extensions;
+using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace Kijk.Api.Modules.Transactions;
+namespace Kijk.Api.Modules.Energies;
 
 public record YearsResponse(List<int> Years);
 
-public static class GetYearsFromTransactions
+public static class GetYearsFromEnergies
 {
-    public static RouteGroupBuilder MapGetYearsFromTransactions(this RouteGroupBuilder groupBuilder)
+    public static RouteGroupBuilder MapGetYearsFromEnergies(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapGet("/years", Handle);
 
@@ -16,7 +17,7 @@ public static class GetYearsFromTransactions
     }
 
     /// <summary>
-    ///     Retrieves all years that have transactions and all years in between.
+    /// Retrieves all years that have energy usages and all years in between.
     /// </summary>
     /// <param name="dbContext"></param>
     /// <param name="currentUser"></param>
@@ -25,17 +26,23 @@ public static class GetYearsFromTransactions
     private static async Task<Results<Ok<YearsResponse>, ProblemHttpResult>> Handle(AppDbContext dbContext, CurrentUser currentUser,
         CancellationToken cancellationToken)
     {
-        var yearsWithTransactions = await dbContext.Accounts
+        var houseHoldId = currentUser.ActiveHouseholdId;
+        if (houseHoldId is null)
+        {
+            return TypedResults.Problem(Error.NotFound($"Household for user '{currentUser.Id}' was not found").ToProblemDetails());
+        }
+
+        var yearsWithEnergy = await dbContext.Households
             .AsNoTracking()
-            .Where(x => x.UserId == currentUser.Id)
-            .SelectMany(x => x.Transactions)
-            .Select(x => x.ExecutedAt.Year)
+            .Where(x => x.Id == houseHoldId)
+            .SelectMany(x => x.Energies)
+            .Select(x => x.Date.Year)
             .Distinct()
             .ToListAsync(cancellationToken);
 
         List<int> years = [];
         var currentYear = DateTime.UtcNow.Year;
-        var minDate = yearsWithTransactions.Count > 0 ? yearsWithTransactions.Min() : currentYear;
+        var minDate = yearsWithEnergy.Count > 0 ? yearsWithEnergy.Min() : currentYear;
         for (var i = minDate; i <= currentYear; i++)
         {
             years.Add(i);

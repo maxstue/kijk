@@ -44,7 +44,7 @@ public record CategoryDto(Guid Id, string Name, string Color, CategoryType Type,
         new(category.Id, category.Name, category.Color, category.Type, category.CreatorType);
 }
 
-public record SimpleAuthUser(Guid Id, string AuthId, Guid HouseholdId, string Name, string? Email, bool? FirstTime = false)
+public record SimpleAuthUser(Guid Id, string AuthId, Guid? HouseholdId, string Name, string? Email, bool? FirstTime = false)
 {
     public static SimpleAuthUser Create(User user) =>
         new(user.Id, user.AuthId, user.GetActiveHouseHoldId(), user.Name, user.Email, user.FirstTime);

@@ -12,9 +12,5 @@ public class BudgetConfig : IEntityTypeConfiguration<Budget>
         builder.HasIndex(x => x.Name);
 
         builder.Property(x => x.Name).HasMaxLength(100);
-
-        // builder.Property(x => x.Status).HasConversion<string>();
-        // builder.Property(x => x.Visibility).HasConversion<string>();
-
     }
 }

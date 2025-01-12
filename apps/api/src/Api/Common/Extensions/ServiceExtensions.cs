@@ -1,12 +1,10 @@
 ﻿using System.Globalization;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
-
 using EntityFramework.Exceptions.PostgreSQL;
-
 using Humanizer;
-
 using Kijk.Api.Common.Exceptions;
+using Kijk.Api.Common.Extensions.OpenApi;
 using Kijk.Api.Common.Middleware;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
@@ -17,7 +15,6 @@ using Kijk.Api.Modules.Transactions;
 using Kijk.Api.Modules.Users;
 using Kijk.Api.Persistence;
 using Kijk.Api.Persistence.Interceptors;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -62,20 +59,20 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddProblemDetail(this IServiceCollection services)
-    {
-        return services.AddProblemDetails(options =>
+    public static IServiceCollection AddProblemDetail(this IServiceCollection services) => services.AddProblemDetails(options =>
+        options.CustomizeProblemDetails = context =>
         {
-            options.CustomizeProblemDetails = context =>
-            {
-                context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
-                context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+            context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+            context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
 
-                var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
-                context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
-            };
+            var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+            context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
+            if (context.HttpContext.Response.StatusCode is StatusCodes.Status401Unauthorized or StatusCodes.Status403Forbidden)
+            {
+                var error = Error.FromStatusCode(context.HttpContext.Response.StatusCode);
+                context.ProblemDetails.Extensions["errors"] = error.ToProblemDetails().Extensions["errors"];
+            }
         });
-    }
 
     public static IServiceCollection AddOpenApi(this IServiceCollection services, IConfiguration configuration)
     {
@@ -89,7 +86,10 @@ public static class ServiceExtensions
         services.AddOpenApi("openapi", opt => opt.AddDocumentTransformer((document, _, _) =>
         {
             document.Info = new() { Version = "v1", Title = "Kijk API", Description = "Kijk API to manage your houses", };
-            opt.AddDocumentTransformer<BearerAuthSchemeTransformer>();
+            opt.AddDocumentTransformer<AuthSchemeTransformer>();
+            opt.AddDocumentTransformer<ComponentResponseTransformer>();
+
+            opt.AddOperationTransformer<OperationResponseTransformer>();
             return Task.CompletedTask;
         }));
         return services;
@@ -197,7 +197,6 @@ public static class ServiceExtensions
 
         services.AddScoped<CurrentUser>();
         services.AddTransient<CurrentUserMiddleware>();
-        services.AddTransient<AuthResponseHandlerMiddleware>();
 
         services.AddAuthorizationBuilder()
             .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());

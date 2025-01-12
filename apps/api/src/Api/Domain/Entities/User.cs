@@ -20,10 +20,10 @@ public sealed class User : BaseEntity
     public List<Category> Categories { get; set; } = [];
 
     /// <summary>
-    /// It should never be empty as it is set when the user is created.
+    /// It should never be null as it is set when the user is created.
     /// </summary>
     /// <returns></returns>
-    public Guid GetActiveHouseHoldId() => UserHouseholds.Find(x => x.IsDefault)?.HouseholdId ?? Guid.Empty;
+    public Guid? GetActiveHouseHoldId() => UserHouseholds.Find(x => x.IsDefault)?.HouseholdId;
 
     public User SetDefaultCategories(bool? useDefaultCategories, List<Category> defaultCategories)
     {

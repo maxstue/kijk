@@ -12,19 +12,19 @@ public class CurrentUser
 
     public required SimpleAuthUser User { get; set; }
 
-    public Guid Id => this.User.Id;
+    public Guid Id => User.Id;
 
-    public string AuthId => this.User.AuthId ?? throw new NullException("'AuthId' not found");
+    public string AuthId => User.AuthId ?? throw new NullException("'AuthId' not found");
 
-    public string Name => this.User.Name ?? throw new NullException("'Name' not found");
+    public string Name => User.Name ?? throw new NullException("'Name' not found");
 
-    public string Email => this.User.Email ?? throw new NullException("'Upn/Email' not found");
+    public string Email => User.Email ?? throw new NullException("'Upn/Email' not found");
 
     public IEnumerable<string> Permissions => Principal.FindAll(PermissionsClaim).Select(x => x.Value);
 
-    public bool IsAdmin => this.Permissions.Contains(AppConstants.Roles.Admin);
+    public bool IsAdmin => Permissions.Contains(AppConstants.Roles.Admin);
 
-    public bool IsUser => this.Permissions.Contains(AppConstants.Roles.Admin);
+    public bool IsUser => Permissions.Contains(AppConstants.Roles.Admin);
 
-    public Guid ActiveHouseholdId => this.User.HouseholdId;
+    public Guid? ActiveHouseholdId => User.HouseholdId;
 }

@@ -23,16 +23,13 @@ public static class ErrorExtensions
         return error;
     }
 
-    public static ProblemDetails ToProblemDetails(this Error error)
+    public static ProblemDetails ToProblemDetails(this Error error) => new ProblemDetails
     {
-        return new ProblemDetails
-        {
-            Status = GetStatusCode(error.Type),
-            Title = GetTitle(error.Type),
-            Detail = error.Description,
-            Extensions = new Dictionary<string, object?> { ["errors"] = new[] { error } }
-        };
-    }
+        Status = GetStatusCode(error.Type),
+        Title = GetTitle(error.Type),
+        Detail = error.Description,
+        Extensions = new Dictionary<string, object?> { ["errors"] = new[] { error } }
+    };
 
     private static int GetStatusCode(ErrorType errorType) => errorType switch
     {

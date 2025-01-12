@@ -1,9 +1,11 @@
-﻿using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Extensions;
+using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Kijk.Api.Modules.Users;
 
-sealed file record GetMeUserResponse(
+public record GetMeUserResponse(
     Guid Id,
     string? AuthId,
     string? Name,
@@ -31,44 +33,37 @@ public static class GetMeUser
     /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>A loaded User from database.</returns>
-    private static async Task<IResult> Handle(AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<GetMeUserResponse>, ProblemHttpResult>> Handle(AppDbContext dbContext, CurrentUser currentUser,
+        CancellationToken cancellationToken)
     {
-        try
-        {
-            var userEntity = await dbContext.Users
-                .Include(x => x.Accounts)
-                .ThenInclude(x => x.Transactions)
-                .Include(x => x.Categories)
-                .Include(x => x.Budgets)
-                .Include(x => x.UserHouseholds)
-                .ThenInclude(x => x.Household)
-                .Where(x => x.Id == currentUser.Id)
-                .AsNoTracking()
-                .AsSplitQuery()
-                .FirstOrDefaultAsync(cancellationToken);
+        var userEntity = await dbContext.Users
+            .Include(x => x.Accounts)
+            .ThenInclude(x => x.Transactions)
+            .Include(x => x.Categories)
+            .Include(x => x.Budgets)
+            .Include(x => x.UserHouseholds)
+            .ThenInclude(x => x.Household)
+            .Where(x => x.Id == currentUser.Id)
+            .AsNoTracking()
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(cancellationToken);
 
-            if (userEntity is null)
-            {
-                Logger.Warning("Error: User not found");
-                return TypedResults.NotFound("User not found");
-            }
-
-            var response = new GetMeUserResponse(
-                userEntity.Id,
-                userEntity.AuthId,
-                userEntity.Name,
-                userEntity.Email,
-                userEntity.FirstTime,
-                userEntity.UserHouseholds.Select(UserHouseholdDto.Create),
-                userEntity.Budgets.Select(BudgetDto.Create),
-                userEntity.Accounts.Select(AccountDto.Create),
-                userEntity.Categories.Select(CategoryDto.Create));
-            return TypedResults.Ok(response);
-        }
-        catch (Exception e)
+        if (userEntity is null)
         {
-            Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(e.Message);
+            Logger.Warning("Error: User not found");
+            return TypedResults.Problem(Error.NotFound("User not found").ToProblemDetails());
         }
+
+        var response = new GetMeUserResponse(
+            userEntity.Id,
+            userEntity.AuthId,
+            userEntity.Name,
+            userEntity.Email,
+            userEntity.FirstTime,
+            userEntity.UserHouseholds.Select(UserHouseholdDto.Create),
+            userEntity.Budgets.Select(BudgetDto.Create),
+            userEntity.Accounts.Select(AccountDto.Create),
+            userEntity.Categories.Select(CategoryDto.Create));
+        return TypedResults.Ok(response);
     }
 }

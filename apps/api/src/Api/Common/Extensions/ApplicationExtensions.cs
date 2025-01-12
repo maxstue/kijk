@@ -45,7 +45,7 @@ public static class ApplicationExtensions
                 .WithOpenApiRoutePattern("/{documentName}.json")
                 .WithEndpointPrefix("/{documentName}")
                 .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-            
+
             options.Favicon = "favicon.svg";
             options.Authentication = new ScalarAuthenticationOptions
             {

@@ -13,8 +13,6 @@ public class RecurringTransactionConfig : IEntityTypeConfiguration<RecurringTran
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(250);
 
-        // builder.Property(x => x.Frequency).HasConversion<string>();
-
         builder.HasOne(x => x.LastTransaction)
             .WithOne()
             .HasForeignKey<Transaction>(x => x.RecurringTransactionId)

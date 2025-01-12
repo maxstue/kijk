@@ -46,7 +46,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
             currentUser.User = new SimpleAuthUser(
                 Guid.NewGuid(),
                 extAuthId,
-                Guid.Empty,
+                null,
                 AppConstants.CreateUserIdentifier,
                 email,
                 true);
@@ -58,7 +58,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
             return (false, $"User for id '{extAuthId}' was not found");
         }
 
-        if (userEntity.HouseholdId == Guid.Empty)
+        if (userEntity.HouseholdId is null)
         {
             return (false, "User has no household");
         }

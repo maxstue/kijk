@@ -2,6 +2,7 @@ using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Models;
 using Kijk.Api.Domain.Entities;
 using Kijk.Api.Persistence;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Kijk.Api.Modules.Energies;
 
@@ -29,65 +30,53 @@ public class CreateEnergyValidator : AbstractValidator<CreateEnergyRequest>
 
 public static class CreateEnergy
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(CreateEnergy));
-
     public static RouteGroupBuilder MapCreateEnergy(this RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPost("/", Handle)
-            .WithRequestValidation<CreateEnergyRequest>()
-            .Produces<TransactionDto>()
-            .Produces<List<Error>>(StatusCodes.Status404NotFound)
-            .Produces<List<Error>>(StatusCodes.Status400BadRequest);
+            .WithRequestValidation<CreateEnergyRequest>();
 
         return groupBuilder;
     }
 
-    private static async Task<IResult> Handle(CreateEnergyRequest createEnergyRequest, AppDbContext dbContext,
+    private static async Task<Results<Ok<CreateEnergyResponse>, ProblemHttpResult>> Handle(CreateEnergyRequest createEnergyRequest,
+        AppDbContext dbContext,
         CurrentUser currentUser, CancellationToken cancellationToken)
     {
-        try
+        var household = await dbContext.Households
+            .Include(x => x.Energies)
+            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
+
+        if (household is null)
         {
-            var household = await dbContext.Households
-                .Include(x => x.Energies)
-                .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
-
-            if (household is null)
-            {
-                return TypedResults.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
-            }
-
-            var foundEnergy = await dbContext.Energy
-                .FirstOrDefaultAsync(x => x.Date.Date == TimeProvider.System.GetUtcNow().DateTime.Date, cancellationToken);
-            if (foundEnergy is not null)
-            {
-                return TypedResults.Conflict(
-                    $"Energy consumption for the given date '{TimeProvider.System.GetUtcNow().DateTime.Date}' already exists");
-            }
-
-
-            var energy = Energy.Create(
-                createEnergyRequest.Name,
-                createEnergyRequest.Type,
-                createEnergyRequest.Value,
-                household.Id,
-                createEnergyRequest.Date
-            );
-
-            dbContext.Energy.Add(energy);
-            await dbContext.SaveChangesAsync(cancellationToken);
-
-            return TypedResults.Ok(new CreateEnergyResponse(
-                energy.Id,
-                energy.Name,
-                energy.Value,
-                energy.Type,
-                energy.Date
-            ));
+            return TypedResults.Problem(Error.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found").ToProblemDetails());
         }
-        catch (Exception e)
+
+        var foundEnergy = await dbContext.Energy
+            .FirstOrDefaultAsync(x => x.Date.Date == TimeProvider.System.GetUtcNow().DateTime.Date, cancellationToken);
+        if (foundEnergy is not null)
         {
-            Logger.Error(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(e.Message);
+            return TypedResults.Problem(Error
+                .Validation($"Energy consumption for the given date '{TimeProvider.System.GetUtcNow().DateTime.Date}' already exists")
+                .ToProblemDetails());
         }
+
+        var energy = Energy.Create(
+            createEnergyRequest.Name,
+            createEnergyRequest.Type,
+            createEnergyRequest.Value,
+            household.Id,
+            createEnergyRequest.Date
+        );
+
+        dbContext.Energy.Add(energy);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return TypedResults.Ok(new CreateEnergyResponse(
+            energy.Id,
+            energy.Name,
+            energy.Value,
+            energy.Type,
+            energy.Date
+        ));
     }
 }

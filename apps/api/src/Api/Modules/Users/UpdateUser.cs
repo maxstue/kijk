@@ -1,11 +1,13 @@
-﻿using Kijk.Api.Common.Models;
+﻿using Kijk.Api.Common.Extensions;
+using Kijk.Api.Common.Models;
 using Kijk.Api.Persistence;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Kijk.Api.Modules.Users;
 
 public record UpdateUserRequest(string? UserName, bool? UseDefaultCategories);
 
-sealed file record UserUpdateResponse(
+public record UserUpdateResponse(
     Guid Id,
     string? AuthId,
     string? Name,
@@ -31,55 +33,47 @@ public static class UpdateUser
     /// <param name="cancellationToken"></param>
     /// <param name="dbContext"></param>
     /// <returns>A loaded User from database.</returns>
-    private static async Task<IResult> Handle(
+    private static async Task<Results<Ok<UserUpdateResponse>, ProblemHttpResult>> Handle(
         UpdateUserRequest userUpdateRequest,
         AppDbContext dbContext,
         CurrentUser currentUser,
         CancellationToken cancellationToken)
     {
-        try
+        var userEntity = await dbContext.Users
+            .Include(x => x.Categories)
+            .Where(x => x.Id == currentUser.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (userEntity is null)
         {
-            var userEntity = await dbContext.Users
-                .Include(x => x.Categories)
-                .Where(x => x.Id == currentUser.Id)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (userEntity is null)
-            {
-                Logger.Warning("Error: User not found");
-                return TypedResults.NotFound("Error: User not found");
-            }
-
-            if (userUpdateRequest.UserName is null)
-            {
-                Logger.Warning("User name is null");
-                return TypedResults.BadRequest("User name is null");
-            }
-
-            userEntity.FirstTime = false;
-            userEntity.Name = userUpdateRequest.UserName;
-
-            var defaultCategories = await dbContext.Categories
-                .Where(x => x.CreatorType == CategoryCreatorType.Default)
-                .ToListAsync(cancellationToken);
-            userEntity.SetDefaultCategories(userUpdateRequest.UseDefaultCategories, defaultCategories);
-
-            await dbContext.SaveChangesAsync(cancellationToken);
-
-            var response = new UserUpdateResponse(
-                userEntity.Id,
-                userEntity.AuthId,
-                userEntity.Name,
-                userEntity.Email,
-                userEntity.FirstTime,
-                userUpdateRequest.UseDefaultCategories);
-
-            return TypedResults.Ok(response);
+            Logger.Warning("Error: User not found");
+            return TypedResults.Problem(Error.NotFound("User not found").ToProblemDetails());
         }
-        catch (Exception e)
+
+        if (userUpdateRequest.UserName is null)
         {
-            Logger.Warning(e, "Error: {Error}", e.Message);
-            return TypedResults.BadRequest(e.Message);
+            Logger.Warning("User name is null");
+            return TypedResults.Problem(Error.Unexpected("User name is null").ToProblemDetails());
         }
+
+        userEntity.FirstTime = false;
+        userEntity.Name = userUpdateRequest.UserName;
+
+        var defaultCategories = await dbContext.Categories
+            .Where(x => x.CreatorType == CategoryCreatorType.Default)
+            .ToListAsync(cancellationToken);
+        userEntity.SetDefaultCategories(userUpdateRequest.UseDefaultCategories, defaultCategories);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var response = new UserUpdateResponse(
+            userEntity.Id,
+            userEntity.AuthId,
+            userEntity.Name,
+            userEntity.Email,
+            userEntity.FirstTime,
+            userUpdateRequest.UseDefaultCategories);
+
+        return TypedResults.Ok(response);
     }
 }

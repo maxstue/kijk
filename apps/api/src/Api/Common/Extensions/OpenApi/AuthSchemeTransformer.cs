@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 
-namespace Kijk.Api.Common.Extensions;
+namespace Kijk.Api.Common.Extensions.OpenApi;
 
 /// <summary>
 /// Schema transformer for the OpenApi document to add the Oauth2 (Bearer) authentication.
 /// </summary>
 /// <param name="authenticationSchemeProvider"></param>
-public sealed class BearerAuthSchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
+public sealed class AuthSchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
 {
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {

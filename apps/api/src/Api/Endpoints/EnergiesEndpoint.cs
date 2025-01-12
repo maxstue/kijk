@@ -10,6 +10,7 @@ public static class EnergiesEndpoint
             .WithTags("Energies");
 
         group.MapGetByEnergy()
+            .MapGetYearsFromEnergies()
             .MapGetByIdEnergy()
             .MapCreateEnergy()
             .MapUpdateEnergy()

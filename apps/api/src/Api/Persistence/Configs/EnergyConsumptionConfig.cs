@@ -13,7 +13,5 @@ public class EnergyConsumptionConfig : IEntityTypeConfiguration<Energy>
 
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(250);
-
-        // builder.Property(x => x.Type).HasConversion<string>();
     }
 }

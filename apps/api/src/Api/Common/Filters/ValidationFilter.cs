@@ -15,7 +15,7 @@ public class ValidationFilter<T>(IValidator<T> validator) : IEndpointFilter wher
                 .Select(x => Error.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
                 .FirstOrDefault()
                 .ToProblemDetails();
-            return TypedResults.BadRequest(problemDetails);
+            return TypedResults.Problem(problemDetails);
         }
 
         return await next.Invoke(context);
