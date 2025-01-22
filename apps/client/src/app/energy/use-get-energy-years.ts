@@ -3,7 +3,7 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { getYears } from '@/shared/api/energy';
 
 export const getEnergyYearsQuery = queryOptions({
-  queryKey: ['energy', 'years'],
+  queryKey: ['energies', 'years'],
   queryFn: ({ signal }) => getYears(signal),
 });
 

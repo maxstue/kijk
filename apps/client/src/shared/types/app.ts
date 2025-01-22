@@ -100,3 +100,21 @@ export interface User_Metadata {
 export const COOKIE_CONSENT_KEY = 'cookie_consent';
 
 export type CookieConsent = 'yes' | 'no' | 'undecided';
+
+export interface Energy {
+  id: string;
+  name: string;
+  description: Optional<string>;
+  value: number;
+  type: EnergyType;
+  date: string;
+  householdId: string;
+}
+
+export const EnergyTypes = {
+  ELECTRICITY: 'Electricity',
+  GAS: 'Gas',
+  WATER: 'Water',
+} as const;
+
+export type EnergyType = (typeof EnergyTypes)[keyof typeof EnergyTypes];

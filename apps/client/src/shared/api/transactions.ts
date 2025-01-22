@@ -24,7 +24,7 @@ export function getYears(signal?: AbortSignal) {
  * @param signal The signal
  * @returns The list of transactions
  */
-export function getTransactionById(year?: string, month?: string, signal?: AbortSignal) {
+export function getTransactionBy(year?: string, month?: string, signal?: AbortSignal) {
   return apiClient.get<Transaction[]>({
     url: ENDPOINT,
     params: { year, month },

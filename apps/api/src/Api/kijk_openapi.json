@@ -715,7 +715,7 @@
           "Conflict",
           "Unexpected"
         ],
-        "default": "<Error placeholder>"
+        "default": "<Type placeholder>"
       },
       "Error": {
         "type": "object",

@@ -1,12 +1,14 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Leaf, List, TrendingUp } from 'lucide-react';
+import { Leaf, List, Plus, TrendingUp } from 'lucide-react';
 import { z } from 'zod';
 
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { getTransactionsQuery } from '@/app/budget/use-get-transactions-by';
+import { EnergyCreateForm } from '@/app/energy/energy-create-form';
+import { EnergyMonthNav } from '@/app/energy/energy-month-nav';
+import { EnergyMonthTable } from '@/app/energy/energy-month-table';
 import { EnergyTodayButton } from '@/app/energy/energy-today-button';
-import { EnergyMonthNav } from '@/app/energy/energy-year-nav';
 import { EnergyYearSwitcher } from '@/app/energy/energy-year-switcher';
 import { Head } from '@/shared/components/head';
 import { NotFound } from '@/shared/components/not-found';
@@ -70,20 +72,10 @@ function EnergyPage() {
       <div className='space-y-6 pt-10'>
         <div className='space-y-0.5'>
           <h2 className='text-2xl font-bold tracking-tight'>Energy</h2>
-          <p className='text-muted-foreground'>Manage your monthly energy consumption</p>
+          <p className='text-muted-foreground'>Manage your monthly energy usage</p>
         </div>
         <Separator className='my-6' />
-        {/* Sidebar */}
         <div className='flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <aside className='flex h-full flex-col gap-4 lg:min-w-[20%]'>
-            <EnergyTodayButton />
-            <Suspense fallback={<AsyncLoader />}>
-              <EnergyYearSwitcher />
-            </Suspense>
-            <Suspense fallback={<AsyncLoader />}>
-              <EnergyMonthNav />
-            </Suspense>
-          </aside>
           {/* Content */}
           <div className='flex-1'>
             <div className='flex flex-col space-y-4'>
@@ -112,16 +104,29 @@ function EnergyPage() {
 
               <div className='flex w-full justify-end'>
                 <Sheet open={showSheet} onOpenChange={setShowSheet}>
-                  <SheetTrigger asChild>
-                    <Button variant='outline'>Add Consumption</Button>
-                  </SheetTrigger>
+                  <div className='flex w-full justify-between'>
+                    <div className='flex w-1/3 justify-start gap-4'>
+                      <EnergyTodayButton />
+                      <Suspense fallback={<AsyncLoader />}>
+                        <EnergyYearSwitcher />
+                      </Suspense>
+                      <Suspense fallback={<AsyncLoader />}>
+                        <EnergyMonthNav />
+                      </Suspense>
+                    </div>
+                    <SheetTrigger asChild>
+                      <Button variant='outline'>
+                        Add <Plus />
+                      </Button>
+                    </SheetTrigger>
+                  </div>
                   <SheetContent className='space-y-8'>
                     <SheetHeader>
                       <SheetTitle>Add Consumption</SheetTitle>
                       <SheetDescription>Add a new consumption.</SheetDescription>
                     </SheetHeader>
                     <Suspense>
-                      <TransactionCreateForm
+                      <EnergyCreateForm
                         month={searchParameters.month}
                         year={searchParameters.year}
                         onClose={handleClose}
@@ -138,7 +143,9 @@ function EnergyPage() {
                     <List className='h-4 w-4 text-muted-foreground' />
                   </CardHeader>
                   <CardContent className='h-[calc(100dvh_*_0.4)]'>
-                    <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>{/* <EnergyMonthTable /> */}</Suspense>
+                    <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
+                      <EnergyMonthTable />
+                    </Suspense>
                   </CardContent>
                 </Card>
               </div>

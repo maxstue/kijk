@@ -52,11 +52,11 @@ public static class CreateEnergy
         }
 
         var foundEnergy = await dbContext.Energy
-            .FirstOrDefaultAsync(x => x.Date.Date == TimeProvider.System.GetUtcNow().DateTime.Date, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Date.Date == createEnergyRequest.Date.Date && x.Type == createEnergyRequest.Type, cancellationToken);
         if (foundEnergy is not null)
         {
             return TypedResults.Problem(Error
-                .Validation($"Energy consumption for the given date '{TimeProvider.System.GetUtcNow().DateTime.Date}' already exists")
+                .Validation($"Energy consumption for the given date '{createEnergyRequest.Date.Date}' already exists")
                 .ToProblemDetails());
         }
 
