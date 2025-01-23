@@ -23,6 +23,7 @@ public class RecurringTransactions : BaseEntity
     public Guid HouseholdId { get; set; }
 
     public Guid? LastTransactionId { get; set; }
+
     // Link to the actual transaction if already processed
     public Transaction? LastTransaction { get; set; }
 
@@ -33,26 +34,4 @@ public class RecurringTransactions : BaseEntity
 
     // Last account used for the recurring payment
     public required Account Account { get; set; }
-
-    public static RecurringTransactions Create(
-        string name,
-        decimal amount,
-        DateOnly startDate,
-        User user,
-        Account account,
-        Guid householdId,
-        Frequency frequency,
-        DateOnly? endDate = default) => new()
-        {
-            Id = Guid.NewGuid(),
-            Name = name,
-            User = user,
-            Account = account,
-            Amount = amount,
-            TotalSpend = 0,
-            StartDate = startDate,
-            EndDate = endDate,
-            Frequency = frequency,
-            HouseholdId = householdId
-        };
 }

@@ -16,28 +16,4 @@ public sealed class EnergyLimit : BaseEntity
     public required User CreatedBy { get; set; }
 
     public Guid HouseholdId { get; set; }
-
-    public static EnergyLimit Create(
-        string name,
-        decimal limit,
-        decimal actualValue,
-        bool active,
-        EnergyType type,
-        DateTime lastOccurrence,
-        User createdBy,
-        Guid householdId,
-        string? description = default) => new()
-        {
-            Id = Guid.NewGuid(),
-            Name = name,
-            Description = description,
-            Limit = limit,
-            ActualValue = actualValue,
-            Active = active,
-            Type = type,
-            LastOccurrence = lastOccurrence,
-            CreatedBy = createdBy,
-            HouseholdId = householdId
-        };
-
 }
