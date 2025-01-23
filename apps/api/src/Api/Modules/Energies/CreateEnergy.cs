@@ -52,12 +52,12 @@ public static class CreateEnergy
         }
 
         var foundEnergy = await dbContext.Energy
-            .FirstOrDefaultAsync(x => x.Date.Month == createEnergyRequest.Date.Month && x.Date.Year == createEnergyRequest.Date.Year &&
-                                      x.Type == createEnergyRequest.Type, cancellationToken);
+            .FilterByMonthYearAndType(createEnergyRequest.Date.Month, createEnergyRequest.Date.Year, createEnergyRequest.Type)
+            .FirstOrDefaultAsync(cancellationToken);
         if (foundEnergy is not null)
         {
-            return TypedResults.Problem(Error.Validation(
-                    $"You already added an '{createEnergyRequest.Type.ToStringFast()}' usage for this month '{createEnergyRequest.Date.Month}' and year '{createEnergyRequest.Date.Year}'")
+            return TypedResults.Problem(Error
+                .Validation($"Energy usage for '{createEnergyRequest.Type}' already exists for {createEnergyRequest.Date:MMMM yyyy}")
                 .ToProblemDetails());
         }
 
@@ -80,4 +80,7 @@ public static class CreateEnergy
             energy.Date
         ));
     }
+
+    private static IQueryable<Energy> FilterByMonthYearAndType(this IQueryable<Energy> query, int month, int year, EnergyType type) =>
+        query.Where(x => x.Date.Month == month && x.Date.Year == year && x.Type == type);
 }
