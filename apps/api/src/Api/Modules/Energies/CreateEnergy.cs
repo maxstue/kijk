@@ -52,11 +52,12 @@ public static class CreateEnergy
         }
 
         var foundEnergy = await dbContext.Energy
-            .FirstOrDefaultAsync(x => x.Date.Date == createEnergyRequest.Date.Date && x.Type == createEnergyRequest.Type, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Date.Month == createEnergyRequest.Date.Month && x.Date.Year == createEnergyRequest.Date.Year &&
+                                      x.Type == createEnergyRequest.Type, cancellationToken);
         if (foundEnergy is not null)
         {
-            return TypedResults.Problem(Error
-                .Validation($"Energy consumption for the given date '{createEnergyRequest.Date.Date}' already exists")
+            return TypedResults.Problem(Error.Validation(
+                    $"You already added an '{createEnergyRequest.Type.ToStringFast()}' usage for this month '{createEnergyRequest.Date.Month}' and year '{createEnergyRequest.Date.Year}'")
                 .ToProblemDetails());
         }
 
