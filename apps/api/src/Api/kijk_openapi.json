@@ -696,6 +696,49 @@
           }
         ]
       }
+    },
+    "/api/energies/stats": {
+      "get": {
+        "tags": [
+          "Energies"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergyStatsTypeResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1074,6 +1117,77 @@
           "date": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "EnergyStatsResponse": {
+        "required": [
+          "monthTotal",
+          "yearTotal",
+          "yearAverage",
+          "yearMin",
+          "yearMax",
+          "comparisonYear",
+          "comparisonYearDiff",
+          "comparisonMonth",
+          "comparisonMonthDiff"
+        ],
+        "type": "object",
+        "properties": {
+          "monthTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "yearTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "yearAverage": {
+            "type": "number",
+            "format": "double"
+          },
+          "yearMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "yearMax": {
+            "type": "number",
+            "format": "double"
+          },
+          "comparisonYear": {
+            "type": "number",
+            "format": "double"
+          },
+          "comparisonYearDiff": {
+            "type": "number",
+            "format": "double"
+          },
+          "comparisonMonth": {
+            "type": "number",
+            "format": "double"
+          },
+          "comparisonMonthDiff": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "EnergyStatsTypeResponse": {
+        "required": [
+          "electricity",
+          "gas",
+          "water"
+        ],
+        "type": "object",
+        "properties": {
+          "electricity": {
+            "$ref": "#/components/schemas/EnergyStatsResponse"
+          },
+          "gas": {
+            "$ref": "#/components/schemas/EnergyStatsResponse"
+          },
+          "water": {
+            "$ref": "#/components/schemas/EnergyStatsResponse"
           }
         }
       },
