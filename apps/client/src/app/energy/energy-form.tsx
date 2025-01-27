@@ -1,12 +1,22 @@
 import { PropsWithChildren } from 'react';
-import { ControllerRenderProps, SubmitErrorHandler, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import {
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValue,
+  FieldValues,
+  SubmitErrorHandler,
+  SubmitHandler,
+  UseFormReturn,
+  UseFormStateReturn,
+  useWatch,
+} from 'react-hook-form';
 
 import { EnergyFormSchema } from '@/app/energy/schemas';
 import { DatePicker } from '@/shared/components/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { Input } from '@/shared/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
-import { EnergyTypes } from '@/shared/types/app';
+import { EnergyType, EnergyTypes } from '@/shared/types/app';
 
 interface Props extends PropsWithChildren {
   form: UseFormReturn<EnergyFormSchema>;
@@ -39,13 +49,21 @@ function NameField({ field }: { field: ControllerRenderProps<EnergyFormSchema, '
 }
 
 function ValueField({ field }: { field: ControllerRenderProps<EnergyFormSchema, 'value'> }) {
-  // TODO show ending for energy type
-  // water m^3, electricity kWh, gas m^3
+  const type = useWatch<EnergyFormSchema, 'type'>({ name: 'type' });
+  const unit =
+    type === EnergyTypes.ELECTRICITY ? (
+      <span className='text-md font-normal text-muted-foreground'>kWh</span>
+    ) : (
+      <span className='text-md font-normal text-muted-foreground'>
+        m<sup>3</sup>
+      </span>
+    );
+
   return (
     <FormItem>
-      <FormLabel>Amount</FormLabel>
+      <FormLabel>Amount ({unit})</FormLabel>
       <FormControl>
-        <Input placeholder='Value' type='number' {...field} onChange={field.onChange} />
+        <Input placeholder='Value in kWh' type='number' {...field} onChange={field.onChange} />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -77,7 +95,9 @@ function DateField({ field }: { field: ControllerRenderProps<EnergyFormSchema, '
   return (
     <FormItem>
       <FormLabel>Date</FormLabel>
-      <DatePicker date={field.value} setDate={field.onChange} {...field} />
+      <FormControl>
+        <DatePicker date={field.value} setDate={field.onChange} {...field} />
+      </FormControl>
       <FormMessage />
     </FormItem>
   );

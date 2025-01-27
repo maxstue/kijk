@@ -1,7 +1,7 @@
 import { EnergyFormSchema } from '@/app/energy/schemas';
 import { apiClient } from '@/shared/lib/api-client';
 import type { Years } from '@/app/budget/types';
-import type { Energy } from '@/shared/types/app';
+import type { Energy, EnergyStatsType } from '@/shared/types/app';
 
 const ENDPOINT = 'energies';
 
@@ -26,6 +26,22 @@ export function getYears(signal?: AbortSignal) {
 export function getEnergyBy(year?: string, month?: string, signal?: AbortSignal) {
   return apiClient.get<Energy[]>({
     url: ENDPOINT,
+    params: { year, month },
+    signal,
+  });
+}
+
+/**
+ * Get stats for the energy usage.
+ *
+ * @param year The year of the energy
+ * @param month The month of the energy
+ * @param signal The signal
+ * @returns The list of energy
+ */
+export function getEnergyStats(year?: string, month?: string, signal?: AbortSignal) {
+  return apiClient.get<EnergyStatsType>({
+    url: `${ENDPOINT}/stats`,
     params: { year, month },
     signal,
   });

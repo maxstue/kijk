@@ -18,6 +18,7 @@ export const useCreateEnergy = () => {
           months[variables.newEnergy.date.getMonth()],
         ],
       });
+      await queryClient.invalidateQueries({ queryKey: ['energies', 'stats'] });
     },
   });
 };

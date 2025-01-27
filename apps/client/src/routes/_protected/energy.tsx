@@ -1,13 +1,13 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { Leaf, List, Plus, TrendingUp } from 'lucide-react';
+import { List, Plus } from 'lucide-react';
 import { z } from 'zod';
 
-import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { getTransactionsQuery } from '@/app/budget/use-get-transactions-by';
 import { EnergyCreateForm } from '@/app/energy/energy-create-form';
 import { EnergyMonthNav } from '@/app/energy/energy-month-nav';
 import { EnergyMonthTable } from '@/app/energy/energy-month-table';
+import EnergyStats from '@/app/energy/energy-stats';
 import { EnergyTodayButton } from '@/app/energy/energy-today-button';
 import { EnergyYearSwitcher } from '@/app/energy/energy-year-switcher';
 import { Head } from '@/shared/components/head';
@@ -79,28 +79,9 @@ function EnergyPage() {
           {/* Content */}
           <div className='flex-1'>
             <div className='flex flex-col space-y-4'>
-              <div className='grid gap-4 lg:grid-cols-2'>
-                <Card>
-                  <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Consumption</CardTitle>
-                    <TrendingUp className='h-4 w-4 text-muted-foreground' />
-                  </CardHeader>
-                  <CardContent>
-                    <div className='text-2xl font-bold'>156,78 Kwh</div>
-                    <p className='text-xs text-muted-foreground'>+1.8% from last month</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Year Overview</CardTitle>
-                    <Leaf className='h-4 w-4 text-muted-foreground' />
-                  </CardHeader>
-                  <CardContent>
-                    <div className='text-2xl font-bold'>901,78 Kwh</div>
-                    <p className='text-xs text-muted-foreground'>+2.7% from last year</p>
-                  </CardContent>
-                </Card>
-              </div>
+              <Suspense fallback={<AsyncLoader />}>
+                <EnergyStats />
+              </Suspense>
 
               <div className='flex w-full justify-end'>
                 <Sheet open={showSheet} onOpenChange={setShowSheet}>

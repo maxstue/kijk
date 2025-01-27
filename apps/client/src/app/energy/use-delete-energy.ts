@@ -10,6 +10,7 @@ export const useDeleteEnergy = () => {
     mutationFn: (data: { id: string; year?: number; month?: Months }) => deleteEnergy(data.id),
     async onSuccess(_, variables) {
       await queryClient.invalidateQueries({ queryKey: ['energies', 'getBy', variables.year, variables.month] });
+      await queryClient.invalidateQueries({ queryKey: ['energies', 'stats'] });
     },
   });
 };

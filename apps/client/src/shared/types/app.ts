@@ -111,6 +111,24 @@ export interface Energy {
   householdId: string;
 }
 
+export interface EnergyStatsType {
+  electricity: EnergyStats;
+  gas: EnergyStats;
+  water: EnergyStats;
+}
+
+export interface EnergyStats {
+  monthTotal: number;
+  yearTotal: number;
+  yearAverage: number;
+  yearMin: number;
+  yearMax: number;
+  comparisonYear: number;
+  comparisonYearDiff: number;
+  comparisonMonth: number;
+  comparisonMonthDiff: number;
+}
+
 export const EnergyTypes = {
   ELECTRICITY: 'Electricity',
   GAS: 'Gas',

@@ -26,7 +26,7 @@ export function EnergyMonthNav({ className }: Props) {
 
   const navigate = Route.useNavigate();
 
-  const selectedYear = searchParameters.month;
+  const selectedMonth = searchParameters.month;
 
   const handleSelectMonth = (month: string) => {
     setOpen(false);
@@ -43,7 +43,7 @@ export function EnergyMonthNav({ className }: Props) {
           role='combobox'
           variant='outline'
         >
-          {selectedYear}
+          {selectedMonth}
           <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
@@ -63,7 +63,7 @@ export function EnergyMonthNav({ className }: Props) {
                     }}
                   >
                     {m}
-                    <Check className={cn('ml-auto h-4 w-4', selectedYear === m ? 'opacity-100' : 'opacity-0')} />
+                    <Check className={cn('ml-auto h-4 w-4', selectedMonth === m ? 'opacity-100' : 'opacity-0')} />
                   </CommandItem>
                 ))}
               </CommandGroup>
