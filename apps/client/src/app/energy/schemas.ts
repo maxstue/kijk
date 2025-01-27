@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { EnergyTypes, TransactionType } from '@/shared/types/app';
+import { EnergyTypes } from '@/shared/types/app';
 
 export const energySchema = z.object({
   name: z.string().min(2, {

@@ -4,6 +4,7 @@ import { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 
+import EnergyUnit from '@/app/energy/energy-unit';
 import { useGetEnergiesBy } from '@/app/energy/use-get-energy-by';
 import { DataTable } from '@/shared/components/data-table';
 import { Badge } from '@/shared/components/ui/badge';
@@ -85,10 +86,12 @@ const columns: Array<ColumnDef<Energy>> = [
     },
     cell: ({ row }) => {
       const type = row.original.type;
-      // TODO show ending for energy type
-      // water m^3, electricity kWh, gas m^3
 
-      return <div>{row.getValue('value')}</div>;
+      return (
+        <div>
+          {row.getValue('value')} {<EnergyUnit type={type} />}
+        </div>
+      );
     },
   },
   {
@@ -114,6 +117,7 @@ const columns: Array<ColumnDef<Energy>> = [
       return <div className={cn('text-right font-medium')}>{formattedDate}</div>;
     },
   },
+  // TODO: Implement actions
   // {
   //   id: 'actions',
   //   cell: ({ row }) => <BudgetListActions row={row} />,

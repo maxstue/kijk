@@ -1,22 +1,13 @@
 import { PropsWithChildren } from 'react';
-import {
-  ControllerFieldState,
-  ControllerRenderProps,
-  FieldValue,
-  FieldValues,
-  SubmitErrorHandler,
-  SubmitHandler,
-  UseFormReturn,
-  UseFormStateReturn,
-  useWatch,
-} from 'react-hook-form';
+import { ControllerRenderProps, SubmitErrorHandler, SubmitHandler, UseFormReturn, useWatch } from 'react-hook-form';
 
+import EnergyUnit from '@/app/energy/energy-unit';
 import { EnergyFormSchema } from '@/app/energy/schemas';
 import { DatePicker } from '@/shared/components/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { Input } from '@/shared/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
-import { EnergyType, EnergyTypes } from '@/shared/types/app';
+import { EnergyTypes } from '@/shared/types/app';
 
 interface Props extends PropsWithChildren {
   form: UseFormReturn<EnergyFormSchema>;
@@ -50,18 +41,12 @@ function NameField({ field }: { field: ControllerRenderProps<EnergyFormSchema, '
 
 function ValueField({ field }: { field: ControllerRenderProps<EnergyFormSchema, 'value'> }) {
   const type = useWatch<EnergyFormSchema, 'type'>({ name: 'type' });
-  const unit =
-    type === EnergyTypes.ELECTRICITY ? (
-      <span className='text-md font-normal text-muted-foreground'>kWh</span>
-    ) : (
-      <span className='text-md font-normal text-muted-foreground'>
-        m<sup>3</sup>
-      </span>
-    );
 
   return (
     <FormItem>
-      <FormLabel>Amount ({unit})</FormLabel>
+      <FormLabel>
+        Amount (<EnergyUnit type={type} />)
+      </FormLabel>
       <FormControl>
         <Input placeholder='Value in kWh' type='number' {...field} onChange={field.onChange} />
       </FormControl>

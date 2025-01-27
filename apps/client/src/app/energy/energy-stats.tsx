@@ -1,8 +1,10 @@
 import { getRouteApi } from '@tanstack/react-router';
-import { Droplet, Flame, Leaf, Sigma, TrendingUp, Zap } from 'lucide-react';
+import { Droplet, Flame, Sigma, Zap } from 'lucide-react';
 
+import EnergyUnit from '@/app/energy/energy-unit';
 import { useGetEnergyStats } from '@/app/energy/use-get-energy-stats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { EnergyTypes } from '@/shared/types/app';
 
 const Route = getRouteApi('/_protected/energy');
 
@@ -28,7 +30,7 @@ export default function EnergyStats() {
         </CardHeader>
         <CardContent>
           <div className='text-2xl font-bold'>
-            {electricity.monthTotal} <span className='text-md font-normal text-muted-foreground'>kWh</span>
+            {electricity.monthTotal} <EnergyUnit type={EnergyTypes.ELECTRICITY} />
           </div>
           <p className='text-xs text-muted-foreground'>{electricity.comparisonMonthDiff} from last month</p>
         </CardContent>
@@ -40,11 +42,7 @@ export default function EnergyStats() {
         </CardHeader>
         <CardContent>
           <div className='text-2xl font-bold'>
-            {water.monthTotal}{' '}
-            <span className='text-md font-normal text-muted-foreground'>
-              {' '}
-              m<sup>3</sup>
-            </span>
+            {water.monthTotal} <EnergyUnit type={EnergyTypes.WATER} />
           </div>
           <p className='text-xs text-muted-foreground'>{water.comparisonMonthDiff} from last month</p>
         </CardContent>
@@ -56,11 +54,7 @@ export default function EnergyStats() {
         </CardHeader>
         <CardContent>
           <div className='text-2xl font-bold'>
-            {gas.monthTotal}{' '}
-            <span className='text-md font-normal text-muted-foreground'>
-              {' '}
-              m<sup>3</sup>
-            </span>
+            {gas.monthTotal} <EnergyUnit type={EnergyTypes.GAS} />
           </div>
           <p className='text-xs text-muted-foreground'>{gas.comparisonMonthDiff} from last month</p>
         </CardContent>
@@ -75,27 +69,22 @@ export default function EnergyStats() {
           <div className='flex flex-row items-center space-x-4'>
             <Zap className='h-4 w-4 text-yellow-400' />
             <div className='text-xl font-bold'>
-              {electricity.yearTotal} <span className='text-md font-normal text-muted-foreground'>kWh</span>
+              {electricity.yearTotal}
+              <EnergyUnit type={EnergyTypes.ELECTRICITY} />
             </div>
           </div>
           <div className='flex flex-row items-center space-x-4'>
             <Droplet className='h-4 w-4 text-blue-400' />
             <div className='text-xl font-bold'>
               {water.yearTotal}
-              <span className='text-md font-normal text-muted-foreground'>
-                {' '}
-                m<sup>3</sup>
-              </span>
+              <EnergyUnit type={EnergyTypes.WATER} />
             </div>
           </div>
           <div className='flex flex-row items-center space-x-4'>
             <Flame className='h-4 w-4 text-orange-400' />
             <div className='text-xl font-bold'>
               {gas.yearTotal}
-              <span className='text-md font-normal text-muted-foreground'>
-                {' '}
-                m<sup>3</sup>
-              </span>
+              <EnergyUnit type={EnergyTypes.GAS} />
             </div>
           </div>
         </CardContent>
