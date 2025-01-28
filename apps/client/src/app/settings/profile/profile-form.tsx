@@ -24,8 +24,8 @@ export function ProfileForm() {
   const form = useZodForm({
     schema: userUpdateSchema,
     values: {
-      userName: userQuery.data?.data?.name ?? '',
-      useDefaultCategories: userQuery.data?.data?.useDefaultCategories ?? false,
+      userName: userQuery.data?.name ?? '',
+      useDefaultCategories: userQuery.data?.useDefaultCategories ?? false,
     },
     mode: 'onBlur',
   });
@@ -33,7 +33,7 @@ export function ProfileForm() {
   const { formState } = form;
 
   function onSubmit(data: UserUpdateFormValues) {
-    if (userQuery.data?.data?.id) {
+    if (userQuery.data?.id) {
       mutate(data, {
         onSuccess() {
           toast({

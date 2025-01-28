@@ -5,12 +5,11 @@ import { z } from 'zod';
 
 import { BudgetMonthCalendar } from '@/app/budget/budget-month-calender';
 import { BudgetMonthNav } from '@/app/budget/budget-month-nav';
-import { BudgetMonthOverview } from '@/app/budget/budget-month-table';
+import { BudgetMonthTable } from '@/app/budget/budget-month-table';
 import { BudgetTodayButton } from '@/app/budget/budget-today-button';
-import { BudgetYearCalenderCard } from '@/app/budget/budget-year-calender-card';
 import { BudgetYearSwitcher } from '@/app/budget/budget-year-switcher';
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
-import { getTransactionsQuery } from '@/app/budget/use-get-transations-by';
+import { getTransactionsQuery } from '@/app/budget/use-get-transactions-by';
 import { Head } from '@/shared/components/head';
 import { NotFound } from '@/shared/components/not-found';
 import { Button } from '@/shared/components/ui/button';
@@ -31,23 +30,21 @@ const searchSchema = z.object({
   month: z
     .string()
     .transform((x) => x as Months)
-    // eslint-disable-next-line unicorn/prefer-top-level-await
     .catch(months[new Date().getMonth()]!),
-  // eslint-disable-next-line unicorn/prefer-top-level-await
   year: z.number().catch(new Date().getFullYear()),
 });
 
 export const Route = createFileRoute('/_protected/budget')({
+  validateSearch: searchSchema,
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
-  loader: ({ deps: { month, year }, context: { queryClient } }) => {
-    return queryClient.ensureQueryData(getTransactionsQuery(year, month));
-  },
   preSearchFilters: [
     (search) => ({
       ...search,
     }),
   ],
-  validateSearch: searchSchema,
+  loader: ({ deps: { month, year }, context: { queryClient } }) => {
+    return queryClient.ensureQueryData(getTransactionsQuery(year, month));
+  },
   component: BudgetPage,
   notFoundComponent: NotFound,
   pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
@@ -92,10 +89,7 @@ function BudgetPage() {
           {/* Content */}
           <div className='flex-1'>
             <div className='flex flex-col space-y-4'>
-              <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-                <BudgetYearCalenderCard year={searchParameters.year} />
-              </Suspense>
-              <div className='grid h-72 gap-4 lg:grid-cols-2'>
+              <div className='grid gap-4 lg:grid-cols-2'>
                 <Card>
                   <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                     <CardTitle className='text-sm font-medium'>Balance</CardTitle>
@@ -148,7 +142,7 @@ function BudgetPage() {
                   </CardHeader>
                   <CardContent className='h-[calc(100dvh_*_0.4)]'>
                     <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-                      <BudgetMonthOverview />
+                      <BudgetMonthTable />
                     </Suspense>
                   </CardContent>
                 </Card>

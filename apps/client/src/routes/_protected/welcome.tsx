@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_protected/welcome')({
   beforeLoad: async () => {
     const data = await queryClient.ensureQueryData(userSignInQuery);
 
-    if (data.data?.firstTime == false) {
+    if (data?.firstTime == false) {
       throw redirect({ to: '/home' });
     }
   },

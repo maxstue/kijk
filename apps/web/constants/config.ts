@@ -3,7 +3,7 @@ import { Route } from 'next/types';
 export const siteConfig = {
   name: 'kijk',
   url: 'https://kijk-maxstue.vercel.app/',
-  email: 'mail:maxstue2304@gmail.com',
+  email: 'mail:kijk@justmax.xyz',
   docs_user: '/docs/user',
   docs_dev: '/docs/developer',
   description: 'Beautifully designed Budget book built with shadcn/ui and nextjs',

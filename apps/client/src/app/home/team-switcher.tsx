@@ -134,7 +134,7 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
           </Command>
         </PopoverContent>
       </Popover>
-      <DialogContent>
+      <DialogContent title='Create team'>
         <DialogHeader>
           <DialogTitle>Create team</DialogTitle>
           <DialogDescription>Add a new team to manage products and customers.</DialogDescription>

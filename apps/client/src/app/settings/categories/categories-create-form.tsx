@@ -33,8 +33,8 @@ export function CategoryCreateForm({ onClose }: Props) {
       {
         onError(error) {
           toast({
-            title: `${error.data?.at(0)?.code}: ${error.data?.at(0)?.message}`,
-            description: error.message,
+            title: `${error.title}`,
+            description: error.errors?.[0]?.description ?? 'An error occurred',
             variant: 'destructive',
           });
         },

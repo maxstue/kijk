@@ -11,7 +11,7 @@ import { cn } from '@/shared/lib/helpers';
 type Props = { resetErrorBoundary?: () => void } & Partial<ErrorComponentProps>;
 
 const handleGotToRoot = () => {
-  window.location.href = '/';
+  globalThis.location.href = '/';
 };
 
 export function AppError({ error, info, resetErrorBoundary }: Props) {

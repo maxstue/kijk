@@ -16,8 +16,7 @@
   "scripts": {
     "dev": "dotnet watch run --project Kijk.Api/Kijk.Api.csproj --launch-profile https",
     "build": "dotnet build \"Kijk.Api/Kijk.Api.csproj\" -c Release",
-    "lint": "dotnet format --verify-no-changes --verbosity detailed --exclude 'Kijk.Api/Persistence/Migrations/'",
-    "lint:fix": "dotnet format --exclude 'Kijk.Api/Persistence/Migrations/'",
-    "format": "dotnet format --verify-no-changes --verbosity detailed --exclude 'Kijk.Api/Persistence/Migrations/'"
+    "lint": "dotnet format --verify-no-changes --verbosity detailed --exclude '**/Migrations/'",
+    "lint:fix": "dotnet format --exclude '**/Migrations/'"
   }
 }

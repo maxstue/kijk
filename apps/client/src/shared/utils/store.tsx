@@ -1,24 +1,27 @@
 import { createContext, useContext, useState } from 'react';
 import { Draft } from 'immer';
-import { create, StoreApi } from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { StoreApi } from 'zustand/vanilla';
 
 import { env } from '@/shared/env';
 
 type ImmerSetter<T extends object> = (
-  nextStateOrUpdater: T | Partial<T> | ((state: Draft<T>) => void),
-  shouldReplace?: boolean | undefined,
+  nextStateOrUpdater:
+    | Exclude<T, (...args: unknown[]) => unknown>
+    | Partial<Exclude<T, (...args: unknown[]) => unknown>>
+    | ((state: Draft<Exclude<T, (...args: unknown[]) => unknown>>) => void),
+  shouldReplace?: false,
   actionType?:
     | string
     | {
         type: string;
-      }
-    | undefined,
+      },
 ) => void;
 
 /**
- * Creates a new zustand store with middlwares. middlewares: immer, devtools devtools are disabled in prod build
+ * Creates a new zustand store with middlewares. middlewares: immer, devtools devtools are disabled in prod build
  *
  * @param storeName The store name
  * @param store The zustand store

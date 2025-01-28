@@ -4,7 +4,7 @@ import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
 
-import { getYearsQuery, useGetYears } from '@/app/budget/use-get-years';
+import { getTransactionYearsQuery, useGetTransactionYears } from '@/app/budget/use-get-transaction-years';
 import { Button } from '@/shared/components/ui/button';
 import {
   Command,
@@ -42,11 +42,11 @@ export function BudgetYearSwitcher({ className }: YProps) {
   const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data } = useGetYears();
+  const { data } = useGetTransactionYears();
   const queryClient = useQueryClient();
 
-  const selectedYear = searchParameters.year ?? new Date().getFullYear() ?? data.data?.years.at(0);
-  const years = useMemo(() => data.data?.years ?? [], [data.data?.years]);
+  const selectedYear = searchParameters.year ?? new Date().getFullYear() ?? data?.years.at(0);
+  const years = useMemo(() => data?.years ?? [], [data?.years]);
 
   // add year from url to array if it doesn't exist
   useEffect(() => {
@@ -146,20 +146,15 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   const { toast } = useToast();
 
   function handleSubmit(data: YearFormValues) {
-    const response = queryClient.getQueryData(getYearsQuery.queryKey);
-    if (response?.data?.years.includes(data.year)) {
+    const response = queryClient.getQueryData(getTransactionYearsQuery.queryKey);
+    if (response?.years.includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
       return;
     }
 
-    queryClient.setQueryData(getYearsQuery.queryKey, (old) =>
-      old
-        ? {
-            ...old,
-            data: { years: [...(old.data?.years ?? []), data.year].sort((a, b) => b - a) },
-          }
-        : old,
-    );
+    queryClient.setQueryData(getTransactionYearsQuery.queryKey, (old) => ({
+      years: [...(old?.years ?? []), data.year].sort((a, b) => b - a),
+    }));
     navigate({ to: '/budget', search: (previous) => ({ ...previous, year: data.year }) });
     onClose();
   }
@@ -176,9 +171,9 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   }, [form]);
 
   return (
-    <DialogContent>
+    <DialogContent aria-description='add new year modal' title='Add new year'>
       <DialogHeader>
-        <DialogTitle>Add new Year</DialogTitle>
+        <DialogTitle>Add new year</DialogTitle>
         <DialogDescription>Add a new year to manage.</DialogDescription>
       </DialogHeader>
       <Form className='space-y-8' form={form} onInvalid={handleError} onSubmit={handleSubmit}>

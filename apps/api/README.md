@@ -9,6 +9,6 @@
 5. Start docker with command `docker compose up` inside the "root"-folder
 6. Create the database with this command `dotnet ef database update`
 7. Build and start the "api" project
-8. Open a browser to get to the swagger website
+8. Open a browser to get to the openapi website
    - Or import the OpenApi spec in "Postman" or "Insomnia"
 9. Now the api project should be setup correctly 🚀

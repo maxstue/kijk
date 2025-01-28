@@ -79,7 +79,7 @@ export function CategoriesSection() {
 function Categories({ type }: { type: CategoryType }) {
   const { data } = useGetCategories();
 
-  const filteredData = data.data?.[type] ?? [];
+  const filteredData = data[type] ?? [];
 
   return <DataTable columns={categoryColumns} data={filteredData} defaultSort={categoryDefaultSort} />;
 }

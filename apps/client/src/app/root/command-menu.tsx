@@ -1,10 +1,10 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { File, Laptop, Moon, SunMedium } from 'lucide-react';
+import { HousePlug, Laptop, LayoutDashboard, Moon, SunMedium, WalletMinimal } from 'lucide-react';
 
 import { TransactionCreateForm } from '@/app/budget/transaction-create-form';
 import { CategoryCreateForm } from '@/app/settings/categories/categories-create-form';
-import { ThemeQuickCustomizer } from '@/shared/components/theme-quick-customizer';
+import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
 import {
   CommandDialog,
@@ -15,6 +15,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/shared/components/ui/command';
+import { DialogDescription, DialogTitle } from '@/shared/components/ui/dialog';
 import {
   Sheet,
   SheetContent,
@@ -84,7 +85,7 @@ export function CommandMenu({ ...props }: Props) {
         )}
         onClick={handleOpen(true)}
       >
-        {props.isCollapsed ? null : <span className='inline-flex'>Search...</span>}
+        {props.isCollapsed ? undefined : <span className='inline-flex'>Search...</span>}
 
         <kbd
           className={cn(
@@ -97,16 +98,36 @@ export function CommandMenu({ ...props }: Props) {
       </Button>
       <Sheet open={showSheet} onOpenChange={setShowSheet}>
         <CommandDialog open={open} onOpenChange={setOpen}>
-          <CommandInput className='bg-background' placeholder='Type a command or search...' />
-          <CommandList className='bg-background'>
+          <DialogTitle aria-hidden className='hidden'>
+            Command Menu
+          </DialogTitle>
+          <DialogDescription aria-hidden className='hidden'>
+            Command menu
+          </DialogDescription>
+          <CommandInput placeholder='Search...' />
+          <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-
             <CommandGroup heading='Links'>
               <CommandItem key='Home' onSelect={runCommand(() => navigate({ to: '/' }))}>
-                <File className='mr-2 h-4 w-4' />
+                <LayoutDashboard />
                 Home
               </CommandItem>
-
+              <CommandItem
+                key='energy'
+                onSelect={runCommand(() =>
+                  navigate({
+                    to: '/energy',
+                    search: (previous) => ({
+                      ...previous,
+                      month: months[new Date().getMonth()]!,
+                      year: new Date().getFullYear(),
+                    }),
+                  }),
+                )}
+              >
+                <HousePlug />
+                Energy
+              </CommandItem>
               <CommandItem
                 key='budget'
                 onSelect={runCommand(() =>
@@ -120,7 +141,7 @@ export function CommandMenu({ ...props }: Props) {
                   }),
                 )}
               >
-                <File className='mr-2 h-4 w-4' />
+                <WalletMinimal />
                 Budget
               </CommandItem>
             </CommandGroup>
@@ -146,17 +167,19 @@ export function CommandMenu({ ...props }: Props) {
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
-
             <CommandGroup heading='Settings'>
-              {settingsNav.map((item) => (
-                <CommandItem
-                  key={item.label}
-                  onSelect={runCommand(() => navigate({ to: '/settings/$section', params: { section: item.to } }))}
-                >
-                  <File className='mr-2 h-4 w-4' />
-                  {item.label}
-                </CommandItem>
-              ))}
+              {settingsNav.map((item) => {
+                const Icon = Icons[item.icon || 'arrowRight'];
+                return (
+                  <CommandItem
+                    key={item.label}
+                    onSelect={runCommand(() => navigate({ to: '/settings/$section', params: { section: item.to } }))}
+                  >
+                    <Icon />
+                    {item.label}
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading='Theme'>
@@ -186,9 +209,6 @@ export function CommandMenu({ ...props }: Props) {
               >
                 <Laptop className='mr-2 h-4 w-4' />
                 System
-              </CommandItem>
-              <CommandItem value='theme-quick'>
-                <ThemeQuickCustomizer onSelect={handleOpen(false)} />
               </CommandItem>
             </CommandGroup>
           </CommandList>

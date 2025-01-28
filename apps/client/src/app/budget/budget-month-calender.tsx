@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { ResponsiveTimeRange } from '@nivo/calendar';
 
-import { useGetTransactionsBy } from '@/app/budget/use-get-transations-by';
+import { useGetTransactionsBy } from '@/app/budget/use-get-transactions-by';
 import { Months, months } from '@/shared/types/app';
 import { groupBy } from '@/shared/utils/array';
 import { formatStringDateToOnlyDateString } from '@/shared/utils/format';
@@ -19,15 +19,15 @@ export function BudgetMonthCalendar({ year, month }: Props) {
   const to = `${year}-${months.indexOf(month) + 1}-${temporaryDate.getDate()}`;
 
   const calValues = useMemo(() => {
-    if (data.data == undefined) {
+    if (data == undefined) {
       return;
     }
-    const groupedByDate = groupBy(data.data, (x) => formatStringDateToOnlyDateString(x.executedAt));
+    const groupedByDate = groupBy(data, (x) => formatStringDateToOnlyDateString(x.executedAt));
     return Object.entries(groupedByDate).map((x) => ({
       day: x[0],
       value: x[1].length,
     }));
-  }, [data.data]);
+  }, [data]);
 
   const maxValue = calValues ? calValues.length + 30 : 'auto';
 

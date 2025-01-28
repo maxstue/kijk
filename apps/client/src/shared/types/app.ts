@@ -5,16 +5,21 @@ export type Nullish<T> = T | undefined | null;
 
 export type Autocomplete<TOptions extends string> = TOptions | (string & {});
 
-export interface ApiResponse<T = unknown> {
-  data?: T;
-  message?: string;
-  state: 'Success' | 'Error';
+export interface ApiError {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  instance: string;
+  errors: Optional<ErrorDetails[]>;
+  traceId: string;
+  requestId: string;
 }
 
-export interface ApiError {
-  code: string;
-  message: string;
+export interface ErrorDetails {
   type: string;
+  code: string;
+  description: string;
 }
 
 export const Allowed_Providers = ['Github'] as const;
@@ -92,6 +97,42 @@ export interface User_Metadata {
   user_name: Optional<string>;
 }
 
-export const COOKIE_CONSENT_KEY = 'kijk_cookie_consent';
+export const COOKIE_CONSENT_KEY = 'cookie_consent';
 
 export type CookieConsent = 'yes' | 'no' | 'undecided';
+
+export interface Energy {
+  id: string;
+  name: string;
+  description: Optional<string>;
+  value: number;
+  type: EnergyType;
+  date: string;
+  householdId: string;
+}
+
+export interface EnergyStatsType {
+  electricity: EnergyStats;
+  gas: EnergyStats;
+  water: EnergyStats;
+}
+
+export interface EnergyStats {
+  monthTotal: number;
+  yearTotal: number;
+  yearAverage: number;
+  yearMin: number;
+  yearMax: number;
+  comparisonYear: number;
+  comparisonYearDiff: number;
+  comparisonMonth: number;
+  comparisonMonthDiff: number;
+}
+
+export const EnergyTypes = {
+  ELECTRICITY: 'Electricity',
+  GAS: 'Gas',
+  WATER: 'Water',
+} as const;
+
+export type EnergyType = (typeof EnergyTypes)[keyof typeof EnergyTypes];

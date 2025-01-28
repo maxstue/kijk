@@ -6,12 +6,12 @@ export function ThemeModeSwitcher() {
   const { mode } = useThemeStore();
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const root = globalThis.document.documentElement;
 
     root.classList.remove('light', 'dark');
 
     if (mode === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const systemTheme = globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
       root.classList.add(systemTheme);
       return;
@@ -21,14 +21,14 @@ export function ThemeModeSwitcher() {
   }, [mode]);
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const root = globalThis.document.documentElement;
 
     const listener = (event: MediaQueryListEvent) => {
       root.classList.remove('light', 'dark');
       root.classList.add(event.matches ? 'dark' : 'light');
     };
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
+    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
   }, []);
 
   // eslint-disable-next-line unicorn/no-useless-undefined

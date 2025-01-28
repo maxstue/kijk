@@ -8,7 +8,7 @@ const initialRegex = new RegExp(/(\p{L}{1})\p{L}+/gu);
  * @param stringValue The string value to get the initials from.
  * @returns Returns the initials.
  */
-export function getInitailChars(stringValue: Optional<string>) {
+export function getInitialChars(stringValue: Optional<string>) {
   if (!stringValue) {
     return 'KJ';
   }

@@ -96,7 +96,7 @@ function CategorySelectField({ field }: { field: ControllerRenderProps<Transacti
             </SelectTrigger>
           </FormControl>
           <SelectContent className='h-[calc(100dvh_*_0.3)] overflow-auto p-1'>
-            {Object.entries(categoryQuery.data.data ?? {}).map(([key, values]) => (
+            {Object.entries(categoryQuery.data).map(([key, values]) => (
               <SelectGroup key={key}>
                 <SelectLabel className='p-1 font-bold'>{key}</SelectLabel>
                 {values.length > 0 ? (

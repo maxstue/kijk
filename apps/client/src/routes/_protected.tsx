@@ -4,7 +4,8 @@ import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { useSignInUser } from '@/app/root/use-signin-user';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
-import { cn } from '@/shared/lib/helpers';
+import { Separator } from '@/shared/components/ui/separator';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/shared/components/ui/sidebar';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/_protected')({
@@ -25,28 +26,47 @@ function Protected() {
   const navigate = useNavigate({ from: Route.fullPath });
   const query = useSignInUser();
 
-  const isFirstTime = query.data.data?.firstTime === true;
+  const isFirstTime = query.data.firstTime === true;
 
   useEffect(() => {
-    if (query.isSuccess && query.data.data && isFirstTime) {
+    if (query.isSuccess && query.data && isFirstTime) {
       navigate({ to: '/welcome', replace: true });
     }
-  }, [isFirstTime, navigate, query.data.data, query.isSuccess, query.status]);
+  }, [isFirstTime, navigate, query.data, query.isSuccess, query.status]);
 
   return (
-    <div className='relative isolate flex h-dvh w-full bg-background text-primary'>
-      {/* Sidebar */}
-      {isFirstTime ? undefined : (
-        <div className='fixed inset-y-0 left-0 min-w-64 max-w-64'>
-          <AppSidebar />
-        </div>
-      )}
-      {/* Content */}
-      <main className={cn(isFirstTime ? 'p-2' : 'py-2 pl-64 pr-2', 'flex flex-1 flex-col')}>
-        <div className='grow overflow-auto rounded-md border bg-background-foreground/45 p-6'>
+    <SidebarProvider>
+      {isFirstTime ? undefined : <AppSidebar />}
+      <SidebarInset>
+        {isFirstTime ? undefined : (
+          <header className='flex h-16 shrink-0 items-center gap-2'>
+            <div className='flex items-center gap-2 px-4'>
+              <SidebarTrigger className='-ml-1' />
+              <Separator className='mr-2 h-4' orientation='vertical' />
+              {/* TODO add breadcrumbs */}
+              {/* <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className='hidden md:block'>
+                  <BreadcrumbLink href='#'>Building Your Application</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className='hidden md:block' />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb> */}
+            </div>
+          </header>
+        )}
+        {/* Content */}
+        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
+          {/* <main className={cn(isFirstTime ? 'p-2' : 'py-2 pl-64 pr-2', 'flex flex-1 flex-col')}> */}
+          {/* <div className='grow overflow-auto rounded-md border bg-muted/50 p-6'> */}
           <Outlet />
+          {/* </div> */}
+          {/* </main> */}
         </div>
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

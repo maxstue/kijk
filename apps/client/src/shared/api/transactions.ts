@@ -1,12 +1,12 @@
 import { apiClient } from '@/shared/lib/api-client';
 import type { TransactionFormValues } from '@/app/budget/schemas';
 import type { Years } from '@/app/budget/types';
-import type { ApiResponse, Transaction } from '@/shared/types/app';
+import type { Transaction } from '@/shared/types/app';
 
 const ENDPOINT = 'transactions';
 
 export function getYears(signal?: AbortSignal) {
-  return apiClient.get<ApiResponse<Years>>({
+  return apiClient.get<Years>({
     url: `${ENDPOINT}/years`,
     signal,
   });
@@ -21,11 +21,11 @@ export function getYears(signal?: AbortSignal) {
  *
  * @param year The year of the transaction
  * @param month The month of the transaction
- * @param signal The ssignal
+ * @param signal The signal
  * @returns The list of transactions
  */
-export function getTransactionById(year?: string, month?: string, signal?: AbortSignal) {
-  return apiClient.get<ApiResponse<Transaction[]>>({
+export function getTransactionBy(year?: string, month?: string, signal?: AbortSignal) {
+  return apiClient.get<Transaction[]>({
     url: ENDPOINT,
     params: { year, month },
     signal,
@@ -33,7 +33,7 @@ export function getTransactionById(year?: string, month?: string, signal?: Abort
 }
 
 export function createTransaction(data: TransactionFormValues, signal?: AbortSignal) {
-  return apiClient.post<ApiResponse<Transaction>>({
+  return apiClient.post<Transaction>({
     url: ENDPOINT,
     data,
     signal,
@@ -41,7 +41,7 @@ export function createTransaction(data: TransactionFormValues, signal?: AbortSig
 }
 
 export function updateTransaction(transactionId: string, data: Partial<TransactionFormValues>, signal?: AbortSignal) {
-  return apiClient.put<ApiResponse<Transaction>>({
+  return apiClient.put<Transaction>({
     url: `${ENDPOINT}/${transactionId}`,
     data,
     signal,
@@ -49,7 +49,7 @@ export function updateTransaction(transactionId: string, data: Partial<Transacti
 }
 
 export function deleteTransaction(transactionId: string, signal?: AbortSignal) {
-  return apiClient.delete<ApiResponse<Transaction>>({
+  return apiClient.delete<Transaction>({
     url: `${ENDPOINT}/${transactionId}`,
     signal,
   });

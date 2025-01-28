@@ -10,27 +10,23 @@ import { cn } from '@/shared/lib/helpers';
 export function BudgetYearCalenderCard({ year }: { year: number }) {
   const [open, setOpen] = useState(false);
 
-  const handleToggle = () => {
-    setOpen((c) => !c);
-  };
+  const handleToggle = () => setOpen((c) => !c);
 
   return (
-    <div className='flex w-full'>
-      <Card className='w-full'>
-        <CardHeader className='flex flex-row items-center justify-between space-y-0'>
-          <CardTitle className='text-sm font-medium'>Year overview</CardTitle>
-          <Button className='' size='icon-sm' variant='ghost' onClick={handleToggle}>
-            <ChevronDown className={cn('h-4 w-4 text-muted-foreground', open && 'rotate-180')} />
-          </Button>
-        </CardHeader>
-        {open && (
-          <CardContent className='pt-0'>
-            <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
-              <BudgetYearCalendar year={year} />
-            </Suspense>
-          </CardContent>
-        )}
-      </Card>
-    </div>
+    <Card className='w-full'>
+      <CardHeader className='flex flex-row items-center justify-between space-y-0'>
+        <CardTitle className='text-sm font-medium'>Year overview</CardTitle>
+        <Button className='' size='icon-sm' variant='ghost' onClick={handleToggle}>
+          <ChevronDown className={cn('h-4 w-4 text-muted-foreground', open && 'rotate-180')} />
+        </Button>
+      </CardHeader>
+      {open && (
+        <CardContent className='pt-0'>
+          <Suspense fallback={<AsyncLoader className='h-4 w-4' />}>
+            <BudgetYearCalendar year={year} />
+          </Suspense>
+        </CardContent>
+      )}
+    </Card>
   );
 }
