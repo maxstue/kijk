@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <RootNamespace>Kijk.Api</RootNamespace>
-        <!--    <InvariantGlobalization>true</InvariantGlobalization>-->
         <UserSecretsId>aspnet-Kijk.Api-01C3D95B-517D-4E64-8BDD-4EADF1BF84FE</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 
@@ -45,10 +44,6 @@
         <PackageReference Include="FluentValidation.AspNetCore"/>
         <PackageReference Include="Humanizer.Core"/>
         <PackageReference Include="Humanizer.Core.de"/>
-        <PackageReference Include="MinVer">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>
         <PackageReference Include="NetEscapades.EnumGenerators" PrivateAssets="all" ExcludeAssets="runtime"/>
     </ItemGroup>

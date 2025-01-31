@@ -1,30 +1,27 @@
 <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
 <Project>
-  <PropertyGroup>
-    <!-- Configure the version for all projects -->
-<!--    <Version>0.5.0</Version>-->
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-    <TargetFramework>net9.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
-    <ImplicitUsings>true</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <!-- Code Style and Analysis settings -->
+    <PropertyGroup>
+        <!-- TODO Should be enabled -->
+        <!--    <WarningsAsErrors>Nullable</WarningsAsErrors>-->
+        <!--    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>-->
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisMode>Recommended</AnalysisMode>
+        <NoWarn>$(NoWarn);1591;NU1103</NoWarn>
+    </PropertyGroup>
 
-  <!-- Code Style and Analysis settings -->
-  <PropertyGroup>
-    <!-- TODO Should be enabled -->
-    <!--    <WarningsAsErrors>Nullable</WarningsAsErrors>-->
-    <!--    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>-->
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
-    <AnalysisLevel>latest</AnalysisLevel>
-    <AnalysisMode>Recommended</AnalysisMode>
-    <NoWarn>$(NoWarn);1591;</NoWarn>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
-    <PackageReference Include="SonarAnalyzer.CSharp"/>
-  </ItemGroup>
+    <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
+        <PackageReference Include="SonarAnalyzer.CSharp"/>
+    </ItemGroup>
 
 </Project>
