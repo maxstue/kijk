@@ -4,78 +4,48 @@ import { CookieIcon, ExternalLink } from 'lucide-react';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { env } from '@/shared/env';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
-import { browserStorage } from '@/shared/lib/browser-storage';
 import { cn } from '@/shared/lib/helpers';
-import { COOKIE_CONSENT_KEY, CookieConsent } from '@/shared/types/app';
-
-function cookieConsentGiven() {
-  if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
-    return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY)!;
-  }
-  return 'undecided';
-}
 
 export function AnalyticsBanner() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [consentGiven, setConsentGiven] = useState('');
+
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
-    const cookieConsent = cookieConsentGiven();
-    if (cookieConsent === 'yes') {
-      AnalyticsService.getInstance().opt_in_capturing();
-      setIsOpen(false);
-      setTimeout(() => {
-        setHide(true);
-      }, 700);
-    }
-    if (cookieConsent === 'no') {
-      AnalyticsService.getInstance().opt_out_capturing();
-      setIsOpen(false);
-      setTimeout(() => {
-        setHide(true);
-      }, 700);
-    }
-    if (cookieConsent === 'undecided') {
-      AnalyticsService.getInstance().opt_out_capturing();
-      setIsOpen(cookieConsent === 'undecided');
-    }
+    setConsentGiven(AnalyticsService.getCookieConsent());
   }, []);
 
-  const handleAcceptCookies = () => {
-    browserStorage.setItem(COOKIE_CONSENT_KEY, 'yes');
-    AnalyticsService.getInstance().opt_in_capturing();
-    setIsOpen(false);
-  };
-
-  const handleDeclineCookies = () => {
-    browserStorage.setItem(COOKIE_CONSENT_KEY, 'no');
-    AnalyticsService.getInstance().opt_out_capturing();
-    setIsOpen(false);
-  };
+  useEffect(() => {
+    if (consentGiven !== '') {
+      AnalyticsService.getInstance().set_config({
+        persistence: consentGiven === 'yes' ? 'localStorage+cookie' : 'memory',
+      });
+    }
+  }, [consentGiven]);
 
   const accept = () => {
-    setIsOpen(false);
     setTimeout(() => {
       setHide(true);
     }, 700);
-    handleAcceptCookies();
+    AnalyticsService.setCookieConsent('yes');
+    setConsentGiven('yes');
   };
 
   const decline = () => {
-    setIsOpen(false);
     setTimeout(() => {
       setHide(true);
     }, 700);
-    handleDeclineCookies();
+    AnalyticsService.setCookieConsent('no');
+    setConsentGiven('no');
   };
 
   return (
     <div
       className={cn(
         'fixed bottom-0 left-0 right-0 z-[200] w-full duration-700 sm:bottom-4 sm:left-4 sm:max-w-md',
-        isOpen
-          ? 'translate-y-0 opacity-100 transition-[opacity,transform]'
-          : 'translate-y-8 opacity-0 transition-[opacity,transform]',
+        consentGiven === 'yes'
+          ? 'translate-y-8 opacity-0 transition-[opacity,transform]'
+          : 'translate-y-0 opacity-100 transition-[opacity,transform]',
         hide && 'hidden',
       )}
     >
