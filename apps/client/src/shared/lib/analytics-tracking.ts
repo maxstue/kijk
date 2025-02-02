@@ -45,6 +45,7 @@ const AnalyticsService = {
     browserStorage.setItem(COOKIE_CONSENT_KEY, consent);
     if (consent === 'yes') {
       AnalyticsService.getInstance().opt_in_capturing();
+      AnalyticsService.getInstance().set_config({ capture_pageview: true, autocapture: true });
     }
     if (consent === 'no' || consent === 'undecided') {
       AnalyticsService.getInstance().opt_out_capturing();

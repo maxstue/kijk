@@ -9,8 +9,6 @@ import { cn } from '@/shared/lib/helpers';
 export function AnalyticsBanner() {
   const [consentGiven, setConsentGiven] = useState('');
 
-  const [hide, setHide] = useState(false);
-
   useEffect(() => {
     setConsentGiven(AnalyticsService.getCookieConsent());
   }, []);
@@ -24,17 +22,11 @@ export function AnalyticsBanner() {
   }, [consentGiven]);
 
   const accept = () => {
-    setTimeout(() => {
-      setHide(true);
-    }, 700);
     AnalyticsService.setCookieConsent('yes');
     setConsentGiven('yes');
   };
 
   const decline = () => {
-    setTimeout(() => {
-      setHide(true);
-    }, 700);
     AnalyticsService.setCookieConsent('no');
     setConsentGiven('no');
   };
@@ -44,9 +36,8 @@ export function AnalyticsBanner() {
       className={cn(
         'fixed bottom-0 left-0 right-0 z-[200] w-full duration-700 sm:bottom-4 sm:left-4 sm:max-w-md',
         consentGiven === 'yes'
-          ? 'translate-y-8 opacity-0 transition-[opacity,transform]'
+          ? 'hidden translate-y-8 opacity-0 transition-[opacity,transform]'
           : 'translate-y-0 opacity-100 transition-[opacity,transform]',
-        hide && 'hidden',
       )}
     >
       <div className='m-3 rounded-md border border-border bg-background shadow-lg dark:bg-card'>

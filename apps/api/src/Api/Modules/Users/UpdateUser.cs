@@ -21,7 +21,7 @@ public static class UpdateUser
 
     public static RouteGroupBuilder MapUpdateUser(this RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPut("/update", Handle);
+        groupBuilder.MapPut("/", Handle);
         return groupBuilder;
     }
 
