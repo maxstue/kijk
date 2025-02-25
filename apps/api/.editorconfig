@@ -317,6 +317,6 @@ dotnet_diagnostic.CA1862.severity = suggestion
 # IDE0046: Convert to conditional expression
 dotnet_diagnostic.IDE0046.severity = none
 dotnet_diagnostic.1591.severity = none
-dotnet_diagnostic.IDE0053.severity = false
+# dotnet_diagnostic.IDE0053.severity = false
 dotnet_diagnostic.IDE0055.severity = none
 dotnet_diagnostic.IDE0023.severity = none

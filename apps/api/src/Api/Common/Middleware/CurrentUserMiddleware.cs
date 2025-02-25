@@ -1,8 +1,7 @@
 ﻿using System.Security.Claims;
-
-using Kijk.Api.Common.Extensions;
-using Kijk.Api.Common.Models;
-using Kijk.Api.Persistence;
+using Kijk.Infrastructure.Persistence;
+using Kijk.Shared;
+using Kijk.Shared.Extensions;
 
 namespace Kijk.Api.Common.Middleware;
 
@@ -70,7 +69,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
     private Task<SimpleAuthUser?> GetUserFromDb(string sub) => dbContext.Users
         .Include(x => x.UserHouseholds)
         .Where(x => x.AuthId == sub)
-        .Select(x => SimpleAuthUser.Create(x))
+        .Select(x => new SimpleAuthUser(x.Id, x.AuthId, x.GetActiveHouseHoldId(), x.Name, x.Email, x.FirstTime))
         .AsNoTracking()
         .AsSplitQuery()
         .FirstOrDefaultAsync();

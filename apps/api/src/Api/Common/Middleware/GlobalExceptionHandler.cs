@@ -1,6 +1,5 @@
-using Kijk.Api.Common.Extensions;
-using Kijk.Api.Common.Models;
-
+using Kijk.Shared;
+using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Kijk.Api.Common.Middleware;

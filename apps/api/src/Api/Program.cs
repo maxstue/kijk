@@ -1,7 +1,7 @@
 ﻿using Kijk.Api.Common.Extensions;
 using Kijk.Api.Common.Middleware;
-using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Utils;
+using Kijk.Shared;
 
 Log.Logger = LoggerUtils.CreateRootLogger();
 
@@ -30,13 +30,15 @@ try
         .AddValidation()
         .AddControllerOptions()
         .AddHealthCheck(builder.Configuration)
-        .AddCache()
         .AddModules();
 
     // ##### Configure the HTTP request pipeline. #####
     var app = builder.Build();
-
     app.MapOpenApi("{documentName}.json");
+
+    // TODO health check want a user id, why ??
+    // TODO the base uri is a scalar Ui without paths, why ?? disbale it completly or add the redirect always
+    // TODO remove "/scalar.aspnetcore.js" "v1.json" and "/scalar.js" fromlogs
     if (app.Environment.IsDevelopment())
     {
         app.Map("/", () => Results.Redirect("openapi"));

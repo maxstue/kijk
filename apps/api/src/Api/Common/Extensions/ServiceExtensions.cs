@@ -3,18 +3,19 @@ using System.Security.Claims;
 using System.Text.Json.Serialization;
 using EntityFramework.Exceptions.PostgreSQL;
 using Humanizer;
-using Kijk.Api.Common.Exceptions;
+using Kijk.Shared.Exceptions;
 using Kijk.Api.Common.Extensions.OpenApi;
 using Kijk.Api.Common.Middleware;
-using Kijk.Api.Common.Models;
 using Kijk.Api.Common.Options;
-using Kijk.Api.Modules.App;
-using Kijk.Api.Modules.Categories;
-using Kijk.Api.Modules.Energies;
-using Kijk.Api.Modules.Transactions;
-using Kijk.Api.Modules.Users;
-using Kijk.Api.Persistence;
-using Kijk.Api.Persistence.Interceptors;
+using Kijk.Application.App;
+using Kijk.Application.Categories;
+using Kijk.Application.Energies;
+using Kijk.Application.Transactions;
+using Kijk.Application.Users;
+using Kijk.Infrastructure.Persistence;
+using Kijk.Infrastructure.Persistence.Interceptors;
+using Kijk.Shared;
+using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -24,10 +25,15 @@ namespace Kijk.Api.Common.Extensions;
 
 public static class ServiceExtensions
 {
+    /// <summary>
+    /// Adds all needed modules.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddModules(this IServiceCollection services)
     {
-        services.RegisterAppModule()
-            .RegisterAppModule()
+        services.AddAppModule()
+            .AddAppModule()
             .AddUsersModule()
             .AddTransactionsModule()
             .AddCategoriesModule()
@@ -203,6 +209,4 @@ public static class ServiceExtensions
 
         return services;
     }
-
-    public static IServiceCollection AddCache(this IServiceCollection services) => services;
 }

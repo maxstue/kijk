@@ -46,6 +46,7 @@
         <PackageReference Include="Humanizer.Core.de"/>
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>
         <PackageReference Include="NetEscapades.EnumGenerators" PrivateAssets="all" ExcludeAssets="runtime"/>
+        <PackageReference Include="Vogen" />
     </ItemGroup>
 
     <ItemGroup>
@@ -61,7 +62,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Persistence\Migrations\"/>
+      <Folder Include="Common\Models\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Application\Application.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Shared\Shared.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,10 +1,7 @@
 ﻿using HealthChecks.UI.Client;
-
-using Kijk.Api.Common.Models;
 using Kijk.Api.Endpoints;
-
+using Kijk.Shared;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-
 using Scalar.AspNetCore;
 
 namespace Kijk.Api.Common.Extensions;
@@ -14,7 +11,7 @@ public static class ApplicationExtensions
     public static IApplicationBuilder UseRequestLogging(this IApplicationBuilder applicationBuilder)
     {
         applicationBuilder.UseSerilogRequestLogging(
-            options => options.GetLevel = new Func<HttpContext, double, Exception?, LogEventLevel>((ctx, _, ex) =>
+            options => options.GetLevel = (ctx, _, ex) =>
             {
                 if (ex == null && ctx.Response.StatusCode <= 499)
                 {
@@ -31,7 +28,7 @@ public static class ApplicationExtensions
                 }
 
                 return LogEventLevel.Error;
-            }));
+            });
 
         return applicationBuilder;
     }
@@ -39,11 +36,10 @@ public static class ApplicationExtensions
     public static IApplicationBuilder UseOpenApi(this IApplicationBuilder applicationBuilder)
     {
         var app = (WebApplication)applicationBuilder;
-        app.MapScalarApiReference(options =>
+        app.MapScalarApiReference("", options =>
         {
             options.WithTitle("Kijk Api")
                 .WithOpenApiRoutePattern("/{documentName}.json")
-                .WithEndpointPrefix("/{documentName}")
                 .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 
             options.Favicon = "favicon.svg";

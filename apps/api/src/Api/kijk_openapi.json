@@ -9,7 +9,7 @@
     "/api/transactions": {
       "get": {
         "tags": [
-          "Transactions"
+          "Retrieves transactions"
         ],
         "parameters": [
           {
@@ -36,7 +36,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TransactionDto"
+                    "$ref": "#/components/schemas/TransactionResponse"
                   }
                 }
               }
@@ -51,7 +51,7 @@
       },
       "post": {
         "tags": [
-          "Transactions"
+          "Create a new transaction"
         ],
         "requestBody": {
           "content": {
@@ -69,7 +69,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TransactionDto"
+                  "$ref": "#/components/schemas/TransactionResponse"
                 }
               }
             }
@@ -90,6 +90,7 @@
         "tags": [
           "Transactions"
         ],
+        "summary": "Gets transaction by id",
         "parameters": [
           {
             "name": "id",
@@ -107,7 +108,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TransactionDto"
+                  "$ref": "#/components/schemas/TransactionResponse"
                 }
               }
             }
@@ -123,6 +124,7 @@
         "tags": [
           "Transactions"
         ],
+        "summary": "Update a transaction",
         "parameters": [
           {
             "name": "id",
@@ -150,7 +152,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TransactionDto"
+                  "$ref": "#/components/schemas/TransactionResponse"
                 }
               }
             }
@@ -166,6 +168,7 @@
         "tags": [
           "Transactions"
         ],
+        "summary": "Delete a transaction",
         "parameters": [
           {
             "name": "id",
@@ -201,37 +204,14 @@
         "tags": [
           "Transactions"
         ],
+        "summary": "Get all years from transactions",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/YearsResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/users/sign-in": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SignInUserResponse"
+                  "$ref": "#/components/schemas/TransactionYearsResponse"
                 }
               }
             }
@@ -249,6 +229,7 @@
         "tags": [
           "Users"
         ],
+        "summary": "Gets me",
         "responses": {
           "200": {
             "description": "OK",
@@ -268,28 +249,19 @@
         ]
       }
     },
-    "/api/users/welcome": {
-      "put": {
+    "/api/users": {
+      "get": {
         "tags": [
           "Users"
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WelcomeUserRequest"
-              }
-            }
-          },
-          "required": true
-        },
+        "summary": "Sign in",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WelcomeUserResponse"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -300,13 +272,12 @@
             "Bearer": [ ]
           }
         ]
-      }
-    },
-    "/api/users/update": {
+      },
       "put": {
         "tags": [
           "Users"
         ],
+        "summary": "Updates user",
         "requestBody": {
           "content": {
             "application/json": {
@@ -323,7 +294,42 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserUpdateResponse"
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/users/welcome": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Registers a new user and sets some default values",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelcomeUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -341,6 +347,7 @@
         "tags": [
           "Categories"
         ],
+        "summary": "Retrieves all categories for the current user.",
         "responses": {
           "200": {
             "description": "OK",
@@ -351,7 +358,7 @@
                   "additionalProperties": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/CategoryDto2"
+                      "$ref": "#/components/schemas/CategoryResponse"
                     }
                   }
                 }
@@ -369,6 +376,7 @@
         "tags": [
           "Categories"
         ],
+        "summary": "Creates a new category.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -385,7 +393,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CategoryDto2"
+                  "$ref": "#/components/schemas/CategoryResponse"
                 }
               }
             }
@@ -403,6 +411,7 @@
         "tags": [
           "Categories"
         ],
+        "summary": "Updates a category.",
         "parameters": [
           {
             "name": "id",
@@ -430,7 +439,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CategoryDto2"
+                  "$ref": "#/components/schemas/CategoryResponse"
                 }
               }
             }
@@ -446,6 +455,7 @@
         "tags": [
           "Categories"
         ],
+        "summary": "Deletes a category.",
         "parameters": [
           {
             "name": "id",
@@ -481,6 +491,7 @@
         "tags": [
           "Energies"
         ],
+        "summary": "Gets all energy consumptions",
         "parameters": [
           {
             "name": "year",
@@ -530,6 +541,7 @@
         "tags": [
           "Energies"
         ],
+        "summary": "Creates a new energy",
         "requestBody": {
           "content": {
             "application/json": {
@@ -546,34 +558,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateEnergyResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/energies/years": {
-      "get": {
-        "tags": [
-          "Energies"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/YearsResponse"
+                  "$ref": "#/components/schemas/EnergyResponse"
                 }
               }
             }
@@ -591,6 +576,7 @@
         "tags": [
           "Energies"
         ],
+        "summary": "Gets an energy consumption",
         "parameters": [
           {
             "name": "id",
@@ -624,6 +610,7 @@
         "tags": [
           "Energies"
         ],
+        "summary": "Updates an energy",
         "parameters": [
           {
             "name": "id",
@@ -651,7 +638,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UpdateEnergyResponse"
+                  "$ref": "#/components/schemas/EnergyResponse"
                 }
               }
             }
@@ -667,6 +654,7 @@
         "tags": [
           "Energies"
         ],
+        "summary": "Deletes an energy",
         "parameters": [
           {
             "name": "id",
@@ -702,6 +690,7 @@
         "tags": [
           "Energies"
         ],
+        "summary": "Gets all energy stats",
         "parameters": [
           {
             "name": "year",
@@ -728,6 +717,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EnergyStatsTypeResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/energies/years": {
+      "get": {
+        "tags": [
+          "Energies"
+        ],
+        "summary": "Gets all energy years",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergyYearsResponse"
                 }
               }
             }
@@ -811,92 +825,6 @@
           }
         }
       },
-      "AccountDto": {
-        "required": [
-          "id",
-          "name",
-          "balance",
-          "type",
-          "transactions"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "balance": {
-            "type": "number",
-            "format": "double"
-          },
-          "type": {
-            "type": "string"
-          },
-          "transactions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TransactionDto"
-            }
-          }
-        }
-      },
-      "BudgetDto": {
-        "required": [
-          "id",
-          "name",
-          "limit",
-          "actualSpending",
-          "status",
-          "visibility",
-          "householdId",
-          "startDate",
-          "endDate",
-          "category"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "number",
-            "format": "double"
-          },
-          "actualSpending": {
-            "type": "number",
-            "format": "double"
-          },
-          "status": {
-            "$ref": "#/components/schemas/BudgetStatus"
-          },
-          "visibility": {
-            "$ref": "#/components/schemas/Visibility"
-          },
-          "householdId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "category": {
-            "$ref": "#/components/schemas/CategoryDto2"
-          }
-        }
-      },
       "BudgetStatus": {
         "enum": [
           "Active",
@@ -910,36 +838,7 @@
           "User"
         ]
       },
-      "CategoryDto": {
-        "required": [
-          "id",
-          "name",
-          "color",
-          "type",
-          "creatorType"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "color": {
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/CategoryType"
-          },
-          "creatorType": {
-            "$ref": "#/components/schemas/CategoryCreatorType"
-          }
-        },
-        "nullable": true
-      },
-      "CategoryDto2": {
+      "CategoryResponse": {
         "required": [
           "id",
           "name",
@@ -1002,36 +901,6 @@
         ],
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "value": {
-            "type": "number",
-            "format": "double"
-          },
-          "type": {
-            "$ref": "#/components/schemas/EnergyType"
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "CreateEnergyResponse": {
-        "required": [
-          "id",
-          "name",
-          "value",
-          "type",
-          "date"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "name": {
             "type": "string"
           },
@@ -1198,6 +1067,21 @@
           "Water"
         ]
       },
+      "EnergyYearsResponse": {
+        "required": [
+          "years"
+        ],
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
       "GetByIdEnergyResponse": {
         "required": [
           "id",
@@ -1270,28 +1154,28 @@
           "households": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UserHouseholdDto"
+              "$ref": "#/components/schemas/UserHouseholdResponse"
             },
             "nullable": true
           },
           "budgets": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/BudgetDto"
+              "$ref": "#/components/schemas/UserBudgetResponse"
             },
             "nullable": true
           },
           "accounts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AccountDto"
+              "$ref": "#/components/schemas/UserAccountResponse"
             },
             "nullable": true
           },
           "categories": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CategoryDto2"
+              "$ref": "#/components/schemas/UserCategoryResponse"
             },
             "nullable": true
           }
@@ -1315,14 +1199,13 @@
         ],
         "nullable": true
       },
-      "SignInUserResponse": {
+      "TransactionCategoryResponse": {
         "required": [
           "id",
-          "authId",
           "name",
-          "email",
-          "firstTime",
-          "useDefaultCategories"
+          "color",
+          "type",
+          "creatorType"
         ],
         "type": "object",
         "properties": {
@@ -1330,29 +1213,22 @@
             "type": "string",
             "format": "uuid"
           },
-          "authId": {
-            "type": "string",
-            "nullable": true
-          },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
-          "email": {
-            "type": "string",
-            "nullable": true
+          "color": {
+            "type": "string"
           },
-          "firstTime": {
-            "type": "boolean",
-            "nullable": true
+          "type": {
+            "$ref": "#/components/schemas/CategoryType"
           },
-          "useDefaultCategories": {
-            "type": "boolean",
-            "nullable": true
+          "creatorType": {
+            "$ref": "#/components/schemas/CategoryCreatorType"
           }
-        }
+        },
+        "nullable": true
       },
-      "TransactionDto": {
+      "TransactionResponse": {
         "required": [
           "id",
           "name",
@@ -1382,7 +1258,7 @@
             "format": "date-time"
           },
           "category": {
-            "$ref": "#/components/schemas/CategoryDto"
+            "$ref": "#/components/schemas/TransactionCategoryResponse"
           }
         }
       },
@@ -1392,6 +1268,21 @@
           "Expense",
           "Transfer"
         ]
+      },
+      "TransactionYearsResponse": {
+        "required": [
+          "years"
+        ],
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
       },
       "UpdateCategoryRequest": {
         "required": [
@@ -1439,36 +1330,6 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
-          }
-        }
-      },
-      "UpdateEnergyResponse": {
-        "required": [
-          "id",
-          "name",
-          "value",
-          "type",
-          "date"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "value": {
-            "type": "number",
-            "format": "double"
-          },
-          "type": {
-            "$ref": "#/components/schemas/EnergyType"
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       },
@@ -1523,7 +1384,150 @@
           }
         }
       },
-      "UserHouseholdDto": {
+      "UserAccountResponse": {
+        "required": [
+          "id",
+          "name",
+          "balance",
+          "type",
+          "transactions"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "number",
+            "format": "double"
+          },
+          "type": {
+            "type": "string"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserTransactionResponse"
+            }
+          }
+        }
+      },
+      "UserBudgetResponse": {
+        "required": [
+          "id",
+          "name",
+          "limit",
+          "actualSpending",
+          "status",
+          "visibility",
+          "householdId",
+          "startDate",
+          "endDate",
+          "userCategory"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "actualSpending": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BudgetStatus"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "householdId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "userCategory": {
+            "$ref": "#/components/schemas/UserCategoryResponse"
+          }
+        }
+      },
+      "UserCategoryResponse": {
+        "required": [
+          "id",
+          "name",
+          "color",
+          "type",
+          "creatorType"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CategoryType"
+          },
+          "creatorType": {
+            "$ref": "#/components/schemas/CategoryCreatorType"
+          }
+        }
+      },
+      "UserCategoryResponse2": {
+        "required": [
+          "id",
+          "name",
+          "color",
+          "type",
+          "creatorType"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CategoryType"
+          },
+          "creatorType": {
+            "$ref": "#/components/schemas/CategoryCreatorType"
+          }
+        },
+        "nullable": true
+      },
+      "UserHouseholdResponse": {
         "required": [
           "id",
           "name",
@@ -1552,7 +1556,7 @@
           }
         }
       },
-      "UserUpdateResponse": {
+      "UserResponse": {
         "required": [
           "id",
           "authId",
@@ -1586,6 +1590,40 @@
           "useDefaultCategories": {
             "type": "boolean",
             "nullable": true
+          }
+        }
+      },
+      "UserTransactionResponse": {
+        "required": [
+          "id",
+          "name",
+          "amount",
+          "type",
+          "executedAt",
+          "category"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
+          "executedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "$ref": "#/components/schemas/UserCategoryResponse2"
           }
         }
       },
@@ -1609,58 +1647,6 @@
           "useDefaultCategories": {
             "type": "boolean",
             "nullable": true
-          }
-        }
-      },
-      "WelcomeUserResponse": {
-        "required": [
-          "id",
-          "authId",
-          "name",
-          "email",
-          "firstTime",
-          "useDefaultCategories"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "authId": {
-            "type": "string",
-            "nullable": true
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "firstTime": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "useDefaultCategories": {
-            "type": "boolean",
-            "nullable": true
-          }
-        }
-      },
-      "YearsResponse": {
-        "required": [
-          "years"
-        ],
-        "type": "object",
-        "properties": {
-          "years": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
           }
         }
       }
@@ -1736,6 +1722,12 @@
     }
   },
   "tags": [
+    {
+      "name": "Retrieves transactions"
+    },
+    {
+      "name": "Create a new transaction"
+    },
     {
       "name": "Transactions"
     },

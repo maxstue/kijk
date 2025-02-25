@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Threading.RateLimiting;
 
-using Kijk.Api.Common.Models;
+using Kijk.Shared;
 
 namespace Kijk.Api.Common.Extensions;
 

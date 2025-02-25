@@ -1,5 +1,5 @@
-﻿using Kijk.Api.Common.Extensions;
-using Kijk.Api.Common.Models;
+﻿using Kijk.Shared;
+using Kijk.Shared.Extensions;
 
 namespace Kijk.Api.Common.Filters;
 
