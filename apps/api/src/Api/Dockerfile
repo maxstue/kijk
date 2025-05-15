@@ -8,6 +8,10 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/Api/Api.csproj", "src/Api/"]
+COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
+COPY ["src/Domain/Domain.csproj", "src/Domain/"]
+COPY ["src/Shared/Shared.csproj", "src/Shared/"]
+COPY ["src/Application/Application.csproj", "src/Application/"]
 COPY ["./Directory.Build.props", "./"]
 COPY ["./Directory.Packages.props", "./"]
 RUN dotnet restore "src/Api/Api.csproj"

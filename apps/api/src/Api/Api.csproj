@@ -14,8 +14,6 @@
     <ItemGroup>
         <!-- OpenApi -->
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
-        <PackageReference Include="AspNetCore.HealthChecks.NpgSql"/>
-        <PackageReference Include="AspNetCore.HealthChecks.UI.Client"/>
         <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -46,7 +44,6 @@
         <PackageReference Include="Humanizer.Core.de"/>
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>
         <PackageReference Include="NetEscapades.EnumGenerators" PrivateAssets="all" ExcludeAssets="runtime"/>
-        <PackageReference Include="Vogen" />
     </ItemGroup>
 
     <ItemGroup>
@@ -62,13 +59,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Common\Models\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\Application\Application.csproj" />
-      <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
-      <ProjectReference Include="..\..\Shared\Shared.csproj" />
+      <ProjectReference Include="..\Application\Application.csproj" />
+      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+      <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
 </Project>
