@@ -16,6 +16,7 @@ public class ConsumptionConfig : IEntityTypeConfiguration<Consumption>
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()
+            .HasDefaultValueSql("now()")
             .ValueGeneratedOnAdd();
 
         builder.Property(m => m.UpdatedAt)

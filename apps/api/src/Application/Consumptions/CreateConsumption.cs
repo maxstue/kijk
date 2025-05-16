@@ -28,6 +28,9 @@ public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsump
             .NotNull().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'ResourceId' must be set");
 
         RuleFor(x => x.Date)
+            .Must(date => date.Date <= DateTime.UtcNow.Date)
+                .WithErrorCode(ErrorCodes.ValidationError)
+                .WithMessage("'Date' must not be in the future")
             .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Date' must be set");
     }
 }

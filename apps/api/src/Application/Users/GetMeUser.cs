@@ -22,6 +22,9 @@ public static class GetMeUserHandler
         var userEntity = await dbContext.Users
             .Include(x => x.UserHouseholds)
             .ThenInclude(x => x.Household)
+            .Include(x => x.UserHouseholds)
+            .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.Permissions)
             .Where(x => x.Id == currentUser.Id)
             .AsNoTracking()
             .AsSplitQuery()

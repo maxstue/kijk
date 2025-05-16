@@ -13,6 +13,7 @@ public class UserHouseholdConfig : IEntityTypeConfiguration<UserHousehold>
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()
+            .HasDefaultValueSql("now()")
             .ValueGeneratedOnAdd();
 
         builder.Property(m => m.UpdatedAt)

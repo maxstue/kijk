@@ -4,7 +4,6 @@ namespace Kijk.Api.Extensions;
 
 public static class RouteExtensions
 {
-    // TODO add wolverine fluentvalidation middleware with problemdetails or validate in each handlers LoadAsync hook
     /// <summary>
     /// Adds a validation filter to the endpoint.
     /// </summary>

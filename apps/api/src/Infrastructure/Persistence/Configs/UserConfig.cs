@@ -20,6 +20,7 @@ public class UserConfig : IEntityTypeConfiguration<User>
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()
+            .HasDefaultValueSql("now()")
             .ValueGeneratedOnAdd();
 
         builder.Property(m => m.UpdatedAt)

@@ -15,6 +15,7 @@ public class ConsumptionLimitConfig : IEntityTypeConfiguration<ConsumptionLimit>
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()
+            .HasDefaultValueSql("now()")
             .ValueGeneratedOnAdd();
 
         builder.Property(m => m.UpdatedAt)
