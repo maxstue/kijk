@@ -1,4 +1,4 @@
-import { Optional } from '@/shared/types/app';
+import type { Optional } from '@/shared/types/app';
 
 const initialRegex = new RegExp(/(\p{L}{1})\p{L}+/gu);
 

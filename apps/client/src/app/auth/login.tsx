@@ -1,16 +1,17 @@
-import { Dispatch, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useSignIn } from '@clerk/clerk-react';
 import { getRouteApi } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import type { Dispatch } from 'react';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
-import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
-import { useToast } from '@/shared/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { env } from '@/shared/env';
 
 const route = getRouteApi('/auth');
 
 export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
-  const { toast } = useToast();
   const { isLoaded, signIn, setActive } = useSignIn();
   const navigate = route.useNavigate();
   const search = route.useSearch();
@@ -28,10 +29,8 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
         });
 
         if (completeLogin.status !== 'complete') {
-          toast({
-            title: 'Your login request failed. Please try again.',
+          toast.error('Your login request failed. Please try again.', {
             description: <div>{JSON.stringify(completeLogin, undefined, 2)}</div>,
-            variant: 'destructive',
           });
         }
 
@@ -41,14 +40,12 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
         }
       } catch (error_) {
         const error = error_ as { errors: Array<{ message: string }> };
-        toast({
-          title: 'Your login request failed. Please try again.',
+        toast.error('Your login request failed. Please try again.', {
           description: <div>{error.errors[0]?.message}</div>,
-          variant: 'destructive',
         });
       }
     },
-    [from, isLoaded, navigate, setActive, signIn, toast],
+    [from, isLoaded, navigate, setActive, signIn],
   );
 
   const handleGoToSignUp = useCallback(() => {
@@ -56,19 +53,28 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
   }, [goto]);
 
   return (
-    <div className='container flex h-screen w-screen flex-col items-center justify-center'>
-      <div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]'>
-        <div className='flex flex-col space-y-2 text-center'>
-          <Icons.logo className='mx-auto h-12 w-12 text-primary' />
-          <h1 className='text-2xl font-semibold tracking-tight'>Welcome back</h1>
-          <p className='text-sm text-muted-foreground'>Enter your credentials to log in to your account</p>
-        </div>
-        <UserAuthForm btnLabel='Login' onSubmit={handleLogin} />
-        <p className='px-8 text-center text-sm text-muted-foreground'>
-          <Button variant='link' onClick={handleGoToSignUp}>
-            Don&apos;t have an account? Sign Up
-          </Button>
-        </p>
+    <div className='flex flex-col gap-6'>
+      <Card>
+        <CardHeader className='text-center'>
+          <CardTitle className='text-xl'>Welcome back</CardTitle>
+          <CardDescription>Login with your Apple or Google account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <>
+            <div className='grid gap-6'>
+              <UserAuthForm btnLabel='Login' onSubmit={handleLogin} />
+              <div className='text-center text-sm'>
+                <Button variant='link' onClick={handleGoToSignUp}>
+                  Don&apos;t have an account? Sign Up
+                </Button>
+              </div>
+            </div>
+          </>
+        </CardContent>
+      </Card>
+      <div className='text-muted-foreground [&_a]:hover:text-primary text-center text-xs text-balance [&_a]:underline [&_a]:underline-offset-4'>
+        By clicking continue, you agree to our <a href={`${env.WebUrl}/terms`}>Terms of Service</a> and{' '}
+        <a href={`${env.WebUrl}/privacy`}>Privacy Policy</a>.
       </div>
     </div>
   );

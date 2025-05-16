@@ -1,7 +1,10 @@
 import { useCallback, useState } from 'react';
-import { ExternalLink, LucideHeart, Send } from 'lucide-react';
+import { ExternalLinkIcon, LucideHeart, SendIcon, SettingsIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
-import { FeedbackFormValues, FeedbackSchema } from '@/app/root/schemas';
+import { Link } from '@tanstack/react-router';
+import type { FeedbackFormValues } from '@/app/root/schemas';
+import { feedbackSchema } from '@/app/root/schemas';
 import { Button } from '@/shared/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
@@ -22,8 +25,7 @@ import {
 } from '@/shared/components/ui/sidebar';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { env } from '@/shared/env';
-import { toast } from '@/shared/hooks/use-toast';
-import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { siteConfig } from '@/shared/lib/constants';
 
 interface Props extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {}
@@ -31,23 +33,31 @@ interface Props extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {}
 export function NavSecondary({ ...props }: Props) {
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const handleCloseFeedback = useCallback(() => {
-    setShowFeedback(false);
-  }, []);
+  const handleCloseFeedback = useCallback(() => setShowFeedback(false), []);
 
-  const handleOpenFeedback = useCallback(() => {
-    setShowFeedback(true);
-  }, []);
+  const handleOpenFeedback = useCallback(() => setShowFeedback(true), []);
 
   return (
     <SidebarGroup {...props}>
       <Sheet open={showFeedback} onOpenChange={setShowFeedback}>
         <SidebarGroupContent>
           <SidebarMenu>
+            <SidebarMenuItem key='Settings'>
+              <SidebarMenuButton asChild>
+                <Link
+                  activeOptions={{ exact: false }}
+                  activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground' }}
+                  to='/settings'
+                >
+                  <SettingsIcon />
+                  <span>Settings</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             <SidebarMenuItem key='Support'>
               <SidebarMenuButton asChild size='sm'>
                 <a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank'>
-                  <ExternalLink />
+                  <ExternalLinkIcon />
                   <span>Support</span>
                 </a>
               </SidebarMenuButton>
@@ -55,7 +65,7 @@ export function NavSecondary({ ...props }: Props) {
             <SidebarMenuItem key='Feedback'>
               <SidebarMenuButton asChild size='sm'>
                 <SheetTrigger onClick={handleOpenFeedback}>
-                  <Send />
+                  <SendIcon />
                   <span>Feedback</span>
                 </SheetTrigger>
               </SidebarMenuButton>
@@ -69,12 +79,12 @@ export function NavSecondary({ ...props }: Props) {
 }
 
 const onInvalid = () => {
-  toast({ title: 'Invalid form', description: 'Something went wrong. Please try again later ' });
+  toast('Invalid form', { description: 'Something went wrong. Please try again later ' });
 };
 
 function FeedbackSheet({ onClose }: { onClose: () => void }) {
   const form = useZodForm({
-    schema: FeedbackSchema,
+    schema: feedbackSchema,
     defaultValues: {
       message: '',
     },
@@ -85,7 +95,7 @@ function FeedbackSheet({ onClose }: { onClose: () => void }) {
       $survey_id: env.PosthogSurveyId,
       $survey_response: data.message,
     });
-    toast({ title: 'Feedback sent', description: 'Thank you for your feedback!' });
+    toast('Feedback sent', { description: 'Thank you for your feedback!' });
     form.reset();
     onClose();
   };

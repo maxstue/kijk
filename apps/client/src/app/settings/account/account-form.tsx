@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/shared/components/ui/button';
@@ -17,7 +18,6 @@ import {
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
-import { toast } from '@/shared/hooks/use-toast';
 import { cn } from '@/shared/lib/helpers';
 
 const languages = [
@@ -65,8 +65,7 @@ export function AccountForm() {
   });
 
   function onSubmit(data: AccountFormValues) {
-    toast({
-      title: 'You submitted the following values:',
+    toast('You submitted the following values:', {
       description: (
         <pre className='mt-2 w-[340px] rounded bg-slate-950 p-4'>
           <code className='text-white'>{JSON.stringify(data, undefined, 2)}</code>
@@ -111,7 +110,6 @@ export function AccountForm() {
               </PopoverTrigger>
               <PopoverContent align='start' className='w-auto p-0'>
                 <Calendar
-                  autoFocus
                   disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                   mode='single'
                   selected={field.value}

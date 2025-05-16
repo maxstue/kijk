@@ -1,23 +1,21 @@
+'use no memo';
+
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FieldErrors, useForm, UseFormProps } from 'react-hook-form';
-import { TypeOf, z, ZodSchema } from 'zod';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import type { FieldErrors, UseFormProps } from 'react-hook-form';
+import type { TypeOf, ZodSchema, z } from 'zod';
 
-import { useToast } from '@/shared/hooks/use-toast';
-
-interface UseZodFormProps<S extends ZodSchema> extends Exclude<UseFormProps<z.infer<S>>, 'resolver'> {
-  schema: S;
+interface UseZodFormProps<TSchema extends ZodSchema> extends Exclude<UseFormProps<z.infer<TSchema>>, 'resolver'> {
+  schema: TSchema;
 }
 
-export const useZodForm = <S extends ZodSchema>({ schema, ...formProps }: UseZodFormProps<S>) => {
+export const useZodForm = <TSchema extends ZodSchema>({ schema, ...formProps }: UseZodFormProps<TSchema>) => {
   const form = useForm({ ...formProps, resolver: zodResolver(schema) });
 
-  const { toast } = useToast();
-
-  const handleInvalidFormState = (errors: FieldErrors<TypeOf<S>>) =>
-    toast({
-      title: 'Error: Form validation',
-      description: `Correcterrors: ${errors.root?.type} - ${errors.root?.message}`,
-      variant: 'destructive',
+  const handleInvalidFormState = (errors: FieldErrors<TypeOf<TSchema>>) =>
+    toast.error('Error: Form validation', {
+      description: `Correct errors: ${errors.root?.type} - ${errors.root?.message}`,
     });
 
   return { ...form, handleInvalidFormState };

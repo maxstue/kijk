@@ -1,6 +1,8 @@
 import { ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
+import type { CookieConsent } from '@/shared/types/app';
 import { AppVersion } from '@/shared/components/app-version';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/components/ui/accordion';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
@@ -9,12 +11,11 @@ import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Separator } from '@/shared/components/ui/separator';
 import { Switch } from '@/shared/components/ui/switch';
 import { env } from '@/shared/env';
-import { toast } from '@/shared/hooks/use-toast';
-import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { browserStorage } from '@/shared/lib/browser-storage';
 import { siteConfig } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/helpers';
-import { COOKIE_CONSENT_KEY, CookieConsent } from '@/shared/types/app';
+import { COOKIE_CONSENT_KEY } from '@/shared/types/app';
 
 const getCookieConsent = () => {
   if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
@@ -33,7 +34,7 @@ function onSubmit(data: PrivacyFormValues) {
     AnalyticsService.getInstance().opt_out_capturing();
   }
 
-  toast({ title: 'Privacy settings updated' });
+  toast('Privacy settings updated');
 }
 
 const privacyFormSchema = z.object({
@@ -55,7 +56,7 @@ export function InfoSection() {
     <div className='space-y-6'>
       <div>
         <h3 className='text-lg font-medium'>Info</h3>
-        <p className='text-sm text-muted-foreground'>Here are some informations about this app and privacy settings.</p>
+        <p className='text-muted-foreground text-sm'>Here are some informations about this app and privacy settings.</p>
       </div>
       <Separator />
       <div className='flex flex-col gap-12'>

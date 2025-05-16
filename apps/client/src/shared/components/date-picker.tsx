@@ -1,4 +1,3 @@
-import { forwardRef } from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 
@@ -7,42 +6,26 @@ import { Calendar } from '@/shared/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { cn } from '@/shared/lib/helpers';
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
+interface Props {
   date?: Date;
   setDate: (date?: Date) => void;
 }
 
-const DatePicker = forwardRef<HTMLInputElement, Props>(({ className, date, setDate, ...props }, ref) => {
+export function DatePicker(props: Props) {
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className={cn('w-[240px] justify-start text-left font-normal', !date && 'text-muted-foreground', className)}
-          id='date'
-          size='sm'
+          className={cn('w-[280px] justify-start text-left font-normal', !props.date && 'text-muted-foreground')}
           variant={'outline'}
         >
           <CalendarIcon className='mr-2 h-4 w-4' />
-          {date ? format(date, 'LLL dd, y') : <span>Pick a date</span>}
+          {props.date ? format(props.date, 'PPP') : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent ref={ref} align='end' className='w-auto p-0'>
-        <Calendar
-          {...props}
-          autoFocus
-          defaultMonth={date}
-          mode='single'
-          role='dialog'
-          selected={date}
-          onSelect={(data) => {
-            setDate(data);
-          }}
-        />
+      <PopoverContent className='w-auto p-0'>
+        <Calendar initialFocus mode='single' selected={props.date} onSelect={props.setDate} />
       </PopoverContent>
     </Popover>
   );
-});
-
-DatePicker.displayName = 'DatePicker';
-
-export { DatePicker };
+}

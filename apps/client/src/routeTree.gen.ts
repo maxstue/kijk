@@ -11,18 +11,25 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as WelcomeImport } from './routes/welcome'
 import { Route as SsoCallbackImport } from './routes/sso-callback'
 import { Route as AuthImport } from './routes/auth'
 import { Route as ProtectedImport } from './routes/_protected'
 import { Route as ProtectedIndexImport } from './routes/_protected/index'
-import { Route as ProtectedWelcomeImport } from './routes/_protected/welcome'
 import { Route as ProtectedSettingsImport } from './routes/_protected/settings'
+import { Route as ProtectedResourcesImport } from './routes/_protected/resources'
 import { Route as ProtectedHomeImport } from './routes/_protected/home'
-import { Route as ProtectedEnergyImport } from './routes/_protected/energy'
-import { Route as ProtectedBudgetImport } from './routes/_protected/budget'
+import { Route as ProtectedConsumptionsLimitsImport } from './routes/_protected/consumptions-limits'
+import { Route as ProtectedConsumptionsImport } from './routes/_protected/consumptions'
 import { Route as ProtectedSettingsSectionImport } from './routes/_protected/settings.$section'
 
 // Create/Update Routes
+
+const WelcomeRoute = WelcomeImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const SsoCallbackRoute = SsoCallbackImport.update({
   id: '/sso-callback',
@@ -47,15 +54,15 @@ const ProtectedIndexRoute = ProtectedIndexImport.update({
   getParentRoute: () => ProtectedRoute,
 } as any)
 
-const ProtectedWelcomeRoute = ProtectedWelcomeImport.update({
-  id: '/welcome',
-  path: '/welcome',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-
 const ProtectedSettingsRoute = ProtectedSettingsImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+
+const ProtectedResourcesRoute = ProtectedResourcesImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => ProtectedRoute,
 } as any)
 
@@ -65,15 +72,16 @@ const ProtectedHomeRoute = ProtectedHomeImport.update({
   getParentRoute: () => ProtectedRoute,
 } as any)
 
-const ProtectedEnergyRoute = ProtectedEnergyImport.update({
-  id: '/energy',
-  path: '/energy',
-  getParentRoute: () => ProtectedRoute,
-} as any)
+const ProtectedConsumptionsLimitsRoute =
+  ProtectedConsumptionsLimitsImport.update({
+    id: '/consumptions-limits',
+    path: '/consumptions-limits',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 
-const ProtectedBudgetRoute = ProtectedBudgetImport.update({
-  id: '/budget',
-  path: '/budget',
+const ProtectedConsumptionsRoute = ProtectedConsumptionsImport.update({
+  id: '/consumptions',
+  path: '/consumptions',
   getParentRoute: () => ProtectedRoute,
 } as any)
 
@@ -108,18 +116,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SsoCallbackImport
       parentRoute: typeof rootRoute
     }
-    '/_protected/budget': {
-      id: '/_protected/budget'
-      path: '/budget'
-      fullPath: '/budget'
-      preLoaderRoute: typeof ProtectedBudgetImport
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeImport
+      parentRoute: typeof rootRoute
+    }
+    '/_protected/consumptions': {
+      id: '/_protected/consumptions'
+      path: '/consumptions'
+      fullPath: '/consumptions'
+      preLoaderRoute: typeof ProtectedConsumptionsImport
       parentRoute: typeof ProtectedImport
     }
-    '/_protected/energy': {
-      id: '/_protected/energy'
-      path: '/energy'
-      fullPath: '/energy'
-      preLoaderRoute: typeof ProtectedEnergyImport
+    '/_protected/consumptions-limits': {
+      id: '/_protected/consumptions-limits'
+      path: '/consumptions-limits'
+      fullPath: '/consumptions-limits'
+      preLoaderRoute: typeof ProtectedConsumptionsLimitsImport
       parentRoute: typeof ProtectedImport
     }
     '/_protected/home': {
@@ -129,18 +144,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedHomeImport
       parentRoute: typeof ProtectedImport
     }
+    '/_protected/resources': {
+      id: '/_protected/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ProtectedResourcesImport
+      parentRoute: typeof ProtectedImport
+    }
     '/_protected/settings': {
       id: '/_protected/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof ProtectedSettingsImport
-      parentRoute: typeof ProtectedImport
-    }
-    '/_protected/welcome': {
-      id: '/_protected/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof ProtectedWelcomeImport
       parentRoute: typeof ProtectedImport
     }
     '/_protected/': {
@@ -174,20 +189,20 @@ const ProtectedSettingsRouteWithChildren =
   ProtectedSettingsRoute._addFileChildren(ProtectedSettingsRouteChildren)
 
 interface ProtectedRouteChildren {
-  ProtectedBudgetRoute: typeof ProtectedBudgetRoute
-  ProtectedEnergyRoute: typeof ProtectedEnergyRoute
+  ProtectedConsumptionsRoute: typeof ProtectedConsumptionsRoute
+  ProtectedConsumptionsLimitsRoute: typeof ProtectedConsumptionsLimitsRoute
   ProtectedHomeRoute: typeof ProtectedHomeRoute
+  ProtectedResourcesRoute: typeof ProtectedResourcesRoute
   ProtectedSettingsRoute: typeof ProtectedSettingsRouteWithChildren
-  ProtectedWelcomeRoute: typeof ProtectedWelcomeRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
-  ProtectedBudgetRoute: ProtectedBudgetRoute,
-  ProtectedEnergyRoute: ProtectedEnergyRoute,
+  ProtectedConsumptionsRoute: ProtectedConsumptionsRoute,
+  ProtectedConsumptionsLimitsRoute: ProtectedConsumptionsLimitsRoute,
   ProtectedHomeRoute: ProtectedHomeRoute,
+  ProtectedResourcesRoute: ProtectedResourcesRoute,
   ProtectedSettingsRoute: ProtectedSettingsRouteWithChildren,
-  ProtectedWelcomeRoute: ProtectedWelcomeRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
 }
 
@@ -199,11 +214,12 @@ export interface FileRoutesByFullPath {
   '': typeof ProtectedRouteWithChildren
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/budget': typeof ProtectedBudgetRoute
-  '/energy': typeof ProtectedEnergyRoute
+  '/welcome': typeof WelcomeRoute
+  '/consumptions': typeof ProtectedConsumptionsRoute
+  '/consumptions-limits': typeof ProtectedConsumptionsLimitsRoute
   '/home': typeof ProtectedHomeRoute
+  '/resources': typeof ProtectedResourcesRoute
   '/settings': typeof ProtectedSettingsRouteWithChildren
-  '/welcome': typeof ProtectedWelcomeRoute
   '/': typeof ProtectedIndexRoute
   '/settings/$section': typeof ProtectedSettingsSectionRoute
 }
@@ -211,11 +227,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/budget': typeof ProtectedBudgetRoute
-  '/energy': typeof ProtectedEnergyRoute
+  '/welcome': typeof WelcomeRoute
+  '/consumptions': typeof ProtectedConsumptionsRoute
+  '/consumptions-limits': typeof ProtectedConsumptionsLimitsRoute
   '/home': typeof ProtectedHomeRoute
+  '/resources': typeof ProtectedResourcesRoute
   '/settings': typeof ProtectedSettingsRouteWithChildren
-  '/welcome': typeof ProtectedWelcomeRoute
   '/': typeof ProtectedIndexRoute
   '/settings/$section': typeof ProtectedSettingsSectionRoute
 }
@@ -225,11 +242,12 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteWithChildren
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/_protected/budget': typeof ProtectedBudgetRoute
-  '/_protected/energy': typeof ProtectedEnergyRoute
+  '/welcome': typeof WelcomeRoute
+  '/_protected/consumptions': typeof ProtectedConsumptionsRoute
+  '/_protected/consumptions-limits': typeof ProtectedConsumptionsLimitsRoute
   '/_protected/home': typeof ProtectedHomeRoute
+  '/_protected/resources': typeof ProtectedResourcesRoute
   '/_protected/settings': typeof ProtectedSettingsRouteWithChildren
-  '/_protected/welcome': typeof ProtectedWelcomeRoute
   '/_protected/': typeof ProtectedIndexRoute
   '/_protected/settings/$section': typeof ProtectedSettingsSectionRoute
 }
@@ -240,22 +258,24 @@ export interface FileRouteTypes {
     | ''
     | '/auth'
     | '/sso-callback'
-    | '/budget'
-    | '/energy'
-    | '/home'
-    | '/settings'
     | '/welcome'
+    | '/consumptions'
+    | '/consumptions-limits'
+    | '/home'
+    | '/resources'
+    | '/settings'
     | '/'
     | '/settings/$section'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
     | '/sso-callback'
-    | '/budget'
-    | '/energy'
-    | '/home'
-    | '/settings'
     | '/welcome'
+    | '/consumptions'
+    | '/consumptions-limits'
+    | '/home'
+    | '/resources'
+    | '/settings'
     | '/'
     | '/settings/$section'
   id:
@@ -263,11 +283,12 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/auth'
     | '/sso-callback'
-    | '/_protected/budget'
-    | '/_protected/energy'
+    | '/welcome'
+    | '/_protected/consumptions'
+    | '/_protected/consumptions-limits'
     | '/_protected/home'
+    | '/_protected/resources'
     | '/_protected/settings'
-    | '/_protected/welcome'
     | '/_protected/'
     | '/_protected/settings/$section'
   fileRoutesById: FileRoutesById
@@ -277,12 +298,14 @@ export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
   AuthRoute: typeof AuthRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
+  WelcomeRoute: typeof WelcomeRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
   AuthRoute: AuthRoute,
   SsoCallbackRoute: SsoCallbackRoute,
+  WelcomeRoute: WelcomeRoute,
 }
 
 export const routeTree = rootRoute
@@ -297,17 +320,18 @@ export const routeTree = rootRoute
       "children": [
         "/_protected",
         "/auth",
-        "/sso-callback"
+        "/sso-callback",
+        "/welcome"
       ]
     },
     "/_protected": {
       "filePath": "_protected.tsx",
       "children": [
-        "/_protected/budget",
-        "/_protected/energy",
+        "/_protected/consumptions",
+        "/_protected/consumptions-limits",
         "/_protected/home",
+        "/_protected/resources",
         "/_protected/settings",
-        "/_protected/welcome",
         "/_protected/"
       ]
     },
@@ -317,16 +341,23 @@ export const routeTree = rootRoute
     "/sso-callback": {
       "filePath": "sso-callback.tsx"
     },
-    "/_protected/budget": {
-      "filePath": "_protected/budget.tsx",
+    "/welcome": {
+      "filePath": "welcome.tsx"
+    },
+    "/_protected/consumptions": {
+      "filePath": "_protected/consumptions.tsx",
       "parent": "/_protected"
     },
-    "/_protected/energy": {
-      "filePath": "_protected/energy.tsx",
+    "/_protected/consumptions-limits": {
+      "filePath": "_protected/consumptions-limits.tsx",
       "parent": "/_protected"
     },
     "/_protected/home": {
       "filePath": "_protected/home.tsx",
+      "parent": "/_protected"
+    },
+    "/_protected/resources": {
+      "filePath": "_protected/resources.tsx",
       "parent": "/_protected"
     },
     "/_protected/settings": {
@@ -335,10 +366,6 @@ export const routeTree = rootRoute
       "children": [
         "/_protected/settings/$section"
       ]
-    },
-    "/_protected/welcome": {
-      "filePath": "_protected/welcome.tsx",
-      "parent": "/_protected"
     },
     "/_protected/": {
       "filePath": "_protected/index.tsx",

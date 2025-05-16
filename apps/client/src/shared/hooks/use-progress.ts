@@ -71,8 +71,6 @@ function rand(min: number, max: number) {
 
 function secureRandom() {
   const possibleRandomValue = crypto.getRandomValues(new Uint32Array(1))[0];
-  if (possibleRandomValue !== undefined) {
-    return possibleRandomValue / 2 ** 32;
-  }
+  return possibleRandomValue / 2 ** 32;
   return 0;
 }

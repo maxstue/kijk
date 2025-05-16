@@ -1,7 +1,7 @@
-import { ClerkLoaded, ClerkLoading, ClerkProvider } from '@clerk/clerk-react';
+import { ClerkProvider, useAuth } from '@clerk/clerk-react';
 
-import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { env } from '@/shared/env';
+import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 
 interface Props {
   children?: React.ReactNode;
@@ -9,11 +9,13 @@ interface Props {
 
 export const AuthProvider = ({ children }: Props) => {
   return (
-    <ClerkProvider publishableKey={env.AuthPublishableKey}>
-      <ClerkLoading>
-        <InitLoader />
-      </ClerkLoading>
-      <ClerkLoaded>{children}</ClerkLoaded>
+    <ClerkProvider publishableKey={env.AuthPublishableKey} afterSignOutUrl='/'>
+      <InnerAuthProvider>{children}</InnerAuthProvider>
     </ClerkProvider>
   );
 };
+
+function InnerAuthProvider({ children }: Props) {
+  const { isLoaded } = useAuth();
+  return isLoaded ? children : <InitLoader />;
+}

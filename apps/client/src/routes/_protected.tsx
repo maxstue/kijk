@@ -1,70 +1,45 @@
-import { useEffect } from 'react';
-import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router';
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
 import { AppSidebar } from '@/app/root/app-sidebar';
-import { useSignInUser } from '@/app/root/use-signin-user';
+import { useSignInUser, userSignInQuery } from '@/app/root/use-signin-user';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
-import { Separator } from '@/shared/components/ui/separator';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/shared/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
+import { SiteHeader } from '@/app/root/site-header';
 
 export const Route = createFileRoute('/_protected')({
-  beforeLoad: async ({ location, context: { authClient } }) => {
-    const session = authClient.getInstance()?.session;
+  beforeLoad: async ({ location, context: { authClient, queryClient } }) => {
+    const session = authClient?.session;
     const sessionToken = await session?.getToken();
     if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
       throw redirect({ to: '/auth', search: { from: location.href } });
+    }
+
+    const user = await queryClient.ensureQueryData(userSignInQuery);
+    if (user.firstTime) {
+      throw redirect({ to: '/welcome', replace: true });
     }
 
     return { session };
   },
   component: Protected,
   pendingComponent: InitLoader,
+  pendingMinMs: 100,
+  pendingMs: 50,
 });
 
 function Protected() {
-  const navigate = useNavigate({ from: Route.fullPath });
   const query = useSignInUser();
 
   const isFirstTime = query.data.firstTime === true;
 
-  useEffect(() => {
-    if (query.isSuccess && query.data && isFirstTime) {
-      navigate({ to: '/welcome', replace: true });
-    }
-  }, [isFirstTime, navigate, query.data, query.isSuccess, query.status]);
-
   return (
     <SidebarProvider>
       {isFirstTime ? undefined : <AppSidebar />}
-      <SidebarInset>
-        {isFirstTime ? undefined : (
-          <header className='flex h-16 shrink-0 items-center gap-2'>
-            <div className='flex items-center gap-2 px-4'>
-              <SidebarTrigger className='-ml-1' />
-              <Separator className='mr-2 h-4' orientation='vertical' />
-              {/* TODO add breadcrumbs */}
-              {/* <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className='hidden md:block'>
-                  <BreadcrumbLink href='#'>Building Your Application</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className='hidden md:block' />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb> */}
-            </div>
-          </header>
-        )}
-        {/* Content */}
-        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
-          {/* <main className={cn(isFirstTime ? 'p-2' : 'py-2 pl-64 pr-2', 'flex flex-1 flex-col')}> */}
-          {/* <div className='grow overflow-auto rounded-md border bg-muted/50 p-6'> */}
+      <SidebarInset className='min-h-[calc(100svh-(--spacing(4)))]'>
+        {isFirstTime ? undefined : <SiteHeader />}
+        <div className='p-4'>
           <Outlet />
-          {/* </div> */}
-          {/* </main> */}
         </div>
       </SidebarInset>
     </SidebarProvider>

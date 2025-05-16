@@ -37,10 +37,10 @@ export function DevModeIndicator() {
   );
 
   return (
-    <div className='absolute top-0 z-50 flex w-[100vw] flex-col items-center'>
-      <div className='h-[2px] w-full bg-gradient-to-r from-background via-[#E87B35] to-background' />
+    <div className='absolute top-0 z-50 flex w-full flex-col items-center'>
+      <div className='from-background to-background h-[2px] w-full bg-gradient-to-r via-[#E87B35]' />
       <div
-        className='flex items-center space-x-2 rounded-b bg-[#E87B35] px-2 pb-1.5 pt-0 text-xs text-white'
+        className='flex items-center space-x-2 rounded-b bg-[#E87B35] px-2 pt-0 pb-1.5 text-xs text-white'
         role='button'
         tabIndex={-1}
         onMouseEnter={handleHover(true)}

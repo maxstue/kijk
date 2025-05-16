@@ -6,20 +6,18 @@
  * @param uniqueProperty The property to check by.
  * @returns Returns an object with n-amount of lists as type "RT"
  */
-export const groupBy = <T, RT extends Record<string | number | symbol, T[]>>(
-  listToGroup: T[] | undefined,
+export const groupBy = <T, TReturn extends Record<string | number | symbol, Array<T>>>(
+  listToGroup: Array<T> | undefined,
   getKey: (item: T) => string,
   getUniqueKey?: (item: T) => string,
 ) => {
-  const grouped: Record<string, T[]> = {};
+  const grouped: Record<string, Array<T>> = {};
 
   if (listToGroup) {
     for (const object of listToGroup) {
       const group = getKey(object);
 
-      if (!grouped[group]) {
-        grouped[group] = [];
-      }
+      grouped[group] ??= [];
 
       if (getUniqueKey) {
         const foundIndex = grouped[group].findIndex((x) => getUniqueKey(x) === getUniqueKey(object));
@@ -32,5 +30,5 @@ export const groupBy = <T, RT extends Record<string | number | symbol, T[]>>(
     }
   }
 
-  return grouped as RT;
+  return grouped as TReturn;
 };

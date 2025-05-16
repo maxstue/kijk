@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Nullish } from '@/shared/types/app';
+import type { Nullish } from '@/shared/types/app';
 
 const stringRequiredSchema = z.string().trim().min(1);
 /**
@@ -32,4 +32,14 @@ Feedback, bug reports and suggestions are welcome on GitHub: https://github.com/
 export function welcome() {
   const styles = ['font-size: 10px'].join(';');
   console.log(`%c${message}`, styles);
+}
+
+/**
+ * Capitalizes the first letter of a string.
+ *
+ * @param name The name to capitalize
+ * @returns The capitalized name
+ */
+export function capitalizeFirstLetter(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 }

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
-import { UserStepFormValues, userStepSchema } from '@/app/welcome/schemas';
+import type { UserStepFormValues} from '@/app/welcome/schemas';
+import { userStepSchema } from '@/app/welcome/schemas';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
@@ -17,7 +18,6 @@ export function UserStepForm({ value, onNext, className }: Props) {
   const form = useZodForm({
     schema: userStepSchema,
     values: value,
-    mode: 'onBlur',
   });
   const { getValues } = form;
 
@@ -28,7 +28,7 @@ export function UserStepForm({ value, onNext, className }: Props) {
   }, [getValues, onNext]);
 
   return (
-    <div className={cn('gridgap-6', className)}>
+    <div className={cn('grid gap-6', className)}>
       <Form className='space-y-8' form={form} onInvalid={form.handleInvalidFormState} onSubmit={onNext}>
         <div className='grid gap-2'>
           <div className='grid gap-1'>
@@ -49,10 +49,10 @@ export function UserStepForm({ value, onNext, className }: Props) {
           <div className='flex w-full items-center'>
             <FormField
               control={form.control}
-              name='useDefaultCategories'
+              name='useDefaultResources'
               render={({ field }) => (
                 <FormItem className='flex w-full items-end justify-start gap-2'>
-                  <FormLabel>Use default Categories</FormLabel>
+                  <FormLabel>Use default Resources</FormLabel>
                   <FormControl>
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>

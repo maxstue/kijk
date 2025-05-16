@@ -1,21 +1,19 @@
-import React, { lazy, Suspense } from 'react';
-import { QueryClient } from '@tanstack/react-query';
+import { Suspense, lazy } from 'react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import type { QueryClient } from '@tanstack/react-query';
 
+import { Favicon } from '@/app/root/favicon';
 import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { env } from '@/shared/env';
-import type { AuthClient } from '@/shared/lib/auth-client';
-
-const DevModeIndicator = lazy(() =>
-  import('@/shared/components/dev-mode-indicator').then(({ DevModeIndicator }) => ({ default: DevModeIndicator })),
-);
+import { LoadedClerk } from '@clerk/types';
 
 interface RootRouteContext {
   queryClient: QueryClient;
-  authClient: AuthClient;
+  authClient: LoadedClerk | undefined;
 }
 
 export const Route = createRootRouteWithContext<RootRouteContext>()({
@@ -26,37 +24,33 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
 function RootPage() {
   return (
     <>
-      <Outlet />
+      <Favicon />
+      <div className='flex h-screen flex-1 flex-col gap-4'>
+        <Suspense fallback={<InitLoader />}>
+          <Outlet />
+        </Suspense>
+      </div>
       <Suspense>
         <AnalyticsBanner />
       </Suspense>
       <Suspense>
-        <DevMode />
+        <DevModeIndicator />
       </Suspense>
       <Suspense>
         <AnalyticsTracker />
       </Suspense>
       <Suspense>
-        <TanStackRouterDevtools initialIsOpen={false} position='top-right' />
-        <ReactQueryDevtools buttonPosition='bottom-right' initialIsOpen={false} />
+        <TanStackRouterDevtools position='top-right' />
+        <ReactQueryDevtools buttonPosition='bottom-right' />
       </Suspense>
     </>
   );
 }
 
-function DevMode() {
-  return env.Mode === 'production' ? undefined : <DevModeIndicator />;
+function DevModeIndicator() {
+  return env.Mode === 'production' ? undefined : <LazyDevModeIndicator />;
 }
 
-const TanStackRouterDevtools =
-  process.env.NODE_ENV === 'production'
-    ? // eslint-disable-next-line unicorn/no-useless-undefined
-      () => undefined // Render nothing in production
-    : React.lazy(() =>
-        // Lazy load in development
-        import('@tanstack/router-devtools').then((response) => ({
-          default: response.TanStackRouterDevtools,
-          // For Embedded Mode
-          // default: res.TanStackRouterDevtoolsPanel
-        })),
-      );
+const LazyDevModeIndicator = lazy(() =>
+  import('@/shared/components/dev-mode-indicator').then(({ DevModeIndicator: Component }) => ({ default: Component })),
+);

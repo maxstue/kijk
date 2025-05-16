@@ -1,16 +1,21 @@
-import { ReactNode, useState } from 'react';
+// 'use no memo' until the react compiler/table bug is fixed https://github.com/TanStack/table/issues/5567
+'use no memo';
+
+import { useState } from 'react';
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  ColumnSort,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
   useReactTable,
 } from '@tanstack/react-table';
+import type { ReactNode} from 'react';
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  ColumnSort,
+  SortingState} from '@tanstack/react-table';
 
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
@@ -19,7 +24,7 @@ import { cn } from '@/shared/lib/helpers';
 
 interface Props<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>;
-  data: TData[];
+  data: Array<TData>;
   actions?: ReactNode;
   defaultSort?: ColumnSort;
 }

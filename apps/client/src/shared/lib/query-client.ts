@@ -8,7 +8,7 @@ const queryClient = new QueryClient({
       staleTime: 60_000,
     },
     mutations: {
-      retry: 1,
+      retry: false,
     },
   },
 });

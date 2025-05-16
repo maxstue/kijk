@@ -1,24 +1,41 @@
-import { HousePlug, LayoutDashboard, Settings2, WalletMinimal } from 'lucide-react';
+import { ChartAreaIcon, HousePlugIcon, LayoutDashboardIcon, TriangleAlertIcon } from 'lucide-react';
+
+interface MainNavItem {
+  title: string;
+  url: string;
+  icon: typeof HousePlugIcon;
+  isActive: boolean;
+}
 
 export const mainNav = [
   {
-    title: 'Overview',
+    title: 'Home',
     url: '/home',
-    icon: LayoutDashboard,
+    icon: LayoutDashboardIcon,
+    isActive: true,
   },
   {
-    title: 'Energy',
-    url: '/energy',
-    icon: HousePlug,
+    title: 'Analytics',
+    url: '/analytics',
+    icon: ChartAreaIcon,
+    isActive: false,
   },
   {
-    title: 'Budget',
-    url: '/budget',
-    icon: WalletMinimal,
+    title: 'Consumptions',
+    url: '/consumptions',
+    icon: HousePlugIcon,
+    isActive: true,
   },
   {
-    title: 'Settings',
-    url: '/settings',
-    icon: Settings2,
+    title: 'Limits',
+    url: '/consumptions-limits',
+    icon: TriangleAlertIcon,
+    isActive: false,
   },
-];
+  {
+    title: 'Resources',
+    url: '/resources',
+    icon: HousePlugIcon,
+    isActive: false,
+  },
+] satisfies Array<MainNavItem>;
