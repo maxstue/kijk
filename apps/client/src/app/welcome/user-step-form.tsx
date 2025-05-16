@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import type { UserStepFormValues} from '@/app/welcome/schemas';
+import type { UserStepFormValues } from '@/app/welcome/schemas';
 import { userStepSchema } from '@/app/welcome/schemas';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';

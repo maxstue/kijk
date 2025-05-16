@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import type { UserUpdateFormValues} from '@/app/settings/profile/schemas';
+import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/user-update-user';

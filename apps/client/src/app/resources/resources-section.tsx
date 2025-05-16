@@ -19,7 +19,6 @@ import {
 } from '@/shared/components/ui/sheet';
 import { CreatorTypes } from '@/shared/types/app';
 
-
 export function ResourceTypesSection() {
   const [showSheet, setShowSheet] = useState(false);
   const { data } = useGetResources();

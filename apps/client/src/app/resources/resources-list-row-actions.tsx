@@ -3,7 +3,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Row } from '@tanstack/react-table';
 
-import type { ResourceFormValues} from '@/app/resources/schemas';
+import type { ResourceFormValues } from '@/app/resources/schemas';
 import type { Resource } from '@/shared/types/app';
 import { resourceSchema } from '@/app/resources/schemas';
 import { useDeleteResource } from '@/app/resources/use-delete-resource';

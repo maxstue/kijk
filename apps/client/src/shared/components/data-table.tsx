@@ -10,12 +10,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import type { ReactNode} from 'react';
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  ColumnSort,
-  SortingState} from '@tanstack/react-table';
+import type { ReactNode } from 'react';
+import type { ColumnDef, ColumnFiltersState, ColumnSort, SortingState } from '@tanstack/react-table';
 
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';

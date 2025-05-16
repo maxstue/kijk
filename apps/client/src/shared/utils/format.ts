@@ -1,4 +1,4 @@
-import type { Months} from '@/shared/types/app';
+import type { Months } from '@/shared/types/app';
 import { months } from '@/shared/types/app';
 import { AppError } from '@/shared/types/errors';
 

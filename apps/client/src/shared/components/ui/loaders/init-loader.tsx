@@ -3,7 +3,13 @@ export function InitLoader() {
     <div className='flex h-screen w-screen items-center justify-center'>
       <div className='flex w-6/12 flex-col items-center justify-center gap-4'>
         {/* <!-- Logo --> */}
-        <svg className='animate fade 4s ease-in-out infinite, spin 6s linear infinite' fill='#fff' height='96' viewBox='0 0 96 96' width='96'>
+        <svg
+          className='animate fade 4s infinite, spin 6s linear infinite ease-in-out'
+          fill='#fff'
+          height='96'
+          viewBox='0 0 96 96'
+          width='96'
+        >
           <polygon points='36.703,11.011 9.638,26.636 9.638,38.757 36.703,23.131 63.767,38.757 63.767,26.636   ' />
           <polygon points='63.298,89.092 36.233,73.467 36.233,61.348 63.298,76.973 90.362,61.348 90.362,73.467   ' />
           <polygon points='9.638,42.012 36.703,26.386 47.198,32.446 20.134,48.072 20.134,79.324 9.638,73.264   ' />

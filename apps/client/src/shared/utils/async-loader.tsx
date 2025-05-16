@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
-import type { ComponentType, FC} from 'react';
+import type { ComponentType, FC } from 'react';
 
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 

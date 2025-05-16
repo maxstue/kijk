@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useSignIn } from '@clerk/clerk-react';
 import type { ControllerRenderProps } from 'react-hook-form';
 
-import type { AuthSchema} from '@/app/auth/schemas';
+import type { AuthSchema } from '@/app/auth/schemas';
 import { authSchema } from '@/app/auth/schemas';
 import { Route } from '@/routes/auth';
 import { Icons } from '@/shared/components/icons';

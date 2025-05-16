@@ -17,7 +17,7 @@ public static class GetByYearMonthHandler
     public static async Task<Results<Ok<List<ConsumptionResponse>>, ProblemHttpResult>> HandleAsync([FromQuery] int? year, [FromQuery] string? month,
         AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
     {
-        var monthInt =month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month : -1;
+        var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month : -1;
 
         var response = await dbContext.Consumptions
             .AsNoTracking()
