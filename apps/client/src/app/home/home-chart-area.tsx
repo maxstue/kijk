@@ -205,7 +205,7 @@ export function HomeChartArea() {
               tickLine={false}
               tickMargin={8}
               tickFormatter={(value) => {
-                const date = new Date(value);
+                const date = new Date(value as string);
                 return date.toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
@@ -219,7 +219,7 @@ export function HomeChartArea() {
                 <ChartTooltipContent
                   indicator='dot'
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('en-US', {
+                    return new Date(value as string).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
                     });

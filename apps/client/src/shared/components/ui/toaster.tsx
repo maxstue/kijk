@@ -1,5 +1,6 @@
+import { Toaster as Sonner } from 'sonner';
+import type { ToasterProps } from 'sonner';
 import { useThemeStore } from '@/shared/stores/theme-store';
-import { Toaster as Sonner, ToasterProps } from 'sonner';
 
 export const AppToaster = ({ ...props }: ToasterProps) => {
   const { mode } = useThemeStore();

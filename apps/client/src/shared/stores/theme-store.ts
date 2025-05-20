@@ -1,9 +1,9 @@
+import type { ToasterProps } from 'sonner';
 import type { StoreApi, UseBoundStore } from 'zustand';
 
 import { browserStorage } from '@/shared/lib/browser-storage';
 import { themeStorageKey } from '@/shared/lib/constants';
 import { createStoreFactory } from '@/shared/utils/store';
-import { ToasterProps } from 'sonner';
 
 interface Storage {
   mode: ToasterProps['theme'];

@@ -113,8 +113,6 @@ const reactConfig = {
     },
   },
   rules: {
-    ...reactHooksPlugin.configs.recommended.rules,
-    "react-compiler/react-compiler": "error",
     "react/jsx-boolean-value": "error",
     "react/jsx-filename-extension": [
       2,

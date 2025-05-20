@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
 import { PlusIcon } from 'lucide-react';
+import { Suspense, useState } from 'react';
 import { mainNav } from '@/app/root/constants';
 import {
   SidebarGroup,
@@ -20,7 +21,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/shared/components/ui/sheet';
-import { Suspense, useState } from 'react';
 import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form';
 import { months } from '@/shared/types/app';
 
@@ -69,12 +69,12 @@ export function NavMain() {
                 <Link
                   key={item.url}
                   activeOptions={{ exact: false }}
-                  activeProps={{
-                    className: 'text-primary-foreground bg-primary',
-                  }}
                   className={cn(!item.isActive && 'cursor-not-allowed')}
                   disabled={!item.isActive}
                   to={item.url}
+                  activeProps={{
+                    className: 'text-primary-foreground bg-primary',
+                  }}
                 >
                   <item.icon />
                   <span>{item.title}</span>

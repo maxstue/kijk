@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { Suspense } from 'react';
 import { AppError } from '@/shared/components/errors/app-error';
 import { HomeSectionCards } from '@/app/home/home-section-cards';
 import { HomeTable } from '@/app/home/home-table';
 import { HomeChartArea } from '@/app/home/home-chart-area';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import { Suspense } from 'react';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 
 export const Route = createFileRoute('/_protected/home')({

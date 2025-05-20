@@ -1,6 +1,10 @@
-import { PropsWithChildren, Suspense, useCallback } from 'react';
+import { Suspense, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useWatch } from 'react-hook-form';
+import { ErrorBoundary } from 'react-error-boundary';
+import type { PropsWithChildren } from 'react';
 
+import type { ControllerRenderProps, SubmitErrorHandler, SubmitHandler, UseFormReturn } from 'react-hook-form';
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import type { Months } from '@/shared/types/app';
 import { ConsumptionCreateSchema } from '@/app/consumptions/schemas';
@@ -10,14 +14,12 @@ import { Button } from '@/shared/components/ui/button';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { getMonthIndexFromString } from '@/shared/utils/format';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { ControllerRenderProps, SubmitErrorHandler, SubmitHandler, UseFormReturn, useWatch } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Input } from '@/shared/components/ui/input';
 import ResourceUnit from '@/app/consumptions/resources-unit';
 import { useGetResources } from '@/app/resources/use-get-resources';
 import { DatePicker } from '@/shared/components/date-picker';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/shared/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 
 interface TProps {
   year: number;
@@ -66,7 +68,7 @@ export function ConsumptionCreateForm({ onClose, ...props }: TProps) {
   return (
     <Suspense fallback={<AsyncLoader />}>
       <ConsumptionForm form={form} onInvalid={handleError} onSubmit={onSubmit}>
-        <Button disabled={isPending} type='submit' className='mt-6'>
+        <Button className='mt-6' disabled={isPending} type='submit'>
           {isPending ? <Icons.spinner className='h-5 w-5 animate-spin' /> : 'Add'}
         </Button>
       </ConsumptionForm>
@@ -131,7 +133,7 @@ function ResourceField({ field }: { field: ControllerRenderProps<ConsumptionCrea
   return (
     <FormItem>
       <FormLabel>Resource</FormLabel>
-      <Select defaultValue={field.value ?? ''} onValueChange={field.onChange}>
+      <Select defaultValue={field.value} onValueChange={field.onChange}>
         <FormControl>
           <SelectTrigger>
             <SelectValue placeholder='Select an energy type' />

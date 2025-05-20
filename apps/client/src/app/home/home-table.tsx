@@ -8,7 +8,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { z } from 'zod';
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Columns3Icon, EllipsisVerticalIcon } from 'lucide-react';
 import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/react-table';
 import type { UniqueIdentifier } from '@dnd-kit/core';
 
@@ -27,20 +27,19 @@ import { Label } from '@/shared/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Columns3Icon, EllipsisVerticalIcon } from 'lucide-react';
 import dataFile from '@/app/home/data.json';
 
-const schema = z.object({
-  id: z.number(),
-  header: z.string(),
-  type: z.string(),
-  status: z.string(),
-  target: z.string(),
-  limit: z.string(),
-  reviewer: z.string(),
-});
+interface DataFile {
+  id: number;
+  header: string;
+  type: string;
+  status: string;
+  target: string;
+  limit: string;
+  reviewer: string;
+}
 
-const columns: Array<ColumnDef<z.infer<typeof schema>>> = [
+const columns: Array<ColumnDef<DataFile>> = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -115,7 +114,7 @@ export function HomeTable() {
     pageSize: 10,
   });
 
-  const dataIds = React.useMemo<Array<UniqueIdentifier>>(() => dataFile.map(({ id }) => id) || [], []);
+  const dataIds = React.useMemo<Array<UniqueIdentifier>>(() => dataFile.map(({ id }) => id), []);
 
   const table = useReactTable({
     data: dataFile,

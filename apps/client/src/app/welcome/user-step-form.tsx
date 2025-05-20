@@ -23,7 +23,7 @@ export function UserStepForm({ value, onNext, className }: Props) {
 
   useEffect(() => {
     return () => {
-      onNext(getValues());
+      onNext(getValues() as UserStepFormValues);
     };
   }, [getValues, onNext]);
 
@@ -54,7 +54,7 @@ export function UserStepForm({ value, onNext, className }: Props) {
                 <FormItem className='flex w-full items-end justify-start gap-2'>
                   <FormLabel>Use default Resources</FormLabel>
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    <Checkbox checked={field.value as boolean} onCheckedChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

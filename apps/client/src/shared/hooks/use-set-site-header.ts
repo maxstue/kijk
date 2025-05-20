@@ -1,5 +1,5 @@
-import { useSiteHeaderStoreActions } from '@/shared/stores/site-header-store';
 import { useEffect } from 'react';
+import { useSiteHeaderStoreActions } from '@/shared/stores/site-header-store';
 
 /**
  * Custom hook to set the site header title.

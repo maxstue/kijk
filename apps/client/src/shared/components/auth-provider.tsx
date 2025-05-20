@@ -9,7 +9,7 @@ interface Props {
 
 export const AuthProvider = ({ children }: Props) => {
   return (
-    <ClerkProvider publishableKey={env.AuthPublishableKey} afterSignOutUrl='/'>
+    <ClerkProvider afterSignOutUrl='/' publishableKey={env.AuthPublishableKey}>
       <InnerAuthProvider>{children}</InnerAuthProvider>
     </ClerkProvider>
   );

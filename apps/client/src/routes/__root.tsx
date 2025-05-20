@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import type { LoadedClerk } from '@clerk/types';
 import type { QueryClient } from '@tanstack/react-query';
 
 import { Favicon } from '@/app/root/favicon';
@@ -9,7 +10,6 @@ import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { env } from '@/shared/env';
-import { LoadedClerk } from '@clerk/types';
 
 interface RootRouteContext {
   queryClient: QueryClient;

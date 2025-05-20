@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { BarChart3, Hash, List } from 'lucide-react';
 
 import { useGetResources } from './use-get-resources';
@@ -77,21 +77,8 @@ export function ResourceTypesSection() {
 function ResourceTypeStatistics() {
   const { data } = useGetResources();
 
-  const dataCount = useMemo(() => {
-    if (data === undefined) {
-      return 0;
-    }
-
-    return data.length;
-  }, [data]);
-
-  const customCount = useMemo(() => {
-    if (data === undefined) {
-      return 0;
-    }
-
-    return data.filter((x) => x.creator === CreatorTypes.USER).length;
-  }, [data]);
+  const dataCount = data.length;
+  const customCount = data.filter((x) => x.creator === CreatorTypes.USER).length;
 
   return (
     <>

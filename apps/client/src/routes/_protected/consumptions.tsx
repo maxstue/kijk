@@ -143,7 +143,7 @@ function EditButton({ data }: { data: Consumption }) {
   return (
     <Sheet open={showSheet} onOpenChange={setShowSheet}>
       <SheetTrigger asChild>
-        <Button variant='outline' size='icon' className='text-muted-foreground'>
+        <Button className='text-muted-foreground' size='icon' variant='outline'>
           <EditIcon className='size-4' />
         </Button>
       </SheetTrigger>
