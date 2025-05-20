@@ -44,4 +44,3 @@ public sealed class Consumption : BaseEntity
             Household = household
         };
 }
-
