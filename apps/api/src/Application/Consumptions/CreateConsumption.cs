@@ -56,7 +56,7 @@ public static class CreateConsumptionHandler
 
         var foundEnergy = await dbContext.Consumptions
             .Include(x => x.Resource)
-            .Where(x => x.Date.Month == command.Date.Month && x.Date.Year == command.Date.Year && x.ResourceId == command.ResourceId)
+            .Where(x => x.Date.Value.Month == command.Date.Month && x.Date.Value.Year == command.Date.Year && x.ResourceId == command.ResourceId)
             .FirstOrDefaultAsync(cancellationToken);
         if (foundEnergy is not null)
         {
@@ -91,7 +91,7 @@ public static class CreateConsumptionHandler
             energy.Description,
             energy.Value,
             new(energy.Resource.Id, energy.Resource.Name, energy.Resource.Unit, energy.Resource.Color),
-            energy.Date
+            energy.Date.ToDateTime()
         ));
     }
 }

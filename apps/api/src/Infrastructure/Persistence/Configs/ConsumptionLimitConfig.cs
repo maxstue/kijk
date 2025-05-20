@@ -12,6 +12,7 @@ public class ConsumptionLimitConfig : IEntityTypeConfiguration<ConsumptionLimit>
         builder.HasIndex(x => x.Name);
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(250);
+        builder.ComplexProperty(x => x.LastOccurrence, x => x.Property(m => m.Value).HasColumnName("last_occurrence"));
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()

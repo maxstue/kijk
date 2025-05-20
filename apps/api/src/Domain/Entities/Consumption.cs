@@ -1,7 +1,9 @@
-﻿namespace Kijk.Domain.Entities;
+﻿using Kijk.Domain.ValueObjects;
+
+namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// Represents a record of the usage of a resource.
+/// Represents a consumption of a resource.
 /// </summary>
 public sealed class Consumption : BaseEntity
 {
@@ -9,7 +11,7 @@ public sealed class Consumption : BaseEntity
     public string? Description { get; set; }
 
     /// <summary>
-    /// The value of the resource usage.
+    /// The value of the consumption.
     /// </summary>
     public required decimal Value { get; set; }
 
@@ -20,13 +22,13 @@ public sealed class Consumption : BaseEntity
     public required Resource Resource { get; set; }
 
     /// <summary>
-    /// Represents the date of the resource usage.
+    /// The month and year of the consumption.
     /// </summary>
-    public required DateTime Date { get; set; }
+    public required MonthYear Date { get; set; }
 
     public Guid HouseholdId { get; set; }
     /// <summary>
-    /// The household that the usage record is for.
+    /// The household that the consumption is for.
     /// </summary>
     public required Household Household { get; set; }
 
@@ -38,7 +40,8 @@ public sealed class Consumption : BaseEntity
             Description = description,
             Resource = type,
             Value = value,
-            Date = date,
+            Date = MonthYear.ParseDateTime(date),
             Household = household
         };
 }
+

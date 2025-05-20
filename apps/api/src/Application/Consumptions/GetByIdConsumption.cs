@@ -27,7 +27,7 @@ public static class GetByIdConsumptionHandler
                 x.Description,
                 x.Value,
                 new(x.Resource.Id, x.Resource.Name, x.Resource.Unit, x.Resource.Color),
-                x.Date))
+                x.Date.ToDateTime()))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (entity is null)

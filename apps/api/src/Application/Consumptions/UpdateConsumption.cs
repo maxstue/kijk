@@ -1,4 +1,5 @@
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Domain.ValueObjects;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Kijk.Shared.Extensions;
@@ -10,11 +11,12 @@ namespace Kijk.Application.Consumptions;
 public record UpdateConsumptionRequest(string? Name, decimal? Value, Guid? ResourceId, DateTime? Date);
 
 /// <summary>
-/// Handler for updating a consumption.
+/// Handler for updating consumption.
 /// </summary>
 public static class UpdateConsumptionHandler
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(UpdateConsumptionHandler));
+
     public static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> HandleAsync(Guid id, UpdateConsumptionRequest command,
         AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
     {
@@ -39,7 +41,7 @@ public static class UpdateConsumptionHandler
 
         existingResourceUsage.Name = command.Name ?? existingResourceUsage.Name;
         existingResourceUsage.Value = command.Value ?? existingResourceUsage.Value;
-        existingResourceUsage.Date = command.Date ?? existingResourceUsage.Date;
+        existingResourceUsage.Date = command.Date is not null ? MonthYear.ParseDateTime(command.Date.Value) : existingResourceUsage.Date;
         existingResourceUsage.ResourceId = command.ResourceId ?? existingResourceUsage.ResourceId;
 
 
@@ -52,7 +54,7 @@ public static class UpdateConsumptionHandler
             existingResourceUsage.Value,
             new(existingResourceUsage.Resource.Id, existingResourceUsage.Resource.Name, existingResourceUsage.Resource.Unit,
                 existingResourceUsage.Resource.Color),
-            existingResourceUsage.Date
+            existingResourceUsage.Date.ToDateTime()
         ));
     }
 }

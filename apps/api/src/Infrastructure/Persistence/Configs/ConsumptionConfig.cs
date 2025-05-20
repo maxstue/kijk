@@ -13,6 +13,7 @@ public class ConsumptionConfig : IEntityTypeConfiguration<Consumption>
 
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(250);
+        builder.ComplexProperty(x => x.Date, x => x.Property(m => m.Value).HasColumnName("date"));
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()

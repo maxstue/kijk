@@ -44,14 +44,14 @@ public static class GetStatsConsumptionsHandler
     {
         var selectedYearUsages = await dbContext.Consumptions
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
-            .Where(x => x.Date.Year == year)
+            .Where(x => x.Date.Value.Year == year)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
         var comparisonYear = GetComparisonYear(year);
         var comparisonYearUsages = await dbContext.Consumptions
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
-            .Where(x => x.Date.Year == comparisonYear)
+            .Where(x => x.Date.Value.Year == comparisonYear)
             .Include(x => x.Resource)
             .AsNoTracking()
             .GroupBy(x => new { TypeName = x.Resource.Name, TypeUnit = x.Resource.Unit, TypeColor = x.Resource.Color })
@@ -133,8 +133,8 @@ public static class GetStatsConsumptionsHandler
         var selectedYearEnergiesByType = selectedYearEnergies.Where(x => x.Resource.Name == type && x.Resource.Unit == unit).ToList();
         var comparisonYearEnergiesByType = comparisonYearEnergies.Where(x => x.Resource.Name == type && x.Resource.Unit == unit).ToList();
 
-        var selectedMonthEnergies = selectedYearEnergiesByType.Where(x => x.Date.Month == selectedMonthInt).ToList();
-        var comparisonMonthEnergies = comparisonYearEnergiesByType.Where(x => x.Date.Month == comparisonMonthInt).ToList();
+        var selectedMonthEnergies = selectedYearEnergiesByType.Where(x => x.Date.Value.Month == selectedMonthInt).ToList();
+        var comparisonMonthEnergies = comparisonYearEnergiesByType.Where(x => x.Date.Value.Month == comparisonMonthInt).ToList();
 
         var yearTotal = selectedYearEnergiesByType.Sum(x => x.Value);
         var yearAverage = selectedYearEnergiesByType.Count == 0 ? yearTotal : yearTotal / selectedYearEnergiesByType.Count;

@@ -1,4 +1,5 @@
-﻿using Kijk.Shared;
+﻿using Kijk.Domain.ValueObjects;
+using Kijk.Shared;
 
 namespace Kijk.Domain.Entities;
 
@@ -39,7 +40,7 @@ public sealed class ConsumptionLimit : BaseEntity
     /// <summary>
     /// Last time the limit was reached.
     /// </summary>
-    public required DateTime LastOccurrence { get; set; }
+    public required MonthYear LastOccurrence { get; set; }
 
     public Guid CreatedById { get; set; }
     /// <summary>
