@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
-import type { Consumption} from '@/shared/types/app';
+import type { Consumption } from '@/shared/types/app';
 import { createConsumption } from '@/shared/api/consumptions';
 import { months } from '@/shared/types/app';
 
