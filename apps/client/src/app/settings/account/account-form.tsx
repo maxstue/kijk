@@ -1,10 +1,8 @@
-import { format } from 'date-fns';
-import { CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/shared/components/ui/button';
-import { Calendar } from '@/shared/components/ui/calendar';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/shared/components/ui/command';
 import {
   Form,
@@ -41,9 +39,6 @@ const accountFormSchema = z.object({
     .max(30, {
       message: 'Name must not be longer than 30 characters.',
     }),
-  dob: z.date({
-    required_error: 'A date of birth is required.',
-  }),
   language: z.string({
     required_error: 'Please select a language.',
   }),
@@ -86,38 +81,6 @@ export function AccountForm() {
               <Input placeholder='Your name' {...field} />
             </FormControl>
             <FormDescription>This is the name that will be displayed on your profile and in emails.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name='dob'
-        render={({ field }) => (
-          <FormItem className='flex flex-col'>
-            <FormLabel>Date of birth</FormLabel>
-            <Popover>
-              <PopoverTrigger asChild>
-                <FormControl>
-                  <Button
-                    className={cn('w-[240px] pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
-                    variant={'outline'}
-                  >
-                    {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
-                    <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
-                  </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent align='start' className='w-auto p-0'>
-                <Calendar
-                  disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                  mode='single'
-                  selected={field.value}
-                  onSelect={field.onChange}
-                />
-              </PopoverContent>
-            </Popover>
-            <FormDescription>Your date of birth is used to calculate your age.</FormDescription>
             <FormMessage />
           </FormItem>
         )}

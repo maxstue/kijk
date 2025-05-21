@@ -70,7 +70,7 @@ export function ProfileForm() {
             <FormItem className='flex w-full items-end justify-start gap-2'>
               <FormLabel>Use default resource types</FormLabel>
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox checked={field.value as boolean} onCheckedChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>

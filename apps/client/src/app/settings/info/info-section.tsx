@@ -38,7 +38,7 @@ function onSubmit(data: PrivacyFormValues) {
 }
 
 const privacyFormSchema = z.object({
-  enable_analytics: z.boolean().default(getCookieConsent()).optional(),
+  enable_analytics: z.boolean().optional().default(getCookieConsent()),
 });
 type PrivacyFormValues = z.infer<typeof privacyFormSchema>;
 
@@ -81,7 +81,7 @@ export function InfoSection() {
                       </FormDescription>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch checked={field.value as boolean} onCheckedChange={field.onChange} />
                     </FormControl>
                   </FormItem>
                 )}
