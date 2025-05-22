@@ -26,9 +26,9 @@ export default function useProgress() {
       if (current === 0) {
         diff = 15;
       } else if (current < 50) {
-        diff = rand(1, 10);
+        diff = secureRandomInRange(1, 10);
       } else {
-        diff = rand(1, 5);
+        diff = secureRandomInRange(1, 5);
       }
 
       value.set(Math.min(current + diff, 99));
@@ -65,16 +65,11 @@ export default function useProgress() {
   return { state, value, start, done, reset };
 }
 
-function rand(min: number, max: number) {
+function secureRandomInRange(min: number, max: number) {
   const range = max - min + 1;
   let randomValue;
   do {
-    randomValue = secureRandom() * range;
-  } while (randomValue >= range); // Reject values that would introduce bias
-  return Math.floor(randomValue) + min;
-}
-
-function secureRandom() {
-  const possibleRandomValue = crypto.getRandomValues(new Uint32Array(1))[0];
-  return possibleRandomValue / (2 ** 32 - 1);
+    randomValue = crypto.getRandomValues(new Uint32Array(1))[0];
+  } while (randomValue >= Math.floor(2 ** 32 / range) * range);
+  return min + (randomValue % range);
 }
