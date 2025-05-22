@@ -1,0 +1,55 @@
+name: Post-Deployment
+
+on:
+  deployment_status:
+    states: [success]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success'
+    steps:
+      - name: Debug - Print github.event object
+        run: |
+          echo "github.event context:"
+          echo '${{ toJSON(github.event) }}'
+
+      # Only run if this is a production environment deployment that succeeded
+      - name: Run post-deploy actions
+        if: github.event.deployment.environment == 'production'
+        run: |
+          echo "Production deployment succeeded"
+
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install pnpm"
+        uses: pnpm/action-setup@v4
+        id: pnpm-install
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: "🔧 Use Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: "📦 Install dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "Initialize git"
+        run: |
+          git config --global user.name "Release Workflow"
+          git config --global user.email "maxstue2304@gmail.com"
+
+      - name: "🚀 Release"
+        run: pnpm run release --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# TODO create a job which has steps to create a new github discussion post

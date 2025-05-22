@@ -1,4 +1,4 @@
-name: Api CI/CD 🚀
+name: Api 🚀
 
 on:
   workflow_dispatch:
