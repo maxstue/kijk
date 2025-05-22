@@ -1,9 +1,12 @@
-﻿using Kijk.Api.Common.Extensions;
-using Kijk.Api.Common.Middleware;
-using Kijk.Api.Common.Models;
-using Kijk.Api.Common.Utils;
+﻿using Kijk.Api;
+using Kijk.Api.Extensions;
+using Kijk.Api.Middleware;
+using Kijk.Application;
+using Kijk.Infrastructure;
+using Kijk.Infrastructure.Auth;
+using Kijk.Shared;
 
-Log.Logger = LoggerUtils.CreateRootLogger();
+Log.Logger = new LoggerConfiguration().CreateBootstrapLogger();
 
 Log.Information("Application is starting ...");
 try
@@ -11,38 +14,22 @@ try
     // ##### Add services to the container. #####
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.AddErrorTracking();
-    builder.AddLogging();
-
-    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.AddErrorTracking()
+        .AddLogging();
 
     builder.Services
-        .AddProblemDetail()
-        .AddDatabase(builder.Configuration)
-        .AddAppSettings(builder.Configuration)
-        .AddAuth(builder.Configuration)
-        .AddScoped<ExtendRequestLoggingMiddleware>()
-        .AddHttpClient()
-        .AddOpenApi(builder.Configuration)
-        .AddCorsPolicy(builder.Configuration)
-        .AddRateLimitPolicy()
-        .AddCompression()
-        .AddValidation()
-        .AddControllerOptions()
-        .AddHealthCheck(builder.Configuration)
-        .AddCache()
-        .AddModules();
+        .AddApplication()
+        .AddApi(builder.Configuration)
+        .AddInfrastructure(builder.Configuration);
 
     // ##### Configure the HTTP request pipeline. #####
     var app = builder.Build();
+    app.UseRateLimiter();
 
-    app.MapOpenApi("{documentName}.json");
-    if (app.Environment.IsDevelopment())
-    {
-        app.Map("/", () => Results.Redirect("openapi"));
-    }
+    app.MapHealthCheck()
+        .MapOpenApi()
+        .UseStatusCodePages();
 
-    app.UseStatusCodePages();
     app.UseResponseCompression()
         .UseSecurityHeaders()
         .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder => appBuilder.UseDeveloperExceptionPage())
@@ -51,7 +38,6 @@ try
     app.MapStaticAssets();
 
     app.UseExceptionHandler()
-        .UseOpenApi()
         .UseMiddleware<ExtendRequestLoggingMiddleware>()
         .UseRequestLogging()
         .UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All })
@@ -62,9 +48,8 @@ try
 
     // Needs to ba after Auth so we have user data
     app.UseMiddleware<CurrentUserMiddleware>();
-    app.UseRateLimiter();
-    app.MapApiEndpoints()
-        .MapHealthCheck();
+
+    app.MapEndpoints();
 
     await app.RunAsync();
     return 0;

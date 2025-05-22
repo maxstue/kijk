@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import type { ClassValue } from 'clsx';
 
-export function cn(...inputs: ClassValue[]) {
+export function cn(...inputs: Array<ClassValue>) {
   return twMerge(clsx(inputs));
 }
 

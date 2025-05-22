@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ErrorComponentProps } from '@tanstack/react-router';
 import { ArrowDownIcon } from 'lucide-react';
+import type { ErrorComponentProps } from '@tanstack/react-router';
 
 import { ErrorImage } from '@/shared/components/errors/error-image';
 import { Button } from '@/shared/components/ui/button';

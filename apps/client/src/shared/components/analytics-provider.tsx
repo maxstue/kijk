@@ -1,6 +1,6 @@
 import { PostHogProvider } from 'posthog-js/react';
 
-import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { AnalyticsService } from '@/shared/lib/analytics-client';
 
 interface Props extends React.PropsWithChildren<{}> {}
 

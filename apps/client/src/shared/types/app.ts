@@ -11,7 +11,7 @@ export interface ApiError {
   status: number;
   detail: string;
   instance: string;
-  errors: Optional<ErrorDetails[]>;
+  errors: Optional<Array<ErrorDetails>>;
   traceId: string;
   requestId: string;
 }
@@ -58,13 +58,6 @@ export const months = [
 
 export type Months = (typeof months)[number];
 
-export const CategoryCreatorTypes = {
-  DEFAULT: 'Default',
-  USER: 'User',
-} as const;
-
-export type CategoryCreatorType = (typeof CategoryCreatorTypes)[keyof typeof CategoryCreatorTypes];
-
 export const CategoryTypes = {
   EXPENSE: 'Expense',
   INCOME: 'Income',
@@ -73,13 +66,12 @@ export const CategoryTypes = {
 
 export type CategoryType = (typeof CategoryTypes)[keyof typeof CategoryTypes];
 
-export interface GroupedCategory extends Record<string, Category[]> {}
+export interface GroupedCategory extends Record<string, Array<Category>> {}
 
 export interface Category {
   id: string;
   name: string;
   color: string;
-  creatorType: CategoryCreatorType;
   type: CategoryType;
 }
 
@@ -88,9 +80,8 @@ export interface AppUser {
   name: Optional<string>;
   email: Optional<string>;
   firstTime: Optional<boolean>;
-  transactions: Optional<Transaction[]>;
-  categories: Optional<Category[]>;
-  useDefaultCategories: Optional<boolean>;
+  resourceTypes: Optional<Array<Resource>>;
+  useDefaultResources: Optional<boolean>;
 }
 
 export interface User_Metadata {
@@ -101,23 +92,21 @@ export const COOKIE_CONSENT_KEY = 'cookie_consent';
 
 export type CookieConsent = 'yes' | 'no' | 'undecided';
 
-export interface Energy {
+export interface Consumption {
   id: string;
   name: string;
   description: Optional<string>;
   value: number;
-  type: EnergyType;
+  resource: Resource;
   date: string;
-  householdId: string;
 }
 
-export interface EnergyStatsType {
-  electricity: EnergyStats;
-  gas: EnergyStats;
-  water: EnergyStats;
+export interface ConsumptionsStatsType {
+  stats: Array<ConsumptionsStats>;
 }
 
-export interface EnergyStats {
+export interface ConsumptionsStats {
+  type: ResourceStats;
   monthTotal: number;
   yearTotal: number;
   yearAverage: number;
@@ -129,10 +118,26 @@ export interface EnergyStats {
   comparisonMonthDiff: number;
 }
 
-export const EnergyTypes = {
-  ELECTRICITY: 'Electricity',
-  GAS: 'Gas',
-  WATER: 'Water',
-} as const;
+export interface ResourceStats {
+  name: string;
+  unit: string;
+  color: string;
+}
 
-export type EnergyType = (typeof EnergyTypes)[keyof typeof EnergyTypes];
+export const CreatorTypes = {
+  DEFAULT: 'Default',
+  USER: 'User',
+} as const;
+export type CreatorType = (typeof CreatorTypes)[keyof typeof CreatorTypes];
+
+export interface Resource {
+  id: string;
+  name: string;
+  unit: string;
+  color: string;
+  creator: CreatorType;
+}
+
+export interface Years {
+  years: Array<number>;
+}

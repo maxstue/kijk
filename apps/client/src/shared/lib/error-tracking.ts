@@ -21,9 +21,9 @@ const ErrorService = {
       // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
       tracePropagationTargets: [
         'localhost',
-        /^https:\/\/kijk-api.fly\.dev\/api/,
-        /^https:\/\/kijk-client.vercel\.app/,
-        /^https:\/\/kijk-client.fly\.dev\/api/,
+        /^https:\/\/kijk-api\.xyz\/api/,
+        /^https:\/\/kijk-client\.xyz/,
+        /^https:\/\/kijk-client\.xyz/,
       ],
 
       // Set profilesSampleRate to 1.0 to profile every transaction.

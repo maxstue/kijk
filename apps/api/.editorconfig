@@ -25,7 +25,7 @@ indent_size = 2
 indent_size = 2
 
 # Ignore paths
-[src/Api/Persistence/Migrations/*]
+[src/Infrastructure/Persistence/Migrations/*]
 generated_code = true
 
 #### .NET Coding Conventions ####
@@ -61,8 +61,8 @@ dotnet_style_null_propagation = true:error
 dotnet_style_object_initializer = true:error
 dotnet_style_prefer_auto_properties = true:warning
 dotnet_style_prefer_compound_assignment = true:error
-dotnet_style_prefer_conditional_expression_over_assignment = true:error
-dotnet_style_prefer_conditional_expression_over_return = true:error
+dotnet_style_prefer_conditional_expression_over_assignment = true:suggestion
+dotnet_style_prefer_conditional_expression_over_return = true:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:error
 dotnet_style_prefer_inferred_tuple_names = true:error
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:error
@@ -85,14 +85,14 @@ csharp_style_var_for_built_in_types = true
 csharp_style_var_when_type_is_apparent = true
 
 # Expression-bodied members
-csharp_style_expression_bodied_accessors = true:error
-csharp_style_expression_bodied_constructors = true:error
-csharp_style_expression_bodied_indexers = true:error
-csharp_style_expression_bodied_lambdas = true:error
-csharp_style_expression_bodied_local_functions = true:error
-csharp_style_expression_bodied_methods = true:error
-csharp_style_expression_bodied_operators = true:error
-csharp_style_expression_bodied_properties = true:error
+csharp_style_expression_bodied_accessors = when_on_single_line:error
+csharp_style_expression_bodied_constructors = when_on_single_line:error
+csharp_style_expression_bodied_indexers = when_on_single_line:error
+csharp_style_expression_bodied_lambdas = when_on_single_line:error
+csharp_style_expression_bodied_local_functions = when_on_single_line:error
+csharp_style_expression_bodied_methods = when_on_single_line:error
+csharp_style_expression_bodied_operators = when_on_single_line:error
+csharp_style_expression_bodied_properties = when_on_single_line:error
 
 # Pattern matching preferences
 csharp_style_pattern_matching_over_as_with_null_check = true:error
@@ -104,7 +104,7 @@ csharp_style_conditional_delegate_call = true:error
 
 # Modifier preferences
 csharp_prefer_static_local_function = true:error
-csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async
+csharp_preferred_modifier_order = public, required, private, internal, protected, extern, new, virtual, static, async, sealed, override, unsafe, volatile, readonly, file, abstract:suggestion
 
 # Code-block preferences
 csharp_prefer_braces = true:error
@@ -123,6 +123,9 @@ csharp_style_unused_value_expression_statement_preference = discard_variable:sil
 
 # 'using' directive preferences
 csharp_using_directive_placement = outside_namespace:error
+
+# Simplify new expression
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
 
 #### C# Formatting Rules ####
 
@@ -312,11 +315,8 @@ dotnet_diagnostic.CA1305.severity = none
 dotnet_diagnostic.CA1311.severity = none
 dotnet_diagnostic.CA1862.severity = suggestion
 
-# Visual Studio.Analyzers
-
-# IDE0046: Convert to conditional expression
-dotnet_diagnostic.IDE0046.severity = none
+# Disable documentation rules for public members
 dotnet_diagnostic.1591.severity = none
-dotnet_diagnostic.IDE0053.severity = false
-dotnet_diagnostic.IDE0055.severity = none
-dotnet_diagnostic.IDE0023.severity = none
+
+# Simplify new expression
+dotnet_diagnostic.IDE0090.severity = none

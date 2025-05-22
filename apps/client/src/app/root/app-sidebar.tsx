@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Link } from '@tanstack/react-router';
 
-import { CommandMenu } from '@/app/root/command-menu';
-import { mainNav } from '@/app/root/constants';
 import { NavMain } from '@/app/root/nav-main';
 import { NavSecondary } from '@/app/root/nav-secondary';
 import { NavUser } from '@/app/root/nav-user';
@@ -24,24 +22,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size='lg'>
-              <Link className='flex aspect-square items-center text-lg text-sidebar-foreground' to='/home'>
-                <Icons.logo />
-                <div className='truncate font-semibold'>{siteConfig.name}</div>
+            <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:!p-1.5'>
+              <Link to='/home'>
+                <Icons.logo className='size-5' />
+                <div className='truncate text-base font-semibold'>{siteConfig.name}</div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild size='lg'>
-              <CommandMenu />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <NavMain items={mainNav} />
+        <NavMain />
         <NavSecondary className='mt-auto' />
       </SidebarContent>
       <SidebarFooter>

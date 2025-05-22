@@ -8,11 +8,13 @@
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
 
+    <!-- Manifest -->
+    <link rel="manifest" href="app.webmanifest" type="application/manifest+json" />
     <!-- App Icons -->
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon.svg" sizes="any" type="image/svg+xml" />
 
     <!-- Light mode icons -->
-    <link rel="icon" href="light/favicon.ico" sizes="any" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="light/favicon.ico" sizes="48x48" media="(prefers-color-scheme: light)" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -26,15 +28,8 @@
       sizes="32x32"
       media="(prefers-color-scheme: light)"
     />
-    <link
-      rel="icon"
-      href="light/favicon-16x16.png"
-      type="image/png"
-      sizes="16x16"
-      media="(prefers-color-scheme: light)"
-    />
     <!-- Dark mode icons -->
-    <link rel="icon" href="dark/favicon.ico" sizes="any" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="dark/favicon.ico" sizes="48x48" media="(prefers-color-scheme: dark)" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -48,18 +43,14 @@
       sizes="32x32"
       media="(prefers-color-scheme: dark)"
     />
-    <link
-      rel="icon"
-      href="dark/favicon-16x16.png"
-      type="image/png"
-      sizes="16x16"
-      media="(prefers-color-scheme: dark)"
-    />
 
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
     <style>
+      body {
+        margin: 0;
+      }
       .containerDiv {
         width: 100vw;
         height: 100vh;

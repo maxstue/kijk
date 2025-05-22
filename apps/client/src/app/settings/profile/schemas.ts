@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const userUpdateSchema = z.object({
   userName: z.string().optional(),
-  useDefaultCategories: z.coerce.boolean().optional(),
+  useDefaultResources: z.boolean().optional().default(false),
 });
 
 export type UserUpdateFormValues = z.infer<typeof userUpdateSchema>;

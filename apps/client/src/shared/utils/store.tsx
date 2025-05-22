@@ -1,17 +1,17 @@
 import { createContext, useContext, useState } from 'react';
-import { Draft } from 'immer';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { StoreApi } from 'zustand/vanilla';
+import type { Draft } from 'immer';
+import type { StoreApi } from 'zustand/vanilla';
 
 import { env } from '@/shared/env';
 
 type ImmerSetter<T extends object> = (
   nextStateOrUpdater:
-    | Exclude<T, (...args: unknown[]) => unknown>
-    | Partial<Exclude<T, (...args: unknown[]) => unknown>>
-    | ((state: Draft<Exclude<T, (...args: unknown[]) => unknown>>) => void),
+    | Exclude<T, (...args: Array<unknown>) => unknown>
+    | Partial<Exclude<T, (...args: Array<unknown>) => unknown>>
+    | ((state: Draft<Exclude<T, (...args: Array<unknown>) => unknown>>) => void),
   shouldReplace?: false,
   actionType?:
     | string

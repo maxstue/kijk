@@ -14,8 +14,6 @@
     <ItemGroup>
         <!-- OpenApi -->
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
-        <PackageReference Include="AspNetCore.HealthChecks.NpgSql"/>
-        <PackageReference Include="AspNetCore.HealthChecks.UI.Client"/>
         <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -61,7 +59,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Persistence\Migrations\"/>
+      <ProjectReference Include="..\Application\Application.csproj" />
+      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+      <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
 </Project>

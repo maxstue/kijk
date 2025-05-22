@@ -1,5 +1,6 @@
+import type { Clerk as CClerk } from '@clerk/types';
+
 declare global {
-  interface Window {
-    Clerk?: Clerk;
-  }
+  // eslint-disable-next-line no-var
+  var Clerk: CClerk | undefined;
 }

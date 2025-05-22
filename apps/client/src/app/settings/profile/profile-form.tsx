@@ -1,7 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+'use no memo';
 
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userSignInQuery } from '@/app/root/use-signin-user';
-import { UserUpdateFormValues, userUpdateSchema } from '@/app/settings/profile/schemas';
+import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/user-update-user';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
@@ -16,30 +20,25 @@ import {
 } from '@/shared/components/ui/form/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
-import { toast } from '@/shared/hooks/use-toast';
 
 export function ProfileForm() {
-  const userQuery = useQuery(userSignInQuery);
+  const { data: user } = useQuery(userSignInQuery);
+
+  const { mutate } = useUpdateUser();
 
   const form = useZodForm({
     schema: userUpdateSchema,
     values: {
-      userName: userQuery.data?.name ?? '',
-      useDefaultCategories: userQuery.data?.useDefaultCategories ?? false,
+      userName: user?.name ?? '',
+      useDefaultResources: user?.useDefaultResources ?? false,
     },
-    mode: 'onBlur',
   });
-  const { mutate } = useUpdateUser();
-  const { formState } = form;
 
   function onSubmit(data: UserUpdateFormValues) {
-    if (userQuery.data?.id) {
+    if (user?.id) {
       mutate(data, {
         onSuccess() {
-          toast({
-            title: 'Successfully updated',
-            variant: 'default',
-          });
+          toast('Successfully updated');
         },
       });
     }
@@ -66,12 +65,12 @@ export function ProfileForm() {
       <div className='flex w-full items-center'>
         <FormField
           control={form.control}
-          name='useDefaultCategories'
+          name='useDefaultResources'
           render={({ field }) => (
             <FormItem className='flex w-full items-end justify-start gap-2'>
-              <FormLabel>Use default Categories</FormLabel>
+              <FormLabel>Use default resource types</FormLabel>
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox checked={field.value as boolean} onCheckedChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,7 +78,7 @@ export function ProfileForm() {
         />
       </div>
 
-      <Button disabled={!formState.isDirty} type='submit'>
+      <Button disabled={!form.formState.isDirty} type='submit'>
         Update profile
       </Button>
     </Form>

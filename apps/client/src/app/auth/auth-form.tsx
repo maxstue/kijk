@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
 import { useSignIn } from '@clerk/clerk-react';
-import { ControllerRenderProps } from 'react-hook-form';
+import type { ControllerRenderProps } from 'react-hook-form';
 
-import { AuthSchema, authSchema } from '@/app/auth/schemas';
+import type { AuthSchema } from '@/app/auth/schemas';
+import { authSchema } from '@/app/auth/schemas';
 import { Route } from '@/routes/auth';
 import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
@@ -28,7 +29,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
     mode: 'onBlur',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const searchparams = Route.useSearch();
+  const searchParameters = Route.useSearch();
 
   const { isLoaded, signIn } = useSignIn();
 
@@ -45,9 +46,9 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
     await signIn.authenticateWithRedirect({
       strategy: 'oauth_github',
       redirectUrl: '/sso-callback',
-      redirectUrlComplete: searchparams.from ?? '/',
+      redirectUrlComplete: searchParameters.from ?? '/',
     });
-  }, [isLoaded, searchparams.from, signIn]);
+  }, [isLoaded, searchParameters.from, signIn]);
 
   return (
     <div className={cn('grid gap-6', className)}>
@@ -70,7 +71,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
           <span className='w-full border-t' />
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-background px-2 text-muted-foreground'>Or continue with</span>
+          <span className='bg-background text-muted-foreground px-2'>Or continue with</span>
         </div>
       </div>
       {/* Social logins */}

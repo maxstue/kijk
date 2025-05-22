@@ -14,7 +14,6 @@ import {
   Laptop,
   Loader2,
   LogOut,
-  LucideProps,
   Monitor,
   Moon,
   MoreVertical,
@@ -30,8 +29,8 @@ import {
   X,
 } from 'lucide-react';
 
+import type { IconNode as LucideIcon, LucideProps } from 'lucide-react';
 import { Logo } from '@/shared/components/logo';
-import type { IconNode as LucideIcon } from 'lucide-react';
 
 export type Icon = LucideIcon;
 

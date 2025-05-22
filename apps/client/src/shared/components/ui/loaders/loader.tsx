@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 
 import { Icons } from '@/shared/components/icons';
 import { cn } from '@/shared/lib/helpers';

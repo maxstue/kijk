@@ -3,7 +3,7 @@ import { CookieIcon, ExternalLink } from 'lucide-react';
 
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { env } from '@/shared/env';
-import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { cn } from '@/shared/lib/helpers';
 
 export function AnalyticsBanner() {
@@ -34,15 +34,15 @@ export function AnalyticsBanner() {
   return (
     <div
       className={cn(
-        'fixed bottom-0 left-0 right-0 z-[200] w-full duration-700 sm:bottom-4 sm:left-4 sm:max-w-md',
+        'fixed right-0 bottom-0 left-0 z-[200] w-full duration-700 sm:bottom-4 sm:left-4 sm:max-w-md',
         consentGiven === 'yes'
           ? 'hidden translate-y-8 opacity-0 transition-[opacity,transform]'
           : 'translate-y-0 opacity-100 transition-[opacity,transform]',
       )}
     >
-      <div className='m-3 rounded-md border border-border bg-background shadow-lg dark:bg-card'>
+      <div className='border-border bg-background dark:bg-card m-3 rounded-md border shadow-lg'>
         <div className='grid gap-2'>
-          <div className='flex h-14 items-center justify-between border-b border-border p-4'>
+          <div className='border-border flex h-14 items-center justify-between border-b p-4'>
             <h1 className='text-lg font-medium'>We love cookies</h1>
             <CookieIcon className='h-5 w-5' />
           </div>
@@ -65,12 +65,12 @@ export function AnalyticsBanner() {
               </a>
             </p>
           </div>
-          <div className='flex gap-2 border-t border-border p-4 py-5 dark:bg-background/20'>
-            <Button className='w-full' onClick={accept}>
-              Accept
-            </Button>
-            <Button className='w-full' variant='secondary' onClick={decline}>
+          <div className='border-border dark:bg-background/20 relative flex flex-col justify-between gap-6 border-t p-4 py-5 sm:flex-row sm:gap-2'>
+            <Button className='w-full sm:w-1/2' variant='secondary' onClick={decline}>
               Decline
+            </Button>
+            <Button className='w-full sm:w-1/2' onClick={accept}>
+              Accept
             </Button>
           </div>
         </div>

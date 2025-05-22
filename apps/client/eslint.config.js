@@ -1,52 +1,53 @@
 // @ts-check
-import eslint from '@eslint/js';
-import tanstackQueryPlugin from '@tanstack/eslint-plugin-query';
-import tanstackRouterRouter from '@tanstack/eslint-plugin-router';
-import prettierConfig from 'eslint-config-prettier';
-import reactPlugin from 'eslint-plugin-react';
-import reactCompiler from 'eslint-plugin-react-compiler';
-import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import reactRefreshPlugin from 'eslint-plugin-react-refresh';
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import eslint from "@eslint/js";
+import { tanstackConfig } from '@tanstack/eslint-config'
+import prettierConfig from "eslint-config-prettier";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import reactRefreshPlugin from "eslint-plugin-react-refresh";
+import eslintPluginUnicorn from "eslint-plugin-unicorn";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const baseESLintConfig = {
-  name: 'eslint',
+  name: "eslint",
   extends: [eslint.configs.recommended],
 };
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const disableTypeChecked = {
-  name: 'disableTypeChecked',
-  files: ['**/*.js'],
+  name: "disableTypeChecked",
+  files: ["**/*.js"],
   extends: [tseslint.configs.disableTypeChecked],
   rules: {
     // turn off other type-aware rules
     // 'deprecation/deprecation': 'off',
-    '@typescript-eslint/internal/no-poorly-typed-ts-props': 'off',
+    "@typescript-eslint/internal/no-poorly-typed-ts-props": "off",
     // turn off rules that don't apply to JS code
-    '@typescript-eslint/explicit-function-return-type': 'off',
+    "@typescript-eslint/explicit-function-return-type": "off",
   },
 };
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const typescriptConfig = {
-  name: 'typescript',
-  extends: [...tseslint.configs.stylisticTypeChecked, ...tseslint.configs.recommendedTypeChecked],
-  files: ['**/*.{ts,tsx}'],
+  name: "typescript",
+  extends: [
+    ...tseslint.configs.stylisticTypeChecked,
+    ...tseslint.configs.recommendedTypeChecked,
+  ],
+  files: ["**/*.{ts,tsx}"],
   languageOptions: {
     parser: tseslint.parser,
-    ecmaVersion: 'latest',
-    sourceType: 'module',
+    ecmaVersion: "latest",
+    sourceType: "module",
     parserOptions: {
       ecmaFeatures: { modules: true, jsx: true },
       jsxPragma: undefined,
       project: true,
       projectService: true,
       tsconfigRootDir: import.meta.dirname,
-      projectFolderIgnoreList: ['**/node_modules/**'],
+      projectFolderIgnoreList: ["**/node_modules/**"],
     },
     globals: {
       ...globals.builtin,
@@ -56,41 +57,41 @@ const typescriptConfig = {
     },
   },
   linterOptions: {
-    reportUnusedDisableDirectives: 'error',
+    reportUnusedDisableDirectives: "error",
   },
   rules: {
-    '@typescript-eslint/no-misused-promises': [
-      'error',
+    "@typescript-eslint/no-misused-promises": [
+      "error",
       {
         checksVoidReturn: {
           attributes: false,
         },
       },
     ],
-    '@typescript-eslint/array-type': ['warn', { default: 'array-simple', readonly: 'array-simple' }],
-    '@typescript-eslint/no-empty-object-type': 'off',
-    '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
-    '@typescript-eslint/no-unnecessary-type-parameters': 'off',
-    '@typescript-eslint/only-throw-error': 'off',
-    '@typescript-eslint/no-unused-vars': [
-      'error',
+    "@typescript-eslint/array-type": ["warn", { default: "array-simple" }],
+    "@typescript-eslint/no-empty-object-type": "off",
+    "@typescript-eslint/restrict-template-expressions": [
+      "error",
+      { allowNumber: true },
+    ],
+    "@typescript-eslint/no-unnecessary-type-parameters": "off",
+    "@typescript-eslint/only-throw-error": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
       {
-        args: 'all',
-        argsIgnorePattern: '^_',
-        caughtErrors: 'all',
-        caughtErrorsIgnorePattern: '^_',
-        destructuredArrayIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
+        args: "all",
+        argsIgnorePattern: "^_",
+        caughtErrors: "all",
+        caughtErrorsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
         ignoreRestSiblings: true,
       },
     ],
-    '@typescript-eslint/no-unsafe-assignment': 'warn', // TODO remove after stepper is official
-    '@typescript-eslint/no-unsafe-return': 'warn', // TODO remove after stepper is official
-    '@typescript-eslint/no-unsafe-member-access': 'warn', // TODO remove after stepper is official
-    '@typescript-eslint/no-import-type-side-effects': 'warn',
-    '@typescript-eslint/no-floating-promises': 'off',
-    '@typescript-eslint/no-empty-interface': [
-      'error',
+    "@typescript-eslint/no-import-type-side-effects": "warn",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-empty-interface": [
+      "error",
       {
         allowSingleExtends: true,
       },
@@ -100,64 +101,65 @@ const typescriptConfig = {
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const reactConfig = {
-  name: 'react',
-  // @ts-ignore
-  extends: [reactPlugin.configs.flat.recommended],
+  name: "react",
+  extends: [reactPlugin.configs.flat["recommended"]],
   plugins: {
-    // @ts-ignore
-    'react-hooks': reactHooksPlugin,
-    'react-refresh': reactRefreshPlugin,
-    'react-compiler': reactCompiler,
+    "react-hooks": reactHooksPlugin,
+    "react-refresh": reactRefreshPlugin,
   },
   settings: {
     react: {
-      version: 'detect',
+      version: "detect",
     },
   },
   rules: {
-    'react-compiler/react-compiler': 'error',
-    'react/jsx-boolean-value': 'error',
-    'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
-    'react/jsx-no-target-blank': 'off',
-    'react/jsx-max-props-per-line': 'off',
-    'react/jsx-sort-props': [
-      'error',
+    "react/jsx-boolean-value": "error",
+    "react/jsx-filename-extension": [
+      2,
+      { extensions: [".js", ".jsx", ".ts", ".tsx"] },
+    ],
+    "react/jsx-no-target-blank": "off",
+    "react/jsx-max-props-per-line": "off",
+    "react/jsx-sort-props": [
+      "error",
       {
         callbacksLast: true,
         shorthandFirst: true,
         reservedFirst: true,
-        multiline: 'last',
+        multiline: "last",
       },
     ],
-    'react/no-unknown-property': 'off',
-    'react/prop-types': 'off',
-    'react/react-in-jsx-scope': 'off',
-    'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': 'warn',
-    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-    'react/jsx-uses-react': 'off',
+    "react/no-unknown-property": "off",
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react-refresh/only-export-components": [
+      "warn",
+      { allowConstantExport: true },
+    ],
+    "react/jsx-uses-react": "off",
   },
 };
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const unicornConfig = {
-  name: 'unicorn',
-  // @ts-ignore
-  extends: [eslintPluginUnicorn.configs['flat/recommended']],
+  name: "unicorn",
+  extends: [eslintPluginUnicorn.configs["recommended"]],
   rules: {
-    'unicorn/prefer-top-level-await': 'off',
-    'unicorn/no-array-reduce': 'warn',
-    'unicorn/no-null': 'warn',
-    'unicorn/no-useless-undefined': 'warn',
-    'unicorn/no-document-cookie': 'warn',
-    'unicorn/filename-case': [
-      'error',
+    "unicorn/prefer-top-level-await": "off",
+    "unicorn/no-array-reduce": "warn",
+    "unicorn/no-null": "warn",
+    "unicorn/no-useless-undefined": "warn",
+    "unicorn/no-document-cookie": "warn",
+    "unicorn/filename-case": [
+      "error",
       {
-        case: 'kebabCase',
+        case: "kebabCase",
       },
     ],
-    'unicorn/prevent-abbreviations': [
-      'error',
+    "unicorn/prevent-abbreviations": [
+      "error",
       {
         replacements: {
           db: false,
@@ -175,7 +177,7 @@ const unicornConfig = {
           ref: false,
           refs: false,
         },
-        ignore: ['semVer', 'SemVer'],
+        ignore: ["semVer", "SemVer"],
       },
     ],
   },
@@ -183,25 +185,25 @@ const unicornConfig = {
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const ignoreFiles = {
-  name: 'ignoreFiles',
+  name: "ignoreFiles",
   ignores: [
-    '**/.vscode/**',
-    '**/public/**',
-    '**/config/**',
-    '**/dist/**',
-    '**/dev-dist/**',
-    '**/vercel.json',
-    '**/**.eslint.**',
-    '**/tailwind.config.ts',
-    '**/postcss.config.js',
-    'src/routeTree.gen.ts',
+    "**/.vscode/**",
+    "**/public/**",
+    "**/config/**",
+    "**/dist/**",
+    "**/dev-dist/**",
+    "**/vercel.json",
+    "**/**.eslint.**",
+    "**/tailwind.config.ts",
+    "**/postcss.config.js",
+    "src/routeTree.gen.ts",
   ],
 };
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const onlyFiles = {
-  name: 'onlyFiles',
-  files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
+  name: "onlyFiles",
+  files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
 };
 
 export default tseslint.config(
@@ -210,9 +212,8 @@ export default tseslint.config(
   prettierConfig,
   reactConfig,
   unicornConfig,
-  ...tanstackRouterRouter.configs['flat/recommended'],
-  ...tanstackQueryPlugin.configs['flat/recommended'],
+  tanstackConfig,
   disableTypeChecked,
   ignoreFiles,
-  onlyFiles,
+  onlyFiles
 );

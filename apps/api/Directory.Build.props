@@ -9,19 +9,21 @@
 
     <!-- Code Style and Analysis settings -->
     <PropertyGroup>
-        <!-- TODO Should be enabled -->
-        <!--    <WarningsAsErrors>Nullable</WarningsAsErrors>-->
-        <!--    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>-->
+        <WarningsAsErrors>Nullable</WarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
         <AnalysisLevel>latest</AnalysisLevel>
         <AnalysisMode>Recommended</AnalysisMode>
-        <NoWarn>$(NoWarn);1591;NU1103</NoWarn>
+        <NoWarn>$(NoWarn);1591;NU1103,AD0001</NoWarn>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
-        <PackageReference Include="SonarAnalyzer.CSharp"/>
+        <PackageReference Include="SonarAnalyzer.CSharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
 </Project>

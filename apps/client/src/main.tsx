@@ -1,11 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { AnalyticsService } from '@/shared/lib/analytics-tracking.ts';
+import App from './app.tsx';
+import { AnalyticsService } from '@/shared/lib/analytics-client.ts';
 import { ErrorService } from '@/shared/lib/error-tracking.ts';
 import { welcome } from '@/shared/utils/string.ts';
-
-import App from './app.tsx';
 
 import './index.css';
 

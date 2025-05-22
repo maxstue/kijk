@@ -10,6 +10,11 @@ export function ThemeModeSwitcher() {
 
     root.classList.remove('light', 'dark');
 
+    if (mode === undefined) {
+      root.classList.add('light');
+      return;
+    }
+
     if (mode === 'system') {
       const systemTheme = globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
