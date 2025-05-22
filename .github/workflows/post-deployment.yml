@@ -1,5 +1,8 @@
 name: Post-Deployment
 
+permissions:
+  contents: write
+
 on:
   deployment_status:
     states: [success]
