@@ -59,18 +59,22 @@ export default function useProgress() {
   }
 
   function done() {
-    setState((state) => (state === 'initial' || state === 'in-progress' ? 'completing' : state));
+    setState((s) => (s === 'initial' || s === 'in-progress' ? 'completing' : s));
   }
 
   return { state, value, start, done, reset };
 }
 
 function rand(min: number, max: number) {
-  return Math.floor(secureRandom() * (max - min + 1)) + min;
+  const range = max - min + 1;
+  let randomValue;
+  do {
+    randomValue = secureRandom() * range;
+  } while (randomValue >= range); // Reject values that would introduce bias
+  return Math.floor(randomValue) + min;
 }
 
 function secureRandom() {
   const possibleRandomValue = crypto.getRandomValues(new Uint32Array(1))[0];
-  return possibleRandomValue / 2 ** 32;
-  return 0;
+  return possibleRandomValue / (2 ** 32 - 1);
 }
