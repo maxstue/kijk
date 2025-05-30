@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: efbundle
-          path: ./efbundle
+          path: ./apps/api/efbundle
           retention-days: 5
           if-no-files-found: error
 
