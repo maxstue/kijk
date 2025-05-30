@@ -66,6 +66,9 @@ jobs:
           name: efbundle
           path: ./apps/api
 
+      - name: "Make bundle executable"
+        run: chmod +x ./efbundle
+
       - name: List files after download
         run: ls -al -R
 
