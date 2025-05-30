@@ -60,13 +60,14 @@ jobs:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v4
 
-      - name: Display structure of downloaded files
-        run: ls -al -R
-
       - name: "⬇️ Download EF Migrations Bundle Artifact"
         uses: actions/download-artifact@v4
         with:
           name: efbundle
+          path: .
+
+      - name: List files after download
+        run: ls -al
 
       - name: "🍎 Apply migrations bundle"
         run: ./efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
