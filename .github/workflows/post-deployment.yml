@@ -5,7 +5,6 @@ permissions:
 
 on:
   deployment_status:
-    states: [success]
 
 env:
   NODE_VERSION: "20.x"
