@@ -5,7 +5,7 @@
         <UserSecretsId>aspnet-Kijk.Api-01C3D95B-517D-4E64-8BDD-4EADF1BF84FE</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 
-        <OpenApiDocumentsDirectory>./</OpenApiDocumentsDirectory>
+        <OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
         <OpenApiGenerateDocumentsOptions>--file-name kijk</OpenApiGenerateDocumentsOptions>
         <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
         <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
