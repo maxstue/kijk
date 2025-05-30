@@ -1,4 +1,4 @@
-name: Client CI/CD 💻
+name: Client 💻
 
 on:
   workflow_dispatch:

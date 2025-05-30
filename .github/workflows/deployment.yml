@@ -1,0 +1,129 @@
+name: Deployment
+on: workflow_dispatch
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: "9.0.x"
+  NODE_VERSION: "20.x"
+  PNPM_VERSION: "9"
+
+jobs:
+  database-create-migration:
+    name: Migrate Database 🏗️
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/api
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: "📦 Install dotnet-ef"
+        run: |
+          dotnet tool install --global dotnet-ef
+
+      - name: "🛠️ Create migrations bundle"
+        run: |
+          dotnet tool restore &&
+          dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext --self-contained
+
+      - name: "⬆️ Upload EF Migrations Bundle Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: efbundle
+          path: ./efbundle
+
+  database-apply-migration:
+    name: Apply Database Migration 🗃️
+    needs: [database-create-migration]
+    runs-on: ubuntu-latest
+    environment:
+      name: production-db
+    defaults:
+      run:
+        working-directory: ./apps/api
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "⬇️ Download EF Migrations Bundle Artifact"
+        uses: actions/download-artifact@v4
+        with:
+          name: efbundle
+
+      - name: "🍎 Apply migrations bundle"
+        run: ./efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
+
+  api:
+    name: Deploy Api 🚀
+    needs: [database-apply-migration]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/api
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: railway up --service=${{ env.SERVICE_ID }}
+
+  client:
+    name: Deploy Client 💻
+    needs: [database-apply-migration]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/client
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      SERVICE_ID: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🚀 Deploy"
+        run: |
+          railway up --service=${{ env.SERVICE_ID }}
+
+  web:
+    name: Deploy Web 🕸️
+    needs: [database-apply-migration]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/web
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🚀 Deploy"
+        run: |
+          echo 'Client deployment is disabled for now'
+      # TODO deploy web app to railway
+      # - run: railway up --service=${{ env.SERVICE_ID }}
+
+  success:
+    name: Success 👻✅
+    needs: [api, client] # TODO add web
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "✅ Deployment Success"
+        run: |
+          echo "Deployment to Railway was successful!"
+          echo "Post-deployment actions will be executed."
