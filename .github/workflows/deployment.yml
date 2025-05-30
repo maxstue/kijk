@@ -70,7 +70,7 @@ jobs:
         run: ls -al -R
 
       - name: "🍎 Apply migrations bundle"
-        run: ./efbundle/efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
+        run: ./efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
 
   api:
     name: Deploy Api 🚀
