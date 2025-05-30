@@ -1,5 +1,7 @@
 name: Deployment
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
 permissions:
   contents: read
 
@@ -33,11 +35,17 @@ jobs:
           dotnet tool restore &&
           dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext --self-contained
 
+      - name: "run ls"
+        run: |
+          ls -al
+
       - name: "⬆️ Upload EF Migrations Bundle Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: efbundle
           path: ./efbundle
+          retention-days: 5
+          if-no-files-found: error
 
   database-apply-migration:
     name: Apply Database Migration 🗃️
@@ -51,6 +59,9 @@ jobs:
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v4
+
+      - name: Display structure of downloaded files
+        run: ls -al -R
 
       - name: "⬇️ Download EF Migrations Bundle Artifact"
         uses: actions/download-artifact@v4
