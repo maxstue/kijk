@@ -64,13 +64,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: efbundle
-          path: .
+          path: ./apps/api
 
       - name: List files after download
-        run: ls -al
+        run: ls -al -R
 
       - name: "🍎 Apply migrations bundle"
-        run: ./efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
+        run: ./efbundle/efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
 
   api:
     name: Deploy Api 🚀
