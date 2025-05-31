@@ -7,8 +7,8 @@ const envSchema = z.object({
   // Base
   Mode: z.enum(['development', 'production', 'test']).default('development'),
   // App
-  BaseApiUrl: z.string().url(),
-  ApiUrl: z.string().url(),
+  BaseApiUrl: z.string().refine((value) => value.includes('railway')),
+  ApiUrl: z.string().refine((value) => value.includes('railway')),
   WebUrl: z.string().url(),
   // Devtools
   DevToolsLogger: z.string().transform((x) => x === 'true'),

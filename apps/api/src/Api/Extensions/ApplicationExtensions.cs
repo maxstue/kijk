@@ -35,19 +35,17 @@ public static class ApplicationExtensions
         var app = (WebApplication)applicationBuilder;
 
         app.MapOpenApi("{documentName}.json");
-
+        app.MapScalarApiReference("", options =>
+        {
+            options.WithTitle("Kijk Api")
+                .WithFavicon("favicon.svg")
+                .WithOpenApiRoutePattern("/{documentName}.json")
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                .WithPreferredScheme("Bearer")
+                .AddHttpAuthentication("Bearer", schemeOpt => schemeOpt.Token = app.Configuration["OpenApi:Token"]);
+        });
         if (app.Environment.IsDevelopment())
         {
-            app.MapScalarApiReference("", options =>
-            {
-                options.WithTitle("Kijk Api")
-                    .WithFavicon("favicon.svg")
-                    .WithOpenApiRoutePattern("/{documentName}.json")
-                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-                    .WithPreferredScheme("Bearer")
-                    .AddHttpAuthentication("Bearer", schemeOpt => schemeOpt.Token = app.Configuration["OpenApi:Token"]);
-            });
-
             app.Map("/", () => Results.Redirect("openapi"));
         }
 
