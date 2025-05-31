@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
   flexRender,
   getCoreRowModel,
@@ -10,7 +9,6 @@ import {
 } from '@tanstack/react-table';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Columns3Icon, EllipsisVerticalIcon } from 'lucide-react';
 import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/react-table';
-import type { UniqueIdentifier } from '@dnd-kit/core';
 
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -114,8 +112,6 @@ export function HomeTable() {
     pageSize: 10,
   });
 
-  const dataIds = React.useMemo<Array<UniqueIdentifier>>(() => dataFile.map(({ id }) => id), []);
-
   const table = useReactTable({
     data: dataFile,
     columns,
@@ -210,7 +206,7 @@ export function HomeTable() {
             </TableHeader>
             <TableBody className='**:data-[slot=table-cell]:first:w-8'>
               {table.getRowModel().rows.length > 0 ? (
-                <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
+                <>
                   {table.getRowModel().rows.map((row) => (
                     <TableRow
                       key={row.id}
@@ -222,7 +218,7 @@ export function HomeTable() {
                       ))}
                     </TableRow>
                   ))}
-                </SortableContext>
+                </>
               ) : (
                 <TableRow>
                   <TableCell className='h-24 text-center' colSpan={columns.length}>

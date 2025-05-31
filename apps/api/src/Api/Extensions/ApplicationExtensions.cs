@@ -34,9 +34,10 @@ public static class ApplicationExtensions
     {
         var app = (WebApplication)applicationBuilder;
 
+        app.MapOpenApi("{documentName}.json");
+
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi("{documentName}.json");
             app.MapScalarApiReference("", options =>
             {
                 options.WithTitle("Kijk Api")
@@ -48,7 +49,6 @@ public static class ApplicationExtensions
             });
 
             app.Map("/", () => Results.Redirect("openapi"));
-            return applicationBuilder;
         }
 
         return applicationBuilder;
