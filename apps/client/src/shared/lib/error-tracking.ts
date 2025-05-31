@@ -22,8 +22,8 @@ const ErrorService = {
       tracePropagationTargets: [
         'localhost',
         /^https:\/\/kijk-api\.xyz\/api/,
-        /^https:\/\/kijk-client\.xyz/,
-        /^https:\/\/kijk-client\.xyz/,
+        /^https:\/\/kijk-app\.xyz/,
+        /^https:\/\/kijk\.xyz/,
       ],
 
       // Set profilesSampleRate to 1.0 to profile every transaction.
