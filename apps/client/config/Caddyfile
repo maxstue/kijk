@@ -1,33 +1,37 @@
 # global options
 {
-	admin off # theres no need for the admin api
+	admin off # theres no need for the admin api in railway's environment
 	persist_config off # storage isn't persistent anyway
-	auto_https off # fly.io handles https for us, this would cause issues if left enabled
-
+	auto_https off # railway handles https for us, this would cause issues if left enabled
 	# runtime logs
 	log {
 		format json # set runtime log format to json mode
 	}
 	# server options
 	servers {
-		metrics
+		trusted_proxies static private_ranges 100.0.0.0/8 # trust railway's proxy
 	}
 }
 
 # site block
-:80 {
+:{$PORT:3000} {
+	# enable gzipping responses
 	encode gzip
+	# access logs
 	log {
 		format json # set access log format to json mode
 	}
-	handle {
-		# health check for fly.io
-		respond /health 200
+	# health check for railway
+	rewrite /health /*
 
-		root * /var/www/html
+	handle {
+
+		# serve from the 'dist' folder (Vite builds into the 'dist' folder)
+	  root * dist
 
 		try_files {path}.html {path} /index.html
-		file_server
+    # serve files from 'dist'
+    file_server
 
 		@static {
 			file
