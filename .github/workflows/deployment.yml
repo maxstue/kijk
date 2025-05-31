@@ -129,7 +129,8 @@ jobs:
 
   success:
     name: Success 👻✅
-    needs: [api, client] # TODO add web
+    # needs: [api, client] # TODO add web
+    if: success() || failure()
     runs-on: ubuntu-latest
     environment:
       name: production
