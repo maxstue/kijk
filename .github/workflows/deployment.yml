@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       api: ${{ steps.api-changes.outputs.any_changed }}
+      infra: ${{ steps.infra-changes.outputs.any_changed }}
       client: ${{ steps.client-changes.outputs.any_changed }}
       web: ${{ steps.web-changes.outputs.any_changed }}
     steps:
@@ -28,6 +29,13 @@ jobs:
         with:
           files: |
             apps/api/**
+
+      - name: "Detect Infrastructure changes"
+        id: infra-changes
+        uses: tj-actions/changed-files@v46
+        with:
+          files: |
+            apps/api/src/Infrastructure/Migrations/**
 
       - name: "Detect Client changes"
         id: client-changes
@@ -46,7 +54,7 @@ jobs:
   database-create-migration:
     name: "Migrate Database 🏗️"
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.api == 'true'
+    if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -84,7 +92,7 @@ jobs:
   database-apply-migration:
     name: Apply Database Migration 🗃️
     needs: [database-create-migration, detect-changes]
-    if: needs.detect-changes.outputs.api == 'true'
+    if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     environment:
       name: production-db
@@ -103,9 +111,6 @@ jobs:
 
       - name: "Make bundle executable"
         run: chmod +x ./efbundle
-
-      - name: List files after download
-        run: ls -al -R
 
       - name: "🍎 Apply migrations bundle"
         run: ./efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
