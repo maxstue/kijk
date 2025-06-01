@@ -79,24 +79,30 @@ jobs:
     name: Deploy Api 🚀
     needs: [database-apply-migration]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./apps/api
     container: ghcr.io/railwayapp/cli:latest
     env:
       SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - run: railway up --service=${{ env.SERVICE_ID }} --path-as-root ../..
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🔎 Get changed files"
+        id: changed-files
+        uses: tj-actions/changed-files
+        with:
+          files: |
+            apps/api/**
+      - name: "Link Railway Service"
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: railway link --service=${{ env.SERVICE_ID }}
+      - name: "🚀 Deploy"
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: railway up --service=${{ env.SERVICE_ID }} --ci
 
   client:
     name: Deploy Client 💻
     needs: [database-apply-migration]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./apps/client
     container: ghcr.io/railwayapp/cli:latest
     env:
       SERVICE_ID: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
@@ -104,16 +110,23 @@ jobs:
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v4
+      - name: "🔎 Get changed files"
+        id: changed-files
+        uses: tj-actions/changed-files
+        with:
+          files: |
+            apps/client/**
+      - name: "Link Railway Service"
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: railway link --service=${{ env.SERVICE_ID }}
       - name: "🚀 Deploy"
-        run: railway up --service=${{ env.SERVICE_ID }} --path-as-root ../..
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: railway up --service=${{ env.SERVICE_ID }} --ci
 
   web:
     name: Deploy Web 🕸️
     needs: [database-apply-migration]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./apps/web
     container: ghcr.io/railwayapp/cli:latest
     env:
       SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
@@ -121,16 +134,22 @@ jobs:
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v4
+      - name: "🔎 Get changed files"
+        id: changed-files
+        uses: tj-actions/changed-files
+        with:
+          files: |
+            apps/web/**
       - name: "🚀 Deploy"
+        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          echo 'Client deployment is disabled for now'
+          echo 'Web deployment is disabled for now'
       # TODO deploy web app to railway
-      # - run: railway up --service=${{ env.SERVICE_ID }}
 
   success:
     name: Success 👻✅
-    needs: [api, client] # TODO add web
-    if: success() || failure()
+    needs: [api, client, web]
+    if: always()
     runs-on: ubuntu-latest
     environment:
       name: production
