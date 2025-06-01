@@ -5,7 +5,6 @@
     "commitMessage": "chore: release ${version}"
   },
   "hooks": {
-    "before:init": ["pnpm build"],
     "after:bump": "pnpx auto-changelog -p"
   },
   "github": {
