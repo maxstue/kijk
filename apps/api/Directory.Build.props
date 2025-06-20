@@ -1,0 +1,29 @@
+<!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+<Project>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <!-- Code Style and Analysis settings -->
+    <PropertyGroup>
+        <WarningsAsErrors>Nullable</WarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisMode>Recommended</AnalysisMode>
+        <NoWarn>$(NoWarn);1591;NU1103,AD0001</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
+        <PackageReference Include="SonarAnalyzer.CSharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Host: https://kijk.justMax.xyz
+
+Sitemap: https://kijk.justMax.xyz/sitemap.xml

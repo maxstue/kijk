@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+onlyBuiltDependencies:
+  - '@clerk/shared'
+  - '@sentry/cli'
+  - '@tailwindcss/oxide'
+  - browser-tabs-lock
+  - core-js
+  - core-js-pure
+  - esbuild
+  - unrs-resolver
