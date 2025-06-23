@@ -36,6 +36,5 @@ export function ThemeModeSwitcher() {
     globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
   }, []);
 
-  // eslint-disable-next-line unicorn/no-useless-undefined
   return undefined;
 }

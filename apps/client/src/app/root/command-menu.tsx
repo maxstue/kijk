@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { HousePlug, Laptop, LayoutDashboard, Moon, SunMedium } from 'lucide-react';
 
-import type { DialogProps } from '@radix-ui/react-dialog';
+import type { Dialog } from 'radix-ui';
 import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -20,7 +20,7 @@ import { cn } from '@/shared/lib/helpers';
 import { useThemeStoreActions } from '@/shared/stores/theme-store';
 import { months } from '@/shared/types/app';
 
-interface Props extends DialogProps {
+interface Props extends Dialog.DialogProps {
   isCollapsed?: boolean;
 }
 

@@ -4,7 +4,7 @@ import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 import type { ChartConfig } from '@/shared/components/ui/chart';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/shared/components/ui/chart';
+import { ChartContainer } from '@/shared/components/ui/chart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group';
 
@@ -212,7 +212,7 @@ export function HomeChartArea() {
                 });
               }}
             />
-            <ChartTooltip
+            {/* <ChartTooltip
               cursor={false}
               defaultIndex={isMobile ? -1 : 10}
               content={
@@ -226,7 +226,7 @@ export function HomeChartArea() {
                   }}
                 />
               }
-            />
+            /> */}
             <Area dataKey='mobile' fill='url(#fillMobile)' stackId='a' stroke='var(--color-mobile)' type='natural' />
             <Area dataKey='desktop' fill='url(#fillDesktop)' stackId='a' stroke='var(--color-desktop)' type='natural' />
           </AreaChart>
