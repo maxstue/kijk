@@ -39,9 +39,8 @@ export function DevModeIndicator() {
   return (
     <div className='absolute top-0 z-50 flex w-full flex-col items-center'>
       <div className='from-background to-background h-[2px] w-full bg-gradient-to-r via-[#E87B35]' />
-      <div
+      <button
         className='flex items-center space-x-2 rounded-b bg-[#E87B35] px-2 pt-0 pb-1.5 text-xs text-white'
-        role='button'
         tabIndex={-1}
         onMouseEnter={handleHover(true)}
         onMouseLeave={handleHover(false)}
@@ -62,7 +61,7 @@ export function DevModeIndicator() {
             {width.toLocaleString()} x {height.toLocaleString()}
           </div>
         )}
-      </div>
+      </button>
     </div>
   );
 }

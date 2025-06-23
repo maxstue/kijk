@@ -11,5 +11,5 @@ export function useSetSiteHeader(title: string) {
 
   useEffect(() => {
     setTitle(title);
-  }, [title]);
+  }, [setTitle, title]);
 }

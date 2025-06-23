@@ -1,6 +1,6 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -22,23 +22,13 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       sourcemap: env.SENTRY_ENABLE === 'true',
-      rollupOptions: {
-        output: {
-          manualChunks: (name) => {
-            if (name.includes('node_modules')) {
-              return 'vendor';
-            }
-            return;
-          },
-        },
-      },
     },
     server: {
       port: 5004,
     },
     plugins: [
       tsconfigPaths(),
-      TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
+      tanstackRouter({ target: 'react', autoCodeSplitting: true }),
       react({
         babel: {
           plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],

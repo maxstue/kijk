@@ -28,12 +28,12 @@ async function onRequest(request: InternalAxiosRequestConfig) {
   return request;
 }
 
-// Do something with respone data. Any 2** statusCode will trigger this function
+// Do something with response data. Any 2** statusCode will trigger this function
 function onResponse(response: AxiosResponse) {
   return response;
 }
 
-// Do something with respone error. Any statusCode outside 2** will trigger this function
+// Do something with response error. Any statusCode outside 2** will trigger this function
 function onResponseError(error: AxiosError) {
   return Promise.reject(error);
 }

@@ -97,6 +97,8 @@ export function AccountForm() {
                   <Button
                     className={cn('w-[200px] justify-between', !field.value && 'text-muted-foreground')}
                     role='combobox'
+                    aria-expanded={field.value ? 'true' : 'false'}
+                    aria-controls='language-popover'
                     variant='outline'
                   >
                     {field.value

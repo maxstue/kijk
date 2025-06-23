@@ -9,6 +9,5 @@ export const AnalyticsTracker = () => {
     posthog.capture('$pageview');
   }, [location, posthog]);
 
-  // eslint-disable-next-line unicorn/no-useless-undefined
   return undefined;
 };

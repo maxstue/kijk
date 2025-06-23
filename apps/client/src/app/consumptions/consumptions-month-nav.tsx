@@ -41,6 +41,7 @@ export function ConsumptionsMonthNav({ className }: Props) {
           aria-label='Select a year'
           className={cn('w-full justify-between', className)}
           role='combobox'
+          aria-controls='consumptions-month-nav'
           variant='outline'
         >
           {month}

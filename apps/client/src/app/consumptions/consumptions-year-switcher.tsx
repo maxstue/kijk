@@ -82,6 +82,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
             aria-label='Select a year'
             className={cn('w-full justify-between', className)}
             role='combobox'
+            aria-controls='year-popover'
             variant='outline'
           >
             {selectedYear}

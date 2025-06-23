@@ -56,16 +56,15 @@ const ShowMore = (props: { error?: unknown }) => {
 
   return (
     <div className='mt-3'>
-      <div
+      <button
         className='flex cursor-pointer items-center justify-center gap-1 text-xs text-gray-400'
-        role='button'
         tabIndex={0}
         onClick={handleToggleMore}
       >
         <div>{showMore ? 'Hide' : 'Show'} more advanced information:</div>
 
         <ArrowDownIcon className={cn('h-3 w-3 text-orange-400', showMore ? 'rotate-180' : '')} />
-      </div>
+      </button>
       {showMore &&
         (props.error instanceof Error ? (
           <div className='h-[200px] overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>

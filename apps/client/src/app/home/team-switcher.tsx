@@ -72,6 +72,7 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
             aria-label='Select a team'
             className={cn('w-[200px] justify-between', className)}
             role='combobox'
+            aria-controls='team-switcher-popover'
             size='sm'
             variant='ghost'
           >

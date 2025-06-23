@@ -2,12 +2,13 @@
 import eslint from "@eslint/js";
 import { tanstackConfig } from '@tanstack/eslint-config'
 import prettierConfig from "eslint-config-prettier";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
-import reactRefreshPlugin from "eslint-plugin-react-refresh";
-import eslintPluginUnicorn from "eslint-plugin-unicorn";
+// import reactPlugin from "eslint-plugin-react";
+// import reactHooksPlugin from "eslint-plugin-react-hooks";
+// import reactRefreshPlugin from "eslint-plugin-react-refresh";
+// import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import oxlint from 'eslint-plugin-oxlint';
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const baseESLintConfig = {
@@ -99,89 +100,89 @@ const typescriptConfig = {
   },
 };
 
-/** @type {import('typescript-eslint').ConfigWithExtends} */
-const reactConfig = {
-  name: "react",
-  extends: [reactPlugin.configs.flat["recommended"]],
-  plugins: {
-    "react-hooks": reactHooksPlugin,
-    "react-refresh": reactRefreshPlugin,
-  },
-  settings: {
-    react: {
-      version: "detect",
-    },
-  },
-  rules: {
-    "react/jsx-boolean-value": "error",
-    "react/jsx-filename-extension": [
-      2,
-      { extensions: [".js", ".jsx", ".ts", ".tsx"] },
-    ],
-    "react/jsx-no-target-blank": "off",
-    "react/jsx-max-props-per-line": "off",
-    "react/jsx-sort-props": [
-      "error",
-      {
-        callbacksLast: true,
-        shorthandFirst: true,
-        reservedFirst: true,
-        multiline: "last",
-      },
-    ],
-    "react/no-unknown-property": "off",
-    "react/prop-types": "off",
-    "react/react-in-jsx-scope": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "react-refresh/only-export-components": [
-      "warn",
-      { allowConstantExport: true },
-    ],
-    "react/jsx-uses-react": "off",
-  },
-};
+// /** @type {import('typescript-eslint').ConfigWithExtends} */
+// const reactConfig = {
+//   name: "react",
+//   extends: [reactPlugin.configs.flat["recommended"]],
+//   plugins: {
+//     "react-hooks": reactHooksPlugin,
+//     "react-refresh": reactRefreshPlugin,
+//   },
+//   settings: {
+//     react: {
+//       version: "detect",
+//     },
+//   },
+//   rules: {
+//     "react/jsx-boolean-value": "error",
+//     "react/jsx-filename-extension": [
+//       2,
+//       { extensions: [".js", ".jsx", ".ts", ".tsx"] },
+//     ],
+//     "react/jsx-no-target-blank": "off",
+//     "react/jsx-max-props-per-line": "off",
+//     "react/jsx-sort-props": [
+//       "error",
+//       {
+//         callbacksLast: true,
+//         shorthandFirst: true,
+//         reservedFirst: true,
+//         multiline: "last",
+//       },
+//     ],
+//     "react/no-unknown-property": "off",
+//     "react/prop-types": "off",
+//     "react/react-in-jsx-scope": "off",
+//     "react-hooks/rules-of-hooks": "error",
+//     "react-hooks/exhaustive-deps": "warn",
+//     "react-refresh/only-export-components": [
+//       "warn",
+//       { allowConstantExport: true },
+//     ],
+//     "react/jsx-uses-react": "off",
+//   },
+// };
 
-/** @type {import('typescript-eslint').ConfigWithExtends} */
-const unicornConfig = {
-  name: "unicorn",
-  extends: [eslintPluginUnicorn.configs["recommended"]],
-  rules: {
-    "unicorn/prefer-top-level-await": "off",
-    "unicorn/no-array-reduce": "warn",
-    "unicorn/no-null": "warn",
-    "unicorn/no-useless-undefined": "warn",
-    "unicorn/no-document-cookie": "warn",
-    "unicorn/filename-case": [
-      "error",
-      {
-        case: "kebabCase",
-      },
-    ],
-    "unicorn/prevent-abbreviations": [
-      "error",
-      {
-        replacements: {
-          db: false,
-          dev: false,
-          arg: false,
-          args: false,
-          env: false,
-          fn: false,
-          func: {
-            fn: true,
-            function: false,
-          },
-          prop: false,
-          props: false,
-          ref: false,
-          refs: false,
-        },
-        ignore: ["semVer", "SemVer"],
-      },
-    ],
-  },
-};
+// /** @type {import('typescript-eslint').ConfigWithExtends} */
+// const unicornConfig = {
+//   name: "unicorn",
+//   extends: [eslintPluginUnicorn.configs["recommended"]],
+//   rules: {
+//     "unicorn/prefer-top-level-await": "off",
+//     "unicorn/no-array-reduce": "warn",
+//     "unicorn/no-null": "warn",
+//     "unicorn/no-useless-undefined": "warn",
+//     "unicorn/no-document-cookie": "warn",
+//     "unicorn/filename-case": [
+//       "error",
+//       {
+//         case: "kebabCase",
+//       },
+//     ],
+//     "unicorn/prevent-abbreviations": [
+//       "error",
+//       {
+//         replacements: {
+//           db: false,
+//           dev: false,
+//           arg: false,
+//           args: false,
+//           env: false,
+//           fn: false,
+//           func: {
+//             fn: true,
+//             function: false,
+//           },
+//           prop: false,
+//           props: false,
+//           ref: false,
+//           refs: false,
+//         },
+//         ignore: ["semVer", "SemVer"],
+//       },
+//     ],
+//   },
+// };
 
 /** @type {import('typescript-eslint').ConfigWithExtends} */
 const ignoreFiles = {
@@ -210,10 +211,11 @@ export default tseslint.config(
   baseESLintConfig,
   typescriptConfig,
   prettierConfig,
-  reactConfig,
-  unicornConfig,
+  // reactConfig,
+  // unicornConfig,
   tanstackConfig,
   disableTypeChecked,
   ignoreFiles,
-  onlyFiles
+  onlyFiles,
+  ...oxlint.buildFromOxlintConfigFile('./.oxlintrc.json'),
 );
