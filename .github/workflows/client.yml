@@ -1,0 +1,62 @@
+name: Client 💻
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: ["apps/client/**"]
+  pull_request:
+    branches: ["main", "develop"]
+    paths: ["apps/client/**"]
+
+env:
+  NODE_VERSION: "22.x"
+  PNPM_VERSION: "9"
+
+defaults:
+  run:
+    working-directory: ./apps/client
+
+jobs:
+  basic:
+    name: "🛠️ Build, Lint/Format"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install pnpm"
+        uses: pnpm/action-setup@v4
+        id: pnpm-install
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: "🔧 Use Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: "📦 Install dependencies"
+        run: pnpm install --frozen-lockfile
+      # Enable at later time
+      # - name: Run the tests and generate coverage report
+      #   run: npm test -- --coverage
+
+      - name: "🧱 Build"
+        run: pnpm build
+
+      - name: "🧹 Format"
+        run: pnpm format
+
+      - name: "🔍 Lint"
+        run: pnpm lint
+
+      - name: "🔍 Audit"
+        run: pnpm audit
+        continue-on-error: true

@@ -1,0 +1,26 @@
+{
+  "recommendations": [
+    // Lint & Format
+    "oxc.oxc-vscode",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    // CSharp
+    "ms-dotnettools.csharp",
+    // TypeScript
+    "YoavBls.pretty-ts-errors",
+    "mattpocock.ts-error-translator",
+    // React
+    "dsznajder.es7-react-js-snippets",
+    // Vite
+    "vitest.explorer",
+    // Docker
+    "ms-azuretools.vscode-docker",
+    // GitHub
+    "GitHub.copilot",
+    "github.vscode-github-actions",
+    // Tailwind CSS
+    "bradlc.vscode-tailwindcss",
+    // GitHub Actions
+    "SanjulaGanepola.github-local-actions"
+  ]
+}

@@ -1,0 +1,31 @@
+version: '3.9'
+
+name: kijk-client
+
+services:
+  kijk-client:
+    container_name: kijk-client
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: 'no'
+    ports:
+      - '5004:80'
+      - '443:443'
+      - '2019:2019'
+    environment:
+      # Replace with your own values
+      - KIJK_BASE_API_URL=<Replace>
+      - KIJK_WEB_URL=<Replace>
+      - KIJK_CLERK_PUBLISHABLE_KEY=<Replace>
+      - KIJK_SENTRY_DSN=<Replace>
+      - KIJK_SENTRY_AUTH_TOKEN=<Replace>
+      - KIJK_POSTHOG_KEY=<Replace>
+      - KIJK_POSTHOG_URL=<Replace>
+    volumes:
+      - caddy-config:/config
+      - caddy-data:/data
+
+volumes:
+  caddy-config:
+  caddy-data:

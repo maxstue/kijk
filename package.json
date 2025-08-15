@@ -1,0 +1,38 @@
+{
+  "name": "kijk",
+  "version": "2025.6.0",
+  "private": true,
+  "description": "A simple budget app made by different technologies.",
+  "keywords": [
+    "budget app",
+    "pnpm",
+    "workspace"
+  ],
+  "author": {
+    "name": "Maximilian Stümpfl",
+    "url": "https://github.com/maxstue"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm run --parallel --filter \"kijk-client\" --filter \"kijk-api\" dev",
+    "dev:all": "pnpm run --parallel --filter \"kijk*\" dev",
+    "dev:web": "pnpm run --filter \"kijk-web\" dev",
+    "dev:client": "pnpm run --filter \"kijk-client\" dev",
+    "dev:api": "pnpm run --filter \"kijk-api\" dev",
+    "build": "pnpm run --parallel -r build",
+    "build:web": "pnpm run --filter \"kijk-web\" build",
+    "build:client": "pnpm run --filter \"kijk-client\" build",
+    "clean:all": "pnpm run --parallel -r clean:all && rimraf ./dist ./node_modules ./*.lock ./.eslintcache ",
+    "lint:all": "pnpm run --parallel -r lint",
+    "format:all": "pnpm run --parallel -r format",
+    "release": "release-it"
+  },
+  "devDependencies": {
+    "@csmith/release-it-calver-plugin": "^2023.12.0",
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "@release-it/conventional-changelog": "^8.0.2",
+    "auto-changelog": "^2.5.0",
+    "release-it": "^17.11.0",
+    "rimraf": "^5.0.10"
+  }
+}

@@ -1,0 +1,17 @@
+# generated content
+.map.ts
+.contentlayer
+.content-collections
+
+# test & build
+/coverage
+/.next/
+/out/
+/build
+*.tsbuildinfo
+
+# next
+next-env.d.ts
+
+# vercel
+.vercel

@@ -1,0 +1,28 @@
+# Build output
+node_modules
+**/lint-results.sarif
+
+# Editor directories and files
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# env
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs
+*.log
+pnpm-debug.log*
+lerna-debug.log*
+
+# Sentry Config File
+.env.sentry-build-plugin
+

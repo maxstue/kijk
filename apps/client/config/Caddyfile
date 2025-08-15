@@ -1,0 +1,51 @@
+# global options
+{
+	admin off # theres no need for the admin api in railway's environment
+	persist_config off # storage isn't persistent anyway
+	auto_https off # railway handles https for us, this would cause issues if left enabled
+	# runtime logs
+	log {
+		format json # set runtime log format to json mode
+	}
+	# server options
+	servers {
+		trusted_proxies static private_ranges 100.0.0.0/8 # trust railway's proxy
+	}
+}
+
+# site block
+:{$PORT:3000} {
+	# enable gzipping responses
+	encode gzip
+	# access logs
+	log {
+		format json # set access log format to json mode
+	}
+	# health check for railway
+	rewrite /health /*
+
+	handle {
+
+		# serve from the 'dist' folder (Vite builds into the 'dist' folder)
+	  root * dist
+
+		try_files {path}.html {path} /index.html
+    # serve files from 'dist'
+    file_server
+
+		@static {
+			file
+			path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2
+		}
+		header @static Cache-Control "public, max-age=5184000"
+
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Document-Policy "js-profiling"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			X-XSS-Protection "1; mode=block"
+		}
+	}
+}

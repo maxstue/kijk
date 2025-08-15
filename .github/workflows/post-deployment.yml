@@ -1,0 +1,49 @@
+name: Post-Deployment
+
+permissions:
+  contents: write
+
+on:
+  deployment_status:
+
+env:
+  NODE_VERSION: "22.x"
+  PNPM_VERSION: "9"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success'
+    steps:
+      - name: Debug - Print github.event object
+        run: |
+          echo "github.event context:"
+          echo '${{ toJSON(github.event) }}'
+
+      # Only run if this is a production environment deployment that succeeded
+      - name: Run post-deploy actions
+        if: github.event.deployment.environment == 'production'
+        run: |
+          echo "Production deployment succeeded"
+
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install pnpm"
+        uses: pnpm/action-setup@v4
+        id: pnpm-install
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: "📦 Install dependencies"
+        run: pnpm install --frozen-lockfile
+
+      - name: "Initialize git"
+        run: |
+          git config --global user.name "Release Workflow"
+          git config --global user.email "maxstue2304@gmail.com"
+
+      - name: "🚀 Release"
+        run: pnpm run release --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

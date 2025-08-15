@@ -1,0 +1,112 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "oxc",
+    "unicorn",
+    "react",
+    "react-perf",
+    "import",
+    "typescript",
+    "jsdoc",
+    "promise",
+    "jsx-a11y"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "env": {
+    "browser": true,
+    "builtin": true,
+    "es2025": true
+  },
+  "rules": {
+    "no-negated-condition": "off",
+    "no-nested-ternary": "off",
+    // oxc
+    "oxc/no-async-endpoint-handlers": "off",
+    // import
+    "import/no-unassigned-import": [
+      "warn",
+      {
+        "allow": [
+          "**/*.css"
+        ]
+      }
+    ],
+    // typescript
+    "typescript-eslint/array-type": [
+      "warn",
+      {
+        "default": "array-simple"
+      }
+    ],
+    "typescript-eslint/no-empty-object-type": "off",
+    "typescript-eslint/no-import-type-side-effects": "warn",
+    "typescript-eslint/no-empty-interface": [
+      "error",
+      {
+        "allowSingleExtends": true
+      }
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    // unicorn
+    "unicorn/empty-brace-spaces": "error",
+    "unicorn/no-nested-ternary": "error",
+    "unicorn/number-literal-case": "error",
+    // react
+    "react/jsx-key": "warn",
+    "react/jsx-no-comment-textnodes": "warn",
+    "react/jsx-no-duplicate-props": "warn",
+    "react/jsx-no-target-blank": "off",
+    "react/jsx-no-undef": "warn",
+    "react/no-children-prop": "warn",
+    "react/no-danger-with-children": "warn",
+    "react/no-direct-mutation-state": "warn",
+    "react/no-find-dom-node": "warn",
+    "react/no-is-mounted": "warn",
+    "react/no-render-return-value": "warn",
+    "react/no-string-refs": "warn",
+    "react/no-unescaped-entities": "warn",
+    "react/no-unknown-property": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-boolean-value": "error",
+    "react/jsx-filename-extension": [
+      2,
+      {
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
+      }
+    ],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "ignorePatterns": [
+    "**/build/**",
+    "**/coverage/**",
+    "**/dist/**",
+    "**/snap/**",
+    "**/vite.config.*.timestamp-*.*",
+    "**/.vscode/**",
+    "**/public/**",
+    "**/config/**",
+    "**/dev-dist/**",
+    "**/**.eslint.**",
+    "src/routeTree.gen.ts"
+  ]
+}

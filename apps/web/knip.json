@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@2/schema.json",
+  "project": ["src/**/*.ts"],
+  "ignoreBinaries": ["pnpx"],
+  "ignoreDependencies": ["shadcn-ui", "ts-node"],
+  "ignore": ["src/middleware.ts"],
+  "next": {
+    "entry": [
+      "next.config.{js,ts,mjs}",
+      "src/app/**/*.{ts,tsx}",
+      "src/components/**/*.{ts,tsx}"
+    ]
+  }
+}
