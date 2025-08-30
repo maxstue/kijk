@@ -115,7 +115,6 @@ public static class DependencyInjection
             });
 
         services.AddScoped<CurrentUser>();
-        services.AddTransient<CurrentUserMiddleware>();
 
         services.AddAuthorizationBuilder()
             .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());

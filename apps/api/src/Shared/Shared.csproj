@@ -9,16 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- Logging -->
-        <PackageReference Include="Serilog.AspNetCore"/>
-        <PackageReference Include="Serilog.Expressions"/>
-        <!-- Telemetry -->
-        <PackageReference Include="Sentry.AspNetCore"/>
-        <PackageReference Include="Sentry.Serilog"/>
         <!-- Other -->
-        <PackageReference Include="FluentValidation.AspNetCore"/>
-        <PackageReference Include="Humanizer.Core"/>
-        <PackageReference Include="Humanizer.Core.de"/>
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>
         <PackageReference Include="NetEscapades.EnumGenerators" PrivateAssets="all" ExcludeAssets="runtime"/>
     </ItemGroup>

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Kijk.Api.Models;
 using Kijk.Shared;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

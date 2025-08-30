@@ -1,9 +1,6 @@
 using System.Globalization;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Application.Consumptions;
@@ -36,11 +33,9 @@ public record ConsumptionStatsResourceResponse(string Name, string Unit, string 
 /// The comparison month is the previous month if the selected month is the current month.
 /// The comparison month is the current month if the selected month is in the past.
 /// </summary>
-public static class GetStatsConsumptionsHandler
+public class GetStatsConsumptionsHandler(AppDbContext dbContext, CurrentUser currentUser)
 {
-    public static async Task<Results<Ok<GetStatsConsumptionsResponseWrapper>, ProblemHttpResult>> HandleAsync([FromQuery] int year,
-        [FromQuery] string month,
-        AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<GetStatsConsumptionsResponseWrapper>> GetStatsAsync(int year, string month, CancellationToken cancellationToken)
     {
         var selectedYearUsages = await dbContext.Consumptions
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
@@ -63,7 +58,7 @@ public static class GetStatsConsumptionsHandler
                 c.Usages))
             .ToList();
 
-        return TypedResults.Ok(new GetStatsConsumptionsResponseWrapper(result));
+        return new GetStatsConsumptionsResponseWrapper(result);
     }
 
     /// <summary>

@@ -1,5 +1,5 @@
+using Kijk.Api.Extensions;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Kijk.Api.Middleware;

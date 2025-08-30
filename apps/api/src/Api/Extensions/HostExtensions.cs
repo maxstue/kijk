@@ -1,4 +1,6 @@
-﻿namespace Kijk.Api.Extensions;
+﻿using Serilog;
+
+namespace Kijk.Api.Extensions;
 
 public static class HostExtensions
 {
@@ -14,12 +16,16 @@ public static class HostExtensions
 
     public static WebApplicationBuilder AddLogging(this WebApplicationBuilder builder)
     {
-        builder.Host.UseSerilog(
-            (context, services, configuration) =>
-                configuration
-                    .ReadFrom.Configuration(context.Configuration)
-                    .ReadFrom.Services(services)
-                    .WriteTo.Sentry());
+        builder.Host.UseSerilog((context, services, configuration) =>
+        {
+            configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services);
+            if (builder.Environment.IsProduction())
+            {
+                configuration.WriteTo.Sentry();
+            }
+        });
 
         return builder;
     }

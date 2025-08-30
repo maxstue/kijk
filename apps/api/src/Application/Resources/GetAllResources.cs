@@ -1,21 +1,16 @@
 ﻿using Kijk.Application.Resources.Shared;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Resources;
 
 /// <summary>
-/// Handler
+/// Handler for getting all resources.
 /// </summary>
-public static class GetAllResourcesHandler
+public class GetAllResourcesHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetAllResourcesHandler));
-
-    public static async Task<Results<Ok<List<ResourceResponse>>, ProblemHttpResult>> HandleAsync(AppDbContext dbContext, CurrentUser currentUser,
-        CancellationToken cancellationToken)
+    public async Task<Result<List<ResourceResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
             .Include(x => x.Resources)
@@ -24,14 +19,14 @@ public static class GetAllResourcesHandler
 
         if (user is null)
         {
-            Logger.Error("User with id '{UserId}' was not found", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound($"User with id '{currentUser.Id}' was not found").ToProblemDetails());
+            logger.LogError("User with id '{UserId}' was not found", currentUser.Id);
+            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
         }
 
         var resources = user.Resources
             .Select(x => new ResourceResponse(x.Id, x.Name, x.Color, x.Unit, x.CreatorType))
             .ToList();
 
-        return TypedResults.Ok(resources);
+        return resources;
     }
 }

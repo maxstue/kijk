@@ -13,6 +13,7 @@
     </PropertyGroup>
     <ItemGroup>
         <!-- OpenApi -->
+        <PackageReference Include="FluentValidation" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
         <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
             <PrivateAssets>all</PrivateAssets>
@@ -30,8 +31,14 @@
         <PackageReference Include="EntityFrameworkCore.Exceptions.PostgreSQL"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <!-- Logging -->
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Expressions"/>
@@ -39,7 +46,6 @@
         <PackageReference Include="Sentry.AspNetCore"/>
         <PackageReference Include="Sentry.Serilog"/>
         <!-- Other -->
-        <PackageReference Include="FluentValidation.AspNetCore"/>
         <PackageReference Include="Humanizer.Core"/>
         <PackageReference Include="Humanizer.Core.de"/>
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>

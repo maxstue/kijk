@@ -22,11 +22,11 @@ public static class DependencyInjection
             .AddValidation()
             .AddCompression()
             .AddEndpoints()
+            .AddCurrentUserMiddleware()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddHttpClient()
             .AddRateLimitPolicy()
             .AddOpenApiInternal(configuration);
-
 
     private static IServiceCollection AddServices(this IServiceCollection services) => services.AddTransient<ExtendRequestLoggingMiddleware>();
 
@@ -88,6 +88,12 @@ public static class DependencyInjection
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+        return services;
+    }
+
+    private static IServiceCollection AddCurrentUserMiddleware(this IServiceCollection services)
+    {
+        services.AddTransient<CurrentUserMiddleware>();
         return services;
     }
 }

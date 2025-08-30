@@ -1,9 +1,7 @@
 ﻿using Kijk.Application.Users.Shared;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Users;
 
@@ -12,12 +10,9 @@ public record UpdateUserRequest(string? UserName, bool? UseDefaultResources);
 /// <summary>
 /// Handler for updating a user.
 /// </summary>
-public static class UpdateUserHandler
+public class UpdateUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateUserHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(UpdateUserHandler));
-
-    public static async Task<Results<Ok<UserResponse>, ProblemHttpResult>> HandleAsync(UpdateUserRequest command, AppDbContext dbContext,
-        CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> UpdateAsync(UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var userEntity = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
@@ -26,27 +21,27 @@ public static class UpdateUserHandler
 
         if (userEntity is null)
         {
-            Logger.Error("User with id {Id} not found", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound("User not found").ToProblemDetails());
+            logger.LogError("User with id {Id} not found", currentUser.Id);
+            return Error.NotFound("User not found");
         }
 
-        if (command.UserName is null)
+        if (request.UserName is null)
         {
-            Logger.Error("User name is null");
-            return TypedResults.Problem(Error.Unexpected("User name is null").ToProblemDetails());
+            logger.LogError("User name is null");
+            return Error.Unexpected("User name is null");
         }
 
         userEntity.FirstTime = false;
-        userEntity.Name = command.UserName;
+        userEntity.Name = request.UserName;
 
-        if (command.UseDefaultResources is true && userEntity.Resources.Any(x => x.CreatorType != CreatorType.System))
+        if (request.UseDefaultResources is true && userEntity.Resources.Any(x => x.CreatorType != CreatorType.System))
         {
             var defaultTypes = await dbContext.Resources
                 .Where(x => x.CreatorType == CreatorType.System)
                 .ToListAsync(cancellationToken);
             userEntity.SetDefaultResources(true, defaultTypes);
         }
-        else if (command.UseDefaultResources is false &&
+        else if (request.UseDefaultResources is false &&
                  userEntity.Resources.Any(x => x.CreatorType == CreatorType.System))
         {
             var defaultTypes = await dbContext.Resources
@@ -57,14 +52,12 @@ public static class UpdateUserHandler
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var response = new UserResponse(
+        return new UserResponse(
             userEntity.Id,
             userEntity.AuthId,
             userEntity.Name,
             userEntity.Email,
             userEntity.FirstTime,
             userEntity.Resources.Any(c => c.CreatorType == CreatorType.System));
-
-        return TypedResults.Ok(response);
     }
 }

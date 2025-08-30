@@ -3,6 +3,7 @@ using Kijk.Shared;
 using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using UserResponse = Kijk.Application.Users.Shared.UserResponse;
 
 namespace Kijk.Application.Users;
@@ -12,12 +13,9 @@ public record WelcomeUserRequest(string? UserName, bool? UseDefaultResources);
 /// <summary>
 /// Handler for creating a new user after the welcome process.
 /// </summary>
-public static class WelcomeUserHandler
+public class WelcomeUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<WelcomeUserHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(WelcomeUserHandler));
-
-    public static async Task<Results<Ok<UserResponse>, ProblemHttpResult>> HandleAsync(WelcomeUserRequest request, AppDbContext dbContext,
-        CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> WelcomeAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
@@ -25,20 +23,20 @@ public static class WelcomeUserHandler
 
         if (user is null)
         {
-            Logger.Error("User not found: {UserId}", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound("User not found").ToProblemDetails());
+            logger.LogError("User not found: {UserId}", currentUser.Id);
+            return Error.NotFound("User not found");
         }
 
         if (request.UserName is null)
         {
-            Logger.Error("User name is null");
-            return TypedResults.Problem(Error.Unexpected("User name is null").ToProblemDetails());
+            logger.LogError("User name is null");
+            return Error.Unexpected("User name is null");
         }
 
         if (!user.FirstTime)
         {
-            Logger.Error("User is already welcome");
-            return TypedResults.Problem(Error.Unexpected("Your are already welcome").ToProblemDetails());
+            logger.LogError("User is already welcome");
+            return Error.Unexpected("Your are already welcome");
         }
 
         user.FirstTime = false;
@@ -54,12 +52,12 @@ public static class WelcomeUserHandler
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(new UserResponse(
+        return new UserResponse(
             user.Id,
             user.AuthId,
             user.Name,
             user.Email,
             user.FirstTime,
-            user.Resources.Any(c => c.CreatorType == CreatorType.System)));
+            user.Resources.Any(c => c.CreatorType == CreatorType.System));
     }
 }

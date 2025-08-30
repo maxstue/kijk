@@ -1,11 +1,9 @@
 ﻿using System.Security.Claims;
+using Kijk.Api.Extensions;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
-namespace Kijk.Infrastructure.Auth;
+namespace Kijk.Api.Middleware;
 
 public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService, AppDbContext dbContext, CurrentUser currentUser) : IMiddleware
 {

@@ -1,9 +1,7 @@
 ﻿using Kijk.Application.Resources.Shared;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Resources;
 
@@ -12,12 +10,9 @@ public record UpdateResourceRequest(string? Name, string? Color, string? Unit);
 /// <summary>
 /// Handler for updating a resource.
 /// </summary>
-public static class UpdateResourceHandler
+public class UpdateResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateResourceHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(UpdateResourceHandler));
-
-    public static async Task<Results<Ok<ResourceResponse>, ProblemHttpResult>> HandleAsync(Guid id, UpdateResourceRequest request,
-        AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<ResourceResponse>> HandleAsync(Guid id, UpdateResourceRequest request, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
             .Include(x => x.Resources)
@@ -26,15 +21,15 @@ public static class UpdateResourceHandler
 
         if (user is null)
         {
-            Logger.Error("User with id {Id} could not be found", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound($"User with id '{currentUser.Id}' was not found").ToProblemDetails());
+            logger.LogError("User with id {Id} could not be found", currentUser.Id);
+            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
         }
 
-        var resource = await dbContext.Resources.FindAsync([id], cancellationToken);
+        var resource = await dbContext.Resources.FindAsync([id],cancellationToken);
         if (resource is null)
         {
-            Logger.Error("Resource with id {Id} could not be found", id);
-            return TypedResults.Problem(Error.NotFound($"Resource with id {id} was not found").ToProblemDetails());
+            logger.LogError("Resource with id {Id} could not be found", id);
+            return Error.NotFound($"Resource with id {id} was not found");
         }
 
         resource.Name = request.Name ?? resource.Name;
@@ -43,12 +38,12 @@ public static class UpdateResourceHandler
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(new ResourceResponse(
+        return new ResourceResponse(
             resource.Id,
             resource.Name,
             resource.Color,
             resource.Unit,
             resource.CreatorType
-        ));
+        );
     }
 }

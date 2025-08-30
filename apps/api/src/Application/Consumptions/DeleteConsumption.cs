@@ -1,31 +1,27 @@
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Consumptions;
 
 /// <summary>
 /// Handler for deleting a consumption.
 /// </summary>
-public static class DeleteConsumptionHandler
+public class DeleteConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteConsumptionHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(DeleteConsumptionHandler));
-    public static async Task<Results<Ok<bool>, ProblemHttpResult>> HandleAsync(Guid id, AppDbContext dbContext,
-        CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<bool>> DeleteAsync(Guid id , CancellationToken cancellationToken)
     {
         var foundEntity = await dbContext.Consumptions
-            .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId,cancellationToken);
         if (foundEntity == null)
         {
-            Logger.Error("Consumption with id '{Id}' not found", id);
-            return TypedResults.Problem(Error.NotFound($"Resource consumption with id '{id}' could not be found").ToProblemDetails());
+            logger.LogError("Consumption with id '{Id}' not found", id);
+            return Error.NotFound($"Resource consumption with id '{id}' could not be found");
         }
 
         dbContext.Consumptions.Remove(foundEntity);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(true);
+        return true;
     }
 }

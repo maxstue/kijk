@@ -1,21 +1,16 @@
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Consumptions;
 
 /// <summary>
 /// Handler for getting consumption by id.
 /// </summary>
-public static class GetByIdConsumptionHandler
+public class GetByIdConsumptionHandler(AppDbContext dbContext, ILogger<GetByIdConsumptionHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetByIdConsumptionHandler));
-
-    public static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> HandleAsync(Guid id, AppDbContext dbContext,
-        CancellationToken cancellationToken)
+    public async Task<Result<ConsumptionResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var entity = await dbContext.Consumptions
             .AsNoTracking()
@@ -32,10 +27,10 @@ public static class GetByIdConsumptionHandler
 
         if (entity is null)
         {
-            Logger.Error("Consumption with id {Id} not found", id);
-            return TypedResults.Problem(Error.NotFound($"Resource consumption for Id '{id}' was not found.").ToProblemDetails());
+            logger.LogError("Consumption with id {Id} not found", id);
+            return Error.NotFound($"Resource consumption for Id '{id}' was not found.");
         }
 
-        return TypedResults.Ok(entity);
+        return entity;
     }
 }

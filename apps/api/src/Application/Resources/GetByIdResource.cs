@@ -1,26 +1,25 @@
 using Kijk.Application.Resources.Shared;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Resources;
 
-public static class GetByIdResourceHandler
+/// <summary>
+/// Handler for getting a resource by id.
+/// </summary>
+/// <param name="dbContext"></param>
+/// <param name="currentUser"></param>
+/// <param name="logger"></param>
+public class GetByIdResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdResourceHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetByIdResourceHandler));
-
     /// <summary>
     /// Handle to get a resource type by id.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="dbContext"></param>
-    /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task<Results<Ok<ResourceResponse>, ProblemHttpResult>> HandleAsync(Guid id, AppDbContext dbContext, CurrentUser currentUser,
-        CancellationToken cancellationToken)
+    public async Task<Result<ResourceResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
             .Include(x => x.Resources)
@@ -29,8 +28,8 @@ public static class GetByIdResourceHandler
 
         if (user is null)
         {
-            Logger.Error("User with id '{UserId}' was not found", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound($"User with id '{currentUser.Id}' was not found").ToProblemDetails());
+            logger.LogError("User with id '{UserId}' was not found", currentUser.Id);
+            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
         }
 
         var resource = user.Resources
@@ -40,9 +39,9 @@ public static class GetByIdResourceHandler
 
         if (resource is null)
         {
-            return TypedResults.Problem(Error.NotFound($"Resource with id '{id}' was not found").ToProblemDetails());
+            return Error.NotFound($"Resource with id '{id}' was not found");
         }
 
-        return TypedResults.Ok(resource);
+        return resource;
     }
 }

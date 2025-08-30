@@ -2,9 +2,7 @@
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using UserResponse = Kijk.Application.Users.Shared.UserResponse;
 
 namespace Kijk.Application.Users;
@@ -13,12 +11,9 @@ namespace Kijk.Application.Users;
 /// Handler for the sign in a user.
 /// It returns only a subset of data for the current user.
 /// </summary>
-public static class SignInUserHandler
+public class SignInUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<SignInUserHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(SignInUserHandler));
-
-    public static async Task<Results<Ok<UserResponse>, ProblemHttpResult>> HandleAsync(AppDbContext dbContext, CurrentUser currentUser,
-        CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> SignInAsync(CancellationToken cancellationToken)
     {
         if (currentUser.User.Name == AppConstants.CreateUserIdentifier)
         {
@@ -28,8 +23,8 @@ public static class SignInUserHandler
             var adminRole = await dbContext.Roles.FirstOrDefaultAsync(x => x.Name == "Admin", cancellationToken);
             if (adminRole == null)
             {
-                Logger.Error("Admin role was not found");
-                return TypedResults.Problem(Error.Unexpected("Admin role was not found").ToProblemDetails());
+                logger.LogError("Admin role was not found");
+                return Error.Unexpected("Admin role was not found");
             }
 
             var newHouseHold = Household.Create("New Household");
@@ -43,14 +38,13 @@ public static class SignInUserHandler
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            var newUserResponse = new UserResponse(
+            return new UserResponse(
                 newUserEntity.Id,
                 newUserEntity.AuthId,
                 newUserEntity.Name,
                 newUserEntity.Email,
                 newUserEntity.FirstTime,
                 newUserEntity.Resources.Any(c => c.CreatorType == CreatorType.User));
-            return TypedResults.Ok(newUserResponse);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -63,8 +57,8 @@ public static class SignInUserHandler
 
         if (userEntity is null)
         {
-            Logger.Error("User not found but also no 'CreateUserIdentifier' was set");
-            return TypedResults.Problem(Error.NotFound("User not found but also no 'CreateUserIdentifier' was set").ToProblemDetails());
+            logger.LogError("User not found but also no 'CreateUserIdentifier' was set");
+            return Error.NotFound("User not found but also no 'CreateUserIdentifier' was set");
         }
 
         var useDefaultResources = userEntity.Resources.Any(c => c.CreatorType == CreatorType.System);
@@ -77,6 +71,6 @@ public static class SignInUserHandler
             userEntity.FirstTime,
             useDefaultResources);
 
-        return TypedResults.Ok(updateUserResponse);
+        return updateUserResponse;
     }
 }

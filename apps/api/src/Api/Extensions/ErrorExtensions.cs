@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Http;
+using Kijk.Shared;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Kijk.Shared.Extensions;
+namespace Kijk.Api.Extensions;
 
 /// <summary>
 /// Extensions for <see cref="Error"/>.

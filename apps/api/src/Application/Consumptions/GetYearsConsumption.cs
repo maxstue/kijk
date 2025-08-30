@@ -1,8 +1,6 @@
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Consumptions;
 
@@ -11,24 +9,20 @@ public record GetYearsConsumptionQueryResponse(IList<int> Years);
 /// <summary>
 /// Handler for getting all years that have energy usages.
 /// </summary>
-public static class GetYearsConsumptionHandler
+public class GetYearsConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(GetYearsConsumptionHandler));
     /// <summary>
     /// Retrieves all years that have energy usages and all years in between.
     /// </summary>
-    /// <param name="dbContext"></param>
-    /// <param name="currentUser"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task<Results<Ok<GetYearsConsumptionQueryResponse>, ProblemHttpResult>> HandleAsync(AppDbContext dbContext,
-        CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<GetYearsConsumptionQueryResponse>> GetYearsAsync(CancellationToken cancellationToken)
     {
         var houseHoldId = currentUser.ActiveHouseholdId;
         if (houseHoldId is null)
         {
-            Logger.Error("No active household found for user {Id}", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound($"Household for user '{currentUser.Id}' was not found").ToProblemDetails());
+            logger.LogError("No active household found for user {Id}", currentUser.Id);
+            return Error.NotFound($"Household for user '{currentUser.Id}' was not found");
         }
 
         var yearsWithEnergy = await dbContext.Households
@@ -48,6 +42,6 @@ public static class GetYearsConsumptionHandler
         }
 
         var response = new GetYearsConsumptionQueryResponse([.. years.OrderByDescending(x => x)]);
-        return TypedResults.Ok(response);
+        return response;
     }
 }

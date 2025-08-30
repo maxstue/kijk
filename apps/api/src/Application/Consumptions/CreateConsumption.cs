@@ -2,9 +2,7 @@ using Kijk.Application.Consumptions.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Consumptions;
 
@@ -29,8 +27,8 @@ public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsump
 
         RuleFor(x => x.Date)
             .Must(date => date.Date <= DateTime.UtcNow.Date)
-                .WithErrorCode(ErrorCodes.ValidationError)
-                .WithMessage("'Date' must not be in the future")
+            .WithErrorCode(ErrorCodes.ValidationError)
+            .WithMessage("'Date' must not be in the future")
             .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Date' must be set");
     }
 }
@@ -38,20 +36,18 @@ public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsump
 /// <summary>
 /// Handler for creating a new consumption.
 /// </summary>
-public static class CreateConsumptionHandler
+public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateConsumptionHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(CreateConsumptionHandler));
-    public static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> HandleAsync(CreateConsumptionRequest command,
-        AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest command, CancellationToken cancellationToken)
     {
         var household = await dbContext.Households
             .Include(x => x.Consumptions)
-            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId,cancellationToken);
 
         if (household is null)
         {
-            Logger.Error("Household with id {HouseholdId} not found", currentUser.ActiveHouseholdId);
-            return TypedResults.Problem(Error.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found").ToProblemDetails());
+            logger.LogError("Household with id {HouseholdId} not found", currentUser.ActiveHouseholdId);
+            return Error.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
         }
 
         var foundEnergy = await dbContext.Consumptions
@@ -60,17 +56,15 @@ public static class CreateConsumptionHandler
             .FirstOrDefaultAsync(cancellationToken);
         if (foundEnergy is not null)
         {
-            Logger.Error("Consumption for '{ResourceId}' already exists for {Date:MMMM yyyy}", command.ResourceId, command.Date);
-            return TypedResults.Problem(Error
-                .Validation($"Consumption for '{command.ResourceId}' already exists for {command.Date:MMMM yyyy}")
-                .ToProblemDetails());
+            logger.LogError("Consumption for '{ResourceId}' already exists for {Date:MMMM yyyy}", command.ResourceId, command.Date);
+            return Error.Validation($"Consumption for '{command.ResourceId}' already exists for {command.Date:MMMM yyyy}");
         }
 
-        var resource = await dbContext.Resources.FirstOrDefaultAsync(x => x.Id == command.ResourceId, cancellationToken);
+        var resource = await dbContext.Resources.FirstOrDefaultAsync(x => x.Id == command.ResourceId,cancellationToken);
         if (resource is null)
         {
-            Logger.Error("Resource with id {ResourceId} not found", command.ResourceId);
-            return TypedResults.Problem(Error.NotFound($"Resource for id '{command.ResourceId}' was not found").ToProblemDetails());
+            logger.LogError("Resource with id {ResourceId} not found", command.ResourceId);
+            return Error.NotFound($"Resource for id '{command.ResourceId}' was not found");
         }
 
 
@@ -85,13 +79,13 @@ public static class CreateConsumptionHandler
         dbContext.Consumptions.Add(energy);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(new ConsumptionResponse(
+        return new ConsumptionResponse(
             energy.Id,
             energy.Name,
             energy.Description,
             energy.Value,
             new(energy.Resource.Id, energy.Resource.Name, energy.Resource.Unit, energy.Resource.Color),
             energy.Date.ToDateTime()
-        ));
+        );
     }
 }

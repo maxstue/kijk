@@ -2,9 +2,7 @@
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Resources;
 
@@ -37,12 +35,9 @@ public class CreateResourceRequestValidator : AbstractValidator<CreateResourceRe
 /// <summary>
 /// Handler to create a new resource.
 /// </summary>
-public static class CreateResourceHandler
+public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(CreateResourceHandler));
-
-    public static async Task<Results<Ok<ResourceResponse>, ProblemHttpResult>> HandleAsync(CreateResourceRequest command,
-        IValidator<CreateResourceRequest> validator, AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest command, CancellationToken cancellationToken)
     {
         // TODO move validator into Endpointfilter
         var validationResult = await validator.ValidateAsync(command, cancellationToken);
@@ -51,8 +46,8 @@ public static class CreateResourceHandler
             var errors = validationResult.Errors
                 .Select(x => Error.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
                 .ToList();
-            Logger.Error("Validation failed with errors: {Errors}", errors);
-            return TypedResults.Problem(Error.Validation(errors[0].Description).ToProblemDetails());
+            logger.LogError("Validation failed with errors: {Errors}", errors);
+            return Error.Validation(errors[0].Description);
         }
 
         var user = await dbContext.Users
@@ -62,15 +57,14 @@ public static class CreateResourceHandler
 
         if (user is null)
         {
-            Logger.Error("User with id {Id} could not be found", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound($"User with id '{currentUser.Id}' was not found").ToProblemDetails());
+            logger.LogError("User with id {Id} could not be found", currentUser.Id);
+            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
         }
 
         if (user.Resources.Any(c => string.Equals(c.Name, command.Name, StringComparison.OrdinalIgnoreCase)))
         {
-            Logger.Error("Resource with name {Name} already exists", command.Name);
-            return TypedResults.Problem(
-                Error.Validation($"A resource with the name '{command.Name}' already exists").ToProblemDetails());
+            logger.LogError("Resource with name {Name} already exists", command.Name);
+            return Error.Validation($"A resource with the name '{command.Name}' already exists");
         }
 
         var newResource = new Resource
@@ -87,7 +81,7 @@ public static class CreateResourceHandler
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(new ResourceResponse(resEntity.Entity.Id, resEntity.Entity.Name, resEntity.Entity.Color, resEntity.Entity.Unit,
-            resEntity.Entity.CreatorType));
+        return new ResourceResponse(resEntity.Entity.Id, resEntity.Entity.Name, resEntity.Entity.Color, resEntity.Entity.Unit,
+            resEntity.Entity.CreatorType);
     }
 }
