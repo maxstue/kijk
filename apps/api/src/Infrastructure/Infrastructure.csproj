@@ -32,8 +32,6 @@
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Expressions"/>
         <!-- Telemetry -->
-        <PackageReference Include="Sentry.AspNetCore"/>
-        <PackageReference Include="Sentry.Serilog"/>
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Domain\Domain.csproj" />
