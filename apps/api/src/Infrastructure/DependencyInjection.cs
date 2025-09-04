@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Kijk.Infrastructure;
 
@@ -91,12 +90,12 @@ public static class DependencyInjection
             {
                 // Authority is the URL of your clerk instance
                 x.Authority = configuration["Auth:Authority"];
-                x.TokenValidationParameters = new TokenValidationParameters()
+                x.TokenValidationParameters = new()
                 {
                     // Disable audience validation as we aren't using it
                     ValidateAudience = false, NameClaimType = ClaimTypes.NameIdentifier
                 };
-                x.Events = new JwtBearerEvents
+                x.Events = new()
                 {
                     // Additional validation for AZP claim
                     OnTokenValidated = context =>
@@ -115,7 +114,6 @@ public static class DependencyInjection
             });
 
         services.AddScoped<CurrentUser>();
-        services.AddTransient<CurrentUserMiddleware>();
 
         services.AddAuthorizationBuilder()
             .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());

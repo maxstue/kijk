@@ -1,4 +1,5 @@
-﻿using Kijk.Shared;
+﻿using Kijk.Api.Extensions;
+using Kijk.Shared;
 using Kijk.Shared.Extensions;
 
 namespace Kijk.Api.Filters;

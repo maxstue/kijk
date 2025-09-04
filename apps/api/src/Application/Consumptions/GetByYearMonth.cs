@@ -1,22 +1,17 @@
 ﻿using System.Globalization;
 using Kijk.Application.Consumptions.Shared;
-using Kijk.Domain.ValueObjects;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Application.Consumptions;
 
 /// <summary>
 /// Handler for getting consumptions by year and month.
 /// </summary>
-public static class GetByYearMonthHandler
+public class GetByYearMonthHandler(AppDbContext dbContext, CurrentUser currentUser)
 {
-    public static async Task<Results<Ok<List<ConsumptionResponse>>, ProblemHttpResult>> HandleAsync([FromQuery] int? year, [FromQuery] string? month,
-        AppDbContext dbContext, CurrentUser currentUser, CancellationToken cancellationToken)
+    public async Task<Result<List<ConsumptionResponse>>> GetByYearMonthAsync(int? year, string? month, CancellationToken cancellationToken)
     {
         var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month : -1;
 
@@ -35,6 +30,6 @@ public static class GetByYearMonthHandler
                 x.Date.ToDateTime()))
             .ToListAsync(cancellationToken);
 
-        return TypedResults.Ok(response);
+        return response;
     }
 }

@@ -1,20 +1,15 @@
 ﻿using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Resources;
 
 /// <summary>
 /// Handler for the delete a resource.
 /// </summary>
-public static class DeleteResourceHandler
+public class DeleteResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger)
 {
-    private static readonly ILogger Logger = Log.ForContext(typeof(DeleteResourceHandler));
-
-    public static async Task<Results<Ok<bool>, ProblemHttpResult>> HandleAsync(Guid id, AppDbContext dbContext, CurrentUser currentUser,
-        CancellationToken cancellationToken)
+    public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
             .Include(x => x.Resources)
@@ -23,29 +18,27 @@ public static class DeleteResourceHandler
 
         if (user is null)
         {
-            Logger.Error("User with id {Id} could not be found", currentUser.Id);
-            return TypedResults.Problem(Error.NotFound($"User with id '{currentUser.Id}' was not found").ToProblemDetails());
+            logger.LogError("User with id {Id} could not be found", currentUser.Id);
+            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
         }
 
         if (user.Resources.ToList().Find(x => x.Id == id) is null)
         {
-            Logger.Error("User with id '{UserId}' was not allowed to delete the resource type with id {CategoryId}", currentUser.Id, id);
-            return TypedResults.Problem(Error.Validation($"‘User‘ with id '{currentUser.Id}' is not allowed to delete the resource type")
-                .ToProblemDetails());
+            logger.LogError("User with id '{UserId}' was not allowed to delete the resource type with id {CategoryId}", currentUser.Id, id);
+            return Error.Validation($"‘User‘ with id '{currentUser.Id}' is not allowed to delete the resource type");
         }
 
         var foundResource = await dbContext.Resources.FindAsync([id], cancellationToken);
         if (foundResource is null)
         {
-            Logger.Error("Resource with id {Id} could not be found", id);
-            return TypedResults.Problem(Error.NotFound($"Resource with id '{id}' could not be found").ToProblemDetails());
+            logger.LogError("Resource with id {Id} could not be found", id);
+            return Error.NotFound($"Resource with id '{id}' could not be found");
         }
 
         if (foundResource.CreatorType == CreatorType.System)
         {
-            Logger.Error("Resource with id {Id} could not be deleted, because it is of creator type 'Default'", id);
-            return TypedResults.Problem(Error
-                .Validation($"Resource with id '{id}' could not be deleted, because it is of creator type 'Default'").ToProblemDetails());
+            logger.LogError("Resource with id {Id} could not be deleted, because it is of creator type 'Default'", id);
+            return Error.Validation($"Resource with id '{id}' could not be deleted, because it is of creator type 'Default'");
         }
 
         user.DeleteResource(foundResource.Id);
@@ -53,6 +46,6 @@ public static class DeleteResourceHandler
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(true);
+        return true;
     }
 }

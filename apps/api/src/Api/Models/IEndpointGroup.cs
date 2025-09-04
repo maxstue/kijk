@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Routing;
-
-namespace Kijk.Shared;
+namespace Kijk.Api.Models;
 
 /// <summary>
 /// Interface for endpoint groups.

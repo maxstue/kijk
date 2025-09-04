@@ -3,8 +3,8 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Middleware;
 using Kijk.Application;
 using Kijk.Infrastructure;
-using Kijk.Infrastructure.Auth;
 using Kijk.Shared;
+using Serilog;
 
 Log.Logger = new LoggerConfiguration().CreateBootstrapLogger();
 

@@ -1,27 +1,13 @@
-using Microsoft.AspNetCore.Http;
+using Kijk.Shared;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Kijk.Shared.Extensions;
+namespace Kijk.Api.Extensions;
 
 /// <summary>
 /// Extensions for <see cref="Error"/>.
 /// </summary>
 public static class ErrorExtensions
 {
-    /// <summary>
-    /// Sends the <see cref="Error"/> to Sentry.
-    /// </summary>
-    /// <param name="error"></param>
-    public static Error SentToSentry(this Error error)
-    {
-        SentrySdk.CaptureMessage(error.Description, opt =>
-        {
-            opt.SetExtra("Response", error);
-            opt.SetExtra("Code", error.Code);
-        });
-        return error;
-    }
-
     /// <summary>
     /// Converts the <see cref="Error"/> to a <see cref="ProblemDetails"/>.
     /// </summary>

@@ -1,5 +1,4 @@
-﻿using Kijk.Shared;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Consumptions;
 
@@ -11,7 +10,16 @@ public class ModuleService : IModule
 {
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
+        // Validators
         services.AddScoped<IValidator<CreateConsumptionRequest>, CreateConsumptionCommandValidator>();
+        // Handlers
+        services.AddScoped<CreateConsumptionHandler>();
+        services.AddScoped<DeleteConsumptionHandler>();
+        services.AddScoped<GetByIdConsumptionHandler>();
+        services.AddScoped<GetByYearMonthHandler>();
+        services.AddScoped<GetStatsConsumptionsHandler>();
+        services.AddScoped<GetYearsConsumptionHandler>();
+        services.AddScoped<UpdateConsumptionHandler>();
 
         return services;
     }

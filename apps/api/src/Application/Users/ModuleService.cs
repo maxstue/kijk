@@ -4,8 +4,18 @@ namespace Kijk.Application.Users;
 
 /// <summary>
 /// Module for users.
+/// <inheritdoc cref="IModule"/>
 /// </summary>
-public static class ModuleService
+public class ModuleService : IModule
 {
-    public static IServiceCollection AddUsersModule(this IServiceCollection services) => services;
+    public IServiceCollection RegisterServices(IServiceCollection services)
+    {
+        // Handlers
+        services.AddScoped<GetMeUserHandler>();
+        services.AddScoped<SignInUserHandler>();
+        services.AddScoped<UpdateUserHandler>();
+        services.AddScoped<WelcomeUserHandler>();
+
+        return services;
+    }
 }

@@ -1,13 +1,12 @@
-using System.Globalization;
 using System.Text.Json.Serialization;
 using Humanizer;
 using Kijk.Api.Extensions;
 using Kijk.Api.Extensions.OpenApi;
 using Kijk.Api.Middleware;
+using Kijk.Api.Services;
 using Kijk.Infrastructure.Auth;
 using Kijk.Shared;
 using Kijk.Shared.Exceptions;
-using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 
@@ -22,13 +21,19 @@ public static class DependencyInjection
             .AddValidation()
             .AddCompression()
             .AddEndpoints()
+            .AddCurrentUserMiddleware()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddHttpClient()
             .AddRateLimitPolicy()
             .AddOpenApiInternal(configuration);
 
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddTransient<ExtendRequestLoggingMiddleware>();
+        services.AddTransient<IErrorReportingService, ErrorReportingService>();
 
-    private static IServiceCollection AddServices(this IServiceCollection services) => services.AddTransient<ExtendRequestLoggingMiddleware>();
+        return services;
+    }
 
     private static IServiceCollection AddProblemDetail(this IServiceCollection services) =>
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
@@ -40,8 +45,8 @@ public static class DependencyInjection
             context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
             if (context.HttpContext.Response.StatusCode is StatusCodes.Status401Unauthorized or StatusCodes.Status403Forbidden)
             {
-                var error = Error.FromStatusCode(context.HttpContext.Response.StatusCode);
-                context.ProblemDetails.Extensions["errors"] = error.ToProblemDetails().Extensions["errors"];
+                var problemDetails = Error.FromStatusCode(context.HttpContext.Response.StatusCode).ToProblemDetails();
+                context.ProblemDetails.Extensions["errors"] = problemDetails.Extensions["errors"];
             }
         });
 
@@ -78,7 +83,7 @@ public static class DependencyInjection
     private static IServiceCollection AddValidation(this IServiceCollection services)
     {
         ValidatorOptions.Global.DisplayNameResolver = (_, member, _) => member?.Name.Humanize().Titleize();
-        ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("de");
+        ValidatorOptions.Global.LanguageManager.Culture = new("de");
 
         return services;
     }
@@ -88,6 +93,12 @@ public static class DependencyInjection
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+        return services;
+    }
+
+    private static IServiceCollection AddCurrentUserMiddleware(this IServiceCollection services)
+    {
+        services.AddTransient<CurrentUserMiddleware>();
         return services;
     }
 }

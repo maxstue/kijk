@@ -1,6 +1,8 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
+using Serilog;
+using Serilog.Events;
 
 namespace Kijk.Api.Extensions;
 
@@ -41,7 +43,7 @@ public static class ApplicationExtensions
                 .WithFavicon("favicon.svg")
                 .WithOpenApiRoutePattern("/{documentName}.json")
                 .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-                .WithPreferredScheme("Bearer")
+                .AddPreferredSecuritySchemes("Bearer")
                 .AddHttpAuthentication("Bearer", schemeOpt => schemeOpt.Token = app.Configuration["OpenApi:Token"]);
         });
         if (app.Environment.IsDevelopment())
