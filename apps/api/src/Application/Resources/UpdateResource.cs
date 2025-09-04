@@ -25,7 +25,7 @@ public class UpdateResourceHandler(AppDbContext dbContext, CurrentUser currentUs
             return Error.NotFound($"User with id '{currentUser.Id}' was not found");
         }
 
-        var resource = await dbContext.Resources.FindAsync([id],cancellationToken);
+        var resource = await dbContext.Resources.FindAsync([id], cancellationToken);
         if (resource is null)
         {
             logger.LogError("Resource with id {Id} could not be found", id);

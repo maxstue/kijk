@@ -42,7 +42,7 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
     {
         var household = await dbContext.Households
             .Include(x => x.Consumptions)
-            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId,cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
 
         if (household is null)
         {
@@ -60,7 +60,7 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             return Error.Validation($"Consumption for '{command.ResourceId}' already exists for {command.Date:MMMM yyyy}");
         }
 
-        var resource = await dbContext.Resources.FirstOrDefaultAsync(x => x.Id == command.ResourceId,cancellationToken);
+        var resource = await dbContext.Resources.FirstOrDefaultAsync(x => x.Id == command.ResourceId, cancellationToken);
         if (resource is null)
         {
             logger.LogError("Resource with id {ResourceId} not found", command.ResourceId);

@@ -10,6 +10,7 @@ namespace Kijk.Api.Middleware;
 /// Middleware to set the current user.
 /// </summary>
 /// <param name="problemDetailsService"></param>
+/// <param name="errorReportingService"></param>
 /// <param name="dbContext"></param>
 /// <param name="currentUser"></param>
 public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService, IErrorReportingService errorReportingService, AppDbContext dbContext, CurrentUser currentUser) : IMiddleware

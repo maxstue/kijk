@@ -9,10 +9,10 @@ namespace Kijk.Application.Consumptions;
 /// </summary>
 public class DeleteConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteConsumptionHandler> logger)
 {
-    public async Task<Result<bool>> DeleteAsync(Guid id , CancellationToken cancellationToken)
+    public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var foundEntity = await dbContext.Consumptions
-            .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId,cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (foundEntity == null)
         {
             logger.LogError("Consumption with id '{Id}' not found", id);

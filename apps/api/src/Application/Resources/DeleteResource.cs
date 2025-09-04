@@ -28,7 +28,7 @@ public class DeleteResourceHandler(AppDbContext dbContext, CurrentUser currentUs
             return Error.Validation($"‘User‘ with id '{currentUser.Id}' is not allowed to delete the resource type");
         }
 
-        var foundResource = await dbContext.Resources.FindAsync([id],cancellationToken);
+        var foundResource = await dbContext.Resources.FindAsync([id], cancellationToken);
         if (foundResource is null)
         {
             logger.LogError("Resource with id {Id} could not be found", id);
