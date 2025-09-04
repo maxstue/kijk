@@ -1,7 +1,6 @@
 ﻿using Kijk.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Configuration;
 
 namespace Kijk.Infrastructure.Persistence;
 

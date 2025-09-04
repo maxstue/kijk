@@ -11,6 +11,6 @@
     <ItemGroup>
         <!-- Other -->
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>
-        <PackageReference Include="NetEscapades.EnumGenerators" PrivateAssets="all" ExcludeAssets="runtime"/>
+        <PackageReference Include="NetEscapades.EnumGenerators"/>
     </ItemGroup>
 </Project>
