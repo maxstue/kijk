@@ -13,7 +13,7 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: github.event.deployment_status.state == 'success'
+    if: github.event.deployment_status.state == 'success' && github.ref == 'refs/heads/main'
     steps:
       - name: Debug - Print github.event object
         run: |
