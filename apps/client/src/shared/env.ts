@@ -44,7 +44,7 @@ if (!envParse.success) {
   throw new AppError({
     type: 'ENVIRONMENT',
     message: `There is an error with the environment variables. ${envParse.error.issues
-      .map((x) => `[${x.path.at(0)}] ${x.code}: ${x.message}`)
+      .map((x) => `[${x.path.at(0)?.toString()}]: ${x.code}: ${x.message}`)
       .join('; ')}`,
   });
 }

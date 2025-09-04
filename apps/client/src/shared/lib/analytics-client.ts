@@ -1,4 +1,4 @@
-import {posthog} from 'posthog-js';
+import { posthog } from 'posthog-js';
 import type { CaptureOptions, PostHogConfig, Properties } from 'posthog-js';
 
 import type { CookieConsent } from '@/shared/types/app';

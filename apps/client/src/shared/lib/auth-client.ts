@@ -1,14 +1,12 @@
 import type { Clerk as CClerk } from '@clerk/types';
 
 /**
- * Define a global type for Clerk.
- * This allows us to access the Clerk instance outside of the React context.
- * This is useful for server-side rendering or other non-React contexts.
+ * Define a global type for Clerk. This allows us to access the Clerk instance outside of the React context. This is
+ * useful for server-side rendering or other non-React contexts.
  */
 declare global {
   var Clerk: CClerk | undefined;
 }
-
 
 /** A wrapper around the browser's window Clerk object. So you can use the clerk instance outside of the react context. */
 function getAuthToken() {
