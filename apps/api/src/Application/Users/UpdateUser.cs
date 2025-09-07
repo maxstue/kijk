@@ -10,7 +10,7 @@ public record UpdateUserRequest(string? UserName, bool? UseDefaultResources);
 /// <summary>
 /// Handler for updating a user.
 /// </summary>
-public class UpdateUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateUserHandler> logger)
+public class UpdateUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateUserHandler> logger) : IHandler
 {
     public async Task<Result<UserResponse>> UpdateAsync(UpdateUserRequest request, CancellationToken cancellationToken)
     {

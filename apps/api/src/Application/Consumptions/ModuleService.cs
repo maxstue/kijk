@@ -12,14 +12,6 @@ public class ModuleService : IModule
     {
         // Validators
         services.AddScoped<IValidator<CreateConsumptionRequest>, CreateConsumptionCommandValidator>();
-        // Handlers
-        services.AddScoped<CreateConsumptionHandler>();
-        services.AddScoped<DeleteConsumptionHandler>();
-        services.AddScoped<GetByIdConsumptionHandler>();
-        services.AddScoped<GetByYearMonthHandler>();
-        services.AddScoped<GetStatsConsumptionsHandler>();
-        services.AddScoped<GetYearsConsumptionHandler>();
-        services.AddScoped<UpdateConsumptionHandler>();
 
         return services;
     }

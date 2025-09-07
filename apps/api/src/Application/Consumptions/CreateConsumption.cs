@@ -36,7 +36,7 @@ public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsump
 /// <summary>
 /// Handler for creating a new consumption.
 /// </summary>
-public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateConsumptionHandler> logger)
+public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest command, CancellationToken cancellationToken)
     {

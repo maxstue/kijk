@@ -8,7 +8,7 @@ namespace Kijk.Application.Resources;
 /// <summary>
 /// Handler for getting all resources.
 /// </summary>
-public class GetAllResourcesHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger)
+public class GetAllResourcesHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger) : IHandler
 {
     public async Task<Result<List<ResourceResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {

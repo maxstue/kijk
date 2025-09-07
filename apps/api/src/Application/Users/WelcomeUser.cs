@@ -13,7 +13,7 @@ public record WelcomeUserRequest(string? UserName, bool? UseDefaultResources);
 /// <summary>
 /// Handler for creating a new user after the welcome process.
 /// </summary>
-public class WelcomeUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<WelcomeUserHandler> logger)
+public class WelcomeUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<WelcomeUserHandler> logger) : IHandler
 {
     public async Task<Result<UserResponse>> WelcomeAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {

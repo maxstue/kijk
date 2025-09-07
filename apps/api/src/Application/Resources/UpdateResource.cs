@@ -10,7 +10,7 @@ public record UpdateResourceRequest(string? Name, string? Color, string? Unit);
 /// <summary>
 /// Handler for updating a resource.
 /// </summary>
-public class UpdateResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateResourceHandler> logger)
+public class UpdateResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateResourceHandler> logger) : IHandler
 {
     public async Task<Result<ResourceResponse>> HandleAsync(Guid id, UpdateResourceRequest request, CancellationToken cancellationToken)
     {

@@ -21,7 +21,9 @@ public class GlobalExceptionHandler(IProblemDetailsService problemDetailsService
 
         return await problemDetailsService.TryWriteAsync(new()
         {
-            HttpContext = httpContext, Exception = exception, ProblemDetails = problemDetails
+            HttpContext = httpContext,
+            Exception = exception,
+            ProblemDetails = problemDetails
         });
     }
 }

@@ -14,6 +14,8 @@ try
     // ##### Add services to the container. #####
     var builder = WebApplication.CreateBuilder(args);
 
+    builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
+
     builder.AddErrorTracking()
         .AddLogging();
 
@@ -33,14 +35,14 @@ try
     app.UseResponseCompression()
         .UseSecurityHeaders()
         .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder => appBuilder.UseDeveloperExceptionPage())
-        .UseWhen(_ => !app.Environment.IsDevelopment(), appBuilder => appBuilder.UseHsts());
+        .UseWhen(_ => app.Environment.IsProduction(), appBuilder => appBuilder.UseHsts());
 
     app.MapStaticAssets();
 
     app.UseExceptionHandler()
         .UseMiddleware<ExtendRequestLoggingMiddleware>()
         .UseRequestLogging()
-        .UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All })
+        .UseForwardedHeaders(new() { ForwardedHeaders = ForwardedHeaders.All })
         .UseCors(AppConstants.Policies.Cors)
         .UseHttpsRedirection()
         .UseAuthentication()

@@ -24,18 +24,18 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
         }
         else
         {
-            var problemDetails = Error.Custom(ErrorType.Authentication, ErrorCodes.AuthenticationError, errorMessage!).ToProblemDetails();
+            var problemDetails = Error.Custom(ErrorType.Authentication, ErrorCodes.AuthenticationError, errorMessage).ToProblemDetails();
             errorReportingService.SendProblemDetails(problemDetails);
 
             await problemDetailsService.TryWriteAsync(new() { HttpContext = context, ProblemDetails = problemDetails });
         }
     }
 
-    private async Task<(bool, string?)> SetCurrentUser(HttpContext context)
+    private async Task<(bool, string)> SetCurrentUser(HttpContext context)
     {
         if (context.Request.Path == "/" || AppConstants.AllowedOpenApiPaths.Any(x => context.Request.Path.ToString().Contains(x)))
         {
-            return (true, null);
+            return (true, string.Empty);
         }
 
         var extAuthId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -57,7 +57,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
                 AppConstants.CreateUserIdentifier,
                 email,
                 true);
-            return (true, null);
+            return (true, string.Empty);
         }
 
         if (userEntity is null)
@@ -71,7 +71,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
         }
 
         currentUser.User = userEntity;
-        return (true, null);
+        return (true, string.Empty);
     }
 
     private Task<SimpleAuthUser?> GetUserFromDb(string sub) => dbContext.Users

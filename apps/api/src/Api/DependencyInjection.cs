@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using Humanizer;
 using Kijk.Api.Extensions;
@@ -21,17 +22,22 @@ public static class DependencyInjection
             .AddValidation()
             .AddCompression()
             .AddEndpoints()
-            .AddCurrentUserMiddleware()
+            .AddMiddlewares()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddHttpClient()
             .AddRateLimitPolicy()
             .AddOpenApiInternal(configuration);
 
-    private static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddMiddlewares(this IServiceCollection services)
     {
         services.AddTransient<ExtendRequestLoggingMiddleware>();
-        services.AddTransient<IErrorReportingService, ErrorReportingService>();
+        services.AddTransient<CurrentUserMiddleware>();
+        return services;
+    }
 
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddTransient<IErrorReportingService, ErrorReportingService>();
         return services;
     }
 
@@ -39,15 +45,15 @@ public static class DependencyInjection
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
         {
             context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
-            context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+            context.ProblemDetails.Extensions.TryAdd("timestamp", DateTime.UtcNow);
+            context.ProblemDetails.Extensions.TryAdd("traceId", Activity.Current?.Id ?? context.HttpContext.TraceIdentifier);
 
-            var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
-            context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
-            if (context.HttpContext.Response.StatusCode is StatusCodes.Status401Unauthorized or StatusCodes.Status403Forbidden)
+            context.ProblemDetails.Extensions["errorType"] = context.HttpContext.Response.StatusCode switch
             {
-                var problemDetails = Error.FromStatusCode(context.HttpContext.Response.StatusCode).ToProblemDetails();
-                context.ProblemDetails.Extensions["errors"] = problemDetails.Extensions["errors"];
-            }
+                StatusCodes.Status401Unauthorized => ErrorType.Authentication,
+                StatusCodes.Status403Forbidden => ErrorType.Authorization,
+                _ => context.ProblemDetails.Extensions["errorType"]
+            };
         });
 
     private static IServiceCollection AddOpenApiInternal(this IServiceCollection services, IConfiguration configuration)
@@ -84,7 +90,6 @@ public static class DependencyInjection
     {
         ValidatorOptions.Global.DisplayNameResolver = (_, member, _) => member?.Name.Humanize().Titleize();
         ValidatorOptions.Global.LanguageManager.Culture = new("de");
-
         return services;
     }
 
@@ -92,13 +97,6 @@ public static class DependencyInjection
     {
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-        return services;
-    }
-
-    private static IServiceCollection AddCurrentUserMiddleware(this IServiceCollection services)
-    {
-        services.AddTransient<CurrentUserMiddleware>();
         return services;
     }
 }

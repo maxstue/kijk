@@ -8,7 +8,7 @@ namespace Kijk.Application.Consumptions;
 /// <summary>
 /// Handler for getting consumption by id.
 /// </summary>
-public class GetByIdConsumptionHandler(AppDbContext dbContext, ILogger<GetByIdConsumptionHandler> logger)
+public class GetByIdConsumptionHandler(AppDbContext dbContext, ILogger<GetByIdConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {

@@ -9,7 +9,7 @@ public record GetYearsConsumptionQueryResponse(IList<int> Years);
 /// <summary>
 /// Handler for getting all years that have energy usages.
 /// </summary>
-public class GetYearsConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger)
+public class GetYearsConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger) : IHandler
 {
     /// <summary>
     /// Retrieves all years that have energy usages and all years in between.

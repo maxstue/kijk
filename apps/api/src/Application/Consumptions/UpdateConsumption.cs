@@ -11,7 +11,7 @@ public record UpdateConsumptionRequest(string? Name, decimal? Value, Guid? Resou
 /// <summary>
 /// Handler for updating consumption.
 /// </summary>
-public class UpdateConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateConsumptionHandler> logger)
+public class UpdateConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> UpdateAsync(Guid id, UpdateConsumptionRequest command, CancellationToken cancellationToken)
     {

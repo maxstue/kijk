@@ -7,7 +7,7 @@ namespace Kijk.Application.Consumptions;
 /// <summary>
 /// Handler for deleting a consumption.
 /// </summary>
-public class DeleteConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteConsumptionHandler> logger)
+public class DeleteConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {

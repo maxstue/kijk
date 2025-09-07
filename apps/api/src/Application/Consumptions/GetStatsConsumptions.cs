@@ -33,7 +33,7 @@ public record ConsumptionStatsResourceResponse(string Name, string Unit, string 
 /// The comparison month is the previous month if the selected month is the current month.
 /// The comparison month is the current month if the selected month is in the past.
 /// </summary>
-public class GetStatsConsumptionsHandler(AppDbContext dbContext, CurrentUser currentUser)
+public class GetStatsConsumptionsHandler(AppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
     public async Task<Result<GetStatsConsumptionsResponseWrapper>> GetStatsAsync(int year, string month, CancellationToken cancellationToken)
     {

@@ -11,7 +11,7 @@ namespace Kijk.Application.Users;
 /// Handler for the sign in a user.
 /// It returns only a subset of data for the current user.
 /// </summary>
-public class SignInUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<SignInUserHandler> logger)
+public class SignInUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<SignInUserHandler> logger) : IHandler
 {
     public async Task<Result<UserResponse>> SignInAsync(CancellationToken cancellationToken)
     {

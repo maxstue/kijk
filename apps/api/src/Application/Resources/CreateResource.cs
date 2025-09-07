@@ -35,7 +35,7 @@ public class CreateResourceRequestValidator : AbstractValidator<CreateResourceRe
 /// <summary>
 /// Handler to create a new resource.
 /// </summary>
-public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger)
+public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
 {
     public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest command, CancellationToken cancellationToken)
     {

@@ -10,7 +10,6 @@ public static class HostExtensions
         {
             builder.WebHost.UseSentry();
         }
-
         return builder;
     }
 
