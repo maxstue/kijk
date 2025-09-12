@@ -12,7 +12,7 @@ public record UpdateResourceRequest(string? Name, string? Color, string? Unit);
 /// </summary>
 public class UpdateResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateResourceHandler> logger) : IHandler
 {
-    public async Task<Result<ResourceResponse>> HandleAsync(Guid id, UpdateResourceRequest request, CancellationToken cancellationToken)
+    public async Task<Result<ResourceResponse>> UpdateAsync(Guid id, UpdateResourceRequest request, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
             .Include(x => x.Resources)

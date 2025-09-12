@@ -12,7 +12,7 @@ public record GetYearsConsumptionQueryResponse(IList<int> Years);
 public class GetYearsConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger) : IHandler
 {
     /// <summary>
-    /// Retrieves all years that have energy usages and all years in between.
+    /// Retrieves all years that have consumption usages and all years in between.
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
