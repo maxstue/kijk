@@ -66,7 +66,6 @@ public sealed class User : BaseEntity
 
     public static User Init(string authId, string name, string? email) => new()
     {
-        Id = Guid.CreateVersion7(),
         AuthId = authId,
         Name = name,
         Email = email,

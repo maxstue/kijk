@@ -12,7 +12,6 @@ public sealed class Household : BaseEntity
     public static Household Create(string name, string? description = null) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             Name = name,
             Description = description,
         };
