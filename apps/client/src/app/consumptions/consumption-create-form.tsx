@@ -1,10 +1,9 @@
-import { Suspense, useCallback } from 'react';
+import { Suspense } from 'react';
 import { toast } from 'sonner';
 import { useForm, useWatch } from 'react-hook-form';
 import { ErrorBoundary } from 'react-error-boundary';
-import type { PropsWithChildren } from 'react';
 
-import type { ControllerRenderProps, SubmitErrorHandler, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import type { ControllerRenderProps } from 'react-hook-form';
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import type { Months } from '@/shared/types/app';
 import { ConsumptionCreateSchema } from '@/app/consumptions/schemas';
@@ -21,13 +20,13 @@ import { DatePicker } from '@/shared/components/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-interface TProps {
+interface Props {
   year: number;
   month: Months;
   onClose: () => void;
 }
 
-export function ConsumptionCreateForm({ onClose, ...props }: TProps) {
+export function ConsumptionCreateForm({ onClose, ...props }: Props) {
   const { isPending, mutate } = useCreateConsumption();
 
   const year = 'year' in props ? props.year : new Date().getFullYear();
@@ -45,9 +44,7 @@ export function ConsumptionCreateForm({ onClose, ...props }: TProps) {
     },
   });
 
-  const handleError = useCallback(() => {
-    toast('Error updating');
-  }, []);
+  const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionCreateFormSchema) {
     mutate(
@@ -66,36 +63,22 @@ export function ConsumptionCreateForm({ onClose, ...props }: TProps) {
 
   return (
     <Suspense fallback={<AsyncLoader />}>
-      <ConsumptionForm form={form} onInvalid={handleError} onSubmit={onSubmit}>
-        <Button className='mt-6' disabled={isPending} type='submit'>
-          {isPending ? <Icons.spinner className='h-5 w-5 animate-spin' /> : 'Add'}
-        </Button>
-      </ConsumptionForm>
+      <Form {...form}>
+        <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit, handleError)} noValidate>
+          <FormField control={form.control} name='name' render={NameField} />
+          <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
+            <FormField control={form.control} name='value' render={ValueField} />
+            <Suspense fallback={<AsyncLoader className='h-6 w-6' />}>
+              <FormField control={form.control} name='resourceId' render={ResourceField} />
+            </Suspense>
+          </ErrorBoundary>
+          <FormField control={form.control} name='date' render={DateField} />
+          <Button className='mt-6' disabled={isPending} type='submit'>
+            {isPending ? <Icons.spinner className='h-5 w-5 animate-spin' /> : 'Add'}
+          </Button>
+        </form>
+      </Form>
     </Suspense>
-  );
-}
-
-interface FormProps extends PropsWithChildren {
-  form: UseFormReturn<ConsumptionCreateFormSchema>;
-  onSubmit: SubmitHandler<ConsumptionCreateFormSchema>;
-  onInvalid?: SubmitErrorHandler<ConsumptionCreateFormSchema>;
-}
-
-function ConsumptionForm({ form, onSubmit, onInvalid, children }: FormProps) {
-  return (
-    <Form {...form}>
-      <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit, onInvalid)} noValidate>
-        <FormField control={form.control} name='name' render={NameField} />
-        <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
-          <FormField control={form.control} name='value' render={ValueField} />
-          <Suspense fallback={<AsyncLoader className='h-6 w-6' />}>
-            <FormField control={form.control} name='resourceId' render={ResourceField} />
-          </Suspense>
-        </ErrorBoundary>
-        <FormField control={form.control} name='date' render={DateField} />
-        {children}
-      </form>
-    </Form>
   );
 }
 

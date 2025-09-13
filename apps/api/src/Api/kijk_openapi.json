@@ -1063,6 +1063,7 @@
         "required": [
           "name",
           "value",
+          "valueType",
           "resourceId",
           "date"
         ],
@@ -1075,6 +1076,9 @@
             "type": "number",
             "format": "double"
           },
+          "valueType": {
+            "$ref": "#/components/schemas/CreateConsumptionValueTypes"
+          },
           "resourceId": {
             "type": "string",
             "format": "uuid"
@@ -1084,6 +1088,12 @@
             "format": "date-time"
           }
         }
+      },
+      "CreateConsumptionValueTypes": {
+        "enum": [
+          "Absolute",
+          "Relative"
+        ]
       },
       "CreateResourceRequest": {
         "required": [

@@ -106,22 +106,18 @@ function UsagePage() {
                   <CardHeader>
                     <CardTitle>{item.name}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className='flex flex-col gap-2'>
-                      <div className='text-muted-foreground flex items-center justify-between'>
-                        Amount
-                        <div className='text-foreground'>{item.value}</div>
-                      </div>
-                      <div className='text-muted-foreground flex items-center justify-between'>
-                        Unit
-                        <ResourceUnit type={item.resource} />
-                      </div>
+                  <CardContent className='flex flex-col gap-2'>
+                    <div className='text-muted-foreground flex items-center justify-between'>
+                      Amount
+                      <div className='text-foreground'>{item.value}</div>
+                    </div>
+                    <div className='text-muted-foreground flex items-center justify-between'>
+                      Unit
+                      <ResourceUnit type={item.resource} />
                     </div>
                   </CardContent>
-                  <CardFooter>
-                    <div className='flex w-full justify-end'>
-                      <EditButton data={item} />
-                    </div>
+                  <CardFooter className='flex w-full justify-end'>
+                    <EditButton data={item} />
                   </CardFooter>
                 </Card>
               ))}
