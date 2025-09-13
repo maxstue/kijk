@@ -6,7 +6,7 @@ import type { CookieConsent } from '@/shared/types/app';
 import { AppVersion } from '@/shared/components/app-version';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/components/ui/accordion';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/ui/form/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/ui/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Separator } from '@/shared/components/ui/separator';
 import { Switch } from '@/shared/components/ui/switch';

@@ -56,82 +56,80 @@ function UsagePage() {
   const handleClose = () => setShowSheet(false);
 
   return (
-    <>
-      <div className='space-y-6 pt-10'>
-        <div className='space-y-0.5'>
-          <h2 className='text-2xl font-bold tracking-tight'>Resource usage</h2>
-          <p className='text-muted-foreground'>Manage your monthly resource usage</p>
-        </div>
-        <Separator className='my-6' />
-        <div className='flex flex-col gap-8 lg:flex-row lg:space-y-0 lg:space-x-12'>
-          <div className='flex-1'>
-            <div className='flex flex-col gap-4'>
-              <Suspense fallback={<AsyncLoader />}>
-                <ConsumptionsStats />
-              </Suspense>
+    <div className='space-y-6 pt-10'>
+      <div className='space-y-0.5'>
+        <h2 className='text-2xl font-bold tracking-tight'>Resource usage</h2>
+        <p className='text-muted-foreground'>Manage your monthly resource usage</p>
+      </div>
+      <Separator className='my-6' />
+      <div className='flex flex-col gap-8 lg:flex-row lg:space-y-0 lg:space-x-12'>
+        <div className='flex-1'>
+          <div className='flex flex-col gap-4'>
+            <Suspense fallback={<AsyncLoader />}>
+              <ConsumptionsStats />
+            </Suspense>
 
-              <div className='flex w-full justify-end'>
-                <Sheet open={showSheet} onOpenChange={setShowSheet}>
-                  <div className='flex w-full justify-between'>
-                    <div className='flex w-1/3 justify-start gap-4'>
-                      <ConsumptionsTodayButton />
-                      <Suspense>
-                        <ConsumptionsYearSwitcher />
-                      </Suspense>
-                      <ConsumptionsMonthNav />
-                    </div>
-                    <SheetTrigger asChild>
-                      <Button variant='outline'>
-                        Add <Plus />
-                      </Button>
-                    </SheetTrigger>
-                  </div>
-                  <SheetContent className='space-y-8'>
-                    <SheetHeader>
-                      <SheetTitle>Add Consumption</SheetTitle>
-                      <SheetDescription>Add a new consumption.</SheetDescription>
-                    </SheetHeader>
+            <div className='flex w-full justify-end'>
+              <Sheet open={showSheet} onOpenChange={setShowSheet}>
+                <div className='flex w-full justify-between'>
+                  <div className='flex w-1/3 justify-start gap-4'>
+                    <ConsumptionsTodayButton />
                     <Suspense>
-                      <ConsumptionCreateForm
-                        month={searchParameters.month}
-                        year={searchParameters.year}
-                        onClose={handleClose}
-                      />
+                      <ConsumptionsYearSwitcher />
                     </Suspense>
-                  </SheetContent>
-                </Sheet>
-              </div>
-              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-                {data.map((item) => (
-                  <Card key={item.id}>
-                    <CardHeader>
-                      <CardTitle>{item.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className='flex flex-col gap-2'>
-                        <div className='text-muted-foreground flex items-center justify-between'>
-                          Amount
-                          <div className='text-foreground'>{item.value}</div>
-                        </div>
-                        <div className='text-muted-foreground flex items-center justify-between'>
-                          Unit
-                          <ResourceUnit type={item.resource} />
-                        </div>
+                    <ConsumptionsMonthNav />
+                  </div>
+                  <SheetTrigger asChild>
+                    <Button variant='outline'>
+                      Add <Plus />
+                    </Button>
+                  </SheetTrigger>
+                </div>
+                <SheetContent className='space-y-8'>
+                  <SheetHeader>
+                    <SheetTitle>Add Consumption</SheetTitle>
+                    <SheetDescription>Add a new consumption.</SheetDescription>
+                  </SheetHeader>
+                  <Suspense>
+                    <ConsumptionCreateForm
+                      month={searchParameters.month}
+                      year={searchParameters.year}
+                      onClose={handleClose}
+                    />
+                  </Suspense>
+                </SheetContent>
+              </Sheet>
+            </div>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+              {data.map((item) => (
+                <Card key={item.id}>
+                  <CardHeader>
+                    <CardTitle>{item.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className='flex flex-col gap-2'>
+                      <div className='text-muted-foreground flex items-center justify-between'>
+                        Amount
+                        <div className='text-foreground'>{item.value}</div>
                       </div>
-                    </CardContent>
-                    <CardFooter>
-                      <div className='flex w-full justify-end'>
-                        <EditButton data={item} />
+                      <div className='text-muted-foreground flex items-center justify-between'>
+                        Unit
+                        <ResourceUnit type={item.resource} />
                       </div>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <div className='flex w-full justify-end'>
+                      <EditButton data={item} />
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

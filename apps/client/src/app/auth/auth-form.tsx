@@ -7,7 +7,7 @@ import { authSchema } from '@/app/auth/schemas';
 import { Route } from '@/routes/auth';
 import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
 import { cn } from '@/shared/lib/helpers';

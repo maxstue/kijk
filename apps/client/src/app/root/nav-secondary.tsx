@@ -6,7 +6,7 @@ import { Link } from '@tanstack/react-router';
 import type { FeedbackFormValues } from '@/app/root/schemas';
 import { feedbackSchema } from '@/app/root/schemas';
 import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import {
   Sheet,

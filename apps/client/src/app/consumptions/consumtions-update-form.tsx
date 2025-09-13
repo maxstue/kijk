@@ -10,7 +10,7 @@ import type { Consumption } from '@/shared/types/app';
 import { ConsumptionUpdateSchema } from '@/app/consumptions/schemas';
 import ResourceUnit from '@/app/consumptions/resources-unit.tsx';
 import { DatePicker } from '@/shared/components/date-picker';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { useGetResources } from '@/app/resources/use-get-resources';

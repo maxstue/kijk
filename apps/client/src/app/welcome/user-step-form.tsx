@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import type { UserStepFormValues } from '@/app/welcome/schemas';
 import { userStepSchema } from '@/app/welcome/schemas';
 import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
 import { cn } from '@/shared/lib/helpers';

@@ -4,7 +4,7 @@ export const ConsumptionCreateSchema = z.object({
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters',
   }),
-  value: z.coerce.number().min(1, {
+  value: z.number().min(1, {
     message: 'Value must be at least 1 character',
   }),
   resourceId: z.string().uuid(),

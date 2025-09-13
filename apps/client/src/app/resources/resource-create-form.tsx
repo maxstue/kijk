@@ -5,7 +5,7 @@ import type { ResourceFormValues } from './schemas';
 import { useCreateResource } from '@/app/resources/use-create-resource';
 import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
 

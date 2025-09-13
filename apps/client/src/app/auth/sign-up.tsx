@@ -9,7 +9,7 @@ import type { AuthCodeSchema } from '@/app/auth/schemas';
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { authCodeSchema } from '@/app/auth/schemas';
 import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Input } from '@/shared/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
