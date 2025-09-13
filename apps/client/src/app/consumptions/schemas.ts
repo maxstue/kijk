@@ -7,8 +7,8 @@ export const ConsumptionCreateSchema = z.object({
   value: z.number().min(1, {
     message: 'Value must be at least 1 character',
   }),
-  resourceId: z.string().uuid(),
-  householdId: z.string().uuid().optional(),
+  resourceId: z.uuid(),
+  householdId: z.uuid().optional(),
   // date is not allowed to be in the future
   date: z.date().max(new Date(), {
     message: 'Date cannot be in the future',
@@ -18,15 +18,15 @@ export const ConsumptionCreateSchema = z.object({
 export type ConsumptionCreateFormSchema = z.input<typeof ConsumptionCreateSchema>;
 
 export const ConsumptionUpdateSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters',
   }),
-  value: z.coerce.number().min(1, {
+  value: z.number().min(1, {
     message: 'Value must be at least 1 character',
   }),
-  resourceId: z.string().uuid(),
-  householdId: z.string().uuid().optional(),
+  resourceId: z.uuid(),
+  householdId: z.uuid().optional(),
   // date is not allowed to be in the future
   date: z.date().max(new Date(), {
     message: 'Date cannot be in the future',

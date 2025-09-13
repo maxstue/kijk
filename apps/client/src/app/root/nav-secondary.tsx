@@ -7,7 +7,6 @@ import type { FeedbackFormValues } from '@/app/root/schemas';
 import { feedbackSchema } from '@/app/root/schemas';
 import { Button } from '@/shared/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import {
   Sheet,
   SheetContent,
@@ -27,6 +26,8 @@ import { Textarea } from '@/shared/components/ui/textarea';
 import { env } from '@/shared/env';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { siteConfig } from '@/shared/lib/constants';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface Props extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {}
 
@@ -83,8 +84,8 @@ const onInvalid = () => {
 };
 
 function FeedbackSheet({ onClose }: { onClose: () => void }) {
-  const form = useZodForm({
-    schema: feedbackSchema,
+  const form = useForm({
+    resolver: zodResolver(feedbackSchema),
     defaultValues: {
       message: '',
     },
@@ -108,21 +109,23 @@ function FeedbackSheet({ onClose }: { onClose: () => void }) {
             Give us Feedback <LucideHeart className='h-4 text-red-500' />
           </SheetTitle>
           <SheetDescription>Sending us any feedback will improve this app for everyone.</SheetDescription>
-          <Form className='space-y-4' form={form} onInvalid={onInvalid} onSubmit={onSubmit}>
-            <FormField
-              control={form.control}
-              name='message'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Message</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder='Help us improve our app...' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type='submit'>Send</Button>
+          <Form {...form}>
+            <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
+              <FormField
+                control={form.control}
+                name='message'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder='Help us improve our app...' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type='submit'>Send</Button>
+            </form>
           </Form>
         </SheetHeader>
       </SheetContent>

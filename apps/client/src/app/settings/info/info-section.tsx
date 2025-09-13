@@ -7,7 +7,6 @@ import { AppVersion } from '@/shared/components/app-version';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/components/ui/accordion';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/ui/form';
-import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Separator } from '@/shared/components/ui/separator';
 import { Switch } from '@/shared/components/ui/switch';
 import { env } from '@/shared/env';
@@ -16,6 +15,8 @@ import { browserStorage } from '@/shared/lib/browser-storage';
 import { siteConfig } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/helpers';
 import { COOKIE_CONSENT_KEY } from '@/shared/types/app';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const getCookieConsent = () => {
   if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
@@ -47,8 +48,8 @@ const defaultValues: Partial<PrivacyFormValues> = {
 };
 
 export function InfoSection() {
-  const form = useZodForm({
-    schema: privacyFormSchema,
+  const form = useForm({
+    resolver: zodResolver(privacyFormSchema),
     defaultValues,
   });
 
@@ -64,8 +65,8 @@ export function InfoSection() {
           <div>Version: </div>
           <AppVersion className='text-muted-foreground' />
         </div>
-        <Form className='space-y-8' form={form} onSubmit={onSubmit}>
-          <div>
+        <Form {...form}>
+          <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
             <h3 className='mb-4 text-lg font-medium'>Privacy</h3>
             <div className='space-y-4'>
               <FormField
@@ -87,8 +88,8 @@ export function InfoSection() {
                 )}
               />
             </div>
-          </div>
-          <Button type='submit'>Save</Button>
+            <Button type='submit'>Save</Button>
+          </form>
         </Form>
         <div className='flex gap-4'>
           <a

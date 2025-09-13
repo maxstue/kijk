@@ -1,4 +1,4 @@
-import { useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { Suspense, useCallback } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'sonner';
@@ -16,9 +16,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGetResources } from '@/app/resources/use-get-resources';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
-import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
 import { Button } from '@/shared/components/ui/button';
 import { Icons } from '@/shared/components/icons';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface Props {
   initialData: Consumption;
@@ -28,8 +28,8 @@ interface Props {
 export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
   const { isPending, mutate } = useUpdateConsumption();
 
-  const form = useZodForm({
-    schema: ConsumptionUpdateSchema,
+  const form = useForm({
+    resolver: zodResolver(ConsumptionUpdateSchema),
     defaultValues: {
       ...initialData,
       resourceId: initialData.resource.id,
@@ -74,16 +74,18 @@ interface FormProps extends PropsWithChildren {
 
 function ConsumptionForm({ form, onSubmit, onInvalid, children }: FormProps) {
   return (
-    <Form className='flex flex-col gap-4 px-2' form={form} onInvalid={onInvalid} onSubmit={onSubmit}>
-      <FormField control={form.control} name='name' render={NameField} />
-      <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
-        <FormField control={form.control} name='value' render={ValueField} />
-        <Suspense fallback={<AsyncLoader className='h-6 w-6' />}>
-          <FormField control={form.control} name='resourceId' render={ResourceField} />
-        </Suspense>
-      </ErrorBoundary>
-      <FormField control={form.control} name='date' render={DateField} />
-      {children}
+    <Form {...form}>
+      <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
+        <FormField control={form.control} name='name' render={NameField} />
+        <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
+          <FormField control={form.control} name='value' render={ValueField} />
+          <Suspense fallback={<AsyncLoader className='h-6 w-6' />}>
+            <FormField control={form.control} name='resourceId' render={ResourceField} />
+          </Suspense>
+        </ErrorBoundary>
+        <FormField control={form.control} name='date' render={DateField} />
+        {children}
+      </form>
     </Form>
   );
 }
