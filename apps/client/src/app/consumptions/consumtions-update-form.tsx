@@ -1,9 +1,8 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { Suspense, useCallback } from 'react';
+import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'sonner';
-import type { PropsWithChildren } from 'react';
-import type { ControllerRenderProps, SubmitErrorHandler, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import type { ControllerRenderProps } from 'react-hook-form';
 
 import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
 import type { Consumption } from '@/shared/types/app';
@@ -35,12 +34,9 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
       resourceId: initialData.resource.id,
       date: initialData.date ? new Date(initialData.date) : new Date(),
     },
-    mode: 'onBlur',
   });
 
-  const handleError = useCallback(() => {
-    toast('Error updating');
-  }, []);
+  const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionUpdateFormSchema) {
     mutate(
@@ -58,24 +54,8 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
   }
 
   return (
-    <ConsumptionForm form={form} onInvalid={handleError} onSubmit={onSubmit}>
-      <Button className='mt-6' disabled={isPending} type='submit'>
-        {isPending ? <Icons.spinner className='h-5 w-5 animate-spin' /> : 'Update'}
-      </Button>
-    </ConsumptionForm>
-  );
-}
-
-interface FormProps extends PropsWithChildren {
-  form: UseFormReturn<ConsumptionUpdateFormSchema>;
-  onSubmit: SubmitHandler<ConsumptionUpdateFormSchema>;
-  onInvalid?: SubmitErrorHandler<ConsumptionUpdateFormSchema>;
-}
-
-function ConsumptionForm({ form, onSubmit, onInvalid, children }: FormProps) {
-  return (
     <Form {...form}>
-      <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
+      <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit, handleError)}>
         <FormField control={form.control} name='name' render={NameField} />
         <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
           <FormField control={form.control} name='value' render={ValueField} />
@@ -84,7 +64,9 @@ function ConsumptionForm({ form, onSubmit, onInvalid, children }: FormProps) {
           </Suspense>
         </ErrorBoundary>
         <FormField control={form.control} name='date' render={DateField} />
-        {children}
+        <Button className='mt-6' disabled={isPending} type='submit'>
+          {isPending ? <Icons.spinner className='h-5 w-5 animate-spin' /> : 'Update'}
+        </Button>
       </form>
     </Form>
   );
