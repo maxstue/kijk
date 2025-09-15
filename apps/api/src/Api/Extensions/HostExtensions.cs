@@ -6,10 +6,7 @@ public static class HostExtensions
 {
     public static WebApplicationBuilder AddErrorTracking(this WebApplicationBuilder builder)
     {
-        if (builder.Environment.IsProduction())
-        {
-            builder.WebHost.UseSentry();
-        }
+        builder.WebHost.UseSentry();
         return builder;
     }
 
