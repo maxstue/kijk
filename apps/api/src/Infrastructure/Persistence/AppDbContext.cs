@@ -8,21 +8,21 @@ public class AppDbContext : DbContext
 {
     public AppDbContext()
     {
-    }
 
+    }
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
-    public DbSet<Household> Households => Set<Household>();
-    public DbSet<UserHousehold> UserHouseholds => Set<UserHousehold>();
-    public DbSet<Consumption> Consumptions => Set<Consumption>();
-    public DbSet<ConsumptionLimit> ConsumptionsLimits => Set<ConsumptionLimit>();
-    public DbSet<Resource> Resources => Set<Resource>();
-    public DbSet<User> Users => Set<User>();
+    public DbSet<Household> Households { get; set; }
+    public DbSet<UserHousehold> UserHouseholds { get; set; }
+    public DbSet<Consumption> Consumptions { get; set; }
+    public DbSet<ConsumptionLimit> ConsumptionsLimits { get; set; }
+    public DbSet<Resource> Resources { get; set; }
+    public DbSet<User> Users { get; set; }
 
-    public DbSet<Role> Roles => Set<Role>();
-    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
