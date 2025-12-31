@@ -30,6 +30,8 @@
         </PackageReference>
         <PackageReference Include="Sentry" />
         <PackageReference Include="Sentry.AspNetCore" />
+        <!-- Telemetry -->
+        <PackageReference Include="Sentry.Serilog"/>
         <!-- Logging -->
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Expressions"/>

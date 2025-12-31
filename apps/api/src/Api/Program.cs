@@ -19,8 +19,7 @@ try
 
     builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
 
-    builder.AddTelemetryTracking()
-        .AddLogging();
+    builder.AddTelemetryTracking();
 
     builder.Services
         .AddApplication()

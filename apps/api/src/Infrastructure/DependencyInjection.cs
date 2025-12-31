@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace Kijk.Infrastructure;
 
@@ -26,6 +27,7 @@ public static class DependencyInjection
                 .AddHealthCheck(configuration)
                 .AddCorsPolicy(configuration)
                 .AddTelemetry()
+                .AddLogging(configuration)
                 .AddAuth(configuration);
 
         private IServiceCollection AddTelemetry()
@@ -129,6 +131,24 @@ public static class DependencyInjection
 
             services.AddAuthorizationBuilder()
                 .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());
+
+            return services;
+        }
+
+        /// <summary>
+        /// Adds logging integration to the WebApplicationBuilder.
+        /// This includes Serilog.
+        /// </summary>
+        /// <returns></returns>
+        private IServiceCollection AddLogging(IConfiguration configuration)
+        {
+            services.AddSerilog((sp,lc) =>
+            {
+                lc
+                    .ReadFrom.Configuration(configuration)
+                    .ReadFrom.Services(sp)
+                    .WriteTo.Sentry();
+            });
 
             return services;
         }

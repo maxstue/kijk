@@ -40,8 +40,6 @@
         <!-- Logging -->
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Expressions"/>
-        <!-- Telemetry -->
-        <PackageReference Include="Sentry.Serilog"/>
         <!-- Other -->
         <PackageReference Include="FluentValidation"/>
         <PackageReference Include="Humanizer.Core"/>
