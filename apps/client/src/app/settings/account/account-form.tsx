@@ -2,6 +2,8 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/shared/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/shared/components/ui/command';
 import {
@@ -16,8 +18,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { cn } from '@/shared/lib/helpers';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 const languages = [
   { label: 'English', value: 'en' },

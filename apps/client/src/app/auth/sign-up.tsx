@@ -2,7 +2,9 @@ import { useCallback, useState } from 'react';
 import { useSignUp } from '@clerk/clerk-react';
 import { getRouteApi } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { useForm, type ControllerRenderProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { ControllerRenderProps } from 'react-hook-form';
 import type { Dispatch } from 'react';
 
 import type { AuthCodeSchema } from '@/app/auth/schemas';
@@ -13,7 +15,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/shared/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { env } from '@/shared/env';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 const route = getRouteApi('/auth');
 

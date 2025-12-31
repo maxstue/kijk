@@ -1,5 +1,5 @@
-import { ValueTypes } from '@/shared/types/app';
 import { z } from 'zod';
+import { ValueTypes } from '@/shared/types/app';
 
 export const consumptionCreateSchema = z.object({
   name: z.string().min(2, {

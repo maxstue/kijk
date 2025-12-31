@@ -1,7 +1,8 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-import { CORRELATION_ID_HEADER, type ApiError } from '@/shared/types/app';
+import type { ApiError } from '@/shared/types/app';
+import { CORRELATION_ID_HEADER } from '@/shared/types/app';
 import { env } from '@/shared/env';
 import { getAuthToken } from '@/shared/lib/auth-client';
 import { browserStorage } from '@/shared/lib/browser-storage';

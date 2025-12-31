@@ -3,6 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
@@ -19,8 +21,6 @@ import {
   FormMessage,
 } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 export function ProfileForm() {
   const { data: user } = useQuery(userSignInQuery);
@@ -72,7 +72,7 @@ export function ProfileForm() {
               <FormItem className='flex w-full items-end justify-start gap-2'>
                 <FormLabel>Use default resource types</FormLabel>
                 <FormControl>
-                  <Checkbox checked={field.value as boolean} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

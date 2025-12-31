@@ -142,7 +142,7 @@ public static class DependencyInjection
         /// <returns></returns>
         private IServiceCollection AddLogging(IConfiguration configuration)
         {
-            services.AddSerilog((sp,lc) =>
+            services.AddSerilog((sp, lc) =>
             {
                 lc
                     .ReadFrom.Configuration(configuration)

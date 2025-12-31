@@ -3,9 +3,12 @@ import { toast } from 'sonner';
 import { useForm, useWatch } from 'react-hook-form';
 import { ErrorBoundary } from 'react-error-boundary';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { InfoIcon } from 'lucide-react';
 import type { ControllerRenderProps } from 'react-hook-form';
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
-import { ValueTypes, type Months } from '@/shared/types/app';
+import type { Months } from '@/shared/types/app';
+import { ValueTypes } from '@/shared/types/app';
 import { consumptionCreateSchema } from '@/app/consumptions/schemas';
 import { useCreateConsumption } from '@/app/consumptions/use-create-consumption.ts';
 import { Icons } from '@/shared/components/icons';
@@ -18,10 +21,8 @@ import { ResourceUnit } from '@/app/consumptions/resources-unit';
 import { useGetResources } from '@/app/resources/use-get-resources';
 import { DatePicker } from '@/shared/components/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
-import { InfoIcon } from 'lucide-react';
 
 interface Props {
   year: number;

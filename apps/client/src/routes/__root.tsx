@@ -14,6 +14,7 @@ import { env } from '@/shared/env';
 interface RootRouteContext {
   queryClient: QueryClient;
   authClient: LoadedClerk | undefined;
+  // TODO add posthog and sentry clients here
 }
 
 export const Route = createRootRouteWithContext<RootRouteContext>()({

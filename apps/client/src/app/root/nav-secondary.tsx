@@ -3,6 +3,8 @@ import { ExternalLinkIcon, LucideHeart, SendIcon, SettingsIcon } from 'lucide-re
 import { toast } from 'sonner';
 
 import { Link } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { FeedbackFormValues } from '@/app/root/schemas';
 import { feedbackSchema } from '@/app/root/schemas';
 import { Button } from '@/shared/components/ui/button';
@@ -26,8 +28,6 @@ import { Textarea } from '@/shared/components/ui/textarea';
 import { env } from '@/shared/env';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { siteConfig } from '@/shared/lib/constants';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 interface Props extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {}
 

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { CookieIcon, ExternalLink } from 'lucide-react';
 
+import type { CookieConsent } from '@/shared/types/app';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { env } from '@/shared/env';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { cn } from '@/shared/lib/helpers';
-import { CookieConsent } from '@/shared/types/app';
 
 export function AnalyticsBanner() {
   const [consentGiven, setConsentGiven] = useState<CookieConsent>('undecided');

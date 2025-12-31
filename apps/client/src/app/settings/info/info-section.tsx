@@ -2,6 +2,8 @@ import { ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { CookieConsent } from '@/shared/types/app';
 import { AppVersion } from '@/shared/components/app-version';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/components/ui/accordion';
@@ -15,8 +17,6 @@ import { browserStorage } from '@/shared/lib/browser-storage';
 import { siteConfig } from '@/shared/lib/constants';
 import { cn } from '@/shared/lib/helpers';
 import { COOKIE_CONSENT_KEY } from '@/shared/types/app';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 const getCookieConsent = () => {
   if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
@@ -82,7 +82,7 @@ export function InfoSection() {
                       </FormDescription>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value as boolean} onCheckedChange={field.onChange} />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                   </FormItem>
                 )}

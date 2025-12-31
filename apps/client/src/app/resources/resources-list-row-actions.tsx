@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { Row } from '@tanstack/react-table';
 
 import type { ResourceFormValues } from '@/app/resources/schemas';
@@ -32,8 +34,6 @@ import {
   SheetTrigger,
 } from '@/shared/components/ui/sheet';
 import { cn } from '@/shared/lib/helpers';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

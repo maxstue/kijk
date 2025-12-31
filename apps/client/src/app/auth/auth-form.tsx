@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useSignIn } from '@clerk/clerk-react';
-import { useForm, type ControllerRenderProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { ControllerRenderProps } from 'react-hook-form';
 
 import type { AuthSchema } from '@/app/auth/schemas';
 import { authSchema } from '@/app/auth/schemas';
@@ -11,7 +13,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/shared/components/ui/input';
 import { cn } from '@/shared/lib/helpers';
 import { Allowed_Providers } from '@/shared/types/app';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 interface Props {
   className?: string;

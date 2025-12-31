@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { EditIcon, Plus, Trash2Icon } from 'lucide-react';
 import { z } from 'zod';
 import { zodValidator } from '@tanstack/zod-adapter';
+import { toast } from 'sonner';
 import type { Consumption, Months } from '@/shared/types/app';
 import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form.tsx';
 import { ConsumptionsMonthNav } from '@/app/consumptions/consumptions-month-nav.tsx';
@@ -39,7 +40,6 @@ import {
   AlertDialogTrigger,
 } from '@/shared/components/ui/alert-dialog';
 import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
-import { toast } from 'sonner';
 
 const searchSchema = z.object({
   month: z

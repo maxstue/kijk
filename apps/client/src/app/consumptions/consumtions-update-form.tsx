@@ -2,10 +2,13 @@ import { useForm, useWatch } from 'react-hook-form';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'sonner';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { InfoIcon } from 'lucide-react';
 import type { ControllerRenderProps } from 'react-hook-form';
 
 import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
-import { ValueTypes, type Consumption } from '@/shared/types/app';
+import type { Consumption } from '@/shared/types/app';
+import { ValueTypes } from '@/shared/types/app';
 import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
 import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import { DatePicker } from '@/shared/components/date-picker';
@@ -17,10 +20,8 @@ import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
 import { Button } from '@/shared/components/ui/button';
 import { Icons } from '@/shared/components/icons';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
-import { InfoIcon } from 'lucide-react';
 
 interface Props {
   initialData: Consumption;

@@ -4,6 +4,8 @@ import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import {
@@ -34,8 +36,6 @@ import { Input } from '@/shared/components/ui/input';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { cn } from '@/shared/lib/helpers';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 const Route = getRouteApi('/_protected/consumptions');
 
