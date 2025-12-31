@@ -3,10 +3,13 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Middleware;
 using Kijk.Application;
 using Kijk.Infrastructure;
+using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration().CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
 Log.Information("Application is starting ...");
 try
@@ -14,8 +17,9 @@ try
     // ##### Add services to the container. #####
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.AddErrorTracking()
-        .AddLogging();
+    builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
+
+    builder.AddTelemetryTracking();
 
     builder.Services
         .AddApplication()
@@ -33,20 +37,21 @@ try
     app.UseResponseCompression()
         .UseSecurityHeaders()
         .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder => appBuilder.UseDeveloperExceptionPage())
-        .UseWhen(_ => !app.Environment.IsDevelopment(), appBuilder => appBuilder.UseHsts());
+        .UseWhen(_ => app.Environment.IsProduction(), appBuilder => appBuilder.UseHsts());
 
     app.MapStaticAssets();
 
     app.UseExceptionHandler()
         .UseMiddleware<ExtendRequestLoggingMiddleware>()
         .UseRequestLogging()
-        .UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All })
+        .UseForwardedHeaders(new() { ForwardedHeaders = ForwardedHeaders.All })
         .UseCors(AppConstants.Policies.Cors)
         .UseHttpsRedirection()
         .UseAuthentication()
         .UseAuthorization();
 
-    // Needs to ba after Auth so we have user data
+    // Both needs to ba after Auth so we have user data
+    app.UseMiddleware<TelemetryMiddleware>();
     app.UseMiddleware<CurrentUserMiddleware>();
 
     app.MapEndpoints();
@@ -63,7 +68,7 @@ catch (HostAbortedException)
 catch (Exception ex)
 {
     Log.Fatal(ex, "Unhandled exception");
-    return 1;
+    return 2;
 }
 finally
 {

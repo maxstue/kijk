@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { useSignUp } from '@clerk/clerk-react';
 import { getRouteApi } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { ControllerRenderProps } from 'react-hook-form';
 import type { Dispatch } from 'react';
 
@@ -9,8 +11,7 @@ import type { AuthCodeSchema } from '@/app/auth/schemas';
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { authCodeSchema } from '@/app/auth/schemas';
 import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
-import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { env } from '@/shared/env';
@@ -90,8 +91,8 @@ function Verify() {
   const search = route.useSearch();
   const from = search.from ?? '/';
 
-  const form = useZodForm({
-    schema: authCodeSchema,
+  const form = useForm({
+    resolver: zodResolver(authCodeSchema),
     defaultValues: {
       code: '',
     },
@@ -131,13 +132,15 @@ function Verify() {
 
   return (
     <div className='mt-6 grid gap-6'>
-      <Form form={form} onSubmit={handleVerify}>
-        <div className='grid gap-6'>
-          <div className='grid gap-1'>
-            <FormField control={form.control} name='code' render={CodeField} />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleVerify)}>
+          <div className='grid gap-6'>
+            <div className='grid gap-1'>
+              <FormField control={form.control} name='code' render={CodeField} />
+            </div>
+            <Button type='submit'>Verify Email</Button>
           </div>
-          <Button type='submit'>Verify Email</Button>
-        </div>
+        </form>
       </Form>
     </div>
   );

@@ -13,7 +13,7 @@ public sealed record MonthYear
     /// </summary>
     public DateTime Value { get; init; }
 
-    public MonthYear(DateTime value) => Value = new DateTime(value.Year, value.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+    public MonthYear(DateTime value) => Value = new(value.Year, value.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private MonthYear(int month, int year)
     {

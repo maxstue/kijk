@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useSignIn } from '@clerk/clerk-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { ControllerRenderProps } from 'react-hook-form';
 
 import type { AuthSchema } from '@/app/auth/schemas';
@@ -7,8 +9,7 @@ import { authSchema } from '@/app/auth/schemas';
 import { Route } from '@/routes/auth';
 import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
-import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { cn } from '@/shared/lib/helpers';
 import { Allowed_Providers } from '@/shared/types/app';
@@ -20,8 +21,8 @@ interface Props {
 }
 
 export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
-  const form = useZodForm({
-    schema: authSchema,
+  const form = useForm({
+    resolver: zodResolver(authSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -52,19 +53,21 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
 
   return (
     <div className={cn('grid gap-6', className)}>
-      <Form className='space-y-8' form={form} onSubmit={handleEmailSubmit}>
-        <div className='grid gap-6'>
-          <div className='grid gap-1'>
-            <FormField control={form.control} name='email' render={EmailField} />
+      <Form {...form}>
+        <form className='space-y-8' onSubmit={form.handleSubmit(handleEmailSubmit)}>
+          <div className='grid gap-6'>
+            <div className='grid gap-1'>
+              <FormField control={form.control} name='email' render={EmailField} />
+            </div>
+            <div className='grid gap-1'>
+              <FormField control={form.control} name='password' render={PasswordField} />
+            </div>
+            <Button disabled={isLoading} type='submit'>
+              {!isLoading && btnLabel}
+              {isLoading && <Icons.spinner className='h-5 w-5 animate-spin' />}
+            </Button>
           </div>
-          <div className='grid gap-1'>
-            <FormField control={form.control} name='password' render={PasswordField} />
-          </div>
-          <Button disabled={isLoading} type='submit'>
-            {!isLoading && btnLabel}
-            {isLoading && <Icons.spinner className='h-5 w-5 animate-spin' />}
-          </Button>
-        </div>
+        </form>
       </Form>
       <div className='relative'>
         <div className='absolute inset-0 flex items-center'>

@@ -13,13 +13,6 @@ public class ModuleService : IModule
         // Validators
         services.AddScoped<IValidator<CreateResourceRequest>, CreateResourceRequestValidator>();
 
-        // Handlers
-        services.AddScoped<GetAllResourcesHandler>();
-        services.AddScoped<CreateResourceHandler>();
-        services.AddScoped<DeleteResourceHandler>();
-        services.AddScoped<GetByIdResourceHandler>();
-        services.AddScoped<UpdateResourceHandler>();
-
         return services;
     }
 }

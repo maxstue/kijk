@@ -860,6 +860,10 @@
         "type": "integer",
         "format": "int32"
       },
+      "DateTime": {
+        "type": "string",
+        "format": "date-time"
+      },
       "ErrorType": {
         "enum": [
           "Authentication",
@@ -902,20 +906,20 @@
           "instance": {
             "$ref": "#/components/schemas/String"
           },
-          "traceId": {
+          "correlationId": {
             "$ref": "#/components/schemas/String"
           },
-          "requestId": {
-            "$ref": "#/components/schemas/String"
+          "timestamp": {
+            "$ref": "#/components/schemas/DateTime"
           },
-          "Extensions": {
+          "errors": {
+            "type": "object"
+          },
+          "extensions": {
             "type": "object",
             "properties": {
-              "errors": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Error"
-                }
+              "errorType": {
+                "$ref": "#/components/schemas/String"
               }
             }
           }
@@ -1059,6 +1063,7 @@
         "required": [
           "name",
           "value",
+          "valueType",
           "resourceId",
           "date"
         ],
@@ -1071,6 +1076,9 @@
             "type": "number",
             "format": "double"
           },
+          "valueType": {
+            "$ref": "#/components/schemas/CreateConsumptionValueTypes"
+          },
           "resourceId": {
             "type": "string",
             "format": "uuid"
@@ -1080,6 +1088,12 @@
             "format": "date-time"
           }
         }
+      },
+      "CreateConsumptionValueTypes": {
+        "enum": [
+          "Absolute",
+          "Relative"
+        ]
       },
       "CreateResourceRequest": {
         "required": [
@@ -1215,6 +1229,7 @@
         "required": [
           "name",
           "value",
+          "valueType",
           "resourceId",
           "date"
         ],
@@ -1228,6 +1243,9 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          },
+          "valueType": {
+            "$ref": "#/components/schemas/CreateConsumptionValueTypes"
           },
           "resourceId": {
             "type": "string",

@@ -2,29 +2,28 @@
 
 public sealed class UserHousehold : BaseEntity
 {
-    public Guid UserId { get; set; }
-    public required User User { get; set; }
+    public Guid UserId { get; init; }
+    public required User User { get; init; }
 
-    public Guid HouseholdId { get; set; }
-    public required Household Household { get; set; }
+    public Guid HouseholdId { get; init; }
+    public required Household Household { get; init; }
 
-    public Guid RoleId { get; set; }
-    public required Role Role { get; set; }
+    public Guid RoleId { get; init; }
+    public required Role Role { get; init; }
 
     /// <summary>
     /// A list of extra permissions that the user has in the household.
     /// </summary>
-    public List<Permission>? UserHouseHoldExtraPermissions { get; set; } = [];
+    public ICollection<Permission>? UserHouseHoldExtraPermissions { get; init; } = new List<Permission>();
 
     /// <summary>
     /// A boolean which represents if the household is active or not.
     /// </summary>
-    public bool IsActive { get; set; }
+    public bool IsActive { get; init; }
 
     public static UserHousehold Create(User user, Household household, Role role, bool isActive = false) =>
         new()
         {
-            Id = Guid.CreateVersion7(),
             User = user,
             Household = household,
             Role = role,

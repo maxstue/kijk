@@ -8,7 +8,7 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
 {
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        document.Components ??= new OpenApiComponents();
+        document.Components ??= new();
         document.Components.Schemas["String"] = new()
         {
             Type = "string",
@@ -18,6 +18,12 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
         {
             Type = "integer",
             Format = "int32",
+        };
+
+        document.Components.Schemas["DateTime"] = new()
+        {
+            Type = "string",
+            Format = "date-time",
         };
 
         document.Components.Schemas["ErrorType"] = new()
@@ -54,21 +60,23 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
                 ["status"] = CreateSchemaRef("Int"),
                 ["detail"] = CreateSchemaRef("String"),
                 ["instance"] = CreateSchemaRef("String"),
-                ["traceId"] = CreateSchemaRef("String"),
-                ["requestId"] = CreateSchemaRef("String"),
-                ["Extensions"] = new()
+                ["correlationId"] = CreateSchemaRef("String"),
+                ["timestamp"] = CreateSchemaRef("DateTime"),
+                ["errors"] = new()
+                {
+                    Type = "object",
+                    AdditionalPropertiesAllowed = true,
+                    Properties = new Dictionary<string, OpenApiSchema>()
+                },
+                ["extensions"] = new()
                 {
                     Type = "object",
                     AdditionalPropertiesAllowed = true,
                     Properties = new Dictionary<string, OpenApiSchema>
                     {
-                        ["errors"] = new()
-                        {
-                            Type = "array",
-                            Items = CreateSchemaRef("Error")
-                        }
+                        ["errorType"] = CreateSchemaRef("String"),
                     }
-                }
+                },
             }
         };
 

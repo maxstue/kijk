@@ -9,7 +9,7 @@ namespace Kijk.Application.Users;
 /// Handler for the getting the current user.
 /// It returns more data for the current user.
 /// </summary>
-public class GetMeUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetMeUserHandler> logger)
+public class GetMeUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetMeUserHandler> logger) : IHandler
 {
     public async Task<Result<GetMeUserResponse>> GetMeAsync(CancellationToken cancellationToken)
     {

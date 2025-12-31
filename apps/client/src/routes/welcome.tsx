@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import type { UserStepFormValues } from '@/app/welcome/schemas';
 import type { CarouselApi } from '@/shared/components/ui/carousel';
 import { userSignInQuery } from '@/app/root/use-signin-user';
-import { useWelcomeUser } from '@/app/welcome/use-init-user';
+import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';

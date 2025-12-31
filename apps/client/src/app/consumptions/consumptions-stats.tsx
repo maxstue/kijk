@@ -1,6 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router';
 
-import ResourceUnit from '@/app/consumptions/resources-unit.tsx';
+import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import { useGetConsumptionsStats } from '@/app/consumptions/use-get-consumptions-stats.ts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 

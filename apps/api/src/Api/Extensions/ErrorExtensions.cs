@@ -17,8 +17,8 @@ public static class ErrorExtensions
     {
         Status = GetStatusCode(error.Type),
         Title = GetTitle(error.Type),
-        Detail = error.Description,
-        Extensions = new Dictionary<string, object?> { ["errors"] = new[] { error } }
+        Detail = $"{error.Code}: {error.Description}",
+        Extensions = new Dictionary<string, object?> { ["errorType"] = error.Type.ToStringFast() }
     };
 
     private static int GetStatusCode(ErrorType errorType) => errorType switch

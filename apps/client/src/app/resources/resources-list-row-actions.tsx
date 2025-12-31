@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { Row } from '@tanstack/react-table';
 
 import type { ResourceFormValues } from '@/app/resources/schemas';
@@ -19,8 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
-import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import {
   Sheet,
@@ -167,9 +168,9 @@ const handleError = () => {
 };
 
 function Update({ resourceType, onClose }: EdProps) {
-  const form = useZodForm({
-    schema: resourceSchema,
-    values: resourceType,
+  const form = useForm({
+    resolver: zodResolver(resourceSchema),
+    defaultValues: resourceType,
   });
   const updateMutation = useUpdateResource();
 
@@ -192,60 +193,62 @@ function Update({ resourceType, onClose }: EdProps) {
         <SheetDescription>Change the values.</SheetDescription>
       </SheetHeader>
       <div className='p-4'>
-        <Form className='space-y-8' form={form} onInvalid={handleError} onSubmit={onSubmit}>
-          <FormField
-            control={form.control}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder='Name' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='unit'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Unit</FormLabel>
-                <FormControl>
-                  <Input placeholder='Unit' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='color'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Color</FormLabel>
-                <FormControl>
-                  <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <Form {...form}>
+          <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit, handleError)}>
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Name' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='unit'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Unit</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Unit' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='color'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Color</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <SheetFooter>
-            <div className='flex w-full items-center justify-between gap-2'>
-              <SheetClose asChild>
-                <Button disabled={updateMutation.isPending} type='button' variant='outline'>
-                  Cancel
+            <SheetFooter>
+              <div className='flex w-full items-center justify-between gap-2'>
+                <SheetClose asChild>
+                  <Button disabled={updateMutation.isPending} type='button' variant='outline'>
+                    Cancel
+                  </Button>
+                </SheetClose>
+                <Button disabled={updateMutation.isPending} type='submit'>
+                  Update
                 </Button>
-              </SheetClose>
-              <Button disabled={updateMutation.isPending} type='submit'>
-                Update
-              </Button>
-              {updateMutation.isPending && <Icons.spinner className='animate-spin' />}
-            </div>
-          </SheetFooter>
+                {updateMutation.isPending && <Icons.spinner className='animate-spin' />}
+              </div>
+            </SheetFooter>
+          </form>
         </Form>
       </div>
     </>

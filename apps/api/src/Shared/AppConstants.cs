@@ -26,6 +26,7 @@ public static class AppConstants
     /// </summary>
     public static class Policies
     {
+        public const string CorrelationId = "X-Correlation-Id";
         public const string User = "User";
         public const string Admin = "Admin";
         public const string All = "All";

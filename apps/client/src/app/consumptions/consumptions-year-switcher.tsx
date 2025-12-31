@@ -4,6 +4,8 @@ import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import {
@@ -29,8 +31,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form/form';
-import { useZodForm } from '@/shared/components/ui/form/use-zod-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
@@ -134,7 +135,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
 }
 
 const yearSchema = z.object({
-  year: z.coerce.number().min(1970).max(9999),
+  year: z.number().min(1970).max(9999),
 });
 
 type YearFormValues = z.infer<typeof yearSchema>;
@@ -142,10 +143,10 @@ type YearFormValues = z.infer<typeof yearSchema>;
 function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
-  const form = useZodForm({
-    values: { year: new Date().getFullYear() + 1 },
+  const form = useForm({
+    defaultValues: { year: new Date().getFullYear() + 1 },
     mode: 'onBlur',
-    schema: yearSchema,
+    resolver: zodResolver(yearSchema),
   });
 
   function handleSubmit(data: YearFormValues) {
@@ -176,30 +177,32 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
         <DialogTitle>Add new year</DialogTitle>
         <DialogDescription>Add a new year to manage.</DialogDescription>
       </DialogHeader>
-      <Form className='space-y-8' form={form} onInvalid={handleError} onSubmit={handleSubmit}>
-        <div className='space-y-4 py-2 pb-4'>
-          <div className='space-y-2'>
-            <FormField
-              control={form.control}
-              name='year'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Year</FormLabel>
-                  <FormControl>
-                    <Input placeholder={(new Date().getFullYear() + 1).toString()} type='number' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <Form {...form}>
+        <form className='space-y-8' onSubmit={form.handleSubmit(handleSubmit, handleError)}>
+          <div className='space-y-4 py-2 pb-4'>
+            <div className='space-y-2'>
+              <FormField
+                control={form.control}
+                name='year'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year</FormLabel>
+                    <FormControl>
+                      <Input placeholder={(new Date().getFullYear() + 1).toString()} type='number' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-        </div>
-        <DialogFooter>
-          <Button type='button' variant='outline' onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button type='submit'>Continue</Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type='button' variant='outline' onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type='submit'>Continue</Button>
+          </DialogFooter>
+        </form>
       </Form>
     </DialogContent>
   );

@@ -8,14 +8,5 @@ namespace Kijk.Application.Users;
 /// </summary>
 public class ModuleService : IModule
 {
-    public IServiceCollection RegisterServices(IServiceCollection services)
-    {
-        // Handlers
-        services.AddScoped<GetMeUserHandler>();
-        services.AddScoped<SignInUserHandler>();
-        services.AddScoped<UpdateUserHandler>();
-        services.AddScoped<WelcomeUserHandler>();
-
-        return services;
-    }
+    public IServiceCollection RegisterServices(IServiceCollection services) => services;
 }

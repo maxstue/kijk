@@ -4,7 +4,7 @@ interface Props {
   type?: Resource | ResourceStats;
 }
 
-export default function ResourceUnit({ type }: Props) {
+export function ResourceUnit({ type }: Props) {
   if (!type) {
     return <span className='text-xs'>-</span>;
   }

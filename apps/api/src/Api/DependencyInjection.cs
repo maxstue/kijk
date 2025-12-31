@@ -3,8 +3,8 @@ using Humanizer;
 using Kijk.Api.Extensions;
 using Kijk.Api.Extensions.OpenApi;
 using Kijk.Api.Middleware;
-using Kijk.Api.Services;
 using Kijk.Infrastructure.Auth;
+using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Kijk.Shared.Exceptions;
 using Microsoft.AspNetCore.Http.Features;
@@ -15,23 +15,23 @@ namespace Kijk.Api;
 public static class DependencyInjection
 {
     public static IServiceCollection AddApi(this IServiceCollection services, IConfiguration configuration) =>
-        services.AddServices()
+        services
             .AddProblemDetail()
             .AddControllerOptions()
             .AddValidation()
             .AddCompression()
             .AddEndpoints()
-            .AddCurrentUserMiddleware()
+            .AddMiddlewares()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddHttpClient()
             .AddRateLimitPolicy()
             .AddOpenApiInternal(configuration);
 
-    private static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddMiddlewares(this IServiceCollection services)
     {
         services.AddTransient<ExtendRequestLoggingMiddleware>();
-        services.AddTransient<IErrorReportingService, ErrorReportingService>();
-
+        services.AddTransient<CurrentUserMiddleware>();
+        services.AddTransient<TelemetryMiddleware>();
         return services;
     }
 
@@ -39,15 +39,17 @@ public static class DependencyInjection
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
         {
             context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
-            context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+            context.ProblemDetails.Extensions.TryAdd("timestamp", DateTime.UtcNow);
 
             var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
-            context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
-            if (context.HttpContext.Response.StatusCode is StatusCodes.Status401Unauthorized or StatusCodes.Status403Forbidden)
+            context.ProblemDetails.Extensions.TryAdd("correlationId", activity?.Id ?? context.HttpContext.TraceIdentifier);
+
+            context.ProblemDetails.Extensions["errorType"] = context.HttpContext.Response.StatusCode switch
             {
-                var problemDetails = Error.FromStatusCode(context.HttpContext.Response.StatusCode).ToProblemDetails();
-                context.ProblemDetails.Extensions["errors"] = problemDetails.Extensions["errors"];
-            }
+                StatusCodes.Status401Unauthorized => ErrorType.Authentication,
+                StatusCodes.Status403Forbidden => ErrorType.Authorization,
+                _ => context.ProblemDetails.Extensions["errorType"]
+            };
         });
 
     private static IServiceCollection AddOpenApiInternal(this IServiceCollection services, IConfiguration configuration)
@@ -84,7 +86,6 @@ public static class DependencyInjection
     {
         ValidatorOptions.Global.DisplayNameResolver = (_, member, _) => member?.Name.Humanize().Titleize();
         ValidatorOptions.Global.LanguageManager.Culture = new("de");
-
         return services;
     }
 
@@ -92,13 +93,6 @@ public static class DependencyInjection
     {
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-        return services;
-    }
-
-    private static IServiceCollection AddCurrentUserMiddleware(this IServiceCollection services)
-    {
-        services.AddTransient<CurrentUserMiddleware>();
         return services;
     }
 }

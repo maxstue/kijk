@@ -9,7 +9,7 @@ namespace Kijk.Application.Consumptions;
 /// <summary>
 /// Handler for getting consumptions by year and month.
 /// </summary>
-public class GetByYearMonthHandler(AppDbContext dbContext, CurrentUser currentUser)
+public class GetByYearMonthHandler(AppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
     public async Task<Result<List<ConsumptionResponse>>> GetByYearMonthAsync(int? year, string? month, CancellationToken cancellationToken)
     {

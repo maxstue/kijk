@@ -6,3 +6,7 @@ dev-dist
 
 # generated files
 .tanstack
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

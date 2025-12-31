@@ -7,7 +7,7 @@ namespace Kijk.Application.Resources;
 /// <summary>
 /// Handler for the delete a resource.
 /// </summary>
-public class DeleteResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger)
+public class DeleteResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger) : IHandler
 {
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {

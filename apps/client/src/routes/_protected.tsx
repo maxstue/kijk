@@ -6,6 +6,9 @@ import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 import { SiteHeader } from '@/app/root/site-header';
+import { AnalyticsService } from '@/shared/lib/analytics-client';
+import { browserStorage } from '@/shared/lib/browser-storage';
+import { CORRELATION_ID_HEADER } from '@/shared/types/app';
 
 export const Route = createFileRoute('/_protected')({
   beforeLoad: async ({ location, context: { authClient, queryClient } }) => {
@@ -18,6 +21,10 @@ export const Route = createFileRoute('/_protected')({
     const user = await queryClient.ensureQueryData(userSignInQuery);
     if (user.firstTime) {
       throw redirect({ to: '/welcome', replace: true });
+    }
+    const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
+    if (correlationId) {
+      AnalyticsService.identifyUser();
     }
 
     return { session };

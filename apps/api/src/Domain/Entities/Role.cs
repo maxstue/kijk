@@ -4,6 +4,6 @@ public class Role : BaseEntity
 {
     public required string Name { get; init; }
 
-    public required IEnumerable<Permission> Permissions { get; set; } = [];
-    public IEnumerable<UserHousehold>? UserHouseholds { get; set; } = [];
+    public required ICollection<Permission> Permissions { get; set; } = [];
+    public ICollection<UserHousehold>? UserHouseholds { get; set; } = [];
 }

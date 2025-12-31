@@ -17,11 +17,16 @@ COPY ["./Directory.Packages.props", "./"]
 RUN dotnet restore "src/Api/Api.csproj"
 COPY . .
 WORKDIR "/src/src/Api"
-RUN dotnet build "Api.csproj" -c "$BUILD_CONFIGURATION" -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Api.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Api.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish \
+    -p:UseAppHost=false \
+    -p:PublishReadyToRun=true \
+    -p:PublishSingleFile=true \
+    -p:InvariantGlobalization=true \
+    -p:TieredPGO=true \
+    --self-contained=false
 
 FROM base AS final
 WORKDIR /app
