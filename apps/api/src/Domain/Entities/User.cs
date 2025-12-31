@@ -21,7 +21,7 @@ public sealed class User : BaseEntity
     /// </summary>
     public bool FirstTime { get; set; }
 
-    public IEnumerable<UserHousehold> UserHouseholds { get; init; } = [];
+    public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
 
     /// <summary>
     /// Returns the active household id for the user.
@@ -32,7 +32,7 @@ public sealed class User : BaseEntity
                                           ?? throw new NullException("Active household not found");
 
     private readonly List<Resource> _resources = [];
-    public IEnumerable<Resource> Resources => _resources.AsReadOnly();
+    public ICollection<Resource> Resources => _resources.AsReadOnly();
 
     public void DeleteResource(Guid resourceId)
     {

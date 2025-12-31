@@ -1,24 +1,29 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Http.Features;
 using Serilog.Context;
 
 namespace Kijk.Api.Middleware;
 
+/// <summary>
+/// Middleware to extend the request logging.
+/// It adds the correlation id to the log context.
+/// </summary>
 public class ExtendRequestLoggingMiddleware : IMiddleware
 {
-    private const string HeaderName = "X-Trace-Id";
+    private const string HeaderName = "X-Correlation-Id";
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var traceId = GetTraceId(context);
-        using (LogContext.PushProperty("traceId", traceId))
+        var correlationId = GetCorrelationId(context);
+        using (LogContext.PushProperty("correlationId", correlationId))
         {
             await next(context);
         }
     }
 
-    private static string GetTraceId(HttpContext context)
+    private static string GetCorrelationId(HttpContext context)
     {
         context.Request.Headers.TryGetValue(HeaderName, out var headerId);
-        return headerId.FirstOrDefault() ?? Activity.Current?.Id ?? context.TraceIdentifier;
+        var activity = context.Features.Get<IHttpActivityFeature>()?.Activity;
+        return headerId.FirstOrDefault() ?? activity?.Id ?? context.TraceIdentifier;
     }
 }

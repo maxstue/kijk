@@ -3,10 +3,13 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Middleware;
 using Kijk.Application;
 using Kijk.Infrastructure;
+using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration().CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
 Log.Information("Application is starting ...");
 try
@@ -16,7 +19,7 @@ try
 
     builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
 
-    builder.AddErrorTracking()
+    builder.AddTelemetryTracking()
         .AddLogging();
 
     builder.Services
@@ -48,7 +51,8 @@ try
         .UseAuthentication()
         .UseAuthorization();
 
-    // Needs to ba after Auth so we have user data
+    // Both needs to ba after Auth so we have user data
+    app.UseMiddleware<TelemetryMiddleware>();
     app.UseMiddleware<CurrentUserMiddleware>();
 
     app.MapEndpoints();
@@ -65,7 +69,7 @@ catch (HostAbortedException)
 catch (Exception ex)
 {
     Log.Fatal(ex, "Unhandled exception");
-    return 1;
+    return 2;
 }
 finally
 {

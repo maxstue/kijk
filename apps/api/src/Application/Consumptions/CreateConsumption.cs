@@ -44,8 +44,8 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
 {
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest request, CancellationToken cancellationToken)
     {
+        // Load household without including the Consumptions navigation to avoid materializing it as a fixed-size array during fixup
         var household = await dbContext.Households
-            .Include(x => x.Consumptions)
             .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
 
         if (household is null)
@@ -54,11 +54,15 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             return Error.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
         }
 
-        var foundEnergy = await dbContext.Consumptions
+        // use a month range which is translatable by EF instead of accessing Date.Month/Year properties
+        var monthStart = new DateTime(request.Date.Year, request.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var nextMonth = monthStart.AddMonths(1);
+
+        var foundConsumption = await dbContext.Consumptions
             .Include(x => x.Resource)
-            .Where(x => x.Date.Value.Month == request.Date.Month && x.Date.Value.Year == request.Date.Year && x.ResourceId == request.ResourceId)
+            .Where(x => x.Date.Value >= monthStart && x.Date.Value < nextMonth && x.ResourceId == request.ResourceId)
             .FirstOrDefaultAsync(cancellationToken);
-        if (foundEnergy is not null)
+        if (foundConsumption is not null)
         {
             logger.LogError("Consumption for '{ResourceId}' already exists for {Date:MMMM yyyy}", request.ResourceId, request.Date);
             return Error.Validation($"Consumption for '{request.ResourceId}' already exists for {request.Date:MMMM yyyy}");
@@ -85,6 +89,8 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             consumption.Date.ToDateTime());
     }
 
+    // TODO valuetype should also be saved
+    // TODO stats dont't work, they don't return anything
     private async Task<Consumption> CreateConsumption(CreateConsumptionRequest request, Resource resource, Household household, CancellationToken cancellationToken)
     {
         var calculatedValue = request.Value;
@@ -99,13 +105,16 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             );
         }
 
-        var lastConsumptionValue = await dbContext.Consumptions
-            .Where(x => x.Date.Value.Month == request.Date.Month && x.Date.Value.Year == request.Date.Year && x.ResourceId == request.ResourceId)
-            .OrderByDescending(x => x.Date)
+        var previousMonth = new DateTime(request.Date.Year, request.Date.Month - 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var currentMonth = previousMonth.AddMonths(1);
+
+        var previousMonthConsumptionValue = await dbContext.Consumptions
+            .Where(x => x.Date.Value >= previousMonth && x.Date.Value < currentMonth && x.ResourceId == request.ResourceId)
+            .OrderByDescending(x => x.Date.Value)
             .Select(x => x.Value)
             .FirstOrDefaultAsync(cancellationToken);
 
-        calculatedValue = lastConsumptionValue + request.Value;
+        calculatedValue = previousMonthConsumptionValue + request.Value;
 
         return Consumption.Create(
             request.Name,

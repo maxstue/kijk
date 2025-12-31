@@ -14,7 +14,7 @@ public sealed class UserHousehold : BaseEntity
     /// <summary>
     /// A list of extra permissions that the user has in the household.
     /// </summary>
-    public List<Permission>? UserHouseHoldExtraPermissions { get; init; } = [];
+    public ICollection<Permission>? UserHouseHoldExtraPermissions { get; init; } = new List<Permission>();
 
     /// <summary>
     /// A boolean which represents if the household is active or not.

@@ -1,7 +1,6 @@
 using System.Globalization;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Application.Consumptions;
 

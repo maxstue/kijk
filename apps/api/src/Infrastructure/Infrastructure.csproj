@@ -28,6 +28,8 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Sentry" />
+        <PackageReference Include="Sentry.AspNetCore" />
         <!-- Logging -->
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Expressions"/>

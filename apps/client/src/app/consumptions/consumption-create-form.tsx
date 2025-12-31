@@ -132,10 +132,12 @@ function ValueTypeField({ field }: { field: ControllerRenderProps<ConsumptionCre
         Value Type
         <Tooltip>
           <TooltipTrigger asChild>
-            <InfoIcon className='text-muted-foreground hover:text-muted h-4 w-4' />
+            <InfoIcon className='text-muted-foreground h-4 w-4' />
           </TooltipTrigger>
           <TooltipContent>
-            <p className='text-sm'>Toggle between absolute and relative value types.</p>
+            <p className='text-sm'>
+              Toggle between absolute and relative (previous month value + this value ) value types.
+            </p>
           </TooltipContent>
         </Tooltip>
       </FormLabel>

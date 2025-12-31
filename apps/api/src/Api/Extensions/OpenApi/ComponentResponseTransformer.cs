@@ -60,7 +60,7 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
                 ["status"] = CreateSchemaRef("Int"),
                 ["detail"] = CreateSchemaRef("String"),
                 ["instance"] = CreateSchemaRef("String"),
-                ["traceId"] = CreateSchemaRef("String"),
+                ["correlationId"] = CreateSchemaRef("String"),
                 ["timestamp"] = CreateSchemaRef("DateTime"),
                 ["errors"] = new()
                 {

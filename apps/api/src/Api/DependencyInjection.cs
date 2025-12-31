@@ -1,11 +1,10 @@
-using System.Diagnostics;
 using System.Text.Json.Serialization;
 using Humanizer;
 using Kijk.Api.Extensions;
 using Kijk.Api.Extensions.OpenApi;
 using Kijk.Api.Middleware;
-using Kijk.Api.Services;
 using Kijk.Infrastructure.Auth;
+using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Kijk.Shared.Exceptions;
 using Microsoft.AspNetCore.Http.Features;
@@ -16,7 +15,7 @@ namespace Kijk.Api;
 public static class DependencyInjection
 {
     public static IServiceCollection AddApi(this IServiceCollection services, IConfiguration configuration) =>
-        services.AddServices()
+        services
             .AddProblemDetail()
             .AddControllerOptions()
             .AddValidation()
@@ -32,12 +31,7 @@ public static class DependencyInjection
     {
         services.AddTransient<ExtendRequestLoggingMiddleware>();
         services.AddTransient<CurrentUserMiddleware>();
-        return services;
-    }
-
-    private static IServiceCollection AddServices(this IServiceCollection services)
-    {
-        services.AddTransient<IErrorReportingService, ErrorReportingService>();
+        services.AddTransient<TelemetryMiddleware>();
         return services;
     }
 
@@ -46,7 +40,9 @@ public static class DependencyInjection
         {
             context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
             context.ProblemDetails.Extensions.TryAdd("timestamp", DateTime.UtcNow);
-            context.ProblemDetails.Extensions.TryAdd("traceId", Activity.Current?.Id ?? context.HttpContext.TraceIdentifier);
+
+            var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+            context.ProblemDetails.Extensions.TryAdd("correlationId", activity?.Id ?? context.HttpContext.TraceIdentifier);
 
             context.ProblemDetails.Extensions["errorType"] = context.HttpContext.Response.StatusCode switch
             {

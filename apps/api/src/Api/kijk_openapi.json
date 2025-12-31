@@ -906,7 +906,7 @@
           "instance": {
             "$ref": "#/components/schemas/String"
           },
-          "traceId": {
+          "correlationId": {
             "$ref": "#/components/schemas/String"
           },
           "timestamp": {
@@ -1229,6 +1229,7 @@
         "required": [
           "name",
           "value",
+          "valueType",
           "resourceId",
           "date"
         ],
@@ -1242,6 +1243,9 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          },
+          "valueType": {
+            "$ref": "#/components/schemas/CreateConsumptionValueTypes"
           },
           "resourceId": {
             "type": "string",

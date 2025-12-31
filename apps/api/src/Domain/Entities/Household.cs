@@ -5,9 +5,9 @@ public sealed class Household : BaseEntity
     public required string Name { get; init; }
     public string? Description { get; init; }
 
-    public IEnumerable<UserHousehold> UserHouseholds { get; init; } = [];
-    public IEnumerable<Consumption> Consumptions { get; init; } = [];
-    public IEnumerable<ConsumptionLimit> ConsumptionLimits { get; init; } = [];
+    public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
+    public ICollection<Consumption> Consumptions { get; init; } = new List<Consumption>();
+    public ICollection<ConsumptionLimit> ConsumptionLimits { get; init; } = new List<ConsumptionLimit>();
 
     public static Household Create(string name, string? description = null) =>
         new()

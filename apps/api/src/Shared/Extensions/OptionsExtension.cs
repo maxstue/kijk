@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Kijk.Shared.Extensions;
@@ -17,18 +16,26 @@ public static class OptionsExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configuration"></param>
+    /// <param name="lifetime">The lifetime of the registered options service. Default is Scoped.</param>
     /// <typeparam name="TOptions"></typeparam>
     /// <returns></returns>
-    public static IServiceCollection ConfigureOptions<TOptions>(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, ServiceLifetime lifetime = ServiceLifetime.Scoped)
         where TOptions : class, IConfigOptions
     {
         services.Configure<TOptions>(configuration.GetSection(TOptions.SectionName));
-        services.AddScoped<TOptions>(registeredServices => registeredServices.GetRequiredService<IOptionsSnapshot<TOptions>>().Value);
+        if (lifetime == ServiceLifetime.Singleton)
+        {
+            services.AddSingleton<TOptions>(sp => sp.GetRequiredService<IOptionsMonitor<TOptions>>().CurrentValue);
+        }
+        else if (lifetime == ServiceLifetime.Transient)
+        {
+            services.AddTransient<TOptions>(sp => sp.GetRequiredService<IOptions<TOptions>>().Value);
+        }
+        else if (lifetime == ServiceLifetime.Scoped)
+        {
+            services.AddScoped<TOptions>(registeredServices => registeredServices.GetRequiredService<IOptionsSnapshot<TOptions>>().Value);
+        }
+
         return services;
     }
-
-    public static TOptions? GetConfigurationSection<TOptions>(this IHostApplicationBuilder builder)
-        where TOptions : class, IConfigOptions => builder.Configuration
-        .GetSection(TOptions.SectionName)
-        .Get<TOptions>();
 }
