@@ -4,7 +4,7 @@ import { ArrowUpDown } from 'lucide-react';
 import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
 
 import type { Consumption, Resource } from '@/shared/types/app';
-import ResourceUnit from '@/app/consumptions/resources-unit.tsx';
+import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import { useGetConsumptionsBy } from '@/app/consumptions/use-get-consumptions-by.ts';
 import { DataTable } from '@/shared/components/data-table';
 import { Badge } from '@/shared/components/ui/badge';

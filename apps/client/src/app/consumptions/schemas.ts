@@ -1,12 +1,14 @@
+import { ValueTypes } from '@/shared/types/app';
 import { z } from 'zod';
 
-export const ConsumptionCreateSchema = z.object({
+export const consumptionCreateSchema = z.object({
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters',
   }),
   value: z.number().min(1, {
     message: 'Value must be at least 1 character',
   }),
+  valueType: z.enum(ValueTypes).default('Absolute'),
   resourceId: z.uuid(),
   householdId: z.uuid().optional(),
   // date is not allowed to be in the future
@@ -15,9 +17,9 @@ export const ConsumptionCreateSchema = z.object({
   }),
 });
 
-export type ConsumptionCreateFormSchema = z.input<typeof ConsumptionCreateSchema>;
+export type ConsumptionCreateFormSchema = z.input<typeof consumptionCreateSchema>;
 
-export const ConsumptionUpdateSchema = z.object({
+export const consumptionUpdateSchema = z.object({
   id: z.uuid(),
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters',
@@ -25,6 +27,7 @@ export const ConsumptionUpdateSchema = z.object({
   value: z.number().min(1, {
     message: 'Value must be at least 1 character',
   }),
+  valueType: z.enum(ValueTypes).default('Absolute'),
   resourceId: z.uuid(),
   householdId: z.uuid().optional(),
   // date is not allowed to be in the future
@@ -33,4 +36,4 @@ export const ConsumptionUpdateSchema = z.object({
   }),
 });
 
-export type ConsumptionUpdateFormSchema = z.input<typeof ConsumptionUpdateSchema>;
+export type ConsumptionUpdateFormSchema = z.input<typeof consumptionUpdateSchema>;

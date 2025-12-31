@@ -88,9 +88,10 @@ export interface User_Metadata {
   user_name: Optional<string>;
 }
 
+export const CORRELATION_ID_HEADER = 'X-Correlation-Id';
 export const COOKIE_CONSENT_KEY = 'cookie_consent';
 
-export type CookieConsent = 'yes' | 'no' | 'undecided';
+export type CookieConsent = 'accepted' | 'declined' | 'undecided';
 
 export interface Consumption {
   id: string;
@@ -100,6 +101,12 @@ export interface Consumption {
   resource: Resource;
   date: string;
 }
+
+export const ValueTypes = {
+  ABSOLUTE: 'Absolute',
+  RELATIVE: 'Relative',
+} as const;
+export type ValueType = (typeof ValueTypes)[keyof typeof ValueTypes];
 
 export interface ConsumptionsStatsType {
   stats: Array<ConsumptionsStats>;

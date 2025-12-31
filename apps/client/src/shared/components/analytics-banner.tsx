@@ -5,37 +5,38 @@ import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { env } from '@/shared/env';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { cn } from '@/shared/lib/helpers';
+import { CookieConsent } from '@/shared/types/app';
 
 export function AnalyticsBanner() {
-  const [consentGiven, setConsentGiven] = useState('');
+  const [consentGiven, setConsentGiven] = useState<CookieConsent>('undecided');
 
   useEffect(() => {
     setConsentGiven(AnalyticsService.getCookieConsent());
   }, []);
 
   useEffect(() => {
-    if (consentGiven !== '') {
+    if (consentGiven !== 'undecided') {
       AnalyticsService.getInstance().set_config({
-        persistence: consentGiven === 'yes' ? 'localStorage+cookie' : 'memory',
+        persistence: consentGiven === 'accepted' ? 'localStorage+cookie' : 'memory',
       });
     }
   }, [consentGiven]);
 
   const accept = () => {
-    AnalyticsService.setCookieConsent('yes');
-    setConsentGiven('yes');
+    AnalyticsService.setCookieConsent('accepted');
+    setConsentGiven('accepted');
   };
 
   const decline = () => {
-    AnalyticsService.setCookieConsent('no');
-    setConsentGiven('no');
+    AnalyticsService.setCookieConsent('declined');
+    setConsentGiven('declined');
   };
 
   return (
     <div
       className={cn(
         'fixed right-0 bottom-0 left-0 z-[200] w-full duration-700 sm:bottom-4 sm:left-4 sm:max-w-md',
-        consentGiven === 'yes'
+        consentGiven !== 'undecided'
           ? 'hidden translate-y-8 opacity-0 transition-[opacity,transform]'
           : 'translate-y-0 opacity-100 transition-[opacity,transform]',
       )}

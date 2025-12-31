@@ -5,8 +5,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 import type { ControllerRenderProps } from 'react-hook-form';
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
-import type { Months } from '@/shared/types/app';
-import { ConsumptionCreateSchema } from '@/app/consumptions/schemas';
+import { ValueTypes, type Months } from '@/shared/types/app';
+import { consumptionCreateSchema } from '@/app/consumptions/schemas';
 import { useCreateConsumption } from '@/app/consumptions/use-create-consumption.ts';
 import { Icons } from '@/shared/components/icons';
 import { Button } from '@/shared/components/ui/button';
@@ -14,11 +14,14 @@ import { getMonthIndexFromString } from '@/shared/utils/format';
 import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
 import { Input } from '@/shared/components/ui/input';
-import ResourceUnit from '@/app/consumptions/resources-unit';
+import { ResourceUnit } from '@/app/consumptions/resources-unit';
 import { useGetResources } from '@/app/resources/use-get-resources';
 import { DatePicker } from '@/shared/components/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
+import { InfoIcon } from 'lucide-react';
 
 interface Props {
   year: number;
@@ -35,10 +38,11 @@ export function ConsumptionCreateForm({ onClose, ...props }: Props) {
   const creationDate = new Date(`${Number(year)}-${getMonthIndexFromString(month)}-${new Date().getDate()}`);
 
   const form = useForm({
-    resolver: zodResolver(ConsumptionCreateSchema),
+    resolver: zodResolver(consumptionCreateSchema),
     defaultValues: {
       name: '',
       value: 0,
+      valueType: ValueTypes.ABSOLUTE,
       resourceId: undefined,
       date: creationDate,
     },
@@ -68,6 +72,7 @@ export function ConsumptionCreateForm({ onClose, ...props }: Props) {
           <FormField control={form.control} name='name' render={NameField} />
           <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
             <FormField control={form.control} name='value' render={ValueField} />
+            <FormField control={form.control} name='valueType' render={ValueTypeField} />
             <Suspense fallback={<AsyncLoader className='h-6 w-6' />}>
               <FormField control={form.control} name='resourceId' render={ResourceField} />
             </Suspense>
@@ -101,13 +106,49 @@ function ValueField({ field }: { field: ControllerRenderProps<ConsumptionCreateF
 
   return (
     <FormItem>
-      <FormLabel>
-        Amount (<ResourceUnit type={resource} />)
+      <FormLabel className='flex gap-2'>
+        Amount
+        <div className='flex'>
+          (<ResourceUnit type={resource} />)
+        </div>
       </FormLabel>
       <FormControl>
-        <Input placeholder='Value in kWh' type='number' {...field} onChange={field.onChange} />
+        <Input
+          placeholder='Value in kWh'
+          type='number'
+          {...field}
+          onChange={(event) => field.onChange(event.target.valueAsNumber)}
+        />
       </FormControl>
       <FormMessage />
+    </FormItem>
+  );
+}
+
+function ValueTypeField({ field }: { field: ControllerRenderProps<ConsumptionCreateFormSchema, 'valueType'> }) {
+  return (
+    <FormItem>
+      <FormLabel className='flex items-center gap-2'>
+        Value Type
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <InfoIcon className='text-muted-foreground hover:text-muted h-4 w-4' />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className='text-sm'>Toggle between absolute and relative value types.</p>
+          </TooltipContent>
+        </Tooltip>
+      </FormLabel>
+
+      <FormControl className='flex items-center gap-2'>
+        <div className='flex items-center gap-2'>
+          <Checkbox
+            checked={field.value == ValueTypes.ABSOLUTE}
+            onCheckedChange={(checked) => field.onChange(checked ? 'Absolute' : 'Relative')}
+          />
+          <div className='select-none'>{field.value}</div>
+        </div>
+      </FormControl>
     </FormItem>
   );
 }

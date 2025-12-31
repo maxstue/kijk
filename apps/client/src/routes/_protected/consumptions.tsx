@@ -1,6 +1,6 @@
 import { Suspense, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { EditIcon, Plus } from 'lucide-react';
+import { EditIcon, Plus, Trash2Icon } from 'lucide-react';
 import { z } from 'zod';
 import { zodValidator } from '@tanstack/zod-adapter';
 import type { Consumption, Months } from '@/shared/types/app';
@@ -8,7 +8,7 @@ import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-for
 import { ConsumptionsMonthNav } from '@/app/consumptions/consumptions-month-nav.tsx';
 import ConsumptionsStats from '@/app/consumptions/consumptions-stats.tsx';
 import { ConsumptionsTodayButton } from '@/app/consumptions/consumptions-today-button.tsx';
-import ResourceUnit from '@/app/consumptions/resources-unit.tsx';
+import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import { ConsumptionsYearSwitcher } from '@/app/consumptions/consumptions-year-switcher.tsx';
 import { getConsumptionsQuery, useGetConsumptionsBy } from '@/app/consumptions/use-get-consumptions-by.ts';
 import { NotFound } from '@/shared/components/not-found';
@@ -27,6 +27,19 @@ import {
 import { months } from '@/shared/types/app';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 import { ConsumptionUpdateForm } from '@/app/consumptions/consumtions-update-form';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/shared/components/ui/alert-dialog';
+import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
+import { toast } from 'sonner';
 
 const searchSchema = z.object({
   month: z
@@ -116,7 +129,8 @@ function UsagePage() {
                       <ResourceUnit type={item.resource} />
                     </div>
                   </CardContent>
-                  <CardFooter className='flex w-full justify-end'>
+                  <CardFooter className='flex w-full justify-end gap-2'>
+                    <DeleteButton id={item.id} date={item.date} />
                     <EditButton data={item} />
                   </CardFooter>
                 </Card>
@@ -151,5 +165,54 @@ function EditButton({ data }: { data: Consumption }) {
         </Suspense>
       </SheetContent>
     </Sheet>
+  );
+}
+
+function DeleteButton({ id, date }: { id: string; date: string }) {
+  const [showModal, setShowModal] = useState(false);
+  const { mutate } = useDeleteConsumption();
+
+  const handleDelete = () => {
+    const month = new Date(date).getMonth();
+    const year = new Date(date).getFullYear();
+    mutate(
+      { id, month: months[month], year },
+      {
+        onError(error) {
+          toast.error(error.name, { description: error.message });
+        },
+        onSuccess() {
+          toast.success('Successfully updated');
+          setShowModal(false);
+        },
+      },
+    );
+  };
+
+  return (
+    <AlertDialog open={showModal} onOpenChange={setShowModal}>
+      <AlertDialogTrigger asChild>
+        <Button className='text-muted-foreground hover:text-destructive-foreground' size='icon' variant='outline'>
+          <Trash2Icon className='size-4' />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete this consumption from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className='bg-destructive hover:bg-destructive-foreground text-white'
+            onClick={handleDelete}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

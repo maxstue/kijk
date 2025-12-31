@@ -10,7 +10,7 @@ export const useDeleteConsumption = () => {
     mutationFn: (data: { id: string; year?: number; month?: Months }) => deleteConsumption(data.id),
     async onSuccess(_, variables) {
       await queryClient.invalidateQueries({
-        queryKey: ['consumptions', 'getBy', variables.year, variables.month],
+        queryKey: ['consumptions', 'usage', 'getBy', variables.year?.toString(), variables.month],
       });
       await queryClient.invalidateQueries({ queryKey: ['consumptions', 'stats'] });
     },

@@ -1,11 +1,12 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-import type { ApiError } from '@/shared/types/app';
+import { CORRELATION_ID_HEADER, type ApiError } from '@/shared/types/app';
 import { env } from '@/shared/env';
 import { getAuthToken } from '@/shared/lib/auth-client';
+import { browserStorage } from '@/shared/lib/browser-storage';
 
-/** Overrides axios requestoptions, so that the url prop is mandatory */
+/** Overrides axios request options, so that the url prop is mandatory */
 interface RequestOptions<T = unknown> extends Omit<AxiosRequestConfig<T>, 'url'> {
   url: string;
   abort?: AbortController;
@@ -25,11 +26,17 @@ const baseInstance = axios.create({
 async function onRequest(request: InternalAxiosRequestConfig) {
   request.headers.set('Authorization', `Bearer ${(await getAuthToken()) ?? ''}`);
   request.headers.setContentType('application/json');
+  const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
+  if (correlationId) {
+    request.headers.set(CORRELATION_ID_HEADER, correlationId);
+  }
   return request;
 }
 
 // Do something with response data. Any 2** statusCode will trigger this function
 function onResponse(response: AxiosResponse) {
+  const correlationId = response.headers[CORRELATION_ID_HEADER.toLowerCase()] as string | undefined;
+  browserStorage.setItem(CORRELATION_ID_HEADER, correlationId);
   return response;
 }
 
