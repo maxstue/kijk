@@ -1,148 +1,108 @@
+using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Kijk.Api.Extensions.OpenApi;
 
 public class ComponentResponseTransformer : IOpenApiDocumentTransformer
 {
-    public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
+    public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
+        // TODO can this bis simplified, maybe by reusing existing schemas or does dotnet nowadys provide these by default?
+        // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/customize-openapi?view=aspnetcore-10.0#support-for-generating-openapischemas-in-transformers
         document.Components ??= new();
-        document.Components.Schemas["String"] = new()
-        {
-            Type = "string",
-        };
+        document.Components.Schemas ??= new Dictionary<string, IOpenApiSchema>();
 
-        document.Components.Schemas["Int"] = new()
-        {
-            Type = "integer",
-            Format = "int32",
-        };
+        var problemSchema = await CreateProblemDetailsSchema(context, cancellationToken);
+        document.Components.Schemas["Problem"] = problemSchema;
 
-        document.Components.Schemas["DateTime"] = new()
-        {
-            Type = "string",
-            Format = "date-time",
-        };
-
-        document.Components.Schemas["ErrorType"] = new()
-        {
-            Enum =
-            [
-                new OpenApiString("Authentication"),
-                new OpenApiString("Authorization"),
-                new OpenApiString("NotFound"),
-                new OpenApiString("Conflict"),
-                new OpenApiString("Unexpected"),
-            ],
-            Default = new OpenApiString("<Type placeholder>")
-        };
-
-        document.Components.Schemas["Error"] = new()
-        {
-            Type = "object",
-            Properties = new Dictionary<string, OpenApiSchema>
-            {
-                ["code"] = CreateSchemaRef("String"),
-                ["description"] = CreateSchemaRef("String"),
-                ["type"] = CreateSchemaRef("ErrorType")
-            }
-        };
-
-        document.Components.Schemas["Problem"] = new()
-        {
-            Type = "object",
-            Properties = new Dictionary<string, OpenApiSchema>
-            {
-                ["type"] = CreateSchemaRef("String"),
-                ["title"] = CreateSchemaRef("String"),
-                ["status"] = CreateSchemaRef("Int"),
-                ["detail"] = CreateSchemaRef("String"),
-                ["instance"] = CreateSchemaRef("String"),
-                ["correlationId"] = CreateSchemaRef("String"),
-                ["timestamp"] = CreateSchemaRef("DateTime"),
-                ["errors"] = new()
-                {
-                    Type = "object",
-                    AdditionalPropertiesAllowed = true,
-                    Properties = new Dictionary<string, OpenApiSchema>()
-                },
-                ["extensions"] = new()
-                {
-                    Type = "object",
-                    AdditionalPropertiesAllowed = true,
-                    Properties = new Dictionary<string, OpenApiSchema>
-                    {
-                        ["errorType"] = CreateSchemaRef("String"),
-                    }
-                },
-            }
-        };
-
-        document.Components.Responses["400"] = new()
+        document.Components.Responses ??= new Dictionary<string, IOpenApiResponse>();
+        document.Components.Responses.Add("400", new OpenApiResponse
         {
             Description = "Bad request.",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                { "application/problem+json", new() { Schema = CreateSchemaRef("Problem") } }
+                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
             }
-        };
+        });
 
-        document.Components.Responses["401"] = new()
+        document.Components.Responses.Add("401", new OpenApiResponse
         {
             Description = "Unauthenticated request.",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                { "application/problem+json", new() { Schema = CreateSchemaRef("Problem") } }
+                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
             }
-        };
+        });
 
-        document.Components.Responses["403"] = new()
+        document.Components.Responses.Add("403", new OpenApiResponse
         {
             Description = "Unauthorized request.",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                { "application/problem+json", new() { Schema = CreateSchemaRef("Problem") } }
+                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
             }
-        };
+        });
 
-        document.Components.Responses["404"] = new()
+        document.Components.Responses.Add("404", new OpenApiResponse
         {
             Description = "Notfound request.",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                { "application/problem+json", new() { Schema = CreateSchemaRef("Problem") } }
+                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
             }
-        };
+        });
 
-        document.Components.Responses["429"] = new()
+        document.Components.Responses.Add("429", new OpenApiResponse
         {
             Description = "Too many requests.",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                { "application/problem+json", new() { Schema = CreateSchemaRef("Problem") } }
+                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
             }
-        };
+        });
 
-        document.Components.Responses["500"] = new()
+        document.Components.Responses.Add("500", new OpenApiResponse
         {
             Description = "Internal server error.",
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                { "application/problem+json", new() { Schema = CreateSchemaRef("Problem") } }
+                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
             }
-        };
-
-        return Task.CompletedTask;
+        });
     }
 
-    private static OpenApiSchema CreateSchemaRef(string schemaId) => new()
+    private static async Task<OpenApiSchema> CreateProblemDetailsSchema(OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        Reference = new()
+        var problemSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), null, cancellationToken);
+        problemSchema.AdditionalPropertiesAllowed = true;
+        problemSchema.Properties ??= new Dictionary<string, IOpenApiSchema>()
         {
-            Type = ReferenceType.Schema,
-            Id = schemaId
-        }
-    };
+            ["errorType"] = new OpenApiSchema
+            {
+                Enum =
+                [
+                    "Authentication",
+                    "Authorization",
+                    "NotFound",
+                    "Conflict",
+                    "Unexpected",
+                ],
+                Default = "<Type placeholder>"
+            },
+            ["timestamp"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Format = "date-time",
+                Description = "The date and time when the error occurred."
+            },
+            ["correlationId"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Description = "The correlation ID for the request."
+            }
+        };
+        return problemSchema;
+    }
 }

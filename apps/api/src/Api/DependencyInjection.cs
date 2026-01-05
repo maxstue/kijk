@@ -62,6 +62,8 @@ public static class DependencyInjection
 
         services.AddOpenApi("openapi", opt =>
         {
+            opt.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
+
             opt.AddDocumentTransformer<InformationTransformer>();
             opt.AddDocumentTransformer<AuthSchemeTransformer>();
             opt.AddDocumentTransformer<ComponentResponseTransformer>();

@@ -1,7 +1,7 @@
 <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
 <Project>
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <ImplicitUsings>true</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -11,7 +11,7 @@
     <PropertyGroup>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-        <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+        <!-- <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild> -->
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
         <AnalysisLevel>latest</AnalysisLevel>

@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.1",
   "info": {
     "title": "Kijk API",
     "description": "Kijk API to manage your houses",
@@ -185,7 +185,11 @@
             "name": "year",
             "in": "query",
             "schema": {
-              "type": "integer",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
               "format": "int32"
             }
           },
@@ -300,7 +304,11 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "integer",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
               "format": "int32"
             }
           },
@@ -853,78 +861,6 @@
   },
   "components": {
     "schemas": {
-      "String": {
-        "type": "string"
-      },
-      "Int": {
-        "type": "integer",
-        "format": "int32"
-      },
-      "DateTime": {
-        "type": "string",
-        "format": "date-time"
-      },
-      "ErrorType": {
-        "enum": [
-          "Authentication",
-          "Authorization",
-          "NotFound",
-          "Conflict",
-          "Unexpected"
-        ],
-        "default": "<Type placeholder>"
-      },
-      "Error": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "$ref": "#/components/schemas/String"
-          },
-          "description": {
-            "$ref": "#/components/schemas/String"
-          },
-          "type": {
-            "$ref": "#/components/schemas/ErrorType"
-          }
-        }
-      },
-      "Problem": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "$ref": "#/components/schemas/String"
-          },
-          "title": {
-            "$ref": "#/components/schemas/String"
-          },
-          "status": {
-            "$ref": "#/components/schemas/Int"
-          },
-          "detail": {
-            "$ref": "#/components/schemas/String"
-          },
-          "instance": {
-            "$ref": "#/components/schemas/String"
-          },
-          "correlationId": {
-            "$ref": "#/components/schemas/String"
-          },
-          "timestamp": {
-            "$ref": "#/components/schemas/DateTime"
-          },
-          "errors": {
-            "type": "object"
-          },
-          "extensions": {
-            "type": "object",
-            "properties": {
-              "errorType": {
-                "$ref": "#/components/schemas/String"
-              }
-            }
-          }
-        }
-      },
       "ConsumptionResourceResponse": {
         "required": [
           "id",
@@ -968,11 +904,17 @@
             "type": "string"
           },
           "description": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "value": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "resource": {
@@ -1022,39 +964,75 @@
             "$ref": "#/components/schemas/ConsumptionStatsResourceResponse"
           },
           "monthTotal": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "yearTotal": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "yearAverage": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "yearMin": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "yearMax": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "comparisonYear": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "comparisonYearDiff": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "comparisonMonth": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "comparisonMonthDiff": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           }
         }
@@ -1073,7 +1051,11 @@
             "type": "string"
           },
           "value": {
-            "type": "number",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
             "format": "double"
           },
           "valueType": {
@@ -1137,34 +1119,46 @@
             "format": "uuid"
           },
           "authId": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "firstTime": {
-            "type": "boolean",
-            "nullable": true
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "households": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/UserHouseholdResponse"
-            },
-            "nullable": true
+            }
           },
           "resources": {
-            "type": "array",
+            "type": [
+              "null",
+              "array"
+            ],
             "items": {
               "$ref": "#/components/schemas/UserResourceResponse"
-            },
-            "nullable": true
+            }
           }
         }
       },
@@ -1191,9 +1185,51 @@
           "years": {
             "type": "array",
             "items": {
-              "type": "integer",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
               "format": "int32"
             }
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -1236,26 +1272,36 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "value": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
           },
           "valueType": {
             "$ref": "#/components/schemas/CreateConsumptionValueTypes"
           },
           "resourceId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -1268,16 +1314,22 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "color": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "unit": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -1289,12 +1341,16 @@
         "type": "object",
         "properties": {
           "userName": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "useDefaultResources": {
-            "type": "boolean",
-            "nullable": true
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         }
       },
@@ -1316,8 +1372,10 @@
             "type": "string"
           },
           "description": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "role": {
             "$ref": "#/components/schemas/UserHouseholdRoleResponse"
@@ -1394,24 +1452,34 @@
             "format": "uuid"
           },
           "authId": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "firstTime": {
-            "type": "boolean",
-            "nullable": true
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "useDefaultResources": {
-            "type": "boolean",
-            "nullable": true
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         }
       },
@@ -1423,12 +1491,16 @@
         "type": "object",
         "properties": {
           "userName": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "useDefaultResources": {
-            "type": "boolean",
-            "nullable": true
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         }
       }
