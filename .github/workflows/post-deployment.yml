@@ -27,10 +27,10 @@ jobs:
           echo "Production deployment succeeded"
 
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: "🔧 Install pnpm"
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v4.2.0
         id: pnpm-install
         with:
           version: ${{ env.PNPM_VERSION }}

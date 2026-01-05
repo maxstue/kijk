@@ -28,16 +28,16 @@ jobs:
 
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: "🔧 Install pnpm"
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v4.2.0
         id: pnpm-install
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: "🔧 Use Node.js ${{ env.NODE_VERSION }}"
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"

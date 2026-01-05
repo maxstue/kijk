@@ -20,13 +20,17 @@ WORKDIR "/src/src/Api"
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Api.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish \
-    -p:UseAppHost=false \
-    -p:PublishReadyToRun=true \
-    -p:PublishSingleFile=true \
+# RUN dotnet publish "Api.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish \
+#     -p:UseAppHost=false \
+#     -p:PublishReadyToRun=true \
+#     -p:PublishSingleFile=true \
+#     -p:InvariantGlobalization=true \
+#     -p:TieredPGO=true \
+#     --self-contained=false
+RUN dotnet publish "Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false \
     -p:InvariantGlobalization=true \
-    -p:TieredPGO=true \
-    --self-contained=false
+    -p:TieredPGO=true
+
 
 FROM base AS final
 WORKDIR /app

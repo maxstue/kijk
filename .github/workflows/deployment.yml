@@ -2,6 +2,8 @@ name: Deployment
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["main"]
 permissions:
   contents: read
 
@@ -21,32 +23,32 @@ jobs:
       web: ${{ steps.web-changes.outputs.any_changed }}
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: "Detect API changes"
         id: api-changes
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@v47
         with:
           files: |
             apps/api/**
 
       - name: "Detect Infrastructure changes"
         id: infra-changes
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@v47
         with:
           files: |
             apps/api/src/Infrastructure/Migrations/**
 
       - name: "Detect Client changes"
         id: client-changes
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@v47
         with:
           files: |
             apps/client/**
 
       - name: "Detect Web changes"
         id: web-changes
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@v47
         with:
           files: |
             apps/web/**
@@ -61,10 +63,10 @@ jobs:
         working-directory: ./apps/api
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -82,7 +84,7 @@ jobs:
           ls -al
 
       - name: "⬆️ Upload EF Migrations Bundle Artifact"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: efbundle
           path: ./apps/api/efbundle
@@ -101,10 +103,10 @@ jobs:
         working-directory: ./apps/api
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: "⬇️ Download EF Migrations Bundle Artifact"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: efbundle
           path: ./apps/api
@@ -126,7 +128,7 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: "Link Railway Service"
         run: railway link --service=${{ env.SERVICE_ID }}
       - name: "🚀 Deploy"
@@ -143,7 +145,7 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: "Link Railway Service"
         run: railway link --service=${{ env.SERVICE_ID }}
       - name: "🚀 Deploy"
@@ -160,7 +162,7 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: "🚀 Deploy"
         run: |
           echo 'Web deployment is disabled for now'
@@ -175,7 +177,7 @@ jobs:
       name: production
     steps:
       - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: "✅ Deployment Success"
         run: |
