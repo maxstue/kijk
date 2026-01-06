@@ -15,12 +15,12 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
         document.Components.Schemas["Problem"] = problemSchema;
 
         document.Components.Responses ??= new Dictionary<string, IOpenApiResponse>();
-        document.Components.Responses.Add("400", CreateErrorResponse("Bad Request", document));
-        document.Components.Responses.Add("401", CreateErrorResponse("Unauthenticated", document));
-        document.Components.Responses.Add("403", CreateErrorResponse("Unauthorized", document));
-        document.Components.Responses.Add("404", CreateErrorResponse("Not found", document));
-        document.Components.Responses.Add("429", CreateErrorResponse("Too many requests", document));
-        document.Components.Responses.Add("500", CreateErrorResponse("Internal server error", document));
+        document.Components.Responses.Add("400", CreateErrorResponse("Bad Request.", document));
+        document.Components.Responses.Add("401", CreateErrorResponse("Unauthenticated.", document));
+        document.Components.Responses.Add("403", CreateErrorResponse("Unauthorized.", document));
+        document.Components.Responses.Add("404", CreateErrorResponse("Not found.", document));
+        document.Components.Responses.Add("429", CreateErrorResponse("Too many requests.", document));
+        document.Components.Responses.Add("500", CreateErrorResponse("Internal server error.", document));
     }
 
     private static OpenApiResponse CreateErrorResponse(string description, OpenApiDocument document) =>
