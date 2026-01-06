@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Kijk.Api.Extensions.OpenApi;
 
@@ -15,9 +15,10 @@ public sealed class AuthSchemeTransformer(IAuthenticationSchemeProvider authenti
         var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
         if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer"))
         {
-            var requirements = new Dictionary<string, OpenApiSecurityScheme>
+            // Add the security scheme at the document level
+            var securitySchemes = new Dictionary<string, IOpenApiSecurityScheme>
             {
-                ["Bearer"] = new()
+                ["Bearer"] = new OpenApiSecurityScheme
                 {
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
@@ -25,14 +26,16 @@ public sealed class AuthSchemeTransformer(IAuthenticationSchemeProvider authenti
                     BearerFormat = "Json Web Token"
                 }
             };
-            document.Components ??= new OpenApiComponents();
-            document.Components.SecuritySchemes = requirements;
+            document.Components ??= new();
+            document.Components.SecuritySchemes = securitySchemes;
 
-            foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations))
+            // Apply it as a requirement for all operations
+            foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations!).Select(x => x.Value))
             {
-                operation.Value.Security.Add(new OpenApiSecurityRequirement
+                operation.Security ??= [];
+                operation.Security.Add(new()
                 {
-                    [new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = "Bearer", Type = ReferenceType.SecurityScheme } }] = []
+                    [new("Bearer", document)] = []
                 });
             }
         }

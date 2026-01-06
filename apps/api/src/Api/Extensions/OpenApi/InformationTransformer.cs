@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Kijk.Api.Extensions.OpenApi;
 
@@ -10,7 +10,7 @@ public sealed class InformationTransformer : IOpenApiDocumentTransformer
 {
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        document.Info = new OpenApiInfo { Version = "v1", Title = "Kijk API", Description = "Kijk API to manage your houses" };
+        document.Info = new() { Version = "v1", Title = "Kijk API", Description = "Kijk API to manage your houses" };
         return Task.CompletedTask;
     }
 }
