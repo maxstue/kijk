@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
@@ -9,8 +8,6 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
 {
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        // TODO can this bis simplified, maybe by reusing existing schemas or does dotnet nowadys provide these by default?
-        // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/customize-openapi?view=aspnetcore-10.0#support-for-generating-openapischemas-in-transformers
         document.Components ??= new();
         document.Components.Schemas ??= new Dictionary<string, IOpenApiSchema>();
 
@@ -18,60 +15,23 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
         document.Components.Schemas["Problem"] = problemSchema;
 
         document.Components.Responses ??= new Dictionary<string, IOpenApiResponse>();
-        document.Components.Responses.Add("400", new OpenApiResponse
-        {
-            Description = "Bad request.",
-            Content = new Dictionary<string, OpenApiMediaType>
-            {
-                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
-            }
-        });
-
-        document.Components.Responses.Add("401", new OpenApiResponse
-        {
-            Description = "Unauthenticated request.",
-            Content = new Dictionary<string, OpenApiMediaType>
-            {
-                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
-            }
-        });
-
-        document.Components.Responses.Add("403", new OpenApiResponse
-        {
-            Description = "Unauthorized request.",
-            Content = new Dictionary<string, OpenApiMediaType>
-            {
-                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
-            }
-        });
-
-        document.Components.Responses.Add("404", new OpenApiResponse
-        {
-            Description = "Notfound request.",
-            Content = new Dictionary<string, OpenApiMediaType>
-            {
-                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
-            }
-        });
-
-        document.Components.Responses.Add("429", new OpenApiResponse
-        {
-            Description = "Too many requests.",
-            Content = new Dictionary<string, OpenApiMediaType>
-            {
-                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
-            }
-        });
-
-        document.Components.Responses.Add("500", new OpenApiResponse
-        {
-            Description = "Internal server error.",
-            Content = new Dictionary<string, OpenApiMediaType>
-            {
-                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
-            }
-        });
+        document.Components.Responses.Add("400", CreateErrorResponse("Bad Request", document));
+        document.Components.Responses.Add("401", CreateErrorResponse("Unauthenticated", document));
+        document.Components.Responses.Add("403", CreateErrorResponse("Unauthorized", document));
+        document.Components.Responses.Add("404", CreateErrorResponse("Not found", document));
+        document.Components.Responses.Add("429", CreateErrorResponse("Too many requests", document));
+        document.Components.Responses.Add("500", CreateErrorResponse("Internal server error", document));
     }
+
+    private static OpenApiResponse CreateErrorResponse(string description, OpenApiDocument document) =>
+        new()
+        {
+            Description = description,
+            Content = new Dictionary<string, OpenApiMediaType>
+            {
+                { "application/problem+json", new() { Schema = new OpenApiSchemaReference("Problem", document) } }
+            }
+        };
 
     private static async Task<OpenApiSchema> CreateProblemDetailsSchema(OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
