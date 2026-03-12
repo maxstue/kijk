@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from "@clerk/react";
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 

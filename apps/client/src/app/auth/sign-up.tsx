@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useSignUp } from '@clerk/clerk-react';
+import { useSignUp } from "@clerk/react/legacy";
 import { getRouteApi } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
