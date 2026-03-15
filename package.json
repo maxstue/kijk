@@ -3,10 +3,12 @@
   "version": "2026.1.4",
   "private": true,
   "description": "A simple household app made by different technologies.",
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=24"
+  },
   "keywords": [
-    "household app",
-    "pnpm",
-    "workspace"
+    "household app"
   ],
   "author": {
     "name": "Maximilian Stümpfl",
@@ -31,7 +33,8 @@
     "@csmith/release-it-calver-plugin": "^2023.12.0",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "auto-changelog": "^2.5.0",
-    "release-it": "^17.11.0",
-    "rimraf": "^5.0.10"
+    "release-it": "^19.2.4",
+    "rimraf": "^6.1.3",
+    "typescript": "^5.9.3"
   }
 }

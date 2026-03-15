@@ -15,7 +15,7 @@ export const useUpdateConsumption = () => {
   return useMutation({
     mutationFn: (data: Data) => updateConsumption(data.id, data.consumption),
     onSuccess(data, variables) {
-      const cachedConsumptionsUsage = queryClient.getQueryData<Array<Consumption>>([
+      const cachedConsumptionsUsage = queryClient.getQueryData<Consumption[]>([
         'consumptions',
         'usage',
         'getBy',

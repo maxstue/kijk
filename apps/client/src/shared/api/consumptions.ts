@@ -24,7 +24,7 @@ export function getYears(signal?: AbortSignal) {
  * @returns The list of resources
  */
 export function getConsumptionsBy(year?: string, month?: string, signal?: AbortSignal) {
-  return apiClient.get<Array<Consumption>>({
+  return apiClient.get<Consumption[]>({
     url: ENDPOINT,
     params: { year, month },
     signal,

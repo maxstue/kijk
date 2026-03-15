@@ -20,7 +20,7 @@ import { cn } from '@/shared/lib/helpers';
 
 interface Props<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>;
-  data: Array<TData>;
+  data: TData[];
   actions?: ReactNode;
   defaultSort?: ColumnSort;
 }

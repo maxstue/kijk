@@ -50,8 +50,8 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute('/_protected/consumptions')({
-  loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   loader: ({ context: { queryClient }, deps }) => {
     queryClient.ensureQueryData(getConsumptionsQuery(deps.year, deps.month));
   },

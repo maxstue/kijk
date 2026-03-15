@@ -38,4 +38,4 @@ export const mainNav = [
     icon: HousePlugIcon,
     isActive: false,
   },
-] satisfies Array<MainNavItem>;
+] satisfies MainNavItem[];

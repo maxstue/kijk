@@ -1,55 +1,82 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": [
-    "oxc",
-    "unicorn",
+    "eslint",
+    "typescript",
     "react",
     "react-perf",
     "import",
-    "typescript",
+    "vitest",
     "jsdoc",
-    "promise",
-    "jsx-a11y"
+    "oxc",
+    "promise"
   ],
   "categories": {
-    "correctness": "error",
-    "suspicious": "warn"
+    "correctness": "off"
   },
   "env": {
-    "browser": true,
-    "builtin": true,
-    "es2025": true
+    "builtin": true
   },
+  "ignorePatterns": [
+    "**/build/**",
+    "**/coverage/**",
+    "**/dist/**",
+    "**/snap/**",
+    "**/.vscode/**",
+    "**/public/**",
+    "**/config/**",
+    "**/dev-dist/**",
+    "src/routeTree.gen.ts"
+  ],
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  },
+  "jsPlugins": [
+    {
+      "name": "react-hooks-js",
+      "specifier": "eslint-plugin-react-hooks"
+    },
+    // Plugins with "/" in name have to be aliased for now
+    // Issue: https://github.com/oxc-project/oxc/issues/14557
+    {
+      "name": "eslint-tanstack-router",
+      "specifier": "@tanstack/eslint-plugin-router"
+    },
+    {
+      "name": "eslint-tanstack-query",
+      "specifier": "@tanstack/eslint-plugin-query"
+    }
+  ],
   "rules": {
-    "no-negated-condition": "off",
-    "no-nested-ternary": "off",
-    // oxc
-    "oxc/no-async-endpoint-handlers": "off",
-    // import
-    "import/no-unassigned-import": [
-      "warn",
-      {
-        "allow": [
-          "**/*.css"
-        ]
-      }
-    ],
+    // router
+    "eslint-tanstack-router/create-route-property-order": "warn",
+    // query
+    "eslint-tanstack-query/exhaustive-deps": "warn",
+    "eslint-tanstack-query/stable-query-client": "warn",
+    "eslint-tanstack-query/no-rest-destructuring": "warn",
+    "eslint-tanstack-query/no-unstable-deps": "warn",
+    "eslint-tanstack-query/infinite-query-property-order": "warn",
+    "eslint-tanstack-query/no-void-query-fn": "warn",
+    "eslint-tanstack-query/mutation-property-order": "warn",
     // typescript
-    "typescript-eslint/array-type": [
+    "typescript/array-type": [
       "warn",
       {
         "default": "array-simple"
       }
     ],
-    "typescript-eslint/no-empty-object-type": "off",
-    "typescript-eslint/no-import-type-side-effects": "warn",
-    "typescript-eslint/no-empty-interface": [
+    "typescript/no-misused-promises": [
       "error",
       {
-        "allowSingleExtends": true
+        "checksVoidReturn": {
+          "attributes": false
+        }
       }
     ],
-    "no-unused-vars": [
+    "typescript/no-floating-promises": "off",
+    // eslint
+    "eslint/no-unused-vars": [
       "error",
       {
         "args": "all",
@@ -61,52 +88,37 @@
         "ignoreRestSiblings": true
       }
     ],
-    // unicorn
-    "unicorn/empty-brace-spaces": "error",
-    "unicorn/no-nested-ternary": "error",
-    "unicorn/number-literal-case": "error",
     // react
-    "react/jsx-key": "warn",
-    "react/jsx-no-comment-textnodes": "warn",
-    "react/jsx-no-duplicate-props": "warn",
-    "react/jsx-no-target-blank": "off",
-    "react/jsx-no-undef": "warn",
-    "react/no-children-prop": "warn",
-    "react/no-danger-with-children": "warn",
-    "react/no-direct-mutation-state": "warn",
-    "react/no-find-dom-node": "warn",
-    "react/no-is-mounted": "warn",
-    "react/no-render-return-value": "warn",
-    "react/no-string-refs": "warn",
-    "react/no-unescaped-entities": "warn",
-    "react/no-unknown-property": "off",
-    "react/react-in-jsx-scope": "off",
-    "react/jsx-boolean-value": "error",
-    "react/jsx-filename-extension": [
-      2,
-      {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx"
-        ]
-      }
-    ],
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
-  },
-  "ignorePatterns": [
-    "**/build/**",
-    "**/coverage/**",
-    "**/dist/**",
-    "**/snap/**",
-    "**/vite.config.*.timestamp-*.*",
-    "**/.vscode/**",
-    "**/public/**",
-    "**/config/**",
-    "**/dev-dist/**",
-    "**/**.eslint.**",
-    "src/routeTree.gen.ts"
-  ]
+    // ref: https://github.com/TheAlexLichter/oxlint-react-compiler-rules/issues/1
+    // Recommended rules (from LintRulePreset.Recommended)
+    "react-hooks-js/component-hook-factories": "error",
+    "react-hooks-js/config": "error",
+    "react-hooks-js/error-boundaries": "error",
+    "react-hooks-js/gating": "error",
+    "react-hooks-js/globals": "error",
+    "react-hooks-js/immutability": "error",
+    "react-hooks-js/incompatible-library": "error",
+    "react-hooks-js/preserve-manual-memoization": "error",
+    "react-hooks-js/purity": "error",
+    "react-hooks-js/refs": "error",
+    "react-hooks-js/set-state-in-effect": "warn",
+    "react-hooks-js/set-state-in-render": "error",
+    "react-hooks-js/static-components": "error",
+    "react-hooks-js/unsupported-syntax": "error",
+    "react-hooks-js/use-memo": "error",
+    // Recommended-latest rules (from LintRulePreset.RecommendedLatest)
+    "react-hooks-js/void-use-memo": "error",
+    // Off rules (LintRulePreset.Off) - not enabled by default
+    "react-hooks-js/automatic-effect-dependencies": "off",
+    "react-hooks-js/capitalized-calls": "off",
+    "react-hooks-js/fbt": "off",
+    "react-hooks-js/fire": "off",
+    "react-hooks-js/hooks": "off",
+    "react-hooks-js/invariant": "off",
+    "react-hooks-js/memoized-effect-dependencies": "off",
+    "react-hooks-js/no-deriving-state-in-effects": "off",
+    "react-hooks-js/rule-suppression": "off",
+    "react-hooks-js/syntax": "off",
+    "react-hooks-js/todo": "off"
+  }
 }

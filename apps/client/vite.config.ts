@@ -1,13 +1,11 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
-import react from '@vitejs/plugin-react';
+import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
-import tsconfigPaths from 'vite-tsconfig-paths';
-
-const ReactCompilerConfig = {
-  target: '19', // '17' | '18' | '19'
-};
+import { DevTools as viteDevTools } from '@vitejs/devtools'
+import babel from '@rolldown/plugin-babel';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -22,18 +20,21 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       sourcemap: env.SENTRY_ENABLE === 'true',
+      rolldownOptions: {
+        devtools: {}, // enable devtools mode
+      }
     },
     server: {
       port: 5004,
     },
     plugins: [
-      tsconfigPaths(),
-      tanstackRouter({ target: 'react', autoCodeSplitting: true }),
-      react({
-        babel: {
-          plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
-        },
+      viteDevTools(),
+      tanstackDevtools({
+        removeDevtoolsOnBuild: true,
       }),
+      tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+      react(),
+      babel({ presets: [reactCompilerPreset()] }),
       tailwindcss(),
       sentryVitePlugin({
         authToken: env.SENTRY_AUTH_TOKEN,

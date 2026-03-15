@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useSignIn } from '@clerk/clerk-react';
+import { useSignIn } from '@clerk/react/legacy';
 import { getRouteApi } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import type { Dispatch } from 'react';

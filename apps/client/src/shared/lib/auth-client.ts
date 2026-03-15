@@ -1,4 +1,4 @@
-import type { Clerk as CClerk } from '@clerk/types';
+import type { Clerk as CClerk } from '@clerk/shared/types';
 
 /**
  * Define a global type for Clerk. This allows us to access the Clerk instance outside of the React context. This is

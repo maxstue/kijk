@@ -9,9 +9,9 @@ import { env } from '@/shared/env';
 
 type ImmerSetter<T extends object> = (
   nextStateOrUpdater:
-    | Exclude<T, (...args: Array<unknown>) => unknown>
-    | Partial<Exclude<T, (...args: Array<unknown>) => unknown>>
-    | ((state: Draft<Exclude<T, (...args: Array<unknown>) => unknown>>) => void),
+    | Exclude<T, (...args: unknown[]) => unknown>
+    | Partial<Exclude<T, (...args: unknown[]) => unknown>>
+    | ((state: Draft<Exclude<T, (...args: unknown[]) => unknown>>) => void),
   shouldReplace?: false,
   actionType?:
     | string

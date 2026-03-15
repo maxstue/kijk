@@ -51,7 +51,7 @@ function getCallingFunction(_error: Error) {
   }
 }
 
-function log(message?: string, ...optionalParameters: Array<unknown>) {
+function log(message?: string, ...optionalParameters: unknown[]) {
   console.log(
     `[${new Date().toLocaleString()}]`,
     colors.fg.magenta,
@@ -62,7 +62,7 @@ function log(message?: string, ...optionalParameters: Array<unknown>) {
   );
 }
 
-function info(message?: string, ...optionalParameters: Array<unknown>) {
+function info(message?: string, ...optionalParameters: unknown[]) {
   console.info(
     `[${new Date().toLocaleString()}]`,
     colors.fg.cyan,
@@ -76,7 +76,7 @@ function info(message?: string, ...optionalParameters: Array<unknown>) {
   );
 }
 
-function warn(message?: string, ...optionalParameters: Array<unknown>) {
+function warn(message?: string, ...optionalParameters: unknown[]) {
   console.warn(
     `[${new Date().toLocaleString()}]`,
     colors.fg.yellow,
@@ -90,7 +90,7 @@ function warn(message?: string, ...optionalParameters: Array<unknown>) {
   );
 }
 
-function error(message?: string, ...optionalParameters: Array<unknown>) {
+function error(message?: string, ...optionalParameters: unknown[]) {
   console.error(
     `[${new Date().toLocaleString()}]`,
     colors.fg.red,

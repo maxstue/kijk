@@ -5,7 +5,7 @@ import { apiClient } from '@/shared/lib/api-client';
 const ENDPOINT = 'resources';
 
 export function getResources(signal?: AbortSignal) {
-  return apiClient.get<Array<Resource>>({
+  return apiClient.get<Resource[]>({
     url: ENDPOINT,
     signal,
   });

@@ -11,7 +11,7 @@ export interface ApiError {
   status: number;
   detail: string;
   instance: string;
-  errors: Optional<Array<ErrorDetails>>;
+  errors: Optional<ErrorDetails[]>;
   traceId: string;
   requestId: string;
 }
@@ -66,7 +66,7 @@ export const CategoryTypes = {
 
 export type CategoryType = (typeof CategoryTypes)[keyof typeof CategoryTypes];
 
-export interface GroupedCategory extends Record<string, Array<Category>> {}
+export interface GroupedCategory extends Record<string, Category[]> {}
 
 export interface Category {
   id: string;
@@ -80,7 +80,7 @@ export interface AppUser {
   name: Optional<string>;
   email: Optional<string>;
   firstTime: Optional<boolean>;
-  resourceTypes: Optional<Array<Resource>>;
+  resourceTypes: Optional<Resource[]>;
   useDefaultResources: Optional<boolean>;
 }
 
@@ -109,7 +109,7 @@ export const ValueTypes = {
 export type ValueType = (typeof ValueTypes)[keyof typeof ValueTypes];
 
 export interface ConsumptionsStatsType {
-  stats: Array<ConsumptionsStats>;
+  stats: ConsumptionsStats[];
 }
 
 export interface ConsumptionsStats {
@@ -146,5 +146,5 @@ export interface Resource {
 }
 
 export interface Years {
-  years: Array<number>;
+  years: number[];
 }

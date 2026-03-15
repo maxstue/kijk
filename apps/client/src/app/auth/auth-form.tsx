@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useSignIn } from '@clerk/clerk-react';
+import { useSignIn } from '@clerk/react/legacy';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ControllerRenderProps } from 'react-hook-form';
