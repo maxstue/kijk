@@ -1,12 +1,4 @@
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
-
-import type { ClassValue } from 'clsx';
-
-export function cn(...inputs: Array<ClassValue>) {
-  return twMerge(clsx(inputs));
-}
 
 /**
  * Example: class CustomError extends Error { data: Record<string, unknown>; constructor(message: string, data:

@@ -6,12 +6,12 @@
  * @param uniqueProperty The property to check by.
  * @returns Returns an object with n-amount of lists as type "RT"
  */
-export const groupBy = <T, TReturn extends Record<string | number | symbol, Array<T>>>(
-  listToGroup: Array<T> | undefined,
+export const groupBy = <T, TReturn extends Record<string | number | symbol, T[]>>(
+  listToGroup: T[] | undefined,
   getKey: (item: T) => string,
   getUniqueKey?: (item: T) => string,
 ) => {
-  const grouped: Record<string, Array<T>> = {};
+  const grouped: Record<string, T[]> = {};
 
   if (listToGroup) {
     for (const object of listToGroup) {

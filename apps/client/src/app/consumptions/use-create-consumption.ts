@@ -11,7 +11,7 @@ export const useCreateConsumption = () => {
   return useMutation({
     mutationFn: (data: { newEnergy: ConsumptionCreateFormSchema }) => createConsumption(data.newEnergy),
     async onSuccess(data, variables) {
-      const cachedConsumptionsUsage = queryClient.getQueryData<Array<Consumption>>([
+      const cachedConsumptionsUsage = queryClient.getQueryData<Consumption[]>([
         'consumptions',
         'usage',
         'getBy',

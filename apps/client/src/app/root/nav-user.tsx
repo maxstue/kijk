@@ -1,4 +1,4 @@
-import { useAuth, useUser } from "@clerk/react";
+import { useAuth, useUser } from '@clerk/react';
 import { useNavigate } from '@tanstack/react-router';
 import { Bell, ChevronsUpDown, LogOut, Sparkles } from 'lucide-react';
 

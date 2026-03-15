@@ -1,8 +1,9 @@
 import { Suspense, lazy } from 'react';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import type { LoadedClerk } from "@clerk/shared/types";
+import { TanStackDevtools } from '@tanstack/react-devtools'
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+import type { LoadedClerk } from '@clerk/react/types';
 import type { QueryClient } from '@tanstack/react-query';
 
 import { Favicon } from '@/app/root/favicon';
@@ -41,8 +42,18 @@ function RootPage() {
         <AnalyticsTracker />
       </Suspense>
       <Suspense>
-        <TanStackRouterDevtools position='top-right' />
-        <ReactQueryDevtools buttonPosition='bottom-right' />
+        <TanStackDevtools
+          plugins={[
+            {
+              name: 'TanStack Query',
+              render: <ReactQueryDevtoolsPanel />,
+            },
+            {
+              name: 'TanStack Router',
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
       </Suspense>
     </>
   );

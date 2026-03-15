@@ -1,4 +1,4 @@
-import { ClerkProvider, useAuth } from "@clerk/react";
+import { ClerkProvider, useAuth } from '@clerk/react';
 
 import { env } from '@/shared/env';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';

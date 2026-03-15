@@ -1,10 +1,11 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
+import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
-import babel from '@rolldown/plugin-babel'
-
+import { DevTools as viteDevTools } from '@vitejs/devtools'
+import babel from '@rolldown/plugin-babel';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -19,11 +20,18 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       sourcemap: env.SENTRY_ENABLE === 'true',
+      rolldownOptions: {
+        devtools: {}, // enable devtools mode
+      }
     },
     server: {
       port: 5004,
     },
     plugins: [
+      viteDevTools(),
+      tanstackDevtools({
+        removeDevtoolsOnBuild: true,
+      }),
       tanstackRouter({ target: 'react', autoCodeSplitting: true }),
       react(),
       babel({ presets: [reactCompilerPreset()] }),
