@@ -37,6 +37,7 @@ public class GetStatsConsumptionsHandler(AppDbContext dbContext, CurrentUser cur
     public async Task<Result<GetStatsConsumptionsResponseWrapper>> GetStatsAsync(int year, string month, CancellationToken cancellationToken)
     {
         var selectedYearUsages = await dbContext.Consumptions
+            .Include(x => x.Resource)
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
             .Where(x => x.Date.Value.Year == year)
             .AsNoTracking()
