@@ -117,7 +117,7 @@ export interface ConsumptionsStatsType {
 }
 
 export interface ConsumptionsStats {
-  type: ResourceStats;
+  resource: ResourceStats;
   monthTotal: number;
   yearTotal: number;
   yearAverage: number;

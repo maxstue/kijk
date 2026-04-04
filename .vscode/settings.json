@@ -4,14 +4,12 @@
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
-    "**/.DS_Store": true,
+    "**/.DS_Store": true
   },
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "js/ts.preferences.importModuleSpecifier": "non-relative",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
-  "js/ts.preferences.autoImportFileExcludePatterns": [
-    "node_modules/**/*"
-  ],
+  "js/ts.preferences.autoImportFileExcludePatterns": ["node_modules/**/*"],
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
@@ -33,16 +31,7 @@
       "severity": "warn"
     }
   ],
-  "[typescriptreact]": {
+  "[jsonc]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[yaml]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
+  }
 }

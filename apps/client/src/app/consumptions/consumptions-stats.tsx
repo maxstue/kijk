@@ -14,12 +14,6 @@ export default function ConsumptionsStats() {
 
   const { data } = useGetConsumptionsStats(selectedYear, selectedMonth);
 
-  // TODO show specific icon for each resource type
-  //  l = water
-  //  kwh = electricity
-  //  m3 = gas
-  //  default = ???
-
   return (
     <>
       {data.stats.length <= 0 ? (
@@ -37,13 +31,13 @@ export default function ConsumptionsStats() {
       {data.stats.length > 0 ? (
         <div className='grid gap-4 lg:grid-cols-4'>
           {data.stats.map((item) => (
-            <Card key={item.type.name + item.type.unit + item.yearTotal}>
+            <Card key={item.resource.name + item.resource.unit + item.yearTotal}>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>{item.type.name}</CardTitle>
+                <CardTitle className='text-sm font-medium'>{item.resource.name}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className='text-2xl font-bold'>
-                  {item.monthTotal} <ResourceUnit type={item.type} />
+                  {item.monthTotal} <ResourceUnit type={item.resource} />
                 </div>
                 <p className='text-muted-foreground text-xs'>{item.comparisonMonthDiff} from last month</p>
               </CardContent>
