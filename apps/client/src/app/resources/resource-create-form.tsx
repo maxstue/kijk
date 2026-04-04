@@ -1,21 +1,15 @@
-import { toast } from "sonner";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { Icons } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { resourceSchema } from "./schemas";
-import type { ResourceFormValues } from "./schemas";
-import { useCreateResource } from "@/app/resources/use-create-resource";
-import { Button } from "@kijk/ui/components/button";
-import { Input } from "@kijk/ui/components/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shared/components/form";
-import { Icons } from "@kijk/ui/components/icons";
+import { useCreateResource } from '@/app/resources/use-create-resource';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+
+import { resourceSchema } from './schemas';
+import type { ResourceFormValues } from './schemas';
 
 interface Props {
   onClose?: () => void;
@@ -27,9 +21,9 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
   const form = useForm({
     resolver: zodResolver(resourceSchema),
     defaultValues: {
-      name: "",
-      color: "#000000",
-      unit: "",
+      name: '',
+      color: '#000000',
+      unit: '',
     },
   });
 
@@ -39,11 +33,11 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
       {
         onError(error) {
           toast.error(error.title, {
-            description: error.errors?.[0]?.description ?? "An error occurred",
+            description: error.errors?.[0]?.description ?? 'An error occurred',
           });
         },
         onSuccess() {
-          toast("Successfully created");
+          toast('Successfully created');
           onClose?.();
         },
       },
@@ -53,15 +47,15 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
   return (
     <>
       <Form {...form}>
-        <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="name"
+            name='name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Name" {...field} />
+                  <Input placeholder='Name' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -69,12 +63,12 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
           />
           <FormField
             control={form.control}
-            name="unit"
+            name='unit'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Unit</FormLabel>
                 <FormControl>
-                  <Input placeholder="Unit" {...field} />
+                  <Input placeholder='Unit' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -82,27 +76,22 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
           />
           <FormField
             control={form.control}
-            name="color"
+            name='color'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Color</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Color, e.g. `#123456`"
-                    type="color"
-                    {...field}
-                    onChange={field.onChange}
-                  />
+                  <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button disabled={isPending} type="submit">
+          <Button disabled={isPending} type='submit'>
             Add
           </Button>
-          {isPending && <Icons.spinner className="h-5 w-5 animate-spin" />}
+          {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
         </form>
       </Form>
     </>

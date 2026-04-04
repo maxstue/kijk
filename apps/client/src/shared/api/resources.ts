@@ -1,6 +1,6 @@
 import type { ResourceFormValues } from '@/app/resources/schemas';
-import type { Resource } from '@/shared/types/app';
 import { apiClient } from '@/shared/lib/api-client';
+import type { Resource } from '@/shared/types/app';
 
 const ENDPOINT = 'resources';
 

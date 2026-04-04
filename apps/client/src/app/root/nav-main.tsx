@@ -1,17 +1,28 @@
-import { Link } from "@tanstack/react-router";
+import { Button } from '@kijk/ui/components/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@kijk/ui/components/sheet';
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@kijk/ui/components/sidebar';
+import { cn } from '@kijk/ui/utils/style';
+import { Link } from '@tanstack/react-router';
+import { PlusIcon } from 'lucide-react';
+import { Suspense, useState } from 'react';
 
-import { PlusIcon } from "lucide-react";
-import { Suspense, useState } from "react";
-import { mainNav } from "@/app/root/constants";
-
-import { CommandMenu } from "@/app/root/command-menu";
-
-import { ConsumptionCreateForm } from "@/app/consumptions/consumption-create-form";
-import { months } from "@/shared/types/app";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@kijk/ui/components/sheet";
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@kijk/ui/components/sidebar";
-import { Button } from "@kijk/ui/components/button";
-import { cn } from "@kijk/ui/utils/style";
+import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form';
+import { CommandMenu } from '@/app/root/command-menu';
+import { mainNav } from '@/app/root/constants';
+import { months } from '@/shared/types/app';
 
 export function NavMain() {
   const [showSheet, setShowSheet] = useState(false);
@@ -20,26 +31,22 @@ export function NavMain() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-4">
-        <SidebarMenu className="flex flex-row items-center justify-between gap-2">
-          <SidebarMenuItem className="w-full">
-            <SidebarMenuButton asChild size="sm">
+      <SidebarGroupContent className='flex flex-col gap-4'>
+        <SidebarMenu className='flex flex-row items-center justify-between gap-2'>
+          <SidebarMenuItem className='w-full'>
+            <SidebarMenuButton asChild size='sm'>
               <CommandMenu />
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <Sheet open={showSheet} onOpenChange={setShowSheet}>
               <SheetTrigger asChild>
-                <Button
-                  className="size-8 group-data-[collapsible=icon]:opacity-0"
-                  size="icon"
-                  variant="default"
-                >
+                <Button className='size-8 group-data-[collapsible=icon]:opacity-0' size='icon' variant='default'>
                   <PlusIcon />
-                  <span className="sr-only">Quick Create</span>
+                  <span className='sr-only'>Quick Create</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent className="space-y-8">
+              <SheetContent className='space-y-8'>
                 <SheetHeader>
                   <SheetTitle>Add Consumption</SheetTitle>
                   <SheetDescription>Add a new consumption.</SheetDescription>
@@ -62,11 +69,11 @@ export function NavMain() {
                 <Link
                   key={item.url}
                   activeOptions={{ exact: false }}
-                  className={cn(!item.isActive && "cursor-not-allowed")}
+                  className={cn(!item.isActive && 'cursor-not-allowed')}
                   disabled={!item.isActive}
                   to={item.url}
                   activeProps={{
-                    className: "text-primary-foreground bg-primary",
+                    className: 'text-primary-foreground bg-primary',
                   }}
                 >
                   <item.icon />

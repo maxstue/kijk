@@ -1,9 +1,4 @@
-import { Suspense, useState } from "react";
-import { getRouteApi } from "@tanstack/react-router";
-import { Check, ChevronsUpDown } from "lucide-react";
-
-import type { Months } from "@/shared/types/app";
-import { Button } from "@kijk/ui/components/button";
+import { Button } from '@kijk/ui/components/button';
 import {
   Command,
   CommandEmpty,
@@ -11,13 +6,18 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@kijk/ui/components/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@kijk/ui/components/popover";
-import { cn } from "@kijk/ui/utils/style";
-import { months } from "@/shared/types/app";
-import { Loader } from "@/shared/components/ui/loaders/loader";
+} from '@kijk/ui/components/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
+import { cn } from '@kijk/ui/utils/style';
+import { getRouteApi } from '@tanstack/react-router';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { Suspense, useState } from 'react';
 
-const Route = getRouteApi("/_protected/consumptions");
+import { Loader } from '@/shared/components/ui/loaders/loader';
+import type { Months } from '@/shared/types/app';
+import { months } from '@/shared/types/app';
+
+const Route = getRouteApi('/_protected/consumptions');
 
 type Props = React.HTMLAttributes<HTMLElement>;
 
@@ -38,35 +38,33 @@ export function ConsumptionsMonthNav({ className }: Props) {
       <PopoverTrigger asChild>
         <Button
           aria-expanded={open}
-          aria-label="Select a year"
-          className={cn("w-full justify-between", className)}
-          role="combobox"
-          aria-controls="consumptions-month-nav"
-          variant="outline"
+          aria-label='Select a year'
+          className={cn('w-full justify-between', className)}
+          role='combobox'
+          aria-controls='consumptions-month-nav'
+          variant='outline'
         >
           {month}
-          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className='w-[200px] p-0'>
         <Command>
           <CommandList>
-            <CommandInput placeholder="Search Months..." />
+            <CommandInput placeholder='Search Months...' />
             <CommandEmpty>No Month found.</CommandEmpty>
             <Suspense fallback={<Loader />}>
-              <CommandGroup key="Months" heading="Months">
+              <CommandGroup key='Months' heading='Months'>
                 {months.map((m) => (
                   <CommandItem
                     key={m}
-                    className="text-sm"
+                    className='text-sm'
                     onSelect={(y) => {
                       handleSelectMonth(y);
                     }}
                   >
                     {m}
-                    <Check
-                      className={cn("ml-auto h-4 w-4", month === m ? "opacity-100" : "opacity-0")}
-                    />
+                    <Check className={cn('ml-auto h-4 w-4', month === m ? 'opacity-100' : 'opacity-0')} />
                   </CommandItem>
                 ))}
               </CommandGroup>

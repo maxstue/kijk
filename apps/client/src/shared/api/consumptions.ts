@@ -1,6 +1,6 @@
-import type { Consumption, ConsumptionsStatsType, Years } from '@/shared/types/app';
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import { apiClient } from '@/shared/lib/api-client';
+import type { Consumption, ConsumptionsStatsType, Years } from '@/shared/types/app';
 
 const ENDPOINT = 'consumptions';
 

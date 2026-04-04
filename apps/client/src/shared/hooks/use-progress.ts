@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { useSpring } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 import { useInterval } from '@/shared/hooks/use-interval';
 

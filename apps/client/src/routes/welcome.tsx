@@ -1,49 +1,44 @@
-import { useCallback, useEffect, useState } from "react";
-import { useUser } from "@clerk/react";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { useUser } from '@clerk/react';
+import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent } from '@kijk/ui/components/card';
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@kijk/ui/components/carousel';
+import { Progress } from '@kijk/ui/components/progress';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
-import type { UserStepFormValues } from "@/app/welcome/schemas";
-import { userSignInQuery } from "@/app/root/use-signin-user";
-import { useWelcomeUser } from "@/app/welcome/use-welcome-user";
-import { UserStepForm } from "@/app/welcome/user-step-form";
-import { InitLoader } from "@/shared/components/ui/loaders/init-loader";
-import { stringIsNotEmptyOrWhitespace } from "@/shared/utils/string";
-import { useSetSiteHeader } from "@/shared/hooks/use-set-site-header";
-import { Button } from "@kijk/ui/components/button";
-import { Card, CardContent } from "@kijk/ui/components/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from "@kijk/ui/components/carousel";
-import { Progress } from "@kijk/ui/components/progress";
+import { userSignInQuery } from '@/app/root/use-signin-user';
+import type { UserStepFormValues } from '@/app/welcome/schemas';
+import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
+import { UserStepForm } from '@/app/welcome/user-step-form';
+import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
+import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
-export const Route = createFileRoute("/welcome")({
+export const Route = createFileRoute('/welcome')({
   beforeLoad: async ({ context: { authClient, queryClient } }) => {
     const session = authClient?.session;
     const sessionToken = await session?.getToken();
     if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
-      throw redirect({ to: "/auth", search: { from: location.href } });
+      throw redirect({ to: '/auth', search: { from: location.href } });
     }
 
     const user = await queryClient.ensureQueryData(userSignInQuery);
     if (user.firstTime == false) {
-      throw redirect({ to: "/home", replace: true });
+      throw redirect({ to: '/home', replace: true });
     }
   },
   pendingComponent: InitLoader,
   component: WelcomePage,
 });
 
-const steps = [{ label: "Welcome" }, { label: "User" }, { label: "Finish" }];
+const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Finish' }];
 
 function WelcomePage() {
-  useSetSiteHeader("Welcome");
+  useSetSiteHeader('Welcome');
   const { user } = useUser();
   const [userStep, setUserStep] = useState<UserStepFormValues>({
-    userName: user?.username ?? "",
+    userName: user?.username ?? '',
     useDefaultResources: true,
   });
   const [api, setApi] = useState<CarouselApi>();
@@ -59,14 +54,14 @@ function WelcomePage() {
     };
 
     handleSelect();
-    api.on("select", handleSelect);
+    api.on('select', handleSelect);
 
     return () => {
-      api.off("select", handleSelect);
+      api.off('select', handleSelect);
     };
   }, [api]);
 
-  const navigate = useNavigate({ from: "/" });
+  const navigate = useNavigate({ from: '/' });
   const { mutate } = useWelcomeUser();
 
   const isLastStep = current === steps.length - 1;
@@ -87,10 +82,10 @@ function WelcomePage() {
   const handleFinish = useCallback(() => {
     mutate(userStep, {
       async onSuccess() {
-        await navigate({ to: "/home", replace: true });
+        await navigate({ to: '/home', replace: true });
       },
       onError(error) {
-        toast("An error occurred while creating your user.", {
+        toast('An error occurred while creating your user.', {
           description: `${error.response?.data.errors?.[0].code}: ${error.response?.data.errors?.[0].description}`,
         });
       },
@@ -99,16 +94,16 @@ function WelcomePage() {
 
   return (
     <>
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col gap-4">
-          <Progress className="w-full" max={steps.length} value={(current / steps.length) * 100} />
-          <Carousel className="w-full max-w-2xl" setApi={setApi}>
+      <div className='flex h-full w-full items-center justify-center'>
+        <div className='flex flex-col gap-4'>
+          <Progress className='w-full' max={steps.length} value={(current / steps.length) * 100} />
+          <Carousel className='w-full max-w-2xl' setApi={setApi}>
             <CarouselContent>
               {steps.map((_, index) => (
                 <CarouselItem key={index}>
-                  <div className="flex w-full flex-col p-1">
+                  <div className='flex w-full flex-col p-1'>
                     <Card>
-                      <CardContent className="flex aspect-square items-center justify-center p-6">
+                      <CardContent className='flex aspect-square items-center justify-center p-6'>
                         {index === 0 && <StepZero />}
                         {index === 1 && <StepOne setUserStep={setUserStep} value={userStep} />}
                         {index === 2 && <Finish />}
@@ -119,16 +114,16 @@ function WelcomePage() {
               ))}
             </CarouselContent>
           </Carousel>
-          <div className="flex items-center justify-between gap-4">
-            <Button className="w-1/4" disabled={isFirstStep} onClick={previous}>
+          <div className='flex items-center justify-between gap-4'>
+            <Button className='w-1/4' disabled={isFirstStep} onClick={previous}>
               Prev
             </Button>
             {isLastStep ? (
-              <Button className="w-1/4" onClick={handleFinish}>
+              <Button className='w-1/4' onClick={handleFinish}>
                 Finish
               </Button>
             ) : (
-              <Button className="w-1/4" onClick={next}>
+              <Button className='w-1/4' onClick={next}>
                 Next
               </Button>
             )}
@@ -141,22 +136,21 @@ function WelcomePage() {
 
 function StepZero() {
   return (
-    <div className="flex h-full flex-col items-center justify-start gap-12 pt-6">
-      <div className="text-2xl">
-        Welcome to &apos;<span className="text-bold text-primary">Kijk</span>&apos; your personal
-        household planner.
+    <div className='flex h-full flex-col items-center justify-start gap-12 pt-6'>
+      <div className='text-2xl'>
+        Welcome to &apos;<span className='text-bold text-primary'>Kijk</span>&apos; your personal household planner.
       </div>
-      <div className="text-muted-foreground w-2/3">
+      <div className='text-muted-foreground w-2/3'>
         <p>The app helps you to monitor your energy usage and costs faster and more clearly.</p>
         <p>So you don&apos;t have to struggle with large spreadsheets or buy expensive apps.</p>
       </div>
-      <p className="text-muted-foreground w-2/3">
-        If you have any questions, ideas, feedback or just want to say hello, just drop by at our{" "}
+      <p className='text-muted-foreground w-2/3'>
+        If you have any questions, ideas, feedback or just want to say hello, just drop by at our{' '}
         <a
-          className="decoration-primary cursor-pointer underline"
-          href="https://github.com/maxstue/kijk/discussions"
-          rel="noopener noreferrer"
-          target="_blank"
+          className='decoration-primary cursor-pointer underline'
+          href='https://github.com/maxstue/kijk/discussions'
+          rel='noopener noreferrer'
+          target='_blank'
         >
           github
         </a>
@@ -174,23 +168,21 @@ function StepOne({
   setUserStep: (data: UserStepFormValues) => void;
 }) {
   return (
-    <div className="flex h-full flex-col items-center justify-start gap-12 pt-6">
-      <div className="text-2xl">User setup</div>
-      <div className="flex w-2/3 flex-col items-center justify-end gap-4">
-        <div className="text-muted-foreground">Setup your username and categories</div>
-        <div className="text-muted-foreground">
-          You can change this setting at a later date in you profile.
-        </div>
+    <div className='flex h-full flex-col items-center justify-start gap-12 pt-6'>
+      <div className='text-2xl'>User setup</div>
+      <div className='flex w-2/3 flex-col items-center justify-end gap-4'>
+        <div className='text-muted-foreground'>Setup your username and categories</div>
+        <div className='text-muted-foreground'>You can change this setting at a later date in you profile.</div>
       </div>
-      <UserStepForm className="w-2/3" value={value} onNext={setUserStep} />
+      <UserStepForm className='w-2/3' value={value} onNext={setUserStep} />
     </div>
   );
 }
 
 function Finish() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-12">
-      <div className="text-2xl">And now enjoy using the app !! 🚀 😀</div>
+    <div className='flex h-full flex-col items-center justify-center gap-12'>
+      <div className='text-2xl'>And now enjoy using the app !! 🚀 😀</div>
     </div>
   );
 }

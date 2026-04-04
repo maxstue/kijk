@@ -1,6 +1,6 @@
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
-import type { AppUser } from '@/shared/types/app';
 import { apiClient } from '@/shared/lib/api-client';
+import type { AppUser } from '@/shared/types/app';
 
 const ENDPOINT = 'users';
 

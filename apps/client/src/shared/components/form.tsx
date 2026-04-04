@@ -1,8 +1,8 @@
-import { cn } from "@kijk/ui/utils/style";
-import * as React from "react";
-import { Label, Slot } from "radix-ui";
-import { Controller, FormProvider, useFormContext, useFormState } from "react-hook-form";
-import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
+import { cn } from '@kijk/ui/utils/style';
+import { Label, Slot } from 'radix-ui';
+import * as React from 'react';
+import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';
+import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 
 // TODO refactor using tanstack-form and use shadcn Field component as base
 
@@ -55,12 +55,12 @@ interface FormItemContextValue {
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
-function FormItem({ className, ...props }: React.ComponentProps<"div">) {
+function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
   const id = React.useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div data-slot="form-item" className={cn("grid gap-2", className)} {...props} />
+      <div data-slot='form-item' className={cn('grid gap-2', className)} {...props} />
     </FormItemContext.Provider>
   );
 }
@@ -70,9 +70,9 @@ function FormLabel({ className, ...props }: React.ComponentProps<typeof Label.Ro
 
   return (
     <Label.Root
-      data-slot="form-label"
+      data-slot='form-label'
       data-error={!!error}
-      className={cn("data-[error=true]:text-destructive", className)}
+      className={cn('data-[error=true]:text-destructive', className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -84,7 +84,7 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
 
   return (
     <Slot.Root
-      data-slot="form-control"
+      data-slot='form-control'
       id={formItemId}
       aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
       aria-invalid={!!error}
@@ -93,50 +93,41 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
   );
 }
 
-function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
+function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
   const { formDescriptionId } = useFormField();
 
   return (
     <p
-      data-slot="form-description"
+      data-slot='form-description'
       id={formDescriptionId}
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
   );
 }
 
-function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
+function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField();
-  const content = error ? String(error.message ?? "") : props.children;
+  const content = error ? String(error.message ?? '') : props.children;
   const hasBody = !!content;
 
   return (
     <p
-      data-slot="form-message"
+      data-slot='form-message'
       id={formMessageId}
-      className={cn("text-destructive text-sm", className)}
+      className={cn('text-destructive text-sm', className)}
       {...props}
       aria-hidden={!hasBody}
     >
       {hasBody ? (
         content
       ) : (
-        <span className="invisible" aria-hidden>
-          {"\u00A0"}
+        <span className='invisible' aria-hidden>
+          {'\u00A0'}
         </span>
       )}
     </p>
   );
 }
 
-export {
-  useFormField,
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-  FormField,
-};
+export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };

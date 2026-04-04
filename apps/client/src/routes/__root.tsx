@@ -1,16 +1,16 @@
-import { Suspense, lazy } from "react";
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import type { LoadedClerk } from "@clerk/react/types";
-import type { QueryClient } from "@tanstack/react-query";
+import type { LoadedClerk } from '@clerk/react/types';
+import { TanStackDevtools } from '@tanstack/react-devtools';
+import type { QueryClient } from '@tanstack/react-query';
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { Suspense, lazy } from 'react';
 
-import { Favicon } from "@/app/root/favicon";
-import { AnalyticsBanner } from "@/shared/components/analytics-banner";
-import { AnalyticsTracker } from "@/shared/components/analytics-tracker";
-import { config } from "@/shared/config";
-import { InitLoader } from "@/shared/components/ui/loaders/init-loader";
+import { Favicon } from '@/app/root/favicon';
+import { AnalyticsBanner } from '@/shared/components/analytics-banner';
+import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
+import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
+import { config } from '@/shared/config';
 
 interface RootRouteContext {
   queryClient: QueryClient;
@@ -27,7 +27,7 @@ function RootPage() {
   return (
     <>
       <Favicon />
-      <div className="flex h-screen flex-1 flex-col gap-4">
+      <div className='flex h-screen flex-1 flex-col gap-4'>
         <Suspense fallback={<InitLoader />}>
           <Outlet />
         </Suspense>
@@ -45,11 +45,11 @@ function RootPage() {
         <TanStackDevtools
           plugins={[
             {
-              name: "TanStack Query",
+              name: 'TanStack Query',
               render: <ReactQueryDevtoolsPanel />,
             },
             {
-              name: "TanStack Router",
+              name: 'TanStack Router',
               render: <TanStackRouterDevtoolsPanel />,
             },
           ]}
@@ -60,11 +60,11 @@ function RootPage() {
 }
 
 function DevModeIndicator() {
-  return config.Mode === "production" ? undefined : <LazyDevModeIndicator />;
+  return config.Mode === 'production' ? undefined : <LazyDevModeIndicator />;
 }
 
 const LazyDevModeIndicator = lazy(() =>
-  import("@/shared/components/dev-mode-indicator").then(({ DevModeIndicator: Component }) => ({
+  import('@/shared/components/dev-mode-indicator').then(({ DevModeIndicator: Component }) => ({
     default: Component,
   })),
 );

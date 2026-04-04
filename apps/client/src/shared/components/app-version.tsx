@@ -1,5 +1,6 @@
-import { config } from "@/shared/config";
-import { cn } from "@kijk/ui/utils/style";
+import { cn } from '@kijk/ui/utils/style';
+
+import { config } from '@/shared/config';
 
 interface Props {
   className?: string;
@@ -10,5 +11,5 @@ interface Props {
  * @param props The {@link Props} for the component
  */
 export function AppVersion({ className }: Props) {
-  return <span className={cn("text-2xs", className)}>v{config.Version}</span>;
+  return <span className={cn('text-2xs', className)}>v{config.Version}</span>;
 }

@@ -1,10 +1,10 @@
-import { posthog } from "posthog-js";
-import type { CaptureOptions, PostHogConfig, Properties } from "posthog-js";
+import { browserStorage } from '@kijk/ui/lib/browser-storage';
+import { posthog } from 'posthog-js';
+import type { CaptureOptions, PostHogConfig, Properties } from 'posthog-js';
 
-import type { CookieConsent } from "@/shared/types/app";
-import { config } from "@/shared/config";
-import { COOKIE_CONSENT_KEY } from "@/shared/types/app";
-import { browserStorage } from "@kijk/ui/lib/browser-storage";
+import { config } from '@/shared/config';
+import type { CookieConsent } from '@/shared/types/app';
+import { COOKIE_CONSENT_KEY } from '@/shared/types/app';
 
 /** AnalyticsService is a wrapper around the Posthog analytics library. */
 const AnalyticsClient = {
@@ -14,9 +14,8 @@ const AnalyticsClient = {
     }
     posthog.init(config.PosthogKey, {
       api_host: config.PosthogUrl,
-      person_profiles: "identified_only",
-      persistence:
-        AnalyticsClient.getCookieConsent() === "accepted" ? "localStorage+cookie" : "memory",
+      person_profiles: 'identified_only',
+      persistence: AnalyticsClient.getCookieConsent() === 'accepted' ? 'localStorage+cookie' : 'memory',
     });
   },
 
@@ -29,16 +28,12 @@ const AnalyticsClient = {
   options: () =>
     ({
       api_host: config.PosthogUrl,
-      person_profiles: "identified_only",
+      person_profiles: 'identified_only',
       capture_pageview: false,
       autocapture: false,
     }) satisfies Partial<PostHogConfig>,
 
-  identifyUser: (
-    new_distinct_id?: string,
-    userPropertiesToSet?: Properties,
-    userPropertiesToSetOnce?: Properties,
-  ) => {
+  identifyUser: (new_distinct_id?: string, userPropertiesToSet?: Properties, userPropertiesToSetOnce?: Properties) => {
     posthog.identify(new_distinct_id, userPropertiesToSet, userPropertiesToSetOnce);
   },
 
@@ -46,15 +41,15 @@ const AnalyticsClient = {
     if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
       return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY)!;
     }
-    return "undecided";
+    return 'undecided';
   },
   setCookieConsent: (consent: CookieConsent) => {
     browserStorage.setItem(COOKIE_CONSENT_KEY, consent);
-    if (consent === "accepted") {
+    if (consent === 'accepted') {
       AnalyticsClient.getInstance().opt_in_capturing();
       AnalyticsClient.getInstance().set_config({ capture_pageview: true, autocapture: true });
     }
-    if (consent === "declined" || consent === "undecided") {
+    if (consent === 'declined' || consent === 'undecided') {
       AnalyticsClient.getInstance().opt_out_capturing();
     }
   },

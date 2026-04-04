@@ -1,18 +1,18 @@
-import { z } from "zod";
+import { logger } from '@kijk/ui/lib/logger';
+import { z } from 'zod';
 
-import { logger } from "@kijk/ui/lib/logger";
-import { AppError } from "@/shared/types/errors";
+import { AppError } from '@/shared/types/errors';
 
 const envSchema = z.object({
   // Base
-  Mode: z.enum(["development", "production", "test"]).default("development"),
+  Mode: z.enum(['development', 'production', 'test']).default('development'),
   // App
   BaseApiUrl: z.url(),
   ApiUrl: z.url(),
   WebUrl: z.url(),
   Version: z.string(),
   // Devtools
-  DevToolsLogger: z.string().transform((x) => x === "true"),
+  DevToolsLogger: z.string().transform((x) => x === 'true'),
   // Auth
   AuthPublishableKey: z.string().trim().min(1),
   // Sentry
@@ -42,12 +42,12 @@ const envParse = envSchema.safeParse({
 });
 
 if (!envParse.success) {
-  logger.error("env invalid", { errors: envParse.error.issues });
+  logger.error('env invalid', { errors: envParse.error.issues });
   throw new AppError({
-    type: "ENVIRONMENT",
+    type: 'ENVIRONMENT',
     message: `There is an error with the environment variables. ${envParse.error.issues
       .map((x) => `[${x.path.at(0)?.toString()}]: ${x.code}: ${x.message}`)
-      .join("; ")}`,
+      .join('; ')}`,
   });
 }
 

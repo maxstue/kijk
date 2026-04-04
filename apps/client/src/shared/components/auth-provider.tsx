@@ -1,7 +1,7 @@
-import { ClerkProvider, useAuth } from "@clerk/react";
+import { ClerkProvider, useAuth } from '@clerk/react';
 
-import { config } from "@/shared/config";
-import { InitLoader } from "@/shared/components/ui/loaders/init-loader";
+import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
+import { config } from '@/shared/config';
 
 interface Props {
   children?: React.ReactNode;
@@ -9,7 +9,7 @@ interface Props {
 
 export const AuthProvider = ({ children }: Props) => {
   return (
-    <ClerkProvider afterSignOutUrl="/" publishableKey={config.AuthPublishableKey}>
+    <ClerkProvider afterSignOutUrl='/' publishableKey={config.AuthPublishableKey}>
       <InnerAuthProvider>{children}</InnerAuthProvider>
     </ClerkProvider>
   );

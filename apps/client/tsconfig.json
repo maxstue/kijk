@@ -1,21 +1,11 @@
 {
   "extends": "@kijk/tsconfig/base.json",
   "compilerOptions": {
-    "types": [
-      "node",
-      "vite/client"
-    ],
+    "types": ["node", "vite/client"],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@kijk/ui/*": [
-        "../../packages/ui/src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@kijk/ui/*": ["../../packages/ui/src/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "vite.config.ts",
-  ],
+  "include": ["src/**/*", "vite.config.ts"]
 }

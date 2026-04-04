@@ -1,18 +1,17 @@
-"use no memo";
+'use no memo';
 
-import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { Checkbox } from '@kijk/ui/components/checkbox';
+import { Input } from '@kijk/ui/components/input';
+import { useQuery } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { UserUpdateFormValues } from "@/app/settings/profile/schemas";
-import { userSignInQuery } from "@/app/root/use-signin-user";
-import { userUpdateSchema } from "@/app/settings/profile/schemas";
-import { useUpdateUser } from "@/app/settings/profile/user-update-user";
-import { Button } from "@kijk/ui/components/button";
-import { Checkbox } from "@kijk/ui/components/checkbox";
-
-import { Input } from "@kijk/ui/components/input";
+import { userSignInQuery } from '@/app/root/use-signin-user';
+import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
+import { userUpdateSchema } from '@/app/settings/profile/schemas';
+import { useUpdateUser } from '@/app/settings/profile/user-update-user';
 import {
   Form,
   FormField,
@@ -21,7 +20,7 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
-} from "@/shared/components/form";
+} from '@/shared/components/form';
 
 export function ProfileForm() {
   const { data: user } = useQuery(userSignInQuery);
@@ -31,7 +30,7 @@ export function ProfileForm() {
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
-      userName: user?.name ?? "",
+      userName: user?.name ?? '',
       useDefaultResources: user?.useDefaultResources ?? false,
     },
   });
@@ -40,7 +39,7 @@ export function ProfileForm() {
     if (user?.id) {
       mutate(data, {
         onSuccess() {
-          toast("Successfully updated");
+          toast('Successfully updated');
         },
       });
     }
@@ -48,15 +47,15 @@ export function ProfileForm() {
 
   return (
     <Form {...form}>
-      <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
+      <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
-          name="userName"
+          name='userName'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="max" {...field} />
+                <Input placeholder='max' {...field} />
               </FormControl>
               <FormDescription>
                 This is your public display name. It can be your real name or a pseudonym.
@@ -65,12 +64,12 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
-        <div className="flex w-full items-center">
+        <div className='flex w-full items-center'>
           <FormField
             control={form.control}
-            name="useDefaultResources"
+            name='useDefaultResources'
             render={({ field }) => (
-              <FormItem className="flex w-full items-end justify-start gap-2">
+              <FormItem className='flex w-full items-end justify-start gap-2'>
                 <FormLabel>Use default resource types</FormLabel>
                 <FormControl>
                   <Checkbox checked={field.value} onCheckedChange={field.onChange} />
@@ -81,7 +80,7 @@ export function ProfileForm() {
           />
         </div>
 
-        <Button disabled={!form.formState.isDirty} type="submit">
+        <Button disabled={!form.formState.isDirty} type='submit'>
           Update profile
         </Button>
       </form>

@@ -1,79 +1,67 @@
-import { ArrowUpDown } from "lucide-react";
-import type { ColumnDef, ColumnSort } from "@tanstack/react-table";
+import { Button } from '@kijk/ui/components/button';
+import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
+import { ArrowUpDown } from 'lucide-react';
 
-import type { Resource } from "@/shared/types/app";
-import { ResourceTypeListRowActions } from "@/app/resources/resources-list-row-actions";
-import { Button } from "@kijk/ui/components/button";
+import { ResourceTypeListRowActions } from '@/app/resources/resources-list-row-actions';
+import type { Resource } from '@/shared/types/app';
 
-export const resourceDefaultSort: ColumnSort = { desc: false, id: "name" };
+export const resourceDefaultSort: ColumnSort = { desc: false, id: 'name' };
 
 export const resourcesColumns: Array<ColumnDef<Resource>> = [
   {
-    accessorKey: "name",
+    accessorKey: 'name',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
       );
     },
   },
   {
-    accessorKey: "unit",
+    accessorKey: 'unit',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Unit
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
       );
     },
   },
   {
-    accessorKey: "color",
+    accessorKey: 'color',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Color
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const colorValue = row.getValue<string>("color");
+      const colorValue = row.getValue<string>('color');
       return <div style={{ color: colorValue }}>{colorValue}</div>;
     },
   },
   {
-    accessorKey: "creator",
+    accessorKey: 'creator',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Creator
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const colorValue = row.getValue<string>("creator");
+      const colorValue = row.getValue<string>('creator');
       return <div style={{ color: colorValue }}>{colorValue}</div>;
     },
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: ({ row }) => <ResourceTypeListRowActions row={row} />,
   },
 ];

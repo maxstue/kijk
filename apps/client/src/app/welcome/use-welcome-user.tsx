@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
-import type { UserStepFormValues } from '@/app/welcome/schemas';
-import type { ApiError } from '@/shared/types/app';
 import { userSignInQuery } from '@/app/root/use-signin-user';
+import type { UserStepFormValues } from '@/app/welcome/schemas';
 import { apiClient } from '@/shared/lib/api-client';
+import type { ApiError } from '@/shared/types/app';
 
 export const useWelcomeUser = () => {
   const queryClient = useQueryClient();

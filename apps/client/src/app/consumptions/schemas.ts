@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { ValueTypes } from '@/shared/types/app';
 
 export const consumptionCreateSchema = z.object({

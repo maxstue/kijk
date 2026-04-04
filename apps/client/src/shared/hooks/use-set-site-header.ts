@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { useSiteHeaderStoreActions } from '@/shared/stores/site-header-store';
 
 /**

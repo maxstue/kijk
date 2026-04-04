@@ -1,17 +1,6 @@
-import { useCallback, useState } from "react";
-import { MoreHorizontal } from "lucide-react";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { Row } from "@tanstack/react-table";
-
-import type { ResourceFormValues } from "@/app/resources/schemas";
-import type { Resource } from "@/shared/types/app";
-import { resourceSchema } from "@/app/resources/schemas";
-import { useDeleteResource } from "@/app/resources/use-delete-resource";
-import { useUpdateResource } from "@/app/resources/use-update-resource-type";
-import { Button } from "@kijk/ui/components/button";
-import { Dialog } from "@kijk/ui/components/dialog";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { Dialog } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,8 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@kijk/ui/components/dropdown-menu";
-import { Input } from "@kijk/ui/components/input";
+} from '@kijk/ui/components/dropdown-menu';
+import { Icons } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
 import {
   Sheet,
   SheetClose,
@@ -30,28 +20,29 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@kijk/ui/components/sheet";
-import { cn } from "@kijk/ui/utils/style";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shared/components/form";
-import { Icons } from "@kijk/ui/components/icons";
+} from '@kijk/ui/components/sheet';
+import { cn } from '@kijk/ui/utils/style';
+import type { Row } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import type { ResourceFormValues } from '@/app/resources/schemas';
+import { resourceSchema } from '@/app/resources/schemas';
+import { useDeleteResource } from '@/app/resources/use-delete-resource';
+import { useUpdateResource } from '@/app/resources/use-update-resource-type';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import type { Resource } from '@/shared/types/app';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
-export function ResourceTypeListRowActions<TData extends Resource>({
-  row,
-}: DataTableRowActionsProps<TData>) {
+export function ResourceTypeListRowActions<TData extends Resource>({ row }: DataTableRowActionsProps<TData>) {
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
-  const [sheetType, setSheetType] = useState<"edit" | "delete">();
+  const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
   const resourceType = row.original;
 
   const handleCopyName = useCallback(async () => {
@@ -69,19 +60,19 @@ export function ResourceTypeListRowActions<TData extends Resource>({
       <Sheet open={showSheet} onOpenChange={setShowSheet}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="h-8 w-8 p-0" variant="ghost">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <Button className='h-8 w-8 p-0' variant='ghost'>
+              <span className='sr-only'>Open menu</span>
+              <MoreHorizontal className='h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
-            {resourceType.creator !== "Default" && (
+            {resourceType.creator !== 'Default' && (
               <>
                 <SheetTrigger
                   onClick={() => {
-                    setSheetType("edit");
+                    setSheetType('edit');
                   }}
                 >
                   <DropdownMenuItem>Update</DropdownMenuItem>
@@ -89,20 +80,18 @@ export function ResourceTypeListRowActions<TData extends Resource>({
                 <DropdownMenuSeparator />
                 <SheetTrigger
                   onClick={() => {
-                    setSheetType("delete");
+                    setSheetType('delete');
                   }}
                 >
-                  <DropdownMenuItem className={cn("focus:bg-red-500 focus:text-white")}>
-                    Delete
-                  </DropdownMenuItem>
+                  <DropdownMenuItem className={cn('focus:bg-red-500 focus:text-white')}>Delete</DropdownMenuItem>
                 </SheetTrigger>
               </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
         <SheetContent>
-          {sheetType === "delete" && <Delete resourceType={resourceType} onClose={handleClose} />}
-          {sheetType === "edit" && <Update resourceType={resourceType} onClose={handleClose} />}
+          {sheetType === 'delete' && <Delete resourceType={resourceType} onClose={handleClose} />}
+          {sheetType === 'edit' && <Update resourceType={resourceType} onClose={handleClose} />}
         </SheetContent>
       </Sheet>
     </Dialog>
@@ -130,45 +119,40 @@ function Delete({ resourceType, onClose }: EdProps) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className='space-y-8'>
       <SheetHeader>
         <SheetTitle>Delete</SheetTitle>
         <SheetDescription>This will irrevocably delete this resource type.</SheetDescription>
       </SheetHeader>
-      <div className="flex flex-col gap-3 p-4">
-        <div className="flex w-1/2 flex-col">
-          <div className="flex justify-between">
-            <span className="font-bold">Name:</span>
+      <div className='flex flex-col gap-3 p-4'>
+        <div className='flex w-1/2 flex-col'>
+          <div className='flex justify-between'>
+            <span className='font-bold'>Name:</span>
             <span>{resourceType.name}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="font-bold">Unit:</span>
+          <div className='flex justify-between'>
+            <span className='font-bold'>Unit:</span>
             <span>{resourceType.unit}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="font-bold">Color:</span>
-            <span className="blend-" style={{ color: resourceType.color }}>
+          <div className='flex justify-between'>
+            <span className='font-bold'>Color:</span>
+            <span className='blend-' style={{ color: resourceType.color }}>
               {resourceType.color}
             </span>
           </div>
         </div>
       </div>
       <SheetFooter>
-        <div className="flex w-full items-center justify-between gap-2">
+        <div className='flex w-full items-center justify-between gap-2'>
           <SheetClose>
-            <Button disabled={deleteMutation.isPending} type="button" variant="outline">
+            <Button disabled={deleteMutation.isPending} type='button' variant='outline'>
               Cancel
             </Button>
           </SheetClose>
-          <Button
-            className="bg-red-500"
-            disabled={deleteMutation.isPending}
-            type="button"
-            onClick={handleDelete}
-          >
+          <Button className='bg-red-500' disabled={deleteMutation.isPending} type='button' onClick={handleDelete}>
             Delete
           </Button>
-          {deleteMutation.isPending && <Icons.spinner className="h-5 w-5 animate-spin" />}
+          {deleteMutation.isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
         </div>
       </SheetFooter>
     </div>
@@ -176,8 +160,8 @@ function Delete({ resourceType, onClose }: EdProps) {
 }
 
 const handleError = () => {
-  toast.error("Error updating", {
-    description: "Error updating",
+  toast.error('Error updating', {
+    description: 'Error updating',
   });
 };
 
@@ -206,17 +190,17 @@ function Update({ resourceType, onClose }: EdProps) {
         <SheetTitle>Update {resourceType.name}</SheetTitle>
         <SheetDescription>Change the values.</SheetDescription>
       </SheetHeader>
-      <div className="p-4">
+      <div className='p-4'>
         <Form {...form}>
-          <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit, handleError)}>
+          <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit, handleError)}>
             <FormField
               control={form.control}
-              name="name"
+              name='name'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Name" {...field} />
+                    <Input placeholder='Name' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -224,12 +208,12 @@ function Update({ resourceType, onClose }: EdProps) {
             />
             <FormField
               control={form.control}
-              name="unit"
+              name='unit'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Unit</FormLabel>
                   <FormControl>
-                    <Input placeholder="Unit" {...field} />
+                    <Input placeholder='Unit' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -237,17 +221,12 @@ function Update({ resourceType, onClose }: EdProps) {
             />
             <FormField
               control={form.control}
-              name="color"
+              name='color'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Color</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Color, e.g. `#123456`"
-                      type="color"
-                      {...field}
-                      onChange={field.onChange}
-                    />
+                    <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -255,16 +234,16 @@ function Update({ resourceType, onClose }: EdProps) {
             />
 
             <SheetFooter>
-              <div className="flex w-full items-center justify-between gap-2">
+              <div className='flex w-full items-center justify-between gap-2'>
                 <SheetClose>
-                  <Button disabled={updateMutation.isPending} type="button" variant="outline">
+                  <Button disabled={updateMutation.isPending} type='button' variant='outline'>
                     Cancel
                   </Button>
                 </SheetClose>
-                <Button disabled={updateMutation.isPending} type="submit">
+                <Button disabled={updateMutation.isPending} type='submit'>
                   Update
                 </Button>
-                {updateMutation.isPending && <Icons.spinner className="animate-spin" />}
+                {updateMutation.isPending && <Icons.spinner className='animate-spin' />}
               </div>
             </SheetFooter>
           </form>
