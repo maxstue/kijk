@@ -1,18 +1,11 @@
-import { cn } from '@kijk/ui/utils/style';
+"use client"
 
-function AspectRatio({ ratio, className, ...props }: React.ComponentProps<'div'> & { ratio: number }) {
-  return (
-    <div
-      data-slot='aspect-ratio'
-      style={
-        {
-          '--ratio': ratio,
-        } as React.CSSProperties
-      }
-      className={cn('relative aspect-(--ratio)', className)}
-      {...props}
-    />
-  );
+import { AspectRatio as AspectRatioPrimitive } from "radix-ui"
+
+function AspectRatio({
+  ...props
+}: React.ComponentProps<typeof AspectRatioPrimitive.Root>) {
+  return <AspectRatioPrimitive.Root data-slot="aspect-ratio" {...props} />
 }
 
-export { AspectRatio };
+export { AspectRatio }

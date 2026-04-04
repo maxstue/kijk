@@ -5,10 +5,44 @@
     "**/.hg": true,
     "**/CVS": true,
     "**/.DS_Store": true,
-    // "apps": true
   },
-  "sonarlint.connectedMode.project": {
-    "connectionId": "maxstue",
-    "projectKey": "maxstue_kijk"
-  }
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+  "js/ts.preferences.autoImportFileExcludePatterns": [
+    "node_modules/**/*"
+  ],
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/build": true,
+    "**/.tanstack": true,
+    "**/routeTree.gen.ts": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.format": "explicit",
+    "source.fixAll.oxc": "always"
+  },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "eslint.rules.customizations": [
+    {
+      "rule": "*",
+      "severity": "warn"
+    }
+  ],
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
 }

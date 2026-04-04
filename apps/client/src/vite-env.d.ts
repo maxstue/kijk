@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   VITE_BASE_API_URL: string;
   VITE_API_URL: string;
   VITE_WEB_URL: string;
+  VITE_APP_VERSION: string;
   // Devtools
   VITE_DEVTOOLS_LOGGER: string;
   // Auth
@@ -22,6 +23,3 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
-
-declare const SHORT_APP_VERSION: string;
-declare const LONG_APP_VERSION: string;

@@ -1,14 +1,14 @@
-import * as Sentry from '@sentry/react';
+import * as Sentry from "@sentry/react";
 
-import { router } from '@/router';
-import { env } from '@/shared/env';
+import { router } from "@/router";
+import { config } from "@/shared/config";
 
 /** ErrorService is a wrapper around the Sentry error tracking library. */
 const ErrorService = {
   init: () => {
     Sentry.init({
-      dsn: env.SentryDsn,
-      environment: env.Mode,
+      dsn: config.SentryDsn,
+      environment: config.Mode,
       integrations: [
         Sentry.extraErrorDataIntegration(),
         Sentry.browserProfilingIntegration(),
@@ -20,7 +20,7 @@ const ErrorService = {
       tracesSampleRate: 0.5,
       // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
       tracePropagationTargets: [
-        'localhost',
+        "localhost",
         /^https:\/\/kijk-api\.xyz\/api/,
         /^https:\/\/kijk-app\.xyz/,
         /^https:\/\/kijk\.xyz/,

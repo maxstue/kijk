@@ -1,18 +1,18 @@
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { getRouteApi } from '@tanstack/react-router';
-import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { ComponentPropsWithoutRef } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getRouteApi } from "@tanstack/react-router";
+import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { ComponentPropsWithoutRef } from "react";
 
 import {
   getYearsFromConsumptionsQuery,
   useGetYearsFromConsumptions,
-} from '@/app/consumptions/use-get-resources-usage-years';
-import { Button } from '@/shared/components/ui/button';
+} from "@/app/consumptions/use-get-resources-usage-years";
+import { Button } from "@kijk/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -21,7 +21,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/shared/components/ui/command';
+} from "@kijk/ui/components/command";
 import {
   Dialog,
   DialogContent,
@@ -30,14 +30,22 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/shared/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
-import { cn } from '@/shared/lib/helpers';
+} from "@kijk/ui/components/dialog";
 
-const Route = getRouteApi('/_protected/consumptions');
+import { Input } from "@kijk/ui/components/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@kijk/ui/components/popover";
+import { cn } from "@kijk/ui/utils/style";
+import { Loader } from "@/shared/components/ui/loaders/loader";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/shared/components/form";
+
+const Route = getRouteApi("/_protected/consumptions");
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
@@ -80,34 +88,37 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
         <PopoverTrigger asChild>
           <Button
             aria-expanded={open}
-            aria-label='Select a year'
-            className={cn('w-full justify-between', className)}
-            role='combobox'
-            aria-controls='year-popover'
-            variant='outline'
+            aria-label="Select a year"
+            className={cn("w-full justify-between", className)}
+            role="combobox"
+            aria-controls="year-popover"
+            variant="outline"
           >
             {selectedYear}
-            <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-[200px] p-0'>
+        <PopoverContent className="w-[200px] p-0">
           <Command>
             <CommandList>
-              <CommandInput placeholder='Search Year...' />
+              <CommandInput placeholder="Search Year..." />
               <CommandEmpty>No Year found.</CommandEmpty>
-              <Suspense fallback={<AsyncLoader />}>
-                <CommandGroup key='years' heading='Years'>
+              <Suspense fallback={<Loader />}>
+                <CommandGroup key="years" heading="Years">
                   {years.map((yearData) => (
                     <CommandItem
                       key={yearData}
-                      className='text-sm'
+                      className="text-sm"
                       onSelect={(y) => {
                         handleSelectYear(Number(y));
                       }}
                     >
                       {yearData}
                       <Check
-                        className={cn('ml-auto h-4 w-4', selectedYear === yearData ? 'opacity-100' : 'opacity-0')}
+                        className={cn(
+                          "ml-auto h-4 w-4",
+                          selectedYear === yearData ? "opacity-100" : "opacity-0",
+                        )}
                       />
                     </CommandItem>
                   ))}
@@ -117,9 +128,9 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
             <CommandSeparator />
             <CommandList>
               <CommandGroup>
-                <DialogTrigger asChild>
+                <DialogTrigger>
                   <CommandItem onSelect={handleNewYearClick}>
-                    <PlusCircle className='mr-2 h-5 w-5' />
+                    <PlusCircle className="mr-2 h-5 w-5" />
                     Add new year
                   </CommandItem>
                 </DialogTrigger>
@@ -145,26 +156,26 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   const navigate = Route.useNavigate();
   const form = useForm({
     defaultValues: { year: new Date().getFullYear() + 1 },
-    mode: 'onBlur',
+    mode: "onBlur",
     resolver: zodResolver(yearSchema),
   });
 
   function handleSubmit(data: YearFormValues) {
     const response = queryClient.getQueryData(getYearsFromConsumptionsQuery.queryKey);
     if (response?.years.includes(data.year)) {
-      form.setError('year', { message: 'Year already exists' });
+      form.setError("year", { message: "Year already exists" });
       return;
     }
 
     queryClient.setQueryData(getYearsFromConsumptionsQuery.queryKey, (old) => ({
       years: [...(old?.years ?? []), data.year].sort((a, b) => b - a),
     }));
-    navigate({ to: '/consumptions', search: (previous) => ({ ...previous, year: data.year }) });
+    navigate({ to: "/consumptions", search: (previous) => ({ ...previous, year: data.year }) });
     onClose();
   }
 
   const handleError = useCallback(() => {
-    toast.error('Error adding new year');
+    toast.error("Error adding new year");
   }, []);
 
   const handleCancel = useCallback(() => {
@@ -172,23 +183,27 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   }, [form]);
 
   return (
-    <DialogContent aria-description='add new year modal' title='Add new year'>
+    <DialogContent aria-description="add new year modal" title="Add new year">
       <DialogHeader>
         <DialogTitle>Add new year</DialogTitle>
         <DialogDescription>Add a new year to manage.</DialogDescription>
       </DialogHeader>
       <Form {...form}>
-        <form className='space-y-8' onSubmit={form.handleSubmit(handleSubmit, handleError)}>
-          <div className='space-y-4 py-2 pb-4'>
-            <div className='space-y-2'>
+        <form className="space-y-8" onSubmit={form.handleSubmit(handleSubmit, handleError)}>
+          <div className="space-y-4 py-2 pb-4">
+            <div className="space-y-2">
               <FormField
                 control={form.control}
-                name='year'
+                name="year"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Year</FormLabel>
                     <FormControl>
-                      <Input placeholder={(new Date().getFullYear() + 1).toString()} type='number' {...field} />
+                      <Input
+                        placeholder={(new Date().getFullYear() + 1).toString()}
+                        type="number"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -197,10 +212,10 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
             </div>
           </div>
           <DialogFooter>
-            <Button type='button' variant='outline' onClick={handleCancel}>
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type='submit'>Continue</Button>
+            <Button type="submit">Continue</Button>
           </DialogFooter>
         </form>
       </Form>

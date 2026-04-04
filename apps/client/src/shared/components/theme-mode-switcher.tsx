@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-
-import { useThemeStore } from '@/shared/stores/theme-store';
+import { useThemeStore } from "@kijk/ui/stores/theme-store";
+import { useEffect } from "react";
 
 export function ThemeModeSwitcher() {
   const { mode } = useThemeStore();
@@ -8,15 +7,17 @@ export function ThemeModeSwitcher() {
   useEffect(() => {
     const root = globalThis.document.documentElement;
 
-    root.classList.remove('light', 'dark');
+    root.classList.remove("light", "dark");
 
     if (mode === undefined) {
-      root.classList.add('light');
+      root.classList.add("light");
       return;
     }
 
-    if (mode === 'system') {
-      const systemTheme = globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (mode === "system") {
+      const systemTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
 
       root.classList.add(systemTheme);
       return;
@@ -29,11 +30,11 @@ export function ThemeModeSwitcher() {
     const root = globalThis.document.documentElement;
 
     const listener = (event: MediaQueryListEvent) => {
-      root.classList.remove('light', 'dark');
-      root.classList.add(event.matches ? 'dark' : 'light');
+      root.classList.remove("light", "dark");
+      root.classList.add(event.matches ? "dark" : "light");
     };
 
-    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
+    globalThis.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", listener);
   }, []);
 
   return undefined;

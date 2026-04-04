@@ -1,18 +1,25 @@
-import { useCallback, useState } from 'react';
-import { useSignIn } from '@clerk/react/legacy';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { ControllerRenderProps } from 'react-hook-form';
+import { useCallback, useState } from "react";
+import { useSignIn } from "@clerk/react/legacy";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { ControllerRenderProps } from "react-hook-form";
 
-import type { AuthSchema } from '@/app/auth/schemas';
-import { authSchema } from '@/app/auth/schemas';
-import { Route } from '@/routes/auth';
-import { Icons } from '@/shared/components/icons';
-import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { cn } from '@/shared/lib/helpers';
-import { Allowed_Providers } from '@/shared/types/app';
+import type { AuthSchema } from "@/app/auth/schemas";
+import { authSchema } from "@/app/auth/schemas";
+import { Route } from "@/routes/auth";
+import { Button } from "@kijk/ui/components/button";
+import { Input } from "@kijk/ui/components/input";
+import { cn } from "@kijk/ui/utils/style";
+import { Allowed_Providers } from "@/shared/types/app";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/shared/components/form";
+import { Icons } from "@kijk/ui/components/icons";
 
 interface Props {
   className?: string;
@@ -24,10 +31,10 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
   const form = useForm({
     resolver: zodResolver(authSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
-    mode: 'onBlur',
+    mode: "onBlur",
   });
   const [isLoading, setIsLoading] = useState(false);
   const searchParameters = Route.useSearch();
@@ -45,46 +52,46 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
       return;
     }
     await signIn.authenticateWithRedirect({
-      strategy: 'oauth_github',
-      redirectUrl: '/sso-callback',
-      redirectUrlComplete: searchParameters.from ?? '/',
+      strategy: "oauth_github",
+      redirectUrl: "/sso-callback",
+      redirectUrlComplete: searchParameters.from ?? "/",
     });
   }, [isLoaded, searchParameters.from, signIn]);
 
   return (
-    <div className={cn('grid gap-6', className)}>
+    <div className={cn("grid gap-6", className)}>
       <Form {...form}>
-        <form className='space-y-8' onSubmit={form.handleSubmit(handleEmailSubmit)}>
-          <div className='grid gap-6'>
-            <div className='grid gap-1'>
-              <FormField control={form.control} name='email' render={EmailField} />
+        <form className="space-y-8" onSubmit={form.handleSubmit(handleEmailSubmit)}>
+          <div className="grid gap-6">
+            <div className="grid gap-1">
+              <FormField control={form.control} name="email" render={EmailField} />
             </div>
-            <div className='grid gap-1'>
-              <FormField control={form.control} name='password' render={PasswordField} />
+            <div className="grid gap-1">
+              <FormField control={form.control} name="password" render={PasswordField} />
             </div>
-            <Button disabled={isLoading} type='submit'>
+            <Button disabled={isLoading} type="submit">
               {!isLoading && btnLabel}
-              {isLoading && <Icons.spinner className='h-5 w-5 animate-spin' />}
+              {isLoading && <Icons.spinner className="h-5 w-5 animate-spin" />}
             </Button>
           </div>
         </form>
       </Form>
-      <div className='relative'>
-        <div className='absolute inset-0 flex items-center'>
-          <span className='w-full border-t' />
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
         </div>
-        <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-background text-muted-foreground px-2'>Or continue with</span>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background text-muted-foreground px-2">Or continue with</span>
         </div>
       </div>
       {/* Social logins */}
       {Allowed_Providers.map((provider) => (
-        <Button key={provider} disabled={isLoading} variant='outline' onClick={handleSignUp}>
+        <Button key={provider} disabled={isLoading} variant="outline" onClick={handleSignUp}>
           {isLoading ? (
-            <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Icons.gitHub className='mr-2 h-4 w-4' />
-          )}{' '}
+            <Icons.gitHub className="mr-2 h-4 w-4" />
+          )}{" "}
           {provider}
         </Button>
       ))}
@@ -100,7 +107,7 @@ function PasswordField({
       email: string;
       password: string;
     },
-    'password'
+    "password"
   >;
 }) {
   return (
@@ -108,7 +115,7 @@ function PasswordField({
       <FormLabel>Password</FormLabel>
       <FormControl>
         {/* TODO add eye symbol to toggle input visability*/}
-        <Input placeholder='Password' type='password' {...field} />
+        <Input placeholder="Password" type="password" {...field} />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -123,14 +130,14 @@ function EmailField({
       email: string;
       password: string;
     },
-    'email'
+    "email"
   >;
 }) {
   return (
     <FormItem>
       <FormLabel>Email</FormLabel>
       <FormControl>
-        <Input placeholder='Email' {...field} />
+        <Input placeholder="Email" {...field} />
       </FormControl>
       <FormMessage />
     </FormItem>

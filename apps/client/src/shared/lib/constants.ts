@@ -18,5 +18,3 @@ export const settingsNav = [
   { to: settingsTo[2], label: 'Appearance', shortCutKey: undefined, icon: 'monitor' },
   { to: settingsTo[3], label: 'Info', shortCutKey: undefined, icon: 'info' },
 ] as const;
-
-export const themeStorageKey = 'theme';

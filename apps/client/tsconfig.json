@@ -1,14 +1,10 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
+  "extends": "@kijk/tsconfig/base.json",
   "compilerOptions": {
+    "types": [
+      "node",
+      "vite/client"
+    ],
     "paths": {
       "@/*": [
         "./src/*"
@@ -17,5 +13,9 @@
         "../../packages/ui/src/*"
       ]
     }
-  }
+  },
+  "include": [
+    "src/**/*",
+    "vite.config.ts",
+  ],
 }

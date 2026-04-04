@@ -1,7 +1,7 @@
-import type { StoreApi, UseBoundStore } from 'zustand';
+import type { StoreApi, UseBoundStore } from "zustand";
 
-import { createStoreFactory } from '@/shared/utils/store';
-import { capitalizeFirstLetter } from '@/shared/utils/string';
+import { capitalizeFirstLetter } from "@/shared/utils/string";
+import { createStoreFactory } from "@kijk/ui/utils/store";
 
 interface State {
   title: string | undefined;
@@ -10,8 +10,8 @@ interface State {
   };
 }
 
-const siteHeaderStore = createStoreFactory<State>('theme-store', (set) => ({
-  title: 'Kijk',
+const siteHeaderStore = createStoreFactory<State>("theme-store", (set) => ({
+  title: "Kijk",
   actions: {
     setTitle(newTitle) {
       set((state) => {
@@ -21,5 +21,7 @@ const siteHeaderStore = createStoreFactory<State>('theme-store', (set) => ({
   },
 }));
 
-export const useSiteHeaderStore = siteHeaderStore as UseBoundStore<StoreApi<Omit<State, 'actions'>>>;
+export const useSiteHeaderStore = siteHeaderStore as UseBoundStore<
+  StoreApi<Omit<State, "actions">>
+>;
 export const useSiteHeaderStoreActions = () => siteHeaderStore((state) => state.actions);

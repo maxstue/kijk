@@ -1,22 +1,24 @@
-import { Suspense, useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { EditIcon, Plus, Trash2Icon } from 'lucide-react';
-import { z } from 'zod';
-import { zodValidator } from '@tanstack/zod-adapter';
-import { toast } from 'sonner';
-import type { Consumption, Months } from '@/shared/types/app';
-import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form.tsx';
-import { ConsumptionsMonthNav } from '@/app/consumptions/consumptions-month-nav.tsx';
-import ConsumptionsStats from '@/app/consumptions/consumptions-stats.tsx';
-import { ConsumptionsTodayButton } from '@/app/consumptions/consumptions-today-button.tsx';
-import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
-import { ConsumptionsYearSwitcher } from '@/app/consumptions/consumptions-year-switcher.tsx';
-import { getConsumptionsQuery, useGetConsumptionsBy } from '@/app/consumptions/use-get-consumptions-by.ts';
-import { NotFound } from '@/shared/components/not-found';
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { Separator } from '@/shared/components/ui/separator';
+import { Suspense, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { EditIcon, Plus, Trash2Icon } from "lucide-react";
+import { z } from "zod";
+import { zodValidator } from "@tanstack/zod-adapter";
+import { toast } from "sonner";
+import type { Consumption, Months } from "@/shared/types/app";
+import { ConsumptionCreateForm } from "@/app/consumptions/consumption-create-form.tsx";
+import { ConsumptionsMonthNav } from "@/app/consumptions/consumptions-month-nav.tsx";
+import ConsumptionsStats from "@/app/consumptions/consumptions-stats.tsx";
+import { ConsumptionsTodayButton } from "@/app/consumptions/consumptions-today-button.tsx";
+import { ResourceUnit } from "@/app/consumptions/resources-unit.tsx";
+import { ConsumptionsYearSwitcher } from "@/app/consumptions/consumptions-year-switcher.tsx";
+import {
+  getConsumptionsQuery,
+  useGetConsumptionsBy,
+} from "@/app/consumptions/use-get-consumptions-by.ts";
+import { NotFound } from "@/shared/components/not-found";
+import { Button } from "@kijk/ui/components/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@kijk/ui/components/card";
+import { Separator } from "@kijk/ui/components/separator";
 import {
   Sheet,
   SheetContent,
@@ -24,10 +26,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/shared/components/ui/sheet';
-import { months } from '@/shared/types/app';
-import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import { ConsumptionUpdateForm } from '@/app/consumptions/consumtions-update-form';
+} from "@kijk/ui/components/sheet";
+import { months } from "@/shared/types/app";
+import { useSetSiteHeader } from "@/shared/hooks/use-set-site-header";
+import { ConsumptionUpdateForm } from "@/app/consumptions/consumtions-update-form";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,8 +40,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/shared/components/ui/alert-dialog';
-import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
+} from "@kijk/ui/components/alert-dialog";
+import { useDeleteConsumption } from "@/app/consumptions/use-delete-consumption";
+import { Loader } from "@/shared/components/ui/loaders/loader";
 
 const searchSchema = z.object({
   month: z
@@ -49,7 +52,7 @@ const searchSchema = z.object({
   year: z.number().default(new Date().getFullYear()),
 });
 
-export const Route = createFileRoute('/_protected/consumptions')({
+export const Route = createFileRoute("/_protected/consumptions")({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   loader: ({ context: { queryClient }, deps }) => {
@@ -57,11 +60,11 @@ export const Route = createFileRoute('/_protected/consumptions')({
   },
   component: UsagePage,
   notFoundComponent: NotFound,
-  pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
+  pendingComponent: () => <Loader className="h-6 w-6" />,
 });
 
 function UsagePage() {
-  useSetSiteHeader('Consumptions');
+  useSetSiteHeader("Consumptions");
   const [showSheet, setShowSheet] = useState(false);
   const searchParameters = Route.useSearch();
   const { data } = useGetConsumptionsBy(searchParameters.year, searchParameters.month);
@@ -69,23 +72,23 @@ function UsagePage() {
   const handleClose = () => setShowSheet(false);
 
   return (
-    <div className='space-y-6 pt-10'>
-      <div className='space-y-0.5'>
-        <h2 className='text-2xl font-bold tracking-tight'>Resource usage</h2>
-        <p className='text-muted-foreground'>Manage your monthly resource usage</p>
+    <div className="space-y-6 pt-10">
+      <div className="space-y-0.5">
+        <h2 className="text-2xl font-bold tracking-tight">Resource usage</h2>
+        <p className="text-muted-foreground">Manage your monthly resource usage</p>
       </div>
-      <Separator className='my-6' />
-      <div className='flex flex-col gap-8 lg:flex-row lg:space-y-0 lg:space-x-12'>
-        <div className='flex-1'>
-          <div className='flex flex-col gap-4'>
-            <Suspense fallback={<AsyncLoader />}>
+      <Separator className="my-6" />
+      <div className="flex flex-col gap-8 lg:flex-row lg:space-y-0 lg:space-x-12">
+        <div className="flex-1">
+          <div className="flex flex-col gap-4">
+            <Suspense fallback={<Loader />}>
               <ConsumptionsStats />
             </Suspense>
 
-            <div className='flex w-full justify-end'>
+            <div className="flex w-full justify-end">
               <Sheet open={showSheet} onOpenChange={setShowSheet}>
-                <div className='flex w-full justify-between'>
-                  <div className='flex w-1/3 justify-start gap-4'>
+                <div className="flex w-full justify-between">
+                  <div className="flex w-1/3 justify-start gap-4">
                     <ConsumptionsTodayButton />
                     <Suspense>
                       <ConsumptionsYearSwitcher />
@@ -93,12 +96,12 @@ function UsagePage() {
                     <ConsumptionsMonthNav />
                   </div>
                   <SheetTrigger asChild>
-                    <Button variant='outline'>
+                    <Button variant="outline">
                       Add <Plus />
                     </Button>
                   </SheetTrigger>
                 </div>
-                <SheetContent className='space-y-8'>
+                <SheetContent className="space-y-8">
                   <SheetHeader>
                     <SheetTitle>Add Consumption</SheetTitle>
                     <SheetDescription>Add a new consumption.</SheetDescription>
@@ -113,23 +116,23 @@ function UsagePage() {
                 </SheetContent>
               </Sheet>
             </div>
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {data.map((item) => (
                 <Card key={item.id}>
                   <CardHeader>
                     <CardTitle>{item.name}</CardTitle>
                   </CardHeader>
-                  <CardContent className='flex flex-col gap-2'>
-                    <div className='text-muted-foreground flex items-center justify-between'>
+                  <CardContent className="flex flex-col gap-2">
+                    <div className="text-muted-foreground flex items-center justify-between">
                       Amount
-                      <div className='text-foreground'>{item.value}</div>
+                      <div className="text-foreground">{item.value}</div>
                     </div>
-                    <div className='text-muted-foreground flex items-center justify-between'>
+                    <div className="text-muted-foreground flex items-center justify-between">
                       Unit
                       <ResourceUnit type={item.resource} />
                     </div>
                   </CardContent>
-                  <CardFooter className='flex w-full justify-end gap-2'>
+                  <CardFooter className="flex w-full justify-end gap-2">
                     <DeleteButton id={item.id} date={item.date} />
                     <EditButton data={item} />
                   </CardFooter>
@@ -151,11 +154,11 @@ function EditButton({ data }: { data: Consumption }) {
   return (
     <Sheet open={showSheet} onOpenChange={setShowSheet}>
       <SheetTrigger asChild>
-        <Button className='text-muted-foreground' size='icon' variant='outline'>
-          <EditIcon className='size-4' />
+        <Button className="text-muted-foreground" size="icon" variant="outline">
+          <EditIcon className="size-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent className='space-y-8'>
+      <SheetContent className="space-y-8">
         <SheetHeader>
           <SheetTitle>Add Consumption</SheetTitle>
           <SheetDescription>Add a new consumption.</SheetDescription>
@@ -182,7 +185,7 @@ function DeleteButton({ id, date }: { id: string; date: string }) {
           toast.error(error.name, { description: error.message });
         },
         onSuccess() {
-          toast.success('Successfully updated');
+          toast.success("Successfully updated");
           setShowModal(false);
         },
       },
@@ -192,21 +195,26 @@ function DeleteButton({ id, date }: { id: string; date: string }) {
   return (
     <AlertDialog open={showModal} onOpenChange={setShowModal}>
       <AlertDialogTrigger asChild>
-        <Button className='text-muted-foreground hover:text-destructive-foreground' size='icon' variant='outline'>
-          <Trash2Icon className='size-4' />
+        <Button
+          className="text-muted-foreground hover:text-destructive-foreground"
+          size="icon"
+          variant="outline"
+        >
+          <Trash2Icon className="size-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this consumption from our servers.
+            This action cannot be undone. This will permanently delete this consumption from our
+            servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            className='bg-destructive hover:bg-destructive-foreground text-white'
+            className="bg-destructive hover:bg-destructive-foreground text-white"
             onClick={handleDelete}
           >
             Delete

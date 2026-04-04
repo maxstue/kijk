@@ -1,3 +1,7 @@
+// Do not add any other lines of code to this file!
+// oxlint-disable-next-line no-unassigned-import
+import "@total-typescript/ts-reset";
+
 // ##### Ts extension types #####
 export type Optional<T> = T | undefined;
 export type Nullable<T> = T | null;
@@ -22,7 +26,7 @@ export interface ErrorDetails {
   description: string;
 }
 
-export const Allowed_Providers = ['Github'] as const;
+export const Allowed_Providers = ["Github"] as const;
 export type AllowedProviders = (typeof Allowed_Providers)[number];
 
 export interface Transaction {
@@ -35,33 +39,33 @@ export interface Transaction {
 }
 
 export const TransactionType = {
-  EXPENSE: 'Expense',
-  INCOME: 'Income',
+  EXPENSE: "Expense",
+  INCOME: "Income",
 } as const;
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
 export const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ] as const;
 
 export type Months = (typeof months)[number];
 
 export const CategoryTypes = {
-  EXPENSE: 'Expense',
-  INCOME: 'Income',
-  OTHER: 'Other',
+  EXPENSE: "Expense",
+  INCOME: "Income",
+  OTHER: "Other",
 } as const;
 
 export type CategoryType = (typeof CategoryTypes)[keyof typeof CategoryTypes];
@@ -88,10 +92,10 @@ export interface User_Metadata {
   user_name: Optional<string>;
 }
 
-export const CORRELATION_ID_HEADER = 'X-Correlation-Id';
-export const COOKIE_CONSENT_KEY = 'cookie_consent';
+export const CORRELATION_ID_HEADER = "X-Correlation-Id";
+export const COOKIE_CONSENT_KEY = "cookie_consent";
 
-export type CookieConsent = 'accepted' | 'declined' | 'undecided';
+export type CookieConsent = "accepted" | "declined" | "undecided";
 
 export interface Consumption {
   id: string;
@@ -103,8 +107,8 @@ export interface Consumption {
 }
 
 export const ValueTypes = {
-  ABSOLUTE: 'Absolute',
-  RELATIVE: 'Relative',
+  ABSOLUTE: "Absolute",
+  RELATIVE: "Relative",
 } as const;
 export type ValueType = (typeof ValueTypes)[keyof typeof ValueTypes];
 
@@ -132,8 +136,8 @@ export interface ResourceStats {
 }
 
 export const CreatorTypes = {
-  DEFAULT: 'Default',
-  USER: 'User',
+  DEFAULT: "Default",
+  USER: "User",
 } as const;
 export type CreatorType = (typeof CreatorTypes)[keyof typeof CreatorTypes];
 

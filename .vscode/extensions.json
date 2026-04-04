@@ -2,8 +2,6 @@
   "recommendations": [
     // Lint & Format
     "oxc.oxc-vscode",
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
     // CSharp
     "ms-dotnettools.csharp",
     // TypeScript
