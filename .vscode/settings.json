@@ -4,7 +4,7 @@
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
-    "**/.DS_Store": true
+    "**/.DS_Store": true,
   },
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "js/ts.preferences.importModuleSpecifier": "non-relative",
@@ -16,11 +16,11 @@
     "**/.git": true,
     "**/build": true,
     "**/.tanstack": true,
-    "**/routeTree.gen.ts": true
+    "**/routeTree.gen.ts": true,
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.format": "explicit",
-    "source.fixAll.oxc": "always"
+    "source.fixAll.oxc": "always",
   },
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
@@ -28,10 +28,13 @@
   "eslint.rules.customizations": [
     {
       "rule": "*",
-      "severity": "warn"
-    }
+      "severity": "warn",
+    },
   ],
   "[jsonc]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  }
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+  },
 }

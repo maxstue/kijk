@@ -2,12 +2,7 @@
   "name": "kijk-web",
   "version": "0.1.0",
   "private": true,
-  "keywords": [
-    "nextjs",
-    "pnpm",
-    "tailwindcss",
-    "shadcn/ui"
-  ],
+  "keywords": ["nextjs", "pnpm", "tailwindcss", "shadcn/ui"],
   "scripts": {
     "dev": "next dev -p 5003",
     "build": "next build",
