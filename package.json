@@ -3,7 +3,7 @@
   "version": "2026.1.4",
   "private": true,
   "description": "A simple household app made by different technologies.",
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=24"
   },
