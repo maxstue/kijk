@@ -1,7 +1,7 @@
+import { cn } from '@kijk/core/utils/style';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { Icons } from '@kijk/ui/components/icons';
 import { Separator } from '@kijk/ui/components/separator';
-import { cn } from '@kijk/ui/utils/style';
 import { Outlet, createFileRoute, redirect, createLink } from '@tanstack/react-router';
 
 import { NotFound } from '@/shared/components/not-found';

@@ -1,4 +1,4 @@
-import { useThemeStore } from '@kijk/ui/stores/theme-store';
+import { useThemeStore } from '@kijk/core/stores/theme-store';
 import { Toaster as Sonner } from 'sonner';
 import type { ToasterProps } from 'sonner';
 

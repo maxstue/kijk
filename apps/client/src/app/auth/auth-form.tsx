@@ -1,9 +1,9 @@
 import { useSignIn } from '@clerk/react/legacy';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Icons } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
-import { cn } from '@kijk/ui/utils/style';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';

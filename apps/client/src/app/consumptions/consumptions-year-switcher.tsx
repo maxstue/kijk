@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import {
   Command,
@@ -20,7 +21,6 @@ import {
 } from '@kijk/ui/components/dialog';
 import { Input } from '@kijk/ui/components/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
-import { cn } from '@kijk/ui/utils/style';
 import { useQueryClient } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';

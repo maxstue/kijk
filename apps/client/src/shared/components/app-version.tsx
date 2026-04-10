@@ -1,4 +1,4 @@
-import { cn } from '@kijk/ui/utils/style';
+import { cn } from '@kijk/core/utils/style';
 
 import { config } from '@/shared/config';
 
@@ -8,6 +8,7 @@ interface Props {
 
 /**
  * A component that displays the current version of the app. The version is retrieved from the {@link config}.
+ *
  * @param props The {@link Props} for the component
  */
 export function AppVersion({ className }: Props) {

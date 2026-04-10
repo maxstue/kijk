@@ -1,6 +1,6 @@
+import { cn } from '@kijk/core/utils/style';
 import { buttonVariants } from '@kijk/ui/components/button';
 import { Icons } from '@kijk/ui/components/icons';
-import { cn } from '@kijk/ui/utils/style';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { Undo2 } from 'lucide-react';
 import { useState } from 'react';

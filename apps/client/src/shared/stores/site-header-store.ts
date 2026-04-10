@@ -1,4 +1,4 @@
-import { createStoreFactory } from '@kijk/ui/utils/store';
+import { createStoreFactory } from '@kijk/core/utils/store';
 import type { StoreApi, UseBoundStore } from 'zustand';
 
 import { capitalizeFirstLetter } from '@/shared/utils/string';

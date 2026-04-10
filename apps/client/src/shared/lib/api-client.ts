@@ -1,4 +1,4 @@
-import { browserStorage } from '@kijk/ui/lib/browser-storage';
+import { browserStorage } from '@kijk/core/lib/browser-storage';
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 

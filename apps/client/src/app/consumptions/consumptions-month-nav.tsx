@@ -1,3 +1,4 @@
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import {
   Command,
@@ -8,7 +9,6 @@ import {
   CommandList,
 } from '@kijk/ui/components/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
-import { cn } from '@kijk/ui/utils/style';
 import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Suspense, useState } from 'react';

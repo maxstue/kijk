@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@kijk/ui/components/command';
 import { Input } from '@kijk/ui/components/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
-import { cn } from '@kijk/ui/utils/style';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';

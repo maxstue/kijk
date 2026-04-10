@@ -1,4 +1,4 @@
-import { browserStorage } from '@kijk/ui/lib/browser-storage';
+import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { posthog } from 'posthog-js';
 import type { CaptureOptions, PostHogConfig, Properties } from 'posthog-js';
 

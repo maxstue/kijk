@@ -1,7 +1,7 @@
+import type { Draft } from 'immer';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import type { Draft } from 'immer';
 import type { StoreApi } from 'zustand/vanilla';
 
 type ImmerSetter<T extends object> = (

@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { config } from '@/shared/config';
 
-/**
- * This component is only used in dev mode. It displays the current mode, the current dimensions and css breakpoint.
- */
+/** This component is only used in dev mode. It displays the current mode, the current dimensions and css breakpoint. */
 export function DevModeIndicator() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 

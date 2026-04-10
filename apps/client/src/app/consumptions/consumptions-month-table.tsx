@@ -1,6 +1,6 @@
+import { cn } from '@kijk/core/utils/style';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
-import { cn } from '@kijk/ui/utils/style';
 import { getRouteApi } from '@tanstack/react-router';
 import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';

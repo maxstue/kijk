@@ -1,0 +1,18 @@
+{
+  "name": "@kijk/config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./oxfmt": "./src/oxfmt.config.ts",
+    "./oxfmt-base": "./src/oxfmt.config.ts",
+    "./oxlint-base": "./src/oxlint.config.ts",
+    "./oxlint": "./src/oxlint/index.ts"
+  },
+  "devDependencies": {
+    "@kijk/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:"
+  }
+}

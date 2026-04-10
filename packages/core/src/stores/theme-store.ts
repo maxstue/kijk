@@ -1,9 +1,8 @@
+import { browserStorage } from '@kijk/core/lib/browser-storage';
+import { themeStorageKey } from '@kijk/core/lib/constants';
+import { createStoreFactory } from '@kijk/core/utils/store';
 import type { ToasterProps } from 'sonner';
 import type { StoreApi, UseBoundStore } from 'zustand';
-
-import { browserStorage } from '@kijk/ui/lib/browser-storage';
-import { themeStorageKey } from '@kijk/ui/lib/constants';
-import { createStoreFactory } from '@kijk/ui/utils/store';
 
 interface Storage {
   mode: ToasterProps['theme'];
@@ -29,4 +28,4 @@ const themeStore = createStoreFactory<State>('theme-store', (set) => ({
 }));
 
 export const useThemeStore = themeStore as UseBoundStore<StoreApi<Omit<State, 'actions'>>>;
-export const useThemeStoreActions = () => themeStore((state) => state.actions);
+export const useThemeStoreActions = () => themeStore((state: State) => state.actions);

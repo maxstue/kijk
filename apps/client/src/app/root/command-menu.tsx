@@ -1,3 +1,5 @@
+import { useThemeStoreActions } from '@kijk/core/stores/theme-store';
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import {
   Command,
@@ -11,8 +13,6 @@ import {
 } from '@kijk/ui/components/command';
 import { DialogDescription, DialogTitle } from '@kijk/ui/components/dialog';
 import { Icons } from '@kijk/ui/components/icons';
-import { useThemeStoreActions } from '@kijk/ui/stores/theme-store';
-import { cn } from '@kijk/ui/utils/style';
 import { useNavigate } from '@tanstack/react-router';
 import { HousePlug, Laptop, LayoutDashboard, Moon, SunMedium } from 'lucide-react';
 import type { Dialog } from 'radix-ui';

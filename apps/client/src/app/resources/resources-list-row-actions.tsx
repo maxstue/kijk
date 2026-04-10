@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Dialog } from '@kijk/ui/components/dialog';
 import {
@@ -21,7 +22,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@kijk/ui/components/sheet';
-import { cn } from '@kijk/ui/utils/style';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { useCallback, useState } from 'react';

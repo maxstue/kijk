@@ -1,8 +1,8 @@
+import { useThemeStore, useThemeStoreActions } from '@kijk/core/stores/theme-store';
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Label } from '@kijk/ui/components/label';
 import { Separator } from '@kijk/ui/components/separator';
-import { useThemeStore, useThemeStoreActions } from '@kijk/ui/stores/theme-store';
-import { cn } from '@kijk/ui/utils/style';
 import { MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
 
 export function AppearanceSection() {

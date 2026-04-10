@@ -1,3 +1,4 @@
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import {
   Sheet,
@@ -14,7 +15,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@kijk/ui/components/sidebar';
-import { cn } from '@kijk/ui/utils/style';
 import { Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { Suspense, useState } from 'react';

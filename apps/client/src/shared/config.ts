@@ -1,4 +1,4 @@
-import { logger } from '@kijk/ui/lib/logger';
+import { logger } from '@kijk/core/lib/logger';
 import { z } from 'zod';
 
 import { AppError } from '@/shared/types/errors';
@@ -52,6 +52,8 @@ if (!envParse.success) {
 }
 
 /**
- * A config object that contains the environment variables of the application. It is initialized at the start of the application and can be imported and used in any part of the application. The environment variables are validated using Zod and if there is an error, an AppError is thrown with the details of the error.
+ * A config object that contains the environment variables of the application. It is initialized at the start of the
+ * application and can be imported and used in any part of the application. The environment variables are validated
+ * using Zod and if there is an error, an AppError is thrown with the details of the error.
  */
 export const config = envParse.data;

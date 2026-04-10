@@ -2,7 +2,12 @@
   "name": "kijk-web",
   "version": "0.1.0",
   "private": true,
-  "keywords": ["nextjs", "pnpm", "tailwindcss", "shadcn/ui"],
+  "keywords": [
+    "nextjs",
+    "pnpm",
+    "shadcn/ui",
+    "tailwindcss"
+  ],
   "scripts": {
     "dev": "next dev -p 5003",
     "build": "next build",
@@ -12,8 +17,8 @@
     "lint:knip": "knip",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --check \"**/*.{ts,tsx,mdx}\"",
-    "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\"",
+    "fmt": "prettier --check \"**/*.{ts,tsx,mdx}\"",
+    "fmt:write": "prettier --write \"**/*.{ts,tsx,mdx}\"",
     "clean:all": "rimraf ./dist ./stats ./node_modules ./*.lock ./.eslintcache",
     "clean:dedupe": "pnpm dedupe --check",
     "clean:packages": "rimraf ./node_modules",

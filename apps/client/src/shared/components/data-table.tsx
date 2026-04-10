@@ -1,9 +1,9 @@
 // 'use no memo' until the react compiler/table bug is fixed https://github.com/TanStack/table/issues/5567
 'use no memo';
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import { cn } from '@kijk/ui/utils/style';
 import {
   flexRender,
   getCoreRowModel,

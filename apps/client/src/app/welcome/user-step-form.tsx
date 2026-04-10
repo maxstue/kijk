@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
-import { cn } from '@kijk/ui/utils/style';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 

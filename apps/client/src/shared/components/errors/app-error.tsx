@@ -1,6 +1,6 @@
+import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { cn } from '@kijk/ui/utils/style';
 import type { ErrorComponentProps } from '@tanstack/react-router';
 import { ArrowDownIcon } from 'lucide-react';
 import { useState } from 'react';

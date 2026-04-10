@@ -1,3 +1,4 @@
+import { cn } from '@kijk/core/utils/style';
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 import { Button } from '@kijk/ui/components/button';
 import {
@@ -22,7 +23,6 @@ import { Input } from '@kijk/ui/components/input';
 import { Label } from '@kijk/ui/components/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { cn } from '@kijk/ui/utils/style';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 

@@ -6,12 +6,18 @@ settings:
 
 catalogs:
   default:
-    '@base-ui/react':
-      specifier: ^1.3.0
-      version: 1.3.0
-    '@fontsource-variable/geist':
+    '@fontsource-variable/inter':
       specifier: ^5.2.8
       version: 5.2.8
+    '@types/node':
+      specifier: ^25.1.0
+      version: 25.5.0
+    oxfmt:
+      specifier: ^0.43.0
+      version: 0.43.0
+    oxlint:
+      specifier: ^1.55.0
+      version: 1.58.0
     radix-ui:
       specifier: ^1.4.3
       version: 1.4.3
@@ -61,6 +67,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.72.0(react@19.2.4))
+      '@kijk/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@kijk/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -173,6 +182,9 @@ importers:
       '@clerk/shared':
         specifier: ^4.4.0
         version: 4.4.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@kijk/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@kijk/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -334,19 +346,83 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  packages/config:
+    devDependencies:
+      '@kijk/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.5.0
+      oxfmt:
+        specifier: 'catalog:'
+        version: 0.43.0
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.58.0(oxlint-tsgolint@0.19.0)
+
+  packages/core:
+    dependencies:
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      immer:
+        specifier: ^11.1.4
+        version: 11.1.4
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      tailwind-merge:
+        specifier: ^3.5.0
+        version: 3.5.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+      zustand:
+        specifier: ^5.0.11
+        version: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
+    devDependencies:
+      '@kijk/config':
+        specifier: workspace:*
+        version: link:../config
+      '@kijk/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: ^25.1.0
+        version: 25.5.0
+      '@types/react':
+        specifier: ^19.2.10
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      oxfmt:
+        specifier: ^0.40.0
+        version: 0.40.0
+      oxlint:
+        specifier: ^1.55.0
+        version: 1.58.0(oxlint-tsgolint@0.19.0)
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.2.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/tsconfig: {}
 
   packages/ui:
     dependencies:
-      '@base-ui/react':
-        specifier: 'catalog:'
-        version: 1.3.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@fontsource-variable/geist':
-        specifier: 'catalog:'
-        version: 5.2.8
       '@fontsource-variable/inter':
-        specifier: ^5.2.8
+        specifier: 'catalog:'
         version: 5.2.8
+      '@kijk/core':
+        specifier: workspace:*
+        version: link:../core
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -362,9 +438,6 @@ importers:
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.4)
-      immer:
-        specifier: ^11.1.4
-        version: 11.1.4
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -407,13 +480,10 @@ importers:
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      zod:
-        specifier: ^3.25.76
-        version: 3.25.76
-      zustand:
-        specifier: ^5.0.11
-        version: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
     devDependencies:
+      '@kijk/config':
+        specifier: workspace:*
+        version: link:../config
       '@kijk/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
@@ -677,27 +747,6 @@ packages:
 
   '@base-org/account@2.0.1':
     resolution: {integrity: sha512-tySVNx+vd6XEynZL0uvB10uKiwnAfThr8AbKTwILVG86mPbLAhEOInQIk+uDnvpTvfdUhC1Bi5T/46JvFoLZQQ==}
-
-  '@base-ui/react@1.3.0':
-    resolution: {integrity: sha512-FwpKqZbPz14AITp1CVgf4AjhKPe1OeeVKSBMdgD10zbFlj3QSWelmtCMLi2+/PFZZcIm3l87G7rwtCZJwHyXWA==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      '@types/react': ^17 || ^18 || ^19
-      react: ^17 || ^18 || ^19
-      react-dom: ^17 || ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-
-  '@base-ui/utils@0.2.6':
-    resolution: {integrity: sha512-yQ+qeuqohwhsNpoYDqqXaLllYAkPCP4vYdDrVo8FQXaAPfHWm1pG/Vm+jmGTA5JFS0BAIjookyapuJFY8F9PIw==}
-    peerDependencies:
-      '@types/react': ^17 || ^18 || ^19
-      react: ^17 || ^18 || ^19
-      react-dom: ^17 || ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@clerk/clerk-js@6.4.0':
     resolution: {integrity: sha512-edKeYRs6Ix9fwY1Rw05EdEhePs0flepKwATXyyh2+IWNL/tNtOvThtkTb6DcSsMvHhg6i+F//4E5k4dQ0ZDCEw==}
@@ -973,9 +1022,6 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
-
-  '@fontsource-variable/geist@5.2.8':
-    resolution: {integrity: sha512-cJ6m9e+8MQ5dCYJsLylfZrgBh6KkG4bOLckB35Tr9J/EqdkEM6QllH5PxqP1dhTvFup+HtMRPuz9xOjxXJggxw==}
 
   '@fontsource-variable/inter@5.2.8':
     resolution: {integrity: sha512-kOfP2D+ykbcX/P3IFnokOhVRNoTozo5/JxhAIVYLpea/UBmCQ/YWPBfWIDuBImXX/15KH+eKh4xpEUyS2sQQGQ==}
@@ -8684,9 +8730,6 @@ packages:
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  tabbable@6.4.0:
-    resolution: {integrity: sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg==}
-
   tagged-tag@1.0.0:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
@@ -9768,30 +9811,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@base-ui/react@1.3.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@babel/runtime': 7.29.2
-      '@base-ui/utils': 0.2.6(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@floating-ui/utils': 0.2.11
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      tabbable: 6.4.0
-      use-sync-external-store: 1.6.0(react@19.2.4)
-    optionalDependencies:
-      '@types/react': 19.2.14
-
-  '@base-ui/utils@0.2.6(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@babel/runtime': 7.29.2
-      '@floating-ui/utils': 0.2.11
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      reselect: 5.1.1
-      use-sync-external-store: 1.6.0(react@19.2.4)
-    optionalDependencies:
-      '@types/react': 19.2.14
-
   '@clerk/clerk-js@6.4.0(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@6.0.2)(utf-8-validate@6.0.6))(@types/react@19.2.14)(bs58@6.0.0)(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(immer@11.1.4)(react-dom@19.2.4(react@19.2.4))(react-native@0.84.1(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(react@19.2.4)(typescript@6.0.2)(use-sync-external-store@1.6.0(react@19.2.4))(utf-8-validate@6.0.6)(zod@4.3.6)':
     dependencies:
       '@base-org/account': 2.0.1(@types/react@19.2.14)(bufferutil@4.1.0)(immer@11.1.4)(react@19.2.4)(typescript@6.0.2)(use-sync-external-store@1.6.0(react@19.2.4))(utf-8-validate@6.0.6)(zod@4.3.6)
@@ -10079,8 +10098,6 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
 
   '@floating-ui/utils@0.2.11': {}
-
-  '@fontsource-variable/geist@5.2.8': {}
 
   '@fontsource-variable/inter@5.2.8': {}
 
@@ -19370,8 +19387,6 @@ snapshots:
       dequal: 2.0.3
       react: 18.3.1
       use-sync-external-store: 1.6.0(react@18.3.1)
-
-  tabbable@6.4.0: {}
 
   tagged-tag@1.0.0: {}
 

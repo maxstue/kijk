@@ -1,5 +1,5 @@
+import { cn } from '@kijk/core/utils/style';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
-import { cn } from '@kijk/ui/utils/style';
 import { CookieIcon, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
 

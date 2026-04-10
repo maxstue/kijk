@@ -1,5 +1,5 @@
+import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { SidebarInset, SidebarProvider } from '@kijk/ui/components/sidebar';
-import { browserStorage } from '@kijk/ui/lib/browser-storage';
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
 import { AppSidebar } from '@/app/root/app-sidebar';
