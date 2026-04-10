@@ -18,3 +18,4 @@ onlyBuiltDependencies:
   - core-js-pure
   - unrs-resolver
 sharedWorkspaceLockfile: true
+minimumReleaseAge: 2880 # 2 dayss
