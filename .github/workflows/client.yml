@@ -49,7 +49,7 @@ jobs:
         run: pnpm build
 
       - name: "🧹 Format"
-        run: pnpm format
+        run: pnpm fmt
 
       - name: "🔍 Lint"
         run: pnpm lint
