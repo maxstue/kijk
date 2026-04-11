@@ -2,7 +2,7 @@ import { cn } from '@kijk/core/utils/style';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { Icons } from '@kijk/ui/components/icons';
 import { Separator } from '@kijk/ui/components/separator';
-import { Outlet, createFileRoute, redirect, createLink } from '@tanstack/react-router';
+import { Outlet, createFileRoute, createLink, redirect } from '@tanstack/react-router';
 
 import { NotFound } from '@/shared/components/not-found';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
@@ -11,7 +11,7 @@ import { settingsNav } from '@/shared/lib/constants';
 export const Route = createFileRoute('/_protected/settings')({
   beforeLoad: ({ location }) => {
     if (location.pathname === '/settings') {
-      throw redirect({ to: '/settings/$section', params: { section: 'profile' } });
+      throw redirect({ params: { section: 'profile' }, to: '/settings/$section' });
     }
   },
   component: SettingsPage,

@@ -49,12 +49,12 @@ function onResponseError(error: AxiosError) {
 function onRequestError(error: AxiosError) {
   return Promise.reject(error);
   // TODO handle 401
-  // const errInterceptor = (error) => {
-  //   if (error.response.status === 401) {
+  // Const errInterceptor = (error) => {
+  //   If (error.response.status === 401) {
   //     //redirect logic here
   //   }
 
-  //   return Promise.reject();
+  //   Return Promise.reject();
   // };
 }
 
@@ -63,6 +63,14 @@ baseInstance.interceptors.response.use(onResponse, onResponseError);
 
 /** The base api instance. */
 const apiClient = {
+  delete<TReturn = unknown>(options: RequestOptions) {
+    const { url, abort, data } = options;
+    return baseInstance
+      .delete<TReturn>(url, { ...options, data, signal: abort?.signal })
+      .then(onFulfilled)
+      .catch(onRejected);
+  },
+
   get<TReturn = unknown>(options: RequestOptions) {
     const { url, abort } = options;
     return baseInstance
@@ -83,14 +91,6 @@ const apiClient = {
     const { url, abort, data } = options;
     return baseInstance
       .put<TReturn>(url, data, { ...options, signal: abort?.signal })
-      .then(onFulfilled)
-      .catch(onRejected);
-  },
-
-  delete<TReturn = unknown>(options: RequestOptions) {
-    const { url, abort, data } = options;
-    return baseInstance
-      .delete<TReturn>(url, { ...options, data, signal: abort?.signal })
       .then(onFulfilled)
       .catch(onRejected);
   },

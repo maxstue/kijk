@@ -6,8 +6,8 @@ const ENDPOINT = 'consumptions';
 
 export function getYears(signal?: AbortSignal) {
   return apiClient.get<Years>({
-    url: `${ENDPOINT}/years`,
     signal,
+    url: `${ENDPOINT}/years`,
   });
 }
 
@@ -25,9 +25,9 @@ export function getYears(signal?: AbortSignal) {
  */
 export function getConsumptionsBy(year?: string, month?: string, signal?: AbortSignal) {
   return apiClient.get<Consumption[]>({
-    url: ENDPOINT,
-    params: { year, month },
+    params: { month, year },
     signal,
+    url: ENDPOINT,
   });
 }
 
@@ -41,31 +41,31 @@ export function getConsumptionsBy(year?: string, month?: string, signal?: AbortS
  */
 export function getConsumptionsStats(year?: string, month?: string, signal?: AbortSignal) {
   return apiClient.get<ConsumptionsStatsType>({
-    url: `${ENDPOINT}/stats`,
-    params: { year, month },
+    params: { month, year },
     signal,
+    url: `${ENDPOINT}/stats`,
   });
 }
 
 export function createConsumption(data: ConsumptionCreateFormSchema, signal?: AbortSignal) {
   return apiClient.post<Consumption>({
-    url: ENDPOINT,
     data,
     signal,
+    url: ENDPOINT,
   });
 }
 
 export function updateConsumption(id: string, data: Partial<ConsumptionCreateFormSchema>, signal?: AbortSignal) {
   return apiClient.put<Consumption>({
-    url: `${ENDPOINT}/${id}`,
     data,
     signal,
+    url: `${ENDPOINT}/${id}`,
   });
 }
 
 export function deleteConsumption(id: string, signal?: AbortSignal) {
   return apiClient.delete<Consumption>({
-    url: `${ENDPOINT}/${id}`,
     signal,
+    url: `${ENDPOINT}/${id}`,
   });
 }

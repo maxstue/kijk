@@ -19,12 +19,12 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
   const { isPending, mutate } = useCreateResource();
 
   const form = useForm({
-    resolver: zodResolver(resourceSchema),
     defaultValues: {
-      name: '',
       color: '#000000',
+      name: '',
       unit: '',
     },
+    resolver: zodResolver(resourceSchema),
   });
 
   function onSubmit(data: ResourceFormValues) {

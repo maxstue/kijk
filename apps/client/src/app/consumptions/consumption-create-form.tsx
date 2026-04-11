@@ -18,7 +18,7 @@ import { consumptionCreateSchema } from '@/app/consumptions/schemas';
 import { useCreateConsumption } from '@/app/consumptions/use-create-consumption.ts';
 import { useGetResources } from '@/app/resources/use-get-resources';
 import { DatePicker } from '@/shared/components/date-picker';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/components/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Months } from '@/shared/types/app';
 import { ValueTypes } from '@/shared/types/app';
@@ -39,14 +39,14 @@ export function ConsumptionCreateForm({ onClose, ...props }: Props) {
   const creationDate = new Date(`${Number(year)}-${getMonthIndexFromString(month)}-${new Date().getDate()}`);
 
   const form = useForm({
-    resolver: zodResolver(consumptionCreateSchema),
     defaultValues: {
+      date: creationDate,
       name: '',
+      resourceId: undefined,
       value: 0,
       valueType: ValueTypes.ABSOLUTE,
-      resourceId: undefined,
-      date: creationDate,
     },
+    resolver: zodResolver(consumptionCreateSchema),
   });
 
   const handleError = () => toast('Error updating');

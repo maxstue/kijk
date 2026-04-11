@@ -40,31 +40,30 @@ interface DataFile {
 
 const columns: Array<ColumnDef<DataFile>> = [
   {
-    id: 'select',
-    header: ({ table }) => (
-      <div className='flex items-center justify-center'>
-        <Checkbox
-          aria-label='Select all'
-          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && undefined)}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      </div>
-    ),
     cell: ({ row }) => (
       <div className='flex items-center justify-center'>
         <Checkbox
           aria-label='Select row'
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
         />
       </div>
     ),
-    enableSorting: false,
     enableHiding: false,
+    enableSorting: false,
+    header: ({ table }) => (
+      <div className='flex items-center justify-center'>
+        <Checkbox
+          aria-label='Select all'
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && undefined)}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(Boolean(value))}
+        />
+      </div>
+    ),
+    id: 'select',
   },
   {
     accessorKey: 'type',
-    header: 'Resource',
     cell: ({ row }) => (
       <div className='w-32'>
         <Badge className='text-muted-foreground px-1.5' variant='outline'>
@@ -72,18 +71,18 @@ const columns: Array<ColumnDef<DataFile>> = [
         </Badge>
       </div>
     ),
+    header: 'Resource',
   },
   {
     accessorKey: 'limit',
-    header: () => <div className='w-full text-right'>Limit</div>,
     cell: ({ row }) => (
       <div className='flex w-full justify-end'>
         <span className='text-muted-foreground'>{row.original.limit}</span>
       </div>
     ),
+    header: () => <div className='w-full text-right'>Limit</div>,
   },
   {
-    id: 'actions',
     cell: () => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -100,6 +99,7 @@ const columns: Array<ColumnDef<DataFile>> = [
         </DropdownMenuContent>
       </DropdownMenu>
     ),
+    id: 'actions',
   },
 ];
 
@@ -114,26 +114,26 @@ export function HomeTable() {
   });
 
   const table = useReactTable({
-    data: dataFile,
     columns,
-    state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters,
-      pagination,
-    },
-    getRowId: (row) => row.id.toString(),
+    data: dataFile,
     enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getRowId: (row) => row.id.toString(),
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    state: {
+      columnFilters,
+      columnVisibility,
+      pagination,
+      rowSelection,
+      sorting,
+    },
   });
 
   return (
@@ -172,18 +172,16 @@ export function HomeTable() {
               {table
                 .getAllColumns()
                 .filter((column) => column.accessorFn !== undefined && column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      checked={column.getIsVisible()}
-                      className='capitalize'
-                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    checked={column.getIsVisible()}
+                    className='capitalize'
+                    onCheckedChange={(value) => column.toggleVisibility(Boolean(value))}
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -195,13 +193,11 @@ export function HomeTable() {
             <TableHeader className='bg-muted sticky top-0 z-10'>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>

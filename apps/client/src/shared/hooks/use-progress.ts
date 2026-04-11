@@ -9,8 +9,8 @@ export default function useProgress() {
   const value = useSpring(0, {
     damping: 25,
     mass: 0.5,
-    stiffness: 300,
     restDelta: 0.1,
+    stiffness: 300,
   });
 
   useInterval(
@@ -62,7 +62,7 @@ export default function useProgress() {
     setState((s) => (s === 'initial' || s === 'in-progress' ? 'completing' : s));
   }
 
-  return { state, value, start, done, reset };
+  return { done, reset, start, state, value };
 }
 
 function secureRandomInRange(min: number, max: number) {

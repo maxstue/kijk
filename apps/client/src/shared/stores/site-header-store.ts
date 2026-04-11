@@ -11,7 +11,6 @@ interface State {
 }
 
 const siteHeaderStore = createStoreFactory<State>('theme-store', (set) => ({
-  title: 'Kijk',
   actions: {
     setTitle(newTitle) {
       set((state) => {
@@ -19,6 +18,7 @@ const siteHeaderStore = createStoreFactory<State>('theme-store', (set) => ({
       });
     },
   },
+  title: 'Kijk',
 }));
 
 export const useSiteHeaderStore = siteHeaderStore as UseBoundStore<StoreApi<Omit<State, 'actions'>>>;

@@ -1,7 +1,8 @@
 import { useUser } from '@clerk/react';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@kijk/ui/components/carousel';
+import { Carousel, CarouselContent, CarouselItem } from '@kijk/ui/components/carousel';
+import type { CarouselApi } from '@kijk/ui/components/carousel';
 import { Progress } from '@kijk/ui/components/progress';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -20,16 +21,16 @@ export const Route = createFileRoute('/welcome')({
     const session = authClient?.session;
     const sessionToken = await session?.getToken();
     if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
-      throw redirect({ to: '/auth', search: { from: location.href } });
+      throw redirect({ search: { from: location.href }, to: '/auth' });
     }
 
     const user = await queryClient.ensureQueryData(userSignInQuery);
     if (user.firstTime == false) {
-      throw redirect({ to: '/home', replace: true });
+      throw redirect({ replace: true, to: '/home' });
     }
   },
-  pendingComponent: InitLoader,
   component: WelcomePage,
+  pendingComponent: InitLoader,
 });
 
 const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Finish' }];
@@ -38,8 +39,8 @@ function WelcomePage() {
   useSetSiteHeader('Welcome');
   const { user } = useUser();
   const [userStep, setUserStep] = useState<UserStepFormValues>({
-    userName: user?.username ?? '',
     useDefaultResources: true,
+    userName: user?.username ?? '',
   });
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(1);
@@ -81,13 +82,13 @@ function WelcomePage() {
 
   const handleFinish = useCallback(() => {
     mutate(userStep, {
-      async onSuccess() {
-        await navigate({ to: '/home', replace: true });
-      },
       onError(error) {
         toast('An error occurred while creating your user.', {
           description: `${error.response?.data.errors?.[0].code}: ${error.response?.data.errors?.[0].description}`,
         });
+      },
+      async onSuccess() {
+        await navigate({ replace: true, to: '/home' });
       },
     });
   }, [mutate, navigate, userStep]);

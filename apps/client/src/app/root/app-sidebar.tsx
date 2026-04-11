@@ -1,12 +1,12 @@
 import { Icons } from '@kijk/ui/components/icons';
 import {
   Sidebar,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from '@kijk/ui/components/sidebar';
 import { Link } from '@tanstack/react-router';
 import * as React from 'react';

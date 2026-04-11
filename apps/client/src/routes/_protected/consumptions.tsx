@@ -51,14 +51,14 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute('/_protected/consumptions')({
+  component: UsagePage,
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
+  notFoundComponent: NotFound,
+  pendingComponent: () => <Loader className='h-6 w-6' />,
   loader: ({ context: { queryClient }, deps }) => {
     queryClient.ensureQueryData(getConsumptionsQuery(deps.year, deps.month));
   },
-  component: UsagePage,
-  notFoundComponent: NotFound,
-  pendingComponent: () => <Loader className='h-6 w-6' />,
 });
 
 function UsagePage() {

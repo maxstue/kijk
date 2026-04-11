@@ -44,10 +44,10 @@ const envParse = envSchema.safeParse({
 if (!envParse.success) {
   logger.error('env invalid', { errors: envParse.error.issues });
   throw new AppError({
-    type: 'ENVIRONMENT',
     message: `There is an error with the environment variables. ${envParse.error.issues
       .map((x) => `[${x.path.at(0)?.toString()}]: ${x.code}: ${x.message}`)
       .join('; ')}`,
+    type: 'ENVIRONMENT',
   });
 }
 

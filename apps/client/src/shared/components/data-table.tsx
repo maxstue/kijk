@@ -27,17 +27,17 @@ export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }
   const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
-    data,
     columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
     state: {
-      sorting: sorting,
       columnFilters,
+      sorting: sorting,
     },
   });
 
@@ -57,15 +57,11 @@ export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className={cn(header.id === 'actions' && 'w-4')}>
-                      {header.isPlaceholder
-                        ? undefined
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className={cn(header.id === 'actions' && 'w-4')}>
+                    {header.isPlaceholder ? undefined : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

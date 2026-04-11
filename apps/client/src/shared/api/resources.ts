@@ -6,30 +6,30 @@ const ENDPOINT = 'resources';
 
 export function getResources(signal?: AbortSignal) {
   return apiClient.get<Resource[]>({
-    url: ENDPOINT,
     signal,
+    url: ENDPOINT,
   });
 }
 
 export function createResource(data: ResourceFormValues, signal?: AbortSignal) {
   return apiClient.post<Resource>({
-    url: ENDPOINT,
     data,
     signal,
+    url: ENDPOINT,
   });
 }
 
 export function updateResource(data: { id: string; resourceType: ResourceFormValues }, signal?: AbortSignal) {
   return apiClient.put({
-    url: `${ENDPOINT}/${data.id}`,
     data: data.resourceType,
     signal,
+    url: `${ENDPOINT}/${data.id}`,
   });
 }
 
 export function deleteResource(id: string, signal?: AbortSignal) {
   return apiClient.delete({
-    url: `${ENDPOINT}/${id}`,
     signal,
+    url: `${ENDPOINT}/${id}`,
   });
 }

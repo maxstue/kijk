@@ -11,7 +11,7 @@ import type { ControllerRenderProps } from 'react-hook-form';
 import type { AuthSchema } from '@/app/auth/schemas';
 import { authSchema } from '@/app/auth/schemas';
 import { Route } from '@/routes/auth';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/components/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Allowed_Providers } from '@/shared/types/app';
 
 interface Props {
@@ -22,12 +22,12 @@ interface Props {
 
 export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
   const form = useForm({
-    resolver: zodResolver(authSchema),
     defaultValues: {
       email: '',
       password: '',
     },
     mode: 'onBlur',
+    resolver: zodResolver(authSchema),
   });
   const [isLoading, setIsLoading] = useState(false);
   const searchParameters = Route.useSearch();
@@ -45,9 +45,9 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
       return;
     }
     await signIn.authenticateWithRedirect({
-      strategy: 'oauth_github',
       redirectUrl: '/sso-callback',
       redirectUrlComplete: searchParameters.from ?? '/',
+      strategy: 'oauth_github',
     });
   }, [isLoaded, searchParameters.from, signIn]);
 

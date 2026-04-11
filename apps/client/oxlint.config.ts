@@ -1,32 +1,32 @@
 import {
-  reactHooksRules,
-  tanstackQueryRules,
   reactHooksJsPlugin,
-  tanstackQueryJsPlugin,
-  tanstackRouterRules,
-  tanstackRouterJsPlugin,
+  reactHooksRules,
   sharedIgnorePatterns,
+  tanstackQueryJsPlugin,
+  tanstackQueryRules,
+  tanstackRouterJsPlugin,
+  tanstackRouterRules,
 } from '@kijk/config/oxlint';
 import baseConfig from '@kijk/config/oxlint-base';
 import { defineConfig } from 'oxlint';
 
 export default defineConfig({
-  extends: [baseConfig],
-  ignorePatterns: [...sharedIgnorePatterns],
   categories: {
     correctness: 'warn',
-    style: 'warn',
     perf: 'warn',
+    style: 'warn',
   },
   env: {
     builtin: true,
   },
+  extends: [baseConfig],
+  ignorePatterns: [...sharedIgnorePatterns],
+  jsPlugins: [reactHooksJsPlugin, tanstackRouterJsPlugin, tanstackQueryJsPlugin],
   options: {
     typeAware: true,
     typeCheck: true,
   },
   plugins: ['react', 'react-perf'],
-  jsPlugins: [reactHooksJsPlugin, tanstackRouterJsPlugin, tanstackQueryJsPlugin],
   rules: {
     ...reactHooksRules,
     ...tanstackRouterRules,

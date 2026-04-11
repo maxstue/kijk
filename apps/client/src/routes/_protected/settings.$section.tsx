@@ -13,9 +13,9 @@ import { settingsTo } from '@/shared/lib/constants';
 const sectionSchema = z.enum(settingsTo);
 
 export const Route = createFileRoute('/_protected/settings/$section')({
-  parseParams: (parameters) => ({ section: sectionSchema.parse(parameters.section) }),
   component: SettingsSectionPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
+  parseParams: (parameters) => ({ section: sectionSchema.parse(parameters.section) }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });
 

@@ -7,13 +7,11 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export const AuthProvider = ({ children }: Props) => {
-  return (
-    <ClerkProvider afterSignOutUrl='/' publishableKey={config.AuthPublishableKey}>
-      <InnerAuthProvider>{children}</InnerAuthProvider>
-    </ClerkProvider>
-  );
-};
+export const AuthProvider = ({ children }: Props) => (
+  <ClerkProvider afterSignOutUrl='/' publishableKey={config.AuthPublishableKey}>
+    <InnerAuthProvider>{children}</InnerAuthProvider>
+  </ClerkProvider>
+);
 
 function InnerAuthProvider({ children }: Props) {
   const { isLoaded } = useAuth();

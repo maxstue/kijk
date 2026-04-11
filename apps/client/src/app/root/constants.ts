@@ -9,33 +9,33 @@ interface MainNavItem {
 
 export const mainNav = [
   {
-    title: 'Home',
-    url: '/home',
     icon: LayoutDashboardIcon,
     isActive: true,
+    title: 'Home',
+    url: '/home',
   },
   {
-    title: 'Analytics',
-    url: '/analytics',
     icon: ChartAreaIcon,
     isActive: false,
+    title: 'Analytics',
+    url: '/analytics',
   },
   {
-    title: 'Consumptions',
-    url: '/consumptions',
     icon: HousePlugIcon,
     isActive: true,
+    title: 'Consumptions',
+    url: '/consumptions',
   },
   {
-    title: 'Limits',
-    url: '/consumptions-limits',
     icon: TriangleAlertIcon,
     isActive: false,
+    title: 'Limits',
+    url: '/consumptions-limits',
   },
   {
-    title: 'Resources',
-    url: '/resources',
     icon: HousePlugIcon,
     isActive: false,
+    title: 'Resources',
+    url: '/resources',
   },
 ] satisfies MainNavItem[];

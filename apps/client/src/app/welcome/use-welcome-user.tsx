@@ -10,12 +10,11 @@ export const useWelcomeUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation<unknown, AxiosError<ApiError>, UserStepFormValues>({
-    mutationFn: (data: UserStepFormValues) => {
-      return apiClient.put({
-        url: 'users/welcome',
+    mutationFn: (data: UserStepFormValues) =>
+      apiClient.put({
         data: data,
-      });
-    },
+        url: 'users/welcome',
+      }),
     onSuccess() {
       const cachedUser = queryClient.getQueryData(userSignInQuery.queryKey);
       if (cachedUser) {

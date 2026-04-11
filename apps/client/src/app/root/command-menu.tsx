@@ -100,12 +100,12 @@ export function CommandMenu({ ...props }: Props) {
                 key='resource'
                 onSelect={runCommand(() =>
                   navigate({
-                    to: '/consumptions',
                     search: (previous) => ({
                       ...previous,
                       month: months[new Date().getMonth()],
                       year: new Date().getFullYear(),
                     }),
+                    to: '/consumptions',
                   }),
                 )}
               >
@@ -120,7 +120,7 @@ export function CommandMenu({ ...props }: Props) {
                 return (
                   <CommandItem
                     key={item.label}
-                    onSelect={runCommand(() => navigate({ to: '/settings/$section', params: { section: item.to } }))}
+                    onSelect={runCommand(() => navigate({ params: { section: item.to }, to: '/settings/$section' }))}
                   >
                     <Icon />
                     {item.label}

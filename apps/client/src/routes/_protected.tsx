@@ -15,12 +15,12 @@ export const Route = createFileRoute('/_protected')({
     const session = authClient?.session;
     const sessionToken = await session?.getToken();
     if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
-      throw redirect({ to: '/auth', search: { from: location.href } });
+      throw redirect({ search: { from: location.href }, to: '/auth' });
     }
 
     const user = await queryClient.ensureQueryData(userSignInQuery);
     if (user.firstTime) {
-      throw redirect({ to: '/welcome', replace: true });
+      throw redirect({ replace: true, to: '/welcome' });
     }
     const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
     if (correlationId) {

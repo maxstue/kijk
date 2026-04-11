@@ -26,7 +26,7 @@ export function NavUser() {
   const handleSignOut = (event: Event) => {
     event.preventDefault();
     signOut()
-      .then(() => navigate({ to: '/auth', replace: true }))
+      .then(() => navigate({ replace: true, to: '/auth' }))
       .catch(console.warn);
   };
 

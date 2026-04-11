@@ -49,8 +49,8 @@ const defaultValues: Partial<PrivacyFormValues> = {
 
 export function InfoSection() {
   const form = useForm({
-    resolver: zodResolver(privacyFormSchema),
     defaultValues,
+    resolver: zodResolver(privacyFormSchema),
   });
 
   return (

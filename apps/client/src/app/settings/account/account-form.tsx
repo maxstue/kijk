@@ -11,11 +11,11 @@ import { z } from 'zod';
 
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage,
 } from '@/shared/components/form';
 
@@ -32,6 +32,9 @@ const languages = [
 ] as const;
 
 const accountFormSchema = z.object({
+  language: z.string({
+    message: 'Please select a language.',
+  }),
   name: z
     .string()
     .min(2, {
@@ -40,19 +43,16 @@ const accountFormSchema = z.object({
     .max(30, {
       message: 'Name must not be longer than 30 characters.',
     }),
-  language: z.string({
-    message: 'Please select a language.',
-  }),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
   const form = useForm({
-    resolver: zodResolver(accountFormSchema),
     defaultValues: {
       name: '',
     },
+    resolver: zodResolver(accountFormSchema),
   });
 
   function onSubmit(data: AccountFormValues) {

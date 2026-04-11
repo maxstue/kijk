@@ -85,10 +85,10 @@ const onInvalid = () => {
 
 function FeedbackSheet({ onClose }: { onClose: () => void }) {
   const form = useForm({
-    resolver: zodResolver(feedbackSchema),
     defaultValues: {
       message: '',
     },
+    resolver: zodResolver(feedbackSchema),
   });
 
   const onSubmit = (data: FeedbackFormValues) => {

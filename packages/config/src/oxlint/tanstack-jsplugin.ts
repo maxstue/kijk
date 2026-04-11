@@ -9,7 +9,7 @@ export const tanstackQueryJsPlugin = {
 } as const;
 
 export const tanstackRouterRules = {
-  "eslint-tanstack-router/create-route-property-order": "warn",
+  "eslint-tanstack-router/create-route-property-order": "error",
 } as const;
 
 export const tanstackQueryRules = {

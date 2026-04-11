@@ -75,19 +75,17 @@ const ShowMore = (props: { error?: unknown }) => {
   );
 };
 
-const ErrorTitle = (props: { error?: unknown }) => {
-  return (
-    <div className='flex flex-col justify-center gap-2'>
-      <div className='flex justify-center gap-2'>
-        {props.error instanceof Error ? (
-          <>
-            <div className='font-bold'>{props.error.name}:</div>
-            <div>{props.error.message}</div>
-          </>
-        ) : (
-          <div className='font-bold'>Unknown error</div>
-        )}
-      </div>
+const ErrorTitle = (props: { error?: unknown }) => (
+  <div className='flex flex-col justify-center gap-2'>
+    <div className='flex justify-center gap-2'>
+      {props.error instanceof Error ? (
+        <>
+          <div className='font-bold'>{props.error.name}:</div>
+          <div>{props.error.message}</div>
+        </>
+      ) : (
+        <div className='font-bold'>Unknown error</div>
+      )}
     </div>
-  );
-};
+  </div>
+);

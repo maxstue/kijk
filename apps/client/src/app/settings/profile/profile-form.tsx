@@ -14,11 +14,11 @@ import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/user-update-user';
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage,
 } from '@/shared/components/form';
 
@@ -30,8 +30,8 @@ export function ProfileForm() {
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
-      userName: user?.name ?? '',
       useDefaultResources: user?.useDefaultResources ?? false,
+      userName: user?.name ?? '',
     },
   });
 

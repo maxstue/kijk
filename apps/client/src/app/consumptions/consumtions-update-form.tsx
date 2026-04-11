@@ -18,7 +18,7 @@ import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
 import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
 import { useGetResources } from '@/app/resources/use-get-resources';
 import { DatePicker } from '@/shared/components/date-picker';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/components/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/app';
 import { ValueTypes } from '@/shared/types/app';
@@ -32,20 +32,20 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
   const { isPending, mutate } = useUpdateConsumption();
 
   const form = useForm({
-    resolver: zodResolver(consumptionUpdateSchema),
     defaultValues: {
       ...initialData,
-      valueType: ValueTypes.ABSOLUTE,
-      resourceId: initialData.resource.id,
       date: initialData.date ? new Date(initialData.date) : new Date(),
+      resourceId: initialData.resource.id,
+      valueType: ValueTypes.ABSOLUTE,
     },
+    resolver: zodResolver(consumptionUpdateSchema),
   });
 
   const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionUpdateFormSchema) {
     mutate(
-      { id: data.id, consumption: data },
+      { consumption: data, id: data.id },
       {
         onError(error) {
           toast.error(error.name, { description: error.message });

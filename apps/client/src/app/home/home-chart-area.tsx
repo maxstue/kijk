@@ -105,16 +105,16 @@ const chartData = [
 ];
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors',
-  },
   desktop: {
-    label: 'Desktop',
     color: 'var(--primary)',
+    label: 'Desktop',
   },
   mobile: {
-    label: 'Mobile',
     color: 'var(--primary)',
+    label: 'Mobile',
+  },
+  visitors: {
+    label: 'Visitors',
   },
 } satisfies ChartConfig;
 
@@ -201,8 +201,8 @@ export function HomeChartArea() {
               tickFormatter={(value) => {
                 const date = new Date(value as string);
                 return date.toLocaleDateString('en-US', {
-                  month: 'short',
                   day: 'numeric',
+                  month: 'short',
                 });
               }}
             />

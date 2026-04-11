@@ -34,7 +34,7 @@ import {
   getYearsFromConsumptionsQuery,
   useGetYearsFromConsumptions,
 } from '@/app/consumptions/use-get-resources-usage-years';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/components/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 const Route = getRouteApi('/_protected/consumptions');
@@ -53,7 +53,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
   const selectedYear = searchParameters.year;
   const years = useMemo(() => data.years, [data.years]);
 
-  // add year from url to array if it doesn't exist
+  // Add year from url to array if it doesn't exist
   useEffect(() => {
     if (years.length > 0 && !years.includes(Number(searchParameters.year))) {
       years.push(Number(searchParameters.year));
@@ -159,7 +159,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
     queryClient.setQueryData(getYearsFromConsumptionsQuery.queryKey, (old) => ({
       years: [...(old?.years ?? []), data.year].sort((a, b) => b - a),
     }));
-    navigate({ to: '/consumptions', search: (previous) => ({ ...previous, year: data.year }) });
+    navigate({ search: (previous) => ({ ...previous, year: data.year }), to: '/consumptions' });
     onClose();
   }
 

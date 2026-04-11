@@ -36,7 +36,7 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
 
         if (completeLogin.status === 'complete') {
           await setActive({ session: completeLogin.createdSessionId });
-          navigate({ to: from, params: true });
+          navigate({ params: true, to: from });
         }
       } catch (error_) {
         const error = error_ as { errors: Array<{ message: string }> };

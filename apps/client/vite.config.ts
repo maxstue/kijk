@@ -10,37 +10,37 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     build: {
-      sourcemap: env.SENTRY_ENABLE === 'true',
       rolldownOptions: {
-        devtools: {}, // enable devtools mode
+        devtools: {}, // Enable devtools mode
       },
-    },
-    server: {
-      port: 5004,
-    },
-    resolve: {
-      tsconfigPaths: true,
+      sourcemap: env.SENTRY_ENABLE === 'true',
     },
     plugins: [
       // TODO make it configurable via env variable
-      // viteDevTools({ builtinDevTools: false }),
+      // ViteDevTools({ builtinDevTools: false }),
       tanstackDevtools({
         removeDevtoolsOnBuild: true,
       }),
-      tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+      tanstackRouter({ autoCodeSplitting: true, target: 'react' }),
       react(),
       babel({ presets: [reactCompilerPreset()] }),
       tailwindcss(),
       sentryVitePlugin({
         authToken: env.SENTRY_AUTH_TOKEN,
+        disable: env.SENTRY_ENABLE === 'false',
         org: 'maxstue',
         project: 'kijk-client',
-        telemetry: env.SENTRY_ENABLE_TELEMETRY === 'true',
-        disable: env.SENTRY_ENABLE === 'false',
         sourcemaps: {
           filesToDeleteAfterUpload: ['./dist/**/*.map'],
         },
+        telemetry: env.SENTRY_ENABLE_TELEMETRY === 'true',
       }),
     ],
+    resolve: {
+      tsconfigPaths: true,
+    },
+    server: {
+      port: 5004,
+    },
   };
 });

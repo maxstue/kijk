@@ -167,14 +167,14 @@ const handleError = () => {
 
 function Update({ resourceType, onClose }: EdProps) {
   const form = useForm({
-    resolver: zodResolver(resourceSchema),
     defaultValues: resourceType,
+    resolver: zodResolver(resourceSchema),
   });
   const updateMutation = useUpdateResource();
 
   function onSubmit(data: ResourceFormValues) {
     updateMutation.mutate(
-      { resourceType: data, id: resourceType.id },
+      { id: resourceType.id, resourceType: data },
       {
         onSuccess() {
           toast(`Successfully updated: ${data.name} `);

@@ -1,4 +1,4 @@
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 import { getConsumptionsBy } from '@/shared/api/consumptions';
 
@@ -7,9 +7,9 @@ export const getConsumptionsQuery = (year?: number, month?: string) => {
   const m = month ?? undefined;
 
   return queryOptions({
-    queryKey: ['consumptions', 'usage', 'getBy', y, m],
+    placeholderData: keepPreviousData,
     queryFn: ({ signal }) => getConsumptionsBy(y, m, signal),
-    placeholderData: (previous) => previous ?? [],
+    queryKey: ['consumptions', 'usage', 'getBy', y, m],
   });
 };
 

@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { UserAuthForm } from '@/app/auth/auth-form';
 import type { AuthCodeSchema } from '@/app/auth/schemas';
 import { authCodeSchema } from '@/app/auth/schemas';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/components/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { config } from '@/shared/config';
 
 const route = getRouteApi('/auth');
@@ -92,11 +92,11 @@ function Verify() {
   const from = search.from ?? '/';
 
   const form = useForm({
-    resolver: zodResolver(authCodeSchema),
     defaultValues: {
       code: '',
     },
     mode: 'onBlur',
+    resolver: zodResolver(authCodeSchema),
   });
 
   const handleVerify = useCallback(
@@ -118,7 +118,7 @@ function Verify() {
 
         if (completeSignUp.status === 'complete') {
           await setActive({ session: completeSignUp.createdSessionId });
-          navigate({ to: from, replace: true });
+          navigate({ replace: true, to: from });
         }
       } catch (error_) {
         const error = error_ as { errors: Array<{ message: string }> };
