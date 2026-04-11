@@ -14,11 +14,9 @@
   "scripts": {
     "dev": "pnpm run --parallel --filter \"kijk-client\" --filter \"kijk-api\" dev",
     "dev:all": "pnpm run --parallel --filter \"kijk*\" dev",
-    "dev:web": "pnpm run --filter \"kijk-web\" dev",
     "dev:client": "pnpm run --filter \"kijk-client\" dev",
     "dev:api": "pnpm run --filter \"kijk-api\" dev",
     "build": "pnpm run --parallel -r build",
-    "build:web": "pnpm run --filter \"kijk-web\" build",
     "build:client": "pnpm run --filter \"kijk-client\" build",
     "clean:all": "pnpm run --parallel -r clean:all && rimraf ./dist ./node_modules ./*.lock ./.eslintcache ",
     "lint:all": "pnpm run --parallel -r lint",

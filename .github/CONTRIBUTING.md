@@ -88,6 +88,3 @@ For the `api`-app you should add your clerk url to you user secret file
 3. Start the client from the terminal with `pnpm dev`
     - you need to be inside the apps/client folder
     - or start it with a tool of your liking
-4. Start the web from the terminal with `pnpm dev`
-    - you need to be inside the apps/web folder
-    - or start it with a tool of your liking
