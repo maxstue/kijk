@@ -1,5 +1,5 @@
+import { usePostHog } from '@posthog/react';
 import { useLocation } from '@tanstack/react-router';
-import { usePostHog } from 'posthog-js/react';
 import { useEffect } from 'react';
 
 export const AnalyticsTracker = () => {

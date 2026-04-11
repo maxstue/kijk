@@ -17,24 +17,24 @@
     "fmt:fix": "oxfmt"
   },
   "dependencies": {
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "immer": "^11.1.4",
-    "react": "^19.2.4",
-    "sonner": "^2.0.7",
-    "tailwind-merge": "^3.5.0",
-    "zod": "^3.25.76",
-    "zustand": "^5.0.11"
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "immer": "catalog:",
+    "react": "catalog:",
+    "sonner": "catalog:",
+    "tailwind-merge": "catalog:",
+    "zod": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@kijk/config": "workspace:*",
     "@kijk/tsconfig": "workspace:*",
-    "@types/node": "^25.1.0",
-    "@types/react": "^19.2.10",
-    "@types/react-dom": "^19.2.3",
-    "oxfmt": "^0.40.0",
-    "oxlint": "^1.55.0",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
   }
 }

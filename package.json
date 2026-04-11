@@ -25,12 +25,12 @@
     "release": "release-it"
   },
   "devDependencies": {
-    "@csmith/release-it-calver-plugin": "^2026.3.11",
-    "@microsoft/eslint-formatter-sarif": "^3.1.0",
-    "auto-changelog": "^2.5.0",
-    "release-it": "^19.2.4",
-    "rimraf": "^6.1.3",
-    "typescript": "^6.0.2"
+    "@csmith/release-it-calver-plugin": "catalog:",
+    "@microsoft/eslint-formatter-sarif": "catalog:",
+    "auto-changelog": "catalog:",
+    "release-it": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   },
   "engines": {
     "node": ">=24"

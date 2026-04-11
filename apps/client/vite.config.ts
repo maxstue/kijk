@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     build: {
       rolldownOptions: {
         devtools: {}, // Enable devtools mode
+        // external: ["posthog-js"]
       },
       sourcemap: env.SENTRY_ENABLE === 'true',
     },
