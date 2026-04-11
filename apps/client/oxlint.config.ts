@@ -6,14 +6,14 @@ import {
   tanstackQueryRules,
   tanstackRouterJsPlugin,
   tanstackRouterRules,
-} from "@kijk/config/oxlint";
-import baseConfig from "@kijk/config/oxlint-base";
-import { defineConfig } from "oxlint";
+} from '@kijk/config/oxlint';
+import baseConfig from '@kijk/config/oxlint-base';
+import { defineConfig } from 'oxlint';
 
 export default defineConfig({
   categories: {
-    correctness: "warn",
-    perf: "warn",
+    correctness: 'warn',
+    perf: 'warn',
   },
   env: {
     builtin: true,
@@ -25,11 +25,11 @@ export default defineConfig({
     typeAware: true,
     typeCheck: true,
   },
-  plugins: ["react", "react-perf"],
+  plugins: ['react', 'react-perf'],
   rules: {
     ...reactHooksRules,
     ...tanstackRouterRules,
     ...tanstackQueryRules,
-    "react-hooks-js/incompatible-library": "warn",
+    'react-hooks-js/incompatible-library': 'warn',
   },
 });
