@@ -16,6 +16,8 @@ const authSearchSchema = z.object({
 });
 
 export const Route = createFileRoute('/auth')({
+  validateSearch: authSearchSchema,
+  component: AuthPage,
   beforeLoad: ({ search, context: { authClient } }) => {
     const session = authClient?.session;
 
@@ -25,8 +27,6 @@ export const Route = createFileRoute('/auth')({
 
     throw redirect({ to: search.from ?? '/' });
   },
-  component: AuthPage,
-  validateSearch: authSearchSchema,
 });
 
 function AuthPage() {
