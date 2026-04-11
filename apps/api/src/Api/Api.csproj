@@ -45,7 +45,7 @@
         <PackageReference Include="Humanizer.Core"/>
         <PackageReference Include="Humanizer.Core.de"/>
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>
-        <PackageReference Include="NetEscapades.EnumGenerators" PrivateAssets="all" ExcludeAssets="runtime"/>
+        <PackageReference Include="NetEscapades.EnumGenerators"/>
     </ItemGroup>
 
     <ItemGroup>
