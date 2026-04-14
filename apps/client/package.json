@@ -55,7 +55,6 @@
   "devDependencies": {
     "@clerk/shared": "catalog:",
     "@kijk/config": "workspace:*",
-    "@kijk/tsconfig": "workspace:*",
     "@tanstack/eslint-plugin-query": "catalog:",
     "@tanstack/eslint-plugin-router": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",

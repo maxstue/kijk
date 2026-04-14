@@ -4,7 +4,7 @@
 
 **pnpm monorepo** with app and package workspaces:
 - `apps/` — api (dotnet), client (React/Vite)
-- `packages/` — `@kijk/ui` (shared components), `@kijk/core` (utilities, stores, hooks), `@kijk/tsconfig`, `@kijk/config` (shared lint/format configs)
+- `packages/` — `@kijk/ui` (shared components), `@kijk/core` (utilities, stores, hooks), `@kijk/config` (shared tsconfig/lint/format configs)
 
 ## Developer Commands
 

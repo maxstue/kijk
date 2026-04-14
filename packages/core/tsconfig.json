@@ -1,5 +1,5 @@
 {
-  "extends": "@kijk/tsconfig/base.json",
+  "extends": "@kijk/config/tsconfig/base.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,

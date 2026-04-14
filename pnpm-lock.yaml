@@ -341,9 +341,6 @@ importers:
       '@kijk/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@kijk/tsconfig':
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
       '@tanstack/eslint-plugin-query':
         specifier: 'catalog:'
         version: 5.97.0(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.2)
@@ -404,9 +401,6 @@ importers:
 
   packages/config:
     devDependencies:
-      '@kijk/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
       '@types/node':
         specifier: 'catalog:'
         version: 25.5.2
@@ -447,9 +441,6 @@ importers:
       '@kijk/config':
         specifier: workspace:*
         version: link:../config
-      '@kijk/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
       '@types/node':
         specifier: 'catalog:'
         version: 25.5.2
@@ -471,8 +462,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
-
-  packages/tsconfig: {}
 
   packages/ui:
     dependencies:
@@ -540,9 +529,6 @@ importers:
       '@kijk/config':
         specifier: workspace:*
         version: link:../config
-      '@kijk/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.2.2(vite@8.0.8)

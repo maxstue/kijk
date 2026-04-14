@@ -7,10 +7,10 @@
     "./oxfmt": "./src/oxfmt.config.ts",
     "./oxfmt-base": "./src/oxfmt.config.ts",
     "./oxlint-base": "./src/oxlint.config.ts",
-    "./oxlint": "./src/oxlint/index.ts"
+    "./oxlint": "./src/oxlint/index.ts",
+    "./tsconfig/base.json": "./tsconfig/base.json"
   },
   "devDependencies": {
-    "@kijk/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:"
