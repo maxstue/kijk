@@ -20,14 +20,30 @@
     "build:client": "pnpm run --filter \"kijk-client\" build",
     "clean:all": "pnpm run --parallel -r clean:all && rimraf ./dist ./node_modules ./*.lock ./.eslintcache ",
     "lint:all": "pnpm run --parallel -r lint",
+    "lint:staged": "lint-staged",
+    "lint:staged:client": "pnpm --filter kijk-client lint:fix && pnpm --filter kijk-client fmt:fix",
+    "lint:staged:core": "pnpm --filter @kijk/core lint:fix && pnpm --filter @kijk/core fmt:fix",
+    "lint:staged:ui": "pnpm --filter @kijk/ui lint:fix && pnpm --filter @kijk/ui fmt:fix",
+    "fmt:staged:api": "dotnet format apps/api/Kijk.slnx --no-restore --verbosity minimal --exclude apps/api/src/Infrastructure/Migrations --include",
+    "fmt:staged:api:project": "dotnet format apps/api/Kijk.slnx --no-restore --verbosity minimal --exclude apps/api/src/Infrastructure/Migrations",
     "fmt:all": "pnpm run --parallel -r fmt",
     "fmt:fix": "pnpm run --parallel -r fmt:fix",
+    "prepare": "husky",
     "release": "release-it"
+  },
+  "lint-staged": {
+    "apps/client/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:client'",
+    "packages/core/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:core'",
+    "packages/ui/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:ui'",
+    "apps/api/**/*.cs": "pnpm run fmt:staged:api --",
+    "apps/api/**/*.{csproj,props,targets,sln,slnx}": "pnpm run fmt:staged:api:project"
   },
   "devDependencies": {
     "@csmith/release-it-calver-plugin": "catalog:",
     "@microsoft/eslint-formatter-sarif": "catalog:",
     "auto-changelog": "catalog:",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
     "release-it": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:"
