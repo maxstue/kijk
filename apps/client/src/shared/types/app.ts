@@ -29,15 +29,6 @@ export interface ErrorDetails {
 export const Allowed_Providers = ['Github'] as const;
 export type AllowedProviders = (typeof Allowed_Providers)[number];
 
-export interface Transaction {
-  id: string;
-  name: string;
-  amount: number;
-  type: TransactionType;
-  executedAt: string;
-  category?: Category;
-}
-
 export const TransactionType = {
   EXPENSE: 'Expense',
   INCOME: 'Income',
@@ -45,39 +36,12 @@ export const TransactionType = {
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
-export const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
+const monthFormatter = new Intl.DateTimeFormat('de-DE', { month: 'long' });
+export const months = Array.from({ length: 12 }, (_, index) =>
+  monthFormatter.format(new Date(2000, index)).toLowerCase(),
+);
 
 export type Months = (typeof months)[number];
-
-export const CategoryTypes = {
-  EXPENSE: 'Expense',
-  INCOME: 'Income',
-  OTHER: 'Other',
-} as const;
-
-export type CategoryType = (typeof CategoryTypes)[keyof typeof CategoryTypes];
-
-export interface GroupedCategory extends Record<string, Category[]> {}
-
-export interface Category {
-  id: string;
-  name: string;
-  color: string;
-  type: CategoryType;
-}
 
 export interface AppUser {
   id: string;

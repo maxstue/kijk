@@ -1,12 +1,12 @@
-import { sharedIgnorePatterns } from "@kijk/config/oxlint";
-import baseConfig from "@kijk/config/oxlint-base";
-import { defineConfig } from "oxlint";
+import { sharedIgnorePatterns } from '@kijk/config/oxlint';
+import baseConfig from '@kijk/config/oxlint-base';
+import { defineConfig } from 'oxlint';
 
 export default defineConfig({
   extends: [baseConfig],
   ignorePatterns: [...sharedIgnorePatterns],
   categories: {
-    correctness: "warn",
+    correctness: 'warn',
   },
   env: {
     builtin: true,
