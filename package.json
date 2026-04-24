@@ -22,6 +22,7 @@
     "lint:all": "pnpm run --parallel -r lint",
     "lint:staged": "lint-staged",
     "lint:staged:client": "pnpm --filter kijk-client lint:fix && pnpm --filter kijk-client fmt:fix",
+    "lint:staged:config": "pnpm --filter @kijk/config lint:fix && pnpm --filter @kijk/config fmt:fix",
     "lint:staged:core": "pnpm --filter @kijk/core lint:fix && pnpm --filter @kijk/core fmt:fix",
     "lint:staged:ui": "pnpm --filter @kijk/ui lint:fix && pnpm --filter @kijk/ui fmt:fix",
     "fmt:staged:api": "dotnet format apps/api/Kijk.slnx --no-restore --verbosity minimal --exclude apps/api/src/Infrastructure/Migrations --include",
@@ -33,6 +34,7 @@
   },
   "lint-staged": {
     "apps/client/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:client'",
+    "packages/config/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:config'",
     "packages/core/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:core'",
     "packages/ui/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:ui'",
     "apps/api/**/*.cs": "pnpm run fmt:staged:api --",

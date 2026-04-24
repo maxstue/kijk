@@ -4,17 +4,29 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ["apps/client/**"]
+    paths:
+      - ".github/workflows/client.yml"
+      - "apps/client/**"
+      - "package.json"
+      - "packages/config/**"
+      - "packages/core/**"
+      - "packages/ui/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
   pull_request:
     branches: ["main", "develop"]
-    paths: ["apps/client/**"]
+    paths:
+      - ".github/workflows/client.yml"
+      - "apps/client/**"
+      - "package.json"
+      - "packages/config/**"
+      - "packages/core/**"
+      - "packages/ui/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
 
 env:
   NODE_VERSION: "24.x"
-
-defaults:
-  run:
-    working-directory: ./apps/client
 
 jobs:
   basic:
@@ -46,13 +58,16 @@ jobs:
       #   run: npm test -- --coverage
 
       - name: "🧱 Build"
-        run: pnpm build
+        run: pnpm build:client
+
+      - name: "🧪 Typecheck"
+        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui typecheck
 
       - name: "🧹 Format"
-        run: pnpm fmt
+        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui fmt
 
       - name: "🔍 Lint"
-        run: pnpm lint
+        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui lint
 
       - name: "🔍 Audit"
         run: pnpm audit

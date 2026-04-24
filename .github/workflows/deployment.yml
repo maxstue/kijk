@@ -28,6 +28,7 @@ jobs:
         with:
           files: |
             apps/api/**
+            global.json
 
       - name: "Detect Infrastructure changes"
         id: infra-changes
@@ -42,6 +43,12 @@ jobs:
         with:
           files: |
             apps/client/**
+            package.json
+            packages/config/**
+            packages/core/**
+            packages/ui/**
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
 
   database-create-migration:
     name: "Migrate Database 🏗️"
@@ -110,7 +117,7 @@ jobs:
   api:
     name: "Deploy Api 🚀"
     needs: [database-apply-migration, detect-changes]
-    if: needs.detect-changes.outputs.api == 'true'
+    if: always() && needs.detect-changes.outputs.api == 'true' && (needs.database-apply-migration.result == 'success' || needs.database-apply-migration.result == 'skipped')
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     env:
@@ -127,7 +134,7 @@ jobs:
   client:
     name: Deploy Client 💻
     needs: [database-apply-migration, detect-changes]
-    if: needs.detect-changes.outputs.client == 'true'
+    if: always() && needs.detect-changes.outputs.client == 'true' && (needs.database-apply-migration.result == 'success' || needs.database-apply-migration.result == 'skipped')
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     env:

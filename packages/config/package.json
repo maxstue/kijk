@@ -10,9 +10,17 @@
     "./oxlint": "./src/oxlint/index.ts",
     "./tsconfig/base.json": "./tsconfig/base.json"
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt"
+  },
   "devDependencies": {
     "@types/node": "catalog:",
     "oxfmt": "catalog:",
-    "oxlint": "catalog:"
+    "oxlint": "catalog:",
+    "typescript": "catalog:"
   }
 }
