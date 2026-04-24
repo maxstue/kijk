@@ -27,11 +27,11 @@ const getCookieConsent = () => {
 
 function onSubmit(data: PrivacyFormValues) {
   if (data.enable_analytics) {
-    browserStorage.setItem(COOKIE_CONSENT_KEY, 'yes');
+    browserStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
     AnalyticsService.getInstance().opt_in_capturing();
   }
   if (!data.enable_analytics) {
-    browserStorage.setItem(COOKIE_CONSENT_KEY, 'no');
+    browserStorage.setItem(COOKIE_CONSENT_KEY, 'declined');
     AnalyticsService.getInstance().opt_out_capturing();
   }
 
