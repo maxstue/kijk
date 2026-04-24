@@ -1,11 +1,11 @@
+import { browserStorage } from '@kijk/core/lib/browser-storage';
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
+import { config } from '@/shared/config';
+import { getAuthToken } from '@/shared/lib/auth-client';
 import type { ApiError } from '@/shared/types/app';
 import { CORRELATION_ID_HEADER } from '@/shared/types/app';
-import { env } from '@/shared/env';
-import { getAuthToken } from '@/shared/lib/auth-client';
-import { browserStorage } from '@/shared/lib/browser-storage';
 
 /** Overrides axios request options, so that the url prop is mandatory */
 interface RequestOptions<T = unknown> extends Omit<AxiosRequestConfig<T>, 'url'> {
@@ -21,7 +21,7 @@ const onRejected = (error: unknown) => {
 };
 
 const baseInstance = axios.create({
-  baseURL: env.ApiUrl,
+  baseURL: config.ApiUrl,
 });
 
 async function onRequest(request: InternalAxiosRequestConfig) {
@@ -49,12 +49,12 @@ function onResponseError(error: AxiosError) {
 function onRequestError(error: AxiosError) {
   return Promise.reject(error);
   // TODO handle 401
-  // const errInterceptor = (error) => {
-  //   if (error.response.status === 401) {
+  // Const errInterceptor = (error) => {
+  //   If (error.response.status === 401) {
   //     //redirect logic here
   //   }
 
-  //   return Promise.reject();
+  //   Return Promise.reject();
   // };
 }
 
@@ -63,6 +63,14 @@ baseInstance.interceptors.response.use(onResponse, onResponseError);
 
 /** The base api instance. */
 const apiClient = {
+  delete<TReturn = unknown>(options: RequestOptions) {
+    const { url, abort, data } = options;
+    return baseInstance
+      .delete<TReturn>(url, { ...options, data, signal: abort?.signal })
+      .then(onFulfilled)
+      .catch(onRejected);
+  },
+
   get<TReturn = unknown>(options: RequestOptions) {
     const { url, abort } = options;
     return baseInstance
@@ -83,14 +91,6 @@ const apiClient = {
     const { url, abort, data } = options;
     return baseInstance
       .put<TReturn>(url, data, { ...options, signal: abort?.signal })
-      .then(onFulfilled)
-      .catch(onRejected);
-  },
-
-  delete<TReturn = unknown>(options: RequestOptions) {
-    const { url, abort, data } = options;
-    return baseInstance
-      .delete<TReturn>(url, { ...options, data, signal: abort?.signal })
       .then(onFulfilled)
       .catch(onRejected);
   },

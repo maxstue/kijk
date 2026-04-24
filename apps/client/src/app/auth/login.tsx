@@ -1,13 +1,13 @@
-import { useCallback } from 'react';
-import { useSignIn } from '@clerk/clerk-react';
+import { useSignIn } from '@clerk/react/legacy';
+import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { getRouteApi } from '@tanstack/react-router';
-import { toast } from 'sonner';
+import { useCallback } from 'react';
 import type { Dispatch } from 'react';
+import { toast } from 'sonner';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { env } from '@/shared/env';
+import { config } from '@/shared/config';
 
 const route = getRouteApi('/auth');
 
@@ -36,7 +36,7 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
 
         if (completeLogin.status === 'complete') {
           await setActive({ session: completeLogin.createdSessionId });
-          navigate({ to: from, params: true });
+          navigate({ params: true, to: from });
         }
       } catch (error_) {
         const error = error_ as { errors: Array<{ message: string }> };
@@ -73,8 +73,8 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
         </CardContent>
       </Card>
       <div className='text-muted-foreground [&_a]:hover:text-primary text-center text-xs text-balance [&_a]:underline [&_a]:underline-offset-4'>
-        By clicking continue, you agree to our <a href={`${env.WebUrl}/terms`}>Terms of Service</a> and{' '}
-        <a href={`${env.WebUrl}/privacy`}>Privacy Policy</a>.
+        By clicking continue, you agree to our <a href={`${config.WebUrl}/terms`}>Terms of Service</a> and{' '}
+        <a href={`${config.WebUrl}/privacy`}>Privacy Policy</a>.
       </div>
     </div>
   );

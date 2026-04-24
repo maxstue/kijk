@@ -1,7 +1,6 @@
+import { cn } from '@kijk/core/utils/style';
+import { Icons } from '@kijk/ui/components/icons';
 import type { ComponentProps } from 'react';
-
-import { Icons } from '@/shared/components/icons';
-import { cn } from '@/shared/lib/helpers';
 
 export function Loader({ className }: ComponentProps<'div'>) {
   return (

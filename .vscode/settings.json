@@ -4,11 +4,36 @@
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
-    "**/.DS_Store": true,
-    // "apps": true
+    "**/.DS_Store": true
   },
-  "sonarlint.connectedMode.project": {
-    "connectionId": "maxstue",
-    "projectKey": "maxstue_kijk"
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+  "js/ts.preferences.autoImportFileExcludePatterns": [
+    "node_modules/**/*"
+  ],
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/build": true,
+    "**/.tanstack": true,
+    "**/routeTree.gen.ts": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.format": "always",
+    "source.fixAll.oxc": "always"
+  },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  // TODO: the config paths should be automatically resolved by oxc-vscode, but for some reason it doesn't work, so we have to specify them manually for now. Also if we need to specify them than both should come from the 'config' package
+  "oxc.fmt.configPath": "./apps/client/oxfmt.config.ts",
+  "oxc.lint.configPath": "./packages/config/src/oxlint.config.ts",
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   }
 }

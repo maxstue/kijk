@@ -5,8 +5,8 @@ import { AppError } from '@/shared/types/errors';
 export function formatStringToCurrency(value: string | number) {
   const amount = typeof value === 'string' ? Number.parseFloat(value) : value;
   return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
     currency: 'EUR',
+    style: 'currency',
   }).format(amount);
 }
 
@@ -29,9 +29,7 @@ export function getMonthIndexFromString(month: string) {
   if (isMonth(month)) {
     return months.indexOf(month) + 1;
   }
-  throw new AppError({ type: 'VALIDATION', message: `The given string "${month}" is not a valid month` });
+  throw new AppError({ message: `The given string "${month}" is not a valid month`, type: 'VALIDATION' });
 }
 
-const isMonth = (b: string): b is Months => {
-  return months.includes(b as Months);
-};
+const isMonth = (b: string): b is Months => months.includes(b as Months);

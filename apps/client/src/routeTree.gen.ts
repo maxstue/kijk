@@ -79,6 +79,7 @@ const ProtectedSettingsSectionRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof ProtectedIndexRoute
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/welcome': typeof WelcomeRoute
@@ -87,7 +88,6 @@ export interface FileRoutesByFullPath {
   '/home': typeof ProtectedHomeRoute
   '/resources': typeof ProtectedResourcesRoute
   '/settings': typeof ProtectedSettingsRouteWithChildren
-  '/': typeof ProtectedIndexRoute
   '/settings/$section': typeof ProtectedSettingsSectionRoute
 }
 export interface FileRoutesByTo {
@@ -119,6 +119,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/auth'
     | '/sso-callback'
     | '/welcome'
@@ -127,7 +128,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/resources'
     | '/settings'
-    | '/'
     | '/settings/$section'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -189,7 +189,7 @@ declare module '@tanstack/react-router' {
     '/_protected': {
       id: '/_protected'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof ProtectedRouteImport
       parentRoute: typeof rootRouteImport
     }

@@ -1,17 +1,17 @@
-import { Link, Outlet, createFileRoute, redirect } from '@tanstack/react-router';
+import { cn } from '@kijk/core/utils/style';
+import { Button, buttonVariants } from '@kijk/ui/components/button';
+import { Icons } from '@kijk/ui/components/icons';
+import { Separator } from '@kijk/ui/components/separator';
+import { Outlet, createFileRoute, createLink, redirect } from '@tanstack/react-router';
 
-import { Icons } from '@/shared/components/icons';
 import { NotFound } from '@/shared/components/not-found';
-import { buttonVariants } from '@/shared/components/ui/button';
-import { Separator } from '@/shared/components/ui/separator';
-import { settingsNav } from '@/shared/lib/constants';
-import { cn } from '@/shared/lib/helpers';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { settingsNav } from '@/shared/lib/constants';
 
 export const Route = createFileRoute('/_protected/settings')({
   beforeLoad: ({ location }) => {
     if (location.pathname === '/settings') {
-      throw redirect({ to: '/settings/$section', params: { section: 'profile' } });
+      throw redirect({ params: { section: 'profile' }, to: '/settings/$section' });
     }
   },
   component: SettingsPage,
@@ -45,6 +45,8 @@ function SettingsPage() {
   );
 }
 
+const LinkButton = createLink(Button);
+
 function SettingsNavLink({
   to,
   label,
@@ -57,10 +59,11 @@ function SettingsNavLink({
   const Icon = Icons[icon];
 
   return (
-    <Link
+    <LinkButton
       key={label}
       params={{ section: to }}
       to='/settings/$section'
+      variant='ghost'
       className={cn(
         buttonVariants({ variant: 'ghost' }),
         'data-[status=active]:text-primary-foreground data-[status=active]:bg-primary data-[status=active]:hover:bg-muted data-[status=active]:hover:text-foreground justify-start',
@@ -68,7 +71,6 @@ function SettingsNavLink({
     >
       <Icon className='mr-2 h-4 w-4' />
       {label}
-    </Link>
+    </LinkButton>
   );
 }
-// bg-sidebar-accent text-sidebar-accent-foreground

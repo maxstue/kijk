@@ -1,36 +1,36 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/react';
+import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent } from '@kijk/ui/components/card';
+import { Carousel, CarouselContent, CarouselItem } from '@kijk/ui/components/carousel';
+import type { CarouselApi } from '@kijk/ui/components/carousel';
+import { Progress } from '@kijk/ui/components/progress';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import type { UserStepFormValues } from '@/app/welcome/schemas';
-import type { CarouselApi } from '@/shared/components/ui/carousel';
 import { userSignInQuery } from '@/app/root/use-signin-user';
+import type { UserStepFormValues } from '@/app/welcome/schemas';
 import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent } from '@/shared/components/ui/card';
-import { Carousel, CarouselContent, CarouselItem } from '@/shared/components/ui/carousel';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
-import { Progress } from '@/shared/components/ui/progress';
-import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/welcome')({
   beforeLoad: async ({ context: { authClient, queryClient } }) => {
     const session = authClient?.session;
     const sessionToken = await session?.getToken();
     if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
-      throw redirect({ to: '/auth', search: { from: location.href } });
+      throw redirect({ search: { from: location.href }, to: '/auth' });
     }
 
     const user = await queryClient.ensureQueryData(userSignInQuery);
     if (user.firstTime == false) {
-      throw redirect({ to: '/home', replace: true });
+      throw redirect({ replace: true, to: '/home' });
     }
   },
-  pendingComponent: InitLoader,
   component: WelcomePage,
+  pendingComponent: InitLoader,
 });
 
 const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Finish' }];
@@ -39,22 +39,27 @@ function WelcomePage() {
   useSetSiteHeader('Welcome');
   const { user } = useUser();
   const [userStep, setUserStep] = useState<UserStepFormValues>({
-    userName: user?.username ?? '',
     useDefaultResources: true,
+    userName: user?.username ?? '',
   });
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(1);
 
   useEffect(() => {
     if (!api) {
       return;
     }
 
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on('select', () => {
+    const handleSelect = () => {
       setCurrent(api.selectedScrollSnap() + 1);
-    });
+    };
+
+    handleSelect();
+    api.on('select', handleSelect);
+
+    return () => {
+      api.off('select', handleSelect);
+    };
   }, [api]);
 
   const navigate = useNavigate({ from: '/' });
@@ -77,13 +82,13 @@ function WelcomePage() {
 
   const handleFinish = useCallback(() => {
     mutate(userStep, {
-      async onSuccess() {
-        await navigate({ to: '/home', replace: true });
-      },
       onError(error) {
         toast('An error occurred while creating your user.', {
           description: `${error.response?.data.errors?.[0].code}: ${error.response?.data.errors?.[0].description}`,
         });
+      },
+      async onSuccess() {
+        await navigate({ replace: true, to: '/home' });
       },
     });
   }, [mutate, navigate, userStep]);

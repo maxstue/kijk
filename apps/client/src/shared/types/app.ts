@@ -1,3 +1,7 @@
+// Do not add any other lines of code to this file!
+// oxlint-disable-next-line no-unassigned-import
+import '@total-typescript/ts-reset';
+
 // ##### Ts extension types #####
 export type Optional<T> = T | undefined;
 export type Nullable<T> = T | null;
@@ -11,7 +15,7 @@ export interface ApiError {
   status: number;
   detail: string;
   instance: string;
-  errors: Optional<Array<ErrorDetails>>;
+  errors: Optional<ErrorDetails[]>;
   traceId: string;
   requestId: string;
 }
@@ -25,15 +29,6 @@ export interface ErrorDetails {
 export const Allowed_Providers = ['Github'] as const;
 export type AllowedProviders = (typeof Allowed_Providers)[number];
 
-export interface Transaction {
-  id: string;
-  name: string;
-  amount: number;
-  type: TransactionType;
-  executedAt: string;
-  category?: Category;
-}
-
 export const TransactionType = {
   EXPENSE: 'Expense',
   INCOME: 'Income',
@@ -41,46 +36,19 @@ export const TransactionType = {
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
-export const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
+const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
+export const months = Array.from({ length: 12 }, (_, index) =>
+  monthFormatter.format(new Date(2000, index)).toLowerCase(),
+);
 
 export type Months = (typeof months)[number];
-
-export const CategoryTypes = {
-  EXPENSE: 'Expense',
-  INCOME: 'Income',
-  OTHER: 'Other',
-} as const;
-
-export type CategoryType = (typeof CategoryTypes)[keyof typeof CategoryTypes];
-
-export interface GroupedCategory extends Record<string, Array<Category>> {}
-
-export interface Category {
-  id: string;
-  name: string;
-  color: string;
-  type: CategoryType;
-}
 
 export interface AppUser {
   id: string;
   name: Optional<string>;
   email: Optional<string>;
   firstTime: Optional<boolean>;
-  resourceTypes: Optional<Array<Resource>>;
+  resourceTypes: Optional<Resource[]>;
   useDefaultResources: Optional<boolean>;
 }
 
@@ -109,11 +77,11 @@ export const ValueTypes = {
 export type ValueType = (typeof ValueTypes)[keyof typeof ValueTypes];
 
 export interface ConsumptionsStatsType {
-  stats: Array<ConsumptionsStats>;
+  stats: ConsumptionsStats[];
 }
 
 export interface ConsumptionsStats {
-  type: ResourceStats;
+  resource: ResourceStats;
   monthTotal: number;
   yearTotal: number;
   yearAverage: number;
@@ -146,5 +114,5 @@ export interface Resource {
 }
 
 export interface Years {
-  years: Array<number>;
+  years: number[];
 }

@@ -1,18 +1,6 @@
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { getRouteApi } from '@tanstack/react-router';
-import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ComponentPropsWithoutRef } from 'react';
-
-import {
-  getYearsFromConsumptionsQuery,
-  useGetYearsFromConsumptions,
-} from '@/app/consumptions/use-get-resources-usage-years';
-import { Button } from '@/shared/components/ui/button';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
 import {
   Command,
   CommandEmpty,
@@ -21,7 +9,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/shared/components/ui/command';
+} from '@kijk/ui/components/command';
 import {
   Dialog,
   DialogContent,
@@ -30,12 +18,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/shared/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
-import { cn } from '@/shared/lib/helpers';
+} from '@kijk/ui/components/dialog';
+import { Input } from '@kijk/ui/components/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
+import { useQueryClient } from '@tanstack/react-query';
+import { getRouteApi } from '@tanstack/react-router';
+import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+import {
+  getYearsFromConsumptionsQuery,
+  useGetYearsFromConsumptions,
+} from '@/app/consumptions/use-get-resources-usage-years';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { Loader } from '@/shared/components/ui/loaders/loader';
 
 const Route = getRouteApi('/_protected/consumptions');
 
@@ -53,7 +53,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
   const selectedYear = searchParameters.year;
   const years = useMemo(() => data.years, [data.years]);
 
-  // add year from url to array if it doesn't exist
+  // Add year from url to array if it doesn't exist
   useEffect(() => {
     if (years.length > 0 && !years.includes(Number(searchParameters.year))) {
       years.push(Number(searchParameters.year));
@@ -95,7 +95,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
             <CommandList>
               <CommandInput placeholder='Search Year...' />
               <CommandEmpty>No Year found.</CommandEmpty>
-              <Suspense fallback={<AsyncLoader />}>
+              <Suspense fallback={<Loader />}>
                 <CommandGroup key='years' heading='Years'>
                   {years.map((yearData) => (
                     <CommandItem
@@ -117,7 +117,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
             <CommandSeparator />
             <CommandList>
               <CommandGroup>
-                <DialogTrigger asChild>
+                <DialogTrigger>
                   <CommandItem onSelect={handleNewYearClick}>
                     <PlusCircle className='mr-2 h-5 w-5' />
                     Add new year
@@ -159,7 +159,7 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
     queryClient.setQueryData(getYearsFromConsumptionsQuery.queryKey, (old) => ({
       years: [...(old?.years ?? []), data.year].sort((a, b) => b - a),
     }));
-    navigate({ to: '/consumptions', search: (previous) => ({ ...previous, year: data.year }) });
+    navigate({ search: (previous) => ({ ...previous, year: data.year }), to: '/consumptions' });
     onClose();
   }
 

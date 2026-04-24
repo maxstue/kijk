@@ -1,14 +1,5 @@
-import { useCallback, useState } from 'react';
-import { ExternalLinkIcon, LucideHeart, SendIcon, SettingsIcon } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Link } from '@tanstack/react-router';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { FeedbackFormValues } from '@/app/root/schemas';
-import { feedbackSchema } from '@/app/root/schemas';
-import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
+import { Button } from '@kijk/ui/components/button';
 import {
   Sheet,
   SheetContent,
@@ -16,16 +7,25 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/shared/components/ui/sheet';
+} from '@kijk/ui/components/sheet';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/shared/components/ui/sidebar';
-import { Textarea } from '@/shared/components/ui/textarea';
-import { env } from '@/shared/env';
+} from '@kijk/ui/components/sidebar';
+import { Textarea } from '@kijk/ui/components/textarea';
+import { Link } from '@tanstack/react-router';
+import { ExternalLinkIcon, LucideHeart, SendIcon, SettingsIcon } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import type { FeedbackFormValues } from '@/app/root/schemas';
+import { feedbackSchema } from '@/app/root/schemas';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { config } from '@/shared/config';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { siteConfig } from '@/shared/lib/constants';
 
@@ -85,15 +85,15 @@ const onInvalid = () => {
 
 function FeedbackSheet({ onClose }: { onClose: () => void }) {
   const form = useForm({
-    resolver: zodResolver(feedbackSchema),
     defaultValues: {
       message: '',
     },
+    resolver: zodResolver(feedbackSchema),
   });
 
   const onSubmit = (data: FeedbackFormValues) => {
     AnalyticsService.getInstance().capture('survey sent', {
-      $survey_id: env.PosthogSurveyId,
+      $survey_id: config.PosthogSurveyId,
       $survey_response: data.message,
     });
     toast('Feedback sent', { description: 'Thank you for your feedback!' });

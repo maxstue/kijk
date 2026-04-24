@@ -6,10 +6,6 @@ permissions:
 on:
   deployment_status:
 
-env:
-  NODE_VERSION: "22.x"
-  PNPM_VERSION: "9"
-
 jobs:
   release:
     runs-on: ubuntu-latest

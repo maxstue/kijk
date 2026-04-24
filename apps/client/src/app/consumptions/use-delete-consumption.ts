@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { Months } from '@/shared/types/app';
 import { deleteConsumption } from '@/shared/api/consumptions';
+import type { Months } from '@/shared/types/app';
 
 export const useDeleteConsumption = () => {
   const queryClient = useQueryClient();

@@ -1,0 +1,26 @@
+{
+  "name": "@kijk/config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./oxfmt": "./src/oxfmt.config.ts",
+    "./oxfmt-base": "./src/oxfmt.config.ts",
+    "./oxlint-base": "./src/oxlint.config.ts",
+    "./oxlint": "./src/oxlint/index.ts",
+    "./tsconfig/base.json": "./tsconfig/base.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "typescript": "catalog:"
+  }
+}

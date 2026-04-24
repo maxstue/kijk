@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
+import { Checkbox } from '@kijk/ui/components/checkbox';
+import { Input } from '@kijk/ui/components/input';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+
 import type { UserStepFormValues } from '@/app/welcome/schemas';
 import { userStepSchema } from '@/app/welcome/schemas';
-import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { cn } from '@/shared/lib/helpers';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 
 interface Props {
   className?: string;
@@ -22,11 +22,12 @@ export function UserStepForm({ value, onNext, className }: Props) {
   });
   const { getValues } = form;
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       onNext(getValues() as UserStepFormValues);
-    };
-  }, [getValues, onNext]);
+    },
+    [getValues, onNext],
+  );
 
   return (
     <div className={cn('grid gap-6', className)}>

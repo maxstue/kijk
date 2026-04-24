@@ -1,7 +1,9 @@
 // 'use no memo' until the react compiler/table bug is fixed https://github.com/TanStack/table/issues/5567
 'use no memo';
-
-import { useState } from 'react';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
+import { Input } from '@kijk/ui/components/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import {
   flexRender,
   getCoreRowModel,
@@ -10,17 +12,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import type { ReactNode } from 'react';
 import type { ColumnDef, ColumnFiltersState, ColumnSort, SortingState } from '@tanstack/react-table';
-
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
-import { cn } from '@/shared/lib/helpers';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 interface Props<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>;
-  data: Array<TData>;
+  data: TData[];
   actions?: ReactNode;
   defaultSort?: ColumnSort;
 }
@@ -28,19 +26,18 @@ interface Props<TData, TValue> {
 export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }: Props<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
   const table = useReactTable({
-    data,
     columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
     state: {
-      sorting: sorting,
       columnFilters,
+      sorting: sorting,
     },
   });
 
@@ -60,15 +57,11 @@ export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className={cn(header.id === 'actions' && 'w-4')}>
-                      {header.isPlaceholder
-                        ? undefined
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className={cn(header.id === 'actions' && 'w-4')}>
+                    {header.isPlaceholder ? undefined : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { ArrowDownIcon } from 'lucide-react';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import type { ErrorComponentProps } from '@tanstack/react-router';
+import { ArrowDownIcon } from 'lucide-react';
+import { useState } from 'react';
 
 import { ErrorImage } from '@/shared/components/errors/error-image';
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { ErrorService } from '@/shared/lib/error-tracking';
-import { cn } from '@/shared/lib/helpers';
 
 type Props = { resetErrorBoundary?: () => void } & Partial<ErrorComponentProps>;
 
@@ -32,11 +32,9 @@ export function AppError({ error, info, resetErrorBoundary }: Props) {
           <ErrorTitle error={error} />
         </CardContent>
         <CardFooter className='flex w-full items-center justify-around'>
-          <Button color='primary' onClick={handleGotToRoot}>
-            Go to home
-          </Button>
+          <Button onClick={handleGotToRoot}>Go to home</Button>
           {resetErrorBoundary !== undefined && (
-            <Button color='secondary' onClick={handleReset}>
+            <Button variant='secondary' onClick={handleReset}>
               Try again
             </Button>
           )}
@@ -77,19 +75,17 @@ const ShowMore = (props: { error?: unknown }) => {
   );
 };
 
-const ErrorTitle = (props: { error?: unknown }) => {
-  return (
-    <div className='flex flex-col justify-center gap-2'>
-      <div className='flex justify-center gap-2'>
-        {props.error instanceof Error ? (
-          <>
-            <div className='font-bold'>{props.error.name}:</div>
-            <div>{props.error.message}</div>
-          </>
-        ) : (
-          <div className='font-bold'>Unknown error</div>
-        )}
-      </div>
+const ErrorTitle = (props: { error?: unknown }) => (
+  <div className='flex flex-col justify-center gap-2'>
+    <div className='flex justify-center gap-2'>
+      {props.error instanceof Error ? (
+        <>
+          <div className='font-bold'>{props.error.name}:</div>
+          <div>{props.error.message}</div>
+        </>
+      ) : (
+        <div className='font-bold'>Unknown error</div>
+      )}
     </div>
-  );
-};
+  </div>
+);

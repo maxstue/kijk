@@ -1,16 +1,17 @@
 'use no memo';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { Checkbox } from '@kijk/ui/components/checkbox';
+import { Input } from '@kijk/ui/components/input';
 import { useQuery } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userSignInQuery } from '@/app/root/use-signin-user';
+import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/user-update-user';
-import { Button } from '@/shared/components/ui/button';
-import { Checkbox } from '@/shared/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -19,8 +20,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
+} from '@/shared/components/form';
 
 export function ProfileForm() {
   const { data: user } = useQuery(userSignInQuery);
@@ -30,8 +30,8 @@ export function ProfileForm() {
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
-      userName: user?.name ?? '',
       useDefaultResources: user?.useDefaultResources ?? false,
+      userName: user?.name ?? '',
     },
   });
 

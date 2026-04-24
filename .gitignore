@@ -26,6 +26,8 @@ lerna-debug.log*
 # Sentry Config File
 .env.sentry-build-plugin
 
+# Typescript
+*.tsbuildinfo
 
 
 #Ignore vscode AI rules

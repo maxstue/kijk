@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { ValueTypes } from '@/shared/types/app';
 
 export const consumptionCreateSchema = z.object({
@@ -11,7 +12,7 @@ export const consumptionCreateSchema = z.object({
   valueType: z.enum(ValueTypes).default('Absolute'),
   resourceId: z.uuid(),
   householdId: z.uuid().optional(),
-  // date is not allowed to be in the future
+  // Date is not allowed to be in the future
   date: z.date().max(new Date(), {
     message: 'Date cannot be in the future',
   }),
@@ -30,7 +31,7 @@ export const consumptionUpdateSchema = z.object({
   valueType: z.enum(ValueTypes).default('Absolute'),
   resourceId: z.uuid(),
   householdId: z.uuid().optional(),
-  // date is not allowed to be in the future
+  // Date is not allowed to be in the future
   date: z.date().max(new Date(), {
     message: 'Date cannot be in the future',
   }),

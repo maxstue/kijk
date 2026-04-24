@@ -1,5 +1,6 @@
+import { Separator } from '@kijk/ui/components/separator';
+
 import { ProfileForm } from '@/app/settings/profile/profile-form';
-import { Separator } from '@/shared/components/ui/separator';
 
 export function ProfileSection() {
   return (

@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 
 export function RecentSales() {
   return (

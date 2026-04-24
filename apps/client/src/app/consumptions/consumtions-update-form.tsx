@@ -1,27 +1,27 @@
-import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { Checkbox } from '@kijk/ui/components/checkbox';
+import { Icons } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
+import { InfoIcon } from 'lucide-react';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { toast } from 'sonner';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { InfoIcon } from 'lucide-react';
+import { useForm, useWatch } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
+import { toast } from 'sonner';
 
+import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
+import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
+import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
+import { useGetResources } from '@/app/resources/use-get-resources';
+import { DatePicker } from '@/shared/components/date-picker';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/app';
 import { ValueTypes } from '@/shared/types/app';
-import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
-import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
-import { DatePicker } from '@/shared/components/date-picker';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
-import { useGetResources } from '@/app/resources/use-get-resources';
-import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
-import { Button } from '@/shared/components/ui/button';
-import { Icons } from '@/shared/components/icons';
-import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 
 interface Props {
   initialData: Consumption;
@@ -32,20 +32,20 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
   const { isPending, mutate } = useUpdateConsumption();
 
   const form = useForm({
-    resolver: zodResolver(consumptionUpdateSchema),
     defaultValues: {
       ...initialData,
-      valueType: ValueTypes.ABSOLUTE,
-      resourceId: initialData.resource.id,
       date: initialData.date ? new Date(initialData.date) : new Date(),
+      resourceId: initialData.resource.id,
+      valueType: ValueTypes.ABSOLUTE,
     },
+    resolver: zodResolver(consumptionUpdateSchema),
   });
 
   const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionUpdateFormSchema) {
     mutate(
-      { id: data.id, consumption: data },
+      { consumption: data, id: data.id },
       {
         onError(error) {
           toast.error(error.name, { description: error.message });
@@ -65,7 +65,7 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
         <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
           <FormField control={form.control} name='value' render={ValueField} />
           <FormField control={form.control} name='valueType' render={ValueTypeField} />
-          <Suspense fallback={<AsyncLoader className='h-6 w-6' />}>
+          <Suspense fallback={<Loader className='h-6 w-6' />}>
             <FormField control={form.control} name='resourceId' render={ResourceField} />
           </Suspense>
         </ErrorBoundary>

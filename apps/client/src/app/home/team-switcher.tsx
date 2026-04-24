@@ -1,8 +1,6 @@
-import { useState } from 'react';
-import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
-
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
-import { Button } from '@/shared/components/ui/button';
+import { cn } from '@kijk/core/utils/style';
+import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
+import { Button } from '@kijk/ui/components/button';
 import {
   Command,
   CommandEmpty,
@@ -11,7 +9,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/shared/components/ui/command';
+} from '@kijk/ui/components/command';
 import {
   Dialog,
   DialogContent,
@@ -20,12 +18,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/shared/components/ui/dialog';
-import { Input } from '@/shared/components/ui/input';
-import { Label } from '@/shared/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
-import { cn } from '@/shared/lib/helpers';
+} from '@kijk/ui/components/dialog';
+import { Input } from '@kijk/ui/components/input';
+import { Label } from '@kijk/ui/components/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
+import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 
 const groups = [
   {
@@ -119,7 +118,7 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
             <CommandSeparator />
             <CommandList>
               <CommandGroup>
-                <DialogTrigger asChild>
+                <DialogTrigger>
                   <CommandItem
                     onSelect={() => {
                       setOpen(false);

@@ -1,14 +1,15 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { Icons } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useCreateResource } from '@/app/resources/use-create-resource';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+
 import { resourceSchema } from './schemas';
 import type { ResourceFormValues } from './schemas';
-import { useCreateResource } from '@/app/resources/use-create-resource';
-import { Icons } from '@/shared/components/icons';
-import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
 
 interface Props {
   onClose?: () => void;
@@ -18,12 +19,12 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
   const { isPending, mutate } = useCreateResource();
 
   const form = useForm({
-    resolver: zodResolver(resourceSchema),
     defaultValues: {
-      name: '',
       color: '#000000',
+      name: '',
       unit: '',
     },
+    resolver: zodResolver(resourceSchema),
   });
 
   function onSubmit(data: ResourceFormValues) {

@@ -1,18 +1,7 @@
-import { useCallback, useState } from 'react';
-import { MoreHorizontal } from 'lucide-react';
-import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { Row } from '@tanstack/react-table';
-
-import type { ResourceFormValues } from '@/app/resources/schemas';
-import type { Resource } from '@/shared/types/app';
-import { resourceSchema } from '@/app/resources/schemas';
-import { useDeleteResource } from '@/app/resources/use-delete-resource';
-import { useUpdateResource } from '@/app/resources/use-update-resource-type';
-import { Icons } from '@/shared/components/icons';
-import { Button } from '@/shared/components/ui/button';
-import { Dialog } from '@/shared/components/ui/dialog';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
+import { Dialog } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +9,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
+} from '@kijk/ui/components/dropdown-menu';
+import { Icons } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
 import {
   Sheet,
   SheetClose,
@@ -32,8 +21,19 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/shared/components/ui/sheet';
-import { cn } from '@/shared/lib/helpers';
+} from '@kijk/ui/components/sheet';
+import type { Row } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import type { ResourceFormValues } from '@/app/resources/schemas';
+import { resourceSchema } from '@/app/resources/schemas';
+import { useDeleteResource } from '@/app/resources/use-delete-resource';
+import { useUpdateResource } from '@/app/resources/use-update-resource-type';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import type { Resource } from '@/shared/types/app';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -71,7 +71,6 @@ export function ResourceTypeListRowActions<TData extends Resource>({ row }: Data
             {resourceType.creator !== 'Default' && (
               <>
                 <SheetTrigger
-                  asChild
                   onClick={() => {
                     setSheetType('edit');
                   }}
@@ -80,7 +79,6 @@ export function ResourceTypeListRowActions<TData extends Resource>({ row }: Data
                 </SheetTrigger>
                 <DropdownMenuSeparator />
                 <SheetTrigger
-                  asChild
                   onClick={() => {
                     setSheetType('delete');
                   }}
@@ -146,7 +144,7 @@ function Delete({ resourceType, onClose }: EdProps) {
       </div>
       <SheetFooter>
         <div className='flex w-full items-center justify-between gap-2'>
-          <SheetClose asChild>
+          <SheetClose>
             <Button disabled={deleteMutation.isPending} type='button' variant='outline'>
               Cancel
             </Button>
@@ -169,14 +167,14 @@ const handleError = () => {
 
 function Update({ resourceType, onClose }: EdProps) {
   const form = useForm({
-    resolver: zodResolver(resourceSchema),
     defaultValues: resourceType,
+    resolver: zodResolver(resourceSchema),
   });
   const updateMutation = useUpdateResource();
 
   function onSubmit(data: ResourceFormValues) {
     updateMutation.mutate(
-      { resourceType: data, id: resourceType.id },
+      { id: resourceType.id, resourceType: data },
       {
         onSuccess() {
           toast(`Successfully updated: ${data.name} `);
@@ -237,7 +235,7 @@ function Update({ resourceType, onClose }: EdProps) {
 
             <SheetFooter>
               <div className='flex w-full items-center justify-between gap-2'>
-                <SheetClose asChild>
+                <SheetClose>
                   <Button disabled={updateMutation.isPending} type='button' variant='outline'>
                     Cancel
                   </Button>

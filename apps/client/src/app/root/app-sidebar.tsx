@@ -1,10 +1,4 @@
-import * as React from 'react';
-import { Link } from '@tanstack/react-router';
-
-import { NavMain } from '@/app/root/nav-main';
-import { NavSecondary } from '@/app/root/nav-secondary';
-import { NavUser } from '@/app/root/nav-user';
-import { Icons } from '@/shared/components/icons';
+import { Icons } from '@kijk/ui/components/icons';
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +7,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/shared/components/ui/sidebar';
+} from '@kijk/ui/components/sidebar';
+import { Link } from '@tanstack/react-router';
+import * as React from 'react';
+
+import { NavMain } from '@/app/root/nav-main';
+import { NavSecondary } from '@/app/root/nav-secondary';
+import { NavUser } from '@/app/root/nav-user';
 import { siteConfig } from '@/shared/lib/constants';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

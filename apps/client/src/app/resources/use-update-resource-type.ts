@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { ResourceFormValues } from './schemas';
 import { updateResource } from '@/shared/api/resources';
+
+import type { ResourceFormValues } from './schemas';
 
 export const useUpdateResource = () => {
   const queryClient = useQueryClient();

@@ -1,5 +1,6 @@
-import { Separator } from '@/shared/components/ui/separator';
-import { SidebarTrigger } from '@/shared/components/ui/sidebar';
+import { Separator } from '@kijk/ui/components/separator';
+import { SidebarTrigger } from '@kijk/ui/components/sidebar';
+
 import { useSiteHeaderStore } from '@/shared/stores/site-header-store';
 
 export function SiteHeader() {

@@ -1,18 +1,5 @@
-import { Link } from '@tanstack/react-router';
-
-import { PlusIcon } from 'lucide-react';
-import { Suspense, useState } from 'react';
-import { mainNav } from '@/app/root/constants';
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '@/shared/components/ui/sidebar';
-import { cn } from '@/shared/lib/helpers.ts';
-import { Button } from '@/shared/components/ui/button';
-import { CommandMenu } from '@/app/root/command-menu';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
 import {
   Sheet,
   SheetContent,
@@ -20,8 +7,21 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/shared/components/ui/sheet';
+} from '@kijk/ui/components/sheet';
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@kijk/ui/components/sidebar';
+import { Link } from '@tanstack/react-router';
+import { PlusIcon } from 'lucide-react';
+import { Suspense, useState } from 'react';
+
 import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form';
+import { CommandMenu } from '@/app/root/command-menu';
+import { mainNav } from '@/app/root/constants';
 import { months } from '@/shared/types/app';
 
 export function NavMain() {

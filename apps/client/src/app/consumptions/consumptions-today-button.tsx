@@ -1,6 +1,6 @@
+import { Button } from '@kijk/ui/components/button';
 import { getRouteApi } from '@tanstack/react-router';
 
-import { Button } from '@/shared/components/ui/button';
 import { months } from '@/shared/types/app';
 
 const Route = getRouteApi('/_protected/consumptions');
@@ -10,7 +10,11 @@ export function ConsumptionsTodayButton() {
 
   const handleClick = () => {
     navigate({
-      search: (previous) => ({ ...previous, month: months[new Date().getMonth()], year: new Date().getFullYear() }),
+      search: (previous) => ({
+        ...previous,
+        month: months[new Date().getMonth()],
+        year: new Date().getFullYear(),
+      }),
     });
   };
 

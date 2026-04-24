@@ -1,11 +1,14 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@kijk/ui/components/command';
+import { Input } from '@kijk/ui/components/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/shared/components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/shared/components/ui/command';
 import {
   Form,
   FormControl,
@@ -14,10 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
-import { cn } from '@/shared/lib/helpers';
+} from '@/shared/components/form';
 
 const languages = [
   { label: 'English', value: 'en' },
@@ -32,6 +32,9 @@ const languages = [
 ] as const;
 
 const accountFormSchema = z.object({
+  language: z.string({
+    message: 'Please select a language.',
+  }),
   name: z
     .string()
     .min(2, {
@@ -40,19 +43,16 @@ const accountFormSchema = z.object({
     .max(30, {
       message: 'Name must not be longer than 30 characters.',
     }),
-  language: z.string({
-    message: 'Please select a language.',
-  }),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
   const form = useForm({
-    resolver: zodResolver(accountFormSchema),
     defaultValues: {
       name: '',
     },
+    resolver: zodResolver(accountFormSchema),
   });
 
   function onSubmit(data: AccountFormValues) {

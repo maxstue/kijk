@@ -1,18 +1,14 @@
-import { useEffect, useState } from 'react';
+import { cn } from '@kijk/core/utils/style';
+import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { CookieIcon, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import type { CookieConsent } from '@/shared/types/app';
-import { Button, buttonVariants } from '@/shared/components/ui/button';
-import { env } from '@/shared/env';
+import { config } from '@/shared/config';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
-import { cn } from '@/shared/lib/helpers';
+import type { CookieConsent } from '@/shared/types/app';
 
 export function AnalyticsBanner() {
-  const [consentGiven, setConsentGiven] = useState<CookieConsent>('undecided');
-
-  useEffect(() => {
-    setConsentGiven(AnalyticsService.getCookieConsent());
-  }, []);
+  const [consentGiven, setConsentGiven] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());
 
   useEffect(() => {
     if (consentGiven !== 'undecided') {
@@ -57,7 +53,7 @@ export function AnalyticsBanner() {
               </span>
               <a
                 className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-                href={`${env.WebUrl}/privacy`}
+                href={`${config.WebUrl}/privacy`}
                 rel='noopener noreferrer'
                 target='_blank'
               >

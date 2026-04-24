@@ -1,33 +1,3 @@
-import { Suspense, useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { EditIcon, Plus, Trash2Icon } from 'lucide-react';
-import { z } from 'zod';
-import { zodValidator } from '@tanstack/zod-adapter';
-import { toast } from 'sonner';
-import type { Consumption, Months } from '@/shared/types/app';
-import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form.tsx';
-import { ConsumptionsMonthNav } from '@/app/consumptions/consumptions-month-nav.tsx';
-import ConsumptionsStats from '@/app/consumptions/consumptions-stats.tsx';
-import { ConsumptionsTodayButton } from '@/app/consumptions/consumptions-today-button.tsx';
-import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
-import { ConsumptionsYearSwitcher } from '@/app/consumptions/consumptions-year-switcher.tsx';
-import { getConsumptionsQuery, useGetConsumptionsBy } from '@/app/consumptions/use-get-consumptions-by.ts';
-import { NotFound } from '@/shared/components/not-found';
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { Separator } from '@/shared/components/ui/separator';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/shared/components/ui/sheet';
-import { months } from '@/shared/types/app';
-import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import { ConsumptionUpdateForm } from '@/app/consumptions/consumtions-update-form';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,8 +8,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/shared/components/ui/alert-dialog';
+} from '@kijk/ui/components/alert-dialog';
+import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import { Separator } from '@kijk/ui/components/separator';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@kijk/ui/components/sheet';
+import { createFileRoute } from '@tanstack/react-router';
+import { zodValidator } from '@tanstack/zod-adapter';
+import { EditIcon, Plus, Trash2Icon } from 'lucide-react';
+import { Suspense, useState } from 'react';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form.tsx';
+import { ConsumptionsMonthNav } from '@/app/consumptions/consumptions-month-nav.tsx';
+import ConsumptionsStats from '@/app/consumptions/consumptions-stats.tsx';
+import { ConsumptionsTodayButton } from '@/app/consumptions/consumptions-today-button.tsx';
+import { ConsumptionsYearSwitcher } from '@/app/consumptions/consumptions-year-switcher.tsx';
+import { ConsumptionUpdateForm } from '@/app/consumptions/consumtions-update-form';
+import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
+import { getConsumptionsQuery, useGetConsumptionsBy } from '@/app/consumptions/use-get-consumptions-by.ts';
+import { NotFound } from '@/shared/components/not-found';
+import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import type { Consumption, Months } from '@/shared/types/app';
+import { months } from '@/shared/types/app';
 
 const searchSchema = z.object({
   month: z
@@ -50,14 +51,14 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute('/_protected/consumptions')({
-  loaderDeps: ({ search: { month, year } }) => ({ month, year }),
+  component: UsagePage,
   validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search: { month, year } }) => ({ month, year }),
+  notFoundComponent: NotFound,
+  pendingComponent: () => <Loader className='h-6 w-6' />,
   loader: ({ context: { queryClient }, deps }) => {
     queryClient.ensureQueryData(getConsumptionsQuery(deps.year, deps.month));
   },
-  component: UsagePage,
-  notFoundComponent: NotFound,
-  pendingComponent: () => <AsyncLoader className='h-6 w-6' />,
 });
 
 function UsagePage() {
@@ -78,7 +79,7 @@ function UsagePage() {
       <div className='flex flex-col gap-8 lg:flex-row lg:space-y-0 lg:space-x-12'>
         <div className='flex-1'>
           <div className='flex flex-col gap-4'>
-            <Suspense fallback={<AsyncLoader />}>
+            <Suspense fallback={<Loader />}>
               <ConsumptionsStats />
             </Suspense>
 

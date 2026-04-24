@@ -1,37 +1,37 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { browserStorage } from '@kijk/core/lib/browser-storage';
+import { cn } from '@kijk/core/utils/style';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kijk/ui/components/accordion';
+import { Button, buttonVariants } from '@kijk/ui/components/button';
+import { Separator } from '@kijk/ui/components/separator';
+import { Switch } from '@kijk/ui/components/switch';
 import { ExternalLink } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { CookieConsent } from '@/shared/types/app';
 import { AppVersion } from '@/shared/components/app-version';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/components/ui/accordion';
-import { Button, buttonVariants } from '@/shared/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/ui/form';
-import { Separator } from '@/shared/components/ui/separator';
-import { Switch } from '@/shared/components/ui/switch';
-import { env } from '@/shared/env';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/form';
+import { config } from '@/shared/config';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
-import { browserStorage } from '@/shared/lib/browser-storage';
 import { siteConfig } from '@/shared/lib/constants';
-import { cn } from '@/shared/lib/helpers';
+import type { CookieConsent } from '@/shared/types/app';
 import { COOKIE_CONSENT_KEY } from '@/shared/types/app';
 
 const getCookieConsent = () => {
   if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
-    return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY) == 'yes';
+    return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY) == 'accepted';
   }
   return false;
 };
 
 function onSubmit(data: PrivacyFormValues) {
   if (data.enable_analytics) {
-    browserStorage.setItem(COOKIE_CONSENT_KEY, 'yes');
+    browserStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
     AnalyticsService.getInstance().opt_in_capturing();
   }
   if (!data.enable_analytics) {
-    browserStorage.setItem(COOKIE_CONSENT_KEY, 'no');
+    browserStorage.setItem(COOKIE_CONSENT_KEY, 'declined');
     AnalyticsService.getInstance().opt_out_capturing();
   }
 
@@ -49,8 +49,8 @@ const defaultValues: Partial<PrivacyFormValues> = {
 
 export function InfoSection() {
   const form = useForm({
-    resolver: zodResolver(privacyFormSchema),
     defaultValues,
+    resolver: zodResolver(privacyFormSchema),
   });
 
   return (
@@ -94,7 +94,7 @@ export function InfoSection() {
         <div className='flex gap-4'>
           <a
             className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-            href={`${env.WebUrl}/terms`}
+            href={`${config.WebUrl}/terms`}
             rel='noopener noreferrer'
             target='_blank'
           >
@@ -103,7 +103,7 @@ export function InfoSection() {
           </a>
           <a
             className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-            href={`${env.WebUrl}/privacy`}
+            href={`${config.WebUrl}/privacy`}
             rel='noopener noreferrer'
             target='_blank'
           >
@@ -112,7 +112,7 @@ export function InfoSection() {
           </a>
         </div>
         <div>
-          <Accordion collapsible className='w-full' type='single'>
+          <Accordion collapsible type='single' className='w-full'>
             <AccordionItem value='item-1'>
               <AccordionTrigger>How can I request the deletion of my personal data ?</AccordionTrigger>
               <AccordionContent>

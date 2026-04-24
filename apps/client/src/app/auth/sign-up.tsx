@@ -1,20 +1,20 @@
-import { useCallback, useState } from 'react';
-import { useSignUp } from '@clerk/clerk-react';
-import { getRouteApi } from '@tanstack/react-router';
-import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
+import { useSignUp } from '@clerk/react/legacy';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ControllerRenderProps } from 'react-hook-form';
+import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import { Input } from '@kijk/ui/components/input';
+import { getRouteApi } from '@tanstack/react-router';
+import { useCallback, useState } from 'react';
 import type { Dispatch } from 'react';
+import { useForm } from 'react-hook-form';
+import type { ControllerRenderProps } from 'react-hook-form';
+import { toast } from 'sonner';
 
-import type { AuthCodeSchema } from '@/app/auth/schemas';
 import { UserAuthForm } from '@/app/auth/auth-form';
+import type { AuthCodeSchema } from '@/app/auth/schemas';
 import { authCodeSchema } from '@/app/auth/schemas';
-import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { env } from '@/shared/env';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { config } from '@/shared/config';
 
 const route = getRouteApi('/auth');
 
@@ -78,8 +78,8 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
         </CardContent>
       </Card>
       <div className='text-muted-foreground [&_a]:hover:text-primary text-center text-xs text-balance [&_a]:underline [&_a]:underline-offset-4'>
-        By clicking continue, you agree to our <a href={`${env.WebUrl}/terms`}>Terms of Service</a> and{' '}
-        <a href={`${env.WebUrl}/privacy`}>Privacy Policy</a>.
+        By clicking continue, you agree to our <a href={`${config.WebUrl}/terms`}>Terms of Service</a> and{' '}
+        <a href={`${config.WebUrl}/privacy`}>Privacy Policy</a>.
       </div>
     </div>
   );
@@ -92,11 +92,11 @@ function Verify() {
   const from = search.from ?? '/';
 
   const form = useForm({
-    resolver: zodResolver(authCodeSchema),
     defaultValues: {
       code: '',
     },
     mode: 'onBlur',
+    resolver: zodResolver(authCodeSchema),
   });
 
   const handleVerify = useCallback(
@@ -118,7 +118,7 @@ function Verify() {
 
         if (completeSignUp.status === 'complete') {
           await setActive({ session: completeSignUp.createdSessionId });
-          navigate({ to: from, replace: true });
+          navigate({ replace: true, to: from });
         }
       } catch (error_) {
         const error = error_ as { errors: Array<{ message: string }> };

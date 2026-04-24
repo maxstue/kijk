@@ -8,9 +8,7 @@ permissions:
   contents: read
 
 env:
-  DOTNET_VERSION: "9.0.x"
-  NODE_VERSION: "22.x"
-  PNPM_VERSION: "9"
+  DOTNET_VERSION: "10.x.x"
 
 jobs:
   detect-changes:
@@ -20,7 +18,6 @@ jobs:
       api: ${{ steps.api-changes.outputs.any_changed }}
       infra: ${{ steps.infra-changes.outputs.any_changed }}
       client: ${{ steps.client-changes.outputs.any_changed }}
-      web: ${{ steps.web-changes.outputs.any_changed }}
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
@@ -31,6 +28,7 @@ jobs:
         with:
           files: |
             apps/api/**
+            global.json
 
       - name: "Detect Infrastructure changes"
         id: infra-changes
@@ -45,13 +43,12 @@ jobs:
         with:
           files: |
             apps/client/**
-
-      - name: "Detect Web changes"
-        id: web-changes
-        uses: tj-actions/changed-files@v47
-        with:
-          files: |
-            apps/web/**
+            package.json
+            packages/config/**
+            packages/core/**
+            packages/ui/**
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
 
   database-create-migration:
     name: "Migrate Database 🏗️"
@@ -120,7 +117,7 @@ jobs:
   api:
     name: "Deploy Api 🚀"
     needs: [database-apply-migration, detect-changes]
-    if: needs.detect-changes.outputs.api == 'true'
+    if: always() && needs.detect-changes.outputs.api == 'true' && (needs.database-apply-migration.result == 'success' || needs.database-apply-migration.result == 'skipped')
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     env:
@@ -137,7 +134,7 @@ jobs:
   client:
     name: Deploy Client 💻
     needs: [database-apply-migration, detect-changes]
-    if: needs.detect-changes.outputs.client == 'true'
+    if: always() && needs.detect-changes.outputs.client == 'true' && (needs.database-apply-migration.result == 'success' || needs.database-apply-migration.result == 'skipped')
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     env:
@@ -151,26 +148,9 @@ jobs:
       - name: "🚀 Deploy"
         run: railway up --service=${{ env.SERVICE_ID }} --ci
 
-  web:
-    name: Deploy Web 🕸️
-    needs: [database-apply-migration, detect-changes]
-    if: needs.detect-changes.outputs.web == 'true'
-    runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
-    env:
-      SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
-    steps:
-      - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v6
-      - name: "🚀 Deploy"
-        run: |
-          echo 'Web deployment is disabled for now'
-      # TODO deploy web app to railway
-
   success:
     name: Success 👻✅
-    needs: [api, client, web]
+    needs: [api, client]
     if: always()
     runs-on: ubuntu-latest
     environment:

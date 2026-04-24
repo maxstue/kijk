@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { ApiError, Resource } from '@/shared/types/app';
-import type { ResourceFormValues } from './schemas';
 import { createResource } from '@/shared/api/resources';
+import type { ApiError, Resource } from '@/shared/types/app';
+
+import type { ResourceFormValues } from './schemas';
 
 interface Options {
   resourceType: ResourceFormValues;

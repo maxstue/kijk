@@ -1,4 +1,4 @@
-import { PostHogProvider } from 'posthog-js/react';
+import { PostHogProvider } from '@posthog/react';
 
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 

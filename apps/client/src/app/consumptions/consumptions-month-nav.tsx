@@ -1,9 +1,5 @@
-import { Suspense, useState } from 'react';
-import { getRouteApi } from '@tanstack/react-router';
-import { Check, ChevronsUpDown } from 'lucide-react';
-
-import type { Months } from '@/shared/types/app';
-import { Button } from '@/shared/components/ui/button';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
 import {
   Command,
   CommandEmpty,
@@ -11,10 +7,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/shared/components/ui/command';
-import { AsyncLoader } from '@/shared/components/ui/loaders/async-loader';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
-import { cn } from '@/shared/lib/helpers';
+} from '@kijk/ui/components/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
+import { getRouteApi } from '@tanstack/react-router';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { Suspense, useState } from 'react';
+
+import { Loader } from '@/shared/components/ui/loaders/loader';
+import type { Months } from '@/shared/types/app';
 import { months } from '@/shared/types/app';
 
 const Route = getRouteApi('/_protected/consumptions');
@@ -48,12 +48,12 @@ export function ConsumptionsMonthNav({ className }: Props) {
           <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[200px] p-0'>
+      <PopoverContent className='w-50 p-0'>
         <Command>
           <CommandList>
             <CommandInput placeholder='Search Months...' />
             <CommandEmpty>No Month found.</CommandEmpty>
-            <Suspense fallback={<AsyncLoader />}>
+            <Suspense fallback={<Loader />}>
               <CommandGroup key='Months' heading='Months'>
                 {months.map((m) => (
                   <CommandItem

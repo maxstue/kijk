@@ -1,9 +1,5 @@
-import { useAuth, useUser } from '@clerk/clerk-react';
-import { useNavigate } from '@tanstack/react-router';
-import { Bell, ChevronsUpDown, LogOut, Sparkles } from 'lucide-react';
-
-import { getInitialChars } from '@/app/root/helpers';
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { useAuth, useUser } from '@clerk/react';
+import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +8,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/shared/components/ui/sidebar';
+} from '@kijk/ui/components/dropdown-menu';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@kijk/ui/components/sidebar';
+import { useNavigate } from '@tanstack/react-router';
+import { Bell, ChevronsUpDown, LogOut, Sparkles } from 'lucide-react';
+
+import { getInitialChars } from '@/app/root/helpers';
 
 export function NavUser() {
   const { signOut } = useAuth();
@@ -26,7 +26,7 @@ export function NavUser() {
   const handleSignOut = (event: Event) => {
     event.preventDefault();
     signOut()
-      .then(() => navigate({ to: '/auth', replace: true }))
+      .then(() => navigate({ replace: true, to: '/auth' }))
       .catch(console.warn);
   };
 

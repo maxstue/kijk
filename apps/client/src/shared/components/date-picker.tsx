@@ -1,10 +1,9 @@
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
+import { Calendar } from '@kijk/ui/components/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
-
-import { Button } from '@/shared/components/ui/button';
-import { Calendar } from '@/shared/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
-import { cn } from '@/shared/lib/helpers';
 
 interface Props {
   date?: Date;
@@ -16,8 +15,8 @@ export function DatePicker(props: Props) {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className={cn('w-[280px] justify-start text-left font-normal', !props.date && 'text-muted-foreground')}
-          variant={'outline'}
+          className={cn('w-70 justify-start text-left font-normal', !props.date && 'text-muted-foreground')}
+          variant='outline'
         >
           <CalendarIcon className='mr-2 h-4 w-4' />
           {props.date ? format(props.date, 'PPP') : <span>Pick a date</span>}

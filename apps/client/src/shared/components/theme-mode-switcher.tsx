@@ -1,6 +1,5 @@
+import { useThemeStore } from '@kijk/core/stores/theme-store';
 import { useEffect } from 'react';
-
-import { useThemeStore } from '@/shared/stores/theme-store';
 
 export function ThemeModeSwitcher() {
   const { mode } = useThemeStore();

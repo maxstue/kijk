@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { cn } from '@kijk/core/utils/style';
+import { buttonVariants } from '@kijk/ui/components/button';
+import { Icons } from '@kijk/ui/components/icons';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { Undo2 } from 'lucide-react';
+import { useState } from 'react';
 import { z } from 'zod';
 
 import { Login } from '@/app/auth/login';
 import { SignUp } from '@/app/auth/sign-up';
-import { buttonVariants } from '@/shared/components/ui/button';
-import { cn } from '@/shared/lib/helpers';
-import { Icons } from '@/shared/components/icons';
-import { siteConfig } from '@/shared/lib/constants';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { siteConfig } from '@/shared/lib/constants';
 
 const authSearchSchema = z.object({
   from: z.string().optional(),
@@ -17,6 +17,7 @@ const authSearchSchema = z.object({
 
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
+  component: AuthPage,
   beforeLoad: ({ search, context: { authClient } }) => {
     const session = authClient?.session;
 
@@ -26,7 +27,6 @@ export const Route = createFileRoute('/auth')({
 
     throw redirect({ to: search.from ?? '/' });
   },
-  component: AuthPage,
 });
 
 function AuthPage() {

@@ -1,17 +1,17 @@
-import { useCallback, useState } from 'react';
-import { useSignIn } from '@clerk/clerk-react';
-import { useForm } from 'react-hook-form';
+import { useSignIn } from '@clerk/react/legacy';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
+import { Icons } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
 
 import type { AuthSchema } from '@/app/auth/schemas';
 import { authSchema } from '@/app/auth/schemas';
 import { Route } from '@/routes/auth';
-import { Icons } from '@/shared/components/icons';
-import { Button } from '@/shared/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form';
-import { Input } from '@/shared/components/ui/input';
-import { cn } from '@/shared/lib/helpers';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Allowed_Providers } from '@/shared/types/app';
 
 interface Props {
@@ -22,12 +22,12 @@ interface Props {
 
 export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
   const form = useForm({
-    resolver: zodResolver(authSchema),
     defaultValues: {
       email: '',
       password: '',
     },
     mode: 'onBlur',
+    resolver: zodResolver(authSchema),
   });
   const [isLoading, setIsLoading] = useState(false);
   const searchParameters = Route.useSearch();
@@ -45,9 +45,9 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
       return;
     }
     await signIn.authenticateWithRedirect({
-      strategy: 'oauth_github',
       redirectUrl: '/sso-callback',
       redirectUrlComplete: searchParameters.from ?? '/',
+      strategy: 'oauth_github',
     });
   }, [isLoaded, searchParameters.from, signIn]);
 

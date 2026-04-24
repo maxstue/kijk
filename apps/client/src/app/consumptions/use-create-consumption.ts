@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
-import type { Consumption } from '@/shared/types/app';
 import { createConsumption } from '@/shared/api/consumptions';
+import type { Consumption } from '@/shared/types/app';
 import { months } from '@/shared/types/app';
 
 export const useCreateConsumption = () => {
@@ -11,7 +11,7 @@ export const useCreateConsumption = () => {
   return useMutation({
     mutationFn: (data: { newEnergy: ConsumptionCreateFormSchema }) => createConsumption(data.newEnergy),
     async onSuccess(data, variables) {
-      const cachedConsumptionsUsage = queryClient.getQueryData<Array<Consumption>>([
+      const cachedConsumptionsUsage = queryClient.getQueryData<Consumption[]>([
         'consumptions',
         'usage',
         'getBy',

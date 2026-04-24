@@ -1,12 +1,12 @@
-import * as React from 'react';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import type { ChartConfig } from '@kijk/ui/components/chart';
+import { ChartContainer } from '@kijk/ui/components/chart';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
+import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
+import { useState } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
-import type { ChartConfig } from '@/shared/components/ui/chart';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { ChartContainer } from '@/shared/components/ui/chart';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group';
 
 export const description = 'An interactive area chart';
 
@@ -105,28 +105,22 @@ const chartData = [
 ];
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors',
-  },
   desktop: {
-    label: 'Desktop',
     color: 'var(--primary)',
+    label: 'Desktop',
   },
   mobile: {
-    label: 'Mobile',
     color: 'var(--primary)',
+    label: 'Mobile',
+  },
+  visitors: {
+    label: 'Visitors',
   },
 } satisfies ChartConfig;
 
 export function HomeChartArea() {
   const isMobile = useIsMobile();
-  const [timeRange, setTimeRange] = React.useState('90d');
-
-  React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange('7d');
-    }
-  }, [isMobile]);
+  const [timeRange, setTimeRange] = useState(isMobile ? '7d' : '90d');
 
   const filteredData = chartData.filter((item) => {
     const date = new Date(item.date);
@@ -162,7 +156,7 @@ export function HomeChartArea() {
             <ToggleGroupItem value='30d'>Last 30 days</ToggleGroupItem>
             <ToggleGroupItem value='7d'>Last 7 days</ToggleGroupItem>
           </ToggleGroup>
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          <Select value={timeRange} onValueChange={(x) => x && setTimeRange(x)}>
             <SelectTrigger
               aria-label='Select a value'
               className='flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden'
@@ -207,8 +201,8 @@ export function HomeChartArea() {
               tickFormatter={(value) => {
                 const date = new Date(value as string);
                 return date.toLocaleDateString('en-US', {
-                  month: 'short',
                   day: 'numeric',
+                  month: 'short',
                 });
               }}
             />

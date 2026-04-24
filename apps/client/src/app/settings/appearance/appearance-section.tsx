@@ -1,10 +1,9 @@
+import { useThemeStore, useThemeStoreActions } from '@kijk/core/stores/theme-store';
+import { cn } from '@kijk/core/utils/style';
+import { Button } from '@kijk/ui/components/button';
+import { Label } from '@kijk/ui/components/label';
+import { Separator } from '@kijk/ui/components/separator';
 import { MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
-
-import { Button } from '@/shared/components/ui/button';
-import { Label } from '@/shared/components/ui/label';
-import { Separator } from '@/shared/components/ui/separator';
-import { cn } from '@/shared/lib/helpers';
-import { useThemeStore, useThemeStoreActions } from '@/shared/stores/theme-store';
 
 export function AppearanceSection() {
   const { mode } = useThemeStore();
@@ -26,7 +25,7 @@ export function AppearanceSection() {
             <div className='grid grid-cols-3 gap-2'>
               <Button
                 className={cn('py-8', mode === 'light' && 'border-primary border-2')}
-                variant={'outline'}
+                variant='outline'
                 onClick={() => setMode('light')}
               >
                 <SunIcon className='size-6 -translate-x-1' />
@@ -34,7 +33,7 @@ export function AppearanceSection() {
               </Button>
               <Button
                 className={cn('py-8', mode === 'dark' && 'border-primary border-2')}
-                variant={'outline'}
+                variant='outline'
                 onClick={() => setMode('dark')}
               >
                 <MoonIcon className='size-6 -translate-x-1' />
@@ -42,7 +41,7 @@ export function AppearanceSection() {
               </Button>
               <Button
                 className={cn('py-8', mode === 'system' && 'border-primary border-2')}
-                variant={'outline'}
+                variant='outline'
                 onClick={() => setMode('system')}
               >
                 <SunMoonIcon className='size-6 -translate-x-1' />

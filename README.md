@@ -46,11 +46,11 @@ And if you are a developer and want to contribute to this project please go [her
 
 ## 🖥️ Developer Guide <a name = "developer-guide"></a>
 
-Please refer to the contributing [guide](./docs/) for how to install Kijk from sources.
+Please refer to the contributing [guide](./.github/CONTRIBUTING.md) for how to install Kijk from sources.
 
 ## 🚀 Deployment <a name = "deployment"></a>
 
-The deployed system runs on [vercel](https://vercel.com/) and [fly.io](https://fly.io/), for further information go to the deplyoment [documentation](./docs/developers/deployment.md).
+Deployment is handled through the repository's GitHub Actions workflows.
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 

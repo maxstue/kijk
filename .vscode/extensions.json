@@ -2,8 +2,6 @@
   "recommendations": [
     // Lint & Format
     "oxc.oxc-vscode",
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
     // CSharp
     "ms-dotnettools.csharp",
     // TypeScript
@@ -11,6 +9,7 @@
     "mattpocock.ts-error-translator",
     // React
     "dsznajder.es7-react-js-snippets",
+    "blazejkustra.react-compiler-marker",
     // Vite
     "vitest.explorer",
     // Docker
