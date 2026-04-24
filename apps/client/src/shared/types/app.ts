@@ -36,7 +36,7 @@ export const TransactionType = {
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
-const monthFormatter = new Intl.DateTimeFormat('de-DE', { month: 'long' });
+const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
 export const months = Array.from({ length: 12 }, (_, index) =>
   monthFormatter.format(new Date(2000, index)).toLowerCase(),
 );

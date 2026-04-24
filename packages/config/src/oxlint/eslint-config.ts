@@ -1,20 +1,18 @@
-import { defineConfig } from "oxlint";
+import { defineConfig } from 'oxlint';
 
-/**
- * OxLint configuration for ESLint rules.
- */
+/** OxLint configuration for ESLint rules. */
 export default defineConfig({
-  plugins: ["eslint"],
+  plugins: ['eslint'],
   rules: {
-    "eslint/no-unused-vars": [
-      "error",
+    'eslint/no-unused-vars': [
+      'error',
       {
-        args: "all",
-        argsIgnorePattern: "^_",
-        caughtErrors: "all",
-        caughtErrorsIgnorePattern: "^_",
-        destructuredArrayIgnorePattern: "^_",
-        varsIgnorePattern: "^_",
+        args: 'all',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'all',
+        caughtErrorsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
         ignoreRestSiblings: true,
       },
     ],

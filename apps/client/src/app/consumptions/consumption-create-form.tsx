@@ -21,7 +21,7 @@ import { DatePicker } from '@/shared/components/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Months } from '@/shared/types/app';
-import { ValueTypes } from '@/shared/types/app';
+import { ValueTypes, months } from '@/shared/types/app';
 import { getMonthIndexFromString } from '@/shared/utils/format';
 
 interface Props {
@@ -34,7 +34,7 @@ export function ConsumptionCreateForm({ onClose, ...props }: Props) {
   const { isPending, mutate } = useCreateConsumption();
 
   const year = 'year' in props ? props.year : new Date().getFullYear();
-  const month = 'month' in props ? props.month : (new Date().toLocaleString('default', { month: 'long' }) as Months);
+  const month = 'month' in props ? props.month : months[new Date().getMonth()];
 
   const creationDate = new Date(`${Number(year)}-${getMonthIndexFromString(month)}-${new Date().getDate()}`);
 

@@ -1,8 +1,6 @@
-import { defineConfig } from "oxlint";
+import { defineConfig } from 'oxlint';
 
-/**
- * OxLint configuration for JSDoc rules.
- */
+/** OxLint configuration for JSDoc rules. */
 export default defineConfig({
-  plugins: ["jsdoc"],
+  plugins: ['jsdoc'],
 });
