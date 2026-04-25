@@ -1,16 +1,23 @@
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
-import { apiClient } from '@/shared/lib/api-client';
-import type { AppUser } from '@/shared/types/app';
-
-const ENDPOINT = 'users';
+import type { UserStepFormValues } from '@/app/welcome/schemas';
+import { apiClient, unwrapApiResponse } from '@/shared/lib/api-client';
 
 export function signInUser(signal?: AbortSignal) {
-  return apiClient.get<AppUser>({ signal, url: `${ENDPOINT}/sign-in` });
+  return apiClient.GET('/api/users/sign-in', { signal }).then((response) => unwrapApiResponse(response));
 }
 
 export function updateUser(data: UserUpdateFormValues) {
-  return apiClient.put<AppUser>({
-    data: { useDefaultResources: data.useDefaultResources, userName: data.userName },
-    url: ENDPOINT,
-  });
+  return apiClient
+    .PUT('/api/users', {
+      body: { useDefaultResources: data.useDefaultResources, userName: data.userName ?? null },
+    })
+    .then((response) => unwrapApiResponse(response));
+}
+
+export function welcomeUser(data: UserStepFormValues) {
+  return apiClient
+    .PUT('/api/users/welcome', {
+      body: { useDefaultResources: data.useDefaultResources ?? null, userName: data.userName ?? null },
+    })
+    .then((response) => unwrapApiResponse(response));
 }

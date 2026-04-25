@@ -79,7 +79,7 @@ function ResourceTypeStatistics() {
   const { data } = useGetResources();
 
   const dataCount = data.length;
-  const customCount = data.filter((x) => x.creator === CreatorTypes.USER).length;
+  const customCount = data.filter((x) => x.creatorType === CreatorTypes.USER).length;
 
   return (
     <>

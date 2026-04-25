@@ -1,14 +1,12 @@
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
-import { apiClient } from '@/shared/lib/api-client';
-import type { Consumption, ConsumptionsStatsType, Years } from '@/shared/types/app';
+import type { components } from '@/shared/api/generated/kijk';
+import { apiClient, unwrapApiResponse } from '@/shared/lib/api-client';
 
-const ENDPOINT = 'consumptions';
+type CreateConsumptionRequest = components['schemas']['CreateConsumptionRequest'];
+type UpdateConsumptionRequest = components['schemas']['UpdateConsumptionRequest'];
 
 export function getYears(signal?: AbortSignal) {
-  return apiClient.get<Years>({
-    signal,
-    url: `${ENDPOINT}/years`,
-  });
+  return apiClient.GET('/api/consumptions/years', { signal }).then((response) => unwrapApiResponse(response));
 }
 
 /**
@@ -24,11 +22,12 @@ export function getYears(signal?: AbortSignal) {
  * @returns The list of resources
  */
 export function getConsumptionsBy(year?: string, month?: string, signal?: AbortSignal) {
-  return apiClient.get<Consumption[]>({
-    params: { month, year },
-    signal,
-    url: ENDPOINT,
-  });
+  return apiClient
+    .GET('/api/consumptions', {
+      params: { query: { month, year } },
+      signal,
+    })
+    .then((response) => unwrapApiResponse(response));
 }
 
 /**
@@ -40,32 +39,66 @@ export function getConsumptionsBy(year?: string, month?: string, signal?: AbortS
  * @returns The list of resources
  */
 export function getConsumptionsStats(year?: string, month?: string, signal?: AbortSignal) {
-  return apiClient.get<ConsumptionsStatsType>({
-    params: { month, year },
-    signal,
-    url: `${ENDPOINT}/stats`,
-  });
+  if (!year || !month) {
+    throw new Error('Year and month are required to load consumption stats.');
+  }
+
+  return apiClient
+    .GET('/api/consumptions/stats', {
+      params: { query: { month, year } },
+      signal,
+    })
+    .then((response) => unwrapApiResponse(response));
 }
 
 export function createConsumption(data: ConsumptionCreateFormSchema, signal?: AbortSignal) {
-  return apiClient.post<Consumption>({
-    data,
-    signal,
-    url: ENDPOINT,
-  });
+  return apiClient
+    .POST('/api/consumptions', {
+      body: toCreateConsumptionRequest(data),
+      signal,
+    })
+    .then((response) => unwrapApiResponse(response));
 }
 
 export function updateConsumption(id: string, data: Partial<ConsumptionCreateFormSchema>, signal?: AbortSignal) {
-  return apiClient.put<Consumption>({
-    data,
-    signal,
-    url: `${ENDPOINT}/${id}`,
-  });
+  return apiClient
+    .PUT('/api/consumptions/{id}', {
+      body: toUpdateConsumptionRequest(data),
+      params: {
+        path: { id },
+      },
+      signal,
+    })
+    .then((response) => unwrapApiResponse(response));
 }
 
 export function deleteConsumption(id: string, signal?: AbortSignal) {
-  return apiClient.delete<Consumption>({
-    signal,
-    url: `${ENDPOINT}/${id}`,
-  });
+  return apiClient
+    .DELETE('/api/consumptions/{id}', {
+      params: {
+        path: { id },
+      },
+      signal,
+    })
+    .then((response) => unwrapApiResponse(response));
+}
+
+function toCreateConsumptionRequest(data: ConsumptionCreateFormSchema): CreateConsumptionRequest {
+  return {
+    date: data.date.toISOString(),
+    name: data.name,
+    resourceId: data.resourceId,
+    value: data.value,
+    valueType: data.valueType ?? 'Absolute',
+  };
+}
+
+function toUpdateConsumptionRequest(data: Partial<ConsumptionCreateFormSchema>): UpdateConsumptionRequest {
+  return {
+    date: data.date?.toISOString() ?? null,
+    name: data.name ?? null,
+    resourceId: data.resourceId ?? null,
+    value: data.value ?? null,
+    valueType: data.valueType ?? 'Absolute',
+  };
 }

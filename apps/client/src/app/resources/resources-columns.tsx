@@ -40,9 +40,9 @@ export const resourcesColumns: Array<ColumnDef<Resource>> = [
     ),
   },
   {
-    accessorKey: 'creator',
+    accessorKey: 'creatorType',
     cell: ({ row }) => {
-      const colorValue = row.getValue<string>('creator');
+      const colorValue = row.getValue<string>('creatorType');
       return <div style={{ color: colorValue }}>{colorValue}</div>;
     },
     header: ({ column }) => (

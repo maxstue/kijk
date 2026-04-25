@@ -1,99 +1,107 @@
 import { browserStorage } from '@kijk/core/lib/browser-storage';
-import axios from 'axios';
-import type { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import createClient from 'openapi-fetch';
+import type { Middleware } from 'openapi-fetch';
 
+import type { components, paths } from '@/shared/api/generated/kijk';
 import { config } from '@/shared/config';
 import { getAuthToken } from '@/shared/lib/auth-client';
-import type { ApiError } from '@/shared/types/app';
 import { CORRELATION_ID_HEADER } from '@/shared/types/app';
 
-/** Overrides axios request options, so that the url prop is mandatory */
-interface RequestOptions<T = unknown> extends Omit<AxiosRequestConfig<T>, 'url'> {
-  url: string;
-  abort?: AbortController;
-  data?: T;
-}
-const onFulfilled = <TReturn>(response: AxiosResponse<TReturn, unknown>) => response.data;
-
-const onRejected = (error: unknown) => {
-  console.error(error);
-  return Promise.reject(error as AxiosError<ApiError>);
+type ApiProblem = components['schemas']['Problem'] & {
+  correlationId?: string;
+  errorType?: string;
+  errors?: unknown;
+  requestId?: string;
+  timestamp?: string;
+  traceId?: string;
 };
 
-const baseInstance = axios.create({
-  baseURL: config.ApiUrl,
+type ApiResponse<TData, TError> =
+  | {
+      data: TData;
+      error?: never;
+      response: Response;
+    }
+  | {
+      data?: never;
+      error: TError;
+      response: Response;
+    };
+
+class ApiClientError<TError = ApiProblem> extends Error {
+  error: TError;
+  response: Response;
+  status: number;
+
+  constructor(error: TError, response: Response) {
+    super(getErrorMessage(error, response));
+    this.name = 'ApiClientError';
+    this.error = error;
+    this.response = response;
+    this.status = response.status;
+  }
+}
+
+function getErrorMessage(error: unknown, response: Response) {
+  if (isApiProblem(error)) {
+    return error.detail ?? error.title ?? response.statusText;
+  }
+
+  return response.statusText;
+}
+
+function isApiProblem(error: unknown): error is ApiProblem {
+  return typeof error === 'object' && error !== null;
+}
+
+const authMiddleware: Middleware = {
+  async onRequest({ request }) {
+    const headers = new Headers(request.headers);
+    headers.set('Authorization', `Bearer ${(await getAuthToken()) ?? ''}`);
+
+    if (request.body && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+
+    const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
+    if (correlationId) {
+      headers.set(CORRELATION_ID_HEADER, correlationId);
+    }
+
+    return new Request(request, { headers });
+  },
+  onResponse({ response }) {
+    const correlationId = response.headers.get(CORRELATION_ID_HEADER);
+    if (correlationId) {
+      browserStorage.setItem(CORRELATION_ID_HEADER, correlationId);
+    }
+    return response;
+  },
+  onError({ error }) {
+    console.error(error);
+  },
+};
+
+const apiClient = createClient<paths>({
+  baseUrl: config.BaseApiUrl,
 });
 
-async function onRequest(request: InternalAxiosRequestConfig) {
-  request.headers.set('Authorization', `Bearer ${(await getAuthToken()) ?? ''}`);
-  request.headers.setContentType('application/json');
-  const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
-  if (correlationId) {
-    request.headers.set(CORRELATION_ID_HEADER, correlationId);
+apiClient.use(authMiddleware);
+
+function unwrapApiResponse<TData, TError>(result: ApiResponse<TData, TError>) {
+  if (result.error) {
+    throw new ApiClientError(result.error, result.response);
   }
-  return request;
+
+  if (result.data === undefined) {
+    throw new ApiClientError(
+      { status: result.response.status, title: 'Empty API response' } as TError,
+      result.response,
+    );
+  }
+
+  return result.data;
 }
 
-// Do something with response data. Any 2** statusCode will trigger this function
-function onResponse(response: AxiosResponse) {
-  const correlationId = response.headers[CORRELATION_ID_HEADER.toLowerCase()] as string | undefined;
-  browserStorage.setItem(CORRELATION_ID_HEADER, correlationId);
-  return response;
-}
-
-// Do something with response error. Any statusCode outside 2** will trigger this function
-function onResponseError(error: AxiosError) {
-  return Promise.reject(error);
-}
-
-function onRequestError(error: AxiosError) {
-  return Promise.reject(error);
-  // TODO handle 401
-  // Const errInterceptor = (error) => {
-  //   If (error.response.status === 401) {
-  //     //redirect logic here
-  //   }
-
-  //   Return Promise.reject();
-  // };
-}
-
-baseInstance.interceptors.request.use(onRequest, onRequestError);
-baseInstance.interceptors.response.use(onResponse, onResponseError);
-
-/** The base api instance. */
-const apiClient = {
-  delete<TReturn = unknown>(options: RequestOptions) {
-    const { url, abort, data } = options;
-    return baseInstance
-      .delete<TReturn>(url, { ...options, data, signal: abort?.signal })
-      .then(onFulfilled)
-      .catch(onRejected);
-  },
-
-  get<TReturn = unknown>(options: RequestOptions) {
-    const { url, abort } = options;
-    return baseInstance
-      .get<TReturn>(url, { ...options, signal: abort?.signal })
-      .then(onFulfilled)
-      .catch(onRejected);
-  },
-
-  post<TReturn = unknown>(options: RequestOptions) {
-    const { url, abort, data } = options;
-    return baseInstance
-      .post<TReturn>(url, data, { ...options, signal: abort?.signal })
-      .then(onFulfilled)
-      .catch(onRejected);
-  },
-
-  put<TReturn = unknown>(options: RequestOptions) {
-    const { url, abort, data } = options;
-    return baseInstance
-      .put<TReturn>(url, data, { ...options, signal: abort?.signal })
-      .then(onFulfilled)
-      .catch(onRejected);
-  },
-};
-
-export { apiClient, baseInstance };
+export { ApiClientError, apiClient, unwrapApiResponse };
+export type { ApiProblem };

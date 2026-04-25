@@ -1,20 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { AxiosError } from 'axios';
 
 import { userSignInQuery } from '@/app/root/use-signin-user';
 import type { UserStepFormValues } from '@/app/welcome/schemas';
-import { apiClient } from '@/shared/lib/api-client';
-import type { ApiError } from '@/shared/types/app';
+import { welcomeUser } from '@/shared/api/users';
+import type { ApiClientError, ApiProblem } from '@/shared/lib/api-client';
+import type { AppUser } from '@/shared/types/app';
 
 export const useWelcomeUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, AxiosError<ApiError>, UserStepFormValues>({
-    mutationFn: (data: UserStepFormValues) =>
-      apiClient.put({
-        data: data,
-        url: 'users/welcome',
-      }),
+  return useMutation<AppUser, ApiClientError<ApiProblem>, UserStepFormValues>({
+    mutationFn: (data: UserStepFormValues) => welcomeUser(data),
     onSuccess() {
       const cachedUser = queryClient.getQueryData(userSignInQuery.queryKey);
       if (cachedUser) {

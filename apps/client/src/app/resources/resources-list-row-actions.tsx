@@ -33,6 +33,7 @@ import { resourceSchema } from '@/app/resources/schemas';
 import { useDeleteResource } from '@/app/resources/use-delete-resource';
 import { useUpdateResource } from '@/app/resources/use-update-resource-type';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { CreatorTypes } from '@/shared/types/app';
 import type { Resource } from '@/shared/types/app';
 
 interface DataTableRowActionsProps<TData> {
@@ -68,7 +69,7 @@ export function ResourceTypeListRowActions<TData extends Resource>({ row }: Data
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
-            {resourceType.creator !== 'Default' && (
+            {resourceType.creatorType !== CreatorTypes.SYSTEM && (
               <>
                 <SheetTrigger
                   onClick={() => {

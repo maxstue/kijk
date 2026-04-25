@@ -16,6 +16,7 @@
     "dev:all": "pnpm run --parallel --filter \"kijk*\" dev",
     "dev:client": "pnpm run --filter \"kijk-client\" dev",
     "dev:api": "pnpm run --filter \"kijk-api\" dev",
+    "api:generate": "pnpm run --filter \"kijk-api\" build && pnpm run --filter \"kijk-client\" api:generate",
     "build": "pnpm run --parallel -r build",
     "build:client": "pnpm run --filter \"kijk-client\" build",
     "clean:all": "pnpm run --parallel -r clean:all && rimraf ./dist ./node_modules ./*.lock ./.eslintcache ",

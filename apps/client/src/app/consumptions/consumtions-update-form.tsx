@@ -33,9 +33,11 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      id: initialData.id,
+      name: initialData.name,
       date: initialData.date ? new Date(initialData.date) : new Date(),
       resourceId: initialData.resource.id,
+      value: Number(initialData.value),
       valueType: ValueTypes.ABSOLUTE,
     },
     resolver: zodResolver(consumptionUpdateSchema),

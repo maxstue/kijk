@@ -14,6 +14,7 @@ import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import type { ErrorDetails } from '@/shared/types/app';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/welcome')({
@@ -83,8 +84,9 @@ function WelcomePage() {
   const handleFinish = useCallback(() => {
     mutate(userStep, {
       onError(error) {
+        const firstError = Array.isArray(error.error.errors) ? error.error.errors[0] : undefined;
         toast('An error occurred while creating your user.', {
-          description: `${error.response?.data.errors?.[0].code}: ${error.response?.data.errors?.[0].description}`,
+          description: isErrorDetails(firstError) ? `${firstError.code}: ${firstError.description}` : error.message,
         });
       },
       async onSuccess() {
@@ -133,6 +135,10 @@ function WelcomePage() {
       </div>
     </>
   );
+}
+
+function isErrorDetails(error: unknown): error is ErrorDetails {
+  return typeof error === 'object' && error !== null && 'code' in error && 'description' in error;
 }
 
 function StepZero() {

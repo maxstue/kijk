@@ -18,7 +18,7 @@ export default defineConfig({
     builtin: true,
   },
   extends: [baseConfig],
-  ignorePatterns: [...sharedIgnorePatterns],
+  ignorePatterns: [...sharedIgnorePatterns, 'src/shared/api/generated/**'],
   jsPlugins: [reactHooksJsPlugin, tanstackRouterJsPlugin, tanstackQueryJsPlugin],
   options: {
     typeAware: true,

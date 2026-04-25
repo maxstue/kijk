@@ -1,6 +1,7 @@
 // Do not add any other lines of code to this file!
 // oxlint-disable-next-line no-unassigned-import
 import '@total-typescript/ts-reset';
+import type { components } from '@/shared/api/generated/kijk';
 
 // ##### Ts extension types #####
 export type Optional<T> = T | undefined;
@@ -9,16 +10,14 @@ export type Nullish<T> = T | undefined | null;
 
 export type Autocomplete<TOptions extends string> = TOptions | (string & {});
 
-export interface ApiError {
-  type: string;
-  title: string;
-  status: number;
-  detail: string;
-  instance: string;
-  errors: Optional<ErrorDetails[]>;
-  traceId: string;
-  requestId: string;
-}
+export type ApiError = components['schemas']['Problem'] & {
+  correlationId?: string;
+  errorType?: string;
+  errors?: Optional<ErrorDetails[]>;
+  requestId?: string;
+  timestamp?: string;
+  traceId?: string;
+};
 
 export interface ErrorDetails {
   type: string;
@@ -43,14 +42,7 @@ export const months = Array.from({ length: 12 }, (_, index) =>
 
 export type Months = (typeof months)[number];
 
-export interface AppUser {
-  id: string;
-  name: Optional<string>;
-  email: Optional<string>;
-  firstTime: Optional<boolean>;
-  resourceTypes: Optional<Resource[]>;
-  useDefaultResources: Optional<boolean>;
-}
+export type AppUser = components['schemas']['UserResponse'];
 
 export interface User_Metadata {
   user_name: Optional<string>;
@@ -61,14 +53,7 @@ export const COOKIE_CONSENT_KEY = 'cookie_consent';
 
 export type CookieConsent = 'accepted' | 'declined' | 'undecided';
 
-export interface Consumption {
-  id: string;
-  name: string;
-  description: Optional<string>;
-  value: number;
-  resource: Resource;
-  date: string;
-}
+export type Consumption = components['schemas']['ConsumptionResponse'];
 
 export const ValueTypes = {
   ABSOLUTE: 'Absolute',
@@ -76,43 +61,18 @@ export const ValueTypes = {
 } as const;
 export type ValueType = (typeof ValueTypes)[keyof typeof ValueTypes];
 
-export interface ConsumptionsStatsType {
-  stats: ConsumptionsStats[];
-}
+export type ConsumptionsStatsType = components['schemas']['GetStatsConsumptionsResponseWrapper'];
 
-export interface ConsumptionsStats {
-  resource: ResourceStats;
-  monthTotal: number;
-  yearTotal: number;
-  yearAverage: number;
-  yearMin: number;
-  yearMax: number;
-  comparisonYear: number;
-  comparisonYearDiff: number;
-  comparisonMonth: number;
-  comparisonMonthDiff: number;
-}
+export type ConsumptionsStats = components['schemas']['ConsumptionStatsResponse'];
 
-export interface ResourceStats {
-  name: string;
-  unit: string;
-  color: string;
-}
+export type ResourceStats = components['schemas']['ConsumptionStatsResourceResponse'];
 
 export const CreatorTypes = {
-  DEFAULT: 'Default',
+  SYSTEM: 'System',
   USER: 'User',
 } as const;
 export type CreatorType = (typeof CreatorTypes)[keyof typeof CreatorTypes];
 
-export interface Resource {
-  id: string;
-  name: string;
-  unit: string;
-  color: string;
-  creator: CreatorType;
-}
+export type Resource = components['schemas']['ResourceResponse'];
 
-export interface Years {
-  years: number[];
-}
+export type Years = components['schemas']['GetYearsConsumptionQueryResponse'];

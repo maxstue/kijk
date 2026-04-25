@@ -151,13 +151,13 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
 
   function handleSubmit(data: YearFormValues) {
     const response = queryClient.getQueryData(getYearsFromConsumptionsQuery.queryKey);
-    if (response?.years.includes(data.year)) {
+    if (response?.years.map(Number).includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
       return;
     }
 
     queryClient.setQueryData(getYearsFromConsumptionsQuery.queryKey, (old) => ({
-      years: [...(old?.years ?? []), data.year].sort((a, b) => b - a),
+      years: [...(old?.years.map(Number) ?? []), data.year].sort((a, b) => b - a),
     }));
     navigate({ search: (previous) => ({ ...previous, year: data.year }), to: '/consumptions' });
     onClose();
