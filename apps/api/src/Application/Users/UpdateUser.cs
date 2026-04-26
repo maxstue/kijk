@@ -34,15 +34,16 @@ public class UpdateUserHandler(AppDbContext dbContext, CurrentUser currentUser, 
         userEntity.FirstTime = false;
         userEntity.Name = request.UserName;
 
-        if (request.UseDefaultResources is true && userEntity.Resources.Any(x => x.CreatorType != CreatorType.System))
+        var hasDefaultResources = userEntity.Resources.Any(x => x.CreatorType == CreatorType.System);
+
+        if (request.UseDefaultResources is true && !hasDefaultResources)
         {
             var defaultTypes = await dbContext.Resources
                 .Where(x => x.CreatorType == CreatorType.System)
                 .ToListAsync(cancellationToken);
             userEntity.SetDefaultResources(true, defaultTypes);
         }
-        else if (request.UseDefaultResources is false &&
-                 userEntity.Resources.Any(x => x.CreatorType == CreatorType.System))
+        else if (request.UseDefaultResources is false && hasDefaultResources)
         {
             var defaultTypes = await dbContext.Resources
                 .Where(x => x.CreatorType == CreatorType.System)

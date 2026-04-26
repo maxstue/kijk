@@ -54,13 +54,16 @@ public sealed class User : BaseEntity
 
     public void SetDefaultResources(bool useDefault, IEnumerable<Resource> defaultResources)
     {
+        var resourceIds = _resources.Select(x => x.Id).ToHashSet();
+        var defaultResourceIds = defaultResources.Select(x => x.Id).ToHashSet();
+
         if (useDefault)
         {
-            _resources.AddRange(defaultResources);
+            _resources.AddRange(defaultResources.Where(x => !resourceIds.Contains(x.Id)));
         }
         else
         {
-            _resources.RemoveAll(x => defaultResources.Select(c => c.Id).Contains(x.Id));
+            _resources.RemoveAll(x => defaultResourceIds.Contains(x.Id));
         }
     }
 

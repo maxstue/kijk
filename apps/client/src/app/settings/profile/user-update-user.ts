@@ -8,7 +8,7 @@ export const useUpdateUser = () => {
   return useMutation({
     mutationFn: updateUser,
     async onSuccess(data) {
-      await queryClient.invalidateQueries({ queryKey: ['resource-types'] });
+      await queryClient.invalidateQueries({ queryKey: ['resources'] });
       await queryClient.setQueryData(['users', 'sign-in'], () => data);
     },
   });
