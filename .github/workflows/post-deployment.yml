@@ -30,8 +30,6 @@ jobs:
       - name: "🔧 Install pnpm"
         uses: pnpm/action-setup@v4.2.0
         id: pnpm-install
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: "📦 Install dependencies"
         run: pnpm install --frozen-lockfile
