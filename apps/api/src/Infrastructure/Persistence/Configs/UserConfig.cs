@@ -29,5 +29,9 @@ public class UserConfig : IEntityTypeConfiguration<User>
         builder.HasMany(x => x.Resources)
             .WithMany()
             .UsingEntity("users_resources");
+
+        builder.Navigation(x => x.Resources)
+            .HasField("_resources")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

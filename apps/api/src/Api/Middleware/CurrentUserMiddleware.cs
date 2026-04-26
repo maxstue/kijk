@@ -75,10 +75,14 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
     }
 
     private Task<SimpleAuthUser?> GetUserFromDb(string sub) => dbContext.Users
-        .Include(x => x.UserHouseholds)
         .Where(x => x.AuthId == sub)
-        .Select(x => new SimpleAuthUser(x.Id, x.AuthId, x.GetActiveHouseHoldId(), x.Name, x.Email, x.FirstTime))
+        .Select(x => new SimpleAuthUser(
+            x.Id,
+            x.AuthId,
+            x.UserHouseholds.Where(userHousehold => userHousehold.IsActive).Select(userHousehold => userHousehold.HouseholdId).SingleOrDefault(),
+            x.Name,
+            x.Email,
+            x.FirstTime))
         .AsNoTracking()
-        .AsSplitQuery()
         .FirstOrDefaultAsync();
 }
