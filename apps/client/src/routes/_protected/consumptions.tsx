@@ -193,7 +193,7 @@ function DeleteButton({ id, date }: { id: string; date: string }) {
   return (
     <AlertDialog open={showModal} onOpenChange={setShowModal}>
       <AlertDialogTrigger asChild>
-        <Button className='text-muted-foreground hover:text-destructive-foreground' size='icon' variant='outline'>
+        <Button size='icon' variant='destructive'>
           <Trash2Icon className='size-4' />
         </Button>
       </AlertDialogTrigger>
@@ -206,10 +206,7 @@ function DeleteButton({ id, date }: { id: string; date: string }) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            className='bg-destructive hover:bg-destructive-foreground text-white'
-            onClick={handleDelete}
-          >
+          <AlertDialogAction variant='destructive' onClick={handleDelete}>
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
