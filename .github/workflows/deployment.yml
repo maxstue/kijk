@@ -123,11 +123,12 @@ jobs:
     env:
       SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
       RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+      RAILWAY_WORKSPACE_ID: ${{ secrets.RAILWAY_WORKSPACE_ID }}
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
       - name: "Link Railway Service"
-        run: railway link --service=${{ env.SERVICE_ID }}
+        run: railway link --service=${{ env.SERVICE_ID }} --workspace ${{ env.RAILWAY_WORKSPACE_ID }}
       - name: "🚀 Deploy"
         run: railway up --service=${{ env.SERVICE_ID }} --ci
 
@@ -140,11 +141,12 @@ jobs:
     env:
       SERVICE_ID: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
       RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+      RAILWAY_WORKSPACE_ID: ${{ secrets.RAILWAY_WORKSPACE_ID }}
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
       - name: "Link Railway Service"
-        run: railway link --service=${{ env.SERVICE_ID }}
+        run: railway link --service=${{ env.SERVICE_ID }} --workspace ${{ env.RAILWAY_WORKSPACE_ID }}
       - name: "🚀 Deploy"
         run: railway up --service=${{ env.SERVICE_ID }} --ci
 
