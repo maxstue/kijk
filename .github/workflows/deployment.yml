@@ -126,6 +126,13 @@ jobs:
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
+      - name: "Debug Railway deploy env"
+        run: |
+          test -n "$RAILWAY_TOKEN" || (echo "RAILWAY_DEPLOY_TOKEN is not available to this job." && exit 1)
+          test -n "$SERVICE_ID" || (echo "RAILWAY_API_SERVICE_ID is not available to this job." && exit 1)
+          echo "::add-mask::$RAILWAY_TOKEN"
+          echo "Railway service ID: $SERVICE_ID"
+          echo "Railway token is set with length: ${#RAILWAY_TOKEN}"
       - name: "Link Railway Service"
         run: railway link --service=${{ env.SERVICE_ID }}
       - name: "🚀 Deploy"
@@ -143,6 +150,13 @@ jobs:
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
+      - name: "Debug Railway deploy env"
+        run: |
+          test -n "$RAILWAY_TOKEN" || (echo "RAILWAY_DEPLOY_TOKEN is not available to this job." && exit 1)
+          test -n "$SERVICE_ID" || (echo "RAILWAY_CLIENT_SERVICE_ID is not available to this job." && exit 1)
+          echo "::add-mask::$RAILWAY_TOKEN"
+          echo "Railway service ID: $SERVICE_ID"
+          echo "Railway token is set with length: ${#RAILWAY_TOKEN}"
       - name: "Link Railway Service"
         run: railway link --service=${{ env.SERVICE_ID }}
       - name: "🚀 Deploy"
