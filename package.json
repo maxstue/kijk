@@ -41,6 +41,7 @@
     "lint:staged:config": "pnpm --filter @kijk/config lint:fix && pnpm --filter @kijk/config fmt:fix",
     "lint:staged:core": "pnpm --filter @kijk/core lint:fix && pnpm --filter @kijk/core fmt:fix",
     "lint:staged:ui": "pnpm --filter @kijk/ui lint:fix && pnpm --filter @kijk/ui fmt:fix",
+    "start:api": "pnpm run --filter \"kijk-api\" start",
     "prepare": "husky",
     "release": "release-it"
   },

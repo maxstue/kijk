@@ -20,6 +20,7 @@
     "lint:fix": "dotnet format --exclude '**/Migrations/'",
     "fmt": "dotnet format --verify-no-changes --exclude '**/Migrations/'",
     "fmt:fix": "dotnet format --exclude '**/Migrations/'",
-    "clean": "dotnet clean"
+    "clean": "dotnet clean",
+    "start": "dotnet Api.dll"
   }
 }
