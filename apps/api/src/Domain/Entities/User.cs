@@ -11,7 +11,7 @@ public sealed class User : BaseEntity
 
     public required string Name { get; set; }
 
-    public string? Email { get; init; }
+    public string? Email { get; set; }
 
     public string? Image { get; init; }
 

@@ -122,7 +122,7 @@ jobs:
     container: ghcr.io/railwayapp/cli:latest
     env:
       SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
@@ -139,7 +139,7 @@ jobs:
     container: ghcr.io/railwayapp/cli:latest
     env:
       SERVICE_ID: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
     steps:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
