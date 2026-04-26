@@ -28,7 +28,6 @@ ARG BUILD_CONFIGURATION=Release
 #     -p:TieredPGO=true \
 #     --self-contained=false
 RUN dotnet publish "Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false \
-    -p:InvariantGlobalization=true \
     -p:TieredPGO=true
 
 
