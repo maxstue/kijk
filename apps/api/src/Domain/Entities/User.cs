@@ -32,7 +32,7 @@ public sealed class User : BaseEntity
                                           ?? throw new NullException("Active household not found");
 
     private readonly List<Resource> _resources = [];
-    public ICollection<Resource> Resources => _resources.AsReadOnly();
+    public IEnumerable<Resource> Resources => _resources;
 
     public void DeleteResource(Guid resourceId)
     {
