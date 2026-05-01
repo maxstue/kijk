@@ -114,46 +114,9 @@ jobs:
       - name: "🍎 Apply migrations bundle"
         run: ./efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
 
-  api:
-    name: "Deploy Api 🚀"
-    needs: [database-apply-migration, detect-changes]
-    if: always() && needs.detect-changes.outputs.api == 'true' && (needs.database-apply-migration.result == 'success' || needs.database-apply-migration.result == 'skipped')
-    runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
-    env:
-      SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
-      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
-      RAILWAY_WORKSPACE_ID: ${{ secrets.RAILWAY_WORKSPACE_ID }}
-      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-    steps:
-      - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v6
-      - name: "Link Railway Service"
-        run: railway link --service=${{ env.SERVICE_ID }} --workspace ${{ env.RAILWAY_WORKSPACE_ID }} --project ${{ secrets.RAILWAY_PROJECT_ID }}
-      - name: "🚀 Deploy"
-        run: railway up --service=${{ env.SERVICE_ID }} --ci
-
-  client:
-    name: Deploy Client 💻
-    needs: [database-apply-migration, detect-changes]
-    if: always() && needs.detect-changes.outputs.client == 'true' && (needs.database-apply-migration.result == 'success' || needs.database-apply-migration.result == 'skipped')
-    runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
-    env:
-      SERVICE_ID: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
-      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
-      RAILWAY_WORKSPACE_ID: ${{ secrets.RAILWAY_WORKSPACE_ID }}
-    steps:
-      - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@v6
-      - name: "Link Railway Service"
-        run: railway link --service=${{ env.SERVICE_ID }} --workspace ${{ env.RAILWAY_WORKSPACE_ID }} --project ${{ secrets.RAILWAY_PROJECT_ID }}
-      - name: "🚀 Deploy"
-        run: railway up --service=${{ env.SERVICE_ID }} --ci
-
-  success:
-    name: Success 👻✅
-    needs: [api, client]
+  production-gate:
+    name: Production Gate ✅
+    needs: [database-create-migration, database-apply-migration, detect-changes]
     if: always()
     runs-on: ubuntu-latest
     environment:
@@ -162,7 +125,13 @@ jobs:
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
 
-      - name: "✅ Deployment Success"
+      - name: "✅ CI and migrations passed"
+        if: needs.detect-changes.outputs.infra != 'true' || (needs.database-create-migration.result == 'success' && needs.database-apply-migration.result == 'success')
         run: |
-          echo "Deployment to Railway was successful!"
-          echo "Post-deployment actions will be executed."
+          echo "Railway can deploy after this workflow passes."
+
+      - name: "❌ Migration gate failed"
+        if: needs.detect-changes.outputs.infra == 'true' && (needs.database-create-migration.result != 'success' || needs.database-apply-migration.result != 'success')
+        run: |
+          echo "Migration gate failed; Railway must not deploy this commit."
+          exit 1

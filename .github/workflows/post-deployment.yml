@@ -2,44 +2,127 @@ name: Post-Deployment
 
 permissions:
   contents: write
+  deployments: read
 
 on:
   deployment_status:
+
+concurrency:
+  group: railway-release-${{ github.event.deployment.sha }}
+  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
     environment:
       name: production
-    if: github.event.deployment_status.state == 'success' && github.ref == 'refs/heads/main'
+    if: >
+      github.event.deployment_status.state == 'success' &&
+      contains(github.event.deployment.environment, 'production') &&
+      github.event.sender.login == 'railway-app' &&
+      github.ref == 'refs/heads/main'
     steps:
-      - name: Debug - Print github.event object
-        run: |
-          echo "github.event context:"
-          echo '${{ toJSON(github.event) }}'
-
-      # Only run if this is a production environment deployment that succeeded
-      - name: Run post-deploy actions
-        if: github.event.deployment.environment == 'production'
-        run: |
-          echo "Production deployment succeeded"
-
       - name: "🏖️ Checkout Repository"
         uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: "🔎 Inspect Railway deployment gate"
+        id: railway_gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_SHA: ${{ github.event.deployment.sha }}
+          DEPLOYMENT_ENV: ${{ github.event.deployment.environment }}
+        run: |
+          set -euo pipefail
+
+          if ! git merge-base --is-ancestor "$SOURCE_SHA" HEAD; then
+            echo "Railway deployment SHA is no longer on main; skipping release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git fetch origin refs/notes/railway-releases:refs/notes/railway-releases || true
+
+          if git notes --ref=railway-releases show "$SOURCE_SHA" >/dev/null 2>&1; then
+            echo "Release marker already exists for ${SOURCE_SHA}; skipping release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          EXPECTED_DEPLOYMENTS=0
+          CHANGED_FILES="$(git diff-tree --no-commit-id --name-only -r "$SOURCE_SHA")"
+
+          if echo "$CHANGED_FILES" | grep -Eq '^(apps/api/|apps/api$|global\.json$)'; then
+            EXPECTED_DEPLOYMENTS=$((EXPECTED_DEPLOYMENTS + 1))
+          fi
+
+          if echo "$CHANGED_FILES" | grep -Eq '^(apps/client/|apps/client$|packages/config/|packages/core/|packages/ui/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$)'; then
+            EXPECTED_DEPLOYMENTS=$((EXPECTED_DEPLOYMENTS + 1))
+          fi
+
+          if [ "$EXPECTED_DEPLOYMENTS" -eq 0 ]; then
+            EXPECTED_DEPLOYMENTS=1
+          fi
+
+          echo "Waiting briefly for sibling Railway service statuses."
+          sleep 60
+
+          DEPLOYMENTS="$(gh api --method GET "/repos/${GITHUB_REPOSITORY}/deployments" -f "sha=${SOURCE_SHA}" -f "environment=${DEPLOYMENT_ENV}")"
+          RAILWAY_DEPLOYMENT_IDS="$(echo "$DEPLOYMENTS" | jq -r '.[] | select(.creator.login == "railway-app") | .id')"
+          RAILWAY_DEPLOYMENT_COUNT="$(echo "$RAILWAY_DEPLOYMENT_IDS" | sed '/^$/d' | wc -l | tr -d ' ')"
+
+          if [ "$RAILWAY_DEPLOYMENT_COUNT" -lt "$EXPECTED_DEPLOYMENTS" ]; then
+            echo "Only ${RAILWAY_DEPLOYMENT_COUNT}/${EXPECTED_DEPLOYMENTS} Railway deployment(s) are visible; waiting for another event."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          for DEPLOYMENT_ID in $RAILWAY_DEPLOYMENT_IDS; do
+            LATEST_STATE="$(gh api "/repos/${GITHUB_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" --jq '.[0].state')"
+            if [ "$LATEST_STATE" != "success" ]; then
+              echo "Deployment ${DEPLOYMENT_ID} latest state is ${LATEST_STATE}; skipping release."
+              echo "release=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "release=true" >> "$GITHUB_OUTPUT"
 
       - name: "🔧 Install pnpm"
+        if: steps.railway_gate.outputs.release == 'true'
         uses: pnpm/action-setup@v4.2.0
         id: pnpm-install
 
+      - name: "🔧 Use Node.js"
+        if: steps.railway_gate.outputs.release == 'true'
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: "pnpm"
+
       - name: "📦 Install dependencies"
+        if: steps.railway_gate.outputs.release == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: "Initialize git"
+        if: steps.railway_gate.outputs.release == 'true'
         run: |
           git config --global user.name "Release Workflow"
           git config --global user.email "maxstue2304@gmail.com"
 
       - name: "🚀 Release"
+        if: steps.railway_gate.outputs.release == 'true'
         run: pnpm run release --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "📝 Mark source commit as released"
+        if: steps.railway_gate.outputs.release == 'true'
+        env:
+          SOURCE_SHA: ${{ github.event.deployment.sha }}
+        run: |
+          git fetch origin refs/notes/railway-releases:refs/notes/railway-releases || true
+          git notes --ref=railway-releases add -m "released by ${GITHUB_RUN_ID}" "$SOURCE_SHA"
+          git push origin refs/notes/railway-releases

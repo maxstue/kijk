@@ -2,10 +2,10 @@
   "git": {
     "requireBranch": "main",
     "changelog": "pnpx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/main/templates/changelog-compact.hbs",
-    "commitMessage": "chore: release ${version}"
+    "commitMessage": "chore: release ${version} [skip ci]"
   },
   "hooks": {
-    "after:bump": "pnpx auto-changelog -p"
+    "after:bump": "pnpx auto-changelog -p --commit-limit false"
   },
   "github": {
     "release": true,
