@@ -88,8 +88,9 @@ dotnet ef database update                   # creates/updates DB schema
 
 ## Project Skills
 
-- **Conventional Commits**: For all git commit tasks, follow `.claude/skills/conventional-commits/SKILL.md`.
-- **.NET Best Practices**: For .NET/C# code changes, follow `.claude/skills/dotnet-best-practices/SKILL.md`.
+- **Conventional Commits**: For all git commit tasks, follow `.agents/skills/conventional-commits/SKILL.md`.
+- **.NET Best Practices**: For .NET/C# code changes, follow `.agents/skills/dotnet-best-practices/SKILL.md`.
+- **Vite**: For Vite configuration, plugin API, SSR, build, and migration work, follow `.agents/skills/vite/SKILL.md`.
 
 ## Required Order for CI
 ```
