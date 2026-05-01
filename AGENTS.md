@@ -86,6 +86,11 @@ dotnet ef database update                   # creates/updates DB schema
 - **Client lint/format**: Uses oxlint/oxfmt (NOT eslint/prettier for code style)
 - **Pre-commit hooks**: husky + lint-staged configured (runs on commit)
 
+## Project Skills
+
+- **Conventional Commits**: For all git commit tasks, follow `.claude/skills/conventional-commits/SKILL.md`.
+- **.NET Best Practices**: For .NET/C# code changes, follow `.claude/skills/dotnet-best-practices/SKILL.md`.
+
 ## Required Order for CI
 ```
 build → format → lint → audit
