@@ -79,7 +79,7 @@ dotnet ef database update                   # creates/updates DB schema
 
 ## Important Conventions
 
-- **Node**: v24.14.0 (per `.nvmrc`)
+- **Node/pnpm**: Managed via `package.json` (`engines`, root `packageManager`, root `devEngines`)
 - **.NET**: 10.0 (per `global.json`)
 - **Codacy integration**: After edits, run Codacy CLI analyze on modified files
 - **Format config**: `oxfmt.config.ts` (printWidth: 120, singleQuote, LF line endings)

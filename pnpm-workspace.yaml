@@ -1,6 +1,17 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  '@clerk/shared': true
+  '@sentry/cli': true
+  browser-tabs-lock: true
+  bufferutil: true
+  core-js: true
+  esbuild: true
+  msw: true
+  protobufjs: true
+  utf-8-validate: true
+  '@tailwindcss/oxide': true
 
 catalog:
   "@clerk/clerk-js": ^6.7.5
@@ -76,11 +87,4 @@ catalog:
 
 catalogMode: "prefer"
 minimumReleaseAge: 2880 # 2 days
-
-onlyBuiltDependencies:
-  - "@clerk/shared"
-  - "@sentry/cli"
-  - "@tailwindcss/oxide"
-  - browser-tabs-lock
-  - msw
 sharedWorkspaceLockfile: true

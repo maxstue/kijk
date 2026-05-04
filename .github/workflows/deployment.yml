@@ -81,7 +81,7 @@ jobs:
           ls -al
 
       - name: "⬆️ Upload EF Migrations Bundle Artifact"
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: efbundle
           path: ./apps/api/efbundle
