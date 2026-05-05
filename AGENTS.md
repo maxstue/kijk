@@ -90,6 +90,7 @@ dotnet ef database update                   # creates/updates DB schema
 
 - **Conventional Commits**: For all git commit tasks, follow `.agents/skills/conventional-commits/SKILL.md`.
 - **.NET Best Practices**: For .NET/C# code changes, follow `.agents/skills/dotnet-best-practices/SKILL.md`.
+- **Railway**: For Railway infrastructure, deployments, services, environments, buckets, and build/runtime troubleshooting, follow `.agents/skills/use-railway/SKILL.md`.
 - **Vite**: For Vite configuration, plugin API, SSR, build, and migration work, follow `.agents/skills/vite/SKILL.md`.
 
 ## Required Order for CI
