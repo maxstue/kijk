@@ -1,0 +1,17 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "dotnet publish src/Api/Api.csproj -c Release -o out /p:UseAppHost=false -p:TieredPGO=true"
+watchPatterns = [
+  "src/**",
+  "Directory.Build.props",
+  "Directory.Packages.props",
+  "global.json",
+  "railway.toml",
+]
+
+[deploy]
+startCommand = "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-3000} dotnet out/Api.dll"
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
