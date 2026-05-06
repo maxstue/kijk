@@ -12,8 +12,7 @@
     "url": "https://github.com/maxstue"
   },
   "scripts": {
-    "dev": "pnpm run --parallel --filter \"kijk-client\" --filter \"kijk-api\" dev",
-    "dev:all": "pnpm run --parallel --filter \"kijk*\" dev",
+    "dev": "pnpm run --parallel --filter \"kijk*\" dev",
     "dev:client": "pnpm run --filter \"kijk-client\" dev",
     "dev:api": "pnpm run --filter \"kijk-api\" dev",
     "api:generate": "pnpm run --filter \"kijk-api\" build && pnpm run --filter \"kijk-client\" api:generate",
@@ -41,7 +40,6 @@
     "lint:staged:config": "pnpm --filter @kijk/config lint:fix && pnpm --filter @kijk/config fmt:fix",
     "lint:staged:core": "pnpm --filter @kijk/core lint:fix && pnpm --filter @kijk/core fmt:fix",
     "lint:staged:ui": "pnpm --filter @kijk/ui lint:fix && pnpm --filter @kijk/ui fmt:fix",
-    "start:api": "pnpm run --filter \"kijk-api\" start",
     "prepare": "husky",
     "release": "release-it"
   },
