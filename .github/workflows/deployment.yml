@@ -135,3 +135,39 @@ jobs:
         run: |
           echo "Migration gate failed; Railway must not deploy this commit."
           exit 1
+
+  deploy-api:
+    name: Deploy Api 🚂
+    needs: [production-gate]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v6
+
+      - name: "📦 Install Railway CLI"
+        run: npm install -g @railway/cli
+
+      - name: "🚀 Deploy Api to Railway"
+        run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID_API }} --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  deploy-client:
+    name: Deploy Client 🚂
+    needs: [production-gate]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v6
+
+      - name: "📦 Install Railway CLI"
+        run: npm install -g @railway/cli
+
+      - name: "🚀 Deploy Client to Railway"
+        run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID_CLIENT }} --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
