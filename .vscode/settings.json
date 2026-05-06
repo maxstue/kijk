@@ -9,9 +9,7 @@
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "js/ts.preferences.importModuleSpecifier": "non-relative",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
-  "js/ts.preferences.autoImportFileExcludePatterns": [
-    "node_modules/**/*"
-  ],
+  "js/ts.preferences.autoImportFileExcludePatterns": ["node_modules/**/*"],
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
@@ -34,6 +32,12 @@
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[jsonc]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   }
 }
