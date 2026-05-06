@@ -1,0 +1,54 @@
+name: Railway Deploy 🚂
+
+on:
+  workflow_run:
+    workflows: ["Deployment"]
+    branches: ["main"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-api:
+    name: "🚀 Deploy Api"
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v6
+
+      - name: "📦 Install Railway CLI"
+        run: npm install -g @railway/cli
+
+      - name: "🚂 Deploy Api to Railway"
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up \
+            --service "${{ secrets.RAILWAY_SERVICE_ID_API }}" \
+            --detach
+
+  deploy-client:
+    name: "🚀 Deploy Client"
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@v6
+
+      - name: "📦 Install Railway CLI"
+        run: npm install -g @railway/cli
+
+      - name: "🚂 Deploy Client to Railway"
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up \
+            --service "${{ secrets.RAILWAY_SERVICE_ID_CLIENT }}" \
+            --detach
