@@ -1,6 +1,6 @@
 [build]
-builder = "RAILPACK"
-buildCommand = "dotnet publish src/Api/Api.csproj -c Release -o out /p:UseAppHost=false -p:TieredPGO=true"
+builder = "DOCKERFILE"
+dockerfilePath = "src/Api/Dockerfile"
 watchPatterns = [
   "src/**",
   "Directory.Build.props",
@@ -10,7 +10,6 @@ watchPatterns = [
 ]
 
 [deploy]
-startCommand = "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-3000} dotnet out/Api.dll"
 healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
