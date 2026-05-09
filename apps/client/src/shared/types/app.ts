@@ -10,16 +10,16 @@ export type Nullish<T> = T | undefined | null;
 
 export type Autocomplete<TOptions extends string> = TOptions | (string & {});
 
-export type ApiError = components['schemas']['Problem'] & {
+export type ApiProblemDetails = components['schemas']['Problem'] & {
   correlationId?: string;
   errorType?: string;
-  errors?: Optional<ErrorDetails[]>;
+  errors?: Optional<ApiProblemDetailsError[]>;
   requestId?: string;
   timestamp?: string;
   traceId?: string;
 };
 
-export interface ErrorDetails {
+export interface ApiProblemDetailsError {
   type: string;
   code: string;
   description: string;
@@ -35,10 +35,32 @@ export const TransactionType = {
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
-const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
-export const months = Array.from({ length: 12 }, (_, index) =>
-  monthFormatter.format(new Date(2000, index)).toLowerCase(),
-);
+export function formatMonth(month: Months, locale?: string) {
+  const monthIndex = months.indexOf(month);
+  const resolvedLocale = locale ?? navigator.language ?? 'en-US';
+  return new Intl.DateTimeFormat(resolvedLocale, { month: 'long' }).format(new Date(2000, monthIndex));
+}
+
+export function monthsLocalized(locale?: string) {
+  return months.map((_, idx) =>
+    new Intl.DateTimeFormat(locale ?? navigator.language ?? 'en-US', { month: 'long' }).format(new Date(2000, idx)),
+  );
+}
+
+export const months = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
+] as const;
 
 export type Months = (typeof months)[number];
 
