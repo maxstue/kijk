@@ -19,7 +19,15 @@ export default defineConfig({
   },
   extends: [baseConfig],
   ignorePatterns: [...sharedIgnorePatterns, 'src/shared/api/generated/**'],
-  jsPlugins: [reactHooksJsPlugin, tanstackRouterJsPlugin, tanstackQueryJsPlugin],
+  jsPlugins: [
+    reactHooksJsPlugin,
+    tanstackRouterJsPlugin,
+    tanstackQueryJsPlugin,
+    {
+      name: 'kijk-boundaries',
+      specifier: '@kijk/oxlint-plugin-boundaries',
+    },
+  ],
   options: {
     typeAware: true,
     typeCheck: true,
@@ -29,6 +37,16 @@ export default defineConfig({
     ...reactHooksRules,
     ...tanstackRouterRules,
     ...tanstackQueryRules,
+    'kijk-boundaries/no-cross-feature-imports': [
+      'error',
+      {
+        alias: '@',
+        compositionDirs: ['routes'],
+        featuresDir: 'app',
+        root: 'src',
+        sharedDirs: ['shared'],
+      },
+    ],
     'react-hooks-js/incompatible-library': 'warn',
   },
 });

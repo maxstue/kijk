@@ -16,13 +16,15 @@ import { NavSecondary } from '@/app/root/nav-secondary';
 import { NavUser } from '@/app/root/nav-user';
 import { siteConfig } from '@/shared/lib/constants';
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface Props extends React.ComponentProps<typeof Sidebar> {}
+
+export function AppSidebar({ ...props }: Props) {
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:!p-1.5'>
+            <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:p-1.5!'>
               <Link to='/home'>
                 <Icons.logo className='size-5' />
                 <div className='truncate text-base font-semibold'>{siteConfig.name}</div>

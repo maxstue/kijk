@@ -1,4 +1,5 @@
 import type { Clerk as CClerk } from '@clerk/shared/types';
+import { logger } from '@kijk/core/lib/logger';
 
 /**
  * Define a global type for Clerk. This allows us to access the Clerk instance outside of the React context. This is
@@ -11,11 +12,11 @@ declare global {
 /** A wrapper around the browser's window Clerk object. So you can use the clerk instance outside of the react context. */
 function getAuthToken() {
   if (!globalThis.Clerk) {
-    console.warn('Clerk is not loaded yet. Make sure to load the Clerk.js script before using this function.');
+    logger.warn('Clerk is not loaded yet. Make sure to load the Clerk.js script before using this function.');
     return;
   }
   if (!globalThis.Clerk.session) {
-    console.warn(
+    logger.warn(
       'Clerk session is not available yet. Make sure to load the Clerk.js script before using this function.',
     );
     return;

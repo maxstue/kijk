@@ -1,14 +1,15 @@
 import { cn } from '@kijk/core/utils/style';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 
-import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
-import { useGetConsumptionsBy } from '@/app/consumptions/use-get-consumptions-by.ts';
+import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { DataTable } from '@/shared/components/data-table';
+import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { Consumption, Resource } from '@/shared/types/app';
 
 const Route = getRouteApi('/_protected/consumptions');
@@ -16,7 +17,7 @@ const Route = getRouteApi('/_protected/consumptions');
 export function ConsumptionsMonthTable() {
   const { month, year } = Route.useSearch();
 
-  const { data } = useGetConsumptionsBy(year, month);
+  const { data } = useSuspenseQuery(consumptionsByQueryOptions(year, month));
 
   return <DataTable columns={columns} data={data} defaultSort={defaultSort} />;
 }

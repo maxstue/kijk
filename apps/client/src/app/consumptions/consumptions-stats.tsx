@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 
-import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
-import { useGetConsumptionsStats } from '@/app/consumptions/use-get-consumptions-stats.ts';
+import { consumptionsStatsQueryOptions } from '@/shared/api/consumptions/options';
+import { ResourceUnit } from '@/shared/components/resources-unit';
 
 const Route = getRouteApi('/_protected/consumptions');
 
@@ -12,7 +13,7 @@ export default function ConsumptionsStats() {
   const selectedYear = searchParameters.year;
   const selectedMonth = searchParameters.month;
 
-  const { data } = useGetConsumptionsStats(selectedYear, selectedMonth);
+  const { data } = useSuspenseQuery(consumptionsStatsQueryOptions(selectedYear, selectedMonth));
 
   return (
     <>

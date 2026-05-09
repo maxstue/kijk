@@ -356,6 +356,9 @@ importers:
       '@kijk/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@kijk/oxlint-plugin-boundaries':
+        specifier: workspace:*
+        version: link:../../packages/oxlint-plugin-boundaries
       '@tanstack/eslint-plugin-query':
         specifier: 'catalog:'
         version: 5.100.1(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.3)
@@ -483,6 +486,24 @@ importers:
       tailwindcss:
         specifier: 'catalog:'
         version: 4.2.4
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+
+  packages/oxlint-plugin-boundaries:
+    devDependencies:
+      '@kijk/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      oxfmt:
+        specifier: 'catalog:'
+        version: 0.46.0
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.61.0(oxlint-tsgolint@0.21.1)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

@@ -1,18 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { deleteResource } from '@/shared/api/resources';
+import { queryKeys } from '@/shared/api/query-keys';
+import { deleteResourceMutationOptions } from '@/shared/api/resources/options';
 
 export const useDeleteResource = () => {
   const queryClient = useQueryClient();
 
-  interface Data {
-    id: string;
-  }
-
   return useMutation({
-    mutationFn: (data: Data) => deleteResource(data.id),
+    ...deleteResourceMutationOptions(),
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ['resources'] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.resources.all });
     },
   });
 };

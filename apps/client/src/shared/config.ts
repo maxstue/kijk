@@ -1,7 +1,7 @@
 import { logger } from '@kijk/core/lib/logger';
 import { z } from 'zod';
 
-import { AppError } from '@/shared/types/errors';
+import { AppError } from '@/shared/types/errors/app-error';
 
 const envSchema = z.object({
   // Base

@@ -7,6 +7,7 @@ interface CtorType<TData> {
   data?: TData;
 }
 
+/** Base error class for the application. All custom errors should extend this class. */
 export class AppError<TData = unknown> extends Error {
   type: ErrorType;
   message: string;
@@ -14,6 +15,7 @@ export class AppError<TData = unknown> extends Error {
 
   constructor({ type, message, cause, data }: CtorType<TData>) {
     super();
+    this.name = 'AppError';
     this.type = type;
     this.message = message;
     this.cause = cause;

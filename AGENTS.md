@@ -72,6 +72,9 @@ dotnet ef database update                   # creates/updates DB schema
 ## Architecture Notes
 
 - **Client**: TanStack Router auto-generates `src/routeTree.gen.ts` — do not edit manually
+- **Client feature boundaries**: `routes/*` composes features; `app/<feature>/*` must not import another feature folder directly; `shared/*` must not import from `app/*`; enforced by `@kijk/oxlint-plugin-boundaries`
+- **Client data access**: reusable API calls, query keys, `queryOptions`, and `mutationOptions` live in `apps/client/src/shared/api`; keep feature form schemas inside their feature folders
+- **Client query keys**: use `apps/client/src/shared/api/query-keys.ts` for cache reads, writes, and invalidations instead of ad hoc key arrays
 - **API**: Clean Architecture layers: Api → Application → Domain/Infrastructure/Shared
 - **Database**: PostgreSQL via Docker Compose; schema managed with `dotnet ef`
 - **UI package**: `@kijk/ui` exports from `src/components/*`

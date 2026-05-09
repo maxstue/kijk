@@ -21,7 +21,7 @@ import {
 } from '@kijk/ui/components/dialog';
 import { Input } from '@kijk/ui/components/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
@@ -30,10 +30,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import {
-  getYearsFromConsumptionsQuery,
-  useGetYearsFromConsumptions,
-} from '@/app/consumptions/use-get-resources-usage-years';
+import { consumptionYearsQueryOptions } from '@/shared/api/consumptions/options';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
@@ -47,7 +44,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
   const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data } = useGetYearsFromConsumptions();
+  const { data } = useSuspenseQuery(consumptionYearsQueryOptions());
   const queryClient = useQueryClient();
 
   const selectedYear = searchParameters.year;
@@ -90,7 +87,7 @@ export function ConsumptionsYearSwitcher({ className }: YProps) {
             <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-[200px] p-0'>
+        <PopoverContent className='w-50 p-0'>
           <Command>
             <CommandList>
               <CommandInput placeholder='Search Year...' />
@@ -150,13 +147,13 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   });
 
   function handleSubmit(data: YearFormValues) {
-    const response = queryClient.getQueryData(getYearsFromConsumptionsQuery.queryKey);
+    const response = queryClient.getQueryData(consumptionYearsQueryOptions().queryKey);
     if (response?.years.map(Number).includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
       return;
     }
 
-    queryClient.setQueryData(getYearsFromConsumptionsQuery.queryKey, (old) => ({
+    queryClient.setQueryData(consumptionYearsQueryOptions().queryKey, (old) => ({
       years: [...(old?.years.map(Number) ?? []), data.year].sort((a, b) => b - a),
     }));
     navigate({ search: (previous) => ({ ...previous, year: data.year }), to: '/consumptions' });

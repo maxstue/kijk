@@ -4,6 +4,11 @@ interface Props {
   type?: Resource | ResourceStats;
 }
 
+/**
+ * A component that displays the unit of a resource. If the resource is not provided, it displays a dash.
+ *
+ * @param The {@link Props props} of the component.
+ */
 export function ResourceUnit({ type }: Props) {
   if (!type) {
     return <span className='text-xs'>-</span>;

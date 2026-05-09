@@ -5,6 +5,7 @@ import { Icons } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { InfoIcon } from 'lucide-react';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -12,13 +13,13 @@ import { useForm, useWatch } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
 import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
-import { useGetResources } from '@/app/resources/use-get-resources';
+import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { DatePicker } from '@/shared/components/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/app';
 import { ValueTypes } from '@/shared/types/app';
@@ -94,7 +95,7 @@ function NameField({ field }: { field: ControllerRenderProps<ConsumptionUpdateFo
 
 function ValueField({ field }: { field: ControllerRenderProps<ConsumptionUpdateFormSchema, 'value'> }) {
   const type = useWatch<ConsumptionUpdateFormSchema, 'resourceId'>({ name: 'resourceId' });
-  const { data } = useGetResources();
+  const { data } = useSuspenseQuery(resourcesQueryOptions());
   const resource = data.find((item) => item.id === type);
 
   return (
@@ -147,7 +148,7 @@ function ValueTypeField({ field }: { field: ControllerRenderProps<ConsumptionUpd
 }
 
 function ResourceField({ field }: { field: ControllerRenderProps<ConsumptionUpdateFormSchema, 'resourceId'> }) {
-  const { data } = useGetResources();
+  const { data } = useSuspenseQuery(resourcesQueryOptions());
   return (
     <FormItem>
       <FormLabel>Resource</FormLabel>
