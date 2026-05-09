@@ -24,7 +24,12 @@ export interface BoundaryContext {
   filename?: string;
   getFilename?: () => string;
   options?: BoundaryRuleOptions[];
-  report: (descriptor: { data?: Record<string, string>; message?: string; messageId?: string; node: unknown }) => void;
+  report: (descriptor: {
+    data?: Record<string, string>;
+    message?: string;
+    messageId?: string;
+    node: unknown;
+  }) => void;
 }
 
 /** Minimal AST node shape for import/export declarations with a source. */

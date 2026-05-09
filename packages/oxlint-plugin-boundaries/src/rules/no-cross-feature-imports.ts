@@ -1,16 +1,16 @@
-import { getOptions, ruleOptionsSchema } from '../options.ts';
+import { getOptions, ruleOptionsSchema } from "../options.ts";
 import {
   getFeatureFromFilePath,
   getFilename,
   getImportedFeature,
   getRelativePath,
   startsWithAnySegment,
-} from '../path-utils.ts';
-import type { BoundaryContext, ImportNode } from '../types.ts';
+} from "../path-utils.ts";
+import type { BoundaryContext, ImportNode } from "../types.ts";
 
 function checkImportBoundary(context: BoundaryContext, node: ImportNode) {
   const importPath = node.source?.value;
-  if (typeof importPath !== 'string') {
+  if (typeof importPath !== "string") {
     return;
   }
 
@@ -31,9 +31,9 @@ function checkImportBoundary(context: BoundaryContext, node: ImportNode) {
     context.report({
       data: {
         featuresDir: options.featuresDir,
-        sharedDirs: options.sharedDirs.join(', '),
+        sharedDirs: options.sharedDirs.join(", "),
       },
-      messageId: 'sharedToFeature',
+      messageId: "sharedToFeature",
       node,
     });
     return;
@@ -46,7 +46,7 @@ function checkImportBoundary(context: BoundaryContext, node: ImportNode) {
         fromFeature: currentFeature,
         toFeature: importedFeature,
       },
-      messageId: 'crossFeature',
+      messageId: "crossFeature",
       node,
     });
   }
@@ -56,15 +56,16 @@ function checkImportBoundary(context: BoundaryContext, node: ImportNode) {
 export const noCrossFeatureImports = {
   meta: {
     docs: {
-      description: 'Enforce feature folder boundaries for alias imports.',
+      description: "Enforce feature folder boundaries for alias imports.",
     },
     messages: {
       crossFeature:
-        'Feature `{{fromFeature}}` must not import from feature`{{toFeature}}`. Move shared code to shared or compose in an allowed composition layer.',
-      sharedToFeature: 'Shared function/etc.`{{sharedDirs}}` must not import from `{{featuresDir}}/*` feature folders.',
+        "Feature `{{fromFeature}}` must not import from feature`{{toFeature}}`. Move shared code to shared or compose in an allowed composition layer.",
+      sharedToFeature:
+        "Shared function/etc.`{{sharedDirs}}` must not import from `{{featuresDir}}/*` feature folders.",
     },
     schema: ruleOptionsSchema,
-    type: 'problem',
+    type: "problem",
   },
   create(context: BoundaryContext) {
     return {
