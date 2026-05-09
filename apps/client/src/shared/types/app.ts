@@ -37,13 +37,13 @@ export type TransactionType = (typeof TransactionType)[keyof typeof TransactionT
 
 export function formatMonth(month: Months, locale?: string) {
   const monthIndex = months.indexOf(month);
-  const resolvedLocale = locale ?? navigator.language ?? 'en-US';
+  const resolvedLocale = locale ?? navigator.language;
   return new Intl.DateTimeFormat(resolvedLocale, { month: 'long' }).format(new Date(2000, monthIndex));
 }
 
 export function monthsLocalized(locale?: string) {
   return months.map((_, idx) =>
-    new Intl.DateTimeFormat(locale ?? navigator.language ?? 'en-US', { month: 'long' }).format(new Date(2000, idx)),
+    new Intl.DateTimeFormat(locale ?? navigator.language, { month: 'long' }).format(new Date(2000, idx)),
   );
 }
 
