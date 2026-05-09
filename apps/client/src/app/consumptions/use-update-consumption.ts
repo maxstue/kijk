@@ -1,42 +1,32 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
-import { updateConsumption } from '@/shared/api/consumptions';
+import { updateConsumptionMutationOptions } from '@/shared/api/consumptions/options';
+import { queryKeys } from '@/shared/api/query-keys';
 import type { Consumption } from '@/shared/types/app';
 import { months } from '@/shared/types/app';
-
-interface Data {
-  id: string;
-  consumption: ConsumptionUpdateFormSchema;
-}
 
 export const useUpdateConsumption = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Data) => updateConsumption(data.id, data.consumption),
+    ...updateConsumptionMutationOptions(),
     onSuccess(data, variables) {
-      const cachedConsumptionsUsage = queryClient.getQueryData<Consumption[]>([
-        'consumptions',
-        'usage',
-        'getBy',
-        variables.consumption.date.getFullYear().toString(),
-        months[variables.consumption.date.getMonth()],
-      ]);
+      const consumptionDate = variables.consumption.date;
+      if (!consumptionDate) {
+        return;
+      }
+
+      const queryKey = queryKeys.consumptions.by(
+        consumptionDate.getFullYear().toString(),
+        months[consumptionDate.getMonth()],
+      );
+
+      const cachedConsumptionsUsage = queryClient.getQueryData<Consumption[]>(queryKey);
 
       if (cachedConsumptionsUsage) {
         const newConsumptionsUsage = cachedConsumptionsUsage.map((consumption) =>
           consumption.id === data.id ? { ...consumption, ...data } : consumption,
         );
-        queryClient.setQueryData(
-          [
-            'consumptions',
-            'usage',
-            'getBy',
-            variables.consumption.date.getFullYear().toString(),
-            months[variables.consumption.date.getMonth()],
-          ],
-          newConsumptionsUsage,
-        );
+        queryClient.setQueryData(queryKey, newConsumptionsUsage);
       }
     },
   });

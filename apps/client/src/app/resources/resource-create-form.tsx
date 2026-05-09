@@ -28,20 +28,15 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
   });
 
   function onSubmit(data: ResourceFormValues) {
-    mutate(
-      { resourceType: data },
-      {
-        onError(error) {
-          toast.error(error.title, {
-            description: error.errors?.[0]?.description ?? 'An error occurred',
-          });
-        },
-        onSuccess() {
-          toast('Successfully created');
-          onClose?.();
-        },
+    mutate(data, {
+      onError(error) {
+        toast.error(error.name, { description: error.message });
       },
-    );
+      onSuccess() {
+        toast('Successfully created');
+        onClose?.();
+      },
+    });
   }
 
   return (

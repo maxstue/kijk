@@ -20,6 +20,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@kijk/ui/components/sheet';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { EditIcon, Plus, Trash2Icon } from 'lucide-react';
@@ -31,12 +32,12 @@ import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-for
 import { ConsumptionsMonthNav } from '@/app/consumptions/consumptions-month-nav.tsx';
 import ConsumptionsStats from '@/app/consumptions/consumptions-stats.tsx';
 import { ConsumptionsTodayButton } from '@/app/consumptions/consumptions-today-button.tsx';
+import { ConsumptionUpdateForm } from '@/app/consumptions/consumptions-update-form';
 import { ConsumptionsYearSwitcher } from '@/app/consumptions/consumptions-year-switcher.tsx';
-import { ConsumptionUpdateForm } from '@/app/consumptions/consumtions-update-form';
-import { ResourceUnit } from '@/app/consumptions/resources-unit.tsx';
 import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
-import { getConsumptionsQuery, useGetConsumptionsBy } from '@/app/consumptions/use-get-consumptions-by.ts';
+import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { NotFound } from '@/shared/components/not-found';
+import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 import type { Consumption, Months } from '@/shared/types/app';
@@ -57,15 +58,15 @@ export const Route = createFileRoute('/_protected/consumptions')({
   notFoundComponent: NotFound,
   pendingComponent: () => <Loader className='h-6 w-6' />,
   loader: ({ context: { queryClient }, deps }) => {
-    queryClient.ensureQueryData(getConsumptionsQuery(deps.year, deps.month));
+    queryClient.ensureQueryData(consumptionsByQueryOptions(deps.year, deps.month));
   },
 });
 
 function UsagePage() {
   useSetSiteHeader('Consumptions');
   const [showSheet, setShowSheet] = useState(false);
-  const searchParameters = Route.useSearch();
-  const { data } = useGetConsumptionsBy(searchParameters.year, searchParameters.month);
+  const { month, year } = Route.useSearch();
+  const { data } = useSuspenseQuery(consumptionsByQueryOptions(year, month));
 
   const handleClose = () => setShowSheet(false);
 
@@ -105,11 +106,7 @@ function UsagePage() {
                     <SheetDescription>Add a new consumption.</SheetDescription>
                   </SheetHeader>
                   <Suspense>
-                    <ConsumptionCreateForm
-                      month={searchParameters.month}
-                      year={searchParameters.year}
-                      onClose={handleClose}
-                    />
+                    <ConsumptionCreateForm onClose={handleClose} />
                   </Suspense>
                 </SheetContent>
               </Sheet>

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
-import { createConsumption } from '@/shared/api/consumptions';
+import { createConsumptionMutationOptions } from '@/shared/api/consumptions/options';
+import { queryKeys } from '@/shared/api/query-keys';
 import type { Consumption } from '@/shared/types/app';
 import { months } from '@/shared/types/app';
 
@@ -9,30 +9,20 @@ export const useCreateConsumption = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { newEnergy: ConsumptionCreateFormSchema }) => createConsumption(data.newEnergy),
+    ...createConsumptionMutationOptions(),
     async onSuccess(data, variables) {
-      const cachedConsumptionsUsage = queryClient.getQueryData<Consumption[]>([
-        'consumptions',
-        'usage',
-        'getBy',
-        variables.newEnergy.date.getFullYear().toString(),
-        months[variables.newEnergy.date.getMonth()],
-      ]);
+      const queryKey = queryKeys.consumptions.by(
+        variables.date.getFullYear().toString(),
+        months[variables.date.getMonth()],
+      );
+
+      const cachedConsumptionsUsage = queryClient.getQueryData<Consumption[]>(queryKey);
 
       if (cachedConsumptionsUsage) {
         const newConsumptionsUsage = [...cachedConsumptionsUsage, data];
-        queryClient.setQueryData(
-          [
-            'consumptions',
-            'usage',
-            'getBy',
-            variables.newEnergy.date.getFullYear().toString(),
-            months[variables.newEnergy.date.getMonth()],
-          ],
-          newConsumptionsUsage,
-        );
+        queryClient.setQueryData(queryKey, newConsumptionsUsage);
       }
-      await queryClient.invalidateQueries({ queryKey: ['consumptions', 'stats'] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() });
     },
   });
 };

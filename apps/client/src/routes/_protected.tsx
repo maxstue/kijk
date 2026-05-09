@@ -1,10 +1,11 @@
 import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { SidebarInset, SidebarProvider } from '@kijk/ui/components/sidebar';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { SiteHeader } from '@/app/root/site-header';
-import { useSignInUser, userSignInQuery } from '@/app/root/use-signin-user';
+import { signedInUserQueryOptions } from '@/shared/api/users/options';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { CORRELATION_ID_HEADER } from '@/shared/types/app';
@@ -18,7 +19,7 @@ export const Route = createFileRoute('/_protected')({
       throw redirect({ search: { from: location.href }, to: '/auth' });
     }
 
-    const user = await queryClient.ensureQueryData(userSignInQuery);
+    const user = await queryClient.ensureQueryData(signedInUserQueryOptions());
     if (user.firstTime) {
       throw redirect({ replace: true, to: '/welcome' });
     }
@@ -36,7 +37,7 @@ export const Route = createFileRoute('/_protected')({
 });
 
 function Protected() {
-  const query = useSignInUser();
+  const query = useSuspenseQuery(signedInUserQueryOptions());
 
   const isFirstTime = query.data.firstTime === true;
 

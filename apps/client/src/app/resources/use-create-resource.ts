@@ -1,21 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { createResource } from '@/shared/api/resources';
-import type { ApiError, Resource } from '@/shared/types/app';
-
-import type { ResourceFormValues } from './schemas';
-
-interface Options {
-  resourceType: ResourceFormValues;
-}
+import { queryKeys } from '@/shared/api/query-keys';
+import { createResourceMutationOptions } from '@/shared/api/resources/options';
 
 export const useCreateResource = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Resource, ApiError, Options>({
-    mutationFn: (data: Options) => createResource(data.resourceType),
+  return useMutation({
+    ...createResourceMutationOptions(),
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ['resources'] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.resources.all });
     },
   });
 };

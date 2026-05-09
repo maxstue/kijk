@@ -5,6 +5,8 @@ import { Icons } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { getRouteApi } from '@tanstack/react-router';
 import { InfoIcon } from 'lucide-react';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -12,29 +14,26 @@ import { useForm, useWatch } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { ResourceUnit } from '@/app/consumptions/resources-unit';
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionCreateSchema } from '@/app/consumptions/schemas';
 import { useCreateConsumption } from '@/app/consumptions/use-create-consumption.ts';
-import { useGetResources } from '@/app/resources/use-get-resources';
+import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { DatePicker } from '@/shared/components/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import type { Months } from '@/shared/types/app';
-import { ValueTypes, months } from '@/shared/types/app';
+import { ValueTypes } from '@/shared/types/app';
 import { getMonthIndexFromString } from '@/shared/utils/format';
 
+const route = getRouteApi('/_protected/consumptions');
+
 interface Props {
-  year: number;
-  month: Months;
   onClose: () => void;
 }
 
-export function ConsumptionCreateForm({ onClose, ...props }: Props) {
+export function ConsumptionCreateForm({ onClose }: Props) {
   const { isPending, mutate } = useCreateConsumption();
-
-  const year = 'year' in props ? props.year : new Date().getFullYear();
-  const month = 'month' in props ? props.month : months[new Date().getMonth()];
+  const { month, year } = route.useSearch();
 
   const creationDate = new Date(`${Number(year)}-${getMonthIndexFromString(month)}-${new Date().getDate()}`);
 
@@ -52,18 +51,15 @@ export function ConsumptionCreateForm({ onClose, ...props }: Props) {
   const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionCreateFormSchema) {
-    mutate(
-      { newEnergy: { ...data } },
-      {
-        onError(error) {
-          toast.error(error.name, { description: error.message });
-        },
-        onSuccess() {
-          toast.success('Successfully created');
-          onClose();
-        },
+    mutate(data, {
+      onError(error) {
+        toast.error(error.name, { description: error.message });
       },
-    );
+      onSuccess() {
+        toast.success('Successfully created');
+        onClose();
+      },
+    });
   }
 
   return (
@@ -102,7 +98,7 @@ function NameField({ field }: { field: ControllerRenderProps<ConsumptionCreateFo
 
 function ValueField({ field }: { field: ControllerRenderProps<ConsumptionCreateFormSchema, 'value'> }) {
   const type = useWatch<ConsumptionCreateFormSchema, 'resourceId'>({ name: 'resourceId' });
-  const { data } = useGetResources();
+  const { data } = useSuspenseQuery(resourcesQueryOptions());
   const resource = data.find((item) => item.id === type);
 
   return (
@@ -157,7 +153,7 @@ function ValueTypeField({ field }: { field: ControllerRenderProps<ConsumptionCre
 }
 
 function ResourceField({ field }: { field: ControllerRenderProps<ConsumptionCreateFormSchema, 'resourceId'> }) {
-  const { data } = useGetResources();
+  const { data } = useSuspenseQuery(resourcesQueryOptions());
   return (
     <FormItem>
       <FormLabel>Resource</FormLabel>

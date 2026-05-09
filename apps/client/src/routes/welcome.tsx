@@ -8,13 +8,13 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { userSignInQuery } from '@/app/root/use-signin-user';
 import type { UserStepFormValues } from '@/app/welcome/schemas';
 import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
 import { UserStepForm } from '@/app/welcome/user-step-form';
+import { signedInUserQueryOptions } from '@/shared/api/users/options';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import type { ErrorDetails } from '@/shared/types/app';
+import { ApiError } from '@/shared/types/errors/api-error';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/welcome')({
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/welcome')({
       throw redirect({ search: { from: location.href }, to: '/auth' });
     }
 
-    const user = await queryClient.ensureQueryData(userSignInQuery);
+    const user = await queryClient.ensureQueryData(signedInUserQueryOptions());
     if (user.firstTime == false) {
       throw redirect({ replace: true, to: '/home' });
     }
@@ -69,13 +69,13 @@ function WelcomePage() {
   const isLastStep = current === steps.length - 1;
   const isFirstStep = current - 1 === 0;
 
-  const previous = () => {
+  const handlePrevious = () => {
     if (api) {
       api.scrollPrev();
     }
   };
 
-  const next = () => {
+  const handleNext = () => {
     if (api) {
       api.scrollNext();
     }
@@ -84,9 +84,14 @@ function WelcomePage() {
   const handleFinish = useCallback(() => {
     mutate(userStep, {
       onError(error) {
-        const firstError = Array.isArray(error.error.errors) ? error.error.errors[0] : undefined;
+        if (ApiError.isApiError(error)) {
+          toast('An error occurred while creating your user.', {
+            description: error.getErrorsString(),
+          });
+          return;
+        }
         toast('An error occurred while creating your user.', {
-          description: isErrorDetails(firstError) ? `${firstError.code}: ${firstError.description}` : error.message,
+          description: error.message ?? 'Unknown error',
         });
       },
       async onSuccess() {
@@ -118,7 +123,7 @@ function WelcomePage() {
             </CarouselContent>
           </Carousel>
           <div className='flex items-center justify-between gap-4'>
-            <Button className='w-1/4' disabled={isFirstStep} onClick={previous}>
+            <Button className='w-1/4' disabled={isFirstStep} onClick={handlePrevious}>
               Prev
             </Button>
             {isLastStep ? (
@@ -126,7 +131,7 @@ function WelcomePage() {
                 Finish
               </Button>
             ) : (
-              <Button className='w-1/4' onClick={next}>
+              <Button className='w-1/4' onClick={handleNext}>
                 Next
               </Button>
             )}
@@ -135,10 +140,6 @@ function WelcomePage() {
       </div>
     </>
   );
-}
-
-function isErrorDetails(error: unknown): error is ErrorDetails {
-  return typeof error === 'object' && error !== null && 'code' in error && 'description' in error;
 }
 
 function StepZero() {

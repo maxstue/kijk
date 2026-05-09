@@ -9,20 +9,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@kijk/ui/components/sheet';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
 import { ResourceTypeCreateForm } from '@/app/resources/resource-create-form';
 import { resourceDefaultSort, resourcesColumns } from '@/app/resources/resources-columns';
+import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { DataTable } from '@/shared/components/data-table';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { CreatorTypes } from '@/shared/types/app';
 
-import { useGetResources } from './use-get-resources';
-
 export function ResourceTypesSection() {
   const [showSheet, setShowSheet] = useState(false);
-  const { data } = useGetResources();
+  const { data } = useSuspenseQuery(resourcesQueryOptions());
 
   const handleClose = () => setShowSheet(false);
 
@@ -76,7 +76,7 @@ export function ResourceTypesSection() {
 }
 
 function ResourceTypeStatistics() {
-  const { data } = useGetResources();
+  const { data } = useSuspenseQuery(resourcesQueryOptions());
 
   const dataCount = data.length;
   const customCount = data.filter((x) => x.creatorType === CreatorTypes.USER).length;

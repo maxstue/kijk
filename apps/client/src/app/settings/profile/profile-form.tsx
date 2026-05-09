@@ -8,10 +8,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { userSignInQuery } from '@/app/root/use-signin-user';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/user-update-user';
+import { signedInUserQueryOptions } from '@/shared/api/users/options';
 import {
   Form,
   FormControl,
@@ -23,7 +23,7 @@ import {
 } from '@/shared/components/form';
 
 export function ProfileForm() {
-  const { data: user } = useQuery(userSignInQuery);
+  const { data: user } = useQuery(signedInUserQueryOptions());
 
   const { mutate } = useUpdateUser();
 

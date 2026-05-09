@@ -1,13 +1,4 @@
 import { cn } from '@kijk/core/utils/style';
-import { Button } from '@kijk/ui/components/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@kijk/ui/components/sheet';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -16,19 +7,11 @@ import {
   SidebarMenuItem,
 } from '@kijk/ui/components/sidebar';
 import { Link } from '@tanstack/react-router';
-import { PlusIcon } from 'lucide-react';
-import { Suspense, useState } from 'react';
 
-import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form';
 import { CommandMenu } from '@/app/root/command-menu';
 import { mainNav } from '@/app/root/constants';
-import { months } from '@/shared/types/app';
 
 export function NavMain() {
-  const [showSheet, setShowSheet] = useState(false);
-
-  const handleClose = () => setShowSheet(false);
-
   return (
     <SidebarGroup>
       <SidebarGroupContent className='flex flex-col gap-4'>
@@ -37,29 +20,6 @@ export function NavMain() {
             <SidebarMenuButton asChild size='sm'>
               <CommandMenu />
             </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <Sheet open={showSheet} onOpenChange={setShowSheet}>
-              <SheetTrigger asChild>
-                <Button className='size-8 group-data-[collapsible=icon]:opacity-0' size='icon' variant='default'>
-                  <PlusIcon />
-                  <span className='sr-only'>Quick Create</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent className='space-y-8'>
-                <SheetHeader>
-                  <SheetTitle>Add Consumption</SheetTitle>
-                  <SheetDescription>Add a new consumption.</SheetDescription>
-                </SheetHeader>
-                <Suspense>
-                  <ConsumptionCreateForm
-                    month={months[new Date().getMonth()]}
-                    year={new Date().getFullYear()}
-                    onClose={handleClose}
-                  />
-                </Suspense>
-              </SheetContent>
-            </Sheet>
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
