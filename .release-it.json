@@ -1,11 +1,11 @@
 {
   "git": {
     "requireBranch": "main",
-    "changelog": "pnpx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/main/templates/changelog-compact.hbs",
+    "changelog": "pnpm exec auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/main/templates/changelog-compact.hbs",
     "commitMessage": "chore: release ${version} [skip ci]"
   },
   "hooks": {
-    "after:bump": "pnpx auto-changelog -p --commit-limit false"
+    "after:bump": "pnpm exec auto-changelog -p --commit-limit false"
   },
   "github": {
     "release": true,
@@ -13,11 +13,12 @@
   },
   "plugins": {
     "@csmith/release-it-calver-plugin": {
-      "format": "yyyy.mm.minor",
+      "cycle": "month",
       "increment": "calendar"
     }
   },
   "npm": {
-    "publish": false
+    "publish": false,
+    "versionArgs": ["--force"]
   }
 }
