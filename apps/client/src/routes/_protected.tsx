@@ -24,8 +24,8 @@ export const Route = createFileRoute('/_protected')({
       throw redirect({ replace: true, to: '/welcome' });
     }
     const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
-    if (correlationId) {
-      AnalyticsService.identifyUser();
+    if (stringIsNotEmptyOrWhitespace(correlationId)) {
+      AnalyticsService.identifyUser(correlationId);
     }
 
     return { session };

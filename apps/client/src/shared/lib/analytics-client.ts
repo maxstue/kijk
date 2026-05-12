@@ -21,7 +21,7 @@ const AnalyticsClient = {
 
   getInstance: () => posthog,
 
-  identifyUser: (new_distinct_id?: string, userPropertiesToSet?: Properties, userPropertiesToSetOnce?: Properties) => {
+  identifyUser: (new_distinct_id: string, userPropertiesToSet?: Properties, userPropertiesToSetOnce?: Properties) => {
     posthog.identify(new_distinct_id, userPropertiesToSet, userPropertiesToSetOnce);
   },
 
