@@ -4,7 +4,6 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Extensions.OpenApi;
 using Kijk.Api.Middleware;
 using Kijk.Infrastructure.Auth;
-using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Kijk.Shared.Exceptions;
 using Microsoft.AspNetCore.Http.Features;
@@ -44,13 +43,18 @@ public static class DependencyInjection
             var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
             context.ProblemDetails.Extensions.TryAdd("correlationId", activity?.Id ?? context.HttpContext.TraceIdentifier);
 
-            context.ProblemDetails.Extensions["errorType"] = context.HttpContext.Response.StatusCode switch
-            {
-                StatusCodes.Status401Unauthorized => ErrorType.Authentication,
-                StatusCodes.Status403Forbidden => ErrorType.Authorization,
-                _ => context.ProblemDetails.Extensions["errorType"]
-            };
+            context.ProblemDetails.Extensions["errorType"] = GetErrorType(context);
         });
+
+    private static object? GetErrorType(ProblemDetailsContext context) =>
+        context.HttpContext.Response.StatusCode switch
+        {
+            StatusCodes.Status401Unauthorized => ErrorType.Authentication,
+            StatusCodes.Status403Forbidden => ErrorType.Authorization,
+            StatusCodes.Status404NotFound => ErrorType.NotFound,
+            StatusCodes.Status409Conflict => ErrorType.Conflict,
+            _ => context.ProblemDetails.Extensions.TryGetValue("errorType", out var errorType) ? errorType : ErrorType.Unexpected
+        };
 
     private static IServiceCollection AddOpenApiInternal(this IServiceCollection services, IConfiguration configuration)
     {

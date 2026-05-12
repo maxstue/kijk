@@ -38,8 +38,8 @@ public class TelemetryService(IHub client, TelemetryOptions options) : ITelemetr
             opt.SetExtra("Detail", problemDetails.Detail);
             opt.SetExtra("Type", problemDetails.Type);
             opt.SetExtra("Instance", problemDetails.Instance);
-            opt.SetExtra("CorrelationId", problemDetails.Extensions["correlationId"]);
-            opt.SetExtra("ErrorType", problemDetails.Extensions["errorType"]);
+            opt.SetExtra("CorrelationId", problemDetails.Extensions.TryGetValue("correlationId", out var correlationId) ? correlationId : null);
+            opt.SetExtra("ErrorType", problemDetails.Extensions.TryGetValue("errorType", out var errorType) ? errorType : null);
             opt.SetExtra("Extensions", problemDetails.Extensions);
             if (problemDetails is ValidationProblemDetails validationProblemDetails)
             {

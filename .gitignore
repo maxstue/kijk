@@ -32,3 +32,6 @@ lerna-debug.log*
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+# Pnpm
+.pnpm-store
