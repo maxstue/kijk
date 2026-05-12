@@ -35,9 +35,16 @@ try
         .UseStatusCodePages();
 
     app.UseResponseCompression()
-        .UseSecurityHeaders()
-        .UseWhen(_ => app.Environment.IsDevelopment(), appBuilder => appBuilder.UseDeveloperExceptionPage())
-        .UseWhen(_ => app.Environment.IsProduction(), appBuilder => appBuilder.UseHsts());
+        .UseSecurityHeaders();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+    if (app.Environment.IsProduction())
+    {
+        app.UseHsts();
+    }
 
     app.MapStaticAssets();
 
