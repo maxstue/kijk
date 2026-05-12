@@ -15,7 +15,11 @@ COPY ["src/Application/Application.csproj", "src/Application/"]
 COPY ["./Directory.Build.props", "./"]
 COPY ["./Directory.Packages.props", "./"]
 RUN dotnet restore "src/Api/Api.csproj"
-COPY . .
+COPY ["src/Api/", "src/Api/"]
+COPY ["src/Application/", "src/Application/"]
+COPY ["src/Domain/", "src/Domain/"]
+COPY ["src/Infrastructure/", "src/Infrastructure/"]
+COPY ["src/Shared/", "src/Shared/"]
 WORKDIR "/src/src/Api"
 
 FROM build AS publish

@@ -116,7 +116,9 @@ jobs:
         run: chmod +x ./efbundle
 
       - name: '🍎 Apply migrations bundle'
-        run: ./efbundle --connection "${{ secrets.API_MIGRATION_CONNECTION }}"
+        env:
+          API_MIGRATION_CONNECTION: ${{ secrets.API_MIGRATION_CONNECTION }}
+        run: ./efbundle --connection "$API_MIGRATION_CONNECTION"
 
   deploy-api:
     name: 'Deploy Api 🚂'
@@ -141,9 +143,12 @@ jobs:
       - name: '🚀 Deploy Api to Railway'
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
+          RAILWAY_ENVIRONMENT_ID: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
         run: |
           set -euo pipefail
-          railway up --project "${{ secrets.RAILWAY_PROJECT_ID }}" --service "${{ secrets.RAILWAY_API_SERVICE_ID }}" --environment "${{ secrets.RAILWAY_ENVIRONMENT_ID }}" --ci
+          railway up --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT_ID" --ci
 
   deploy-client:
     name: 'Deploy Client 🚂'
@@ -168,9 +173,12 @@ jobs:
       - name: '🚀 Deploy Client to Railway'
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
+          RAILWAY_ENVIRONMENT_ID: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
         run: |
           set -euo pipefail
-          railway up --project "${{ secrets.RAILWAY_PROJECT_ID }}" --service "${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}" --environment "${{ secrets.RAILWAY_ENVIRONMENT_ID }}" --ci
+          railway up --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT_ID" --ci
 
   release:
     name: Release 📝
@@ -226,7 +234,7 @@ jobs:
 
       - name: '📦 Install dependencies'
         if: steps.release-marker.outputs.release == 'true'
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci
 
       - name: 'Initialize git'
         if: steps.release-marker.outputs.release == 'true'

@@ -49,7 +49,7 @@ jobs:
           cache: "pnpm"
 
       - name: "📦 Install dependencies"
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci
       # Enable at later time
       # - name: Run the tests and generate coverage report
       #   run: npm test -- --coverage

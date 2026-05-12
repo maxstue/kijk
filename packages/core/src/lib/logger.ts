@@ -31,26 +31,6 @@ const colors = {
   },
 };
 
-function getCallingFunction(_error: Error) {
-  try {
-    const stack = _error.stack;
-
-    if (stack === undefined) return '--';
-
-    const line = stack.split('\n')[2];
-    const regex = /^.*at\s([A-Za-z]+).*$/;
-    const groups = line ? regex.exec(line) : [];
-
-    if (groups === null) return '--';
-
-    if (groups.length < 2) return '--';
-
-    return groups[1];
-  } catch {
-    return '--';
-  }
-}
-
 function log(message?: string, ...optionalParameters: unknown[]) {
   console.log(
     `[${new Date().toLocaleString()}]`,
@@ -68,9 +48,6 @@ function info(message?: string, ...optionalParameters: unknown[]) {
     colors.fg.cyan,
     '[INFO]',
     colors.reset,
-    colors.bg.green,
-    `[${getCallingFunction(new Error(message))}]`,
-    colors.reset,
     message,
     ...optionalParameters,
   );
@@ -81,9 +58,6 @@ function warn(message?: string, ...optionalParameters: unknown[]) {
     `[${new Date().toLocaleString()}]`,
     colors.fg.yellow,
     '[WARN]',
-    colors.reset,
-    colors.bg.green,
-    `[${getCallingFunction(new Error(message))}]`,
     colors.reset,
     message,
     ...optionalParameters,
@@ -96,9 +70,6 @@ function error(message?: string, ...optionalParameters: unknown[]) {
     colors.fg.red,
     '[ERROR]',
     colors.reset,
-    colors.bg.green,
-    `[${getCallingFunction(new Error(message))}]`,
-    colors.reset,
     message,
     ...optionalParameters,
   );
@@ -110,7 +81,6 @@ const logger = {
   warn,
   error,
   warning: warn,
-  getCallingFunction,
 };
 
 export { logger };
