@@ -15,8 +15,8 @@ public class DeleteConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (foundEntity == null)
         {
-            logger.LogError("Consumption with id '{Id}' not found", id);
-            return Error.NotFound($"Resource consumption with id '{id}' could not be found");
+            logger.LogWarning("Consumption with id '{Id}' not found", id);
+            return Error.NotFound("Consumption not found");
         }
 
         dbContext.Consumptions.Remove(foundEntity);

@@ -24,7 +24,7 @@ public class SignInUserHandler(AppDbContext dbContext, CurrentUser currentUser, 
             if (adminRole == null)
             {
                 logger.LogError("Admin role was not found");
-                return Error.Unexpected("Admin role was not found");
+                return Error.Unexpected("Role was not found");
             }
 
             var newHouseHold = Household.Create("New Household");
@@ -58,7 +58,7 @@ public class SignInUserHandler(AppDbContext dbContext, CurrentUser currentUser, 
         if (userEntity is null)
         {
             logger.LogError("User not found but also no 'CreateUserIdentifier' was set");
-            return Error.NotFound("User not found but also no 'CreateUserIdentifier' was set");
+            return Error.NotFound("User not found");
         }
 
         var useDefaultResources = userEntity.Resources.Any(c => c.CreatorType == CreatorType.System);
