@@ -13,12 +13,12 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
-import { ResourceTypeCreateForm } from '@/app/resources/resource-create-form';
-import { resourceDefaultSort, resourcesColumns } from '@/app/resources/resources-columns';
+import { resourceDefaultSort, resourceTypeColumns } from '@/app/resources/columns';
+import { ResourceTypeCreateForm } from '@/app/resources/create-form';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { DataTable } from '@/shared/components/data-table';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { CreatorTypes } from '@/shared/types/app';
+import { CreatorTypes } from '@/shared/types/domain';
 
 export function ResourceTypesSection() {
   const [showSheet, setShowSheet] = useState(false);
@@ -65,7 +65,7 @@ export function ResourceTypesSection() {
           <CardContent>
             <Suspense fallback={<Loader className='h-4 w-4' />}>
               <div className='mt-2'>
-                <DataTable columns={resourcesColumns} data={data} defaultSort={resourceDefaultSort} />
+                <DataTable columns={resourceTypeColumns} data={data} defaultSort={resourceDefaultSort} />
               </div>
             </Suspense>
           </CardContent>

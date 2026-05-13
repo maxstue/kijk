@@ -72,7 +72,8 @@ dotnet ef database update                   # creates/updates DB schema
 ## Architecture Notes
 
 - **Client**: TanStack Router auto-generates `src/routeTree.gen.ts` — do not edit manually
-- **Client feature boundaries**: `routes/*` composes features; `app/<feature>/*` must not import another feature folder directly; `shared/*` must not import from `app/*`; enforced by `@kijk/oxlint-plugin-boundaries`
+- **Client feature boundaries**: `routes/*` defines route context and page structure (search validation, loaders, pending/error states, layout shell, and feature composition); `app/<feature>/*` owns feature components, forms, sections, hooks, schemas, and feature logic; `app/<feature>/*` must not import another feature folder directly; `shared/*` must not import from `app/*`; enforced by `@kijk/oxlint-plugin-boundaries`
+- **Client feature file naming**: feature folders act as namespaces. Inside `app/<feature>`, omit the feature name from file names when the folder already provides that context. Prefer reserved feature-local names like `constants.ts`, `types.ts`, `schemas.ts`, `helpers.ts`, `utils.ts`, `columns.tsx`, and `options.ts`. Component files stay kebab-case, while exported React components stay PascalCase and should remain understandable outside their file.
 - **Client data access**: reusable API calls, query keys, `queryOptions`, and `mutationOptions` live in `apps/client/src/shared/api`; keep feature form schemas inside their feature folders
 - **Client query keys**: use `apps/client/src/shared/api/query-keys.ts` for cache reads, writes, and invalidations instead of ad hoc key arrays
 - **API**: Clean Architecture layers: Api → Application → Domain/Infrastructure/Shared

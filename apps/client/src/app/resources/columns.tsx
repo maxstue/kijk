@@ -2,12 +2,12 @@ import { Button } from '@kijk/ui/components/button';
 import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { ResourceTypeListRowActions } from '@/app/resources/resources-list-row-actions';
-import type { Resource } from '@/shared/types/app';
+import { ResourceTypeRowActions } from '@/app/resources/row-actions';
+import type { Resource } from '@/shared/types/domain';
 
 export const resourceDefaultSort: ColumnSort = { desc: false, id: 'name' };
 
-export const resourcesColumns: Array<ColumnDef<Resource>> = [
+export const resourceTypeColumns: Array<ColumnDef<Resource>> = [
   {
     accessorKey: 'name',
     header: ({ column }) => (
@@ -53,7 +53,7 @@ export const resourcesColumns: Array<ColumnDef<Resource>> = [
     ),
   },
   {
-    cell: ({ row }) => <ResourceTypeListRowActions row={row} />,
+    cell: ({ row }) => <ResourceTypeRowActions row={row} />,
     id: 'actions',
   },
 ];

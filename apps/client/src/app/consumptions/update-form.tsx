@@ -21,8 +21,8 @@ import { DatePicker } from '@/shared/components/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import type { Consumption } from '@/shared/types/app';
-import { ValueTypes } from '@/shared/types/app';
+import type { Consumption } from '@/shared/types/domain';
+import { ValueTypes } from '@/shared/types/domain';
 
 interface Props {
   initialData: Consumption;

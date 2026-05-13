@@ -18,8 +18,8 @@ import { HousePlug, Laptop, LayoutDashboard, Moon, SunMedium } from 'lucide-reac
 import type { Dialog } from 'radix-ui';
 import { useCallback, useEffect, useState } from 'react';
 
-import { settingsNav } from '@/shared/lib/constants';
-import { months } from '@/shared/types/app';
+import { settingsNav } from '@/shared/navigation/settings';
+import { months } from '@/shared/utils/months';
 
 interface Props extends Dialog.DialogProps {
   isCollapsed?: boolean;

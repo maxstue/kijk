@@ -1,4 +1,4 @@
-import type { Resource, ResourceStats } from '@/shared/types/app';
+import type { Resource, ResourceStats } from '@/shared/types/domain';
 
 interface Props {
   type?: Resource | ResourceStats;

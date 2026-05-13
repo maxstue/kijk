@@ -14,7 +14,7 @@ import * as React from 'react';
 import { NavMain } from '@/app/root/nav-main';
 import { NavSecondary } from '@/app/root/nav-secondary';
 import { NavUser } from '@/app/root/nav-user';
-import { siteConfig } from '@/shared/lib/constants';
+import { siteConfig } from '@/shared/config/site';
 
 interface Props extends React.ComponentProps<typeof Sidebar> {}
 

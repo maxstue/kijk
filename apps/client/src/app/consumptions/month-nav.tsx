@@ -14,14 +14,14 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import type { Months } from '@/shared/types/app';
-import { months } from '@/shared/types/app';
+import type { Months } from '@/shared/utils/months';
+import { months } from '@/shared/utils/months';
 
 const Route = getRouteApi('/_protected/consumptions');
 
 type Props = React.HTMLAttributes<HTMLElement>;
 
-export function ConsumptionsMonthNav({ className }: Props) {
+export function ConsumptionMonthNav({ className }: Props) {
   const [open, setOpen] = useState(false);
   const searchParameters = Route.useSearch();
 

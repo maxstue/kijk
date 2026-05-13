@@ -38,7 +38,7 @@ const Route = getRouteApi('/_protected/consumptions');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-export function ConsumptionsYearSwitcher({ className }: YProps) {
+export function ConsumptionYearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
   const searchParameters = Route.useSearch();

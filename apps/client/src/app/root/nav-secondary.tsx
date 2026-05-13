@@ -26,8 +26,8 @@ import type { FeedbackFormValues } from '@/app/root/schemas';
 import { feedbackSchema } from '@/app/root/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { config } from '@/shared/config';
+import { siteConfig } from '@/shared/config/site';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
-import { siteConfig } from '@/shared/lib/constants';
 
 interface Props extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {}
 

@@ -4,10 +4,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
-import { AnalyticsProvider } from '@/shared/components/analytics-provider';
-import { AuthProvider } from '@/shared/components/auth-provider';
+import { AnalyticsProvider } from '@/app/root/providers/analytics-provider';
+import { AuthProvider } from '@/app/root/providers/auth-provider';
+import RouterProvider from '@/app/root/providers/router-provider';
 import { AppError } from '@/shared/components/errors/app-error';
-import RouterProvider from '@/shared/components/router-provider';
 import { ThemeModeSwitcher } from '@/shared/components/theme-mode-switcher';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { ErrorService } from '@/shared/lib/error-tracking';

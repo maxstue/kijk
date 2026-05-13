@@ -5,7 +5,7 @@ import type { Middleware } from 'openapi-fetch';
 import type { paths } from '@/shared/api/generated/kijk';
 import { config } from '@/shared/config';
 import { getAuthToken } from '@/shared/lib/auth-client';
-import { CORRELATION_ID_HEADER, type ApiProblemDetails } from '@/shared/types/app';
+import { CORRELATION_ID_HEADER, type ApiProblemDetails } from '@/shared/types/api';
 import { ApiError } from '@/shared/types/errors/api-error';
 
 /**
