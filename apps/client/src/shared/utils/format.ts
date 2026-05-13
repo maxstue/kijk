@@ -1,6 +1,6 @@
-import type { Months } from '@/shared/types/app';
-import { months } from '@/shared/types/app';
 import { AppError } from '@/shared/types/errors/app-error';
+import type { Months } from '@/shared/utils/months';
+import { months } from '@/shared/utils/months';
 
 export function formatStringToCurrency(value: string | number) {
   const amount = typeof value === 'string' ? Number.parseFloat(value) : value;
@@ -32,4 +32,5 @@ export function getMonthIndexFromString(month: string) {
   throw new AppError({ message: `The given string "${month}" is not a valid month`, type: 'VALIDATION' });
 }
 
-const isMonth = (b: string): b is Months => months.includes(b);
+// TODO kann ich das casting durch zod schema ersetzen wodurch ich parse functions und types automatisch bekomme?
+const isMonth = (value: string): value is Months => (months as readonly string[]).includes(value);

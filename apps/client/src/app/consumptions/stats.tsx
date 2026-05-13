@@ -7,7 +7,7 @@ import { ResourceUnit } from '@/shared/components/resources-unit';
 
 const Route = getRouteApi('/_protected/consumptions');
 
-export default function ConsumptionsStats() {
+export default function ConsumptionStats() {
   const searchParameters = Route.useSearch();
 
   const selectedYear = searchParameters.year;

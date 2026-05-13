@@ -1,11 +1,11 @@
 import { Button } from '@kijk/ui/components/button';
 import { getRouteApi } from '@tanstack/react-router';
 
-import { months } from '@/shared/types/app';
+import { months } from '@/shared/utils/months';
 
 const Route = getRouteApi('/_protected/consumptions');
 
-export function ConsumptionsTodayButton() {
+export function ConsumptionTodayButton() {
   const navigate = Route.useNavigate();
 
   const handleClick = () => {

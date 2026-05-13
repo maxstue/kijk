@@ -1,4 +1,4 @@
-import type { ApiProblemDetails } from '@/shared/types/app';
+import type { ApiProblemDetails } from '@/shared/types/api';
 
 /**
  * Represents an error that occurs during an API call. This error includes the details of the API problem, the original

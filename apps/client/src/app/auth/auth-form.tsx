@@ -10,17 +10,17 @@ import type { ControllerRenderProps } from 'react-hook-form';
 
 import type { AuthSchema } from '@/app/auth/schemas';
 import { authSchema } from '@/app/auth/schemas';
-import { Route } from '@/routes/auth';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { Allowed_Providers } from '@/shared/types/app';
+import { Allowed_Providers } from '@/shared/types/auth';
 
 interface Props {
   className?: string;
   btnLabel: string;
   onSubmit: (email: string, password: string) => Promise<unknown>;
+  redirectTo: string;
 }
 
-export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
+export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Props) {
   const form = useForm({
     defaultValues: {
       email: '',
@@ -30,7 +30,6 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
     resolver: zodResolver(authSchema),
   });
   const [isLoading, setIsLoading] = useState(false);
-  const searchParameters = Route.useSearch();
 
   const { isLoaded, signIn } = useSignIn();
 
@@ -46,10 +45,10 @@ export function UserAuthForm({ className, btnLabel, onSubmit }: Props) {
     }
     await signIn.authenticateWithRedirect({
       redirectUrl: '/sso-callback',
-      redirectUrlComplete: searchParameters.from ?? '/',
+      redirectUrlComplete: redirectTo,
       strategy: 'oauth_github',
     });
-  }, [isLoaded, searchParameters.from, signIn]);
+  }, [isLoaded, redirectTo, signIn]);
 
   return (
     <div className={cn('grid gap-6', className)}>

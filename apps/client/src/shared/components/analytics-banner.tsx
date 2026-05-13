@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { config } from '@/shared/config';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
-import type { CookieConsent } from '@/shared/types/app';
+import type { CookieConsent } from '@/shared/types/analytics';
 
 export function AnalyticsBanner() {
   const [consentGiven, setConsentGiven] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());

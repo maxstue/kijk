@@ -1,7 +1,7 @@
 import { useSignIn } from '@clerk/react/legacy';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { getRouteApi } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
@@ -9,13 +9,14 @@ import { toast } from 'sonner';
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { config } from '@/shared/config';
 
-const route = getRouteApi('/auth');
+interface Props {
+  goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>>;
+  redirectTo: string;
+}
 
-export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
+export function Login({ goto, redirectTo }: Props) {
   const { isLoaded, signIn, setActive } = useSignIn();
-  const navigate = route.useNavigate();
-  const search = route.useSearch();
-  const from = search.from ?? '/';
+  const navigate = useNavigate();
 
   const handleLogin = useCallback(
     async (email: string, password: string) => {
@@ -36,7 +37,7 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
 
         if (completeLogin.status === 'complete') {
           await setActive({ session: completeLogin.createdSessionId });
-          navigate({ params: true, to: from });
+          navigate({ params: true, to: redirectTo });
         }
       } catch (error_) {
         const error = error_ as { errors: Array<{ message: string }> };
@@ -45,7 +46,7 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
         });
       }
     },
-    [from, isLoaded, navigate, setActive, signIn],
+    [isLoaded, navigate, redirectTo, setActive, signIn],
   );
 
   const handleGoToSignUp = useCallback(() => {
@@ -62,7 +63,7 @@ export function Login({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 
         <CardContent>
           <>
             <div className='grid gap-6'>
-              <UserAuthForm btnLabel='Login' onSubmit={handleLogin} />
+              <UserAuthForm btnLabel='Login' redirectTo={redirectTo} onSubmit={handleLogin} />
               <div className='text-center text-sm'>
                 <Button variant='link' onClick={handleGoToSignUp}>
                   Don&apos;t have an account? Sign Up

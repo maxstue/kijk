@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
-import { useUpdateUser } from '@/app/settings/profile/user-update-user';
+import { useUpdateUser } from '@/app/settings/profile/use-update-user';
 import { signedInUserQueryOptions } from '@/shared/api/users/options';
 import {
   Form,

@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { updateConsumptionMutationOptions } from '@/shared/api/consumptions/options';
 import { queryKeys } from '@/shared/api/query-keys';
-import type { Consumption } from '@/shared/types/app';
-import { months } from '@/shared/types/app';
+import type { Consumption } from '@/shared/types/domain';
+import { months } from '@/shared/utils/months';
 
 export const useUpdateConsumption = () => {
   const queryClient = useQueryClient();

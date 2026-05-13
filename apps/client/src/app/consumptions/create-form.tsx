@@ -16,13 +16,13 @@ import { toast } from 'sonner';
 
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionCreateSchema } from '@/app/consumptions/schemas';
-import { useCreateConsumption } from '@/app/consumptions/use-create-consumption.ts';
+import { useCreateConsumption } from '@/app/consumptions/use-create-consumption';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { DatePicker } from '@/shared/components/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { ValueTypes } from '@/shared/types/app';
+import { ValueTypes } from '@/shared/types/domain';
 import { getMonthIndexFromString } from '@/shared/utils/format';
 
 const route = getRouteApi('/_protected/consumptions');

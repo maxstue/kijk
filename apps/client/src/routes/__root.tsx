@@ -1,16 +1,13 @@
 import type { LoadedClerk } from '@clerk/react/types';
-import { TanStackDevtools } from '@tanstack/react-devtools';
 import type { QueryClient } from '@tanstack/react-query';
-import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 
+import { RootDevtools } from '@/app/root/devtools';
 import { Favicon } from '@/app/root/favicon';
 import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
-import { config } from '@/shared/config';
 
 interface RootRouteContext {
   queryClient: QueryClient;
@@ -36,35 +33,11 @@ function RootPage() {
         <AnalyticsBanner />
       </Suspense>
       <Suspense>
-        <DevModeIndicator />
+        <RootDevtools />
       </Suspense>
       <Suspense>
         <AnalyticsTracker />
       </Suspense>
-      <Suspense>
-        <TanStackDevtools
-          plugins={[
-            {
-              name: 'TanStack Query',
-              render: <ReactQueryDevtoolsPanel />,
-            },
-            {
-              name: 'TanStack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
-      </Suspense>
     </>
   );
 }
-
-function DevModeIndicator() {
-  return config.Mode === 'production' ? undefined : <LazyDevModeIndicator />;
-}
-
-const LazyDevModeIndicator = lazy(() =>
-  import('@/shared/components/dev-mode-indicator').then(({ DevModeIndicator: Component }) => ({
-    default: Component,
-  })),
-);

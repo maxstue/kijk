@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ValueTypes } from '@/shared/types/app';
+import { ValueTypes } from '@/shared/types/domain';
 
 export const consumptionCreateSchema = z.object({
   name: z.string().min(2, {

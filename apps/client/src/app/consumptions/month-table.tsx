@@ -10,11 +10,11 @@ import { ArrowUpDown } from 'lucide-react';
 import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { DataTable } from '@/shared/components/data-table';
 import { ResourceUnit } from '@/shared/components/resources-unit';
-import type { Consumption, Resource } from '@/shared/types/app';
+import type { Consumption, Resource } from '@/shared/types/domain';
 
 const Route = getRouteApi('/_protected/consumptions');
 
-export function ConsumptionsMonthTable() {
+export function ConsumptionMonthTable() {
   const { month, year } = Route.useSearch();
 
   const { data } = useSuspenseQuery(consumptionsByQueryOptions(year, month));
