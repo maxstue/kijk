@@ -20,7 +20,7 @@ import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
 
 const getCookieConsent = () => {
   if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
-    return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY) == 'accepted';
+    return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY) === 'accepted';
   }
   return false;
 };

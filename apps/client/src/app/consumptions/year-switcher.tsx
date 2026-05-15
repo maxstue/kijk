@@ -59,7 +59,7 @@ export function ConsumptionYearSwitcher({ className }: YProps) {
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
-    navigate({ search: (previous) => ({ ...previous, year: year }) });
+    navigate({ search: (previous) => ({ ...previous, year }) });
   };
 
   const handleNewYearClick = useCallback(() => {

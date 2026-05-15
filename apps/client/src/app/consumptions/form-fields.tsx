@@ -91,7 +91,7 @@ export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormVal
       <FormControl className='flex items-center gap-2'>
         <div className='flex items-center gap-2'>
           <Checkbox
-            checked={field.value == ValueTypes.ABSOLUTE}
+            checked={field.value === ValueTypes.ABSOLUTE}
             onCheckedChange={(checked) => field.onChange(checked ? ValueTypes.ABSOLUTE : ValueTypes.RELATIVE)}
           />
           <div className='select-none'>{field.value}</div>
