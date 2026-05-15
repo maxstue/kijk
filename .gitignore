@@ -35,3 +35,8 @@ lerna-debug.log*
 
 # Pnpm
 .pnpm-store
+
+# tools
+.fallow
+.codacy
+
