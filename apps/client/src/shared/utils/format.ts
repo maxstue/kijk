@@ -1,7 +1,9 @@
-import { AppError } from '@/shared/types/errors/app-error';
-import type { Months } from '@/shared/utils/months';
-import { months } from '@/shared/utils/months';
-
+/**
+ * Format a string or number to a localized currency format (e.g. "€1,234.56" for German locale).
+ *
+ * @param value A string or number representing the amount to be formatted as currency.
+ * @returns A string representing the formatted currency value according to the German locale.
+ */
 export function formatStringToCurrency(value: string | number) {
   const amount = typeof value === 'string' ? Number.parseFloat(value) : value;
   return new Intl.NumberFormat('de-DE', {
@@ -10,6 +12,12 @@ export function formatStringToCurrency(value: string | number) {
   }).format(amount);
 }
 
+/**
+ * Format a string date to only the date part in the format "YYYY-MM-DD".
+ *
+ * @param value A string representing a date, e.g. "2024-01-01T00:00:00.000Z"
+ * @returns A string representing only the date part, e.g. "2024-01-01"
+ */
 export function formatStringDateToOnlyDateString(value: string) {
   const date = new Date(value);
   const year = date.getFullYear();
@@ -18,19 +26,3 @@ export function formatStringDateToOnlyDateString(value: string) {
 
   return year.toString() + '-' + month + '-' + day;
 }
-
-/**
- * Get the month index from a string.
- *
- * @param month The month string.
- * @returns The month index or throws an error if the month is invalid.
- */
-export function getMonthIndexFromString(month: string) {
-  if (isMonth(month)) {
-    return months.indexOf(month) + 1;
-  }
-  throw new AppError({ message: `The given string "${month}" is not a valid month`, type: 'VALIDATION' });
-}
-
-// TODO kann ich das casting durch zod schema ersetzen wodurch ich parse functions und types automatisch bekomme?
-const isMonth = (value: string): value is Months => (months as readonly string[]).includes(value);

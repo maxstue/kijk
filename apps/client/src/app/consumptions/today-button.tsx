@@ -1,7 +1,7 @@
 import { Button } from '@kijk/ui/components/button';
 import { getRouteApi } from '@tanstack/react-router';
 
-import { months } from '@/shared/utils/months';
+import { getMonthFromDate } from '@/shared/utils/months';
 
 const Route = getRouteApi('/_protected/consumptions');
 
@@ -12,7 +12,7 @@ export function ConsumptionTodayButton() {
     navigate({
       search: (previous) => ({
         ...previous,
-        month: months[new Date().getMonth()],
+        month: getMonthFromDate(new Date()),
         year: new Date().getFullYear(),
       }),
     });

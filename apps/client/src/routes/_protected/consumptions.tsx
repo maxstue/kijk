@@ -28,14 +28,10 @@ import { NotFound } from '@/shared/components/not-found';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import type { Months } from '@/shared/utils/months';
-import { months } from '@/shared/utils/months';
+import { getMonthFromDate, monthSchema } from '@/shared/utils/months';
 
 const searchSchema = z.object({
-  month: z
-    .string()
-    .transform((x) => x as Months)
-    .default(months[new Date().getMonth()]),
+  month: monthSchema.default(getMonthFromDate(new Date())),
   year: z.number().default(new Date().getFullYear()),
 });
 

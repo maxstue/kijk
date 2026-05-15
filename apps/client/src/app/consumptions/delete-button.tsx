@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
-import { months } from '@/shared/utils/months';
+import { getMonthFromDate } from '@/shared/utils/months';
 
 interface Props {
   date: string;
@@ -27,10 +27,11 @@ export function ConsumptionDeleteButton({ id, date }: Props) {
   const { mutate } = useDeleteConsumption();
 
   const handleDelete = () => {
-    const month = new Date(date).getMonth();
-    const year = new Date(date).getFullYear();
+    const consumptionDate = new Date(date);
+    const month = getMonthFromDate(consumptionDate);
+    const year = consumptionDate.getFullYear();
     mutate(
-      { id, month: months[month], year },
+      { id, month, year },
       {
         onError(error) {
           toast.error(error.name, { description: error.message });

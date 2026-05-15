@@ -15,7 +15,7 @@ import { Suspense, useState } from 'react';
 
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Months } from '@/shared/utils/months';
-import { months } from '@/shared/utils/months';
+import { monthsLocalized } from '@/shared/utils/months';
 
 const Route = getRouteApi('/_protected/consumptions');
 
@@ -55,7 +55,7 @@ export function ConsumptionMonthNav({ className }: Props) {
             <CommandEmpty>No Month found.</CommandEmpty>
             <Suspense fallback={<Loader />}>
               <CommandGroup key='Months' heading='Months'>
-                {months.map((m) => (
+                {monthsLocalized().map((m) => (
                   <CommandItem
                     key={m}
                     className='text-sm'
