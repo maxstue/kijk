@@ -21,15 +21,15 @@ public class UpdateResourceHandler(AppDbContext dbContext, CurrentUser currentUs
 
         if (user is null)
         {
-            logger.LogError("User with id {Id} could not be found", currentUser.Id);
-            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
+            logger.LogWarning("User with id '{Id}' could not be found", currentUser.Id);
+            return Error.NotFound("User was not found");
         }
 
         var resource = await dbContext.Resources.FindAsync([id], cancellationToken);
         if (resource is null)
         {
-            logger.LogError("Resource with id {Id} could not be found", id);
-            return Error.NotFound($"Resource with id {id} was not found");
+            logger.LogWarning("Resource with id '{Id}' could not be found", id);
+            return Error.NotFound("Resource not found");
         }
 
         resource.Name = request.Name ?? resource.Name;

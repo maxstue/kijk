@@ -21,8 +21,8 @@ public class GetYearsConsumptionHandler(AppDbContext dbContext, CurrentUser curr
         var houseHoldId = currentUser.ActiveHouseholdId;
         if (houseHoldId is null)
         {
-            logger.LogError("No active household found for user {Id}", currentUser.Id);
-            return Error.NotFound($"Household for user '{currentUser.Id}' was not found");
+            logger.LogWarning("No active household found for user '{Id}'", currentUser.Id);
+            return Error.NotFound("No active household found");
         }
 
         var yearsWithEnergy = await dbContext.Households

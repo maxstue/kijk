@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Input } from '@kijk/ui/components/input';
-import { getRouteApi } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import type { Dispatch } from 'react';
 import { useForm } from 'react-hook-form';
@@ -16,9 +16,12 @@ import { authCodeSchema } from '@/app/auth/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { config } from '@/shared/config';
 
-const route = getRouteApi('/auth');
+interface Props {
+  goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>>;
+  redirectTo: string;
+}
 
-export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>> }) {
+export function SignUp({ goto, redirectTo }: Props) {
   const [verify, setVerify] = useState<boolean>(false);
   const { isLoaded, signUp } = useSignUp();
 
@@ -63,10 +66,10 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
               {verify ? (
                 <div className='flex min-h-[336px] w-full flex-col'>
                   <p className='text-primary text-lg'>Please insert the code we&apos;ve send to your email.</p>
-                  <Verify />
+                  <Verify redirectTo={redirectTo} />
                 </div>
               ) : (
-                <UserAuthForm btnLabel='Sign Up' onSubmit={handleRegister} />
+                <UserAuthForm btnLabel='Sign Up' redirectTo={redirectTo} onSubmit={handleRegister} />
               )}
               <div className='text-center text-sm'>
                 <Button variant='link' onClick={handleGoToLogin}>
@@ -85,11 +88,9 @@ export function SignUp({ goto }: { goto: Dispatch<React.SetStateAction<'Login' |
   );
 }
 
-function Verify() {
+function Verify({ redirectTo }: { redirectTo: string }) {
   const { isLoaded, signUp, setActive } = useSignUp();
-  const navigate = route.useNavigate();
-  const search = route.useSearch();
-  const from = search.from ?? '/';
+  const navigate = useNavigate();
 
   const form = useForm({
     defaultValues: {
@@ -118,7 +119,7 @@ function Verify() {
 
         if (completeSignUp.status === 'complete') {
           await setActive({ session: completeSignUp.createdSessionId });
-          navigate({ replace: true, to: from });
+          navigate({ replace: true, to: redirectTo });
         }
       } catch (error_) {
         const error = error_ as { errors: Array<{ message: string }> };
@@ -127,7 +128,7 @@ function Verify() {
         });
       }
     },
-    [from, isLoaded, navigate, setActive, signUp],
+    [isLoaded, navigate, redirectTo, setActive, signUp],
   );
 
   return (

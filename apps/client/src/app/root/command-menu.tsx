@@ -18,8 +18,8 @@ import { HousePlug, Laptop, LayoutDashboard, Moon, SunMedium } from 'lucide-reac
 import type { Dialog } from 'radix-ui';
 import { useCallback, useEffect, useState } from 'react';
 
-import { settingsNav } from '@/shared/lib/constants';
-import { months } from '@/shared/types/app';
+import { settingsNav } from '@/shared/navigation/settings';
+import { getMonthFromDate } from '@/shared/utils/months';
 
 interface Props extends Dialog.DialogProps {
   isCollapsed?: boolean;
@@ -102,7 +102,7 @@ export function CommandMenu({ ...props }: Props) {
                   navigate({
                     search: (previous) => ({
                       ...previous,
-                      month: months[new Date().getMonth()],
+                      month: getMonthFromDate(new Date()),
                       year: new Date().getFullYear(),
                     }),
                     to: '/consumptions',

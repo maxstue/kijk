@@ -21,8 +21,8 @@ public class UpdateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
 
         if (household is null)
         {
-            logger.LogError("Household with id '{Id}' was not found", currentUser.ActiveHouseholdId);
-            return Error.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
+            logger.LogWarning("Household with id '{Id}' was not found", currentUser.ActiveHouseholdId);
+            return Error.NotFound("Household not found");
         }
 
         var existingResourceUsage = await dbContext.Consumptions
@@ -30,8 +30,8 @@ public class UpdateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (existingResourceUsage is null)
         {
-            logger.LogError("Resource consumption with id '{Id}' was not found", id);
-            return Error.NotFound($"Resource consumption for id '{id}' was not found");
+            logger.LogWarning("Resource consumption with id '{Id}' was not found", id);
+            return Error.NotFound("Consumption not found");
         }
         var monthYear = MonthYear.ParseDateTime(request.Date ?? existingResourceUsage.Date.ToDateTime());
         existingResourceUsage.Name = request.Name ?? existingResourceUsage.Name;

@@ -21,13 +21,13 @@ public class UpdateUserHandler(AppDbContext dbContext, CurrentUser currentUser, 
 
         if (userEntity is null)
         {
-            logger.LogError("User with id {Id} not found", currentUser.Id);
+            logger.LogWarning("User with id '{Id}' not found", currentUser.Id);
             return Error.NotFound("User not found");
         }
 
         if (request.UserName is null)
         {
-            logger.LogError("User name is null");
+            logger.LogWarning("User name is null");
             return Error.Unexpected("User name is null");
         }
 

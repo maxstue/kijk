@@ -27,8 +27,8 @@ public class GetByIdConsumptionHandler(AppDbContext dbContext, ILogger<GetByIdCo
 
         if (entity is null)
         {
-            logger.LogError("Consumption with id {Id} not found", id);
-            return Error.NotFound($"Resource consumption for Id '{id}' was not found.");
+            logger.LogWarning("Consumption with id '{Id}' not found", id);
+            return Error.NotFound("Consumption not found.");
         }
 
         return entity;

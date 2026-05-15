@@ -13,14 +13,14 @@ import { z } from 'zod';
 import { AppVersion } from '@/shared/components/app-version';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/form';
 import { config } from '@/shared/config';
+import { siteConfig } from '@/shared/config/site';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
-import { siteConfig } from '@/shared/lib/constants';
-import type { CookieConsent } from '@/shared/types/app';
-import { COOKIE_CONSENT_KEY } from '@/shared/types/app';
+import type { CookieConsent } from '@/shared/types/analytics';
+import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
 
 const getCookieConsent = () => {
   if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
-    return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY) == 'accepted';
+    return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY) === 'accepted';
   }
   return false;
 };

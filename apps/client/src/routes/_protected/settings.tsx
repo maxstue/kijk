@@ -6,7 +6,7 @@ import { Outlet, createFileRoute, createLink, redirect } from '@tanstack/react-r
 
 import { NotFound } from '@/shared/components/not-found';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import { settingsNav } from '@/shared/lib/constants';
+import { settingsNav } from '@/shared/navigation/settings';
 
 export const Route = createFileRoute('/_protected/settings')({
   beforeLoad: ({ location }) => {

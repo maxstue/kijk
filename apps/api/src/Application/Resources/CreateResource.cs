@@ -46,7 +46,7 @@ public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, 
             var errors = validationResult.Errors
                 .Select(x => Error.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
                 .ToList();
-            logger.LogError("Validation failed with errors: {Errors}", errors);
+            logger.LogWarning("Validation failed with errors: {Errors}", errors);
             return Error.Validation(errors[0].Description);
         }
 
@@ -57,13 +57,13 @@ public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, 
 
         if (user is null)
         {
-            logger.LogError("User with id {Id} could not be found", currentUser.Id);
-            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
+            logger.LogWarning("User with id '{Id}' could not be found", currentUser.Id);
+            return Error.NotFound("User was not found");
         }
 
         if (user.Resources.Any(c => string.Equals(c.Name, command.Name, StringComparison.OrdinalIgnoreCase)))
         {
-            logger.LogError("Resource with name {Name} already exists", command.Name);
+            logger.LogWarning("Resource with name '{Name}' already exists", command.Name);
             return Error.Validation($"A resource with the name '{command.Name}' already exists");
         }
 

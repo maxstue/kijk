@@ -1,0 +1,92 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { Icons } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import { useCreateResource } from '@/app/resources/use-create-resource';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+
+import { resourceSchema } from './schemas';
+import type { ResourceFormValues } from './schemas';
+
+interface Props {
+  onClose?: () => void;
+}
+
+export function ResourceTypeCreateForm({ onClose }: Props) {
+  const { isPending, mutate } = useCreateResource();
+
+  const form = useForm({
+    defaultValues: {
+      color: '#000000',
+      name: '',
+      unit: '',
+    },
+    resolver: zodResolver(resourceSchema),
+  });
+
+  function onSubmit(data: ResourceFormValues) {
+    mutate(data, {
+      onError(error) {
+        toast.error(error.name, { description: error.message });
+      },
+      onSuccess() {
+        toast('Successfully created');
+        onClose?.();
+      },
+    });
+  }
+
+  return (
+    <Form {...form}>
+      <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name='name'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder='Name' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='unit'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Unit</FormLabel>
+              <FormControl>
+                <Input placeholder='Unit' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='color'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Color</FormLabel>
+              <FormControl>
+                <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button disabled={isPending} type='submit'>
+          Add
+        </Button>
+        {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}
+      </form>
+    </Form>
+  );
+}

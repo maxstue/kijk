@@ -50,8 +50,8 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
 
         if (household is null)
         {
-            logger.LogError("Household with id {HouseholdId} not found", currentUser.ActiveHouseholdId);
-            return Error.NotFound($"Household for id '{currentUser.ActiveHouseholdId}' was not found");
+            logger.LogWarning("Household with id {HouseholdId} not found", currentUser.ActiveHouseholdId);
+            return Error.NotFound("Household not found");
         }
 
         // use a month range which is translatable by EF instead of accessing Date.Month/Year properties
@@ -64,15 +64,15 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             .FirstOrDefaultAsync(cancellationToken);
         if (foundConsumption is not null)
         {
-            logger.LogError("Consumption for '{ResourceId}' already exists for {Date:MMMM yyyy}", request.ResourceId, request.Date);
-            return Error.Validation($"Consumption for '{request.ResourceId}' already exists for {request.Date:MMMM yyyy}");
+            logger.LogWarning("Consumption for '{ResourceName}' already exists for {Date:MMMM yyyy}", request.Name, request.Date);
+            return Error.Validation($"Consumption for '{foundConsumption.Resource.Name}' already exists for {request.Date:MMMM yyyy}");
         }
 
         var resource = await dbContext.Resources.FirstOrDefaultAsync(x => x.Id == request.ResourceId, cancellationToken);
         if (resource is null)
         {
-            logger.LogError("Resource with id {ResourceId} not found", request.ResourceId);
-            return Error.NotFound($"Resource for id '{request.ResourceId}' was not found");
+            logger.LogWarning("Resource with id '{ResourceId}' not found", request.ResourceId);
+            return Error.NotFound("Resource not found");
         }
 
         var consumption = await CreateConsumption(request, resource, household, cancellationToken);

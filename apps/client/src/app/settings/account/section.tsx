@@ -1,6 +1,6 @@
 import { Separator } from '@kijk/ui/components/separator';
 
-import { AccountForm } from '@/app/settings/account/account-form';
+import { AccountForm } from '@/app/settings/account/form';
 
 export function AccountSection() {
   return (

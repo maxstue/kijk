@@ -33,14 +33,14 @@ import { resourceSchema } from '@/app/resources/schemas';
 import { useDeleteResource } from '@/app/resources/use-delete-resource';
 import { useUpdateResource } from '@/app/resources/use-update-resource-type';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { CreatorTypes } from '@/shared/types/app';
-import type { Resource } from '@/shared/types/app';
+import { CreatorTypes } from '@/shared/types/domain';
+import type { Resource } from '@/shared/types/domain';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
-export function ResourceTypeListRowActions<TData extends Resource>({ row }: DataTableRowActionsProps<TData>) {
+export function ResourceTypeRowActions<TData extends Resource>({ row }: DataTableRowActionsProps<TData>) {
   const [showEdit, setShowEdit] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();

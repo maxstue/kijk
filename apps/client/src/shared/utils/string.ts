@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { Nullish } from '@/shared/types/app';
+import type { Nullish } from '@/shared/types/common';
 
 const stringRequiredSchema = z.string().trim().min(1);
 /**

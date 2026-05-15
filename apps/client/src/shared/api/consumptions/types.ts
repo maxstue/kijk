@@ -1,5 +1,5 @@
 import type { components } from '@/shared/api/generated/kijk';
-import type { Months } from '@/shared/types/app';
+import type { Months } from '@/shared/utils/months';
 
 export interface ConsumptionData {
   date: Date;

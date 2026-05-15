@@ -18,27 +18,27 @@ public class DeleteResourceHandler(AppDbContext dbContext, CurrentUser currentUs
 
         if (user is null)
         {
-            logger.LogError("User with id {Id} could not be found", currentUser.Id);
-            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
+            logger.LogWarning("User with id '{Id}' could not be found", currentUser.Id);
+            return Error.NotFound("User was not found");
         }
 
         if (user.Resources.ToList().Find(x => x.Id == id) is null)
         {
-            logger.LogError("User with id '{UserId}' was not allowed to delete the resource type with id {CategoryId}", currentUser.Id, id);
-            return Error.Validation($"‘User‘ with id '{currentUser.Id}' is not allowed to delete the resource type");
+            logger.LogWarning("User with id '{UserId}' was not allowed to delete the resource type with id '{CategoryId}'", currentUser.Id, id);
+            return Error.Validation("You are not allowed to delete the resource type");
         }
 
         var foundResource = await dbContext.Resources.FindAsync([id], cancellationToken);
         if (foundResource is null)
         {
-            logger.LogError("Resource with id {Id} could not be found", id);
-            return Error.NotFound($"Resource with id '{id}' could not be found");
+            logger.LogWarning("Resource with id '{Id}' could not be found", id);
+            return Error.NotFound("Resource could not be found");
         }
 
         if (foundResource.CreatorType == CreatorType.System)
         {
-            logger.LogError("Resource with id {Id} could not be deleted, because it is of creator type 'Default'", id);
-            return Error.Validation($"Resource with id '{id}' could not be deleted, because it is of creator type 'Default'");
+            logger.LogWarning("Resource with id '{Id}' could not be deleted, because it is of creator type 'Default'", id);
+            return Error.Validation("Resource could not be deleted, because it is a default type");
         }
 
         user.DeleteResource(foundResource.Id);

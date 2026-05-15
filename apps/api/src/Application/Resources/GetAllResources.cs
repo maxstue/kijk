@@ -19,8 +19,8 @@ public class GetAllResourcesHandler(AppDbContext dbContext, CurrentUser currentU
 
         if (user is null)
         {
-            logger.LogError("User with id '{UserId}' was not found", currentUser.Id);
-            return Error.NotFound($"User with id '{currentUser.Id}' was not found");
+            logger.LogWarning("User with id '{UserId}' was not found", currentUser.Id);
+            return Error.NotFound("User was not found");
         }
 
         var resources = user.Resources

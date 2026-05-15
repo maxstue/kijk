@@ -8,8 +8,8 @@ import { z } from 'zod';
 
 import { Login } from '@/app/auth/login';
 import { SignUp } from '@/app/auth/sign-up';
+import { siteConfig } from '@/shared/config/site';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import { siteConfig } from '@/shared/lib/constants';
 
 const authSearchSchema = z.object({
   from: z.string().optional(),
@@ -31,6 +31,7 @@ export const Route = createFileRoute('/auth')({
 
 function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
+  const { from = '/' } = Route.useSearch();
   useSetSiteHeader(show);
 
   return (
@@ -52,8 +53,8 @@ function AuthPage() {
             <div className='truncate text-2xl font-bold'>{siteConfig.name}</div>
           </div>
           <div className='flex'>
-            {show === 'Sign Up' && <SignUp goto={setShow} />}
-            {show === 'Login' && <Login goto={setShow} />}
+            {show === 'Sign Up' && <SignUp goto={setShow} redirectTo={from} />}
+            {show === 'Login' && <Login goto={setShow} redirectTo={from} />}
           </div>
         </div>
       </div>
