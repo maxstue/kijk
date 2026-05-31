@@ -9,21 +9,10 @@ namespace Kijk.Application.Resources.Create;
 /// <summary>
 /// Handler to create a new resource.
 /// </summary>
-public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
+public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
 {
     public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest command, CancellationToken cancellationToken)
     {
-        // TODO move validator into Endpointfilter
-        var validationResult = await validator.ValidateAsync(command, cancellationToken);
-        if (!validationResult.IsValid)
-        {
-            var errors = validationResult.Errors
-                .Select(x => Error.Validation(description: $"{x.ErrorCode} - {x.ErrorMessage}"))
-                .ToList();
-            logger.LogWarning("Validation failed with errors: {Errors}", errors);
-            return Error.Validation(errors[0].Description);
-        }
-
         var user = await dbContext.Users
             .Include(x => x.Resources)
             .Where(x => x.Id == currentUser.Id)
