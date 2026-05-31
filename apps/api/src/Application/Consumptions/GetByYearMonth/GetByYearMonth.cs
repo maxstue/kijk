@@ -1,15 +1,15 @@
 ﻿using System.Globalization;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Consumptions.Shared;
-using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Kijk.Shared.Extensions;
 
-namespace Kijk.Application.Consumptions;
+namespace Kijk.Application.Consumptions.GetByYearMonth;
 
 /// <summary>
 /// Handler for getting consumptions by year and month.
 /// </summary>
-public class GetByYearMonthHandler(AppDbContext dbContext, CurrentUser currentUser) : IHandler
+public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
     public async Task<Result<List<ConsumptionResponse>>> GetByYearMonthAsync(int? year, string? month, CancellationToken cancellationToken)
     {

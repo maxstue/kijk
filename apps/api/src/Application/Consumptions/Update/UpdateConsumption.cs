@@ -1,17 +1,15 @@
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Domain.ValueObjects;
-using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Consumptions;
-
-public record UpdateConsumptionRequest(string? Name, decimal? Value, CreateConsumptionValueTypes ValueType, Guid? ResourceId, DateTime? Date);
+namespace Kijk.Application.Consumptions.Update;
 
 /// <summary>
 /// Handler for updating consumption.
 /// </summary>
-public class UpdateConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateConsumptionHandler> logger) : IHandler
+public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> UpdateAsync(Guid id, UpdateConsumptionRequest request, CancellationToken cancellationToken)
     {
@@ -27,7 +25,7 @@ public class UpdateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
 
         var existingResourceUsage = await dbContext.Consumptions
             .Include(resourceUsage => resourceUsage.Resource)
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (existingResourceUsage is null)
         {
             logger.LogWarning("Resource consumption with id '{Id}' was not found", id);
@@ -36,19 +34,23 @@ public class UpdateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
         var monthYear = MonthYear.ParseDateTime(request.Date ?? existingResourceUsage.Date.ToDateTime());
         existingResourceUsage.Name = request.Name ?? existingResourceUsage.Name;
         existingResourceUsage.Date = request.Date is not null ? monthYear : existingResourceUsage.Date;
-        existingResourceUsage.ResourceId = request.ResourceId ?? existingResourceUsage.ResourceId;
+        var resourceId = request.ResourceId ?? existingResourceUsage.ResourceId;
+        existingResourceUsage.ResourceId = resourceId;
 
-        if (request.ValueType == CreateConsumptionValueTypes.Absolute)
+        if (request.ValueType == UpdateConsumptionValueTypes.Absolute)
         {
             existingResourceUsage.Value = request.Value ?? existingResourceUsage.Value;
         }
         else
         {
-            var previousMonth = new DateTime(monthYear.Year, monthYear.Month - 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var currentMonth = previousMonth.AddMonths(1);
+            var currentMonth = new DateTime(monthYear.Year, monthYear.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var previousMonth = currentMonth.AddMonths(-1);
 
             var previousMonthConsumptionValue = await dbContext.Consumptions
-                .Where(x => x.Date.Value >= previousMonth && x.Date.Value < currentMonth && x.ResourceId == request.ResourceId)
+                .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId
+                            && x.Date.Value >= previousMonth
+                            && x.Date.Value < currentMonth
+                            && x.ResourceId == resourceId)
                 .OrderByDescending(x => x.Date.Value)
                 .Select(x => x.Value)
                 .FirstOrDefaultAsync(cancellationToken);

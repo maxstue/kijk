@@ -1,15 +1,13 @@
-using Kijk.Infrastructure.Persistence;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Consumptions;
-
-public record GetYearsConsumptionQueryResponse(IList<int> Years);
+namespace Kijk.Application.Consumptions.GetYears;
 
 /// <summary>
 /// Handler for getting all years that have energy usages.
 /// </summary>
-public class GetYearsConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger) : IHandler
+public class GetYearsConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetYearsConsumptionHandler> logger) : IHandler
 {
     /// <summary>
     /// Retrieves all years that have consumption usages and all years in between.

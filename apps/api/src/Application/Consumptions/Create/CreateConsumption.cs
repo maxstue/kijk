@@ -1,46 +1,15 @@
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Domain.Entities;
-using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
-using NetEscapades.EnumGenerators;
 
-namespace Kijk.Application.Consumptions;
-
-public record CreateConsumptionRequest(string Name, decimal Value, CreateConsumptionValueTypes ValueType, Guid ResourceId, DateTime Date);
-
-[EnumExtensions]
-public enum CreateConsumptionValueTypes { Absolute, Relative };
-
-/// <summary>
-/// Validator for the <see cref="CreateConsumptionRequest"/>
-/// </summary>
-public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsumptionRequest>
-{
-    public CreateConsumptionCommandValidator()
-    {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
-            .Length(2, 50).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be between 2 and 50 characters long");
-
-        RuleFor(x => x.Value)
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Value' must be set");
-
-        RuleFor(x => x.ResourceId)
-            .NotNull().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'ResourceId' must be set");
-
-        RuleFor(x => x.Date)
-            .Must(date => date.Date <= DateTime.UtcNow.Date)
-            .WithErrorCode(ErrorCodes.ValidationError)
-            .WithMessage("'Date' must not be in the future")
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Date' must be set");
-    }
-}
+namespace Kijk.Application.Consumptions.Create;
 
 /// <summary>
 /// Handler for creating a new consumption.
 /// </summary>
-public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateConsumptionHandler> logger) : IHandler
+public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest request, CancellationToken cancellationToken)
     {
@@ -60,7 +29,10 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
 
         var foundConsumption = await dbContext.Consumptions
             .Include(x => x.Resource)
-            .Where(x => x.Date.Value >= monthStart && x.Date.Value < nextMonth && x.ResourceId == request.ResourceId)
+            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId
+                        && x.Date.Value >= monthStart
+                        && x.Date.Value < nextMonth
+                        && x.ResourceId == request.ResourceId)
             .FirstOrDefaultAsync(cancellationToken);
         if (foundConsumption is not null)
         {
@@ -105,11 +77,14 @@ public class CreateConsumptionHandler(AppDbContext dbContext, CurrentUser curren
             );
         }
 
-        var previousMonth = new DateTime(request.Date.Year, request.Date.Month - 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var currentMonth = previousMonth.AddMonths(1);
+        var currentMonth = new DateTime(request.Date.Year, request.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var previousMonth = currentMonth.AddMonths(-1);
 
         var previousMonthConsumptionValue = await dbContext.Consumptions
-            .Where(x => x.Date.Value >= previousMonth && x.Date.Value < currentMonth && x.ResourceId == request.ResourceId)
+            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId
+                        && x.Date.Value >= previousMonth
+                        && x.Date.Value < currentMonth
+                        && x.ResourceId == request.ResourceId)
             .OrderByDescending(x => x.Date.Value)
             .Select(x => x.Value)
             .FirstOrDefaultAsync(cancellationToken);

@@ -1,17 +1,17 @@
 ﻿using System.Security.Cryptography;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Domain.Entities;
-using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 using UserResponse = Kijk.Application.Users.Shared.UserResponse;
 
-namespace Kijk.Application.Users;
+namespace Kijk.Application.Users.SignIn;
 
 /// <summary>
 /// Handler for the sign in a user.
 /// It returns only a subset of data for the current user.
 /// </summary>
-public class SignInUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<SignInUserHandler> logger) : IHandler
+public class SignInUserHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<SignInUserHandler> logger) : IHandler
 {
     public async Task<Result<UserResponse>> SignInAsync(CancellationToken cancellationToken)
     {

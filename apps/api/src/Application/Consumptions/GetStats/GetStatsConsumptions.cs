@@ -1,24 +1,8 @@
 using System.Globalization;
-using Kijk.Infrastructure.Persistence;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Shared;
 
-namespace Kijk.Application.Consumptions;
-
-public record GetStatsConsumptionsResponseWrapper(IList<ConsumptionStatsResponse> Stats);
-
-public record ConsumptionStatsResponse(
-    ConsumptionStatsResourceResponse Resource,
-    decimal MonthTotal,
-    decimal YearTotal,
-    decimal YearAverage,
-    decimal YearMin,
-    decimal YearMax,
-    decimal ComparisonYear,
-    decimal ComparisonYearDiff,
-    decimal ComparisonMonth,
-    decimal ComparisonMonthDiff);
-
-public record ConsumptionStatsResourceResponse(string Name, string Unit, string Color);
+namespace Kijk.Application.Consumptions.GetStats;
 
 /// <summary>
 /// Handler for getting consumption statistics.
@@ -32,7 +16,7 @@ public record ConsumptionStatsResourceResponse(string Name, string Unit, string 
 /// The comparison month is the previous month if the selected month is the current month.
 /// The comparison month is the current month if the selected month is in the past.
 /// </summary>
-public class GetStatsConsumptionsHandler(AppDbContext dbContext, CurrentUser currentUser) : IHandler
+public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
     public async Task<Result<GetStatsConsumptionsResponseWrapper>> GetStatsAsync(int year, string month, CancellationToken cancellationToken)
     {

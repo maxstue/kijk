@@ -1,13 +1,13 @@
-﻿using Kijk.Infrastructure.Persistence;
+﻿using Kijk.Application.Abstractions.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Resources;
+namespace Kijk.Application.Resources.Delete;
 
 /// <summary>
 /// Handler for the delete a resource.
 /// </summary>
-public class DeleteResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger) : IHandler
+public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger) : IHandler
 {
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {

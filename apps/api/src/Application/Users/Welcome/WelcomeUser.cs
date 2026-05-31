@@ -1,4 +1,4 @@
-﻿using Kijk.Infrastructure.Persistence;
+﻿using Kijk.Application.Abstractions.Persistence;
 using Kijk.Shared;
 using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -6,14 +6,12 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using UserResponse = Kijk.Application.Users.Shared.UserResponse;
 
-namespace Kijk.Application.Users;
-
-public record WelcomeUserRequest(string? UserName, bool? UseDefaultResources);
+namespace Kijk.Application.Users.Welcome;
 
 /// <summary>
 /// Handler for creating a new user after the welcome process.
 /// </summary>
-public class WelcomeUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<WelcomeUserHandler> logger) : IHandler
+public class WelcomeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<WelcomeUserHandler> logger) : IHandler
 {
     public async Task<Result<UserResponse>> WelcomeAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {

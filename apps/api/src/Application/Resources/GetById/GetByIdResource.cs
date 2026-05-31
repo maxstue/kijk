@@ -1,9 +1,9 @@
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Resources.Shared;
-using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Resources;
+namespace Kijk.Application.Resources.GetById;
 
 /// <summary>
 /// Handler for getting a resource by id.
@@ -11,7 +11,7 @@ namespace Kijk.Application.Resources;
 /// <param name="dbContext"></param>
 /// <param name="currentUser"></param>
 /// <param name="logger"></param>
-public class GetByIdResourceHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdResourceHandler> logger) : IHandler
+public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdResourceHandler> logger) : IHandler
 {
     /// <summary>
     /// Handle to get a resource type by id.

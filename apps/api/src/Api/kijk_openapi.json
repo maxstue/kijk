@@ -1287,7 +1287,7 @@
             "format": "double"
           },
           "valueType": {
-            "$ref": "#/components/schemas/CreateConsumptionValueTypes"
+            "$ref": "#/components/schemas/UpdateConsumptionValueTypes"
           },
           "resourceId": {
             "type": [
@@ -1304,6 +1304,12 @@
             "format": "date-time"
           }
         }
+      },
+      "UpdateConsumptionValueTypes": {
+        "enum": [
+          "Absolute",
+          "Relative"
+        ]
       },
       "UpdateResourceRequest": {
         "required": [

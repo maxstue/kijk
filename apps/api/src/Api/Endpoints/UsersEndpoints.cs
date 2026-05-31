@@ -1,7 +1,10 @@
 ﻿using Kijk.Api.Extensions;
 using Kijk.Api.Models;
-using Kijk.Application.Users;
+using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
+using Kijk.Application.Users.SignIn;
+using Kijk.Application.Users.Update;
+using Kijk.Application.Users.Welcome;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 

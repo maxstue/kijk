@@ -1,41 +1,15 @@
-﻿using Kijk.Application.Resources.Shared;
+﻿using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Resources.Shared;
 using Kijk.Domain.Entities;
-using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Resources;
-
-/// <summary>
-/// Command to create a new resource type.
-/// </summary>
-/// <param name="Name"></param>
-/// <param name="Color"></param>
-/// <param name="Unit"></param>
-public record CreateResourceRequest(string Name, string Color, string Unit);
-
-public class CreateResourceRequestValidator : AbstractValidator<CreateResourceRequest>
-{
-    public CreateResourceRequestValidator()
-    {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
-            .Length(4, 30).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be between 4 and 30 characters long");
-
-        RuleFor(x => x.Color)
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Color' must be set")
-            .Must(x => x.StartsWith('#')).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Color' must start with a '#'");
-
-        RuleFor(x => x.Unit)
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Unit' must be set")
-            .Length(2, 10).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Unit' must be between 2 and 10 characters long");
-    }
-}
+namespace Kijk.Application.Resources.Create;
 
 /// <summary>
 /// Handler to create a new resource.
 /// </summary>
-public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, AppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
+public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
 {
     public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest command, CancellationToken cancellationToken)
     {
@@ -77,7 +51,7 @@ public class CreateResourceHandler(IValidator<CreateResourceRequest> validator, 
 
         user.AddResource(newResource);
 
-        var resEntity = await dbContext.AddAsync(newResource, cancellationToken);
+        var resEntity = await dbContext.Resources.AddAsync(newResource, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

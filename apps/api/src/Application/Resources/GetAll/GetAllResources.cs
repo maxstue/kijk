@@ -1,14 +1,14 @@
-﻿using Kijk.Application.Resources.Shared;
-using Kijk.Infrastructure.Persistence;
+﻿using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Resources.Shared;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Resources;
+namespace Kijk.Application.Resources.GetAll;
 
 /// <summary>
 /// Handler for getting all resources.
 /// </summary>
-public class GetAllResourcesHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger) : IHandler
+public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger) : IHandler
 {
     public async Task<Result<List<ResourceResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {

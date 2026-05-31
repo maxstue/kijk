@@ -1,16 +1,14 @@
-﻿using Kijk.Application.Users.Shared;
-using Kijk.Infrastructure.Persistence;
+﻿using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Users.Shared;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Users;
-
-public record UpdateUserRequest(string? UserName, bool? UseDefaultResources);
+namespace Kijk.Application.Users.Update;
 
 /// <summary>
 /// Handler for updating a user.
 /// </summary>
-public class UpdateUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateUserHandler> logger) : IHandler
+public class UpdateUserHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateUserHandler> logger) : IHandler
 {
     public async Task<Result<UserResponse>> UpdateAsync(UpdateUserRequest request, CancellationToken cancellationToken)
     {

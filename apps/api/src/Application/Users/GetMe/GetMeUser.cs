@@ -1,15 +1,14 @@
-﻿using Kijk.Application.Users.Shared;
-using Kijk.Infrastructure.Persistence;
+﻿using Kijk.Application.Abstractions.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Users;
+namespace Kijk.Application.Users.GetMe;
 
 /// <summary>
 /// Handler for the getting the current user.
 /// It returns more data for the current user.
 /// </summary>
-public class GetMeUserHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<GetMeUserHandler> logger) : IHandler
+public class GetMeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetMeUserHandler> logger) : IHandler
 {
     public async Task<Result<GetMeUserResponse>> GetMeAsync(CancellationToken cancellationToken)
     {

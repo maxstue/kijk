@@ -1,13 +1,13 @@
-using Kijk.Infrastructure.Persistence;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
-namespace Kijk.Application.Consumptions;
+namespace Kijk.Application.Consumptions.Delete;
 
 /// <summary>
 /// Handler for deleting a consumption.
 /// </summary>
-public class DeleteConsumptionHandler(AppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteConsumptionHandler> logger) : IHandler
+public class DeleteConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
