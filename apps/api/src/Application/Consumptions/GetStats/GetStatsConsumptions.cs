@@ -66,7 +66,7 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
     /// <returns></returns>
     private static int GetComparisonYear(int selectedYear)
     {
-        var currentYear = DateTime.Now.Year;
+        var currentYear = DateTime.UtcNow.Year;
         // compare to previous year if selected year is current year
         if (selectedYear == currentYear)
         {
@@ -93,8 +93,8 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
     /// <returns></returns>
     private static int GetComparisonMonth(int selectedYear, int selectedMonth)
     {
-        var currentYear = DateTime.Now.Year;
-        var currentMonth = DateTime.Now.Month;
+        var currentYear = DateTime.UtcNow.Year;
+        var currentMonth = DateTime.UtcNow.Month;
         // compare to current month if selected year is current year
         if (selectedYear == currentYear)
         {
@@ -145,15 +145,15 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
 
     private static decimal CalculateYearDiff(int selectedYear, decimal selectedYearTotal, decimal compYearTotal)
     {
-        var currentYear = DateTime.Now.Year;
+        var currentYear = DateTime.UtcNow.Year;
 
         return selectedYear == currentYear ? selectedYearTotal - compYearTotal : compYearTotal - selectedYearTotal;
     }
 
     private static decimal CalculateMonthDiff(int selectedYear, int selectedMonth, decimal selectedMonthTotal, decimal compMonthTotal)
     {
-        var currentYear = DateTime.Now.Year;
-        var currentMonth = DateTime.Now.Month;
+        var currentYear = DateTime.UtcNow.Year;
+        var currentMonth = DateTime.UtcNow.Month;
 
         return selectedYear == currentYear && selectedMonth == currentMonth
             ? selectedMonthTotal - compMonthTotal
