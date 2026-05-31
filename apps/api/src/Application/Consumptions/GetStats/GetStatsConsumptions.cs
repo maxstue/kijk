@@ -37,9 +37,21 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
             .Select(g => new { g.Key.TypeName, g.Key.TypeUnit, g.Key.TypeColor, Usages = g.ToList() })
             .ToListAsync(cancellationToken);
 
-        var result = comparisonYearUsages
-            .Select(c => CalculateStats(c.TypeName, c.TypeUnit, c.TypeColor, year, month, selectedYearUsages,
-                c.Usages))
+        var resources = selectedYearUsages
+            .Select(x => new { TypeName = x.Resource.Name, TypeUnit = x.Resource.Unit, TypeColor = x.Resource.Color })
+            .Concat(comparisonYearUsages.Select(x => new { x.TypeName, x.TypeUnit, x.TypeColor }))
+            .DistinctBy(x => new { x.TypeName, x.TypeUnit })
+            .ToList();
+
+        var result = resources
+            .Select(resource =>
+            {
+                var comparisonUsages = comparisonYearUsages.Find(x => x.TypeName == resource.TypeName && x.TypeUnit == resource.TypeUnit)
+                    ?.Usages ?? [];
+
+                return CalculateStats(resource.TypeName, resource.TypeUnit, resource.TypeColor, year, month, selectedYearUsages,
+                    comparisonUsages);
+            })
             .ToList();
 
         return new GetStatsConsumptionsResponseWrapper(result);

@@ -62,7 +62,6 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
     }
 
     // TODO valuetype should also be saved
-    // TODO stats dont't work, they don't return anything
     private async Task<Consumption> CreateConsumption(CreateConsumptionRequest request, Resource resource, Household household, CancellationToken cancellationToken)
     {
         var calculatedValue = request.Value;
