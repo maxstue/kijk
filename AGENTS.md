@@ -85,14 +85,16 @@ dotnet ef database update                   # creates/updates DB schema
 
 - **Node/pnpm**: Managed via `package.json` (`engines`, root `packageManager`, root `devEngines`)
 - **.NET**: 10.0 (per `global.json`)
-- **Codacy integration**: After edits, run Codacy CLI analyze on modified files
 - **Format config**: `oxfmt.config.ts` (printWidth: 120, singleQuote, LF line endings)
 - **Client lint/format**: Uses oxlint/oxfmt (NOT eslint/prettier for code style)
+- **Frontend checks**: After client/frontend edits, always run React Doctor and Fallow on the changed code. If either tool fails, committing is still allowed, but the final response must include a clear warning with the failed command and reason.
 - **Pre-commit hooks**: husky + lint-staged configured (runs on commit)
 
 ## Project Skills
 
 - **Conventional Commits**: For all git commit tasks, follow `.agents/skills/conventional-commits/SKILL.md`.
+- **Fallow**: For frontend JavaScript/TypeScript code health, unused code, duplication, architecture boundaries, and cleanup analysis, follow `.agents/skills/fallow/SKILL.md`.
+- **React Doctor**: After frontend React changes, before committing React code, or when improving frontend code quality, follow `.agents/skills/react-doctor/SKILL.md`.
 - **.NET Best Practices**: For .NET/C# code changes, follow `.agents/skills/dotnet-best-practices/SKILL.md`.
 - **Railway**: For Railway infrastructure, deployments, services, environments, buckets, and build/runtime troubleshooting, follow `.agents/skills/use-railway/SKILL.md`.
 - **Vite**: For Vite configuration, plugin API, SSR, build, and migration work, follow `.agents/skills/vite/SKILL.md`.

@@ -5,48 +5,54 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { ResourceColorField, ResourceNameField, ResourceUnitField } from '@/app/resources/form-fields';
-import { useCreateResource } from '@/app/resources/use-create-resource';
+import type { ResourceFormValues } from '@/app/resources/schemas';
+import { resourceSchema } from '@/app/resources/schemas';
+import { useUpdateResource } from '@/app/resources/use-update-resource-type';
 import { Form, FormField } from '@/shared/components/form';
-
-import { resourceSchema } from './schemas';
-import type { ResourceFormValues } from './schemas';
+import type { Resource } from '@/shared/types/domain';
 
 interface Props {
-  onClose?: () => void;
+  initialData: Resource;
+  onClose: () => void;
 }
 
-export function ResourceTypeCreateForm({ onClose }: Props) {
-  const { isPending, mutate } = useCreateResource();
+export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
+  const { isPending, mutate } = useUpdateResource();
 
   const form = useForm({
     defaultValues: {
-      color: '#000000',
-      name: '',
-      unit: '',
+      color: initialData.color,
+      name: initialData.name,
+      unit: initialData.unit,
     },
     resolver: zodResolver(resourceSchema),
   });
 
+  const handleError = () => toast('Error updating');
+
   function onSubmit(data: ResourceFormValues) {
-    mutate(data, {
-      onError(error) {
-        toast.error(error.name, { description: error.message });
+    mutate(
+      { id: initialData.id, resourceType: data },
+      {
+        onError(error) {
+          toast.error(error.name, { description: error.message });
+        },
+        onSuccess() {
+          toast.success('Successfully updated');
+          onClose();
+        },
       },
-      onSuccess() {
-        toast.success('Successfully created');
-        onClose?.();
-      },
-    });
+    );
   }
 
   return (
     <Form {...form}>
-      <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit, handleError)} noValidate>
         <FormField control={form.control} name='name' render={(props) => <ResourceNameField {...props} />} />
         <FormField control={form.control} name='unit' render={(props) => <ResourceUnitField {...props} />} />
         <FormField control={form.control} name='color' render={(props) => <ResourceColorField {...props} />} />
         <Button className='mt-6' disabled={isPending} type='submit'>
-          {isPending ? <Icons.spinner className='size-5 animate-spin' /> : 'Add'}
+          {isPending ? <Icons.spinner className='size-5 animate-spin' /> : 'Update'}
         </Button>
       </form>
     </Form>
