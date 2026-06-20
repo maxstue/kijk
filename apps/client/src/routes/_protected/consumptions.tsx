@@ -1,14 +1,3 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Separator } from '@kijk/ui/components/separator';
@@ -23,31 +12,26 @@ import {
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
-import { EditIcon, Plus, Trash2Icon } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Suspense, useState } from 'react';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { ConsumptionCreateForm } from '@/app/consumptions/consumption-create-form.tsx';
-import { ConsumptionsMonthNav } from '@/app/consumptions/consumptions-month-nav.tsx';
-import ConsumptionsStats from '@/app/consumptions/consumptions-stats.tsx';
-import { ConsumptionsTodayButton } from '@/app/consumptions/consumptions-today-button.tsx';
-import { ConsumptionUpdateForm } from '@/app/consumptions/consumptions-update-form';
-import { ConsumptionsYearSwitcher } from '@/app/consumptions/consumptions-year-switcher.tsx';
-import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
+import { ConsumptionCreateForm } from '@/app/consumptions/create-form';
+import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
+import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
+import { ConsumptionMonthNav } from '@/app/consumptions/month-nav';
+import ConsumptionStats from '@/app/consumptions/stats';
+import { ConsumptionTodayButton } from '@/app/consumptions/today-button';
+import { ConsumptionYearSwitcher } from '@/app/consumptions/year-switcher';
 import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { NotFound } from '@/shared/components/not-found';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import type { Consumption, Months } from '@/shared/types/app';
-import { months } from '@/shared/types/app';
+import { getMonthFromDate, monthSchema } from '@/shared/utils/months';
 
 const searchSchema = z.object({
-  month: z
-    .string()
-    .transform((x) => x as Months)
-    .default(months[new Date().getMonth()]),
+  month: monthSchema.default(getMonthFromDate(new Date())),
   year: z.number().default(new Date().getFullYear()),
 });
 
@@ -81,18 +65,18 @@ function UsagePage() {
         <div className='flex-1'>
           <div className='flex flex-col gap-4'>
             <Suspense fallback={<Loader />}>
-              <ConsumptionsStats />
+              <ConsumptionStats />
             </Suspense>
 
             <div className='flex w-full justify-end'>
               <Sheet open={showSheet} onOpenChange={setShowSheet}>
                 <div className='flex w-full justify-between'>
                   <div className='flex w-1/3 justify-start gap-4'>
-                    <ConsumptionsTodayButton />
+                    <ConsumptionTodayButton />
                     <Suspense>
-                      <ConsumptionsYearSwitcher />
+                      <ConsumptionYearSwitcher />
                     </Suspense>
-                    <ConsumptionsMonthNav />
+                    <ConsumptionMonthNav />
                   </div>
                   <SheetTrigger asChild>
                     <Button variant='outline'>
@@ -128,8 +112,8 @@ function UsagePage() {
                     </div>
                   </CardContent>
                   <CardFooter className='flex w-full justify-end gap-2'>
-                    <DeleteButton id={item.id} date={item.date} />
-                    <EditButton data={item} />
+                    <ConsumptionDeleteButton id={item.id} date={item.date} />
+                    <ConsumptionEditButton data={item} />
                   </CardFooter>
                 </Card>
               ))}
@@ -138,76 +122,5 @@ function UsagePage() {
         </div>
       </div>
     </div>
-  );
-}
-
-function EditButton({ data }: { data: Consumption }) {
-  const [showSheet, setShowSheet] = useState(false);
-
-  const handleClose = () => setShowSheet(false);
-
-  return (
-    <Sheet open={showSheet} onOpenChange={setShowSheet}>
-      <SheetTrigger asChild>
-        <Button className='text-muted-foreground' size='icon' variant='outline'>
-          <EditIcon className='size-4' />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className='space-y-8'>
-        <SheetHeader>
-          <SheetTitle>Add Consumption</SheetTitle>
-          <SheetDescription>Add a new consumption.</SheetDescription>
-        </SheetHeader>
-        <Suspense>
-          <ConsumptionUpdateForm initialData={data} onClose={handleClose} />
-        </Suspense>
-      </SheetContent>
-    </Sheet>
-  );
-}
-
-function DeleteButton({ id, date }: { id: string; date: string }) {
-  const [showModal, setShowModal] = useState(false);
-  const { mutate } = useDeleteConsumption();
-
-  const handleDelete = () => {
-    const month = new Date(date).getMonth();
-    const year = new Date(date).getFullYear();
-    mutate(
-      { id, month: months[month], year },
-      {
-        onError(error) {
-          toast.error(error.name, { description: error.message });
-        },
-        onSuccess() {
-          toast.success('Successfully updated');
-          setShowModal(false);
-        },
-      },
-    );
-  };
-
-  return (
-    <AlertDialog open={showModal} onOpenChange={setShowModal}>
-      <AlertDialogTrigger asChild>
-        <Button size='icon' variant='destructive'>
-          <Trash2Icon className='size-4' />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this consumption from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant='destructive' onClick={handleDelete}>
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 }

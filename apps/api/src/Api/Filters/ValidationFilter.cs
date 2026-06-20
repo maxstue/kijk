@@ -9,8 +9,11 @@ public class ValidationFilter<T>(IValidator<T> validator) : IEndpointFilter wher
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        var objectToValidate = context.Arguments.OfType<T>().First();
-        var validationResult = await validator.ValidateAsync(objectToValidate);
+        var objectToValidate = context.Arguments.OfType<T>().FirstOrDefault()
+                               ?? throw new InvalidOperationException(
+                                   $"Validation filter could not find a request argument of type '{typeof(T).Name}'.");
+
+        var validationResult = await validator.ValidateAsync(objectToValidate, context.HttpContext.RequestAborted);
 
         if (validationResult.IsValid)
         {

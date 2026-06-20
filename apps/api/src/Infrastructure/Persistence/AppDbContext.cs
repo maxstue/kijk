@@ -1,10 +1,11 @@
-﻿using Kijk.Domain.Entities;
+﻿using Kijk.Application.Abstractions.Persistence;
+using Kijk.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Kijk.Infrastructure.Persistence;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IAppDbContext
 {
     public AppDbContext()
     {

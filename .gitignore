@@ -11,6 +11,7 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+*.lscache
 
 # env
 .env.local
@@ -31,4 +32,11 @@ lerna-debug.log*
 
 
 #Ignore vscode AI rules
-.github/instructions/codacy.instructions.md
+.github/instructions/
+
+# Pnpm
+.pnpm-store
+
+# tools
+.fallow
+.codacy

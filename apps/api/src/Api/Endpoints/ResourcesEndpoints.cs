@@ -1,7 +1,11 @@
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
-using Kijk.Application.Resources;
+using Kijk.Application.Resources.Create;
+using Kijk.Application.Resources.Delete;
+using Kijk.Application.Resources.GetAll;
+using Kijk.Application.Resources.GetById;
 using Kijk.Application.Resources.Shared;
+using Kijk.Application.Resources.Update;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 

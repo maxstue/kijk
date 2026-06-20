@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Kijk.Application.Resources.Create;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Resources;
 

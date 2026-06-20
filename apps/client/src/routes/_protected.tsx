@@ -8,7 +8,7 @@ import { SiteHeader } from '@/app/root/site-header';
 import { signedInUserQueryOptions } from '@/shared/api/users/options';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
-import { CORRELATION_ID_HEADER } from '@/shared/types/app';
+import { CORRELATION_ID_HEADER } from '@/shared/types/api';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/_protected')({

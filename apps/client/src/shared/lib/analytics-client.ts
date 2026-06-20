@@ -3,8 +3,8 @@ import { posthog } from 'posthog-js';
 import type { CaptureOptions, PostHogConfig, Properties } from 'posthog-js';
 
 import { config } from '@/shared/config';
-import type { CookieConsent } from '@/shared/types/app';
-import { COOKIE_CONSENT_KEY } from '@/shared/types/app';
+import type { CookieConsent } from '@/shared/types/analytics';
+import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
 
 /** AnalyticsService is a wrapper around the Posthog analytics library. */
 const AnalyticsClient = {

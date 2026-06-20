@@ -23,7 +23,7 @@ public class CurrentUser
 
     public bool IsAdmin => Permissions.Contains(AppConstants.Roles.Admin);
 
-    public bool IsUser => Permissions.Contains(AppConstants.Roles.Admin);
+    public bool IsUser => Permissions.Contains(AppConstants.Roles.User);
 
     public Guid? ActiveHouseholdId => User.HouseholdId;
 }

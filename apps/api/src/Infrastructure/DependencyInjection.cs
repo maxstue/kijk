@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using EntityFramework.Exceptions.PostgreSQL;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Infrastructure.Auth;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;
@@ -63,6 +64,8 @@ public static class DependencyInjection
                     .UseSnakeCaseNamingConvention()
                     .AddInterceptors(interceptors);
             });
+
+            services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
             return services;
         }

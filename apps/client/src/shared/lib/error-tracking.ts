@@ -1,7 +1,9 @@
 import * as Sentry from '@sentry/react';
 
-import { router } from '@/router';
+import type { router } from '@/router';
 import { config } from '@/shared/config';
+
+type Router = typeof router;
 
 /** ErrorService is a wrapper around the Sentry error tracking library. */
 const ErrorService = {
@@ -14,7 +16,7 @@ const ErrorService = {
   },
   getInstance: () => Sentry,
 
-  init: () => {
+  init: (router: Router) => {
     Sentry.init({
       dsn: config.SentryDsn,
       environment: config.Mode,

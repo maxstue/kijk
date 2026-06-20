@@ -72,7 +72,8 @@ dotnet ef database update                   # creates/updates DB schema
 ## Architecture Notes
 
 - **Client**: TanStack Router auto-generates `src/routeTree.gen.ts` — do not edit manually
-- **Client feature boundaries**: `routes/*` composes features; `app/<feature>/*` must not import another feature folder directly; `shared/*` must not import from `app/*`; enforced by `@kijk/oxlint-plugin-boundaries`
+- **Client feature boundaries**: `routes/*` defines route context and page structure (search validation, loaders, pending/error states, layout shell, and feature composition); `app/<feature>/*` owns feature components, forms, sections, hooks, schemas, and feature logic; `app/<feature>/*` must not import another feature folder directly; `shared/*` must not import from `app/*`; enforced by `@kijk/oxlint-plugin-boundaries`
+- **Client feature file naming**: feature folders act as namespaces. Inside `app/<feature>`, omit the feature name from file names when the folder already provides that context. Prefer reserved feature-local names like `constants.ts`, `types.ts`, `schemas.ts`, `helpers.ts`, `utils.ts`, `columns.tsx`, and `options.ts`. Component files stay kebab-case, while exported React components stay PascalCase and should remain understandable outside their file.
 - **Client data access**: reusable API calls, query keys, `queryOptions`, and `mutationOptions` live in `apps/client/src/shared/api`; keep feature form schemas inside their feature folders
 - **Client query keys**: use `apps/client/src/shared/api/query-keys.ts` for cache reads, writes, and invalidations instead of ad hoc key arrays
 - **API**: Clean Architecture layers: Api → Application → Domain/Infrastructure/Shared
@@ -84,14 +85,16 @@ dotnet ef database update                   # creates/updates DB schema
 
 - **Node/pnpm**: Managed via `package.json` (`engines`, root `packageManager`, root `devEngines`)
 - **.NET**: 10.0 (per `global.json`)
-- **Codacy integration**: After edits, run Codacy CLI analyze on modified files
 - **Format config**: `oxfmt.config.ts` (printWidth: 120, singleQuote, LF line endings)
 - **Client lint/format**: Uses oxlint/oxfmt (NOT eslint/prettier for code style)
+- **Frontend checks**: After client/frontend edits, always run React Doctor and Fallow on the changed code. If either tool fails, committing is still allowed, but the final response must include a clear warning with the failed command and reason.
 - **Pre-commit hooks**: husky + lint-staged configured (runs on commit)
 
 ## Project Skills
 
 - **Conventional Commits**: For all git commit tasks, follow `.agents/skills/conventional-commits/SKILL.md`.
+- **Fallow**: For frontend JavaScript/TypeScript code health, unused code, duplication, architecture boundaries, and cleanup analysis, follow `.agents/skills/fallow/SKILL.md`.
+- **React Doctor**: After frontend React changes, before committing React code, or when improving frontend code quality, follow `.agents/skills/react-doctor/SKILL.md`.
 - **.NET Best Practices**: For .NET/C# code changes, follow `.agents/skills/dotnet-best-practices/SKILL.md`.
 - **Railway**: For Railway infrastructure, deployments, services, environments, buckets, and build/runtime troubleshooting, follow `.agents/skills/use-railway/SKILL.md`.
 - **Vite**: For Vite configuration, plugin API, SSR, build, and migration work, follow `.agents/skills/vite/SKILL.md`.
