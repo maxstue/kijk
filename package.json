@@ -7,7 +7,6 @@
     "household app"
   ],
   "license": "MIT",
-  "packageManager": "pnpm@11.0.9",
   "author": {
     "name": "Maximilian Stümpfl",
     "url": "https://github.com/maxstue"
@@ -44,14 +43,6 @@
     "prepare": "husky",
     "release": "release-it"
   },
-  "lint-staged": {
-    "apps/client/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:client'",
-    "packages/config/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:config'",
-    "packages/core/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:core'",
-    "packages/ui/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:ui'",
-    "apps/api/**/*.cs": "pnpm run fmt:api:staged --",
-    "apps/api/**/*.{csproj,props,targets,sln,slnx}": "pnpm run fmt:api:staged:project"
-  },
   "devDependencies": {
     "@csmith/release-it-calver-plugin": "catalog:",
     "@microsoft/eslint-formatter-sarif": "catalog:",
@@ -62,20 +53,28 @@
     "rimraf": "catalog:",
     "typescript": "catalog:"
   },
-  "engines": {
-    "node": ">=24",
-    "pnpm": ">=11"
+  "lint-staged": {
+    "apps/client/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:client'",
+    "packages/config/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:config'",
+    "packages/core/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:core'",
+    "packages/ui/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:ui'",
+    "apps/api/**/*.cs": "pnpm run fmt:api:staged --",
+    "apps/api/**/*.{csproj,props,targets,sln,slnx}": "pnpm run fmt:api:staged:project"
   },
   "devEngines": {
-    "runtime": {
-      "name": "node",
-      "version": "^24",
-      "onFail": "error"
-    },
     "packageManager": {
       "name": "pnpm",
       "version": "^11",
       "onFail": "error"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^24",
+      "onFail": "error"
     }
+  },
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
   }
 }
