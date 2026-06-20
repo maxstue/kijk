@@ -24,11 +24,11 @@ jobs:
       client: ${{ steps.client-changes.outputs.any_changed }}
     steps:
       - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 'Detect API changes'
         id: api-changes
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             apps/api/**
@@ -36,14 +36,14 @@ jobs:
 
       - name: 'Detect Infrastructure changes'
         id: infra-changes
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             apps/api/src/Infrastructure/Migrations/**
 
       - name: 'Detect Client changes'
         id: client-changes
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             apps/client/**
@@ -64,10 +64,10 @@ jobs:
         working-directory: ./apps/api
     steps:
       - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 🔧 Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -85,7 +85,7 @@ jobs:
           ls -al
 
       - name: '⬆️ Upload EF Migrations Bundle Artifact'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: efbundle
           path: ./apps/api/efbundle
@@ -104,10 +104,10 @@ jobs:
         working-directory: ./apps/api
     steps:
       - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: '⬇️ Download EF Migrations Bundle Artifact'
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: efbundle
           path: ./apps/api
@@ -139,7 +139,7 @@ jobs:
       name: production
     steps:
       - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: '🚀 Deploy Api to Railway'
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
@@ -169,7 +169,7 @@ jobs:
       name: production
     steps:
       - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: '🚀 Deploy Client to Railway'
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
@@ -198,7 +198,7 @@ jobs:
       contents: write
     steps:
       - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: main
           fetch-depth: 0
@@ -222,12 +222,12 @@ jobs:
 
       - name: '🔧 Install pnpm'
         if: steps.release-marker.outputs.release == 'true'
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
         id: pnpm-install
 
       - name: '🔧 Use Node.js'
         if: steps.release-marker.outputs.release == 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: package.json
           cache: 'pnpm'
