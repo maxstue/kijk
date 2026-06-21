@@ -13,10 +13,10 @@
   "rtl": false,
   "aliases": {
     "components": "@/shared/components",
-    "utils": "@kijk/ui/utils",
+    "utils": "@kijk/core/utils/style",
     "ui": "@kijk/ui/components",
-    "lib": "@kijk/ui/lib",
-    "hooks": "@kijk/ui/hooks"
+    "lib": "@kijk/core/lib",
+    "hooks": "@kijk/core/hooks"
   },
   "menuColor": "default",
   "menuAccent": "subtle",

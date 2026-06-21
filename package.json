@@ -22,17 +22,16 @@
     "clean": "pnpm run --parallel --filter \"kijk*\" clean",
     "clean:client": "pnpm run --filter \"kijk-client\" clean:all",
     "clean:all": "pnpm run --parallel -r clean:all && rimraf ./dist ./node_modules ./*.lock ./.eslintcache ",
-    "fmt": "pnpm run --parallel --filter \"kijk*\" fmt",
-    "fmt:fix": "pnpm run --parallel --filter \"kijk*\" fmt:fix",
-    "fmt:all": "pnpm run --parallel -r fmt",
+    "fmt": "pnpm run --parallel -r fmt",
+    "fmt:fix": "pnpm run --parallel -r fmt:fix",
     "fmt:api": "pnpm run --filter \"kijk-api\" fmt",
     "fmt:api:fix": "pnpm run --filter \"kijk-api\" fmt:fix",
     "fmt:api:staged": "dotnet format apps/api/Kijk.slnx --no-restore --verbosity minimal --exclude apps/api/src/Infrastructure/Migrations --include",
     "fmt:api:staged:project": "dotnet format apps/api/Kijk.slnx --no-restore --verbosity minimal --exclude apps/api/src/Infrastructure/Migrations",
     "fmt:client": "pnpm run --filter \"kijk-client\" fmt",
     "fmt:client:fix": "pnpm run --filter \"kijk-client\" fmt:fix",
-    "lint": "pnpm run lint:api && pnpm run lint:client",
-    "lint:all": "pnpm run --parallel -r lint",
+    "lint": "pnpm run --parallel -r lint",
+    "lint:fix": "pnpm run --parallel -r lint:fix",
     "lint:api": "pnpm run --filter \"kijk-api\" lint",
     "lint:client": "pnpm run --filter \"kijk-client\" lint",
     "lint:staged": "lint-staged",
@@ -65,16 +64,16 @@
     "packageManager": {
       "name": "pnpm",
       "version": "^11",
-      "onFail": "error"
+      "onFail": "download"
     },
     "runtime": {
       "name": "node",
-      "version": "^24",
+      "version": "^26",
       "onFail": "error"
     }
   },
   "engines": {
-    "node": ">=24",
+    "node": ">=26",
     "pnpm": ">=11"
   }
 }

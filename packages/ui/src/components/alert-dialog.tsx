@@ -1,10 +1,7 @@
-'use client';
-
-import * as React from 'react';
-import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
-
 import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
+import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
+import * as React from 'react';
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot='alert-dialog' {...props} />;
@@ -124,13 +121,11 @@ function AlertDialogDescription({
 
 function AlertDialogAction({
   className,
-  variant,
-  size,
+  variant = 'default',
+  size = 'default',
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Action> & {
-  variant?: React.ComponentProps<typeof Button>['variant'];
-  size?: React.ComponentProps<typeof Button>['size'];
-}) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
+  Pick<React.ComponentProps<typeof Button>, 'variant' | 'size'>) {
   return (
     <Button variant={variant} size={size} asChild>
       <AlertDialogPrimitive.Action data-slot='alert-dialog-action' className={cn(className)} {...props} />
@@ -140,13 +135,11 @@ function AlertDialogAction({
 
 function AlertDialogCancel({
   className,
-  variant,
-  size,
+  variant = 'outline',
+  size = 'default',
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> & {
-  variant?: React.ComponentProps<typeof Button>['variant'];
-  size?: React.ComponentProps<typeof Button>['size'];
-}) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> &
+  Pick<React.ComponentProps<typeof Button>, 'variant' | 'size'>) {
   return (
     <Button variant={variant} size={size} asChild>
       <AlertDialogPrimitive.Cancel data-slot='alert-dialog-cancel' className={cn(className)} {...props} />

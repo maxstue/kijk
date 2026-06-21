@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-
 import { cn } from '@kijk/core/utils/style';
 import { Label } from '@kijk/ui/components/label';
 import { Separator } from '@kijk/ui/components/separator';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { useMemo } from 'react';
 
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (
@@ -106,7 +105,7 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot='field-label'
       className={cn(
-        'flex w-fit items-center gap-2 text-sm leading-snug font-medium group-data-[disabled=true]/field:opacity-50',
+        'flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50',
         className,
       )}
       {...props}
@@ -175,7 +174,7 @@ function FieldError({
 
     const uniqueErrors = [...new Map(errors.map((error) => [error?.message, error])).values()];
 
-    if (uniqueErrors.length == 1) {
+    if (uniqueErrors?.length == 1) {
       return uniqueErrors[0]?.message;
     }
 

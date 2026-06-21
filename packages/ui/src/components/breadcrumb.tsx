@@ -1,8 +1,7 @@
-import * as React from 'react';
-import { Slot } from 'radix-ui';
-
 import { cn } from '@kijk/core/utils/style';
 import { ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
+import { Slot } from 'radix-ui';
+import * as React from 'react';
 
 function Breadcrumb({ className, ...props }: React.ComponentProps<'nav'>) {
   return <nav aria-label='breadcrumb' data-slot='breadcrumb' className={cn(className)} {...props} />;

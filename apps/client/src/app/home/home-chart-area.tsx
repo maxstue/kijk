@@ -1,3 +1,4 @@
+import { useIsMobile } from '@kijk/core/hooks/use-mobile';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import type { ChartConfig } from '@kijk/ui/components/chart';
 import { ChartContainer } from '@kijk/ui/components/chart';
@@ -5,10 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
 import { useState } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
-
-import { useIsMobile } from '@/shared/hooks/use-mobile';
-
-export const description = 'An interactive area chart';
 
 const chartData = [
   { date: '2024-04-01', desktop: 222, mobile: 150 },
