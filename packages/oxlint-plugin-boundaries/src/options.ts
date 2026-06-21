@@ -1,4 +1,4 @@
-import type { BoundaryContext, BoundaryRuleOptions, BoundaryRuleOptionsResolved } from "./types.ts";
+import type { BoundaryContext, BoundaryRuleOptions, BoundaryRuleOptionsResolved } from './types.ts';
 
 /**
  * Default folder layout for Kijk client feature boundaries.
@@ -6,11 +6,11 @@ import type { BoundaryContext, BoundaryRuleOptions, BoundaryRuleOptionsResolved 
  * @see {@link BoundaryRuleOptions}
  */
 export const defaultOptions = {
-  alias: "@",
-  compositionDirs: ["routes"],
-  featuresDir: "app",
-  root: "src",
-  sharedDirs: ["shared"],
+  alias: '@',
+  compositionDirs: ['routes'],
+  featuresDir: 'app',
+  root: 'src',
+  sharedDirs: ['shared'],
 } satisfies BoundaryRuleOptionsResolved;
 
 /**
@@ -31,22 +31,22 @@ export const ruleOptionsSchema = [
   {
     additionalProperties: false,
     properties: {
-      alias: { type: "string" },
+      alias: { type: 'string' },
       compositionDirs: {
-        items: { type: "string" },
-        type: "array",
+        items: { type: 'string' },
+        type: 'array',
       },
-      featuresDir: { type: "string" },
-      root: { type: "string" },
+      featuresDir: { type: 'string' },
+      root: { type: 'string' },
       sharedDirs: {
-        items: { type: "string" },
-        type: "array",
+        items: { type: 'string' },
+        type: 'array',
       },
     },
-    type: "object",
+    type: 'object',
   },
 ] satisfies Array<{
   additionalProperties: boolean;
   properties: Record<keyof BoundaryRuleOptions, unknown>;
-  type: "object";
+  type: 'object';
 }>;
