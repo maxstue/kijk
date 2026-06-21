@@ -1,10 +1,7 @@
-'use client';
-
-import * as React from 'react';
-import { Menubar as MenubarPrimitive } from 'radix-ui';
-
 import { cn } from '@kijk/core/utils/style';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react';
+import { Menubar as MenubarPrimitive } from 'radix-ui';
+import * as React from 'react';
 
 function Menubar({ className, ...props }: React.ComponentProps<typeof MenubarPrimitive.Root>) {
   return (

@@ -1,9 +1,8 @@
-import * as React from 'react';
-import { type VariantProps } from 'class-variance-authority';
-import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
-
 import { cn } from '@kijk/core/utils/style';
 import { toggleVariants } from '@kijk/ui/components/toggle';
+import { type VariantProps } from 'class-variance-authority';
+import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
+import * as React from 'react';
 
 const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleVariants> & {
@@ -13,7 +12,7 @@ const ToggleGroupContext = React.createContext<
 >({
   size: 'default',
   variant: 'default',
-  spacing: 0,
+  spacing: 2,
   orientation: 'horizontal',
 });
 
@@ -21,7 +20,7 @@ function ToggleGroup({
   className,
   variant,
   size,
-  spacing = 0,
+  spacing = 2,
   orientation = 'horizontal',
   children,
   ...props

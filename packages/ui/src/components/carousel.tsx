@@ -1,11 +1,8 @@
-'use client';
-
-import * as React from 'react';
-import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react';
-
 import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
+import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import * as React from 'react';
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -168,9 +165,7 @@ function CarouselPrevious({
       size={size}
       className={cn(
         'absolute touch-manipulation rounded-full',
-        orientation === 'horizontal'
-          ? 'top-1/2 -left-12 -translate-y-1/2'
-          : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
+        orientation === 'horizontal' ? 'inset-y-0 -left-12 my-auto' : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
       disabled={!canScrollPrev}
@@ -198,9 +193,7 @@ function CarouselNext({
       size={size}
       className={cn(
         'absolute touch-manipulation rounded-full',
-        orientation === 'horizontal'
-          ? 'top-1/2 -right-12 -translate-y-1/2'
-          : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
+        orientation === 'horizontal' ? 'inset-y-0 -right-12 my-auto' : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
       disabled={!canScrollNext}

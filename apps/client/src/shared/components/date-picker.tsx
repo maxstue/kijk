@@ -23,7 +23,7 @@ export function DatePicker(props: Props) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-0'>
-        <Calendar initialFocus mode='single' selected={props.date} onSelect={props.setDate} />
+        <Calendar mode='single' selected={props.date} onSelect={props.setDate} />
       </PopoverContent>
     </Popover>
   );

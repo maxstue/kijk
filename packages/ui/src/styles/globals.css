@@ -124,10 +124,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+  button:not(:disabled),
+  [role='button']:not(:disabled):not([aria-disabled='true']) {
+    cursor: pointer;
+  }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
   }
 }

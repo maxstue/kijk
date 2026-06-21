@@ -1,11 +1,9 @@
-'use client';
-
-import * as React from 'react';
-import { Command as CommandPrimitive } from 'cmdk';
-import { CheckIcon, SearchIcon } from 'lucide-react';
-import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogContent } from '@kijk/ui/components/dialog';
-import { InputGroup, InputGroupAddon } from '@kijk/ui/components/input-group';
 import { cn } from '@kijk/core/utils/style';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
+import { InputGroup, InputGroupAddon } from '@kijk/ui/components/input-group';
+import { Command as CommandPrimitive } from 'cmdk';
+import { SearchIcon, CheckIcon } from 'lucide-react';
+import * as React from 'react';
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
@@ -103,7 +101,7 @@ function CommandSeparator({ className, ...props }: React.ComponentProps<typeof C
   return (
     <CommandPrimitive.Separator
       data-slot='command-separator'
-      className={cn('bg-border -mx-1 h-px', className)}
+      className={cn('bg-border -mx-1 h-px w-auto', className)}
       {...props}
     />
   );
@@ -114,7 +112,7 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
     <CommandPrimitive.Item
       data-slot='command-item'
       className={cn(
-        "group/command-item data-selected:bg-muted data-selected:text-foreground data-selected:*:[svg]:text-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "group/command-item data-selected:bg-muted data-selected:text-foreground data-selected:**:[svg]:text-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
