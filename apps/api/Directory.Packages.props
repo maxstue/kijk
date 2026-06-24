@@ -40,7 +40,7 @@
     <!-- Telemetry -->
     <PackageVersion Include="Sentry.Serilog" Version="6.4.1" />
     <!-- Linting -->
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.24.0.138807">
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.27.0.140913">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
