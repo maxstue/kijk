@@ -11,11 +11,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
 import { getRouteApi } from '@tanstack/react-router';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 
-import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Months } from '@/shared/utils/months';
-import { monthsLocalized } from '@/shared/utils/months';
+import { formatMonth, monthSchema } from '@/shared/utils/months';
 
 const Route = getRouteApi('/_protected/consumptions');
 
@@ -28,9 +27,9 @@ export function ConsumptionMonthNav({ className }: Props) {
   const navigate = Route.useNavigate();
   const { month } = searchParameters;
 
-  const handleSelectMonth = (m: string) => {
+  const handleSelectMonth = (selectedMonth: Months) => {
     setOpen(false);
-    navigate({ search: (previous) => ({ ...previous, month: m as Months }) });
+    navigate({ search: (previous) => ({ ...previous, month: selectedMonth }) });
   };
 
   return (
@@ -38,13 +37,13 @@ export function ConsumptionMonthNav({ className }: Props) {
       <PopoverTrigger asChild>
         <Button
           aria-expanded={open}
-          aria-label='Select a year'
+          aria-label='Select a month'
           className={cn('w-full justify-between', className)}
           role='combobox'
           aria-controls='consumptions-month-nav'
           variant='outline'
         >
-          {month}
+          {formatMonth(month)}
           <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
@@ -53,22 +52,26 @@ export function ConsumptionMonthNav({ className }: Props) {
           <CommandList>
             <CommandInput placeholder='Search Months...' />
             <CommandEmpty>No Month found.</CommandEmpty>
-            <Suspense fallback={<Loader />}>
-              <CommandGroup key='Months' heading='Months'>
-                {monthsLocalized().map((m) => (
+            <CommandGroup key='Months' heading='Months'>
+              {monthSchema.options.map((m) => {
+                const label = formatMonth(m);
+
+                return (
                   <CommandItem
                     key={m}
                     className='text-sm'
-                    onSelect={(y) => {
-                      handleSelectMonth(y);
+                    keywords={[label]}
+                    value={m}
+                    onSelect={() => {
+                      handleSelectMonth(m);
                     }}
                   >
-                    {m}
+                    {label}
                     <Check className={cn('ml-auto h-4 w-4', month === m ? 'opacity-100' : 'opacity-0')} />
                   </CommandItem>
-                ))}
-              </CommandGroup>
-            </Suspense>
+                );
+              })}
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
