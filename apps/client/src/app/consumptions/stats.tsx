@@ -4,14 +4,24 @@ import { getRouteApi } from '@tanstack/react-router';
 
 import { consumptionsStatsQueryOptions } from '@/shared/api/consumptions/options';
 import { ResourceUnit } from '@/shared/components/resources-unit';
+import type { Months } from '@/shared/utils/months';
+import { getMonthFromDate } from '@/shared/utils/months';
 
 const Route = getRouteApi('/_protected/consumptions');
+
+function getComparisonLabel(selectedYear: number, selectedMonth: Months) {
+  const now = new Date();
+  const isCurrentMonth = selectedYear === now.getFullYear() && selectedMonth === getMonthFromDate(now);
+
+  return isCurrentMonth ? 'from last month' : 'compared to current month';
+}
 
 export default function ConsumptionStats() {
   const searchParameters = Route.useSearch();
 
   const selectedYear = searchParameters.year;
   const selectedMonth = searchParameters.month;
+  const comparisonLabel = getComparisonLabel(selectedYear, selectedMonth);
 
   const { data } = useSuspenseQuery(consumptionsStatsQueryOptions(selectedYear, selectedMonth));
 
@@ -40,7 +50,9 @@ export default function ConsumptionStats() {
                 <div className='text-2xl font-bold'>
                   {item.monthTotal} <ResourceUnit type={item.resource} />
                 </div>
-                <p className='text-muted-foreground text-xs'>{item.comparisonMonthDiff} from last month</p>
+                <p className='text-muted-foreground text-xs'>
+                  {item.comparisonMonthDiff} {comparisonLabel}
+                </p>
               </CardContent>
             </Card>
           ))}
