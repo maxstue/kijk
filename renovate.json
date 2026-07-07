@@ -1,0 +1,113 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(build)",
+    ":timezone(Europe/Berlin)"
+  ],
+  "assignees": ["maxstue"],
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "2 days",
+  "rangeStrategy": "bump",
+  "schedule": ["before 8am on monday"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update grouped Microsoft ASP.NET Core package version.",
+      "fileMatch": ["(^|/)apps/api/Directory\\.Packages\\.props$"],
+      "matchStrings": ["<MicrosoftAspNetCoreVersion>(?<currentValue>.*?)</MicrosoftAspNetCoreVersion>"],
+      "datasourceTemplate": "nuget",
+      "depNameTemplate": "Microsoft.AspNetCore.OpenApi"
+    },
+    {
+      "customType": "regex",
+      "description": "Update grouped Microsoft Entity Framework Core package version.",
+      "fileMatch": ["(^|/)apps/api/Directory\\.Packages\\.props$"],
+      "matchStrings": [
+        "<MicrosoftEntityFrameworkCoreVersion>(?<currentValue>.*?)</MicrosoftEntityFrameworkCoreVersion>"
+      ],
+      "datasourceTemplate": "nuget",
+      "depNameTemplate": "Microsoft.EntityFrameworkCore"
+    },
+    {
+      "customType": "regex",
+      "description": "Update grouped Microsoft Identity Web package version.",
+      "fileMatch": ["(^|/)apps/api/Directory\\.Packages\\.props$"],
+      "matchStrings": ["<MicrosoftIdentityWebVersion>(?<currentValue>.*?)</MicrosoftIdentityWebVersion>"],
+      "datasourceTemplate": "nuget",
+      "depNameTemplate": "Microsoft.Identity.Web"
+    },
+    {
+      "customType": "regex",
+      "description": "Update grouped ASP.NET Core health checks package version.",
+      "fileMatch": ["(^|/)apps/api/Directory\\.Packages\\.props$"],
+      "matchStrings": ["<AspNetCoreHealthChecksVersion>(?<currentValue>.*?)</AspNetCoreHealthChecksVersion>"],
+      "datasourceTemplate": "nuget",
+      "depNameTemplate": "AspNetCore.HealthChecks.NpgSql"
+    },
+    {
+      "customType": "regex",
+      "description": "Update grouped Sentry package version.",
+      "fileMatch": ["(^|/)apps/api/Directory\\.Packages\\.props$"],
+      "matchStrings": ["<SentryVersion>(?<currentValue>.*?)</SentryVersion>"],
+      "datasourceTemplate": "nuget",
+      "depNameTemplate": "Sentry"
+    },
+    {
+      "customType": "regex",
+      "description": "Update grouped Humanizer package version.",
+      "fileMatch": ["(^|/)apps/api/Directory\\.Packages\\.props$"],
+      "matchStrings": ["<HumanizerVersion>(?<currentValue>.*?)</HumanizerVersion>"],
+      "datasourceTemplate": "nuget",
+      "depNameTemplate": "Humanizer.Core"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 8am on monday"],
+    "commitMessageAction": "refresh"
+  },
+  "packageRules": [
+    {
+      "description": "Group GitHub Actions updates.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "commitMessageTopic": "github actions"
+    },
+    {
+      "description": "Group Docker image updates.",
+      "matchManagers": ["dockerfile"],
+      "groupName": "docker images",
+      "commitMessageTopic": "docker images"
+    },
+    {
+      "description": "Automerge low-risk package manager tooling patch updates.",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "dev dependencies",
+      "commitMessageTopic": "dev dependencies",
+      "automerge": true
+    },
+    {
+      "description": "Group package manager tooling minor updates.",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "dev dependencies",
+      "commitMessageTopic": "dev dependencies"
+    },
+    {
+      "description": "Group backend NuGet patch and minor updates.",
+      "matchManagers": ["nuget", "custom.regex"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "backend nuget packages",
+      "commitMessageTopic": "backend nuget packages"
+    },
+    {
+      "description": "Keep major updates isolated for review.",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}
