@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Clerk.BackendAPI;
+using Clerk.BackendAPI.Helpers.Jwks;
 using EntityFramework.Exceptions.PostgreSQL;
 using Kijk.Application.Abstractions.Persistence;
 using Kijk.Infrastructure.Auth;
@@ -29,6 +31,7 @@ public static class DependencyInjection
                 .AddCorsPolicy(configuration)
                 .AddTelemetry()
                 .AddLogging(configuration)
+                .AddClerkBackendApi()
                 .AddAuth(configuration);
 
         private IServiceCollection AddTelemetry()
@@ -102,15 +105,25 @@ public static class DependencyInjection
 
         private IServiceCollection AddAuth(IConfiguration configuration)
         {
+            var authOptions = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
+            if (authOptions is null)
+            {
+                throw new NullException($"No AuthSettings found, {authOptions}");
+            }
+
+            var authorizedParties = authOptions.AuthorizedParties;
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(x =>
                 {
                     // Authority is the URL of your clerk instance
-                    x.Authority = configuration["Auth:Authority"];
+                    x.Authority = authOptions.Authority;
                     x.TokenValidationParameters = new()
                     {
                         // Disable audience validation as we aren't using it
-                        ValidateAudience = false, NameClaimType = ClaimTypes.NameIdentifier
+                        ValidateAudience = false,
+                        NameClaimType = ClaimTypes.NameIdentifier,
+                        ClockSkew = TimeSpan.FromSeconds(authOptions.ClockSkewInSeconds)
                     };
                     x.Events = new()
                     {
@@ -119,8 +132,8 @@ public static class DependencyInjection
                         {
                             var azp = context.Principal?.FindFirstValue("azp");
 
-                            // AuthorizedParty is the base URL of your frontend.
-                            if (string.IsNullOrEmpty(azp) || !azp.Equals(configuration["Auth:AuthorizedParty"], StringComparison.Ordinal))
+                            // AuthorizedParties contains the allowed base URLs of your frontends.
+                            if (string.IsNullOrEmpty(azp) || !authorizedParties.Contains(azp, StringComparer.Ordinal))
                             {
                                 context.Fail("AZP Claim is invalid or missing");
                             }
@@ -134,6 +147,17 @@ public static class DependencyInjection
 
             services.AddAuthorizationBuilder()
                 .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());
+
+            return services;
+        }
+
+        private IServiceCollection AddClerkBackendApi()
+        {
+            services.AddSingleton(sp =>
+            {
+                var authOptions = sp.GetRequiredService<IOptions<AuthOptions>>().Value;
+                return new ClerkBackendApi(bearerAuth: authOptions.SecretKey);
+            });
 
             return services;
         }
