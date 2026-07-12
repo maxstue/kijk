@@ -4,7 +4,6 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <MicrosoftAspNetCoreVersion>10.0.9</MicrosoftAspNetCoreVersion>
     <MicrosoftEntityFrameworkCoreVersion>10.0.9</MicrosoftEntityFrameworkCoreVersion>
-    <MicrosoftIdentityWebVersion>4.12.2</MicrosoftIdentityWebVersion>
     <AspNetCoreHealthChecksVersion>9.0.0</AspNetCoreHealthChecksVersion>
     <SentryVersion>6.6.0</SentryVersion>
     <HumanizerVersion>3.0.10</HumanizerVersion>
@@ -20,10 +19,8 @@
     <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="$(AspNetCoreHealthChecksVersion)" />
     <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="$(AspNetCoreHealthChecksVersion)" />
     <!-- Auth -->
-    <PackageVersion Include="Microsoft.Identity.Web" Version="$(MicrosoftIdentityWebVersion)" />
-    <PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="$(MicrosoftIdentityWebVersion)" />
+    <PackageVersion Include="Clerk.BackendAPI" Version="2.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(MicrosoftAspNetCoreVersion)" />
     <!-- Database -->
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
     <PackageVersion Include="EntityFrameworkCore.Exceptions.PostgreSQL" Version="10.0.1" />

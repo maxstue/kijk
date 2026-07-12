@@ -20,9 +20,6 @@
         <PackageReference Include="Scalar.AspNetCore" />
         <!-- Auth -->
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>
-        <PackageReference Include="Microsoft.Identity.Web"/>
-        <PackageReference Include="Microsoft.Identity.Web.DownstreamApi"/>
         <!-- Database -->
         <PackageReference Include="EFCore.NamingConventions"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>

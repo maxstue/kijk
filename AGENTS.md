@@ -65,7 +65,7 @@ dotnet ef database update                   # creates/updates DB schema
 ```json
 "Auth": {
   "Authority": "<your Clerk URL>",
-  "AuthorizedParty": "http://localhost:5004"
+  "AuthorizedParties": ["http://localhost:5004"]
 }
 ```
 

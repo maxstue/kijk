@@ -11,5 +11,9 @@ public class AuthOptions : IConfigOptions
 
     public string Authority { get; set; } = null!;
 
-    public string AuthorizedParty { get; set; } = null!;
+    public string SecretKey { get; set; } = null!;
+
+    public string[] AuthorizedParties { get; set; } = [];
+
+    public int ClockSkewInSeconds { get; set; } = 5;
 }
