@@ -15,7 +15,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.10" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.11" />
     <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="$(AspNetCoreHealthChecksVersion)" />
     <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="$(AspNetCoreHealthChecksVersion)" />
     <!-- Auth -->
@@ -24,7 +24,7 @@
     <!-- Database -->
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
     <PackageVersion Include="EntityFrameworkCore.Exceptions.PostgreSQL" Version="10.0.1" />
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(MicrosoftEntityFrameworkCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(MicrosoftEntityFrameworkCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(MicrosoftEntityFrameworkCoreVersion)">
@@ -43,7 +43,7 @@
     <!-- Telemetry -->
     <PackageVersion Include="Sentry.Serilog" Version="$(SentryVersion)" />
     <!-- Linting -->
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.28.0.143324">
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.29.0.143774">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
