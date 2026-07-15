@@ -17,6 +17,12 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        if (context.GetEndpoint() is null)
+        {
+            await next(context);
+            return;
+        }
+
         var (isSuccess, errorMessage) = await SetCurrentUser(context);
         if (isSuccess)
         {
