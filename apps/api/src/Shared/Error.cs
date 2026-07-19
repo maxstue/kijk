@@ -70,6 +70,20 @@ public readonly record struct Error
         new(ErrorCodes.NotFoundError, description, ErrorType.NotFound);
 
     /// <summary>
+    /// Creates an <see cref="Error" /> of type <see cref="ErrorType.Conflict" /> from a description.
+    /// </summary>
+    /// <param name="description">The error description.</param>
+    public static Error Conflict(string description = "A conflict has occurred.") =>
+        new(ErrorCodes.ConflictError, description, ErrorType.Conflict);
+
+    /// <summary>
+    /// Creates an <see cref="Error" /> of type <see cref="ErrorType.Authorization" /> from a description.
+    /// </summary>
+    /// <param name="description">The error description.</param>
+    public static Error Authorization(string description = "You are not authorized to perform this action.") =>
+        new(ErrorCodes.AuthorizationError, description, ErrorType.Authorization);
+
+    /// <summary>
     /// Creates an <see cref="Error" /> with the given numeric <paramref name="type" />,
     /// <paramref name="code" />, and <paramref name="description" />.
     /// </summary>

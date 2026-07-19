@@ -28,13 +28,13 @@ public class WelcomeUserHandler(IAppDbContext dbContext, CurrentUser currentUser
         if (request.UserName is null)
         {
             logger.LogError("User name is null");
-            return Error.Unexpected("User name is null");
+            return Error.Validation("User name is required");
         }
 
         if (!user.FirstTime)
         {
             logger.LogError("User is already welcome");
-            return Error.Unexpected("Your are already welcome");
+            return Error.Conflict("User has already completed the welcome flow");
         }
 
         user.FirstTime = false;

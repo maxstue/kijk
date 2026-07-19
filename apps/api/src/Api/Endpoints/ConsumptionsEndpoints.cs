@@ -24,6 +24,7 @@ public class ConsumptionsEndpoints : IEndpointGroup
             .WithTags("Consumptions");
 
         group.MapGet("/{id:guid}", GetById)
+            .WithName("GetConsumptionById")
             .WithSummary("Gets a consumption by id");
 
         group.MapGet("/", GetByYearMonth)
@@ -111,10 +112,13 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> Create(CreateConsumptionRequest request, CreateConsumptionHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<CreatedAtRoute<ConsumptionResponse>, ProblemHttpResult>> Create(CreateConsumptionRequest request,
+        CreateConsumptionHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.CreateAsync(request, cancellationToken);
-        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+        return result.IsError
+            ? TypedResults.Problem(result.Error.ToProblemDetails())
+            : TypedResults.CreatedAtRoute(result.Value, "GetConsumptionById", new { id = result.Value.Id });
     }
 
     /// <summary>
@@ -139,9 +143,9 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<Results<Ok<bool>, ProblemHttpResult>> Delete(Guid id, DeleteConsumptionHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid id, DeleteConsumptionHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.DeleteAsync(id, cancellationToken);
-        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 }

@@ -9,34 +9,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets a consumption by id */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ConsumptionResponse'];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['GetConsumptionById'];
     /** Updates a consumption */
     put: {
       parameters: {
@@ -66,6 +39,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -83,19 +57,18 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** OK */
-        200: {
+        /** No Content */
+        204: {
           headers: {
             [name: string]: unknown;
           };
-          content: {
-            'application/json': boolean;
-          };
+          content?: never;
         };
         400: components['responses']['400'];
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -138,6 +111,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -157,8 +131,8 @@ export interface paths {
         };
       };
       responses: {
-        /** OK */
-        200: {
+        /** Created */
+        201: {
           headers: {
             [name: string]: unknown;
           };
@@ -170,6 +144,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -213,6 +188,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -255,6 +231,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -297,6 +274,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -316,8 +294,8 @@ export interface paths {
         };
       };
       responses: {
-        /** OK */
-        200: {
+        /** Created */
+        201: {
           headers: {
             [name: string]: unknown;
           };
@@ -329,6 +307,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -347,34 +326,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets an resource usage */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ResourceResponse'];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['GetResourceById'];
     /** Updates an resource usage */
     put: {
       parameters: {
@@ -404,6 +356,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -421,19 +374,18 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** OK */
-        200: {
+        /** No Content */
+        204: {
           headers: {
             [name: string]: unknown;
           };
-          content: {
-            'application/json': boolean;
-          };
+          content?: never;
         };
         400: components['responses']['400'];
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -473,6 +425,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -515,6 +468,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -562,6 +516,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -608,6 +563,7 @@ export interface paths {
         401: components['responses']['401'];
         403: components['responses']['403'];
         404: components['responses']['404'];
+        409: components['responses']['409'];
         429: components['responses']['429'];
         500: components['responses']['500'];
       };
@@ -709,6 +665,16 @@ export interface components {
       status?: null | number | string;
       detail?: null | string;
       instance?: null | string;
+      /** @enum {unknown} */
+      errorType?: 'Authentication' | 'Authorization' | 'NotFound' | 'Conflict' | 'Validation' | 'Unexpected';
+      /**
+       * Format: date-time
+       *
+       * The date and time when the error occurred.
+       */
+      timestamp?: string;
+      /** The correlation ID for the request. */
+      correlationId?: string;
     };
     ResourceResponse: {
       /** Format: uuid */
@@ -722,12 +688,14 @@ export interface components {
       name: null | string;
       /** Format: double */
       value: null | number | string;
-      valueType: components['schemas']['CreateConsumptionValueTypes'];
+      valueType: components['schemas']['UpdateConsumptionValueTypes'];
       /** Format: uuid */
       resourceId: null | string;
       /** Format: date-time */
       date: null | string;
     };
+    /** @enum {unknown} */
+    UpdateConsumptionValueTypes: 'Absolute' | 'Relative';
     UpdateResourceRequest: {
       name: null | string;
       color: null | string;
@@ -810,6 +778,15 @@ export interface components {
         'application/problem+json': components['schemas']['Problem'];
       };
     };
+    /** Conflict. */
+    409: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/problem+json': components['schemas']['Problem'];
+      };
+    };
     /** Too many requests. */
     429: {
       headers: {
@@ -835,4 +812,63 @@ export interface components {
   pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+  GetConsumptionById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsumptionResponse'];
+        };
+      };
+      400: components['responses']['400'];
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      404: components['responses']['404'];
+      409: components['responses']['409'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  GetResourceById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResourceResponse'];
+        };
+      };
+      400: components['responses']['400'];
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      404: components['responses']['404'];
+      409: components['responses']['409'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+}

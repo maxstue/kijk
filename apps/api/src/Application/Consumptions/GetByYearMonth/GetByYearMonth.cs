@@ -13,7 +13,16 @@ public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentU
 {
     public async Task<Result<List<ConsumptionResponse>>> GetByYearMonthAsync(int? year, string? month, CancellationToken cancellationToken)
     {
-        var monthInt = month is not null ? DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month : -1;
+        var monthInt = -1;
+        if (month is not null)
+        {
+            if (!DateTime.TryParseExact(month, "MMMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedMonth))
+            {
+                return Error.Validation($"Month '{month}' is invalid");
+            }
+
+            monthInt = parsedMonth.Month;
+        }
 
         var response = await dbContext.Consumptions
             .AsNoTracking()

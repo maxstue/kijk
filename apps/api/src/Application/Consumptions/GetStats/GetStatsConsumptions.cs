@@ -16,6 +16,11 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
 {
     public async Task<Result<GetStatsConsumptionsResponseWrapper>> GetStatsAsync(int year, string month, CancellationToken cancellationToken)
     {
+        if (!DateTime.TryParseExact(month, "MMMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedMonth))
+        {
+            return Error.Validation($"Month '{month}' is invalid");
+        }
+
         var selectedYearUsages = await dbContext.Consumptions
             .Include(x => x.Resource)
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
@@ -23,7 +28,7 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        var selectedMonth = DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture).Month;
+        var selectedMonth = parsedMonth.Month;
         var comparisonYear = GetComparisonYear(year);
         var comparisonYearUsages = await dbContext.Consumptions
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)

@@ -25,6 +25,7 @@ public class ResourcesEndpoints : IEndpointGroup
             .WithSummary("Gets all resources");
 
         group.MapGet("/{id:guid}", GetById)
+            .WithName("GetResourceById")
             .WithSummary("Gets an resource usage");
 
         group.MapPost("", Create)
@@ -72,10 +73,13 @@ public class ResourcesEndpoints : IEndpointGroup
     /// <param name="handler"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<Results<Ok<ResourceResponse>, ProblemHttpResult>> Create(CreateResourceRequest request, CreateResourceHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<CreatedAtRoute<ResourceResponse>, ProblemHttpResult>> Create(CreateResourceRequest request, CreateResourceHandler handler,
+        CancellationToken cancellationToken)
     {
         var result = await handler.CreateAsync(request, cancellationToken);
-        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+        return result.IsError
+            ? TypedResults.Problem(result.Error.ToProblemDetails())
+            : TypedResults.CreatedAtRoute(result.Value, "GetResourceById", new { id = result.Value.Id });
     }
 
     /// <summary>
@@ -99,9 +103,9 @@ public class ResourcesEndpoints : IEndpointGroup
     /// <param name="handler"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async Task<Results<Ok<bool>, ProblemHttpResult>> Delete(Guid id, DeleteResourceHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid id, DeleteResourceHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.DeleteAsync(id, cancellationToken);
-        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 }

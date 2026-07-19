@@ -12,6 +12,17 @@ type ApiResponse<TData, TError> =
       response: Response;
     };
 
+type ApiResult<TError> = {
+  error?: TError;
+  response: Response;
+};
+
+function throwIfApiError<TError>(result: ApiResult<TError>) {
+  if (result.error) {
+    throw new ApiError(result.error, result.response);
+  }
+}
+
 /**
  * Unwraps the data from an API response, throwing an ApiError if the response contains an error or if the data is
  * undefined.
@@ -20,14 +31,17 @@ type ApiResponse<TData, TError> =
  * @returns The data from the API response if the call was successful.
  * @throws ApiError if the API call resulted in an error or if the response data is undefined.
  */
-export function unwrapApiData<TData, TError>(result: ApiResponse<TData, TError>) {
-  if (result.error) {
-    throw new ApiError(result.error, result.response);
-  }
+export function unwrapApiResponse<TData, TError>(result: ApiResponse<TData, TError>) {
+  throwIfApiError(result);
 
   if (result.data === undefined) {
     throw new ApiError({ status: result.response.status, title: 'Empty API response' }, result.response);
   }
 
   return result.data;
+}
+
+/** Ensures an API response succeeded without requiring a response body. */
+export function ensureApiSuccess<TError>(result: ApiResult<TError>) {
+  throwIfApiError(result);
 }

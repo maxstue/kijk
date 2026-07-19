@@ -27,7 +27,7 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
         if (user.Resources.Any(c => string.Equals(c.Name, command.Name, StringComparison.OrdinalIgnoreCase)))
         {
             logger.LogWarning("Resource with name '{Name}' already exists", command.Name);
-            return Error.Validation($"A resource with the name '{command.Name}' already exists");
+            return Error.Conflict($"A resource with the name '{command.Name}' already exists");
         }
 
         var newResource = new Resource

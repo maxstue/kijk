@@ -37,7 +37,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         if (foundConsumption is not null)
         {
             logger.LogWarning("Consumption for '{ResourceName}' already exists for {Date:MMMM yyyy}", request.Name, request.Date);
-            return Error.Validation($"Consumption for '{foundConsumption.Resource.Name}' already exists for {request.Date:MMMM yyyy}");
+            return Error.Conflict($"Consumption for '{foundConsumption.Resource.Name}' already exists for {request.Date:MMMM yyyy}");
         }
 
         var resource = await dbContext.Resources.FirstOrDefaultAsync(x => x.Id == request.ResourceId, cancellationToken);
