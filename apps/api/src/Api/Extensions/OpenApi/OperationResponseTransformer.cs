@@ -12,6 +12,7 @@ public class OperationResponseTransformer : IOpenApiOperationTransformer
         operation.Responses["401"] = new OpenApiResponseReference("401");
         operation.Responses["403"] = new OpenApiResponseReference("403");
         operation.Responses["404"] = new OpenApiResponseReference("404");
+        operation.Responses["409"] = new OpenApiResponseReference("409");
         operation.Responses["429"] = new OpenApiResponseReference("429");
         operation.Responses["500"] = new OpenApiResponseReference("500");
 

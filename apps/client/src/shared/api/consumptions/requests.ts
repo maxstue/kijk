@@ -1,10 +1,10 @@
 import { apiClient } from '@/shared/lib/api-client';
-import { unwrapApiData } from '@/shared/utils/http';
+import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { ConsumptionData } from './types';
 
 export async function getYears(signal?: AbortSignal) {
-  return unwrapApiData(await apiClient.GET('/api/consumptions/years', { signal }));
+  return unwrapApiResponse(await apiClient.GET('/api/consumptions/years', { signal }));
 }
 
 /**
@@ -20,7 +20,7 @@ export async function getYears(signal?: AbortSignal) {
  * @returns The list of resources
  */
 export async function getConsumptionsBy(year?: string, month?: string, signal?: AbortSignal) {
-  return unwrapApiData(
+  return unwrapApiResponse(
     await apiClient.GET('/api/consumptions', {
       params: { query: { month, year } },
       signal,
@@ -41,7 +41,7 @@ export async function getConsumptionsStats(year?: string, month?: string, signal
     throw new Error('Year and month are required to load consumption stats.');
   }
 
-  return unwrapApiData(
+  return unwrapApiResponse(
     await apiClient.GET('/api/consumptions/stats', {
       params: { query: { month, year } },
       signal,
@@ -50,7 +50,7 @@ export async function getConsumptionsStats(year?: string, month?: string, signal
 }
 
 export async function createConsumption(data: ConsumptionData, signal?: AbortSignal) {
-  return unwrapApiData(
+  return unwrapApiResponse(
     await apiClient.POST('/api/consumptions', {
       body: {
         date: data.date.toISOString(),
@@ -65,7 +65,7 @@ export async function createConsumption(data: ConsumptionData, signal?: AbortSig
 }
 
 export async function updateConsumption(id: string, data: Partial<ConsumptionData>, signal?: AbortSignal) {
-  return unwrapApiData(
+  return unwrapApiResponse(
     await apiClient.PUT('/api/consumptions/{id}', {
       body: {
         date: data.date?.toISOString() ?? null,
@@ -83,7 +83,7 @@ export async function updateConsumption(id: string, data: Partial<ConsumptionDat
 }
 
 export async function deleteConsumption(id: string, signal?: AbortSignal) {
-  return unwrapApiData(
+  return ensureApiSuccess(
     await apiClient.DELETE('/api/consumptions/{id}', {
       params: {
         path: { id },

@@ -37,6 +37,7 @@ public static class ErrorExtensions
         ErrorType.Authorization => "Authorization error",
         ErrorType.NotFound => "Resource not found",
         ErrorType.Conflict => "Conflict",
-        _ => "Unexpected Server error",
+        ErrorType.Validation => "Validation error",
+        _ => "Unexpected server error",
     };
 }

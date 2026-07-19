@@ -23,4 +23,5 @@ public readonly record struct ErrorCodes
 
     public const string AuthenticationError = "E0005";
     public const string AuthorizationError = "E0006";
+    public const string ConflictError = "E0007";
 }

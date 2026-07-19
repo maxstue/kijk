@@ -25,7 +25,7 @@ public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentU
         if (user.Resources.ToList().Find(x => x.Id == id) is null)
         {
             logger.LogWarning("User with id '{UserId}' was not allowed to delete the resource type with id '{CategoryId}'", currentUser.Id, id);
-            return Error.Validation("You are not allowed to delete the resource type");
+            return Error.Authorization("You are not allowed to delete the resource type");
         }
 
         var foundResource = await dbContext.Resources.FindAsync([id], cancellationToken);
@@ -38,7 +38,7 @@ public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentU
         if (foundResource.CreatorType == CreatorType.System)
         {
             logger.LogWarning("Resource with id '{Id}' could not be deleted, because it is of creator type 'Default'", id);
-            return Error.Validation("Resource could not be deleted, because it is a default type");
+            return Error.Authorization("Resource could not be deleted, because it is a default type");
         }
 
         user.DeleteResource(foundResource.Id);

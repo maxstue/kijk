@@ -19,6 +19,7 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
         document.Components.Responses.Add("401", CreateErrorResponse("Unauthenticated.", document));
         document.Components.Responses.Add("403", CreateErrorResponse("Unauthorized.", document));
         document.Components.Responses.Add("404", CreateErrorResponse("Not found.", document));
+        document.Components.Responses.Add("409", CreateErrorResponse("Conflict.", document));
         document.Components.Responses.Add("429", CreateErrorResponse("Too many requests.", document));
         document.Components.Responses.Add("500", CreateErrorResponse("Internal server error.", document));
     }
@@ -37,31 +38,29 @@ public class ComponentResponseTransformer : IOpenApiDocumentTransformer
     {
         var problemSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), null, cancellationToken);
         problemSchema.AdditionalPropertiesAllowed = true;
-        problemSchema.Properties ??= new Dictionary<string, IOpenApiSchema>()
+        problemSchema.Properties ??= new Dictionary<string, IOpenApiSchema>();
+        problemSchema.Properties["errorType"] = new OpenApiSchema
         {
-            ["errorType"] = new OpenApiSchema
-            {
-                Enum =
-                [
-                    "Authentication",
-                    "Authorization",
-                    "NotFound",
-                    "Conflict",
-                    "Unexpected",
-                ],
-                Default = "<Type placeholder>"
-            },
-            ["timestamp"] = new OpenApiSchema
-            {
-                Type = JsonSchemaType.String,
-                Format = "date-time",
-                Description = "The date and time when the error occurred."
-            },
-            ["correlationId"] = new OpenApiSchema
-            {
-                Type = JsonSchemaType.String,
-                Description = "The correlation ID for the request."
-            }
+            Enum =
+            [
+                "Authentication",
+                "Authorization",
+                "NotFound",
+                "Conflict",
+                "Validation",
+                "Unexpected",
+            ]
+        };
+        problemSchema.Properties["timestamp"] = new OpenApiSchema
+        {
+            Type = JsonSchemaType.String,
+            Format = "date-time",
+            Description = "The date and time when the error occurred."
+        };
+        problemSchema.Properties["correlationId"] = new OpenApiSchema
+        {
+            Type = JsonSchemaType.String,
+            Description = "The correlation ID for the request."
         };
         return problemSchema;
     }
