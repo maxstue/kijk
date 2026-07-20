@@ -1,10 +1,10 @@
 ﻿using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Users.Shared;
 using Kijk.Shared;
 using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
-using UserResponse = Kijk.Application.Users.Shared.UserResponse;
 
 namespace Kijk.Application.Users.Welcome;
 
@@ -50,12 +50,6 @@ public class WelcomeUserHandler(IAppDbContext dbContext, CurrentUser currentUser
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new UserResponse(
-            user.Id,
-            user.AuthId,
-            user.Name,
-            user.Email,
-            user.FirstTime,
-            user.Resources.Any(c => c.CreatorType == CreatorType.System));
+        return user.ToResponse(user.Resources.Any(resource => resource.CreatorType == CreatorType.System));
     }
 }

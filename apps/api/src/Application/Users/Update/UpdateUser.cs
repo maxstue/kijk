@@ -51,12 +51,6 @@ public class UpdateUserHandler(IAppDbContext dbContext, CurrentUser currentUser,
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new UserResponse(
-            userEntity.Id,
-            userEntity.AuthId,
-            userEntity.Name,
-            userEntity.Email,
-            userEntity.FirstTime,
-            userEntity.Resources.Any(c => c.CreatorType == CreatorType.System));
+        return userEntity.ToResponse(userEntity.Resources.Any(resource => resource.CreatorType == CreatorType.System));
     }
 }

@@ -44,7 +44,6 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new ResourceResponse(resEntity.Entity.Id, resEntity.Entity.Name, resEntity.Entity.Color, resEntity.Entity.Unit,
-            resEntity.Entity.CreatorType);
+        return resEntity.Entity.ToResponse();
     }
 }

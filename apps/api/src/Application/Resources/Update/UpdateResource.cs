@@ -36,12 +36,6 @@ public class UpdateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new ResourceResponse(
-            resource.Id,
-            resource.Name,
-            resource.Color,
-            resource.Unit,
-            resource.CreatorType
-        );
+        return resource.ToResponse();
     }
 }

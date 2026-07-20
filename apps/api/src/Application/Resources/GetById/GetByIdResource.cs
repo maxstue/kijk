@@ -21,24 +21,22 @@ public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser current
     /// <returns></returns>
     public async Task<Result<ResourceResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users
-            .Include(x => x.Resources)
+        var resource = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (user is null)
-        {
-            logger.LogWarning("User with id '{UserId}' was not found", currentUser.Id);
-            return Error.NotFound("User was not found");
-        }
-
-        var resource = user.Resources
+            .SelectMany(x => x.Resources)
             .Where(x => x.Id == id)
-            .Select(x => new ResourceResponse(x.Id, x.Name, x.Color, x.Unit, x.CreatorType))
-            .FirstOrDefault();
+            .AsNoTracking()
+            .ProjectToResponse()
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (resource is null)
         {
+            if (!await dbContext.Users.AnyAsync(x => x.Id == currentUser.Id, cancellationToken))
+            {
+                logger.LogWarning("User with id '{UserId}' was not found", currentUser.Id);
+                return Error.NotFound("User was not found");
+            }
+
             return Error.NotFound($"Resource with id '{id}' was not found");
         }
 

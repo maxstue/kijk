@@ -82,13 +82,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
 
     private Task<SimpleAuthUser?> GetUserFromDb(string sub) => dbContext.Users
         .Where(x => x.AuthId == sub)
-        .Select(x => new SimpleAuthUser(
-            x.Id,
-            x.AuthId,
-            x.UserHouseholds.Where(userHousehold => userHousehold.IsActive).Select(userHousehold => userHousehold.HouseholdId).SingleOrDefault(),
-            x.Name,
-            x.Email,
-            x.FirstTime))
         .AsNoTracking()
+        .ProjectToSimpleAuthUser()
         .FirstOrDefaultAsync();
 }

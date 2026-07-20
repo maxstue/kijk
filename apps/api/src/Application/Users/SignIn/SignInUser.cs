@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
 using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Users.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
-using UserResponse = Kijk.Application.Users.Shared.UserResponse;
 
 namespace Kijk.Application.Users.SignIn;
 
@@ -38,21 +38,15 @@ public class SignInUserHandler(IAppDbContext dbContext, CurrentUser currentUser,
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new UserResponse(
-                newUserEntity.Id,
-                newUserEntity.AuthId,
-                newUserEntity.Name,
-                newUserEntity.Email,
-                newUserEntity.FirstTime,
-                newUserEntity.Resources.Any(c => c.CreatorType == CreatorType.User));
+            return newUserEntity.ToResponse(newUserEntity.Resources.Any(resource => resource.CreatorType == CreatorType.User));
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var userEntity = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
-            .Include(x => x.Resources)
             .AsNoTracking()
+            .ProjectToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userEntity is null)
@@ -61,16 +55,6 @@ public class SignInUserHandler(IAppDbContext dbContext, CurrentUser currentUser,
             return Error.NotFound("User not found");
         }
 
-        var useDefaultResources = userEntity.Resources.Any(c => c.CreatorType == CreatorType.System);
-
-        var updateUserResponse = new UserResponse(
-            userEntity.Id,
-            userEntity.AuthId,
-            userEntity.Name,
-            userEntity.Email,
-            userEntity.FirstTime,
-            useDefaultResources);
-
-        return updateUserResponse;
+        return userEntity;
     }
 }
