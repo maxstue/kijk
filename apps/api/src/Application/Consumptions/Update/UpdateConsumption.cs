@@ -60,14 +60,6 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new ConsumptionResponse(
-            existingResourceUsage.Id,
-            existingResourceUsage.Name,
-            existingResourceUsage.Description,
-            existingResourceUsage.Value,
-            new(existingResourceUsage.Resource.Id, existingResourceUsage.Resource.Name, existingResourceUsage.Resource.Unit,
-                existingResourceUsage.Resource.Color),
-            existingResourceUsage.Date.ToDateTime()
-        );
+        return existingResourceUsage.ToResponse();
     }
 }

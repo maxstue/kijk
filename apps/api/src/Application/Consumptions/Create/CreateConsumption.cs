@@ -52,13 +52,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         dbContext.Consumptions.Add(consumption);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new ConsumptionResponse(
-            consumption.Id,
-            consumption.Name,
-            consumption.Description,
-            consumption.Value,
-            new(consumption.Resource.Id, consumption.Resource.Name, consumption.Resource.Unit, consumption.Resource.Color),
-            consumption.Date.ToDateTime());
+        return consumption.ToResponse();
     }
 
     // TODO valuetype should also be saved

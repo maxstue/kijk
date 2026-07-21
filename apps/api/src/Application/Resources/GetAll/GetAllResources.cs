@@ -12,20 +12,18 @@ public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser current
 {
     public async Task<Result<List<ResourceResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users
-            .Include(x => x.Resources)
+        var resources = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+            .SelectMany(x => x.Resources)
+            .AsNoTracking()
+            .ToResponse()
+            .ToListAsync(cancellationToken);
 
-        if (user is null)
+        if (resources.Count == 0 && !await dbContext.Users.AnyAsync(x => x.Id == currentUser.Id, cancellationToken))
         {
             logger.LogWarning("User with id '{UserId}' was not found", currentUser.Id);
             return Error.NotFound("User was not found");
         }
-
-        var resources = user.Resources
-            .Select(x => new ResourceResponse(x.Id, x.Name, x.Color, x.Unit, x.CreatorType))
-            .ToList();
 
         return resources;
     }

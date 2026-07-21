@@ -26,17 +26,10 @@ public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentU
 
         var response = await dbContext.Consumptions
             .AsNoTracking()
-            .Include(x => x.Resource)
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
             .If(year != null, q => q.Where(x => x.Date.Value.Year == year))
             .If(monthInt != -1, q => q.Where(x => x.Date.Value.Month == monthInt))
-            .Select(x => new ConsumptionResponse(
-                x.Id,
-                x.Name,
-                x.Description,
-                x.Value,
-                new(x.Resource.Id, x.Resource.Name, x.Resource.Unit, x.Resource.Color),
-                x.Date.ToDateTime()))
+            .ToResponse()
             .ToListAsync(cancellationToken);
 
         return response;

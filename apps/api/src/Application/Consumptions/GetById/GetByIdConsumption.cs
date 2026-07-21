@@ -14,15 +14,8 @@ public class GetByIdConsumptionHandler(IAppDbContext dbContext, CurrentUser curr
     {
         var entity = await dbContext.Consumptions
             .AsNoTracking()
-            .Include(x => x.Resource)
             .Where(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId)
-            .Select(x => new ConsumptionResponse(
-                x.Id,
-                x.Name,
-                x.Description,
-                x.Value,
-                new(x.Resource.Id, x.Resource.Name, x.Resource.Unit, x.Resource.Color),
-                x.Date.ToDateTime()))
+            .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (entity is null)

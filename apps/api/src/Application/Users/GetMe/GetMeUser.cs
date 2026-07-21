@@ -13,14 +13,10 @@ public class GetMeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, 
     public async Task<Result<GetMeUserResponse>> GetMeAsync(CancellationToken cancellationToken)
     {
         var userEntity = await dbContext.Users
-            .Include(x => x.UserHouseholds)
-            .ThenInclude(x => x.Household)
-            .Include(x => x.UserHouseholds)
-            .ThenInclude(x => x.Role)
-            .ThenInclude(x => x.Permissions)
             .Where(x => x.Id == currentUser.Id)
             .AsNoTracking()
             .AsSplitQuery()
+            .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userEntity is null)
@@ -29,13 +25,6 @@ public class GetMeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, 
             return Error.NotFound("User not found");
         }
 
-        return new GetMeUserResponse(
-            userEntity.Id,
-            userEntity.AuthId,
-            userEntity.Name,
-            userEntity.Email,
-            userEntity.FirstTime,
-            userEntity.UserHouseholds.Select(UserHouseholdResponse.Create),
-            userEntity.Resources.Select(c => new UserResourceResponse(c.Id, c.Name, c.Unit, c.Color, c.CreatorType)));
+        return userEntity;
     }
 }
