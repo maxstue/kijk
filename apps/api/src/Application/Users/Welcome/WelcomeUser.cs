@@ -1,9 +1,6 @@
 ﻿using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Users.Shared;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Users.Welcome;
