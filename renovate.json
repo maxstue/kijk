@@ -19,6 +19,12 @@
   },
   "packageRules": [
     {
+      "description": "Keep runtime compatibility requirements stable.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    },
+    {
       "description": "Group GitHub Actions updates.",
       "matchManagers": ["github-actions"],
       "groupName": "github actions",
