@@ -26,7 +26,7 @@ public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser current
             .SelectMany(x => x.Resources)
             .Where(x => x.Id == id)
             .AsNoTracking()
-            .ProjectToResponse()
+            .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (resource is null)

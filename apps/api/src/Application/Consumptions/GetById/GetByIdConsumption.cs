@@ -15,7 +15,7 @@ public class GetByIdConsumptionHandler(IAppDbContext dbContext, CurrentUser curr
         var entity = await dbContext.Consumptions
             .AsNoTracking()
             .Where(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId)
-            .ProjectToResponse()
+            .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (entity is null)

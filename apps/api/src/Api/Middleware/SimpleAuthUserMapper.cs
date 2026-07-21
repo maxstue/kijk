@@ -15,7 +15,7 @@ public static partial class SimpleAuthUserMapper
     /// </summary>
     /// <param name="source">The user query.</param>
     /// <returns>The projected authenticated-user query.</returns>
-    public static partial IQueryable<SimpleAuthUser> ProjectToSimpleAuthUser(this IQueryable<User> source);
+    public static partial IQueryable<SimpleAuthUser> ToSimpleAuthUser(this IQueryable<User> source);
 
     [MapPropertyFromSource(nameof(SimpleAuthUser.HouseholdId), Use = nameof(MapActiveHouseholdId))]
     private static partial SimpleAuthUser Map(User source);

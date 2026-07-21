@@ -29,7 +29,7 @@ public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentU
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
             .If(year != null, q => q.Where(x => x.Date.Value.Year == year))
             .If(monthInt != -1, q => q.Where(x => x.Date.Value.Month == monthInt))
-            .ProjectToResponse()
+            .ToResponse()
             .ToListAsync(cancellationToken);
 
         return response;

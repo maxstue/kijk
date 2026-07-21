@@ -23,7 +23,7 @@ public static partial class UserResponseMapper
     /// </summary>
     /// <param name="source">The user query.</param>
     /// <returns>The projected response query.</returns>
-    public static partial IQueryable<UserResponse> ProjectToResponse(this IQueryable<User> source);
+    public static partial IQueryable<UserResponse> ToResponse(this IQueryable<User> source);
 
     [MapPropertyFromSource(nameof(UserResponse.UseDefaultResources), Use = nameof(MapUseDefaultResources))]
     private static partial UserResponse Map(User source);

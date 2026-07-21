@@ -14,7 +14,7 @@ public static partial class GetMeUserResponseMapper
     /// </summary>
     /// <param name="source">The user query.</param>
     /// <returns>The projected response query.</returns>
-    public static partial IQueryable<GetMeUserResponse> ProjectToResponse(this IQueryable<User> source);
+    public static partial IQueryable<GetMeUserResponse> ToResponse(this IQueryable<User> source);
 
     [MapProperty(nameof(User.UserHouseholds), nameof(GetMeUserResponse.Households))]
     private static partial GetMeUserResponse Map(User source);

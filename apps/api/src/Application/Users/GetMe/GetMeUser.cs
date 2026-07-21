@@ -16,7 +16,7 @@ public class GetMeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, 
             .Where(x => x.Id == currentUser.Id)
             .AsNoTracking()
             .AsSplitQuery()
-            .ProjectToResponse()
+            .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userEntity is null)

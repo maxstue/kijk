@@ -16,7 +16,7 @@ public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser current
             .Where(x => x.Id == currentUser.Id)
             .SelectMany(x => x.Resources)
             .AsNoTracking()
-            .ProjectToResponse()
+            .ToResponse()
             .ToListAsync(cancellationToken);
 
         if (resources.Count == 0 && !await dbContext.Users.AnyAsync(x => x.Id == currentUser.Id, cancellationToken))

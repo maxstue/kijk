@@ -46,7 +46,7 @@ public class SignInUserHandler(IAppDbContext dbContext, CurrentUser currentUser,
         var userEntity = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
             .AsNoTracking()
-            .ProjectToResponse()
+            .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userEntity is null)

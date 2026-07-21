@@ -22,7 +22,7 @@ public static partial class ConsumptionResponseMapper
     /// </summary>
     /// <param name="source">The consumption query.</param>
     /// <returns>The projected response query.</returns>
-    public static partial IQueryable<ConsumptionResponse> ProjectToResponse(this IQueryable<Consumption> source);
+    public static partial IQueryable<ConsumptionResponse> ToResponse(this IQueryable<Consumption> source);
 
     private static DateTime MapDate(MonthYear source) => source.Value;
 }

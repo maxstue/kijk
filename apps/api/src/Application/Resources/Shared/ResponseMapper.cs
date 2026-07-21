@@ -21,5 +21,5 @@ public static partial class ResourceResponseMapper
     /// </summary>
     /// <param name="source">The resource query.</param>
     /// <returns>The projected response query.</returns>
-    public static partial IQueryable<ResourceResponse> ProjectToResponse(this IQueryable<Resource> source);
+    public static partial IQueryable<ResourceResponse> ToResponse(this IQueryable<Resource> source);
 }
