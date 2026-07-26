@@ -27,7 +27,7 @@ export const Route = createFileRoute('/welcome')({
 
 function WelcomePage() {
   useSetSiteHeader('Welcome');
-  const { accountName: signInAccount, providerName: authProvider } = useSignInProviderName();
+  const { providerName: authProvider, signInSourceLabel } = useSignInProviderName();
   const { data: currentUser } = useSuspenseQuery(currentUserQueryOptions());
   const navigate = useNavigate({ from: '/welcome' });
   const activeHousehold = currentUser.households?.find((household) => household.isActive);
@@ -42,7 +42,7 @@ function WelcomePage() {
       imageUrl={externalIdentity?.imageUrl}
       initialDisplayName=''
       onComplete={() => navigate({ replace: true, to: '/home' })}
-      signInAccount={signInAccount}
+      signInSourceLabel={signInSourceLabel}
     />
   );
 }

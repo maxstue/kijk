@@ -25,7 +25,7 @@ import {
 import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 
 export function ProfileForm() {
-  const { accountName: signInAccount, providerName: authProvider } = useSignInProviderName();
+  const { providerName: authProvider, signInSourceLabel } = useSignInProviderName();
   const { data: user } = useQuery(signedInUserQueryOptions());
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
@@ -74,7 +74,7 @@ export function ProfileForm() {
               <div className='space-y-1'>
                 <FormLabel>Use sign-in profile</FormLabel>
                 <FormDescription>
-                  Show the full name and profile image from your {signInAccount} in Kijk.
+                  Show the full name and profile image from your {signInSourceLabel} in Kijk.
                 </FormDescription>
               </div>
               <FormMessage />

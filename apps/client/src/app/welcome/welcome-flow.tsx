@@ -38,7 +38,7 @@ interface WelcomeFlowProps {
   imageUrl?: string | null;
   initialDisplayName: string;
   onComplete: () => Promise<void>;
-  signInAccount: string;
+  signInSourceLabel: string;
 }
 
 export function WelcomeFlow({
@@ -49,7 +49,7 @@ export function WelcomeFlow({
   imageUrl,
   initialDisplayName,
   onComplete,
-  signInAccount,
+  signInSourceLabel,
 }: WelcomeFlowProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const { mutateAsync, isPending } = useWelcomeUser();
@@ -128,7 +128,7 @@ export function WelcomeFlow({
                   email={email}
                   fullName={fullName}
                   imageUrl={imageUrl}
-                  signInAccount={signInAccount}
+                  signInSourceLabel={signInSourceLabel}
                 />
               )}
               {currentStep === 1 && <HouseholdStep control={form.control} />}
@@ -169,8 +169,8 @@ function ProfileStep({
   email,
   fullName,
   imageUrl,
-  signInAccount,
-}: Pick<WelcomeFlowProps, 'authProvider' | 'email' | 'fullName' | 'imageUrl' | 'signInAccount'> & {
+  signInSourceLabel,
+}: Pick<WelcomeFlowProps, 'authProvider' | 'email' | 'fullName' | 'imageUrl' | 'signInSourceLabel'> & {
   control: ReturnType<typeof useForm<UserStepFormDraft>>['control'];
 }) {
   return (
@@ -183,8 +183,8 @@ function ProfileStep({
           <FormItem>
             <FormLabel>Use your sign-in profile in Kijk?</FormLabel>
             <FormDescription>
-              Your full name and profile image stay managed by your {signInAccount}. Kijk only uses them when you choose
-              to. You can change this later in your profile settings.
+              Your full name and profile image stay managed by your {signInSourceLabel}. Kijk only uses them when you
+              choose to. You can change this later in your profile settings.
             </FormDescription>
             <FormControl>
               <RadioGroup
@@ -195,7 +195,7 @@ function ProfileStep({
                 <Choice
                   value='yes'
                   title='Use profile'
-                  description={`Show the full name and profile image from your ${signInAccount} in Kijk.`}
+                  description={`Show the full name and profile image from your ${signInSourceLabel} in Kijk.`}
                 />
                 <Choice
                   value='no'

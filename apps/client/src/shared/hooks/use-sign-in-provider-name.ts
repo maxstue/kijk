@@ -9,7 +9,7 @@ export function useSignInProviderName() {
   );
 
   return {
-    accountName: providerName === 'Email' ? 'sign-in account' : `${providerName} account`,
     providerName,
+    signInSourceLabel: providerName === 'Email' ? 'sign-in account' : `${providerName} account`,
   };
 }
