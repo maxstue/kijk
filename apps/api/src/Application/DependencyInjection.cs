@@ -9,7 +9,8 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddModules()
-            .AddHandlers();
+            .AddHandlers()
+            .AddSingleton(TimeProvider.System);
 
         return services;
     }

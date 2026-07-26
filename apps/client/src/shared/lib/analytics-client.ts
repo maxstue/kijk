@@ -31,9 +31,13 @@ const AnalyticsClient = {
     }
     posthog.init(config.PosthogKey, {
       api_host: config.PosthogUrl,
-      persistence: AnalyticsClient.getCookieConsent() === 'accepted' ? 'localStorage+cookie' : 'memory',
+      autocapture: false,
+      capture_pageview: false,
+      opt_out_capturing_by_default: true,
+      persistence: 'memory',
       person_profiles: 'identified_only',
     });
+    posthog.opt_out_capturing();
   },
 
   options: () =>
@@ -41,16 +45,30 @@ const AnalyticsClient = {
       api_host: config.PosthogUrl,
       autocapture: false,
       capture_pageview: false,
+      opt_out_capturing_by_default: true,
+      persistence: 'memory',
       person_profiles: 'identified_only',
     }) satisfies Partial<PostHogConfig>,
   setCookieConsent: (consent: CookieConsent) => {
     browserStorage.setItem(COOKIE_CONSENT_KEY, consent);
+    if (!config.PosthogKey || !config.PosthogUrl) {
+      return;
+    }
     if (consent === 'accepted') {
+      AnalyticsClient.getInstance().set_config({
+        autocapture: true,
+        capture_pageview: true,
+        persistence: 'localStorage+cookie',
+      });
       AnalyticsClient.getInstance().opt_in_capturing();
-      AnalyticsClient.getInstance().set_config({ autocapture: true, capture_pageview: true });
     }
     if (consent === 'declined' || consent === 'undecided') {
       AnalyticsClient.getInstance().opt_out_capturing();
+      AnalyticsClient.getInstance().set_config({
+        autocapture: false,
+        capture_pageview: false,
+        persistence: 'memory',
+      });
     }
   },
 };

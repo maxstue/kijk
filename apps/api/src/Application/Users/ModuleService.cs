@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Kijk.Application.Users.Update;
+using Kijk.Application.Users.Welcome;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Users;
 
@@ -8,5 +10,10 @@ namespace Kijk.Application.Users;
 /// </summary>
 public class ModuleService : IModule
 {
-    public IServiceCollection RegisterServices(IServiceCollection services) => services;
+    public IServiceCollection RegisterServices(IServiceCollection services)
+    {
+        services.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
+        services.AddScoped<IValidator<WelcomeUserRequest>, WelcomeUserRequestValidator>();
+        return services;
+    }
 }

@@ -1,4 +1,5 @@
-﻿using Kijk.Shared.Exceptions;
+﻿using Kijk.Shared;
+using Kijk.Shared.Exceptions;
 
 namespace Kijk.Domain.Entities;
 
@@ -14,6 +15,14 @@ public sealed class User : BaseEntity
     public string? Email { get; init; }
 
     public string? Image { get; init; }
+
+    public AnalyticsConsent? AnalyticsConsent { get; private set; }
+
+    public DateTime? AnalyticsConsentUpdatedAt { get; private set; }
+
+    public int? OnboardingVersion { get; private set; }
+
+    public DateTime? OnboardingCompletedAt { get; private set; }
 
     /// <summary>
     /// Indicates if the user is a first time user.
@@ -65,6 +74,26 @@ public sealed class User : BaseEntity
         {
             _resources.RemoveAll(x => defaultResourceIds.Contains(x.Id));
         }
+    }
+
+    public void CompleteOnboarding(
+        string displayName,
+        AnalyticsConsent analyticsConsent,
+        int onboardingVersion,
+        DateTime completedAt)
+    {
+        Name = displayName;
+        AnalyticsConsent = analyticsConsent;
+        AnalyticsConsentUpdatedAt = completedAt;
+        OnboardingVersion = onboardingVersion;
+        OnboardingCompletedAt = completedAt;
+        FirstTime = false;
+    }
+
+    public void UpdateAnalyticsConsent(AnalyticsConsent analyticsConsent, DateTime updatedAt)
+    {
+        AnalyticsConsent = analyticsConsent;
+        AnalyticsConsentUpdatedAt = updatedAt;
     }
 
     public static User Init(string authId, string name, string? email) => new()

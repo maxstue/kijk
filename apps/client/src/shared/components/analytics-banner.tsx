@@ -1,38 +1,24 @@
 import { cn } from '@kijk/core/utils/style';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
+import { useLocation } from '@tanstack/react-router';
 import { CookieIcon, ExternalLink } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 import { config } from '@/shared/config';
-import { AnalyticsService } from '@/shared/lib/analytics-client';
-import type { CookieConsent } from '@/shared/types/analytics';
+import { useAnalyticsConsent } from '@/shared/hooks/use-analytics-consent';
 
 export function AnalyticsBanner() {
-  const [consentGiven, setConsentGiven] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());
+  const location = useLocation();
+  const { consent, isPending, isReady, updateConsent } = useAnalyticsConsent();
 
-  useEffect(() => {
-    if (consentGiven !== 'undecided') {
-      AnalyticsService.getInstance().set_config({
-        persistence: consentGiven === 'accepted' ? 'localStorage+cookie' : 'memory',
-      });
-    }
-  }, [consentGiven]);
-
-  const accept = () => {
-    AnalyticsService.setCookieConsent('accepted');
-    setConsentGiven('accepted');
-  };
-
-  const decline = () => {
-    AnalyticsService.setCookieConsent('declined');
-    setConsentGiven('declined');
-  };
+  if (!isReady || location.pathname === '/welcome') {
+    return null;
+  }
 
   return (
     <div
       className={cn(
-        'fixed right-0 bottom-0 left-0 z-[200] w-full duration-700 sm:bottom-4 sm:left-4 sm:max-w-md',
-        consentGiven !== 'undecided'
+        'fixed right-0 bottom-0 left-0 z-200 w-full duration-700 sm:bottom-4 sm:left-4 sm:max-w-md',
+        consent !== 'undecided'
           ? 'hidden translate-y-8 opacity-0 transition-[opacity,transform]'
           : 'translate-y-0 opacity-100 transition-[opacity,transform]',
       )}
@@ -45,11 +31,11 @@ export function AnalyticsBanner() {
           </div>
           <div className='p-4'>
             <p className='flex flex-col gap-2 text-start text-sm font-normal'>
-              🍪 We use cookies to enhance your experience and analyze site traffic. Rest assured, all data collected is
-              completely anonymous.
+              Optional usage data helps us understand which features are useful and where Kijk can be improved.
+              Technical error reports remain active so we can detect and fix problems. These reports do not include
+              user-specific information.
               <span className='text-xs'>
-                By clicking &quot;<span className='font-medium opacity-80'>Accept</span>&quot;, you agree to our use of
-                cookies.
+                Choose whether you want to share optional usage data. You can change this later in the privacy settings.
               </span>
               <a
                 className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
@@ -63,10 +49,15 @@ export function AnalyticsBanner() {
             </p>
           </div>
           <div className='border-border dark:bg-background/20 relative flex flex-col justify-between gap-6 border-t p-4 py-5 sm:flex-row sm:gap-2'>
-            <Button className='w-full sm:w-1/2' variant='secondary' onClick={decline}>
+            <Button
+              className='w-full sm:w-1/2'
+              disabled={isPending}
+              variant='secondary'
+              onClick={() => updateConsent('declined')}
+            >
               Decline
             </Button>
-            <Button className='w-full sm:w-1/2' onClick={accept}>
+            <Button className='w-full sm:w-1/2' disabled={isPending} onClick={() => updateConsent('accepted')}>
               Accept
             </Button>
           </div>

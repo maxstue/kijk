@@ -897,6 +897,13 @@
   },
   "components": {
     "schemas": {
+      "AnalyticsConsent": {
+        "enum": [
+          "Accepted",
+          "Declined",
+          null
+        ]
+      },
       "ConsumptionResourceResponse": {
         "required": [
           "id",
@@ -1145,6 +1152,10 @@
           "name",
           "email",
           "firstTime",
+          "analyticsConsent",
+          "analyticsConsentUpdatedAt",
+          "onboardingVersion",
+          "onboardingCompletedAt",
           "households",
           "resources"
         ],
@@ -1177,6 +1188,39 @@
               "null",
               "boolean"
             ]
+          },
+          "analyticsConsent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalyticsConsent"
+              }
+            ]
+          },
+          "analyticsConsentUpdatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "onboardingVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "onboardingCompletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "households": {
             "type": [
@@ -1397,7 +1441,9 @@
       "UpdateUserRequest": {
         "required": [
           "userName",
-          "useDefaultResources"
+          "useDefaultResources",
+          "householdName",
+          "analyticsConsent"
         ],
         "type": "object",
         "properties": {
@@ -1411,6 +1457,22 @@
             "type": [
               "null",
               "boolean"
+            ]
+          },
+          "householdName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "analyticsConsent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalyticsConsent"
+              }
             ]
           }
         }
@@ -1504,7 +1566,11 @@
           "name",
           "email",
           "firstTime",
-          "useDefaultResources"
+          "useDefaultResources",
+          "analyticsConsent",
+          "analyticsConsentUpdatedAt",
+          "onboardingVersion",
+          "onboardingCompletedAt"
         ],
         "type": "object",
         "properties": {
@@ -1541,27 +1607,62 @@
               "null",
               "boolean"
             ]
+          },
+          "analyticsConsent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalyticsConsent"
+              }
+            ]
+          },
+          "analyticsConsentUpdatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "onboardingVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "onboardingCompletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },
       "WelcomeUserRequest": {
         "required": [
-          "userName",
-          "useDefaultResources"
+          "displayName",
+          "householdName",
+          "useDefaultResources",
+          "analyticsConsent"
         ],
         "type": "object",
         "properties": {
-          "userName": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "displayName": {
+            "type": "string"
+          },
+          "householdName": {
+            "type": "string"
           },
           "useDefaultResources": {
-            "type": [
-              "null",
-              "boolean"
-            ]
+            "type": "boolean"
+          },
+          "analyticsConsent": {
+            "$ref": "#/components/schemas/AnalyticsConsent"
           }
         }
       }

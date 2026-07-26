@@ -579,6 +579,8 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** @enum {unknown} */
+    AnalyticsConsent: 'Accepted' | 'Declined' | null;
     ConsumptionResourceResponse: {
       /** Format: uuid */
       id: string;
@@ -649,6 +651,13 @@ export interface components {
       name: null | string;
       email: null | string;
       firstTime: null | boolean;
+      analyticsConsent: null | components['schemas']['AnalyticsConsent'];
+      /** Format: date-time */
+      analyticsConsentUpdatedAt: null | string;
+      /** Format: int32 */
+      onboardingVersion: null | number | string;
+      /** Format: date-time */
+      onboardingCompletedAt: null | string;
       households: null | components['schemas']['UserHouseholdResponse'][];
       resources: null | components['schemas']['UserResourceResponse'][];
     };
@@ -704,6 +713,8 @@ export interface components {
     UpdateUserRequest: {
       userName: null | string;
       useDefaultResources: null | boolean;
+      householdName: null | string;
+      analyticsConsent: null | components['schemas']['AnalyticsConsent'];
     };
     UserHouseholdResponse: {
       /** Format: uuid */
@@ -735,10 +746,19 @@ export interface components {
       email: null | string;
       firstTime: null | boolean;
       useDefaultResources: null | boolean;
+      analyticsConsent: null | components['schemas']['AnalyticsConsent'];
+      /** Format: date-time */
+      analyticsConsentUpdatedAt: null | string;
+      /** Format: int32 */
+      onboardingVersion: null | number | string;
+      /** Format: date-time */
+      onboardingCompletedAt: null | string;
     };
     WelcomeUserRequest: {
-      userName: null | string;
-      useDefaultResources: null | boolean;
+      displayName: string;
+      householdName: string;
+      useDefaultResources: boolean;
+      analyticsConsent: components['schemas']['AnalyticsConsent'];
     };
   };
   responses: {

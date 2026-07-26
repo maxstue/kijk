@@ -12,6 +12,7 @@ export const useUpdateUser = () => {
     async onSuccess(data) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.resources.all });
       await queryClient.setQueryData(queryKeys.users.current, () => data);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.users.details });
     },
   });
 };

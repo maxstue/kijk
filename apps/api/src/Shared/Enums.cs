@@ -22,3 +22,13 @@ public enum Period
     Quarter,
     Year
 }
+
+/// <summary>
+/// Represents the user's analytics collection preference.
+/// </summary>
+[EnumExtensions]
+public enum AnalyticsConsent
+{
+    Accepted,
+    Declined
+}

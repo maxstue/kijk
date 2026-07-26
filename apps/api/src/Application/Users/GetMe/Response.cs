@@ -8,6 +8,10 @@ public record GetMeUserResponse(
     string? Name,
     string? Email,
     bool? FirstTime,
+    AnalyticsConsent? AnalyticsConsent,
+    DateTime? AnalyticsConsentUpdatedAt,
+    int? OnboardingVersion,
+    DateTime? OnboardingCompletedAt,
     IEnumerable<UserHouseholdResponse>? Households,
     IEnumerable<UserResourceResponse>? Resources);
 

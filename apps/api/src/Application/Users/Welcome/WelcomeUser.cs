@@ -8,12 +8,19 @@ namespace Kijk.Application.Users.Welcome;
 /// <summary>
 /// Handler for creating a new user after the welcome process.
 /// </summary>
-public class WelcomeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<WelcomeUserHandler> logger) : IHandler
+public class WelcomeUserHandler(
+    IAppDbContext dbContext,
+    CurrentUser currentUser,
+    TimeProvider timeProvider,
+    ILogger<WelcomeUserHandler> logger) : IHandler
 {
     public async Task<Result<UserResponse>> WelcomeAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
+            .Include(x => x.Resources)
+            .Include(x => x.UserHouseholds)
+            .ThenInclude(x => x.Household)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (user is null)
@@ -22,28 +29,34 @@ public class WelcomeUserHandler(IAppDbContext dbContext, CurrentUser currentUser
             return Error.NotFound("User not found");
         }
 
-        if (request.UserName is null)
-        {
-            logger.LogError("User name is null");
-            return Error.Validation("User name is required");
-        }
-
         if (!user.FirstTime)
         {
             logger.LogError("User is already welcome");
             return Error.Conflict("User has already completed the welcome flow");
         }
 
-        user.FirstTime = false;
-        user.Name = request.UserName;
+        var activeHousehold = user.UserHouseholds
+            .SingleOrDefault(userHousehold => userHousehold.IsActive)
+            ?.Household;
 
-        if (request.UseDefaultResources is true)
+        if (activeHousehold is null)
         {
-            var defaultCategories = await dbContext.Resources
-                .Where(x => x.CreatorType == CreatorType.System)
-                .ToListAsync(cancellationToken);
-            user.SetDefaultResources(true, defaultCategories);
+            logger.LogError("Active household not found for user: {UserId}", currentUser.Id);
+            return Error.NotFound("Active household not found");
         }
+
+        var defaultResources = await dbContext.Resources
+            .Where(resource => resource.CreatorType == CreatorType.System)
+            .ToListAsync(cancellationToken);
+
+        var completedAt = timeProvider.GetUtcNow().UtcDateTime;
+        activeHousehold.Rename(request.HouseholdName.Trim());
+        user.SetDefaultResources(request.UseDefaultResources, defaultResources);
+        user.CompleteOnboarding(
+            request.DisplayName.Trim(),
+            request.AnalyticsConsent,
+            OnboardingConstants.CurrentVersion,
+            completedAt);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

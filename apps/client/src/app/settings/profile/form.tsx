@@ -1,5 +1,6 @@
 'use no memo';
 
+import { useUser } from '@clerk/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
@@ -11,7 +12,8 @@ import { toast } from 'sonner';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/use-update-user';
-import { signedInUserQueryOptions } from '@/shared/api/users/options';
+import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
+import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
   Form,
   FormControl,
@@ -23,13 +25,17 @@ import {
 } from '@/shared/components/form';
 
 export function ProfileForm() {
+  const { user: authUser } = useUser();
   const { data: user } = useQuery(signedInUserQueryOptions());
+  const { data: currentUser } = useQuery(currentUserQueryOptions());
+  const activeHousehold = currentUser?.households?.find((household) => household.isActive);
 
   const { mutate } = useUpdateUser();
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
+      householdName: activeHousehold?.name ?? '',
       useDefaultResources: user?.useDefaultResources ?? false,
       userName: user?.name ?? '',
     },
@@ -48,6 +54,12 @@ export function ProfileForm() {
   return (
     <Form {...form}>
       <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
+        <AuthIdentitySummary
+          email={authUser?.primaryEmailAddress?.emailAddress ?? currentUser?.email ?? ''}
+          fullName={authUser?.fullName ?? ''}
+          imageUrl={authUser?.imageUrl ?? ''}
+          provider={authUser?.externalAccounts.at(0)?.provider ?? 'email'}
+        />
         <FormField
           control={form.control}
           name='userName'
@@ -57,9 +69,21 @@ export function ProfileForm() {
               <FormControl>
                 <Input placeholder='max' {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name. It can be your real name or a pseudonym.
-              </FormDescription>
+              <FormDescription>This is how your name appears in Kijk. It does not affect sign-in.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='householdName'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Household name</FormLabel>
+              <FormControl>
+                <Input placeholder='My household' {...field} />
+              </FormControl>
+              <FormDescription>The name of your active household.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
