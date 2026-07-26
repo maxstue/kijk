@@ -169,6 +169,8 @@ function ProfileStep({
 }: Pick<WelcomeFlowProps, 'authProvider' | 'email' | 'fullName' | 'imageUrl'> & {
   control: ReturnType<typeof useForm<UserStepFormDraft>>['control'];
 }) {
+  const signInAccount = authProvider === 'Email' ? 'sign-in account' : `${authProvider} account`;
+
   return (
     <div className='space-y-6'>
       <AuthIdentitySummary email={email} fullName={fullName} imageUrl={imageUrl} provider={authProvider} />
@@ -179,8 +181,8 @@ function ProfileStep({
           <FormItem>
             <FormLabel>Use your sign-in profile in Kijk?</FormLabel>
             <FormDescription>
-              Your full name and profile image stay managed by your sign-in provider. Kijk only uses them when you
-              choose to. You can change this later in your profile settings.
+              Your full name and profile image stay managed by your {signInAccount}. Kijk only uses them when you choose
+              to. You can change this later in your profile settings.
             </FormDescription>
             <FormControl>
               <RadioGroup
@@ -188,7 +190,11 @@ function ProfileStep({
                 value={field.value === null ? '' : field.value ? 'yes' : 'no'}
                 onValueChange={(value) => field.onChange(value === 'yes')}
               >
-                <Choice value='yes' title='Use profile' description='Show your full name and profile image in Kijk.' />
+                <Choice
+                  value='yes'
+                  title='Use profile'
+                  description={`Show the full name and profile image from your ${signInAccount} in Kijk.`}
+                />
                 <Choice
                   value='no'
                   title='Do not use'

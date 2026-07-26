@@ -5,6 +5,7 @@ import { WelcomeFlow } from '@/app/welcome/welcome-flow';
 import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/welcome')({
@@ -26,6 +27,7 @@ export const Route = createFileRoute('/welcome')({
 
 function WelcomePage() {
   useSetSiteHeader('Welcome');
+  const authProvider = useSignInProviderName();
   const { data: currentUser } = useSuspenseQuery(currentUserQueryOptions());
   const navigate = useNavigate({ from: '/welcome' });
   const activeHousehold = currentUser.households?.find((household) => household.isActive);
@@ -33,7 +35,7 @@ function WelcomePage() {
 
   return (
     <WelcomeFlow
-      authProvider={externalIdentity?.provider ?? 'email'}
+      authProvider={authProvider}
       email={externalIdentity?.email}
       fullName={externalIdentity?.fullName}
       householdName={activeHousehold?.name ?? 'My household'}

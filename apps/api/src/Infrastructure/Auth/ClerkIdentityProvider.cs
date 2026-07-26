@@ -24,13 +24,11 @@ public sealed class ClerkIdentityProvider(ClerkBackendApi clerkBackendApi) : IId
             ?.EmailAddressValue
             ?? (user.EmailAddresses.Count > 0 ? user.EmailAddresses[0].EmailAddressValue : null);
         var fullName = JoinName(user.FirstName, user.LastName);
-        var provider = user.ExternalAccounts.FirstOrDefault()?.Provider ?? "email";
 
         return new(
             fullName,
             primaryEmail,
             user.HasImage ? user.ImageUrl : null,
-            provider,
             ReadUseProfilePreference(user.PrivateMetadata));
     }
 

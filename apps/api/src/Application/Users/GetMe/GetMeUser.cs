@@ -40,8 +40,7 @@ public class GetMeUserHandler(
             ExternalIdentity = new(
                 showProfilePreview || useExternalProfile ? externalIdentity.FullName : null,
                 externalIdentity.Email,
-                showProfilePreview || useExternalProfile ? externalIdentity.ImageUrl : null,
-                externalIdentity.Provider)
+                showProfilePreview || useExternalProfile ? externalIdentity.ImageUrl : null)
         };
     }
 }

@@ -22,12 +22,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
+import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 
 export function ProfileForm() {
+  const authProvider = useSignInProviderName();
   const { data: user } = useQuery(signedInUserQueryOptions());
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
   const externalIdentity = currentUser?.externalIdentity;
+  const signInAccount = authProvider === 'Email' ? 'sign-in account' : `${authProvider} account`;
 
   const { mutate } = useUpdateUser();
 
@@ -59,7 +62,7 @@ export function ProfileForm() {
           fullName={externalIdentity?.fullName}
           imageUrl={externalIdentity?.imageUrl}
           profileEnabled={currentUser?.useExternalProfile ?? false}
-          provider={externalIdentity?.provider ?? 'email'}
+          provider={authProvider}
         />
         <FormField
           control={form.control}
@@ -72,7 +75,7 @@ export function ProfileForm() {
               <div className='space-y-1'>
                 <FormLabel>Use sign-in profile</FormLabel>
                 <FormDescription>
-                  Show the full name and profile image managed by your sign-in provider in Kijk.
+                  Show the full name and profile image from your {signInAccount} in Kijk.
                 </FormDescription>
               </div>
               <FormMessage />

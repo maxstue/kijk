@@ -1149,8 +1149,7 @@
         "required": [
           "fullName",
           "email",
-          "imageUrl",
-          "provider"
+          "imageUrl"
         ],
         "type": "object",
         "properties": {
@@ -1171,9 +1170,6 @@
               "null",
               "string"
             ]
-          },
-          "provider": {
-            "type": "string"
           }
         }
       },

@@ -648,7 +648,6 @@ export interface components {
       fullName: null | string;
       email: null | string;
       imageUrl: null | string;
-      provider: string;
     };
     GetMeUserResponse: {
       /** Format: uuid */
