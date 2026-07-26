@@ -1,6 +1,5 @@
 'use no memo';
 
-import { useUser } from '@clerk/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
@@ -25,10 +24,10 @@ import {
 } from '@/shared/components/form';
 
 export function ProfileForm() {
-  const { user: authUser } = useUser();
   const { data: user } = useQuery(signedInUserQueryOptions());
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
+  const externalIdentity = currentUser?.externalIdentity;
 
   const { mutate } = useUpdateUser();
 
@@ -37,6 +36,7 @@ export function ProfileForm() {
     values: {
       householdName: activeHousehold?.name ?? '',
       useDefaultResources: user?.useDefaultResources ?? false,
+      useExternalProfile: currentUser?.useExternalProfile ?? false,
       userName: user?.name ?? '',
     },
   });
@@ -55,10 +55,29 @@ export function ProfileForm() {
     <Form {...form}>
       <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
         <AuthIdentitySummary
-          email={authUser?.primaryEmailAddress?.emailAddress ?? currentUser?.email ?? ''}
-          fullName={authUser?.fullName ?? ''}
-          imageUrl={authUser?.imageUrl ?? ''}
-          provider={authUser?.externalAccounts.at(0)?.provider ?? 'email'}
+          email={externalIdentity?.email}
+          fullName={externalIdentity?.fullName}
+          imageUrl={externalIdentity?.imageUrl}
+          profileEnabled={currentUser?.useExternalProfile ?? false}
+          provider={externalIdentity?.provider ?? 'email'}
+        />
+        <FormField
+          control={form.control}
+          name='useExternalProfile'
+          render={({ field }) => (
+            <FormItem className='flex items-start gap-3 rounded-lg border p-4'>
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+              <div className='space-y-1'>
+                <FormLabel>Use sign-in profile</FormLabel>
+                <FormDescription>
+                  Show the full name and profile image managed by your sign-in provider in Kijk.
+                </FormDescription>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
         />
         <FormField
           control={form.control}

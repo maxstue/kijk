@@ -32,10 +32,10 @@ const steps = ['Profile', 'Household', 'Privacy', 'Review'] as const;
 
 interface WelcomeFlowProps {
   authProvider: string;
-  email: string;
-  fullName: string;
+  email?: string | null;
+  fullName?: string | null;
   householdName: string;
-  imageUrl: string;
+  imageUrl?: string | null;
   initialDisplayName: string;
   onComplete: () => Promise<void>;
 }
@@ -57,6 +57,7 @@ export function WelcomeFlow({
       displayName: initialDisplayName,
       householdName,
       useDefaultResources: true,
+      useExternalProfile: null,
     },
     resolver: zodResolver(userStepSchema),
   });
@@ -171,6 +172,34 @@ function ProfileStep({
   return (
     <div className='space-y-6'>
       <AuthIdentitySummary email={email} fullName={fullName} imageUrl={imageUrl} provider={authProvider} />
+      <FormField
+        control={control}
+        name='useExternalProfile'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Use your sign-in profile in Kijk?</FormLabel>
+            <FormDescription>
+              Your full name and profile image stay managed by your sign-in provider. Kijk only uses them when you
+              choose to. You can change this later in your profile settings.
+            </FormDescription>
+            <FormControl>
+              <RadioGroup
+                className='grid gap-3 pt-2 sm:grid-cols-2'
+                value={field.value === null ? '' : field.value ? 'yes' : 'no'}
+                onValueChange={(value) => field.onChange(value === 'yes')}
+              >
+                <Choice value='yes' title='Use profile' description='Show your full name and profile image in Kijk.' />
+                <Choice
+                  value='no'
+                  title='Do not use'
+                  description='Use only your Kijk username and a generated avatar.'
+                />
+              </RadioGroup>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <FormField
         control={control}
         name='displayName'
@@ -289,6 +318,7 @@ function ReviewStep({ values }: { values: UserStepFormDraft }) {
   return (
     <dl className='divide-y rounded-lg border'>
       <ReviewItem label='Username' value={values.displayName} />
+      <ReviewItem label='Sign-in profile' value={values.useExternalProfile ? 'Name and image used' : 'Not used'} />
       <ReviewItem label='Household' value={values.householdName} />
       <ReviewItem label='Default resources' value={values.useDefaultResources ? 'All defaults' : 'None'} />
       <ReviewItem label='Usage data' value={values.analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
@@ -320,7 +350,7 @@ function stepDescription(step: number) {
 
 async function validateStep(form: UseFormReturn<UserStepFormDraft, unknown, UserStepFormValues>, currentStep: number) {
   const fieldsByStep = [
-    ['displayName'],
+    ['displayName', 'useExternalProfile'],
     ['householdName', 'useDefaultResources'],
     ['analyticsConsent'],
   ] satisfies Array<Array<keyof UserStepFormDraft>>;

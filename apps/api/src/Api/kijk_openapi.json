@@ -1145,6 +1145,38 @@
           "User"
         ]
       },
+      "ExternalIdentityResponse": {
+        "required": [
+          "fullName",
+          "email",
+          "imageUrl",
+          "provider"
+        ],
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provider": {
+            "type": "string"
+          }
+        }
+      },
       "GetMeUserResponse": {
         "required": [
           "id",
@@ -1239,6 +1271,22 @@
             "items": {
               "$ref": "#/components/schemas/UserResourceResponse"
             }
+          },
+          "useExternalProfile": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "externalIdentity": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExternalIdentityResponse"
+              }
+            ]
           }
         }
       },
@@ -1442,6 +1490,7 @@
         "required": [
           "userName",
           "useDefaultResources",
+          "useExternalProfile",
           "householdName",
           "analyticsConsent"
         ],
@@ -1454,6 +1503,12 @@
             ]
           },
           "useDefaultResources": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "useExternalProfile": {
             "type": [
               "null",
               "boolean"
@@ -1648,6 +1703,7 @@
           "displayName",
           "householdName",
           "useDefaultResources",
+          "useExternalProfile",
           "analyticsConsent"
         ],
         "type": "object",
@@ -1659,6 +1715,9 @@
             "type": "string"
           },
           "useDefaultResources": {
+            "type": "boolean"
+          },
+          "useExternalProfile": {
             "type": "boolean"
           },
           "analyticsConsent": {

@@ -18,6 +18,20 @@ export const userStepSchema = z.object({
   displayName: z.string().trim().min(2).max(100),
   householdName: z.string().trim().min(2).max(100),
   useDefaultResources: z.boolean(),
+  useExternalProfile: z
+    .boolean()
+    .nullable()
+    .transform((value, context) => {
+      if (value === null) {
+        context.addIssue({
+          code: 'custom',
+          message: 'Please choose whether Kijk may use your sign-in profile.',
+        });
+        return z.NEVER;
+      }
+
+      return value;
+    }),
 });
 
 export type UserStepFormDraft = z.input<typeof userStepSchema>;

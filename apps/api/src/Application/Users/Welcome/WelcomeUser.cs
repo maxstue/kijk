@@ -1,4 +1,5 @@
-﻿using Kijk.Application.Abstractions.Persistence;
+﻿using Kijk.Application.Abstractions.Identity;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Users.Shared;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ namespace Kijk.Application.Users.Welcome;
 /// </summary>
 public class WelcomeUserHandler(
     IAppDbContext dbContext,
+    IIdentityProvider identityProvider,
     CurrentUser currentUser,
     TimeProvider timeProvider,
     ILogger<WelcomeUserHandler> logger) : IHandler
@@ -58,6 +60,10 @@ public class WelcomeUserHandler(
             OnboardingConstants.CurrentVersion,
             completedAt);
 
+        await identityProvider.SetUseProfileInKijkAsync(
+            currentUser.AuthId,
+            request.UseExternalProfile,
+            cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return user.ToResponse(user.Resources.Any(resource => resource.CreatorType == CreatorType.System));

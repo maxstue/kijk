@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Clerk.BackendAPI;
 using Clerk.BackendAPI.Helpers.Jwks;
 using EntityFramework.Exceptions.PostgreSQL;
+using Kijk.Application.Abstractions.Identity;
 using Kijk.Application.Abstractions.Persistence;
 using Kijk.Infrastructure.Auth;
 using Kijk.Infrastructure.Persistence;
@@ -158,6 +159,7 @@ public static class DependencyInjection
                 var authOptions = sp.GetRequiredService<IOptions<AuthOptions>>().Value;
                 return new ClerkBackendApi(bearerAuth: authOptions.SecretKey);
             });
+            services.AddScoped<IIdentityProvider, ClerkIdentityProvider>();
 
             return services;
         }

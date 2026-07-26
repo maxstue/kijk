@@ -1,4 +1,5 @@
-﻿using Kijk.Application.Abstractions.Persistence;
+﻿using Kijk.Application.Abstractions.Identity;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Users.Shared;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ namespace Kijk.Application.Users.Update;
 /// </summary>
 public class UpdateUserHandler(
     IAppDbContext dbContext,
+    IIdentityProvider identityProvider,
     CurrentUser currentUser,
     TimeProvider timeProvider,
     ILogger<UpdateUserHandler> logger) : IHandler
@@ -49,6 +51,14 @@ public class UpdateUserHandler(
         if (request.AnalyticsConsent is not null)
         {
             userEntity.UpdateAnalyticsConsent(request.AnalyticsConsent.Value, timeProvider.GetUtcNow().UtcDateTime);
+        }
+
+        if (request.UseExternalProfile is not null)
+        {
+            await identityProvider.SetUseProfileInKijkAsync(
+                currentUser.AuthId,
+                request.UseExternalProfile.Value,
+                cancellationToken);
         }
 
         var hasDefaultResources = userEntity.Resources.Any(x => x.CreatorType == CreatorType.System);

@@ -1,4 +1,5 @@
-﻿using Kijk.Application.Abstractions.Persistence;
+﻿using Kijk.Application.Abstractions.Identity;
+using Kijk.Application.Abstractions.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +9,11 @@ namespace Kijk.Application.Users.GetMe;
 /// Handler for the getting the current user.
 /// It returns more data for the current user.
 /// </summary>
-public class GetMeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetMeUserHandler> logger) : IHandler
+public class GetMeUserHandler(
+    IAppDbContext dbContext,
+    IIdentityProvider identityProvider,
+    CurrentUser currentUser,
+    ILogger<GetMeUserHandler> logger) : IHandler
 {
     public async Task<Result<GetMeUserResponse>> GetMeAsync(CancellationToken cancellationToken)
     {
@@ -25,6 +30,18 @@ public class GetMeUserHandler(IAppDbContext dbContext, CurrentUser currentUser, 
             return Error.NotFound("User not found");
         }
 
-        return userEntity;
+        var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
+        var useExternalProfile = externalIdentity.UseProfileInKijk ?? false;
+        var showProfilePreview = userEntity.FirstTime is true;
+
+        return userEntity with
+        {
+            UseExternalProfile = useExternalProfile,
+            ExternalIdentity = new(
+                showProfilePreview || useExternalProfile ? externalIdentity.FullName : null,
+                externalIdentity.Email,
+                showProfilePreview || useExternalProfile ? externalIdentity.ImageUrl : null,
+                externalIdentity.Provider)
+        };
     }
 }

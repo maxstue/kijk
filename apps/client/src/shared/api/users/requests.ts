@@ -18,6 +18,7 @@ export async function updateUser(data: UpdateUserData) {
         analyticsConsent: data.analyticsConsent ?? null,
         householdName: data.householdName ?? null,
         useDefaultResources: data.useDefaultResources ?? null,
+        useExternalProfile: data.useExternalProfile ?? null,
         userName: data.userName ?? null,
       },
     }),
@@ -32,6 +33,7 @@ export async function welcomeUser(data: WelcomeUserData) {
         displayName: data.displayName,
         householdName: data.householdName,
         useDefaultResources: data.useDefaultResources,
+        useExternalProfile: data.useExternalProfile,
       },
     }),
   );

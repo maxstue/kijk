@@ -17,6 +17,8 @@ public static partial class GetMeUserResponseMapper
     public static partial IQueryable<GetMeUserResponse> ToResponse(this IQueryable<User> source);
 
     [MapProperty(nameof(User.UserHouseholds), nameof(GetMeUserResponse.Households))]
+    [MapperIgnoreTarget(nameof(GetMeUserResponse.UseExternalProfile))]
+    [MapperIgnoreTarget(nameof(GetMeUserResponse.ExternalIdentity))]
     private static partial GetMeUserResponse Map(User source);
 
     [MapProperty(nameof(UserHousehold.Household.Name), nameof(UserHouseholdResponse.Name))]

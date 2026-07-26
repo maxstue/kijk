@@ -1,4 +1,3 @@
-import { useUser } from '@clerk/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
@@ -27,20 +26,19 @@ export const Route = createFileRoute('/welcome')({
 
 function WelcomePage() {
   useSetSiteHeader('Welcome');
-  const { user } = useUser();
   const { data: currentUser } = useSuspenseQuery(currentUserQueryOptions());
   const navigate = useNavigate({ from: '/welcome' });
   const activeHousehold = currentUser.households?.find((household) => household.isActive);
-  const externalProvider = user?.externalAccounts.at(0)?.provider;
+  const externalIdentity = currentUser.externalIdentity;
 
   return (
     <WelcomeFlow
-      authProvider={externalProvider ?? 'email'}
-      email={user?.primaryEmailAddress?.emailAddress ?? currentUser.email ?? ''}
-      fullName={user?.fullName ?? ''}
+      authProvider={externalIdentity?.provider ?? 'email'}
+      email={externalIdentity?.email}
+      fullName={externalIdentity?.fullName}
       householdName={activeHousehold?.name ?? 'My household'}
-      imageUrl={user?.imageUrl ?? ''}
-      initialDisplayName={user?.fullName ?? user?.username ?? currentUser.name ?? ''}
+      imageUrl={externalIdentity?.imageUrl}
+      initialDisplayName=''
       onComplete={() => navigate({ replace: true, to: '/home' })}
     />
   );

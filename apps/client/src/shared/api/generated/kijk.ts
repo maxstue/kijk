@@ -644,6 +644,12 @@ export interface components {
     };
     /** @enum {unknown} */
     CreatorType: 'System' | 'User';
+    ExternalIdentityResponse: {
+      fullName: null | string;
+      email: null | string;
+      imageUrl: null | string;
+      provider: string;
+    };
     GetMeUserResponse: {
       /** Format: uuid */
       id: string;
@@ -660,6 +666,8 @@ export interface components {
       onboardingCompletedAt: null | string;
       households: null | components['schemas']['UserHouseholdResponse'][];
       resources: null | components['schemas']['UserResourceResponse'][];
+      useExternalProfile?: null | boolean;
+      externalIdentity?: null | components['schemas']['ExternalIdentityResponse'];
     };
     GetStatsConsumptionsResponseWrapper: {
       stats: components['schemas']['ConsumptionStatsResponse'][];
@@ -713,6 +721,7 @@ export interface components {
     UpdateUserRequest: {
       userName: null | string;
       useDefaultResources: null | boolean;
+      useExternalProfile: null | boolean;
       householdName: null | string;
       analyticsConsent: null | components['schemas']['AnalyticsConsent'];
     };
@@ -758,6 +767,7 @@ export interface components {
       displayName: string;
       householdName: string;
       useDefaultResources: boolean;
+      useExternalProfile: boolean;
       analyticsConsent: components['schemas']['AnalyticsConsent'];
     };
   };
