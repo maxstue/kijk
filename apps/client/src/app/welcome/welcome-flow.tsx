@@ -38,6 +38,7 @@ interface WelcomeFlowProps {
   imageUrl?: string | null;
   initialDisplayName: string;
   onComplete: () => Promise<void>;
+  signInAccount: string;
 }
 
 export function WelcomeFlow({
@@ -48,6 +49,7 @@ export function WelcomeFlow({
   imageUrl,
   initialDisplayName,
   onComplete,
+  signInAccount,
 }: WelcomeFlowProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const { mutateAsync, isPending } = useWelcomeUser();
@@ -126,6 +128,7 @@ export function WelcomeFlow({
                   email={email}
                   fullName={fullName}
                   imageUrl={imageUrl}
+                  signInAccount={signInAccount}
                 />
               )}
               {currentStep === 1 && <HouseholdStep control={form.control} />}
@@ -166,11 +169,10 @@ function ProfileStep({
   email,
   fullName,
   imageUrl,
-}: Pick<WelcomeFlowProps, 'authProvider' | 'email' | 'fullName' | 'imageUrl'> & {
+  signInAccount,
+}: Pick<WelcomeFlowProps, 'authProvider' | 'email' | 'fullName' | 'imageUrl' | 'signInAccount'> & {
   control: ReturnType<typeof useForm<UserStepFormDraft>>['control'];
 }) {
-  const signInAccount = authProvider === 'Email' ? 'sign-in account' : `${authProvider} account`;
-
   return (
     <div className='space-y-6'>
       <AuthIdentitySummary email={email} fullName={fullName} imageUrl={imageUrl} provider={authProvider} />

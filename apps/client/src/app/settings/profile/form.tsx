@@ -25,12 +25,11 @@ import {
 import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 
 export function ProfileForm() {
-  const authProvider = useSignInProviderName();
+  const { accountName: signInAccount, providerName: authProvider } = useSignInProviderName();
   const { data: user } = useQuery(signedInUserQueryOptions());
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
   const externalIdentity = currentUser?.externalIdentity;
-  const signInAccount = authProvider === 'Email' ? 'sign-in account' : `${authProvider} account`;
 
   const { mutate } = useUpdateUser();
 
