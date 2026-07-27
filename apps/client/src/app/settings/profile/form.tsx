@@ -1,5 +1,3 @@
-'use no memo';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
@@ -25,7 +23,7 @@ import {
 import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 
 export function ProfileForm() {
-  const { providerName: authProvider, signInSourceLabel } = useSignInProviderName();
+  const { providerName } = useSignInProviderName();
   const { data: user } = useQuery(signedInUserQueryOptions());
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
@@ -61,7 +59,7 @@ export function ProfileForm() {
           fullName={externalIdentity?.fullName}
           imageUrl={externalIdentity?.imageUrl}
           profileEnabled={currentUser?.useExternalProfile ?? false}
-          provider={authProvider}
+          provider={providerName}
         />
         <FormField
           control={form.control}
@@ -74,7 +72,7 @@ export function ProfileForm() {
               <div className='space-y-1'>
                 <FormLabel>Use sign-in profile</FormLabel>
                 <FormDescription>
-                  Show the full name and profile image from your {signInSourceLabel} in Kijk.
+                  Show the full name and profile image from your {providerName} account in Kijk.
                 </FormDescription>
               </div>
               <FormMessage />

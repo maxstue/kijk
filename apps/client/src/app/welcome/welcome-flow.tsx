@@ -1,5 +1,3 @@
-'use no memo';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -26,32 +24,30 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 import { config } from '@/shared/config';
+import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 import { ApiError } from '@/shared/types/errors/api-error';
 
 const steps = ['Profile', 'Household', 'Privacy', 'Review'] as const;
 
 interface WelcomeFlowProps {
-  authProvider: string;
   email?: string | null;
   fullName?: string | null;
   householdName: string;
   imageUrl?: string | null;
   initialDisplayName: string;
   onComplete: () => Promise<void>;
-  signInSourceLabel: string;
 }
 
 export function WelcomeFlow({
-  authProvider,
   email,
   fullName,
   householdName,
   imageUrl,
   initialDisplayName,
   onComplete,
-  signInSourceLabel,
 }: WelcomeFlowProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const { providerName } = useSignInProviderName();
   const { mutateAsync, isPending } = useWelcomeUser();
   const form = useForm<UserStepFormDraft, unknown, UserStepFormValues>({
     defaultValues: {
@@ -123,12 +119,11 @@ export function WelcomeFlow({
             <form className='space-y-6' onSubmit={form.handleSubmit(submit)}>
               {currentStep === 0 && (
                 <ProfileStep
-                  authProvider={authProvider}
+                  providerName={providerName}
                   control={form.control}
                   email={email}
                   fullName={fullName}
                   imageUrl={imageUrl}
-                  signInSourceLabel={signInSourceLabel}
                 />
               )}
               {currentStep === 1 && <HouseholdStep control={form.control} />}
@@ -164,18 +159,18 @@ export function WelcomeFlow({
 }
 
 function ProfileStep({
-  authProvider,
+  providerName,
   control,
   email,
   fullName,
   imageUrl,
-  signInSourceLabel,
-}: Pick<WelcomeFlowProps, 'authProvider' | 'email' | 'fullName' | 'imageUrl' | 'signInSourceLabel'> & {
+}: Pick<WelcomeFlowProps, 'email' | 'fullName' | 'imageUrl'> & {
+  providerName: string;
   control: ReturnType<typeof useForm<UserStepFormDraft>>['control'];
 }) {
   return (
     <div className='space-y-6'>
-      <AuthIdentitySummary email={email} fullName={fullName} imageUrl={imageUrl} provider={authProvider} />
+      <AuthIdentitySummary email={email} fullName={fullName} imageUrl={imageUrl} provider={providerName} />
       <FormField
         control={control}
         name='useExternalProfile'
@@ -183,7 +178,7 @@ function ProfileStep({
           <FormItem>
             <FormLabel>Use your sign-in profile in Kijk?</FormLabel>
             <FormDescription>
-              Your full name and profile image stay managed by your {signInSourceLabel}. Kijk only uses them when you
+              Your full name and profile image stay managed by your {providerName} account. Kijk only uses them when you
               choose to. You can change this later in your profile settings.
             </FormDescription>
             <FormControl>
@@ -195,7 +190,7 @@ function ProfileStep({
                 <Choice
                   value='yes'
                   title='Use profile'
-                  description={`Show the full name and profile image from your ${signInSourceLabel} in Kijk.`}
+                  description={`Show the full name and profile image from your ${providerName} account in Kijk.`}
                 />
                 <Choice
                   value='no'

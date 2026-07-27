@@ -4,12 +4,12 @@ import { getSignInProviderName } from '@/shared/types/auth';
 
 export function useSignInProviderName() {
   const { user } = useUser();
+
   const providerName = getSignInProviderName(
     user?.externalAccounts.map((externalAccount) => externalAccount.provider) ?? [],
   );
 
   return {
     providerName,
-    signInSourceLabel: providerName === 'Email' ? 'sign-in account' : `${providerName} account`,
   };
 }
