@@ -17,28 +17,6 @@ import { Bell, ChevronsUpDown, LogOut, Sparkles } from 'lucide-react';
 import { getInitialChars } from '@/app/root/helpers';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 
-type UserSummaryProps = {
-  displayName?: string | null;
-  email?: string | null;
-  imageUrl?: string | null;
-  initials: string;
-};
-
-function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProps) {
-  return (
-    <>
-      <Avatar className='h-8 w-8 rounded-lg'>
-        <AvatarImage alt={displayName ?? initials} src={imageUrl ?? ''} />
-        <AvatarFallback className='rounded-lg'>{initials}</AvatarFallback>
-      </Avatar>
-      <div className='grid flex-1 text-left text-sm leading-tight'>
-        <span className='truncate font-medium'>{displayName}</span>
-        <span className='text-muted-foreground truncate text-xs'>{email}</span>
-      </div>
-    </>
-  );
-}
-
 export function NavUser() {
   const { signOut } = useAuth();
   const { data: user } = useQuery(currentUserQueryOptions());
@@ -113,5 +91,27 @@ export function NavUser() {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
+  );
+}
+
+type UserSummaryProps = {
+  displayName?: string | null;
+  email?: string | null;
+  imageUrl?: string | null;
+  initials: string;
+};
+
+function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProps) {
+  return (
+    <>
+      <Avatar className='h-8 w-8 rounded-lg'>
+        <AvatarImage alt={displayName ?? initials} src={imageUrl ?? ''} />
+        <AvatarFallback className='rounded-lg'>{initials}</AvatarFallback>
+      </Avatar>
+      <div className='grid flex-1 text-left text-sm leading-tight'>
+        <span className='truncate font-medium'>{displayName}</span>
+        <span className='text-muted-foreground truncate text-xs'>{email}</span>
+      </div>
+    </>
   );
 }

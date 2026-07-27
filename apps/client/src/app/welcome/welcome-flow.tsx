@@ -351,7 +351,7 @@ function stepDescription(step: number) {
   ][step];
 }
 
-async function validateStep(form: UseFormReturn<UserStepFormDraft, unknown, UserStepFormValues>, currentStep: number) {
+function validateStep(form: UseFormReturn<UserStepFormDraft, unknown, UserStepFormValues>, currentStep: number) {
   const fieldsByStep = [
     ['displayName', 'useExternalProfile'],
     ['householdName', 'useDefaultResources'],
@@ -359,5 +359,5 @@ async function validateStep(form: UseFormReturn<UserStepFormDraft, unknown, User
   ] satisfies Array<Array<keyof UserStepFormDraft>>;
   const fields = fieldsByStep[currentStep];
 
-  return fields ? form.trigger(fields, { shouldFocus: true }) : true;
+  return form.trigger(fields, { shouldFocus: true });
 }

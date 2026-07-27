@@ -19,11 +19,11 @@ export function AuthIdentitySummary({
     <div className='bg-muted/40 flex items-center gap-4 rounded-lg border p-4'>
       <Avatar className='size-14'>
         <AvatarImage alt='' src={imageUrl ?? undefined} />
-        <AvatarFallback>{email?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
+        <AvatarFallback>{email?.slice(0, 2).toUpperCase() ?? '?'}</AvatarFallback>
       </Avatar>
       <dl className='min-w-0 space-y-1 text-sm'>
-        <IdentityItem label='Full name' value={profileEnabled ? fullName || 'Not provided' : 'Not used in Kijk'} />
-        <IdentityItem label='Email' value={email || 'Not provided'} />
+        <IdentityItem label='Full name' value={profileEnabled ? (fullName ?? 'Not provided') : 'Not used in Kijk'} />
+        <IdentityItem label='Email' value={email ?? 'Not provided'} />
         <IdentityItem label='Signed in with' value={provider} />
       </dl>
     </div>
