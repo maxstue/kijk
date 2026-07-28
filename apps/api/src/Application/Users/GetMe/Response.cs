@@ -7,14 +7,17 @@ public record GetMeUserResponse(
     string? AuthId,
     string? Name,
     string? Email,
-    bool? FirstTime,
     AnalyticsConsent? AnalyticsConsent,
     DateTime? AnalyticsConsentUpdatedAt,
-    int? OnboardingVersion,
     DateTime? OnboardingCompletedAt,
     IEnumerable<UserHouseholdResponse>? Households,
     IEnumerable<UserResourceResponse>? Resources)
 {
+    /// <summary>
+    /// Gets whether the user has completed onboarding.
+    /// </summary>
+    public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
+
     /// <summary>
     /// Gets whether Kijk may use the external full name and profile image.
     /// </summary>

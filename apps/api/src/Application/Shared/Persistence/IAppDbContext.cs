@@ -1,6 +1,6 @@
 using Kijk.Domain.Entities;
 
-namespace Kijk.Application.Abstractions.Persistence;
+namespace Kijk.Application.Shared.Persistence;
 
 /// <summary>
 /// Persistence abstraction used by application handlers.

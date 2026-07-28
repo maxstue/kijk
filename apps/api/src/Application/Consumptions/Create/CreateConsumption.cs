@@ -1,5 +1,5 @@
-using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;

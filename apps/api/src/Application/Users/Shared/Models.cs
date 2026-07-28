@@ -7,9 +7,13 @@ public record UserResponse(
     string? AuthId,
     string? Name,
     string? Email,
-    bool? FirstTime,
     bool? UseDefaultResources,
     AnalyticsConsent? AnalyticsConsent,
     DateTime? AnalyticsConsentUpdatedAt,
-    int? OnboardingVersion,
-    DateTime? OnboardingCompletedAt);
+    DateTime? OnboardingCompletedAt)
+{
+    /// <summary>
+    /// Gets whether the user has completed onboarding.
+    /// </summary>
+    public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
+}

@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_protected')({
     }
 
     const user = await queryClient.ensureQueryData(signedInUserQueryOptions());
-    if (user.firstTime) {
+    if (user.onboardingCompleted !== true) {
       throw redirect({ replace: true, to: '/welcome' });
     }
     const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
@@ -39,13 +39,13 @@ export const Route = createFileRoute('/_protected')({
 function Protected() {
   const query = useSuspenseQuery(signedInUserQueryOptions());
 
-  const isFirstTime = query.data.firstTime === true;
+  const onboardingCompleted = query.data.onboardingCompleted === true;
 
   return (
     <SidebarProvider>
-      {isFirstTime ? undefined : <AppSidebar />}
+      {onboardingCompleted ? <AppSidebar /> : undefined}
       <SidebarInset className='min-h-[calc(100svh-(--spacing(4)))]'>
-        {isFirstTime ? undefined : <SiteHeader />}
+        {onboardingCompleted ? <SiteHeader /> : undefined}
         <div className='p-4'>
           <Outlet />
         </div>

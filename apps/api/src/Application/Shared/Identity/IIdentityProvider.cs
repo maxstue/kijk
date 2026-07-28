@@ -1,4 +1,4 @@
-namespace Kijk.Application.Abstractions.Identity;
+namespace Kijk.Application.Shared.Identity;
 
 /// <summary>
 /// Provides access to identity data owned by the authentication provider.

@@ -1,9 +1,8 @@
 using System.Security.Claims;
 using Clerk.BackendAPI;
-using Clerk.BackendAPI.Helpers.Jwks;
 using EntityFramework.Exceptions.PostgreSQL;
-using Kijk.Application.Abstractions.Identity;
-using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Infrastructure.Auth;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;

@@ -14,8 +14,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Kijk.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260726163041_AddOnboardingState")]
-    partial class AddOnboardingState
+    [Migration("20260728214217_UpdateUserOnboardingValue")]
+    partial class UpdateUserOnboardingValue
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -386,12 +386,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("email");
 
-                    b.Property<bool>("FirstTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("first_time");
-
                     b.Property<string>("Image")
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)")
@@ -406,10 +400,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("OnboardingCompletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("onboarding_completed_at");
-
-                    b.Property<int?>("OnboardingVersion")
-                        .HasColumnType("integer")
-                        .HasColumnName("onboarding_version");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()

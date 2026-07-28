@@ -1,4 +1,4 @@
-﻿using Kijk.Application.Abstractions.Persistence;
+﻿using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 

@@ -655,16 +655,14 @@ export interface components {
       authId: null | string;
       name: null | string;
       email: null | string;
-      firstTime: null | boolean;
       analyticsConsent: null | components['schemas']['AnalyticsConsent'];
       /** Format: date-time */
       analyticsConsentUpdatedAt: null | string;
-      /** Format: int32 */
-      onboardingVersion: null | number | string;
       /** Format: date-time */
       onboardingCompletedAt: null | string;
       households: null | components['schemas']['UserHouseholdResponse'][];
       resources: null | components['schemas']['UserResourceResponse'][];
+      onboardingCompleted?: boolean;
       useExternalProfile?: null | boolean;
       externalIdentity?: null | components['schemas']['ExternalIdentityResponse'];
     };
@@ -752,15 +750,13 @@ export interface components {
       authId: null | string;
       name: null | string;
       email: null | string;
-      firstTime: null | boolean;
       useDefaultResources: null | boolean;
       analyticsConsent: null | components['schemas']['AnalyticsConsent'];
       /** Format: date-time */
       analyticsConsentUpdatedAt: null | string;
-      /** Format: int32 */
-      onboardingVersion: null | number | string;
       /** Format: date-time */
       onboardingCompletedAt: null | string;
+      onboardingCompleted?: boolean;
     };
     WelcomeUserRequest: {
       displayName: string;

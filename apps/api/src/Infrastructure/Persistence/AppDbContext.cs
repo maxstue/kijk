@@ -1,4 +1,4 @@
-﻿using Kijk.Application.Abstractions.Persistence;
+﻿using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

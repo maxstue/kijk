@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
-using Kijk.Application.Abstractions.Persistence;
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 using Kijk.Shared.Extensions;
 

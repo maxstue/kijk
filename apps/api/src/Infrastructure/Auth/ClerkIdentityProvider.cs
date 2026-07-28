@@ -1,8 +1,7 @@
 using System.Text.Json;
 using Clerk.BackendAPI;
-using Clerk.BackendAPI.Models.Components;
 using Clerk.BackendAPI.Models.Operations;
-using Kijk.Application.Abstractions.Identity;
+using Kijk.Application.Shared.Identity;
 
 namespace Kijk.Infrastructure.Auth;
 
@@ -21,8 +20,7 @@ public sealed class ClerkIdentityProvider(ClerkBackendApi clerkBackendApi) : IId
         var user = response.User ?? throw new InvalidOperationException($"Clerk user '{authId}' was not found.");
         var primaryEmail = user.EmailAddresses
             .Find(email => email.Id == user.PrimaryEmailAddressId)
-            ?.EmailAddressValue
-            ?? (user.EmailAddresses.Count > 0 ? user.EmailAddresses[0].EmailAddressValue : null);
+            ?.EmailAddressValue ?? (user.EmailAddresses.Count > 0 ? user.EmailAddresses[0].EmailAddressValue : null);
         var fullName = JoinName(user.FirstName, user.LastName);
 
         return new(
@@ -33,14 +31,11 @@ public sealed class ClerkIdentityProvider(ClerkBackendApi clerkBackendApi) : IId
     }
 
     /// <inheritdoc />
-    public async Task SetUseProfileInKijkAsync(
-        string authId,
-        bool useProfileInKijk,
-        CancellationToken cancellationToken)
+    public async Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken)
     {
         var request = new UpdateUserMetadataRequestBody
         {
-            PrivateMetadata = new Dictionary<string, object>
+            PrivateMetadata = new()
             {
                 [KijkMetadataKey] = new Dictionary<string, object>
                 {

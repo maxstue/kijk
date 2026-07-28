@@ -1,4 +1,4 @@
-namespace Kijk.Application.Abstractions.Identity;
+namespace Kijk.Application.Shared.Identity;
 
 /// <summary>
 /// Represents identity data managed by the external authentication provider.

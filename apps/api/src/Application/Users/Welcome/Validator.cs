@@ -10,23 +10,16 @@ public sealed class WelcomeUserRequestValidator : AbstractValidator<WelcomeUserR
     public WelcomeUserRequestValidator()
     {
         RuleFor(request => request.DisplayName)
-            .NotEmpty()
-            .WithErrorCode(ErrorCodes.ValidationError)
-            .Must(name => !string.IsNullOrWhiteSpace(name))
-            .WithErrorCode(ErrorCodes.ValidationError)
-            .Length(2, 100)
-            .WithErrorCode(ErrorCodes.ValidationError);
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError)
+            .Must(name => !string.IsNullOrWhiteSpace(name.Trim())).WithErrorCode(ErrorCodes.ValidationError)
+            .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError);
 
         RuleFor(request => request.HouseholdName)
-            .NotEmpty()
-            .WithErrorCode(ErrorCodes.ValidationError)
-            .Must(name => !string.IsNullOrWhiteSpace(name))
-            .WithErrorCode(ErrorCodes.ValidationError)
-            .Length(2, 100)
-            .WithErrorCode(ErrorCodes.ValidationError);
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError)
+            .Must(name => !string.IsNullOrWhiteSpace(name.Trim())).WithErrorCode(ErrorCodes.ValidationError)
+            .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError);
 
         RuleFor(request => request.AnalyticsConsent)
-            .IsInEnum()
-            .WithErrorCode(ErrorCodes.ValidationError);
+            .IsInEnum().WithErrorCode(ErrorCodes.ValidationError);
     }
 }

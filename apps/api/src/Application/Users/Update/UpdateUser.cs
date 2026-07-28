@@ -1,5 +1,5 @@
-﻿using Kijk.Application.Abstractions.Identity;
-using Kijk.Application.Abstractions.Persistence;
+﻿using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Shared;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -55,10 +55,7 @@ public class UpdateUserHandler(
 
         if (request.UseExternalProfile is not null)
         {
-            await identityProvider.SetUseProfileInKijkAsync(
-                currentUser.AuthId,
-                request.UseExternalProfile.Value,
-                cancellationToken);
+            await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile.Value, cancellationToken);
         }
 
         var hasDefaultResources = userEntity.Resources.Any(x => x.CreatorType == CreatorType.System);

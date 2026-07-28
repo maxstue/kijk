@@ -61,8 +61,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
                 extAuthId,
                 null,
                 AppConstants.CreateUserIdentifier,
-                email,
-                true);
+                email);
             return (true, string.Empty);
         }
 

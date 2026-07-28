@@ -15,7 +15,7 @@ export const Route = createFileRoute('/welcome')({
     }
 
     const user = await queryClient.ensureQueryData(signedInUserQueryOptions());
-    if (user.firstTime === false) {
+    if (user.onboardingCompleted === true) {
       throw redirect({ replace: true, to: '/home' });
     }
   },

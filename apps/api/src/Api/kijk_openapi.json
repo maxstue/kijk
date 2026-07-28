@@ -1179,10 +1179,8 @@
           "authId",
           "name",
           "email",
-          "firstTime",
           "analyticsConsent",
           "analyticsConsentUpdatedAt",
-          "onboardingVersion",
           "onboardingCompletedAt",
           "households",
           "resources"
@@ -1211,12 +1209,6 @@
               "string"
             ]
           },
-          "firstTime": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
           "analyticsConsent": {
             "oneOf": [
               {
@@ -1233,15 +1225,6 @@
               "string"
             ],
             "format": "date-time"
-          },
-          "onboardingVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
-            "format": "int32"
           },
           "onboardingCompletedAt": {
             "type": [
@@ -1267,6 +1250,9 @@
             "items": {
               "$ref": "#/components/schemas/UserResourceResponse"
             }
+          },
+          "onboardingCompleted": {
+            "type": "boolean"
           },
           "useExternalProfile": {
             "type": [
@@ -1616,11 +1602,9 @@
           "authId",
           "name",
           "email",
-          "firstTime",
           "useDefaultResources",
           "analyticsConsent",
           "analyticsConsentUpdatedAt",
-          "onboardingVersion",
           "onboardingCompletedAt"
         ],
         "type": "object",
@@ -1647,12 +1631,6 @@
               "string"
             ]
           },
-          "firstTime": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
           "useDefaultResources": {
             "type": [
               "null",
@@ -1676,21 +1654,15 @@
             ],
             "format": "date-time"
           },
-          "onboardingVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
           "onboardingCompletedAt": {
             "type": [
               "null",
               "string"
             ],
             "format": "date-time"
+          },
+          "onboardingCompleted": {
+            "type": "boolean"
           }
         }
       },

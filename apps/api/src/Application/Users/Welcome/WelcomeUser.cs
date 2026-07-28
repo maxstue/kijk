@@ -1,5 +1,5 @@
-﻿using Kijk.Application.Abstractions.Identity;
-using Kijk.Application.Abstractions.Persistence;
+﻿using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Shared;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -31,7 +31,7 @@ public class WelcomeUserHandler(
             return Error.NotFound("User not found");
         }
 
-        if (!user.FirstTime)
+        if (user.OnboardingCompleted)
         {
             logger.LogError("User is already welcome");
             return Error.Conflict("User has already completed the welcome flow");
@@ -54,16 +54,9 @@ public class WelcomeUserHandler(
         var completedAt = timeProvider.GetUtcNow().UtcDateTime;
         activeHousehold.Rename(request.HouseholdName.Trim());
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
-        user.CompleteOnboarding(
-            request.DisplayName.Trim(),
-            request.AnalyticsConsent,
-            OnboardingConstants.CurrentVersion,
-            completedAt);
+        user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
-        await identityProvider.SetUseProfileInKijkAsync(
-            currentUser.AuthId,
-            request.UseExternalProfile,
-            cancellationToken);
+        await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return user.ToResponse(user.Resources.Any(resource => resource.CreatorType == CreatorType.System));
