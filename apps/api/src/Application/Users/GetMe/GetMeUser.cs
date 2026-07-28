@@ -15,32 +15,32 @@ public class GetMeUserHandler(
   CurrentUser currentUser,
   ILogger<GetMeUserHandler> logger) : IHandler
 {
-  public async Task<Result<GetMeUserResponse>> GetMeAsync(CancellationToken cancellationToken)
-  {
-    var userEntity = await dbContext.Users
-      .Where(x => x.Id == currentUser.Id)
-      .AsNoTracking()
-      .AsSplitQuery()
-      .ToResponse()
-      .FirstOrDefaultAsync(cancellationToken);
-
-    if (userEntity is null)
+    public async Task<Result<GetMeUserResponse>> GetMeAsync(CancellationToken cancellationToken)
     {
-      logger.LogError("User with id {Id} not found", currentUser.Id);
-      return Error.NotFound("User not found");
+        var userEntity = await dbContext.Users
+          .Where(x => x.Id == currentUser.Id)
+          .AsNoTracking()
+          .AsSplitQuery()
+          .ToResponse()
+          .FirstOrDefaultAsync(cancellationToken);
+
+        if (userEntity is null)
+        {
+            logger.LogError("User with id {Id} not found", currentUser.Id);
+            return Error.NotFound("User not found");
+        }
+
+        var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
+        var useExternalProfile = externalIdentity.UseProfileInKijk ?? false;
+        var showProfilePreview = !userEntity.OnboardingCompleted;
+
+        return userEntity with
+        {
+            UseExternalProfile = useExternalProfile,
+            ExternalIdentity = new(
+            showProfilePreview || useExternalProfile ? externalIdentity.FullName : null,
+            externalIdentity.Email,
+            showProfilePreview || useExternalProfile ? externalIdentity.ImageUrl : null)
+        };
     }
-
-    var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
-    var useExternalProfile = externalIdentity.UseProfileInKijk ?? false;
-    var showProfilePreview = !userEntity.OnboardingCompleted;
-
-    return userEntity with
-    {
-      UseExternalProfile = useExternalProfile,
-      ExternalIdentity = new(
-        showProfilePreview || useExternalProfile ? externalIdentity.FullName : null,
-        externalIdentity.Email,
-        showProfilePreview || useExternalProfile ? externalIdentity.ImageUrl : null)
-    };
-  }
 }
