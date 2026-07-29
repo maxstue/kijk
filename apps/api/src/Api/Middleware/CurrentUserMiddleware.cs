@@ -1,8 +1,10 @@
 ﻿using System.Security.Claims;
 using Kijk.Api.Extensions;
+using Kijk.Api.Mappers;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Kijk.Api.Middleware;
 
@@ -17,7 +19,11 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (context.GetEndpoint() is null)
+        var endpoint = context.GetEndpoint();
+        var isPublicEndpoint = endpoint?.Metadata.GetMetadata<IAuthorizeData>() is null
+            || endpoint.Metadata.GetMetadata<IAllowAnonymous>() is not null;
+
+        if (isPublicEndpoint)
         {
             await next(context);
             return;
@@ -39,15 +45,10 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
 
     private async Task<(bool, string)> SetCurrentUser(HttpContext context)
     {
-        if (context.Request.Path == "/" || AppConstants.AllowedOpenApiPaths.Any(x => context.Request.Path.ToString().Contains(x)))
-        {
-            return (true, string.Empty);
-        }
-
         var extAuthId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (extAuthId == null)
+        if (string.IsNullOrWhiteSpace(extAuthId))
         {
-            return (false, $"User for id '{extAuthId}' was not found");
+            return (false, "Current user identifier claim is missing");
         }
 
         var email = context.User.FindFirstValue(ClaimTypes.Email);

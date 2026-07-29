@@ -2,12 +2,6 @@
 
 public static class AppConstants
 {
-    /// <summary>
-    /// These paths are allowed to be accessed without validating the current user.
-    /// It is only used in "CurrentUserMiddleware" to determine if the current user should be set.
-    /// </summary>
-    public static readonly string[] AllowedOpenApiPaths = ["openapi", "scalar", "favicon"];
-
     public const string CreateUserIdentifier = "CREATE_USER";
 
     /// <summary>
