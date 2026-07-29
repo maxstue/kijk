@@ -199,6 +199,14 @@ export function WelcomeFlow({
   );
 }
 
+function getProfileChoiceValue(value: boolean | null) {
+  if (value === null) {
+    return '';
+  }
+
+  return value ? 'yes' : 'no';
+}
+
 function ProfileStep({
   providerName,
   control,
@@ -225,7 +233,7 @@ function ProfileStep({
             <FormControl>
               <RadioGroup
                 className='grid gap-3 pt-2 sm:grid-cols-2'
-                value={field.value === null ? '' : field.value ? 'yes' : 'no'}
+                value={getProfileChoiceValue(field.value)}
                 onValueChange={(value) => field.onChange(value === 'yes')}
               >
                 <Choice
