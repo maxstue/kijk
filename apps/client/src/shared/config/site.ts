@@ -6,5 +6,4 @@ export const siteConfig = {
     support: 'https://github.com/maxstue/kijk/discussions',
   },
   name: 'kijk',
-  url: 'https://kijk-ruby.vercel.app/',
 } as const;
