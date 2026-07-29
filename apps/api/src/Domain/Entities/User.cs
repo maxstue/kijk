@@ -1,4 +1,5 @@
-﻿using Kijk.Shared.Exceptions;
+﻿using Kijk.Shared;
+using Kijk.Shared.Exceptions;
 
 namespace Kijk.Domain.Entities;
 
@@ -15,11 +16,16 @@ public sealed class User : BaseEntity
 
     public string? Image { get; init; }
 
+    public AnalyticsConsent? AnalyticsConsent { get; private set; }
+
+    public DateTime? AnalyticsConsentUpdatedAt { get; private set; }
+
+    public DateTime? OnboardingCompletedAt { get; private set; }
+
     /// <summary>
-    /// Indicates if the user is a first time user.
-    /// The user is considered a first time user if they have not finished the onboarding/welcome process.
+    /// Gets whether the user has completed onboarding.
     /// </summary>
-    public bool FirstTime { get; set; }
+    public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
 
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
 
@@ -28,16 +34,14 @@ public sealed class User : BaseEntity
     /// It should never be null as it is set when the user is created.
     /// </summary>
     /// <returns></returns>
-    public Guid GetActiveHouseHoldId() => UserHouseholds.SingleOrDefault(x => x.IsActive)?.HouseholdId
-                                          ?? throw new NullException("Active household not found");
+    public Guid GetActiveHouseHoldId() => UserHouseholds.SingleOrDefault(x => x.IsActive)?.HouseholdId ?? throw new NullException("Active household not found");
 
     private readonly List<Resource> _resources = [];
     public IEnumerable<Resource> Resources => _resources;
 
     public void DeleteResource(Guid resourceId)
     {
-        var resource = _resources.Find(x => x.Id == resourceId) ??
-                       throw new ArgumentException($"Resource with id {resourceId} does not exist for user {Id}");
+        var resource = _resources.Find(x => x.Id == resourceId) ?? throw new ArgumentException($"Resource with id {resourceId} does not exist for user {Id}");
 
         _resources.Remove(resource);
     }
@@ -52,7 +56,7 @@ public sealed class User : BaseEntity
         _resources.Add(resource);
     }
 
-    public void SetDefaultResources(bool useDefault, IEnumerable<Resource> defaultResources)
+    public void SetDefaultResources(bool useDefault, List<Resource> defaultResources)
     {
         var resourceIds = _resources.Select(x => x.Id).ToHashSet();
         var defaultResourceIds = defaultResources.Select(x => x.Id).ToHashSet();
@@ -67,11 +71,24 @@ public sealed class User : BaseEntity
         }
     }
 
+    public void CompleteOnboarding(string displayName, AnalyticsConsent analyticsConsent, DateTime completedAt)
+    {
+        Name = displayName;
+        AnalyticsConsent = analyticsConsent;
+        AnalyticsConsentUpdatedAt = completedAt;
+        OnboardingCompletedAt = completedAt;
+    }
+
+    public void UpdateAnalyticsConsent(AnalyticsConsent analyticsConsent, DateTime updatedAt)
+    {
+        AnalyticsConsent = analyticsConsent;
+        AnalyticsConsentUpdatedAt = updatedAt;
+    }
+
     public static User Init(string authId, string name, string? email) => new()
     {
         AuthId = authId,
         Name = name,
-        Email = email,
-        FirstTime = true
+        Email = email
     };
 }

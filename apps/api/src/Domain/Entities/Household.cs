@@ -2,7 +2,7 @@
 
 public sealed class Household : BaseEntity
 {
-    public required string Name { get; init; }
+    public required string Name { get; set; }
     public string? Description { get; init; }
 
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
@@ -15,4 +15,6 @@ public sealed class Household : BaseEntity
             Name = name,
             Description = description,
         };
+
+    public void Rename(string name) => Name = name;
 }

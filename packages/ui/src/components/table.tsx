@@ -1,5 +1,6 @@
-import { cn } from '@kijk/core/utils/style';
 import * as React from 'react';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (

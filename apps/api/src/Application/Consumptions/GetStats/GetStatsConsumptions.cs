@@ -1,5 +1,5 @@
 using System.Globalization;
-using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
 namespace Kijk.Application.Consumptions.GetStats;

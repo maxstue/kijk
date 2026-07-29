@@ -27,9 +27,11 @@ public class UsersEndpoints : IEndpointGroup
             .WithSummary("Sign in");
 
         group.MapPut("", Update)
+            .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
 
         group.MapPut("/welcome", Welcome)
+            .WithRequestValidation<WelcomeUserRequest>()
             .WithSummary("Registers a new user and sets some default values");
 
         return builder;

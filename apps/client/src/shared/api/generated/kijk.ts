@@ -579,6 +579,8 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** @enum {unknown} */
+    AnalyticsConsent: 'Accepted' | 'Declined' | null;
     ConsumptionResourceResponse: {
       /** Format: uuid */
       id: string;
@@ -642,15 +644,27 @@ export interface components {
     };
     /** @enum {unknown} */
     CreatorType: 'System' | 'User';
+    ExternalIdentityResponse: {
+      fullName: null | string;
+      email: null | string;
+      imageUrl: null | string;
+    };
     GetMeUserResponse: {
       /** Format: uuid */
       id: string;
       authId: null | string;
       name: null | string;
       email: null | string;
-      firstTime: null | boolean;
+      analyticsConsent: null | components['schemas']['AnalyticsConsent'];
+      /** Format: date-time */
+      analyticsConsentUpdatedAt: null | string;
+      /** Format: date-time */
+      onboardingCompletedAt: null | string;
       households: null | components['schemas']['UserHouseholdResponse'][];
       resources: null | components['schemas']['UserResourceResponse'][];
+      onboardingCompleted?: boolean;
+      useExternalProfile?: null | boolean;
+      externalIdentity?: null | components['schemas']['ExternalIdentityResponse'];
     };
     GetStatsConsumptionsResponseWrapper: {
       stats: components['schemas']['ConsumptionStatsResponse'][];
@@ -704,6 +718,9 @@ export interface components {
     UpdateUserRequest: {
       userName: null | string;
       useDefaultResources: null | boolean;
+      useExternalProfile: null | boolean;
+      householdName: null | string;
+      analyticsConsent: null | components['schemas']['AnalyticsConsent'];
     };
     UserHouseholdResponse: {
       /** Format: uuid */
@@ -733,12 +750,20 @@ export interface components {
       authId: null | string;
       name: null | string;
       email: null | string;
-      firstTime: null | boolean;
       useDefaultResources: null | boolean;
+      analyticsConsent: null | components['schemas']['AnalyticsConsent'];
+      /** Format: date-time */
+      analyticsConsentUpdatedAt: null | string;
+      /** Format: date-time */
+      onboardingCompletedAt: null | string;
+      onboardingCompleted?: boolean;
     };
     WelcomeUserRequest: {
-      userName: null | string;
-      useDefaultResources: null | boolean;
+      displayName: string;
+      householdName: string;
+      useDefaultResources: boolean;
+      useExternalProfile: boolean;
+      analyticsConsent: components['schemas']['AnalyticsConsent'];
     };
   };
   responses: {

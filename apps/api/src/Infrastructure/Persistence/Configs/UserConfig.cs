@@ -16,8 +16,6 @@ public class UserConfig : IEntityTypeConfiguration<User>
         builder.Property(x => x.Email).HasMaxLength(100);
         builder.Property(x => x.Image).HasMaxLength(250);
 
-        builder.Property(x => x.FirstTime).HasDefaultValue(true);
-
         builder.Property(m => m.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("now()")

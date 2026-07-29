@@ -47,7 +47,7 @@ export function NavSecondary({ ...props }: Props) {
               <SidebarMenuButton asChild>
                 <Link
                   activeOptions={{ exact: false }}
-                  activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground' }}
+                  activeProps={{ className: 'bg-primary text-primary-foreground' }}
                   to='/settings'
                 >
                   <SettingsIcon />

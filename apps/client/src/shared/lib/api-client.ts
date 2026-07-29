@@ -42,6 +42,9 @@ const authMiddleware: Middleware = {
     return response;
   },
   onError({ error }) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return;
+    }
     console.error(error);
   },
 };

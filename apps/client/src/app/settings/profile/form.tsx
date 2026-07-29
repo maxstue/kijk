@@ -1,5 +1,3 @@
-'use no memo';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
@@ -11,7 +9,8 @@ import { toast } from 'sonner';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/use-update-user';
-import { signedInUserQueryOptions } from '@/shared/api/users/options';
+import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
+import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
   Form,
   FormControl,
@@ -21,16 +20,23 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
+import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 
 export function ProfileForm() {
+  const { providerName } = useSignInProviderName();
   const { data: user } = useQuery(signedInUserQueryOptions());
+  const { data: currentUser } = useQuery(currentUserQueryOptions());
+  const activeHousehold = currentUser?.households?.find((household) => household.isActive);
+  const externalIdentity = currentUser?.externalIdentity;
 
   const { mutate } = useUpdateUser();
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
+      householdName: activeHousehold?.name ?? '',
       useDefaultResources: user?.useDefaultResources ?? false,
+      useExternalProfile: currentUser?.useExternalProfile ?? false,
       userName: user?.name ?? '',
     },
   });
@@ -48,6 +54,31 @@ export function ProfileForm() {
   return (
     <Form {...form}>
       <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
+        <AuthIdentitySummary
+          email={externalIdentity?.email}
+          fullName={externalIdentity?.fullName}
+          imageUrl={externalIdentity?.imageUrl}
+          profileEnabled={currentUser?.useExternalProfile ?? false}
+          provider={providerName}
+        />
+        <FormField
+          control={form.control}
+          name='useExternalProfile'
+          render={({ field }) => (
+            <FormItem className='flex items-start gap-3 rounded-lg border p-4'>
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+              <div className='space-y-1'>
+                <FormLabel>Use sign-in profile</FormLabel>
+                <FormDescription>
+                  Show the full name and profile image from your {providerName} account in Kijk.
+                </FormDescription>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name='userName'
@@ -57,9 +88,21 @@ export function ProfileForm() {
               <FormControl>
                 <Input placeholder='max' {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name. It can be your real name or a pseudonym.
-              </FormDescription>
+              <FormDescription>This is how your name appears in Kijk. It does not affect sign-in.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='householdName'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Household name</FormLabel>
+              <FormControl>
+                <Input placeholder='My household' {...field} />
+              </FormControl>
+              <FormDescription>The name of your active household.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

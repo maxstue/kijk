@@ -1,8 +1,5 @@
-import { cn } from '@kijk/core/utils/style';
-import { buttonVariants } from '@kijk/ui/components/button';
 import { Icons } from '@kijk/ui/components/icons';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { Undo2 } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
 
@@ -37,16 +34,6 @@ function AuthPage() {
   return (
     <>
       <div className='bg-muted flex h-full flex-col gap-6 p-6'>
-        <div>
-          <a
-            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-            href={siteConfig.url}
-            rel='noopener noreferrer'
-          >
-            <Undo2 className='h-4 w-4' />
-            To website
-          </a>
-        </div>
         <div className='flex h-full w-full flex-col items-center justify-center gap-6'>
           <div className='flex items-center gap-2 text-center'>
             <Icons.logo className='text-primary size-10' />

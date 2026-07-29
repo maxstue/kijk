@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Clerk.BackendAPI;
-using Clerk.BackendAPI.Helpers.Jwks;
 using EntityFramework.Exceptions.PostgreSQL;
-using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Infrastructure.Auth;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;
@@ -111,8 +111,6 @@ public static class DependencyInjection
                 throw new NullException($"No AuthSettings found, {authOptions}");
             }
 
-            var authorizedParties = authOptions.AuthorizedParties;
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(x =>
                 {
@@ -133,7 +131,7 @@ public static class DependencyInjection
                             var azp = context.Principal?.FindFirstValue("azp");
 
                             // AuthorizedParties contains the allowed base URLs of your frontends.
-                            if (string.IsNullOrEmpty(azp) || !authorizedParties.Contains(azp, StringComparer.Ordinal))
+                            if (string.IsNullOrEmpty(azp) || !authOptions.AuthorizedParties.Contains(azp, StringComparer.Ordinal))
                             {
                                 context.Fail("AZP Claim is invalid or missing");
                             }
@@ -158,6 +156,7 @@ public static class DependencyInjection
                 var authOptions = sp.GetRequiredService<IOptions<AuthOptions>>().Value;
                 return new ClerkBackendApi(bearerAuth: authOptions.SecretKey);
             });
+            services.AddScoped<IIdentityProvider, ClerkIdentityProvider>();
 
             return services;
         }

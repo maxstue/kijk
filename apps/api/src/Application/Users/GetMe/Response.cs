@@ -7,9 +7,35 @@ public record GetMeUserResponse(
     string? AuthId,
     string? Name,
     string? Email,
-    bool? FirstTime,
+    AnalyticsConsent? AnalyticsConsent,
+    DateTime? AnalyticsConsentUpdatedAt,
+    DateTime? OnboardingCompletedAt,
     IEnumerable<UserHouseholdResponse>? Households,
-    IEnumerable<UserResourceResponse>? Resources);
+    IEnumerable<UserResourceResponse>? Resources)
+{
+    /// <summary>
+    /// Gets whether the user has completed onboarding.
+    /// </summary>
+    public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
+
+    /// <summary>
+    /// Gets whether Kijk may use the external full name and profile image.
+    /// </summary>
+    public bool? UseExternalProfile { get; init; }
+
+    /// <summary>
+    /// Gets identity data supplied by the authentication provider.
+    /// </summary>
+    public ExternalIdentityResponse? ExternalIdentity { get; init; }
+}
+
+/// <summary>
+/// Identity data owned by the authentication provider and exposed according to the user's preference.
+/// </summary>
+/// <param name="FullName">The full name, or null when its use is disabled.</param>
+/// <param name="Email">The primary sign-in email address.</param>
+/// <param name="ImageUrl">The profile image URL, or null when its use is disabled.</param>
+public record ExternalIdentityResponse(string? FullName, string? Email, string? ImageUrl);
 
 public record UserHouseholdResponse(Guid Id, string Name, string? Description, UserHouseholdRoleResponse Role, bool IsActive);
 

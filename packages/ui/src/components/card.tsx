@@ -1,5 +1,6 @@
-import { cn } from '@kijk/core/utils/style';
 import * as React from 'react';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Card({ className, size = 'default', ...props }: React.ComponentProps<'div'> & { size?: 'default' | 'sm' }) {
   return (

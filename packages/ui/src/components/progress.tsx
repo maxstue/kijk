@@ -1,6 +1,7 @@
-import { cn } from '@kijk/core/utils/style';
-import { Progress as ProgressPrimitive } from 'radix-ui';
 import * as React from 'react';
+import { Progress as ProgressPrimitive } from 'radix-ui';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Progress({ className, value, ...props }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
   return (

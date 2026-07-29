@@ -1,5 +1,5 @@
 ﻿using System.Security.Cryptography;
-using Kijk.Application.Abstractions.Persistence;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Shared;

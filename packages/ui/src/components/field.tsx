@@ -1,8 +1,11 @@
+'use client';
+
+import { useMemo } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+
 import { cn } from '@kijk/core/utils/style';
 import { Label } from '@kijk/ui/components/label';
 import { Separator } from '@kijk/ui/components/separator';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { useMemo } from 'react';
 
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (
@@ -174,7 +177,7 @@ function FieldError({
 
     const uniqueErrors = [...new Map(errors.map((error) => [error?.message, error])).values()];
 
-    if (uniqueErrors.length == 1) {
+    if (uniqueErrors?.length == 1) {
       return uniqueErrors[0]?.message;
     }
 

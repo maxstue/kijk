@@ -1,5 +1,6 @@
-import { cn } from '@kijk/core/utils/style';
 import { cva, type VariantProps } from 'class-variance-authority';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Empty({ className, ...props }: React.ComponentProps<'div'>) {
   return (

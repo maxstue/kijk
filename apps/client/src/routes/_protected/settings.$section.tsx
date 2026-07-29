@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
-import { AccountSection } from '@/app/settings/account/section';
 import { AppearanceSection } from '@/app/settings/appearance/section';
 import { InfoSection } from '@/app/settings/info/section';
 import { ProfileSection } from '@/app/settings/profile/section';
@@ -26,7 +25,6 @@ function SettingsSectionPage() {
     <>
       <div className='space-y-6'>
         {parameters.section === 'profile' && <ProfileSection />}
-        {parameters.section === 'account' && <AccountSection />}
         {parameters.section === 'appearance' && <AppearanceSection />}
         {parameters.section === 'info' && <InfoSection />}
       </div>

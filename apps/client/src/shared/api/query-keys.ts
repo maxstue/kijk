@@ -1,5 +1,6 @@
 const users = {
   current: ['users', 'current'] as const,
+  details: ['users', 'details'] as const,
 };
 
 const resources = {

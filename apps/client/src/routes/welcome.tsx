@@ -1,196 +1,44 @@
-import { useUser } from '@clerk/react';
-import { Button } from '@kijk/ui/components/button';
-import { Card, CardContent } from '@kijk/ui/components/card';
-import { Carousel, CarouselContent, CarouselItem } from '@kijk/ui/components/carousel';
-import type { CarouselApi } from '@kijk/ui/components/carousel';
-import { Progress } from '@kijk/ui/components/progress';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
-import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
-import type { UserStepFormValues } from '@/app/welcome/schemas';
-import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
-import { UserStepForm } from '@/app/welcome/user-step-form';
-import { signedInUserQueryOptions } from '@/shared/api/users/options';
+import { WelcomeFlow } from '@/app/welcome/welcome-flow';
+import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
-import { ApiError } from '@/shared/types/errors/api-error';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
 export const Route = createFileRoute('/welcome')({
   beforeLoad: async ({ context: { authClient, queryClient } }) => {
-    const session = authClient?.session;
-    const sessionToken = await session?.getToken();
+    const sessionToken = await authClient?.session?.getToken();
     if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
       throw redirect({ search: { from: location.href }, to: '/auth' });
     }
 
     const user = await queryClient.ensureQueryData(signedInUserQueryOptions());
-    if (user.firstTime == false) {
+    if (user.onboardingCompleted === true) {
       throw redirect({ replace: true, to: '/home' });
     }
   },
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(currentUserQueryOptions()),
   component: WelcomePage,
   pendingComponent: InitLoader,
 });
 
-const steps = [{ label: 'Welcome' }, { label: 'User' }, { label: 'Finish' }];
-
 function WelcomePage() {
   useSetSiteHeader('Welcome');
-  const { user } = useUser();
-  const [userStep, setUserStep] = useState<UserStepFormValues>({
-    useDefaultResources: true,
-    userName: user?.username ?? '',
-  });
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(1);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    const handleSelect = () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    };
-
-    handleSelect();
-    api.on('select', handleSelect);
-
-    return () => {
-      api.off('select', handleSelect);
-    };
-  }, [api]);
-
-  const navigate = useNavigate({ from: '/' });
-  const { mutate } = useWelcomeUser();
-
-  const isLastStep = current === steps.length - 1;
-  const isFirstStep = current - 1 === 0;
-
-  const handlePrevious = () => {
-    if (api) {
-      api.scrollPrev();
-    }
-  };
-
-  const handleNext = () => {
-    if (api) {
-      api.scrollNext();
-    }
-  };
-
-  const handleFinish = useCallback(() => {
-    mutate(userStep, {
-      onError(error) {
-        if (ApiError.isApiError(error)) {
-          toast('An error occurred while creating your user.', {
-            description: error.getErrorsString(),
-          });
-          return;
-        }
-        toast('An error occurred while creating your user.', {
-          description: error.message ?? 'Unknown error',
-        });
-      },
-      async onSuccess() {
-        await navigate({ replace: true, to: '/home' });
-      },
-    });
-  }, [mutate, navigate, userStep]);
+  const { data: currentUser } = useSuspenseQuery(currentUserQueryOptions());
+  const navigate = useNavigate({ from: '/welcome' });
+  const activeHousehold = currentUser.households?.find((household) => household.isActive);
+  const externalIdentity = currentUser.externalIdentity;
 
   return (
-    <>
-      <div className='flex h-full w-full items-center justify-center'>
-        <div className='flex flex-col gap-4'>
-          <Progress className='w-full' max={steps.length} value={(current / steps.length) * 100} />
-          <Carousel className='w-full max-w-2xl' setApi={setApi}>
-            <CarouselContent>
-              {steps.map((_, index) => (
-                <CarouselItem key={index}>
-                  <div className='flex w-full flex-col p-1'>
-                    <Card>
-                      <CardContent className='flex aspect-square items-center justify-center p-6'>
-                        {index === 0 && <StepZero />}
-                        {index === 1 && <StepOne setUserStep={setUserStep} value={userStep} />}
-                        {index === 2 && <Finish />}
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-          <div className='flex items-center justify-between gap-4'>
-            <Button className='w-1/4' disabled={isFirstStep} onClick={handlePrevious}>
-              Prev
-            </Button>
-            {isLastStep ? (
-              <Button className='w-1/4' onClick={handleFinish}>
-                Finish
-              </Button>
-            ) : (
-              <Button className='w-1/4' onClick={handleNext}>
-                Next
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function StepZero() {
-  return (
-    <div className='flex h-full flex-col items-center justify-start gap-12 pt-6'>
-      <div className='text-2xl'>
-        Welcome to &apos;<span className='text-bold text-primary'>Kijk</span>&apos; your personal household planner.
-      </div>
-      <div className='text-muted-foreground w-2/3'>
-        <p>The app helps you to monitor your energy usage and costs faster and more clearly.</p>
-        <p>So you don&apos;t have to struggle with large spreadsheets or buy expensive apps.</p>
-      </div>
-      <p className='text-muted-foreground w-2/3'>
-        If you have any questions, ideas, feedback or just want to say hello, just drop by at our{' '}
-        <a
-          className='decoration-primary cursor-pointer underline'
-          href='https://github.com/maxstue/kijk/discussions'
-          rel='noopener noreferrer'
-          target='_blank'
-        >
-          github
-        </a>
-        . 🙂
-      </p>
-    </div>
-  );
-}
-
-function StepOne({
-  value,
-  setUserStep,
-}: {
-  value: UserStepFormValues;
-  setUserStep: (data: UserStepFormValues) => void;
-}) {
-  return (
-    <div className='flex h-full flex-col items-center justify-start gap-12 pt-6'>
-      <div className='text-2xl'>User setup</div>
-      <div className='flex w-2/3 flex-col items-center justify-end gap-4'>
-        <div className='text-muted-foreground'>Setup your username and categories</div>
-        <div className='text-muted-foreground'>You can change this setting at a later date in you profile.</div>
-      </div>
-      <UserStepForm className='w-2/3' value={value} onNext={setUserStep} />
-    </div>
-  );
-}
-
-function Finish() {
-  return (
-    <div className='flex h-full flex-col items-center justify-center gap-12'>
-      <div className='text-2xl'>And now enjoy using the app !! 🚀 😀</div>
-    </div>
+    <WelcomeFlow
+      email={externalIdentity?.email}
+      fullName={externalIdentity?.fullName}
+      householdName={activeHousehold?.name}
+      imageUrl={externalIdentity?.imageUrl}
+      initialDisplayName=''
+      onComplete={() => navigate({ replace: true, to: '/home' })}
+    />
   );
 }

@@ -1,8 +1,11 @@
-import { cn } from '@kijk/core/utils/style';
-import { toggleVariants } from '@kijk/ui/components/toggle';
+'use client';
+
+import * as React from 'react';
 import { type VariantProps } from 'class-variance-authority';
 import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
-import * as React from 'react';
+
+import { cn } from '@kijk/core/utils/style';
+import { toggleVariants } from '@kijk/ui/components/toggle';
 
 const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleVariants> & {

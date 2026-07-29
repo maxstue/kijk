@@ -897,6 +897,13 @@
   },
   "components": {
     "schemas": {
+      "AnalyticsConsent": {
+        "enum": [
+          "Accepted",
+          "Declined",
+          null
+        ]
+      },
       "ConsumptionResourceResponse": {
         "required": [
           "id",
@@ -1138,13 +1145,43 @@
           "User"
         ]
       },
+      "ExternalIdentityResponse": {
+        "required": [
+          "fullName",
+          "email",
+          "imageUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "GetMeUserResponse": {
         "required": [
           "id",
           "authId",
           "name",
           "email",
-          "firstTime",
+          "analyticsConsent",
+          "analyticsConsentUpdatedAt",
+          "onboardingCompletedAt",
           "households",
           "resources"
         ],
@@ -1172,11 +1209,29 @@
               "string"
             ]
           },
-          "firstTime": {
+          "analyticsConsent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalyticsConsent"
+              }
+            ]
+          },
+          "analyticsConsentUpdatedAt": {
             "type": [
               "null",
-              "boolean"
-            ]
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "onboardingCompletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "households": {
             "type": [
@@ -1195,6 +1250,25 @@
             "items": {
               "$ref": "#/components/schemas/UserResourceResponse"
             }
+          },
+          "onboardingCompleted": {
+            "type": "boolean"
+          },
+          "useExternalProfile": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "externalIdentity": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExternalIdentityResponse"
+              }
+            ]
           }
         }
       },
@@ -1397,7 +1471,10 @@
       "UpdateUserRequest": {
         "required": [
           "userName",
-          "useDefaultResources"
+          "useDefaultResources",
+          "useExternalProfile",
+          "householdName",
+          "analyticsConsent"
         ],
         "type": "object",
         "properties": {
@@ -1411,6 +1488,28 @@
             "type": [
               "null",
               "boolean"
+            ]
+          },
+          "useExternalProfile": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "householdName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "analyticsConsent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalyticsConsent"
+              }
             ]
           }
         }
@@ -1503,8 +1602,10 @@
           "authId",
           "name",
           "email",
-          "firstTime",
-          "useDefaultResources"
+          "useDefaultResources",
+          "analyticsConsent",
+          "analyticsConsentUpdatedAt",
+          "onboardingCompletedAt"
         ],
         "type": "object",
         "properties": {
@@ -1530,38 +1631,65 @@
               "string"
             ]
           },
-          "firstTime": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
           "useDefaultResources": {
             "type": [
               "null",
               "boolean"
             ]
+          },
+          "analyticsConsent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalyticsConsent"
+              }
+            ]
+          },
+          "analyticsConsentUpdatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "onboardingCompletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "onboardingCompleted": {
+            "type": "boolean"
           }
         }
       },
       "WelcomeUserRequest": {
         "required": [
-          "userName",
-          "useDefaultResources"
+          "displayName",
+          "householdName",
+          "useDefaultResources",
+          "useExternalProfile",
+          "analyticsConsent"
         ],
         "type": "object",
         "properties": {
-          "userName": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "displayName": {
+            "type": "string"
+          },
+          "householdName": {
+            "type": "string"
           },
           "useDefaultResources": {
-            "type": [
-              "null",
-              "boolean"
-            ]
+            "type": "boolean"
+          },
+          "useExternalProfile": {
+            "type": "boolean"
+          },
+          "analyticsConsent": {
+            "$ref": "#/components/schemas/AnalyticsConsent"
           }
         }
       }

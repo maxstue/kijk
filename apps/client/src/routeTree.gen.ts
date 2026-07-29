@@ -9,26 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WelcomeRouteImport } from './routes/welcome'
-import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ProtectedRouteImport } from './routes/_protected'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
-import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
-import { Route as ProtectedResourcesRouteImport } from './routes/_protected/resources'
-import { Route as ProtectedHomeRouteImport } from './routes/_protected/home'
-import { Route as ProtectedConsumptionsLimitsRouteImport } from './routes/_protected/consumptions-limits'
 import { Route as ProtectedConsumptionsRouteImport } from './routes/_protected/consumptions'
+import { Route as ProtectedConsumptionsLimitsRouteImport } from './routes/_protected/consumptions-limits'
+import { Route as ProtectedHomeRouteImport } from './routes/_protected/home'
+import { Route as ProtectedResourcesRouteImport } from './routes/_protected/resources'
+import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as ProtectedSettingsSectionRouteImport } from './routes/_protected/settings.$section'
 
-const WelcomeRoute = WelcomeRouteImport.update({
-  id: '/welcome',
-  path: '/welcome',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SsoCallbackRoute = SsoCallbackRouteImport.update({
-  id: '/sso-callback',
-  path: '/sso-callback',
+const ProtectedRoute = ProtectedRouteImport.update({
+  id: '/_protected',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -36,8 +30,14 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedRoute = ProtectedRouteImport.update({
-  id: '/_protected',
+const SsoCallbackRoute = SsoCallbackRouteImport.update({
+  id: '/sso-callback',
+  path: '/sso-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
@@ -45,19 +45,9 @@ const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProtectedRoute,
 } as any)
-const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedResourcesRoute = ProtectedResourcesRouteImport.update({
-  id: '/resources',
-  path: '/resources',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedHomeRoute = ProtectedHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
+const ProtectedConsumptionsRoute = ProtectedConsumptionsRouteImport.update({
+  id: '/consumptions',
+  path: '/consumptions',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedConsumptionsLimitsRoute =
@@ -66,9 +56,19 @@ const ProtectedConsumptionsLimitsRoute =
     path: '/consumptions-limits',
     getParentRoute: () => ProtectedRoute,
   } as any)
-const ProtectedConsumptionsRoute = ProtectedConsumptionsRouteImport.update({
-  id: '/consumptions',
-  path: '/consumptions',
+const ProtectedHomeRoute = ProtectedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedResourcesRoute = ProtectedResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedSettingsSectionRoute =
@@ -165,18 +165,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/welcome': {
-      id: '/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof WelcomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sso-callback': {
-      id: '/sso-callback'
-      path: '/sso-callback'
-      fullPath: '/sso-callback'
-      preLoaderRoute: typeof SsoCallbackRouteImport
+    '/_protected': {
+      id: '/_protected'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ProtectedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -186,11 +179,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected': {
-      id: '/_protected'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof ProtectedRouteImport
+    '/sso-callback': {
+      id: '/sso-callback'
+      path: '/sso-callback'
+      fullPath: '/sso-callback'
+      preLoaderRoute: typeof SsoCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/': {
@@ -200,25 +200,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
-    '/_protected/settings': {
-      id: '/_protected/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof ProtectedSettingsRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/resources': {
-      id: '/_protected/resources'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof ProtectedResourcesRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/home': {
-      id: '/_protected/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof ProtectedHomeRouteImport
+    '/_protected/consumptions': {
+      id: '/_protected/consumptions'
+      path: '/consumptions'
+      fullPath: '/consumptions'
+      preLoaderRoute: typeof ProtectedConsumptionsRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/consumptions-limits': {
@@ -228,11 +214,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedConsumptionsLimitsRouteImport
       parentRoute: typeof ProtectedRoute
     }
-    '/_protected/consumptions': {
-      id: '/_protected/consumptions'
-      path: '/consumptions'
-      fullPath: '/consumptions'
-      preLoaderRoute: typeof ProtectedConsumptionsRouteImport
+    '/_protected/home': {
+      id: '/_protected/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof ProtectedHomeRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/resources': {
+      id: '/_protected/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ProtectedResourcesRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/settings': {
+      id: '/_protected/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof ProtectedSettingsRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/settings/$section': {

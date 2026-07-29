@@ -5,7 +5,8 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { SiteHeader } from '@/app/root/site-header';
-import { signedInUserQueryOptions } from '@/shared/api/users/options';
+import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
+import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { CORRELATION_ID_HEADER } from '@/shared/types/api';
@@ -20,9 +21,10 @@ export const Route = createFileRoute('/_protected')({
     }
 
     const user = await queryClient.ensureQueryData(signedInUserQueryOptions());
-    if (user.firstTime) {
+    if (user.onboardingCompleted !== true) {
       throw redirect({ replace: true, to: '/welcome' });
     }
+
     const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
     if (stringIsNotEmptyOrWhitespace(correlationId)) {
       AnalyticsService.identifyUser(correlationId);
@@ -30,6 +32,7 @@ export const Route = createFileRoute('/_protected')({
 
     return { session };
   },
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(currentUserQueryOptions()),
   component: Protected,
   pendingComponent: InitLoader,
   pendingMinMs: 100,
@@ -39,17 +42,18 @@ export const Route = createFileRoute('/_protected')({
 function Protected() {
   const query = useSuspenseQuery(signedInUserQueryOptions());
 
-  const isFirstTime = query.data.firstTime === true;
+  const onboardingCompleted = query.data.onboardingCompleted === true;
 
   return (
     <SidebarProvider>
-      {isFirstTime ? undefined : <AppSidebar />}
+      {onboardingCompleted ? <AppSidebar /> : undefined}
       <SidebarInset className='min-h-[calc(100svh-(--spacing(4)))]'>
-        {isFirstTime ? undefined : <SiteHeader />}
+        {onboardingCompleted ? <SiteHeader /> : undefined}
         <div className='p-4'>
           <Outlet />
         </div>
       </SidebarInset>
+      {onboardingCompleted ? <AnalyticsBanner /> : undefined}
     </SidebarProvider>
   );
 }

@@ -10,14 +10,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     build: {
-      rolldownOptions: {
-        devtools: {}, // Enable devtools mode
-        // external: ["posthog-js"]
-      },
       sourcemap: env.SENTRY_ENABLE === 'true',
     },
     plugins: [
-      // TODO make it configurable via env variable
       // ViteDevTools({ builtinDevTools: false }),
       tanstackDevtools({
         removeDevtoolsOnBuild: true,
@@ -28,7 +23,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       sentryVitePlugin({
         authToken: env.SENTRY_AUTH_TOKEN,
-        disable: env.SENTRY_ENABLE === 'false',
+        disable: env.SENTRY_ENABLE !== 'true',
         org: 'maxstue',
         project: 'kijk-client',
         sourcemaps: {

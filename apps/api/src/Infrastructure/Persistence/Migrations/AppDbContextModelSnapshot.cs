@@ -19,7 +19,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "creator_type", new[] { "system", "user" });
@@ -70,7 +70,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("value");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Date", "Kijk.Domain.Entities.Consumption.Date#MonthYear", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Date", "Kijk.Domain.Entities.Consumption.Date#MonthYear", b1 =>
                         {
                             b1.IsRequired();
 
@@ -155,7 +155,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.ComplexProperty<Dictionary<string, object>>("LastOccurrence", "Kijk.Domain.Entities.ConsumptionLimit.LastOccurrence#MonthYear", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "LastOccurrence", "Kijk.Domain.Entities.ConsumptionLimit.LastOccurrence#MonthYear", b1 =>
                         {
                             b1.IsRequired();
 
@@ -354,6 +354,14 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int?>("AnalyticsConsent")
+                        .HasColumnType("integer")
+                        .HasColumnName("analytics_consent");
+
+                    b.Property<DateTime?>("AnalyticsConsentUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("analytics_consent_updated_at");
+
                     b.Property<string>("AuthId")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -375,12 +383,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("email");
 
-                    b.Property<bool>("FirstTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("first_time");
-
                     b.Property<string>("Image")
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)")
@@ -391,6 +393,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.Property<DateTime?>("OnboardingCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("onboarding_completed_at");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()

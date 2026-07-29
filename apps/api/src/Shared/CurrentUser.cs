@@ -28,4 +28,4 @@ public class CurrentUser
     public Guid? ActiveHouseholdId => User.HouseholdId;
 }
 
-public record SimpleAuthUser(Guid Id, string AuthId, Guid? HouseholdId, string Name, string? Email, bool? FirstTime = false);
+public record SimpleAuthUser(Guid Id, string AuthId, Guid? HouseholdId, string Name, string? Email);
