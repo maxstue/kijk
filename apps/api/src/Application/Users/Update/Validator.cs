@@ -10,17 +10,17 @@ public sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserReq
     public UpdateUserRequestValidator()
     {
         RuleFor(request => request.UserName)
-            .NotNull().WithErrorCode(ErrorCodes.ValidationError)
             .Must(name => !string.IsNullOrWhiteSpace(name)).WithErrorCode(ErrorCodes.ValidationError)
-            .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError);
+            .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
+            .When(request => request.UserName is not null);
 
         RuleFor(request => request.HouseholdName)
-            .NotNull().WithErrorCode(ErrorCodes.ValidationError)
             .Must(name => !string.IsNullOrWhiteSpace(name)).WithErrorCode(ErrorCodes.ValidationError)
-            .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError);
+            .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
+            .When(request => request.HouseholdName is not null);
 
         RuleFor(request => request.AnalyticsConsent)
-            .NotNull().WithErrorCode(ErrorCodes.ValidationError)
-            .IsInEnum().WithErrorCode(ErrorCodes.ValidationError);
+            .IsInEnum().WithErrorCode(ErrorCodes.ValidationError)
+            .When(request => request.AnalyticsConsent is not null);
     }
 }
