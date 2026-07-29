@@ -35,7 +35,7 @@ function WelcomePage() {
     <WelcomeFlow
       email={externalIdentity?.email}
       fullName={externalIdentity?.fullName}
-      householdName={activeHousehold?.name ?? 'My household'}
+      householdName={activeHousehold?.name}
       imageUrl={externalIdentity?.imageUrl}
       initialDisplayName=''
       onComplete={() => navigate({ replace: true, to: '/home' })}

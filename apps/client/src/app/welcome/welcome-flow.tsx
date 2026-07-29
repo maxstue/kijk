@@ -17,7 +17,7 @@ import {
 import { LoaderCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import type { UserStepFormDraft, UserStepFormValues } from '@/app/welcome/schemas';
@@ -44,24 +44,18 @@ const steps = [
   { label: 'Review', value: 'review' },
 ] as const;
 const stepOrder = steps.map(({ value }) => ({ value }));
-const stepContentClassName =
-  'col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible';
 
 type StepValue = (typeof steps)[number]['value'];
 
 interface WelcomeFlowProps {
   email?: string | null;
   fullName?: string | null;
-  householdName: string;
+  householdName?: string;
   imageUrl?: string | null;
   initialDisplayName: string;
   onComplete: () => Promise<void>;
 }
 
-// TODO  make it a bit more beautiful, so it looks more like a shadcn component. (How do shadcn stepper look like ?)
-// TODO update profile, wenn man "use signin profile" abwählt, "Analytics Consent' darf kein Nullwert sein. "
-// TODO if an BE error occurs during signin or getMe, the cookie consent popup still shows up, but it would be better to only show it afters successful signin and getMe.
-// TODO change shadcn theme to "pnpm dlx shadcn@latest apply --preset b5LCAabVg"
 export function WelcomeFlow({
   email,
   fullName,
@@ -100,12 +94,6 @@ export function WelcomeFlow({
     <main className='mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center gap-5 px-4 py-8'>
       <Stepper className='gap-5' steps={stepOrder} value={currentStep} onValueChange={(value) => setCurrentStep(value)}>
         <div className='space-y-3'>
-          <div className='flex items-center justify-between text-sm'>
-            <span className='font-medium'>
-              Step {currentStepIndex + 1} of {steps.length}
-            </span>
-            <span className='text-muted-foreground'>{steps[currentStepIndex]?.label}</span>
-          </div>
           <StepperList>
             {steps.map((step, index) => (
               <StepperItem
@@ -145,7 +133,11 @@ export function WelcomeFlow({
             <Form {...form}>
               <form className='space-y-6' onSubmit={form.handleSubmit(submit)}>
                 <div className='grid'>
-                  <StepperContent preserveLayout className={stepContentClassName} value='profile'>
+                  <StepperContent
+                    preserveLayout
+                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
+                    value='profile'
+                  >
                     <ProfileStep
                       providerName={providerName}
                       control={form.control}
@@ -154,31 +146,47 @@ export function WelcomeFlow({
                       imageUrl={imageUrl}
                     />
                   </StepperContent>
-                  <StepperContent preserveLayout className={stepContentClassName} value='household'>
+                  <StepperContent
+                    preserveLayout
+                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
+                    value='household'
+                  >
                     <HouseholdStep control={form.control} />
                   </StepperContent>
-                  <StepperContent preserveLayout className={stepContentClassName} value='privacy'>
+                  <StepperContent
+                    preserveLayout
+                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
+                    value='privacy'
+                  >
                     <PrivacyStep control={form.control} />
                   </StepperContent>
-                  <StepperContent preserveLayout className={stepContentClassName} value='review'>
-                    <ReviewStep values={form.getValues()} />
+                  <StepperContent
+                    preserveLayout
+                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
+                    value='review'
+                  >
+                    <ReviewStep />
                   </StepperContent>
                 </div>
 
                 <div className='flex justify-between gap-3 pt-2'>
-                  <StepperPrevious asChild disabled={isPending}>
-                    <Button type='button' variant='secondary'>
-                      Back
-                    </Button>
-                  </StepperPrevious>
+                  {currentStep !== 'profile' && (
+                    <StepperPrevious asChild disabled={isPending}>
+                      <Button type='button' variant='secondary'>
+                        Back
+                      </Button>
+                    </StepperPrevious>
+                  )}
                   {currentStep === 'review' ? (
-                    <Button disabled={isPending} type='submit'>
+                    <Button className='ml-auto' disabled={isPending} type='submit'>
                       {isPending && <LoaderCircle className='animate-spin' />}
                       Finish setup
                     </Button>
                   ) : (
                     <StepperNext asChild onBeforeNext={() => validateStep(form, currentStepIndex)}>
-                      <Button type='button'>Continue</Button>
+                      <Button className='ml-auto' type='button'>
+                        Continue
+                      </Button>
                     </StepperNext>
                   )}
                 </div>
@@ -266,7 +274,6 @@ function HouseholdStep({ control }: { control: ReturnType<typeof useForm<UserSte
             <FormControl>
               <Input placeholder='My household' {...field} />
             </FormControl>
-            <FormDescription>You can invite other household members later.</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -298,13 +305,15 @@ function HouseholdStep({ control }: { control: ReturnType<typeof useForm<UserSte
 
 function Choice({ description, title, value }: { description: string; title: string; value: string }) {
   return (
-    <FormItem className='has-data-[state=checked]:border-primary flex items-start gap-3 rounded-lg border p-4'>
-      <FormControl>
-        <RadioGroupItem value={value} />
-      </FormControl>
-      <FormLabel className='block font-normal'>
-        <span className='font-medium'>{title}</span>
-        <span className='text-muted-foreground mt-1 block text-sm'>{description}</span>
+    <FormItem className='gap-0'>
+      <FormLabel className='has-data-[state=checked]:border-primary flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 font-normal'>
+        <FormControl>
+          <RadioGroupItem value={value} />
+        </FormControl>
+        <span className='min-w-0 flex-1'>
+          <span className='block font-medium'>{title}</span>
+          <span className='text-muted-foreground mt-1 block text-sm'>{description}</span>
+        </span>
       </FormLabel>
     </FormItem>
   );
@@ -350,14 +359,20 @@ function PrivacyStep({ control }: { control: ReturnType<typeof useForm<UserStepF
   );
 }
 
-function ReviewStep({ values }: { values: UserStepFormDraft }) {
+function ReviewStep() {
+  const { control } = useFormContext<UserStepFormDraft>();
+  const [displayName, useExternalProfile, householdName, useDefaultResources, analyticsConsent] = useWatch({
+    control,
+    name: ['displayName', 'useExternalProfile', 'householdName', 'useDefaultResources', 'analyticsConsent'],
+  });
+
   return (
     <dl className='divide-y rounded-lg border'>
-      <ReviewItem label='Username' value={values.displayName} />
-      <ReviewItem label='Sign-in profile' value={values.useExternalProfile ? 'Name and image used' : 'Not used'} />
-      <ReviewItem label='Household' value={values.householdName} />
-      <ReviewItem label='Default resources' value={values.useDefaultResources ? 'All defaults' : 'None'} />
-      <ReviewItem label='Usage data' value={values.analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
+      <ReviewItem label='Username' value={displayName} />
+      <ReviewItem label='Sign-in profile' value={useExternalProfile ? 'Name and image used' : 'Not used'} />
+      <ReviewItem label='Household' value={householdName} />
+      <ReviewItem label='Default resources' value={useDefaultResources ? 'All defaults' : 'None'} />
+      <ReviewItem label='Usage data' value={analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
     </dl>
   );
 }
