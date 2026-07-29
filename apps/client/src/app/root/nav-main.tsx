@@ -33,7 +33,7 @@ export function NavMain() {
                   disabled={!item.isActive}
                   to={item.url}
                   activeProps={{
-                    className: 'text-primary-foreground bg-primary',
+                    className: 'bg-primary text-primary-foreground',
                   }}
                 >
                   <item.icon />
