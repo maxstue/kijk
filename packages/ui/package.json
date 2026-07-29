@@ -17,6 +17,7 @@
   "dependencies": {
     "@fontsource-variable/inter": "catalog:",
     "@kijk/core": "workspace:*",
+    "@radix-ui/react-slot": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "cmdk": "catalog:",

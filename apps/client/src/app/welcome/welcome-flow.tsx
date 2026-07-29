@@ -2,9 +2,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Input } from '@kijk/ui/components/input';
-import { Progress } from '@kijk/ui/components/progress';
 import { RadioGroup, RadioGroupItem } from '@kijk/ui/components/radio-group';
-import { Check, LoaderCircle } from 'lucide-react';
+import {
+  Stepper,
+  StepperContent,
+  StepperIndicator,
+  StepperItem,
+  StepperLabel,
+  StepperList,
+  StepperNext,
+  StepperPrevious,
+  StepperTrigger,
+} from '@kijk/ui/components/stepper';
+import { LoaderCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -27,7 +37,17 @@ import { config } from '@/shared/config';
 import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 import { ApiError } from '@/shared/types/errors/api-error';
 
-const steps = ['Profile', 'Household', 'Privacy', 'Review'] as const;
+const steps = [
+  { label: 'Profile', value: 'profile' },
+  { label: 'Household', value: 'household' },
+  { label: 'Privacy', value: 'privacy' },
+  { label: 'Review', value: 'review' },
+] as const;
+const stepOrder = steps.map(({ value }) => ({ value }));
+const stepContentClassName =
+  'col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible';
+
+type StepValue = (typeof steps)[number]['value'];
 
 interface WelcomeFlowProps {
   email?: string | null;
@@ -38,6 +58,10 @@ interface WelcomeFlowProps {
   onComplete: () => Promise<void>;
 }
 
+// TODO  make it a bit more beautiful, so it looks more like a shadcn component. (How do shadcn stepper look like ?)
+// TODO update profile, wenn man "use signin profile" abwählt, "Analytics Consent' darf kein Nullwert sein. "
+// TODO if an BE error occurs during signin or getMe, the cookie consent popup still shows up, but it would be better to only show it afters successful signin and getMe.
+// TODO change shadcn theme to "pnpm dlx shadcn@latest apply --preset b5LCAabVg"
 export function WelcomeFlow({
   email,
   fullName,
@@ -46,7 +70,8 @@ export function WelcomeFlow({
   initialDisplayName,
   onComplete,
 }: WelcomeFlowProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState<StepValue>('profile');
+  const currentStepIndex = steps.findIndex(({ value }) => value === currentStep);
   const { providerName } = useSignInProviderName();
   const { mutateAsync, isPending } = useWelcomeUser();
   const form = useForm<UserStepFormDraft, unknown, UserStepFormValues>({
@@ -59,14 +84,6 @@ export function WelcomeFlow({
     },
     resolver: zodResolver(userStepSchema),
   });
-
-  async function next() {
-    if (!(await validateStep(form, currentStep))) {
-      return;
-    }
-
-    setCurrentStep((step) => Math.min(step + 1, steps.length - 1));
-  }
 
   async function submit(values: UserStepFormValues) {
     try {
@@ -81,79 +98,95 @@ export function WelcomeFlow({
 
   return (
     <main className='mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center gap-5 px-4 py-8'>
-      <div className='space-y-3'>
-        <div className='flex items-center justify-between text-sm'>
-          <span className='font-medium'>
-            Step {currentStep + 1} of {steps.length}
-          </span>
-          <span className='text-muted-foreground'>{steps[currentStep]}</span>
-        </div>
-        <Progress value={((currentStep + 1) / steps.length) * 100} />
-        <ol className='grid grid-cols-4 gap-2' aria-label='Onboarding progress'>
-          {steps.map((step, index) => (
-            <li
-              key={step}
-              className='text-muted-foreground flex items-center gap-1.5 text-xs'
-              aria-current={index === currentStep ? 'step' : undefined}
-            >
-              <span
-                className={`flex size-5 items-center justify-center rounded-full border ${
-                  index <= currentStep ? 'border-primary bg-primary text-primary-foreground' : ''
-                }`}
+      <Stepper className='gap-5' steps={stepOrder} value={currentStep} onValueChange={(value) => setCurrentStep(value)}>
+        <div className='space-y-3'>
+          <div className='flex items-center justify-between text-sm'>
+            <span className='font-medium'>
+              Step {currentStepIndex + 1} of {steps.length}
+            </span>
+            <span className='text-muted-foreground'>{steps[currentStepIndex]?.label}</span>
+          </div>
+          <StepperList>
+            {steps.map((step, index) => (
+              <StepperItem
+                key={step.value}
+                completed={index < currentStepIndex}
+                defaultTrigger={false}
+                value={step.value}
               >
-                {index < currentStep ? <Check className='size-3' /> : index + 1}
-              </span>
-              <span className='hidden sm:inline'>{step}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
+                <StepperTrigger disabled={index > currentStepIndex}>
+                  <StepperIndicator />
+                  <StepperLabel>{step.label}</StepperLabel>
+                </StepperTrigger>
+              </StepperItem>
+            ))}
+          </StepperList>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{stepTitle(currentStep)}</CardTitle>
-          <CardDescription>{stepDescription(currentStep)}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form className='space-y-6' onSubmit={form.handleSubmit(submit)}>
-              {currentStep === 0 && (
-                <ProfileStep
-                  providerName={providerName}
-                  control={form.control}
-                  email={email}
-                  fullName={fullName}
-                  imageUrl={imageUrl}
-                />
-              )}
-              {currentStep === 1 && <HouseholdStep control={form.control} />}
-              {currentStep === 2 && <PrivacyStep control={form.control} />}
-              {currentStep === 3 && <ReviewStep values={form.getValues()} />}
+        <Card>
+          <div className='grid'>
+            {steps.map((step, index) => {
+              const isActive = currentStep === step.value;
 
-              <div className='flex justify-between gap-3 pt-2'>
-                <Button
-                  disabled={currentStep === 0 || isPending}
-                  type='button'
-                  variant='secondary'
-                  onClick={() => setCurrentStep((step) => Math.max(0, step - 1))}
+              return (
+                <CardHeader
+                  key={step.value}
+                  aria-hidden={!isActive}
+                  className={`col-start-1 row-start-1 ${isActive ? '' : 'invisible'}`}
+                  inert={!isActive}
                 >
-                  Back
-                </Button>
-                {currentStep === steps.length - 1 ? (
-                  <Button disabled={isPending} type='submit'>
-                    {isPending && <LoaderCircle className='animate-spin' />}
-                    Finish setup
-                  </Button>
-                ) : (
-                  <Button type='button' onClick={next}>
-                    Continue
-                  </Button>
-                )}
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                  <CardTitle>{stepTitle(index)}</CardTitle>
+                  <CardDescription>{stepDescription(index)}</CardDescription>
+                </CardHeader>
+              );
+            })}
+          </div>
+          <CardContent>
+            <Form {...form}>
+              <form className='space-y-6' onSubmit={form.handleSubmit(submit)}>
+                <div className='grid'>
+                  <StepperContent preserveLayout className={stepContentClassName} value='profile'>
+                    <ProfileStep
+                      providerName={providerName}
+                      control={form.control}
+                      email={email}
+                      fullName={fullName}
+                      imageUrl={imageUrl}
+                    />
+                  </StepperContent>
+                  <StepperContent preserveLayout className={stepContentClassName} value='household'>
+                    <HouseholdStep control={form.control} />
+                  </StepperContent>
+                  <StepperContent preserveLayout className={stepContentClassName} value='privacy'>
+                    <PrivacyStep control={form.control} />
+                  </StepperContent>
+                  <StepperContent preserveLayout className={stepContentClassName} value='review'>
+                    <ReviewStep values={form.getValues()} />
+                  </StepperContent>
+                </div>
+
+                <div className='flex justify-between gap-3 pt-2'>
+                  <StepperPrevious asChild disabled={isPending}>
+                    <Button type='button' variant='secondary'>
+                      Back
+                    </Button>
+                  </StepperPrevious>
+                  {currentStep === 'review' ? (
+                    <Button disabled={isPending} type='submit'>
+                      {isPending && <LoaderCircle className='animate-spin' />}
+                      Finish setup
+                    </Button>
+                  ) : (
+                    <StepperNext asChild onBeforeNext={() => validateStep(form, currentStepIndex)}>
+                      <Button type='button'>Continue</Button>
+                    </StepperNext>
+                  )}
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </Stepper>
     </main>
   );
 }
