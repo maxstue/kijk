@@ -111,8 +111,6 @@ public static class DependencyInjection
                 throw new NullException($"No AuthSettings found, {authOptions}");
             }
 
-            var authorizedParties = authOptions.AuthorizedParties;
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(x =>
                 {
@@ -133,7 +131,7 @@ public static class DependencyInjection
                             var azp = context.Principal?.FindFirstValue("azp");
 
                             // AuthorizedParties contains the allowed base URLs of your frontends.
-                            if (string.IsNullOrEmpty(azp) || !authorizedParties.Contains(azp, StringComparer.Ordinal))
+                            if (string.IsNullOrEmpty(azp) || !authOptions.AuthorizedParties.Contains(azp, StringComparer.Ordinal))
                             {
                                 context.Fail("AZP Claim is invalid or missing");
                             }
