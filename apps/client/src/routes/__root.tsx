@@ -5,7 +5,6 @@ import { Suspense } from 'react';
 
 import { RootDevtools } from '@/app/root/devtools';
 import { Favicon } from '@/app/root/favicon';
-import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 
@@ -29,9 +28,6 @@ function RootPage() {
           <Outlet />
         </Suspense>
       </div>
-      <Suspense>
-        <AnalyticsBanner />
-      </Suspense>
       <Suspense>
         <RootDevtools />
       </Suspense>

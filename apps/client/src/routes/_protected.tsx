@@ -5,7 +5,8 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { SiteHeader } from '@/app/root/site-header';
-import { signedInUserQueryOptions } from '@/shared/api/users/options';
+import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
+import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { CORRELATION_ID_HEADER } from '@/shared/types/api';
@@ -23,6 +24,7 @@ export const Route = createFileRoute('/_protected')({
     if (user.onboardingCompleted !== true) {
       throw redirect({ replace: true, to: '/welcome' });
     }
+
     const correlationId = browserStorage.getItem<string>(CORRELATION_ID_HEADER);
     if (stringIsNotEmptyOrWhitespace(correlationId)) {
       AnalyticsService.identifyUser(correlationId);
@@ -30,6 +32,7 @@ export const Route = createFileRoute('/_protected')({
 
     return { session };
   },
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(currentUserQueryOptions()),
   component: Protected,
   pendingComponent: InitLoader,
   pendingMinMs: 100,
@@ -50,6 +53,7 @@ function Protected() {
           <Outlet />
         </div>
       </SidebarInset>
+      {onboardingCompleted ? <AnalyticsBanner /> : undefined}
     </SidebarProvider>
   );
 }

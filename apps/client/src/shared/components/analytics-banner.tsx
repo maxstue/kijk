@@ -1,16 +1,14 @@
 import { cn } from '@kijk/core/utils/style';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
-import { useLocation } from '@tanstack/react-router';
 import { CookieIcon, ExternalLink } from 'lucide-react';
 
 import { config } from '@/shared/config';
 import { useAnalyticsConsent } from '@/shared/hooks/use-analytics-consent';
 
 export function AnalyticsBanner() {
-  const location = useLocation();
   const { consent, isPending, isReady, updateConsent } = useAnalyticsConsent();
 
-  if (!isReady || location.pathname === '/welcome') {
+  if (!isReady) {
     return null;
   }
 
