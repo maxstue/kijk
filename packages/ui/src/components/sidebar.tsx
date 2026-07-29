@@ -1,3 +1,7 @@
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { Slot } from 'radix-ui';
+
 import { useIsMobile } from '@kijk/core/hooks/use-mobile';
 import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
@@ -6,10 +10,7 @@ import { Separator } from '@kijk/ui/components/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@kijk/ui/components/sheet';
 import { Skeleton } from '@kijk/ui/components/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
-import { cva, type VariantProps } from 'class-variance-authority';
 import { PanelLeftIcon } from 'lucide-react';
-import { Slot } from 'radix-ui';
-import * as React from 'react';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

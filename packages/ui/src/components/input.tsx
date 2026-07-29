@@ -1,5 +1,6 @@
-import { cn } from '@kijk/core/utils/style';
 import * as React from 'react';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   return (

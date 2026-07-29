@@ -1,6 +1,7 @@
-import { cn } from '@kijk/core/utils/style';
-import { Avatar as AvatarPrimitive } from 'radix-ui';
 import * as React from 'react';
+import { Avatar as AvatarPrimitive } from 'radix-ui';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Avatar({
   className,

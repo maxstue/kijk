@@ -1,6 +1,9 @@
-import { cn } from '@kijk/core/utils/style';
-import { Popover as PopoverPrimitive } from 'radix-ui';
+'use client';
+
 import * as React from 'react';
+import { Popover as PopoverPrimitive } from 'radix-ui';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
   return <PopoverPrimitive.Root data-slot='popover' {...props} />;

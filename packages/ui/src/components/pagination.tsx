@@ -1,7 +1,8 @@
+import * as React from 'react';
+
 import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
-import * as React from 'react';
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (

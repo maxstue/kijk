@@ -1,6 +1,9 @@
-import { cn } from '@kijk/core/utils/style';
-import { Label as LabelPrimitive } from 'radix-ui';
+'use client';
+
 import * as React from 'react';
+import { Label as LabelPrimitive } from 'radix-ui';
+
+import { cn } from '@kijk/core/utils/style';
 
 function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
   return (

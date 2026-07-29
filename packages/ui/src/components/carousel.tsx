@@ -1,8 +1,9 @@
+import * as React from 'react';
+import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react';
+
 import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
-import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import * as React from 'react';
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -105,7 +106,7 @@ function Carousel({
         carouselRef,
         api: api,
         opts,
-        orientation: orientation,
+        orientation: orientation || (opts?.axis === 'y' ? 'vertical' : 'horizontal'),
         scrollPrev,
         scrollNext,
         canScrollPrev,
