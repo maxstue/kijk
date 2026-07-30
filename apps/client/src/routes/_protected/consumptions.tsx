@@ -72,11 +72,11 @@ function UsagePage() {
               <Sheet open={showSheet} onOpenChange={setShowSheet}>
                 <div className='flex w-full justify-between'>
                   <div className='flex w-1/3 justify-start gap-4'>
-                    <ConsumptionTodayButton />
                     <Suspense>
+                      <ConsumptionTodayButton />
                       <ConsumptionYearSwitcher />
+                      <ConsumptionMonthNav />
                     </Suspense>
-                    <ConsumptionMonthNav />
                   </div>
                   <SheetTrigger asChild>
                     <Button variant='outline'>
@@ -96,27 +96,29 @@ function UsagePage() {
               </Sheet>
             </div>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-              {data.map((item) => (
-                <Card key={item.id}>
-                  <CardHeader>
-                    <CardTitle>{item.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className='flex flex-col gap-2'>
-                    <div className='text-muted-foreground flex items-center justify-between'>
-                      Amount
-                      <div className='text-foreground'>{item.value}</div>
-                    </div>
-                    <div className='text-muted-foreground flex items-center justify-between'>
-                      Unit
-                      <ResourceUnit type={item.resource} />
-                    </div>
-                  </CardContent>
-                  <CardFooter className='flex w-full justify-end gap-2'>
-                    <ConsumptionDeleteButton id={item.id} date={item.date} />
-                    <ConsumptionEditButton data={item} />
-                  </CardFooter>
-                </Card>
-              ))}
+              <Suspense fallback={<Loader />}>
+                {data.map((item) => (
+                  <Card key={item.id}>
+                    <CardHeader>
+                      <CardTitle>{item.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className='flex flex-col gap-2'>
+                      <div className='text-muted-foreground flex items-center justify-between'>
+                        Amount
+                        <div className='text-foreground'>{item.value}</div>
+                      </div>
+                      <div className='text-muted-foreground flex items-center justify-between'>
+                        Unit
+                        <ResourceUnit type={item.resource} />
+                      </div>
+                    </CardContent>
+                    <CardFooter className='flex w-full justify-end gap-2'>
+                      <ConsumptionDeleteButton id={item.id} date={item.date} />
+                      <ConsumptionEditButton data={item} />
+                    </CardFooter>
+                  </Card>
+                ))}
+              </Suspense>
             </div>
           </div>
         </div>
