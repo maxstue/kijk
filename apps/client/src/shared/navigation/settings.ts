@@ -6,3 +6,14 @@ export const settingsNav = [
   { icon: 'monitor', label: 'Appearance', shortCutKey: undefined, to: settingsTo[1] },
   { icon: 'info', label: 'Info', shortCutKey: undefined, to: settingsTo[2] },
 ] as const;
+
+export const settingsNavGroups = [
+  {
+    items: [settingsNav[0], settingsNav[1]],
+    label: 'Personal',
+  },
+  {
+    items: [settingsNav[2]],
+    label: 'Administration',
+  },
+] as const;

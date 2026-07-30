@@ -34,7 +34,7 @@ export const mainNav = [
   },
   {
     icon: HousePlugIcon,
-    isActive: false,
+    isActive: true,
     title: 'Resources',
     url: '/resources',
   },

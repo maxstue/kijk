@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import type { UserStepFormDraft, UserStepFormValues } from '@/app/welcome/schemas';
 import { userStepSchema } from '@/app/welcome/schemas';
 import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
+import { AppBrand } from '@/shared/components/app-brand';
 import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
   Form,
@@ -92,6 +93,7 @@ export function WelcomeFlow({
 
   return (
     <main className='mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center gap-5 px-4 py-8'>
+      <AppBrand className='justify-center' logoClassName='size-8' nameClassName='text-xl' />
       <Stepper className='gap-5' steps={stepOrder} value={currentStep} onValueChange={(value) => setCurrentStep(value)}>
         <div className='space-y-3'>
           <StepperList>
