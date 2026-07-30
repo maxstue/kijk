@@ -2,7 +2,7 @@ using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Riok.Mapperly.Abstractions;
 
-namespace Kijk.Api.Middleware;
+namespace Kijk.Api.Mappers;
 
 /// <summary>
 /// Projects user entities to the authenticated-user representation.
