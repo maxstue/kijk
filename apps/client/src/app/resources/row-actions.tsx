@@ -17,8 +17,7 @@ import { toast } from 'sonner';
 
 import { ResourceTypeDeleteContent } from '@/app/resources/delete-content';
 import { ResourceTypeUpdateForm } from '@/app/resources/update-form';
-import { CreatorTypes } from '@/shared/types/domain';
-import type { Resource } from '@/shared/types/domain';
+import { CreatorTypes, type CreatorType, type Resource } from '@/shared/types/domain';
 
 interface DataTableRowActionsProps<TData> {
   canManage: boolean;
@@ -29,6 +28,8 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const resourceType = row.original;
+  const managementRestriction = getManagementRestriction(resourceType.creatorType, canManage);
+  const managementActionsDisabled = managementRestriction !== undefined;
 
   const handleCopyName = useCallback(async () => {
     await navigator.clipboard.writeText(resourceType.name);
@@ -50,39 +51,20 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
-          {resourceType.creatorType === CreatorTypes.SYSTEM ? (
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className='cursor-not-allowed'>
-                    <DropdownMenuItem disabled>Update</DropdownMenuItem>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>System resources are read-only.</TooltipContent>
-              </Tooltip>
-              <DropdownMenuSeparator />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className='cursor-not-allowed'>
-                    <DropdownMenuItem disabled variant='destructive'>
-                      Delete
-                    </DropdownMenuItem>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>System resources are read-only.</TooltipContent>
-              </Tooltip>
-            </>
-          ) : canManage ? (
-            <>
-              <DropdownMenuItem onSelect={() => setShowUpdateDialog(true)}>Update</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant='destructive' onSelect={() => setShowDeleteDialog(true)}>
-                Delete
-              </DropdownMenuItem>
-            </>
-          ) : (
-            <DropdownMenuItem disabled>Household admin role required</DropdownMenuItem>
-          )}
+          <ResourceManagementMenuItem
+            disabled={managementActionsDisabled}
+            label='Update'
+            tooltip={managementRestriction ?? 'Update resource'}
+            onSelect={() => setShowUpdateDialog(true)}
+          />
+          <DropdownMenuSeparator />
+          <ResourceManagementMenuItem
+            disabled={managementActionsDisabled}
+            label='Delete'
+            tooltip={managementRestriction ?? 'Delete resource'}
+            variant='destructive'
+            onSelect={() => setShowDeleteDialog(true)}
+          />
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
@@ -98,5 +80,38 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
         <ResourceTypeDeleteContent resourceType={resourceType} onClose={handleCloseDeleteDialog} />
       </AlertDialog>
     </>
+  );
+}
+
+function getManagementRestriction(creatorType: CreatorType, canManage: boolean) {
+  if (creatorType === CreatorTypes.SYSTEM) {
+    return 'System resources are read-only.';
+  }
+
+  if (!canManage) {
+    return 'Household admin role required.';
+  }
+}
+
+interface ResourceManagementMenuItemProps {
+  disabled: boolean;
+  label: string;
+  onSelect: () => void;
+  tooltip: string;
+  variant?: 'default' | 'destructive';
+}
+
+function ResourceManagementMenuItem({ disabled, label, onSelect, tooltip, variant }: ResourceManagementMenuItemProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className={disabled ? 'cursor-not-allowed' : undefined}>
+          <DropdownMenuItem disabled={disabled} variant={variant} onSelect={onSelect}>
+            {label}
+          </DropdownMenuItem>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
   );
 }
