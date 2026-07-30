@@ -8,6 +8,7 @@ using Kijk.Application.Consumptions.GetStats;
 using Kijk.Application.Consumptions.GetYears;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Consumptions.Update;
+using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,8 @@ public class ConsumptionsEndpoints : IEndpointGroup
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("consumptions")
-            .WithTags("Consumptions");
+            .WithTags("Consumptions")
+            .RequireAuthorization(AppConstants.Roles.User);
 
         group.MapGet("/{id:guid}", GetById)
             .WithName("GetConsumptionById")

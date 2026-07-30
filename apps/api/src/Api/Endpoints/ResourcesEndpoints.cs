@@ -6,6 +6,7 @@ using Kijk.Application.Resources.GetAll;
 using Kijk.Application.Resources.GetById;
 using Kijk.Application.Resources.Shared;
 using Kijk.Application.Resources.Update;
+using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,10 +17,14 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public class ResourcesEndpoints : IEndpointGroup
 {
+    // TODO prüfe welche weiteren endpunkte besser geprüft werden sollten, zb updateUser sollte erstmal nur der nutzer selbern machen dürfen
+    // delete consumption sollte jeder im selben household machen dürfen
+    // Was noch ??
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/resources")
-            .WithTags("Resources");
+            .WithTags("Resources")
+            .RequireAuthorization(AppConstants.Roles.User);
 
         group.MapGet("", GetAll)
             .WithSummary("Gets all resources");
@@ -29,18 +34,21 @@ public class ResourcesEndpoints : IEndpointGroup
             .WithSummary("Gets a resource type");
 
         group.MapPost("", Create)
+            .RequireAuthorization(AppConstants.Roles.Admin)
             .WithRequestValidation<CreateResourceRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Creates a new resource type");
 
         group.MapPut("/{id:guid}", Update)
+            .RequireAuthorization(AppConstants.Roles.Admin)
             .WithRequestValidation<UpdateResourceRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Updates a custom resource type");
 
         group.MapDelete("/{id:guid}", Delete)
+            .RequireAuthorization(AppConstants.Roles.Admin)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Deletes an unused custom resource type");

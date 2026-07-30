@@ -34,7 +34,7 @@ public static class EndpointExtensions
     public static WebApplication MapEndpoints(this WebApplication app)
     {
         var apiGroup = app.MapGroup("/api")
-            .RequireAuthorization(AppConstants.Policies.All)
+            .RequireAuthorization(AppConstants.Roles.All)
             .RequirePerUserRateLimit();
 
         var endpoints = app.Services.GetRequiredService<IEnumerable<IEndpointGroup>>();
