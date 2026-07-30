@@ -25,6 +25,7 @@ public class ConsumptionConfig : IEntityTypeConfiguration<Consumption>
 
         builder.HasOne(x => x.Resource)
             .WithMany()
-            .HasForeignKey(x => x.ResourceId);
+            .HasForeignKey(x => x.ResourceId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

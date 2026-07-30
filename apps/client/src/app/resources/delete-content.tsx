@@ -33,7 +33,9 @@ export function ResourceTypeDeleteContent({ onClose, resourceType }: Props) {
     <div className='space-y-8'>
       <SheetHeader>
         <SheetTitle>Delete</SheetTitle>
-        <SheetDescription>This will irrevocably delete this resource type.</SheetDescription>
+        <SheetDescription>
+          Only unused resource types can be deleted. Existing consumptions and limits are never deleted automatically.
+        </SheetDescription>
       </SheetHeader>
       <div className='flex flex-col gap-3 p-4'>
         <div className='flex w-1/2 flex-col'>
@@ -53,12 +55,12 @@ export function ResourceTypeDeleteContent({ onClose, resourceType }: Props) {
       </div>
       <SheetFooter>
         <div className='flex w-full items-center justify-between gap-2'>
-          <SheetClose>
+          <SheetClose asChild>
             <Button disabled={isPending} type='button' variant='outline'>
               Cancel
             </Button>
           </SheetClose>
-          <Button className='bg-red-500' disabled={isPending} type='button' onClick={handleDelete}>
+          <Button disabled={isPending} type='button' variant='destructive' onClick={handleDelete}>
             Delete
           </Button>
           {isPending && <Icons.spinner className='h-5 w-5 animate-spin' />}

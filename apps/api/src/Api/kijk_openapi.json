@@ -493,17 +493,17 @@
           "400": {
             "$ref": "#/components/responses/400"
           },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
           "403": {
             "$ref": "#/components/responses/403"
           },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
           "409": {
             "$ref": "#/components/responses/409"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
           },
           "429": {
             "$ref": "#/components/responses/429"
@@ -524,7 +524,7 @@
         "tags": [
           "Resources"
         ],
-        "summary": "Gets an resource usage",
+        "summary": "Gets a resource type",
         "operationId": "GetResourceById",
         "parameters": [
           {
@@ -580,7 +580,7 @@
         "tags": [
           "Resources"
         ],
-        "summary": "Updates an resource usage",
+        "summary": "Updates a custom resource type",
         "parameters": [
           {
             "name": "id",
@@ -616,17 +616,17 @@
           "400": {
             "$ref": "#/components/responses/400"
           },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
           "403": {
             "$ref": "#/components/responses/403"
           },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
           "409": {
             "$ref": "#/components/responses/409"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
           },
           "429": {
             "$ref": "#/components/responses/429"
@@ -645,7 +645,7 @@
         "tags": [
           "Resources"
         ],
-        "summary": "Deletes an resource usage",
+        "summary": "Deletes an unused custom resource type",
         "parameters": [
           {
             "name": "id",
@@ -661,20 +661,20 @@
           "204": {
             "description": "No Content"
           },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
           "400": {
             "$ref": "#/components/responses/400"
           },
           "401": {
             "$ref": "#/components/responses/401"
           },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
           "404": {
             "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
           },
           "429": {
             "$ref": "#/components/responses/429"
@@ -1359,6 +1359,44 @@
           "correlationId": {
             "type": "string",
             "description": "The correlation ID for the request."
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },

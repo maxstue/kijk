@@ -14,7 +14,7 @@ export function ResourceNameField({ className, field }: FieldProps<'name'>) {
     <FormItem className={className}>
       <FormLabel>Name</FormLabel>
       <FormControl>
-        <Input placeholder='Name' {...field} />
+        <Input maxLength={30} placeholder='Name' {...field} />
       </FormControl>
       <FormMessage />
     </FormItem>
@@ -26,7 +26,7 @@ export function ResourceUnitField({ className, field }: FieldProps<'unit'>) {
     <FormItem className={className}>
       <FormLabel>Unit</FormLabel>
       <FormControl>
-        <Input placeholder='Unit' {...field} />
+        <Input maxLength={10} placeholder='Unit' {...field} />
       </FormControl>
       <FormMessage />
     </FormItem>

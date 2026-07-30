@@ -1,22 +1,15 @@
 import { z } from 'zod';
 
 export const resourceSchema = z.object({
-  color: z
-    .string()
-    .min(1, {
-      message: 'Color must be set',
-    })
-    .refine(startsWithHash, { message: 'The color need to start with a "#"' }),
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters',
+  color: z.string().regex(/^#[\da-f]{6}$/i, {
+    message: 'Color must be a valid six-digit hex color',
   }),
-  unit: z.string().min(1, {
-    message: 'Unit must be set',
+  name: z.string().trim().min(2, { message: 'Name must be at least 2 characters' }).max(30, {
+    message: 'Name must be at most 30 characters',
+  }),
+  unit: z.string().trim().min(1, { message: 'Unit must be set' }).max(10, {
+    message: 'Unit must be at most 10 characters',
   }),
 });
-
-function startsWithHash(value: string) {
-  return value.startsWith('#');
-}
 
 export type ResourceFormValues = z.infer<typeof resourceSchema>;

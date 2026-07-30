@@ -11,34 +11,39 @@ namespace Kijk.Application.Resources.Create;
 /// </summary>
 public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
 {
-    public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest command, CancellationToken cancellationToken)
+    public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest request, CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users
-            .Include(x => x.Resources)
-            .Where(x => x.Id == currentUser.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (user is null)
+        if (!await dbContext.IsActiveHouseholdAdminAsync(currentUser, cancellationToken))
         {
-            logger.LogWarning("User with id '{Id}' could not be found", currentUser.Id);
-            return Error.NotFound("User was not found");
+            logger.LogWarning("User with id '{UserId}' is not allowed to manage resources in household '{HouseholdId}'",
+                currentUser.Id, currentUser.ActiveHouseholdId);
+            return Error.Authorization("Only the active household administrator can manage resources");
         }
 
-        if (user.Resources.Any(c => string.Equals(c.Name, command.Name, StringComparison.OrdinalIgnoreCase)))
+        var household = await dbContext.Households
+            .FirstOrDefaultAsync(household => household.Id == currentUser.ActiveHouseholdId, cancellationToken);
+        if (household is null)
         {
-            logger.LogWarning("Resource with name '{Name}' already exists", command.Name);
-            return Error.Conflict($"A resource with the name '{command.Name}' already exists");
+            logger.LogWarning("Active household with id '{HouseholdId}' was not found", currentUser.ActiveHouseholdId);
+            return Error.NotFound("Active household was not found");
+        }
+
+        var name = request.Name.Trim();
+        var unit = request.Unit.Trim();
+        if (await dbContext.HasResourceConflictAsync(currentUser, name, unit, null, cancellationToken))
+        {
+            logger.LogWarning("Resource with name '{Name}' and unit '{Unit}' already exists", name, unit);
+            return Error.Conflict($"A resource with the name '{name}' and unit '{unit}' already exists");
         }
 
         var newResource = new Resource
         {
-            Name = command.Name,
-            Unit = command.Unit,
-            Color = command.Color,
-            CreatorType = CreatorType.User
+            Name = name,
+            Unit = unit,
+            Color = request.Color,
+            CreatorType = CreatorType.User,
+            Household = household
         };
-
-        user.AddResource(newResource);
 
         var resEntity = await dbContext.Resources.AddAsync(newResource, cancellationToken);
 

@@ -9,7 +9,10 @@ export const useUpdateResource = () => {
   return useMutation({
     ...updateResourceMutationOptions(),
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.resources.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.resources.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.all }),
+      ]);
     },
   });
 };

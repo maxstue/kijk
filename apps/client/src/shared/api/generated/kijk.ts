@@ -325,9 +325,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets an resource usage */
+    /** Gets a resource type */
     get: operations['GetResourceById'];
-    /** Updates an resource usage */
+    /** Updates a custom resource type */
     put: {
       parameters: {
         query?: never;
@@ -362,7 +362,7 @@ export interface paths {
       };
     };
     post?: never;
-    /** Deletes an resource usage */
+    /** Deletes an unused custom resource type */
     delete: {
       parameters: {
         query?: never;
@@ -689,6 +689,14 @@ export interface components {
       timestamp?: string;
       /** The correlation ID for the request. */
       correlationId?: string;
+    };
+    ProblemDetails: {
+      type?: null | string;
+      title?: null | string;
+      /** Format: int32 */
+      status?: null | number | string;
+      detail?: null | string;
+      instance?: null | string;
     };
     ResourceResponse: {
       /** Format: uuid */

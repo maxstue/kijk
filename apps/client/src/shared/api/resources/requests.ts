@@ -19,7 +19,7 @@ export async function createResource(data: ResourceData, signal?: AbortSignal) {
 export async function updateResource(data: UpdateResourceData, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient.PUT('/api/resources/{id}', {
-      body: data.resourceType,
+      body: data.resource,
       params: {
         path: { id: data.id },
       },

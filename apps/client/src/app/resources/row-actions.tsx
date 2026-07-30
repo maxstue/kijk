@@ -1,4 +1,3 @@
-import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import {
   DropdownMenu,
@@ -27,10 +26,11 @@ import { CreatorTypes } from '@/shared/types/domain';
 import type { Resource } from '@/shared/types/domain';
 
 interface DataTableRowActionsProps<TData> {
+  canManage: boolean;
   row: Row<TData>;
 }
 
-export function ResourceTypeRowActions<TData extends Resource>({ row }: DataTableRowActionsProps<TData>) {
+export function ResourceTypeRowActions<TData extends Resource>({ canManage, row }: DataTableRowActionsProps<TData>) {
   const [showSheet, setShowSheet] = useState(false);
   const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
   const resourceType = row.original;
@@ -57,24 +57,33 @@ export function ResourceTypeRowActions<TData extends Resource>({ row }: DataTabl
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
-          {resourceType.creatorType !== CreatorTypes.SYSTEM && (
+          {resourceType.creatorType === CreatorTypes.SYSTEM ? (
+            <DropdownMenuItem disabled>System resource · read-only</DropdownMenuItem>
+          ) : canManage ? (
             <>
-              <SheetTrigger
-                onClick={() => {
-                  setSheetType('edit');
-                }}
-              >
-                <DropdownMenuItem>Update</DropdownMenuItem>
+              <SheetTrigger asChild>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSheetType('edit');
+                  }}
+                >
+                  Update
+                </DropdownMenuItem>
               </SheetTrigger>
               <DropdownMenuSeparator />
-              <SheetTrigger
-                onClick={() => {
-                  setSheetType('delete');
-                }}
-              >
-                <DropdownMenuItem className={cn('focus:bg-red-500 focus:text-white')}>Delete</DropdownMenuItem>
+              <SheetTrigger asChild>
+                <DropdownMenuItem
+                  variant='destructive'
+                  onSelect={() => {
+                    setSheetType('delete');
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
               </SheetTrigger>
             </>
+          ) : (
+            <DropdownMenuItem disabled>Household admin role required</DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

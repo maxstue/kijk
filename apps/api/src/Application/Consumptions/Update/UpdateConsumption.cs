@@ -1,4 +1,5 @@
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
@@ -35,7 +36,22 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         existingResourceUsage.Name = request.Name ?? existingResourceUsage.Name;
         existingResourceUsage.Date = request.Date is not null ? monthYear : existingResourceUsage.Date;
         var resourceId = request.ResourceId ?? existingResourceUsage.ResourceId;
-        existingResourceUsage.ResourceId = resourceId;
+
+        if (resourceId != existingResourceUsage.ResourceId)
+        {
+            var resource = await dbContext
+                .AvailableResources(currentUser)
+                .FirstOrDefaultAsync(resource => resource.Id == resourceId, cancellationToken);
+            if (resource is null)
+            {
+                logger.LogWarning("Resource with id '{ResourceId}' is not available to user '{UserId}'", resourceId,
+                    currentUser.Id);
+                return Error.NotFound("Resource is not available in the active household");
+            }
+
+            existingResourceUsage.ResourceId = resource.Id;
+            existingResourceUsage.Resource = resource;
+        }
 
         if (request.ValueType == UpdateConsumptionValueTypes.Absolute)
         {

@@ -1,4 +1,5 @@
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -40,11 +41,14 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
             return Error.Conflict($"Consumption for '{foundConsumption.Resource.Name}' already exists for {request.Date:MMMM yyyy}");
         }
 
-        var resource = await dbContext.Resources.FirstOrDefaultAsync(x => x.Id == request.ResourceId, cancellationToken);
+        var resource = await dbContext
+            .AvailableResources(currentUser)
+            .FirstOrDefaultAsync(resource => resource.Id == request.ResourceId, cancellationToken);
         if (resource is null)
         {
-            logger.LogWarning("Resource with id '{ResourceId}' not found", request.ResourceId);
-            return Error.NotFound("Resource not found");
+            logger.LogWarning("Resource with id '{ResourceId}' is not available to user '{UserId}'", request.ResourceId,
+                currentUser.Id);
+            return Error.NotFound("Resource is not available in the active household");
         }
 
         var consumption = await CreateConsumption(request, resource, household, cancellationToken);

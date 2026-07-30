@@ -12,27 +12,39 @@ public class UpdateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 {
     public async Task<Result<ResourceResponse>> UpdateAsync(Guid id, UpdateResourceRequest request, CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users
-            .Include(x => x.Resources)
-            .Where(x => x.Id == currentUser.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (user is null)
+        if (!await dbContext.IsActiveHouseholdAdminAsync(currentUser, cancellationToken))
         {
-            logger.LogWarning("User with id '{Id}' could not be found", currentUser.Id);
-            return Error.NotFound("User was not found");
+            logger.LogWarning("User with id '{UserId}' is not allowed to manage resources in household '{HouseholdId}'",
+                currentUser.Id, currentUser.ActiveHouseholdId);
+            return Error.Authorization("Only the active household administrator can manage resources");
         }
 
-        var resource = user.Resources.FirstOrDefault(x => x.Id == id);
+        var resource = await dbContext
+            .AvailableResources(currentUser)
+            .FirstOrDefaultAsync(resource => resource.Id == id, cancellationToken);
         if (resource is null)
         {
-            logger.LogWarning("Resource with id '{Id}' could not be found", id);
+            logger.LogWarning("Resource with id '{ResourceId}' was not available to user '{UserId}'", id, currentUser.Id);
             return Error.NotFound("Resource not found");
         }
 
-        resource.Name = request.Name ?? resource.Name;
+        if (resource.CreatorType == CreatorType.System)
+        {
+            logger.LogWarning("User with id '{UserId}' attempted to update system resource '{ResourceId}'", currentUser.Id, id);
+            return Error.Authorization("System resources cannot be updated");
+        }
+
+        var name = request.Name?.Trim() ?? resource.Name;
+        var unit = request.Unit?.Trim() ?? resource.Unit;
+        if (await dbContext.HasResourceConflictAsync(currentUser, name, unit, id, cancellationToken))
+        {
+            logger.LogWarning("Resource with name '{Name}' and unit '{Unit}' already exists", name, unit);
+            return Error.Conflict($"A resource with the name '{name}' and unit '{unit}' already exists");
+        }
+
+        resource.Name = name;
         resource.Color = request.Color ?? resource.Color;
-        resource.Unit = request.Unit ?? resource.Unit;
+        resource.Unit = unit;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
