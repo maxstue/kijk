@@ -12,27 +12,14 @@ public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 {
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        if (!await dbContext.IsActiveHouseholdAdminAsync(currentUser, cancellationToken))
+        var resourceResult = await ResourceHelpers.GetModifiableResourceAsync(dbContext, currentUser, id, cancellationToken);
+        if (resourceResult.IsError)
         {
-            logger.LogWarning("User with id '{UserId}' is not allowed to manage resources in household '{HouseholdId}'",
-                currentUser.Id, currentUser.ActiveHouseholdId);
-            return Error.Authorization("Only the active household administrator can manage resources");
+            logger.LogWarning("User '{UserId}' could not manage resource '{ResourceId}': {Reason}", currentUser.Id, id, resourceResult.Error.Description);
+            return resourceResult.Error;
         }
 
-        var resource = await dbContext
-            .AvailableResources(currentUser)
-            .FirstOrDefaultAsync(resource => resource.Id == id, cancellationToken);
-        if (resource is null)
-        {
-            logger.LogWarning("Resource with id '{ResourceId}' was not available to user '{UserId}'", id, currentUser.Id);
-            return Error.NotFound("Resource could not be found");
-        }
-
-        if (resource.CreatorType == CreatorType.System)
-        {
-            logger.LogWarning("User with id '{UserId}' attempted to delete system resource '{ResourceId}'", currentUser.Id, id);
-            return Error.Authorization("System resources cannot be deleted");
-        }
+        var resource = resourceResult.Value;
 
         var consumptionCount = await dbContext.Consumptions
             .CountAsync(consumption => consumption.ResourceId == id, cancellationToken);

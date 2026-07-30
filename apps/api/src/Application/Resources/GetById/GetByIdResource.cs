@@ -1,5 +1,6 @@
 using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Resources;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser current
     public async Task<Result<ResourceResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var resource = await dbContext
-            .AvailableResources(currentUser)
+            .GetUserAvailableResources(currentUser)
             .Where(resource => resource.Id == id)
             .AsNoTracking()
             .ToResponse()

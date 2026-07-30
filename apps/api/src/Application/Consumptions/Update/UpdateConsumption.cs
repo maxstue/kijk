@@ -1,6 +1,6 @@
 using Kijk.Application.Consumptions.Shared;
-using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Resources;
 using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -40,7 +40,7 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         if (resourceId != existingResourceUsage.ResourceId)
         {
             var resource = await dbContext
-                .AvailableResources(currentUser)
+                .GetUserAvailableResources(currentUser)
                 .FirstOrDefaultAsync(resource => resource.Id == resourceId, cancellationToken);
             if (resource is null)
             {

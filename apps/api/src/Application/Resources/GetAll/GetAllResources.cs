@@ -1,5 +1,6 @@
 ﻿using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Resources;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +14,7 @@ public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser current
     public async Task<Result<List<ResourceResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var resources = await dbContext
-            .AvailableResources(currentUser)
+            .GetUserAvailableResources(currentUser)
             .AsNoTracking()
             .ToResponse()
             .OrderBy(resource => resource.Name)

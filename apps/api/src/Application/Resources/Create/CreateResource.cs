@@ -13,13 +13,6 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 {
     public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest request, CancellationToken cancellationToken)
     {
-        if (!await dbContext.IsActiveHouseholdAdminAsync(currentUser, cancellationToken))
-        {
-            logger.LogWarning("User with id '{UserId}' is not allowed to manage resources in household '{HouseholdId}'",
-                currentUser.Id, currentUser.ActiveHouseholdId);
-            return Error.Authorization("Only the active household administrator can manage resources");
-        }
-
         var household = await dbContext.Households
             .FirstOrDefaultAsync(household => household.Id == currentUser.ActiveHouseholdId, cancellationToken);
         if (household is null)
@@ -30,7 +23,7 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 
         var name = request.Name.Trim();
         var unit = request.Unit.Trim();
-        if (await dbContext.HasResourceConflictAsync(currentUser, name, unit, null, cancellationToken))
+        if (await ResourceHelpers.HasConflictAsync(dbContext, currentUser, name, unit, null, cancellationToken))
         {
             logger.LogWarning("Resource with name '{Name}' and unit '{Unit}' already exists", name, unit);
             return Error.Conflict($"A resource with the name '{name}' and unit '{unit}' already exists");
