@@ -62,7 +62,7 @@ export function ConsumptionCreateForm({ onClose }: Props) {
   return (
     <Suspense fallback={<Loader />}>
       <Form {...form}>
-        <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit, handleError)} noValidate>
+        <form className='flex flex-col gap-4' onSubmit={form.handleSubmit(onSubmit, handleError)} noValidate>
           <FormField control={form.control} name='name' render={(props) => <ConsumptionNameField {...props} />} />
           <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
             <div>

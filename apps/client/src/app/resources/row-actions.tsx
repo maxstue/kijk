@@ -1,4 +1,6 @@
+import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,14 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@kijk/ui/components/dropdown-menu';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@kijk/ui/components/sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { useCallback, useState } from 'react';
@@ -31,8 +26,8 @@ interface DataTableRowActionsProps<TData> {
 }
 
 export function ResourceTypeRowActions<TData extends Resource>({ canManage, row }: DataTableRowActionsProps<TData>) {
-  const [showSheet, setShowSheet] = useState(false);
-  const [sheetType, setSheetType] = useState<'edit' | 'delete'>();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const resourceType = row.original;
 
   const handleCopyName = useCallback(async () => {
@@ -40,13 +35,11 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
     toast(`Successfully copied: ${resourceType.name}`);
   }, [resourceType.name]);
 
-  const handleClose = useCallback(() => {
-    setShowSheet(false);
-    setSheetType(undefined);
-  }, []);
+  const handleCloseDeleteDialog = useCallback(() => setShowDeleteDialog(false), []);
+  const handleCloseUpdateDialog = useCallback(() => setShowUpdateDialog(false), []);
 
   return (
-    <Sheet open={showSheet} onOpenChange={setShowSheet}>
+    <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className='h-8 w-8 p-0' variant='ghost'>
@@ -58,47 +51,52 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
           {resourceType.creatorType === CreatorTypes.SYSTEM ? (
-            <DropdownMenuItem disabled>System resource · read-only</DropdownMenuItem>
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className='cursor-not-allowed'>
+                    <DropdownMenuItem disabled>Update</DropdownMenuItem>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>System resources are read-only.</TooltipContent>
+              </Tooltip>
+              <DropdownMenuSeparator />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className='cursor-not-allowed'>
+                    <DropdownMenuItem disabled variant='destructive'>
+                      Delete
+                    </DropdownMenuItem>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>System resources are read-only.</TooltipContent>
+              </Tooltip>
+            </>
           ) : canManage ? (
             <>
-              <SheetTrigger asChild>
-                <DropdownMenuItem
-                  onSelect={() => {
-                    setSheetType('edit');
-                  }}
-                >
-                  Update
-                </DropdownMenuItem>
-              </SheetTrigger>
+              <DropdownMenuItem onSelect={() => setShowUpdateDialog(true)}>Update</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <SheetTrigger asChild>
-                <DropdownMenuItem
-                  variant='destructive'
-                  onSelect={() => {
-                    setSheetType('delete');
-                  }}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </SheetTrigger>
+              <DropdownMenuItem variant='destructive' onSelect={() => setShowDeleteDialog(true)}>
+                Delete
+              </DropdownMenuItem>
             </>
           ) : (
             <DropdownMenuItem disabled>Household admin role required</DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      <SheetContent className='space-y-8'>
-        {sheetType === 'delete' && <ResourceTypeDeleteContent resourceType={resourceType} onClose={handleClose} />}
-        {sheetType === 'edit' && (
-          <>
-            <SheetHeader>
-              <SheetTitle>Update {resourceType.name}</SheetTitle>
-              <SheetDescription>Change the values.</SheetDescription>
-            </SheetHeader>
-            <ResourceTypeUpdateForm initialData={resourceType} onClose={handleClose} />
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+      <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
+        <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+          <DialogHeader>
+            <DialogTitle>Update {resourceType.name}</DialogTitle>
+            <DialogDescription>Change the values.</DialogDescription>
+          </DialogHeader>
+          <ResourceTypeUpdateForm initialData={resourceType} onClose={handleCloseUpdateDialog} />
+        </DialogContent>
+      </Dialog>
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <ResourceTypeDeleteContent resourceType={resourceType} onClose={handleCloseDeleteDialog} />
+      </AlertDialog>
+    </>
   );
 }

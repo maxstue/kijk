@@ -1,14 +1,14 @@
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { Separator } from '@kijk/ui/components/separator';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@kijk/ui/components/sheet';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kijk/ui/components/dialog';
+import { Separator } from '@kijk/ui/components/separator';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useState } from 'react';
@@ -22,14 +22,14 @@ import { CreatorTypes } from '@/shared/types/domain';
 import type { Resource } from '@/shared/types/domain';
 
 export function ResourceTypesSection() {
-  const [showSheet, setShowSheet] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
   const { data } = useSuspenseQuery(resourcesQueryOptions());
   const { data: currentUser } = useSuspenseQuery(currentUserQueryOptions());
   const activeHousehold = currentUser.households?.find((household) => household.isActive);
   const canManage = activeHousehold?.role.name === 'Admin';
   const columns = getResourceTypeColumns(canManage);
 
-  const handleClose = () => setShowSheet(false);
+  const handleClose = () => setShowDialog(false);
 
   return (
     <div className='space-y-6'>
@@ -43,8 +43,8 @@ export function ResourceTypesSection() {
       </div>
       <div className='w-full'>
         <div className='flex justify-end'>
-          <Sheet open={showSheet} onOpenChange={setShowSheet}>
-            <SheetTrigger asChild>
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogTrigger asChild>
               <Button
                 disabled={!canManage}
                 title={canManage ? undefined : 'Household admin role required'}
@@ -52,17 +52,15 @@ export function ResourceTypesSection() {
               >
                 Create
               </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Create</SheetTitle>
-                <SheetDescription>Create a new resource type.</SheetDescription>
-              </SheetHeader>
-              <div className='p-4'>
-                <ResourceTypeCreateForm onClose={handleClose} />
-              </div>
-            </SheetContent>
-          </Sheet>
+            </DialogTrigger>
+            <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+              <DialogHeader>
+                <DialogTitle>Create Resource</DialogTitle>
+                <DialogDescription>Create a new resource type.</DialogDescription>
+              </DialogHeader>
+              <ResourceTypeCreateForm onClose={handleClose} />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       <div className='w-full'>
