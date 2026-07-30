@@ -16,8 +16,8 @@ public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser current
         var resources = await dbContext
             .GetUserAvailableResources(currentUser)
             .AsNoTracking()
-            .ToResponse()
             .OrderBy(resource => resource.Name)
+            .ToResponse()
             .ToListAsync(cancellationToken);
 
         if (!await dbContext.Users.AnyAsync(user => user.Id == currentUser.Id, cancellationToken))
