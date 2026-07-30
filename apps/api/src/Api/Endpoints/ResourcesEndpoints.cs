@@ -17,9 +17,6 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public class ResourcesEndpoints : IEndpointGroup
 {
-    // TODO prüfe welche weiteren endpunkte besser geprüft werden sollten, zb updateUser sollte erstmal nur der nutzer selbern machen dürfen
-    // delete consumption sollte jeder im selben household machen dürfen
-    // Was noch ??
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/resources")
