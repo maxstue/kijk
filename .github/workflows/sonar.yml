@@ -58,7 +58,9 @@ jobs:
           "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin \
             /k:"maxstue_kijk" \
             /o:"maxstue" \
-            /d:sonar.token="$SONAR_TOKEN"
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.plsql.file.suffixes="tab,pkb" \
+            /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
 
       - name: 🧱 Build .NET solution
         run: dotnet build apps/api/Kijk.slnx --configuration Release --no-restore
