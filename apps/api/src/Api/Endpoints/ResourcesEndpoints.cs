@@ -6,6 +6,7 @@ using Kijk.Application.Resources.GetAll;
 using Kijk.Application.Resources.GetById;
 using Kijk.Application.Resources.Shared;
 using Kijk.Application.Resources.Update;
+using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,24 +20,35 @@ public class ResourcesEndpoints : IEndpointGroup
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/resources")
-            .WithTags("Resources");
+            .WithTags("Resources")
+            .RequireAuthorization(AppConstants.Roles.User);
 
         group.MapGet("", GetAll)
             .WithSummary("Gets all resources");
 
         group.MapGet("/{id:guid}", GetById)
             .WithName("GetResourceById")
-            .WithSummary("Gets an resource usage");
+            .WithSummary("Gets a resource type");
 
         group.MapPost("", Create)
+            .RequireAuthorization(AppConstants.Roles.Admin)
             .WithRequestValidation<CreateResourceRequest>()
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Creates a new resource type");
 
         group.MapPut("/{id:guid}", Update)
-            .WithSummary("Updates an resource usage");
+            .RequireAuthorization(AppConstants.Roles.Admin)
+            .WithRequestValidation<UpdateResourceRequest>()
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .WithSummary("Updates a custom resource type");
 
         group.MapDelete("/{id:guid}", Delete)
-            .WithSummary("Deletes an resource usage");
+            .RequireAuthorization(AppConstants.Roles.Admin)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .WithSummary("Deletes an unused custom resource type");
 
         return builder;
     }
@@ -54,7 +66,7 @@ public class ResourcesEndpoints : IEndpointGroup
     }
 
     /// <summary>
-    /// Gets an resource usage.
+    /// Gets a resource type.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="handler"></param>
@@ -83,7 +95,7 @@ public class ResourcesEndpoints : IEndpointGroup
     }
 
     /// <summary>
-    /// Updates an resource usage.
+    /// Updates a custom resource type.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="request"></param>
@@ -97,7 +109,7 @@ public class ResourcesEndpoints : IEndpointGroup
     }
 
     /// <summary>
-    /// Deletes an resource usage.
+    /// Deletes an unused custom resource type.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="handler"></param>

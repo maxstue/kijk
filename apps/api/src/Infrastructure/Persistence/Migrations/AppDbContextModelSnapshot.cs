@@ -268,7 +268,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<string>("Color")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
                         .HasDefaultValue("#89CEA4")
                         .HasColumnName("color");
 
@@ -284,16 +285,34 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<Guid?>("HouseholdId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("household_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
                         .HasColumnName("name");
+
+                    b.Property<string>("NormalizedName")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("normalized_name")
+                        .HasComputedColumnSql("lower(btrim(name))", true);
+
+                    b.Property<string>("NormalizedUnit")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("normalized_unit")
+                        .HasComputedColumnSql("lower(btrim(unit))", true);
 
                     b.Property<string>("Unit")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
                         .HasColumnName("unit");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -306,9 +325,15 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .HasDatabaseName("ix_resources_name");
 
-                    b.HasIndex("Name", "Unit")
+                    b.HasIndex("NormalizedName", "NormalizedUnit")
                         .IsUnique()
-                        .HasDatabaseName("ix_resources_name_unit");
+                        .HasDatabaseName("ix_resources_normalized_name_normalized_unit")
+                        .HasFilter("household_id IS NULL");
+
+                    b.HasIndex("HouseholdId", "NormalizedName", "NormalizedUnit")
+                        .IsUnique()
+                        .HasDatabaseName("ix_resources_household_id_normalized_name_normalized_unit")
+                        .HasFilter("household_id IS NOT NULL");
 
                     b.ToTable("resources", (string)null);
                 });
@@ -537,7 +562,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasOne("Kijk.Domain.Entities.Resource", "Resource")
                         .WithMany()
                         .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_consumptions_resources_resource_id");
 
@@ -565,7 +590,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasOne("Kijk.Domain.Entities.Resource", "Resource")
                         .WithMany()
                         .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_consumptions_limits_resources_resource_id");
 
@@ -574,6 +599,17 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Navigation("Household");
 
                     b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Resource", b =>
+                {
+                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                        .WithMany("Resources")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_resources_households_household_id");
+
+                    b.Navigation("Household");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.UserHousehold", b =>
@@ -662,6 +698,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Navigation("ConsumptionLimits");
 
                     b.Navigation("Consumptions");
+
+                    b.Navigation("Resources");
 
                     b.Navigation("UserHouseholds");
                 });

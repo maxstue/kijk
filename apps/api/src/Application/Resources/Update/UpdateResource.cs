@@ -12,27 +12,30 @@ public class UpdateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 {
     public async Task<Result<ResourceResponse>> UpdateAsync(Guid id, UpdateResourceRequest request, CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users
-            .Include(x => x.Resources)
-            .Where(x => x.Id == currentUser.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (user is null)
+        var resourceResult = await ResourceHelpers.GetModifiableResourceAsync(dbContext, currentUser, id, cancellationToken);
+        if (resourceResult.IsError)
         {
-            logger.LogWarning("User with id '{Id}' could not be found", currentUser.Id);
-            return Error.NotFound("User was not found");
+            logger.LogWarning(
+                "User '{UserId}' could not manage resource '{ResourceId}': {Reason}",
+                currentUser.Id,
+                id,
+                resourceResult.Error.Description);
+            return resourceResult.Error;
         }
 
-        var resource = user.Resources.FirstOrDefault(x => x.Id == id);
-        if (resource is null)
+        var resource = resourceResult.Value;
+
+        var name = request.Name?.Trim() ?? resource.Name;
+        var unit = request.Unit?.Trim() ?? resource.Unit;
+        if (await ResourceHelpers.HasConflictAsync(dbContext, currentUser, name, unit, id, cancellationToken))
         {
-            logger.LogWarning("Resource with id '{Id}' could not be found", id);
-            return Error.NotFound("Resource not found");
+            logger.LogWarning("Resource with name '{Name}' and unit '{Unit}' already exists", name, unit);
+            return Error.Conflict($"A resource with the name '{name}' and unit '{unit}' already exists");
         }
 
-        resource.Name = request.Name ?? resource.Name;
+        resource.Name = name;
         resource.Color = request.Color ?? resource.Color;
-        resource.Unit = request.Unit ?? resource.Unit;
+        resource.Unit = unit;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

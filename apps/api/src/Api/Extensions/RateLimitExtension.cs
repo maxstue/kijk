@@ -9,7 +9,7 @@ public static class RateLimitExtensions
     {
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-        options.AddPolicy(AppConstants.Policies.RateLimit, context => RateLimitPartition.GetFixedWindowLimiter(
+        options.AddPolicy(AppConstants.RateLimit, context => RateLimitPartition.GetFixedWindowLimiter(
             context.User.Identity?.Name ?? "anonymous",
             _ => new FixedWindowRateLimiterOptions
             {
@@ -20,7 +20,7 @@ public static class RateLimitExtensions
 
     public static RouteGroupBuilder RequirePerUserRateLimit(this RouteGroupBuilder builder)
     {
-        builder.RequireRateLimiting(AppConstants.Policies.RateLimit);
+        builder.RequireRateLimiting(AppConstants.RateLimit);
         return builder;
     }
 }

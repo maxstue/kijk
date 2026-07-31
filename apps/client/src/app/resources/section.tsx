@@ -1,30 +1,35 @@
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { Separator } from '@kijk/ui/components/separator';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@kijk/ui/components/sheet';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kijk/ui/components/dialog';
+import { Separator } from '@kijk/ui/components/separator';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 
-import { resourceDefaultSort, resourceTypeColumns } from '@/app/resources/columns';
+import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/columns';
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
+import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { DataTable } from '@/shared/components/data-table';
-import { Loader } from '@/shared/components/ui/loaders/loader';
 import { CreatorTypes } from '@/shared/types/domain';
+import type { Resource } from '@/shared/types/domain';
 
 export function ResourceTypesSection() {
-  const [showSheet, setShowSheet] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
   const { data } = useSuspenseQuery(resourcesQueryOptions());
+  const { data: currentUser } = useSuspenseQuery(currentUserQueryOptions());
+  const activeHousehold = currentUser.households?.find((household) => household.isActive);
+  const canManage = activeHousehold?.role.name === 'Admin';
+  const columns = getResourceTypeColumns(canManage);
 
-  const handleClose = () => setShowSheet(false);
+  const handleClose = () => setShowDialog(false);
 
   return (
     <div className='space-y-6'>
@@ -34,26 +39,28 @@ export function ResourceTypesSection() {
       </div>
       <Separator />
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Suspense fallback={<Loader className='h-4 w-4' />}>
-          <ResourceTypeStatistics />
-        </Suspense>
+        <ResourceTypeStatistics resources={data} />
       </div>
       <div className='w-full'>
         <div className='flex justify-end'>
-          <Sheet open={showSheet} onOpenChange={setShowSheet}>
-            <SheetTrigger>
-              <Button variant='outline'>Create</Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Create</SheetTitle>
-                <SheetDescription>Create a new resource type.</SheetDescription>
-              </SheetHeader>
-              <div className='p-4'>
-                <ResourceTypeCreateForm onClose={handleClose} />
-              </div>
-            </SheetContent>
-          </Sheet>
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogTrigger asChild>
+              <Button
+                disabled={!canManage}
+                title={canManage ? undefined : 'Household admin role required'}
+                variant='outline'
+              >
+                Create
+              </Button>
+            </DialogTrigger>
+            <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+              <DialogHeader>
+                <DialogTitle>Create Resource</DialogTitle>
+                <DialogDescription>Create a new resource type.</DialogDescription>
+              </DialogHeader>
+              <ResourceTypeCreateForm onClose={handleClose} />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       <div className='w-full'>
@@ -63,11 +70,9 @@ export function ResourceTypesSection() {
             <List className='text-muted-foreground h-4 w-4' />
           </CardHeader>
           <CardContent>
-            <Suspense fallback={<Loader className='h-4 w-4' />}>
-              <div className='mt-2'>
-                <DataTable columns={resourceTypeColumns} data={data} defaultSort={resourceDefaultSort} />
-              </div>
-            </Suspense>
+            <div className='mt-2'>
+              <DataTable columns={columns} data={data} defaultSort={resourceDefaultSort} />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -75,11 +80,9 @@ export function ResourceTypesSection() {
   );
 }
 
-function ResourceTypeStatistics() {
-  const { data } = useSuspenseQuery(resourcesQueryOptions());
-
-  const dataCount = data.length;
-  const customCount = data.filter((x) => x.creatorType === CreatorTypes.USER).length;
+function ResourceTypeStatistics({ resources }: { resources: Resource[] }) {
+  const dataCount = resources.length;
+  const customCount = resources.filter((resource) => resource.creatorType === CreatorTypes.USER).length;
 
   return (
     <>

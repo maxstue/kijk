@@ -5,6 +5,7 @@ import type { ErrorComponentProps } from '@tanstack/react-router';
 import { ArrowDownIcon } from 'lucide-react';
 import { useState } from 'react';
 
+import { AppBrand } from '@/shared/components/app-brand';
 import { ErrorImage } from '@/shared/components/errors/error-image';
 import { ErrorService } from '@/shared/lib/error-tracking';
 
@@ -25,6 +26,7 @@ export function AppError({ error, info, resetErrorBoundary }: Props) {
     <div className='flex h-full w-full items-center justify-center'>
       <Card className='w-2/3 rounded border-none'>
         <CardHeader className='flex w-full flex-col items-center justify-center gap-2'>
+          <AppBrand logoClassName='size-8' nameClassName='text-xl' />
           <ErrorImage className='h-44' />
           <CardTitle>Oups, something went wrong!</CardTitle>
         </CardHeader>
@@ -65,11 +67,9 @@ const ShowMore = (props: { error?: unknown }) => {
       </button>
       {showMore &&
         (props.error instanceof Error ? (
-          <div className='h-[200px] overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>
+          <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>
         ) : (
-          <div className='h-[200px] overflow-auto rounded border border-gray-400 p-4'>
-            {JSON.stringify(props.error)}
-          </div>
+          <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{JSON.stringify(props.error)}</div>
         ))}
     </div>
   );

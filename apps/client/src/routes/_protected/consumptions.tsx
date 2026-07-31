@@ -1,14 +1,14 @@
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { Separator } from '@kijk/ui/components/separator';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@kijk/ui/components/sheet';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kijk/ui/components/dialog';
+import { Separator } from '@kijk/ui/components/separator';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
@@ -48,11 +48,11 @@ export const Route = createFileRoute('/_protected/consumptions')({
 
 function UsagePage() {
   useSetSiteHeader('Consumptions');
-  const [showSheet, setShowSheet] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
   const { month, year } = Route.useSearch();
   const { data } = useSuspenseQuery(consumptionsByQueryOptions(year, month));
 
-  const handleClose = () => setShowSheet(false);
+  const handleClose = () => setShowDialog(false);
 
   return (
     <div className='space-y-6 pt-10'>
@@ -69,7 +69,7 @@ function UsagePage() {
             </Suspense>
 
             <div className='flex w-full justify-end'>
-              <Sheet open={showSheet} onOpenChange={setShowSheet}>
+              <Dialog open={showDialog} onOpenChange={setShowDialog}>
                 <div className='flex w-full justify-between'>
                   <div className='flex w-1/3 justify-start gap-4'>
                     <Suspense>
@@ -78,22 +78,22 @@ function UsagePage() {
                       <ConsumptionMonthNav />
                     </Suspense>
                   </div>
-                  <SheetTrigger asChild>
+                  <DialogTrigger asChild>
                     <Button variant='outline'>
                       Add <Plus />
                     </Button>
-                  </SheetTrigger>
+                  </DialogTrigger>
                 </div>
-                <SheetContent className='space-y-8'>
-                  <SheetHeader>
-                    <SheetTitle>Add Consumption</SheetTitle>
-                    <SheetDescription>Add a new consumption.</SheetDescription>
-                  </SheetHeader>
+                <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+                  <DialogHeader>
+                    <DialogTitle>Add Consumption</DialogTitle>
+                    <DialogDescription>Add a new consumption.</DialogDescription>
+                  </DialogHeader>
                   <Suspense>
                     <ConsumptionCreateForm onClose={handleClose} />
                   </Suspense>
-                </SheetContent>
-              </Sheet>
+                </DialogContent>
+              </Dialog>
             </div>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
               <Suspense fallback={<Loader />}>

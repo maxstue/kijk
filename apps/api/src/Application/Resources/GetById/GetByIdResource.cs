@@ -1,5 +1,6 @@
 using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Resources;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -21,22 +22,16 @@ public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser current
     /// <returns></returns>
     public async Task<Result<ResourceResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var resource = await dbContext.Users
-            .Where(x => x.Id == currentUser.Id)
-            .SelectMany(x => x.Resources)
-            .Where(x => x.Id == id)
+        var resource = await dbContext
+            .GetUserAvailableResources(currentUser)
+            .Where(resource => resource.Id == id)
             .AsNoTracking()
             .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (resource is null)
         {
-            if (!await dbContext.Users.AnyAsync(x => x.Id == currentUser.Id, cancellationToken))
-            {
-                logger.LogWarning("User with id '{UserId}' was not found", currentUser.Id);
-                return Error.NotFound("User was not found");
-            }
-
+            logger.LogWarning("Resource with id '{ResourceId}' was not available to user '{UserId}'", id, currentUser.Id);
             return Error.NotFound($"Resource with id '{id}' was not found");
         }
 

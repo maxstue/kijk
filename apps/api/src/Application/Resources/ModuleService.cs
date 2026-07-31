@@ -1,4 +1,5 @@
 ﻿using Kijk.Application.Resources.Create;
+using Kijk.Application.Resources.Update;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Resources;
@@ -13,6 +14,7 @@ public class ModuleService : IModule
     {
         // Validators
         services.AddScoped<IValidator<CreateResourceRequest>, CreateResourceRequestValidator>();
+        services.AddScoped<IValidator<UpdateResourceRequest>, UpdateResourceRequestValidator>();
 
         return services;
     }

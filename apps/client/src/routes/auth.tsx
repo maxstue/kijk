@@ -1,11 +1,10 @@
-import { Icons } from '@kijk/ui/components/icons';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useState } from 'react';
 import { z } from 'zod';
 
 import { Login } from '@/app/auth/login';
 import { SignUp } from '@/app/auth/sign-up';
-import { siteConfig } from '@/shared/config/site';
+import { AppBrand } from '@/shared/components/app-brand';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
 const authSearchSchema = z.object({
@@ -32,19 +31,14 @@ function AuthPage() {
   useSetSiteHeader(show);
 
   return (
-    <>
-      <div className='bg-muted flex h-full flex-col gap-6 p-6'>
-        <div className='flex h-full w-full flex-col items-center justify-center gap-6'>
-          <div className='flex items-center gap-2 text-center'>
-            <Icons.logo className='text-primary size-10' />
-            <div className='truncate text-2xl font-bold'>{siteConfig.name}</div>
-          </div>
-          <div className='flex'>
-            {show === 'Sign Up' && <SignUp goto={setShow} redirectTo={from} />}
-            {show === 'Login' && <Login goto={setShow} redirectTo={from} />}
-          </div>
+    <div className='bg-muted flex h-full flex-col gap-6 p-6'>
+      <div className='flex h-full w-full flex-col items-center justify-center gap-6'>
+        <AppBrand />
+        <div className='flex'>
+          {show === 'Sign Up' && <SignUp goto={setShow} redirectTo={from} />}
+          {show === 'Login' && <Login goto={setShow} redirectTo={from} />}
         </div>
       </div>
-    </>
+    </div>
   );
 }

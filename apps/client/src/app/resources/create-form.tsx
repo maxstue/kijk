@@ -41,7 +41,7 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
 
   return (
     <Form {...form}>
-      <form className='flex flex-col gap-4 px-2' onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form className='flex flex-col gap-4' onSubmit={form.handleSubmit(onSubmit)} noValidate>
         <FormField control={form.control} name='name' render={(props) => <ResourceNameField {...props} />} />
         <FormField control={form.control} name='unit' render={(props) => <ResourceUnitField {...props} />} />
         <FormField control={form.control} name='color' render={(props) => <ResourceColorField {...props} />} />

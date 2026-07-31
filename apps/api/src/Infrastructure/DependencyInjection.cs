@@ -11,6 +11,7 @@ using Kijk.Shared;
 using Kijk.Shared.Exceptions;
 using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -95,10 +96,10 @@ public static class DependencyInjection
             }
 
             services.AddCors(options => options.AddPolicy(
-                AppConstants.Policies.Cors, builder => builder.WithOrigins(allowedOrigins)
+                AppConstants.Cors, builder => builder.WithOrigins(allowedOrigins)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .WithExposedHeaders(AppConstants.Policies.CorrelationId)));
+                    .WithExposedHeaders(AppConstants.CorrelationId)));
 
             return services;
         }
@@ -142,9 +143,20 @@ public static class DependencyInjection
                 });
 
             services.AddScoped<CurrentUser>();
+            services.AddScoped<IAuthorizationHandler, ActiveHouseholdRoleAuthorizationHandler>();
 
             services.AddAuthorizationBuilder()
-                .AddPolicy(AppConstants.Policies.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build());
+                .AddPolicy(AppConstants.Roles.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build())
+                .AddPolicy(
+                    AppConstants.Roles.Admin,
+                    policy => policy
+                        .RequireAuthenticatedUser()
+                        .AddRequirements(new ActiveHouseholdRoleRequirement(AppConstants.Roles.Admin)))
+                .AddPolicy(
+                    AppConstants.Roles.User,
+                    policy => policy
+                        .RequireAuthenticatedUser()
+                        .AddRequirements(new ActiveHouseholdRoleRequirement(AppConstants.Roles.User, AppConstants.Roles.Admin)));
 
             return services;
         }

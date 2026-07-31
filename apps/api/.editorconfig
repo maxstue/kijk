@@ -243,20 +243,12 @@ dotnet_diagnostic.SA1649.severity = none
 
 # SonarAnalyzers.CSharp
 
-# S1121: Assignments should not be made from within sub-expressions
-dotnet_diagnostic.S1121.severity = none
-
-dotnet_diagnostic.S1133.severity = none
-dotnet_diagnostic.S125.severity = warning
+# Local exceptions to the standalone NuGet analyzer's bundled Sonar way defaults.
 dotnet_diagnostic.S1135.severity = none
-dotnet_diagnostic.S2094.severity = none
-dotnet_diagnostic.S2325.severity = suggestion
-dotnet_diagnostic.S4830.severity = none
 dotnet_diagnostic.S6667.severity = none
-dotnet_diagnostic.S6602.severity = error
+dotnet_diagnostic.S6602.severity = none
 dotnet_diagnostic.S6603.severity = none
 dotnet_diagnostic.S6605.severity = none
-dotnet_diagnostic.S2139.severity = none
 dotnet_diagnostic.NU1901.severity = none
 dotnet_diagnostic.NU1902.severity = none
 dotnet_diagnostic.NU1903.severity = none

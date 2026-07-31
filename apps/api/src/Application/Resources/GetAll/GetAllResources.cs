@@ -1,5 +1,6 @@
 ﻿using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Resources;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -12,14 +13,14 @@ public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser current
 {
     public async Task<Result<List<ResourceResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var resources = await dbContext.Users
-            .Where(x => x.Id == currentUser.Id)
-            .SelectMany(x => x.Resources)
+        var resources = await dbContext
+            .GetUserAvailableResources(currentUser)
             .AsNoTracking()
+            .OrderBy(resource => resource.Name)
             .ToResponse()
             .ToListAsync(cancellationToken);
 
-        if (resources.Count == 0 && !await dbContext.Users.AnyAsync(x => x.Id == currentUser.Id, cancellationToken))
+        if (!await dbContext.Users.AnyAsync(user => user.Id == currentUser.Id, cancellationToken))
         {
             logger.LogWarning("User with id '{UserId}' was not found", currentUser.Id);
             return Error.NotFound("User was not found");

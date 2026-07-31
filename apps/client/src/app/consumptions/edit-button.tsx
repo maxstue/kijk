@@ -1,12 +1,12 @@
 import { Button } from '@kijk/ui/components/button';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@kijk/ui/components/sheet';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kijk/ui/components/dialog';
 import { EditIcon } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
@@ -18,26 +18,26 @@ interface Props {
 }
 
 export function ConsumptionEditButton({ data }: Props) {
-  const [showSheet, setShowSheet] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
-  const handleClose = () => setShowSheet(false);
+  const handleClose = () => setShowDialog(false);
 
   return (
-    <Sheet open={showSheet} onOpenChange={setShowSheet}>
-      <SheetTrigger asChild>
+    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <DialogTrigger asChild>
         <Button className='text-muted-foreground' size='icon' variant='outline'>
           <EditIcon className='size-4' />
         </Button>
-      </SheetTrigger>
-      <SheetContent className='space-y-8'>
-        <SheetHeader>
-          <SheetTitle>Add Consumption</SheetTitle>
-          <SheetDescription>Add a new consumption.</SheetDescription>
-        </SheetHeader>
+      </DialogTrigger>
+      <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+        <DialogHeader>
+          <DialogTitle>Update Consumption</DialogTitle>
+          <DialogDescription>Update this consumption.</DialogDescription>
+        </DialogHeader>
         <Suspense>
           <ConsumptionUpdateForm initialData={data} onClose={handleClose} />
         </Suspense>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

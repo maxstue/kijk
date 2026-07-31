@@ -52,14 +52,15 @@ try
         .UseMiddleware<ExtendRequestLoggingMiddleware>()
         .UseRequestLogging()
         .UseForwardedHeaders(new() { ForwardedHeaders = ForwardedHeaders.All })
-        .UseCors(AppConstants.Policies.Cors)
+        .UseCors(AppConstants.Cors)
         .UseHttpsRedirection()
-        .UseAuthentication()
-        .UseAuthorization();
+        .UseAuthentication();
 
-    // Both needs to ba after Auth so we have user data
-    app.UseMiddleware<TelemetryMiddleware>();
     app.UseMiddleware<CurrentUserMiddleware>();
+    app.UseAuthorization();
+
+    // Needs to be after authentication and current-user resolution so user data is available
+    app.UseMiddleware<TelemetryMiddleware>();
 
     app.MapEndpoints();
 

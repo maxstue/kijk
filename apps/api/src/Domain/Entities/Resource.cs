@@ -28,4 +28,14 @@ public class Resource : BaseEntity
     /// A 'User' or 'System'.
     /// </summary>
     public required CreatorType CreatorType { get; set; }
+
+    /// <summary>
+    /// Gets the household that owns a custom resource. System resources are global and therefore have no household.
+    /// </summary>
+    public Guid? HouseholdId { get; set; }
+
+    /// <summary>
+    /// Gets the household that owns a custom resource.
+    /// </summary>
+    public Household? Household { get; set; }
 }

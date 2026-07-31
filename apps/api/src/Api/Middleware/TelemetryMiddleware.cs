@@ -16,7 +16,7 @@ public class TelemetryMiddleware(ITelemetryService telemetryService) : IMiddlewa
         telemetryService.SetUser(userId, extAuthId);
 
         // write correlationId into response header for client reference
-        context.Response.Headers[AppConstants.Policies.CorrelationId] = correlationId;
+        context.Response.Headers[AppConstants.CorrelationId] = correlationId;
         await next(context);
     }
 
@@ -30,7 +30,7 @@ public class TelemetryMiddleware(ITelemetryService telemetryService) : IMiddlewa
     // TODO : DRY with ExtendRequestLoggingMiddleware
     private static string GetCorrelationId(HttpContext context)
     {
-        context.Request.Headers.TryGetValue(AppConstants.Policies.CorrelationId, out var headerId);
+        context.Request.Headers.TryGetValue(AppConstants.CorrelationId, out var headerId);
         var activity = context.Features.Get<IHttpActivityFeature>()?.Activity;
         return headerId.FirstOrDefault() ?? activity?.Id ?? context.TraceIdentifier;
     }

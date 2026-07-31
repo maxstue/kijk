@@ -1,4 +1,5 @@
-﻿using Kijk.Application.Shared.Persistence;
+﻿using Kijk.Application.Resources.Shared;
+using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -11,38 +12,31 @@ public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 {
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users
-            .Include(x => x.Resources)
-            .Where(x => x.Id == currentUser.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (user is null)
+        var resourceResult = await ResourceHelpers.GetModifiableResourceAsync(dbContext, currentUser, id, cancellationToken);
+        if (resourceResult.IsError)
         {
-            logger.LogWarning("User with id '{Id}' could not be found", currentUser.Id);
-            return Error.NotFound("User was not found");
+            logger.LogWarning("User '{UserId}' could not manage resource '{ResourceId}': {Reason}", currentUser.Id, id, resourceResult.Error.Description);
+            return resourceResult.Error;
         }
 
-        if (user.Resources.ToList().Find(x => x.Id == id) is null)
+        var resource = resourceResult.Value;
+
+        var consumptionCount = await dbContext.Consumptions
+            .CountAsync(consumption => consumption.ResourceId == id, cancellationToken);
+        var consumptionLimitCount = await dbContext.ConsumptionsLimits
+            .CountAsync(limit => limit.ResourceId == id, cancellationToken);
+        if (consumptionCount > 0 || consumptionLimitCount > 0)
         {
-            logger.LogWarning("User with id '{UserId}' was not allowed to delete the resource type with id '{CategoryId}'", currentUser.Id, id);
-            return Error.Authorization("You are not allowed to delete the resource type");
+            logger.LogWarning(
+                "Resource '{ResourceId}' cannot be deleted because it is used by {ConsumptionCount} consumptions and {ConsumptionLimitCount} consumption limits",
+                id,
+                consumptionCount,
+                consumptionLimitCount);
+            return Error.Conflict(
+                $"Resource cannot be deleted because it is used by {consumptionCount} consumption(s) and {consumptionLimitCount} consumption limit(s)");
         }
 
-        var foundResource = await dbContext.Resources.FindAsync([id], cancellationToken);
-        if (foundResource is null)
-        {
-            logger.LogWarning("Resource with id '{Id}' could not be found", id);
-            return Error.NotFound("Resource could not be found");
-        }
-
-        if (foundResource.CreatorType == CreatorType.System)
-        {
-            logger.LogWarning("Resource with id '{Id}' could not be deleted, because it is of creator type 'Default'", id);
-            return Error.Authorization("Resource could not be deleted, because it is a default type");
-        }
-
-        user.DeleteResource(foundResource.Id);
-        dbContext.Resources.Remove(foundResource);
+        dbContext.Resources.Remove(resource);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
