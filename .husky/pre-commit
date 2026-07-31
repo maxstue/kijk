@@ -1,1 +1,8 @@
 pnpm run lint:staged
+
+# sonar:begin husky-pre-commit
+CLEAN_PATH=$(echo "$PATH" | tr ':' '\n' | grep -v node_modules | tr '\n' ':' | sed 's/:$//')
+SONAR_BIN=$(PATH=$CLEAN_PATH command -v sonar 2>/dev/null || :)
+[ -z "$SONAR_BIN" ] && { echo "sonarqube-cli not found, skipping secrets scan"; exit 0; }
+"$SONAR_BIN" hook git-pre-commit
+# sonar:end husky-pre-commit

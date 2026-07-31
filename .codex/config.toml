@@ -1,0 +1,11 @@
+[mcp_servers.posthog]
+url = "https://mcp.posthog.com/mcp"
+
+[mcp_servers.railway]
+url = "https://mcp.railway.com"
+default_tools_approval_mode = "writes"
+
+[mcp_servers.sonarqube]
+command = "sonar"
+args = ["run", "mcp", "--project", "maxstue_kijk"]
+default_tools_approval_mode = "writes"
