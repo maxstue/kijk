@@ -3,26 +3,22 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { queryKeys } from '@/shared/api/query-keys';
-import { signedInUserQueryOptions, updateUserMutationOptions } from '@/shared/api/users/options';
+import { currentUserQueryOptions, updateUserMutationOptions } from '@/shared/api/users/options';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import type { CookieConsent } from '@/shared/types/analytics';
 
 export function useAnalyticsConsent() {
   const { isLoaded, isSignedIn } = useAuth();
   const queryClient = useQueryClient();
+  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const currentUser = currentAccount?.user;
   const [anonymousConsent, setAnonymousConsent] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());
-  const { data: currentUser, isPending: isLoadingUser } = useQuery({
-    ...signedInUserQueryOptions(),
-    enabled: isSignedIn === true,
-  });
   const serverConsent = toCookieConsent(currentUser?.analyticsConsent);
   const { mutate, isPending } = useMutation({
     ...updateUserMutationOptions(),
     onSuccess(data) {
       AnalyticsService.setCookieConsent(toCookieConsent(data.analyticsConsent));
-      queryClient.setQueryData(queryKeys.users.current, data);
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.details });
+      queryClient.invalidateQueries({ queryKey: currentUserQueryOptions().queryKey });
     },
   });
 
@@ -55,7 +51,7 @@ export function useAnalyticsConsent() {
   return {
     consent: isSignedIn ? serverConsent : anonymousConsent,
     isPending,
-    isReady: isLoaded && !(isSignedIn === true && isLoadingUser),
+    isReady: isLoaded,
     updateConsent,
   };
 }

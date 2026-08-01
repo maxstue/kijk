@@ -51,30 +51,8 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
             return (false, "Current user identifier claim is missing");
         }
 
-        var email = context.User.FindFirstValue(ClaimTypes.Email);
         var userEntity = await GetUserFromDb(extAuthId);
         currentUser.Principal = context.User;
-
-        if (context.Request.Path.ToString().Contains("sign-in") && userEntity is null)
-        {
-            currentUser.User = new(
-                Guid.CreateVersion7(),
-                extAuthId,
-                null,
-                AppConstants.CreateUserIdentifier,
-                email);
-            return (true, string.Empty);
-        }
-
-        if (userEntity is null)
-        {
-            return (false, $"User for id '{extAuthId}' was not found");
-        }
-
-        if (userEntity.HouseholdId is null)
-        {
-            return (false, "User has no household");
-        }
 
         currentUser.User = userEntity;
         return (true, string.Empty);

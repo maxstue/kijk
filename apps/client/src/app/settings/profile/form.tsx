@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/use-update-user';
-import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
+import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
   Form,
@@ -24,8 +24,8 @@ import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name'
 
 export function ProfileForm() {
   const { providerName } = useSignInProviderName();
-  const { data: user } = useQuery(signedInUserQueryOptions());
-  const { data: currentUser } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const currentUser = currentAccount?.user;
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
   const externalIdentity = currentUser?.externalIdentity;
 
@@ -35,14 +35,14 @@ export function ProfileForm() {
     resolver: zodResolver(userUpdateSchema),
     values: {
       householdName: activeHousehold?.name ?? '',
-      useDefaultResources: user?.useDefaultResources ?? false,
+      useDefaultResources: currentUser?.resources?.some((resource) => resource.creatorType === 'System') ?? false,
       useExternalProfile: currentUser?.useExternalProfile ?? false,
-      userName: user?.name ?? '',
+      userName: currentUser?.name ?? '',
     },
   });
 
   function onSubmit(data: UserUpdateFormValues) {
-    if (user?.id) {
+    if (currentUser?.id) {
       mutate(data, {
         onSuccess() {
           toast('Successfully updated');

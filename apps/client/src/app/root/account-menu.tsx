@@ -12,28 +12,35 @@ import {
 } from '@kijk/ui/components/dropdown-menu';
 import { Icons } from '@kijk/ui/components/icons';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@kijk/ui/components/sidebar';
-import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useRouter } from '@tanstack/react-router';
 import { ChevronsUpDown, ExternalLinkIcon, LogOut, SendIcon, SettingsIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { getInitialChars } from '@/app/root/helpers';
 import type { components } from '@/shared/api/generated/kijk';
+import { queryKeys } from '@/shared/api/query-keys';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { siteConfig } from '@/shared/config/site';
 
 export function AccountMenu() {
   const { signOut } = useAuth();
-  const { data: user } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/' });
+  const router = useRouter();
   const { isMobile } = useSidebar();
   const [showFeedback, setShowFeedback] = useState(false);
-  const account = getAccountMenuData(user);
+  const account = getAccountMenuData(currentAccount?.user);
 
   const handleSignOut = (event: Event) => {
     event.preventDefault();
     signOut()
+      .then(() => {
+        queryClient.removeQueries({ queryKey: queryKeys.users.me });
+        return router.invalidate();
+      })
       .then(() => navigate({ replace: true, to: '/auth' }))
       .catch(console.warn);
   };

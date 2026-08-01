@@ -23,7 +23,8 @@ public class ConsumptionsEndpoints : IEndpointGroup
     {
         var group = builder.MapGroup("consumptions")
             .WithTags("Consumptions")
-            .RequireAuthorization(AppConstants.Roles.User);
+            .RequireAuthorization(AppConstants.Roles.User)
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("/{id:guid}", GetById)
             .WithName("GetConsumptionById")

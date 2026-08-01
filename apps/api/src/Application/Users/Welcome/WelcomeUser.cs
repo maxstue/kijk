@@ -1,40 +1,48 @@
-﻿using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
-using Kijk.Application.Users.Shared;
+using Kijk.Application.Users.GetMe;
+using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
 namespace Kijk.Application.Users.Welcome;
 
 /// <summary>
-/// Handler for creating a new user after the welcome process.
+/// Handler for completing onboarding and provisioning an account only when required.
 /// </summary>
 public class WelcomeUserHandler(
     IAppDbContext dbContext,
     IIdentityProvider identityProvider,
     CurrentUser currentUser,
     TimeProvider timeProvider,
-    ILogger<WelcomeUserHandler> logger) : IHandler
+    ILogger<WelcomeUserHandler> logger,
+    GetMeUserHandler getMeUserHandler) : IHandler
 {
-    public async Task<Result<UserResponse>> WelcomeAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
+    /// <summary>
+    /// Creates or completes the current Kijk account and returns its resulting state.
+    /// </summary>
+    /// <param name="request">The submitted onboarding details.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The ready account representation.</returns>
+    public async Task<Result<CurrentUserResponse>> WelcomeAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {
+        var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
         var user = await dbContext.Users
-            .Where(x => x.Id == currentUser.Id)
+            .Where(x => x.AuthId == currentUser.AuthId)
             .Include(x => x.Resources)
             .Include(x => x.UserHouseholds)
             .ThenInclude(x => x.Household)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (user is null)
+        if (user?.OnboardingCompleted is true)
         {
-            logger.LogError("User not found: {UserId}", currentUser.Id);
-            return Error.NotFound("User not found");
+            return await getMeUserHandler.GetMeAsync(cancellationToken);
         }
 
-        if (user.OnboardingCompleted)
+        if (user is null)
         {
-            logger.LogError("User is already welcome");
-            return Error.Conflict("User has already completed the welcome flow");
+            user = User.Init(currentUser.AuthId, request.DisplayName.Trim(), externalIdentity.Email);
+            dbContext.Users.Add(user);
         }
 
         var activeHousehold = user.UserHouseholds
@@ -43,8 +51,15 @@ public class WelcomeUserHandler(
 
         if (activeHousehold is null)
         {
-            logger.LogError("Active household not found for user: {UserId}", currentUser.Id);
-            return Error.NotFound("Active household not found");
+            var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Name == "Admin", cancellationToken);
+            if (adminRole is null)
+            {
+                logger.LogError("Admin role was not found");
+                return Error.Unexpected("Role was not found");
+            }
+
+            activeHousehold = Household.Create(request.HouseholdName.Trim());
+            user.UserHouseholds.Add(UserHousehold.Create(user, activeHousehold, adminRole, true));
         }
 
         var defaultResources = await dbContext.Resources
@@ -57,8 +72,22 @@ public class WelcomeUserHandler(
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
         await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            var completedUserExists = await dbContext.Users
+                .AsNoTracking()
+                .AnyAsync(existingUser => existingUser.AuthId == currentUser.AuthId && existingUser.OnboardingCompletedAt != null, cancellationToken);
 
-        return user.ToResponse(user.Resources.Any(resource => resource.CreatorType == CreatorType.System));
+            if (!completedUserExists)
+            {
+                throw;
+            }
+        }
+
+        return await getMeUserHandler.GetMeAsync(cancellationToken);
     }
 }

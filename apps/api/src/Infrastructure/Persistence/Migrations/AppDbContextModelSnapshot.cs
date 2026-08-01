@@ -432,6 +432,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasName("pk_users");
 
                     b.HasIndex("AuthId")
+                        .IsUnique()
                         .HasDatabaseName("ix_users_auth_id");
 
                     b.ToTable("users", (string)null);

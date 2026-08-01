@@ -9,7 +9,7 @@ public class UserConfig : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => x.AuthId);
+        builder.HasIndex(x => x.AuthId).IsUnique();
 
         builder.Property(x => x.AuthId).HasMaxLength(100);
         builder.Property(x => x.Name).HasMaxLength(100);

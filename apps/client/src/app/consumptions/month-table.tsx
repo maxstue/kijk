@@ -12,7 +12,7 @@ import { DataTable } from '@/shared/components/data-table';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { Consumption, Resource } from '@/shared/types/domain';
 
-const Route = getRouteApi('/_protected/consumptions');
+const Route = getRouteApi('/_authenticated/_app/consumptions');
 
 export function ConsumptionMonthTable() {
   const { month, year } = Route.useSearch();

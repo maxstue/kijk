@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/_protected/consumptions-limits')({
+export const Route = createFileRoute('/_authenticated/_app/consumptions-limits')({
   component: RouteComponent,
 });
 

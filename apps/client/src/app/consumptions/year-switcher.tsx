@@ -34,7 +34,7 @@ import { consumptionYearsQueryOptions } from '@/shared/api/consumptions/options'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
-const Route = getRouteApi('/_protected/consumptions');
+const Route = getRouteApi('/_authenticated/_app/consumptions');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 

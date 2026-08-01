@@ -35,7 +35,7 @@ const searchSchema = z.object({
   year: z.number().default(new Date().getFullYear()),
 });
 
-export const Route = createFileRoute('/_protected/consumptions')({
+export const Route = createFileRoute('/_authenticated/_app/consumptions')({
   component: UsagePage,
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),

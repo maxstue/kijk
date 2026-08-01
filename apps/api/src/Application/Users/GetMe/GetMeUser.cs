@@ -12,35 +12,33 @@ namespace Kijk.Application.Users.GetMe;
 public class GetMeUserHandler(
   IAppDbContext dbContext,
   IIdentityProvider identityProvider,
-  CurrentUser currentUser,
-  ILogger<GetMeUserHandler> logger) : IHandler
+  CurrentUser currentUser) : IHandler
 {
-    public async Task<Result<GetMeUserResponse>> GetMeAsync(CancellationToken cancellationToken)
+    public async Task<Result<CurrentUserResponse>> GetMeAsync(CancellationToken cancellationToken)
     {
+        var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
         var userEntity = await dbContext.Users
-          .Where(x => x.Id == currentUser.Id)
+          .Where(x => x.AuthId == currentUser.AuthId)
           .AsNoTracking()
           .AsSplitQuery()
           .ToResponse()
           .FirstOrDefaultAsync(cancellationToken);
 
-        if (userEntity is null)
+        if (userEntity is null || !userEntity.OnboardingCompleted)
         {
-            logger.LogError("User with id {Id} not found", currentUser.Id);
-            return Error.NotFound("User not found");
+            return CurrentUserResponse.OnboardingRequired(new(externalIdentity.FullName, externalIdentity.Email, externalIdentity.ImageUrl));
         }
 
-        var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
         var useExternalProfile = externalIdentity.UseProfileInKijk ?? false;
-        var showProfilePreview = !userEntity.OnboardingCompleted;
-
-        return userEntity with
+        var user = userEntity with
         {
             UseExternalProfile = useExternalProfile,
             ExternalIdentity = new(
-            showProfilePreview || useExternalProfile ? externalIdentity.FullName : null,
+            useExternalProfile ? externalIdentity.FullName : null,
             externalIdentity.Email,
-            showProfilePreview || useExternalProfile ? externalIdentity.ImageUrl : null)
+            useExternalProfile ? externalIdentity.ImageUrl : null)
         };
+
+        return CurrentUserResponse.Ready(user, user.ExternalIdentity);
     }
 }

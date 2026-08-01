@@ -2,8 +2,6 @@
 
 public static class AppConstants
 {
-    public const string CreateUserIdentifier = "CREATE_USER";
-
     /// <summary>
     /// Defines the Roles used and allowed in the app.
     /// </summary>
@@ -12,6 +10,14 @@ public static class AppConstants
         public const string All = "All";
         public const string Admin = "Admin";
         public const string User = "User";
+    }
+
+    /// <summary>
+    /// Defines authorization policies used by the app.
+    /// </summary>
+    public static class Policies
+    {
+        public const string OnboardingCompleted = "OnboardingCompleted";
     }
 
     public const string CorrelationId = "X-Correlation-Id";

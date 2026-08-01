@@ -143,10 +143,16 @@ public static class DependencyInjection
                 });
 
             services.AddScoped<CurrentUser>();
+            services.AddScoped<IAuthorizationHandler, OnboardingCompletedAuthorizationHandler>();
             services.AddScoped<IAuthorizationHandler, ActiveHouseholdRoleAuthorizationHandler>();
 
             services.AddAuthorizationBuilder()
                 .AddPolicy(AppConstants.Roles.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build())
+                .AddPolicy(
+                    AppConstants.Policies.OnboardingCompleted,
+                    policy => policy
+                        .RequireAuthenticatedUser()
+                        .AddRequirements(new OnboardingCompletedRequirement()))
                 .AddPolicy(
                     AppConstants.Roles.Admin,
                     policy => policy

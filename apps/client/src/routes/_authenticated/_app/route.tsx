@@ -1,27 +1,21 @@
 import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { SidebarInset, SidebarProvider } from '@kijk/ui/components/sidebar';
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { SiteHeader } from '@/app/root/site-header';
-import { currentUserQueryOptions, signedInUserQueryOptions } from '@/shared/api/users/options';
+import { currentUserQueryOptions } from '@/shared/api/users/options';
+import { isReadyCurrentUser } from '@/shared/api/users/types';
 import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { AnalyticsService } from '@/shared/lib/analytics-client';
 import { CORRELATION_ID_HEADER } from '@/shared/types/api';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
-export const Route = createFileRoute('/_protected')({
-  beforeLoad: async ({ location, context: { authClient, queryClient } }) => {
-    const session = authClient?.session;
-    const sessionToken = await session?.getToken();
-    if (!stringIsNotEmptyOrWhitespace(sessionToken)) {
-      throw redirect({ search: { from: location.href }, to: '/auth' });
-    }
-
-    const user = await queryClient.ensureQueryData(signedInUserQueryOptions());
-    if (user.onboardingCompleted !== true) {
+export const Route = createFileRoute('/_authenticated/_app')({
+  beforeLoad: async ({ context: { queryClient } }) => {
+    const currentUser = await queryClient.ensureQueryData(currentUserQueryOptions());
+    if (!isReadyCurrentUser(currentUser)) {
       throw redirect({ replace: true, to: '/welcome' });
     }
 
@@ -29,31 +23,24 @@ export const Route = createFileRoute('/_protected')({
     if (stringIsNotEmptyOrWhitespace(correlationId)) {
       AnalyticsService.identifyUser(correlationId);
     }
-
-    return { session };
   },
-  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(currentUserQueryOptions()),
-  component: Protected,
+  component: AppLayout,
   pendingComponent: InitLoader,
   pendingMinMs: 100,
   pendingMs: 50,
 });
 
-function Protected() {
-  const query = useSuspenseQuery(signedInUserQueryOptions());
-
-  const onboardingCompleted = query.data.onboardingCompleted === true;
-
+function AppLayout() {
   return (
     <SidebarProvider>
-      {onboardingCompleted ? <AppSidebar /> : undefined}
+      <AppSidebar />
       <SidebarInset className='min-h-[calc(100svh-(--spacing(4)))]'>
-        {onboardingCompleted ? <SiteHeader /> : undefined}
+        <SiteHeader />
         <div className='p-4'>
           <Outlet />
         </div>
       </SidebarInset>
-      {onboardingCompleted ? <AnalyticsBanner /> : undefined}
+      <AnalyticsBanner />
     </SidebarProvider>
   );
 }

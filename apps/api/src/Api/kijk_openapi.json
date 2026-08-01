@@ -702,53 +702,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetMeUserResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/users/sign-in": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Sign in",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/CurrentUserResponse"
                 }
               }
             }
@@ -838,12 +792,12 @@
         ]
       }
     },
-    "/api/users/welcome": {
+    "/api/users/onboarding": {
       "put": {
         "tags": [
           "Users"
         ],
-        "summary": "Registers a new user and sets some default values",
+        "summary": "Completes onboarding and creates the Kijk account when needed",
         "requestBody": {
           "content": {
             "application/json": {
@@ -860,7 +814,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/CurrentUserResponse"
                 }
               }
             }
@@ -1143,6 +1097,26 @@
         "enum": [
           "System",
           "User"
+        ]
+      },
+      "CurrentUserResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/CurrentUserStatus"
+          },
+          "user": {
+            "$ref": "#/components/schemas/GetMeUserResponse"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/ExternalIdentityResponse"
+          }
+        }
+      },
+      "CurrentUserStatus": {
+        "enum": [
+          "OnboardingRequired",
+          "Ready"
         ]
       },
       "ExternalIdentityResponse": {

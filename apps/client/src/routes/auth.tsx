@@ -14,10 +14,10 @@ const authSearchSchema = z.object({
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
   component: AuthPage,
-  beforeLoad: ({ search, context: { authClient } }) => {
+  beforeLoad: async ({ search, context: { authClient } }) => {
     const session = authClient?.session;
 
-    if (!session?.getToken()) {
+    if (!(await session?.getToken())) {
       return;
     }
 

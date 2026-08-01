@@ -418,50 +418,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['GetMeUserResponse'];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/users/sign-in': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Sign in */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['UserResponse'];
+            'application/json': components['schemas']['CurrentUserResponse'];
           };
         };
         400: components['responses']['400'];
@@ -528,7 +485,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/users/welcome': {
+  '/api/users/onboarding': {
     parameters: {
       query?: never;
       header?: never;
@@ -536,7 +493,7 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Registers a new user and sets some default values */
+    /** Completes onboarding and creates the Kijk account when needed */
     put: {
       parameters: {
         query?: never;
@@ -556,7 +513,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['UserResponse'];
+            'application/json': components['schemas']['CurrentUserResponse'];
           };
         };
         400: components['responses']['400'];
@@ -644,6 +601,13 @@ export interface components {
     };
     /** @enum {unknown} */
     CreatorType: 'System' | 'User';
+    CurrentUserResponse: {
+      status?: components['schemas']['CurrentUserStatus'];
+      user?: components['schemas']['GetMeUserResponse'];
+      identity?: components['schemas']['ExternalIdentityResponse'];
+    };
+    /** @enum {unknown} */
+    CurrentUserStatus: 'OnboardingRequired' | 'Ready';
     ExternalIdentityResponse: {
       fullName: null | string;
       email: null | string;
