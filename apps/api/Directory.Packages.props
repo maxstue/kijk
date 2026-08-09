@@ -11,7 +11,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.16" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.18" />
     <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <!-- Auth -->
@@ -31,15 +31,15 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Sentry" Version="6.7.0" />
-    <PackageVersion Include="Sentry.AspNetCore" Version="6.7.0" />
+    <PackageVersion Include="Sentry" Version="6.8.0" />
+    <PackageVersion Include="Sentry.AspNetCore" Version="6.8.0" />
     <!-- Logging -->
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Expressions" Version="5.0.0" />
     <!-- Telemetry -->
-    <PackageVersion Include="Sentry.Serilog" Version="6.7.0" />
+    <PackageVersion Include="Sentry.Serilog" Version="6.8.0" />
     <!-- Linting -->
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.30.0.144632">
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.31.0.145097">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
