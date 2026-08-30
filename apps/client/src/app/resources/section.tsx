@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
 import { Separator } from '@kijk/ui/components/separator';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,8 +24,8 @@ import type { Resource } from '@/shared/types/domain';
 export function ResourceTypesSection() {
   const [showDialog, setShowDialog] = useState(false);
   const { data } = useSuspenseQuery(resourcesQueryOptions());
-  const { data: currentUser } = useSuspenseQuery(currentUserQueryOptions());
-  const activeHousehold = currentUser.households?.find((household) => household.isActive);
+  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const activeHousehold = currentAccount?.user?.households?.find((household) => household.isActive);
   const canManage = activeHousehold?.role.name === 'Admin';
   const columns = getResourceTypeColumns(canManage);
 

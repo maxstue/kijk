@@ -24,12 +24,12 @@ const privacyFormSchema = z.object({
 type PrivacyFormValues = z.infer<typeof privacyFormSchema>;
 
 export function InfoSection() {
-  const { data: currentUser } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const { mutate, isPending } = useUpdateUser();
   const form = useForm<PrivacyFormValues>({
     resolver: zodResolver(privacyFormSchema),
     values: {
-      enableAnalytics: currentUser?.analyticsConsent === 'Accepted',
+      enableAnalytics: currentAccount?.user?.analyticsConsent === 'Accepted',
     },
   });
 

@@ -3,7 +3,7 @@ import { getRouteApi } from '@tanstack/react-router';
 
 import { getMonthFromDate } from '@/shared/utils/months';
 
-const Route = getRouteApi('/_protected/consumptions');
+const Route = getRouteApi('/_authenticated/_app/consumptions');
 
 export function ConsumptionTodayButton() {
   const navigate = Route.useNavigate();

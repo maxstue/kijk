@@ -2,6 +2,49 @@ using Kijk.Shared;
 
 namespace Kijk.Application.Users.GetMe;
 
+/// <summary>
+/// Describes the account state for the authenticated Clerk identity.
+/// </summary>
+public enum CurrentUserStatus
+{
+    /// <summary>The identity must complete onboarding before it can use Kijk.</summary>
+    OnboardingRequired,
+
+    /// <summary>The identity has a complete Kijk user and can use the application.</summary>
+    Ready,
+}
+
+/// <summary>
+/// Represents the current account while preventing invalid account-state combinations.
+/// </summary>
+public sealed record CurrentUserResponse
+{
+    private CurrentUserResponse(CurrentUserStatus status, GetMeUserResponse? user, ExternalIdentityResponse identity)
+    {
+        Status = status;
+        User = user;
+        Identity = identity;
+    }
+
+    /// <summary>Gets the current account state.</summary>
+    public CurrentUserStatus Status { get; }
+
+    /// <summary>Gets the persisted Kijk user when the account is ready.</summary>
+    public GetMeUserResponse? User { get; }
+
+    /// <summary>Gets the authenticated provider identity.</summary>
+    public ExternalIdentityResponse Identity { get; }
+
+    /// <summary>Creates an onboarding-required response.</summary>
+    public static CurrentUserResponse OnboardingRequired(ExternalIdentityResponse identity) => new(CurrentUserStatus.OnboardingRequired, null, identity);
+
+    /// <summary>Creates a ready response.</summary>
+    public static CurrentUserResponse Ready(GetMeUserResponse user, ExternalIdentityResponse identity) => new(CurrentUserStatus.Ready, user, identity);
+}
+
+/// <summary>
+/// Represents the persisted Kijk user data for a ready account.
+/// </summary>
 public record GetMeUserResponse(
     Guid Id,
     string? AuthId,

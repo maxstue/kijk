@@ -21,7 +21,8 @@ public class ResourcesEndpoints : IEndpointGroup
     {
         var group = builder.MapGroup("/resources")
             .WithTags("Resources")
-            .RequireAuthorization(AppConstants.Roles.User);
+            .RequireAuthorization(AppConstants.Roles.User)
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("", GetAll)
             .WithSummary("Gets all resources");

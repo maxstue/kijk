@@ -9,20 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProtectedRouteImport } from './routes/_protected'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
-import { Route as WelcomeRouteImport } from './routes/welcome'
-import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
-import { Route as ProtectedConsumptionsRouteImport } from './routes/_protected/consumptions'
-import { Route as ProtectedConsumptionsLimitsRouteImport } from './routes/_protected/consumptions-limits'
-import { Route as ProtectedHomeRouteImport } from './routes/_protected/home'
-import { Route as ProtectedResourcesRouteImport } from './routes/_protected/resources'
-import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
-import { Route as ProtectedSettingsSectionRouteImport } from './routes/_protected/settings.$section'
+import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
+import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/_app/index'
+import { Route as AuthenticatedAppConsumptionsRouteImport } from './routes/_authenticated/_app/consumptions'
+import { Route as AuthenticatedAppConsumptionsLimitsRouteImport } from './routes/_authenticated/_app/consumptions-limits'
+import { Route as AuthenticatedAppHomeRouteImport } from './routes/_authenticated/_app/home'
+import { Route as AuthenticatedAppResourcesRouteImport } from './routes/_authenticated/_app/resources'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
+import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
+import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings.$section'
 
-const ProtectedRoute = ProtectedRouteImport.update({
-  id: '/_protected',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -35,86 +37,101 @@ const SsoCallbackRoute = SsoCallbackRouteImport.update({
   path: '/sso-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WelcomeRoute = WelcomeRouteImport.update({
-  id: '/welcome',
-  path: '/welcome',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
+const AuthenticatedOnboardingRouteRoute =
+  AuthenticatedOnboardingRouteRouteImport.update({
+    id: '/_onboarding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ProtectedRoute,
+  getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const ProtectedConsumptionsRoute = ProtectedConsumptionsRouteImport.update({
-  id: '/consumptions',
-  path: '/consumptions',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedConsumptionsLimitsRoute =
-  ProtectedConsumptionsLimitsRouteImport.update({
+const AuthenticatedAppConsumptionsRoute =
+  AuthenticatedAppConsumptionsRouteImport.update({
+    id: '/consumptions',
+    path: '/consumptions',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppConsumptionsLimitsRoute =
+  AuthenticatedAppConsumptionsLimitsRouteImport.update({
     id: '/consumptions-limits',
     path: '/consumptions-limits',
-    getParentRoute: () => ProtectedRoute,
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const ProtectedHomeRoute = ProtectedHomeRouteImport.update({
+const AuthenticatedAppHomeRoute = AuthenticatedAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
-  getParentRoute: () => ProtectedRoute,
+  getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const ProtectedResourcesRoute = ProtectedResourcesRouteImport.update({
-  id: '/resources',
-  path: '/resources',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedSettingsSectionRoute =
-  ProtectedSettingsSectionRouteImport.update({
+const AuthenticatedAppResourcesRoute =
+  AuthenticatedAppResourcesRouteImport.update({
+    id: '/resources',
+    path: '/resources',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedOnboardingWelcomeRoute =
+  AuthenticatedOnboardingWelcomeRouteImport.update({
+    id: '/welcome',
+    path: '/welcome',
+    getParentRoute: () => AuthenticatedOnboardingRouteRoute,
+  } as any)
+const AuthenticatedAppSettingsSectionRoute =
+  AuthenticatedAppSettingsSectionRouteImport.update({
     id: '/$section',
     path: '/$section',
-    getParentRoute: () => ProtectedSettingsRoute,
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof ProtectedIndexRoute
+  '/': typeof AuthenticatedAppIndexRoute
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/welcome': typeof WelcomeRoute
-  '/consumptions': typeof ProtectedConsumptionsRoute
-  '/consumptions-limits': typeof ProtectedConsumptionsLimitsRoute
-  '/home': typeof ProtectedHomeRoute
-  '/resources': typeof ProtectedResourcesRoute
-  '/settings': typeof ProtectedSettingsRouteWithChildren
-  '/settings/$section': typeof ProtectedSettingsSectionRoute
+  '/consumptions': typeof AuthenticatedAppConsumptionsRoute
+  '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
+  '/home': typeof AuthenticatedAppHomeRoute
+  '/resources': typeof AuthenticatedAppResourcesRoute
+  '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
+  '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AuthenticatedAppIndexRoute
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/welcome': typeof WelcomeRoute
-  '/consumptions': typeof ProtectedConsumptionsRoute
-  '/consumptions-limits': typeof ProtectedConsumptionsLimitsRoute
-  '/home': typeof ProtectedHomeRoute
-  '/resources': typeof ProtectedResourcesRoute
-  '/settings': typeof ProtectedSettingsRouteWithChildren
-  '/': typeof ProtectedIndexRoute
-  '/settings/$section': typeof ProtectedSettingsSectionRoute
+  '/consumptions': typeof AuthenticatedAppConsumptionsRoute
+  '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
+  '/home': typeof AuthenticatedAppHomeRoute
+  '/resources': typeof AuthenticatedAppResourcesRoute
+  '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
+  '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_protected': typeof ProtectedRouteWithChildren
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/sso-callback': typeof SsoCallbackRoute
-  '/welcome': typeof WelcomeRoute
-  '/_protected/consumptions': typeof ProtectedConsumptionsRoute
-  '/_protected/consumptions-limits': typeof ProtectedConsumptionsLimitsRoute
-  '/_protected/home': typeof ProtectedHomeRoute
-  '/_protected/resources': typeof ProtectedResourcesRoute
-  '/_protected/settings': typeof ProtectedSettingsRouteWithChildren
-  '/_protected/': typeof ProtectedIndexRoute
-  '/_protected/settings/$section': typeof ProtectedSettingsSectionRoute
+  '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
+  '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
+  '/_authenticated/_app/consumptions': typeof AuthenticatedAppConsumptionsRoute
+  '/_authenticated/_app/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
+  '/_authenticated/_app/home': typeof AuthenticatedAppHomeRoute
+  '/_authenticated/_app/resources': typeof AuthenticatedAppResourcesRoute
+  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
+  '/_authenticated/_app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -122,54 +139,55 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sso-callback'
-    | '/welcome'
     | '/consumptions'
     | '/consumptions-limits'
     | '/home'
     | '/resources'
     | '/settings'
+    | '/welcome'
     | '/settings/$section'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/auth'
     | '/sso-callback'
-    | '/welcome'
     | '/consumptions'
     | '/consumptions-limits'
     | '/home'
     | '/resources'
     | '/settings'
-    | '/'
+    | '/welcome'
     | '/settings/$section'
   id:
     | '__root__'
-    | '/_protected'
+    | '/_authenticated'
     | '/auth'
     | '/sso-callback'
-    | '/welcome'
-    | '/_protected/consumptions'
-    | '/_protected/consumptions-limits'
-    | '/_protected/home'
-    | '/_protected/resources'
-    | '/_protected/settings'
-    | '/_protected/'
-    | '/_protected/settings/$section'
+    | '/_authenticated/_app'
+    | '/_authenticated/_onboarding'
+    | '/_authenticated/_app/consumptions'
+    | '/_authenticated/_app/consumptions-limits'
+    | '/_authenticated/_app/home'
+    | '/_authenticated/_app/resources'
+    | '/_authenticated/_app/settings'
+    | '/_authenticated/_onboarding/welcome'
+    | '/_authenticated/_app/'
+    | '/_authenticated/_app/settings/$section'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  ProtectedRoute: typeof ProtectedRouteWithChildren
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
-  WelcomeRoute: typeof WelcomeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_protected': {
-      id: '/_protected'
+    '/_authenticated': {
+      id: '/_authenticated'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof ProtectedRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -186,103 +204,149 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SsoCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/welcome': {
-      id: '/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof WelcomeRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/_app': {
+      id: '/_authenticated/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAppRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_protected/': {
-      id: '/_protected/'
+    '/_authenticated/_onboarding': {
+      id: '/_authenticated/_onboarding'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_app/': {
+      id: '/_authenticated/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof ProtectedIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_protected/consumptions': {
-      id: '/_protected/consumptions'
+    '/_authenticated/_app/consumptions': {
+      id: '/_authenticated/_app/consumptions'
       path: '/consumptions'
       fullPath: '/consumptions'
-      preLoaderRoute: typeof ProtectedConsumptionsRouteImport
-      parentRoute: typeof ProtectedRoute
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_protected/consumptions-limits': {
-      id: '/_protected/consumptions-limits'
+    '/_authenticated/_app/consumptions-limits': {
+      id: '/_authenticated/_app/consumptions-limits'
       path: '/consumptions-limits'
       fullPath: '/consumptions-limits'
-      preLoaderRoute: typeof ProtectedConsumptionsLimitsRouteImport
-      parentRoute: typeof ProtectedRoute
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsLimitsRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_protected/home': {
-      id: '/_protected/home'
+    '/_authenticated/_app/home': {
+      id: '/_authenticated/_app/home'
       path: '/home'
       fullPath: '/home'
-      preLoaderRoute: typeof ProtectedHomeRouteImport
-      parentRoute: typeof ProtectedRoute
+      preLoaderRoute: typeof AuthenticatedAppHomeRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_protected/resources': {
-      id: '/_protected/resources'
+    '/_authenticated/_app/resources': {
+      id: '/_authenticated/_app/resources'
       path: '/resources'
       fullPath: '/resources'
-      preLoaderRoute: typeof ProtectedResourcesRouteImport
-      parentRoute: typeof ProtectedRoute
+      preLoaderRoute: typeof AuthenticatedAppResourcesRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_protected/settings': {
-      id: '/_protected/settings'
+    '/_authenticated/_app/settings': {
+      id: '/_authenticated/_app/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof ProtectedSettingsRouteImport
-      parentRoute: typeof ProtectedRoute
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_protected/settings/$section': {
-      id: '/_protected/settings/$section'
+    '/_authenticated/_onboarding/welcome': {
+      id: '/_authenticated/_onboarding/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof AuthenticatedOnboardingWelcomeRouteImport
+      parentRoute: typeof AuthenticatedOnboardingRouteRoute
+    }
+    '/_authenticated/_app/settings/$section': {
+      id: '/_authenticated/_app/settings/$section'
       path: '/$section'
       fullPath: '/settings/$section'
-      preLoaderRoute: typeof ProtectedSettingsSectionRouteImport
-      parentRoute: typeof ProtectedSettingsRoute
+      preLoaderRoute: typeof AuthenticatedAppSettingsSectionRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
     }
   }
 }
 
-interface ProtectedSettingsRouteChildren {
-  ProtectedSettingsSectionRoute: typeof ProtectedSettingsSectionRoute
+interface AuthenticatedAppSettingsRouteChildren {
+  AuthenticatedAppSettingsSectionRoute: typeof AuthenticatedAppSettingsSectionRoute
 }
 
-const ProtectedSettingsRouteChildren: ProtectedSettingsRouteChildren = {
-  ProtectedSettingsSectionRoute: ProtectedSettingsSectionRoute,
+const AuthenticatedAppSettingsRouteChildren: AuthenticatedAppSettingsRouteChildren =
+  {
+    AuthenticatedAppSettingsSectionRoute: AuthenticatedAppSettingsSectionRoute,
+  }
+
+const AuthenticatedAppSettingsRouteWithChildren =
+  AuthenticatedAppSettingsRoute._addFileChildren(
+    AuthenticatedAppSettingsRouteChildren,
+  )
+
+interface AuthenticatedAppRouteRouteChildren {
+  AuthenticatedAppConsumptionsRoute: typeof AuthenticatedAppConsumptionsRoute
+  AuthenticatedAppConsumptionsLimitsRoute: typeof AuthenticatedAppConsumptionsLimitsRoute
+  AuthenticatedAppHomeRoute: typeof AuthenticatedAppHomeRoute
+  AuthenticatedAppResourcesRoute: typeof AuthenticatedAppResourcesRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
-const ProtectedSettingsRouteWithChildren =
-  ProtectedSettingsRoute._addFileChildren(ProtectedSettingsRouteChildren)
-
-interface ProtectedRouteChildren {
-  ProtectedConsumptionsRoute: typeof ProtectedConsumptionsRoute
-  ProtectedConsumptionsLimitsRoute: typeof ProtectedConsumptionsLimitsRoute
-  ProtectedHomeRoute: typeof ProtectedHomeRoute
-  ProtectedResourcesRoute: typeof ProtectedResourcesRoute
-  ProtectedSettingsRoute: typeof ProtectedSettingsRouteWithChildren
-  ProtectedIndexRoute: typeof ProtectedIndexRoute
+const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
+  AuthenticatedAppConsumptionsRoute: AuthenticatedAppConsumptionsRoute,
+  AuthenticatedAppConsumptionsLimitsRoute:
+    AuthenticatedAppConsumptionsLimitsRoute,
+  AuthenticatedAppHomeRoute: AuthenticatedAppHomeRoute,
+  AuthenticatedAppResourcesRoute: AuthenticatedAppResourcesRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
-const ProtectedRouteChildren: ProtectedRouteChildren = {
-  ProtectedConsumptionsRoute: ProtectedConsumptionsRoute,
-  ProtectedConsumptionsLimitsRoute: ProtectedConsumptionsLimitsRoute,
-  ProtectedHomeRoute: ProtectedHomeRoute,
-  ProtectedResourcesRoute: ProtectedResourcesRoute,
-  ProtectedSettingsRoute: ProtectedSettingsRouteWithChildren,
-  ProtectedIndexRoute: ProtectedIndexRoute,
+const AuthenticatedAppRouteRouteWithChildren =
+  AuthenticatedAppRouteRoute._addFileChildren(
+    AuthenticatedAppRouteRouteChildren,
+  )
+
+interface AuthenticatedOnboardingRouteRouteChildren {
+  AuthenticatedOnboardingWelcomeRoute: typeof AuthenticatedOnboardingWelcomeRoute
 }
 
-const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
-  ProtectedRouteChildren,
-)
+const AuthenticatedOnboardingRouteRouteChildren: AuthenticatedOnboardingRouteRouteChildren =
+  {
+    AuthenticatedOnboardingWelcomeRoute: AuthenticatedOnboardingWelcomeRoute,
+  }
+
+const AuthenticatedOnboardingRouteRouteWithChildren =
+  AuthenticatedOnboardingRouteRoute._addFileChildren(
+    AuthenticatedOnboardingRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAppRouteRoute: typeof AuthenticatedAppRouteRouteWithChildren
+  AuthenticatedOnboardingRouteRoute: typeof AuthenticatedOnboardingRouteRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAppRouteRoute: AuthenticatedAppRouteRouteWithChildren,
+  AuthenticatedOnboardingRouteRoute:
+    AuthenticatedOnboardingRouteRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  ProtectedRoute: ProtectedRouteWithChildren,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SsoCallbackRoute: SsoCallbackRoute,
-  WelcomeRoute: WelcomeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

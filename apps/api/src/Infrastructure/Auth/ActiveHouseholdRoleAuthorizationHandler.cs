@@ -21,9 +21,8 @@ public sealed class ActiveHouseholdRoleAuthorizationHandler(
         AuthorizationHandlerContext context,
         ActiveHouseholdRoleRequirement requirement)
     {
-        if (currentUser.ActiveHouseholdId is not { } activeHouseholdId)
+        if (!currentUser.IsReady || currentUser.ActiveHouseholdId is not { } activeHouseholdId)
         {
-            logger.LogWarning("User '{UserId}' has no active household", currentUser.Id);
             return;
         }
 

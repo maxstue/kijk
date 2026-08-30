@@ -11,7 +11,7 @@ import { settingsTo } from '@/shared/navigation/settings';
 
 const sectionSchema = z.enum(settingsTo);
 
-export const Route = createFileRoute('/_protected/settings/$section')({
+export const Route = createFileRoute('/_authenticated/_app/settings/$section')({
   component: SettingsSectionPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
   parseParams: (parameters) => ({ section: sectionSchema.parse(parameters.section) }),

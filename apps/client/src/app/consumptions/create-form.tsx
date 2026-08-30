@@ -22,7 +22,7 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 import { ValueTypes } from '@/shared/types/domain';
 import { getMonthIndexFromString } from '@/shared/utils/months';
 
-const route = getRouteApi('/_protected/consumptions');
+const route = getRouteApi('/_authenticated/_app/consumptions');
 
 interface Props {
   onClose: () => void;
