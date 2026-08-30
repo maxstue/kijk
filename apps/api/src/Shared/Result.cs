@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Kijk.Shared.Extensions;
-using Microsoft.AspNetCore.Http;
 
 namespace Kijk.Shared;
 
