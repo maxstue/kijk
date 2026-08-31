@@ -1,73 +1,43 @@
-import {
-  AlertTriangle,
-  ArrowRight,
-  BellRing,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  CreditCard,
-  File,
-  FileText,
-  HelpCircle,
-  Image,
-  Info,
-  Laptop,
-  Loader2,
-  LogOut,
-  Monitor,
-  Moon,
-  MoreVertical,
-  Pizza,
-  Plus,
-  PlusCircle,
-  Settings,
-  Shapes,
-  SunMedium,
-  Trash,
-  User,
-  Users,
-  X,
+import { Logo } from '@kijk/ui/components/logo';
+import type { IconNode as LucideIcon, LucideProps } from 'lucide-react';
+
+export {
+  AlertTriangle as WarningIcon,
+  ArrowRight as ArrowRightIcon,
+  BellRing as BellRingIcon,
+  Check as CheckIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  CreditCard as BillingIcon,
+  File as PageIcon,
+  FileText as PostIcon,
+  HelpCircle as HelpIcon,
+  Image as MediaIcon,
+  Info as InfoIcon,
+  Laptop as LaptopIcon,
+  Loader2 as SpinnerIcon,
+  LogOut as LogOutIcon,
+  Monitor as MonitorIcon,
+  Moon as MoonIcon,
+  MoreVertical as EllipsisIcon,
+  Pizza as PizzaIcon,
+  Plus as AddIcon,
+  PlusCircle as AddCircleIcon,
+  Settings as SettingsIcon,
+  Shapes as CategoryIcon,
+  SunMedium as SunIcon,
+  Trash as TrashIcon,
+  User as UserIcon,
+  Users as UsersIcon,
+  X as CloseIcon,
 } from 'lucide-react';
 
-import type { IconNode as LucideIcon, LucideProps } from 'lucide-react';
-import { Logo } from '@kijk/ui/components/logo';
+export { Logo as LogoIcon };
 
 export type Icon = LucideIcon;
 
-// TODO split objet into multiple components and export them separately, to avoid importing all icons when only one is used
-
-export const Icons = {
-  logo: Logo,
-  close: X,
-  spinner: Loader2,
-  chevronLeft: ChevronLeft,
-  chevronRight: ChevronRight,
-  trash: Trash,
-  post: FileText,
-  page: File,
-  media: Image,
-  settings: Settings,
-  billing: CreditCard,
-  ellipsis: MoreVertical,
-  add: Plus,
-  addCircle: PlusCircle,
-  warning: AlertTriangle,
-  user: User,
-  arrowRight: ArrowRight,
-  help: HelpCircle,
-  pizza: Pizza,
-  sun: SunMedium,
-  moon: Moon,
-  laptop: Laptop,
-  check: Check,
-  logOut: LogOut,
-  users: Users,
-  bellRing: BellRing,
-  monitor: Monitor,
-  category: Shapes,
-  info: Info,
-  // custom Icons
-  gitHub: ({ ...props }: LucideProps) => (
+export function GitHubIcon(props: LucideProps) {
+  return (
     <svg
       aria-hidden='true'
       data-icon='github'
@@ -83,5 +53,5 @@ export const Icons = {
         fill='currentColor'
       ></path>
     </svg>
-  ),
-};
+  );
+}

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
-import { Icons } from '@kijk/ui/components/icons';
+import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -52,7 +52,7 @@ export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
         <FormField control={form.control} name='unit' render={(props) => <ResourceUnitField {...props} />} />
         <FormField control={form.control} name='color' render={(props) => <ResourceColorField {...props} />} />
         <Button className='mt-6' disabled={isPending || !form.formState.isDirty} type='submit'>
-          {isPending ? <Icons.spinner className='size-5 animate-spin' /> : 'Update'}
+          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Update'}
         </Button>
       </form>
     </Form>

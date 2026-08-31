@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@kijk/ui/components/dropdown-menu';
-import { Icons } from '@kijk/ui/components/icons';
+import { LogoIcon } from '@kijk/ui/components/icons';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@kijk/ui/components/sidebar';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouter } from '@tanstack/react-router';
@@ -126,7 +126,7 @@ function AccountMenuDropdown({
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
               tooltip={account.householdName}
             >
-              <Icons.logo className='text-sidebar-foreground size-5 shrink-0' />
+              <LogoIcon className='text-sidebar-foreground size-5 shrink-0' />
               <span className='truncate font-medium'>{account.householdName}</span>
               <ChevronsUpDown className='ml-auto size-3.5' />
             </SidebarMenuButton>

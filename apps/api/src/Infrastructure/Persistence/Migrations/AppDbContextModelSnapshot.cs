@@ -173,6 +173,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("HouseholdId")
                         .HasDatabaseName("ix_consumptions_limits_household_id");
 
+                    b.HasIndex("HouseholdId", "ResourceId", "Period")
+                        .IsUnique()
+                        .HasDatabaseName("ix_consumptions_limits_household_id_resource_id_period");
+
                     b.HasIndex("Name")
                         .HasDatabaseName("ix_consumptions_limits_name");
 

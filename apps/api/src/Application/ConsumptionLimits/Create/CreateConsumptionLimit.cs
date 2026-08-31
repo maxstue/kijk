@@ -44,12 +44,45 @@ public sealed class CreateConsumptionLimitHandler(
 
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var limit = ConsumptionLimit.Create(
-            request.Name.Trim(), request.Description?.Trim(), request.Limit, request.Period, request.Active,
+            new ConsumptionLimitSettings(
+                request.Name.Trim(),
+                request.Description?.Trim(),
+                request.Limit,
+                request.Period,
+                request.Active),
             resource, user, household, utcNow);
 
         dbContext.ConsumptionsLimits.Add(limit);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            var duplicateExists = await dbContext.ConsumptionsLimits
+                .AsNoTracking()
+                .AnyAsync(
+                    item => item.HouseholdId == household.Id
+                            && item.ResourceId == resource.Id
+                            && item.Period == request.Period,
+                    cancellationToken);
+            if (!duplicateExists)
+            {
+                throw;
+            }
 
-        return ConsumptionLimitEvaluation.ToResponse(limit, [], utcNow);
+            return Error.Conflict("A consumption limit already exists for this resource and period");
+        }
+
+        var (start, end) = ConsumptionLimitEvaluation.GetPeriodRange(limit.Period, utcNow);
+        var consumptions = await dbContext.Consumptions
+            .Where(item => item.HouseholdId == household.Id
+                           && item.ResourceId == resource.Id
+                           && item.Date.Value >= start
+                           && item.Date.Value < end)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return ConsumptionLimitEvaluation.ToResponse(limit, consumptions, utcNow);
     }
 }

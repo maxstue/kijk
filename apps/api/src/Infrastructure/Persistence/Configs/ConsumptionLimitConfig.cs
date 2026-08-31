@@ -10,6 +10,7 @@ public class ConsumptionLimitConfig : IEntityTypeConfiguration<ConsumptionLimit>
     {
         builder.HasKey(x => x.Id);
         builder.HasIndex(x => x.Name);
+        builder.HasIndex(x => new { x.HouseholdId, x.ResourceId, x.Period }).IsUnique();
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(250);
         builder.ComplexProperty(x => x.LastOccurrence, x => x.Property(m => m.Value).HasColumnName("last_occurrence"));

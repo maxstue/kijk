@@ -58,23 +58,19 @@ public sealed class ConsumptionLimit : BaseEntity
     /// Creates a consumption limit for a household resource.
     /// </summary>
     public static ConsumptionLimit Create(
-        string name,
-        string? description,
-        decimal limit,
-        Period period,
-        bool active,
+        ConsumptionLimitSettings settings,
         Resource resource,
         User createdBy,
         Household household,
         DateTime currentDate) =>
         new()
         {
-            Name = name,
-            Description = description,
-            Limit = limit,
-            Period = period,
+            Name = settings.Name,
+            Description = settings.Description,
+            Limit = settings.Limit,
+            Period = settings.Period,
             ActualValue = 0,
-            Active = active,
+            Active = settings.Active,
             Resource = resource,
             CreatedBy = createdBy,
             Household = household,
@@ -93,3 +89,13 @@ public sealed class ConsumptionLimit : BaseEntity
         Active = active;
     }
 }
+
+/// <summary>
+/// Defines the editable settings of a consumption limit.
+/// </summary>
+public sealed record ConsumptionLimitSettings(
+    string Name,
+    string? Description,
+    decimal Limit,
+    Period Period,
+    bool Active);

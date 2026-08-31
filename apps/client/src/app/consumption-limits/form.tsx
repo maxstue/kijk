@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
-import { Icons } from '@kijk/ui/components/icons';
+import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Switch } from '@kijk/ui/components/switch';
@@ -240,7 +240,7 @@ function SubmitButton({ form, isEditing, isPending }: FormComponentProps & { isE
 
   return (
     <Button className='mt-2' disabled={isPending || (isEditing && !form.formState.isDirty)} type='submit'>
-      {isPending ? <Icons.spinner className='size-5 animate-spin' /> : label}
+      {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : label}
     </Button>
   );
 }

@@ -23,6 +23,7 @@ public class UpdateUserHandler(
             .Include(x => x.Resources)
             .Include(x => x.UserHouseholds)
             .ThenInclude(x => x.Household)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userEntity is null)

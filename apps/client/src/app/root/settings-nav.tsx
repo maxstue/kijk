@@ -1,4 +1,3 @@
-import { Icons } from '@kijk/ui/components/icons';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -36,7 +35,7 @@ export function SettingsNav() {
           <SidebarGroupContent>
             <SidebarMenu>
               {group.items.map((item) => {
-                const Icon = Icons[item.icon];
+                const Icon = item.icon;
 
                 return (
                   <SidebarMenuItem key={item.to}>

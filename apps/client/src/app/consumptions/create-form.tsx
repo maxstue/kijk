@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
-import { Icons } from '@kijk/ui/components/icons';
+import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { getRouteApi } from '@tanstack/react-router';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -83,7 +83,7 @@ export function ConsumptionCreateForm({ onClose }: Props) {
           </ErrorBoundary>
           <FormField control={form.control} name='date' render={(props) => <ConsumptionDateField {...props} />} />
           <Button className='mt-6' disabled={isPending} type='submit'>
-            {isPending ? <Icons.spinner className='size-5 animate-spin' /> : 'Add'}
+            {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Add'}
           </Button>
         </form>
       </Form>
