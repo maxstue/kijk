@@ -15,8 +15,14 @@ const consumptions = {
   years: () => [...consumptions.all, 'years'] as const,
 };
 
+const consumptionLimits = {
+  all: ['consumption-limits'] as const,
+  list: () => [...consumptionLimits.all, 'list'] as const,
+};
+
 /** Query keys for the API queries and mutations. */
 export const queryKeys = {
+  consumptionLimits,
   consumptions,
   resources,
   users,

@@ -53,4 +53,43 @@ public sealed class ConsumptionLimit : BaseEntity
     /// The household that the limit is for.
     /// </summary>
     public required Household Household { get; set; }
+
+    /// <summary>
+    /// Creates a consumption limit for a household resource.
+    /// </summary>
+    public static ConsumptionLimit Create(
+        string name,
+        string? description,
+        decimal limit,
+        Period period,
+        bool active,
+        Resource resource,
+        User createdBy,
+        Household household,
+        DateTime currentDate) =>
+        new()
+        {
+            Name = name,
+            Description = description,
+            Limit = limit,
+            Period = period,
+            ActualValue = 0,
+            Active = active,
+            Resource = resource,
+            CreatedBy = createdBy,
+            Household = household,
+            LastOccurrence = MonthYear.ParseDateTime(currentDate)
+        };
+
+    /// <summary>
+    /// Updates the editable properties of the consumption limit.
+    /// </summary>
+    public void Update(string name, string? description, decimal limit, Period period, bool active)
+    {
+        Name = name;
+        Description = description;
+        Limit = limit;
+        Period = period;
+        Active = active;
+    }
 }

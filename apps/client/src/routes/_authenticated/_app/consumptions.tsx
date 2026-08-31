@@ -16,6 +16,7 @@ import { Plus } from 'lucide-react';
 import { Suspense, useState } from 'react';
 import { z } from 'zod';
 
+import { ConsumptionLimitWarnings } from '@/app/consumption-limits/warnings';
 import { ConsumptionCreateForm } from '@/app/consumptions/create-form';
 import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
 import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
@@ -23,6 +24,7 @@ import { ConsumptionMonthNav } from '@/app/consumptions/month-nav';
 import ConsumptionStats from '@/app/consumptions/stats';
 import { ConsumptionTodayButton } from '@/app/consumptions/today-button';
 import { ConsumptionYearSwitcher } from '@/app/consumptions/year-switcher';
+import { consumptionLimitsQueryOptions } from '@/shared/api/consumption-limits/options';
 import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { NotFound } from '@/shared/components/not-found';
 import { ResourceUnit } from '@/shared/components/resources-unit';
@@ -41,8 +43,11 @@ export const Route = createFileRoute('/_authenticated/_app/consumptions')({
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   notFoundComponent: NotFound,
   pendingComponent: () => <Loader className='h-6 w-6' />,
-  loader: ({ context: { queryClient }, deps }) => {
-    queryClient.ensureQueryData(consumptionsByQueryOptions(deps.year, deps.month));
+  loader: async ({ context: { queryClient }, deps }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(consumptionsByQueryOptions(deps.year, deps.month)),
+      queryClient.ensureQueryData(consumptionLimitsQueryOptions()),
+    ]);
   },
 });
 
@@ -56,6 +61,7 @@ function UsagePage() {
 
   return (
     <div className='space-y-6 pt-10'>
+      <ConsumptionLimitWarnings />
       <div className='space-y-0.5'>
         <h2 className='text-2xl font-bold tracking-tight'>Resource usage</h2>
         <p className='text-muted-foreground'>Manage your monthly resource usage</p>
