@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { currentUserQueryOptions, updateUserMutationOptions } from '@/shared/api/users/options';
-import { AnalyticsService } from '@/shared/lib/analytics-client';
+import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 import type { CookieConsent } from '@/shared/types/analytics';
 
 export function useAnalyticsConsent() {

@@ -15,8 +15,8 @@ const handleGotToRoot = () => {
   globalThis.location.href = '/';
 };
 
-export function AppError({ error, info, resetErrorBoundary }: Props) {
-  ErrorService.captureException(error, { info });
+export function AppError({ error, resetErrorBoundary }: Props) {
+  ErrorService.captureException(error);
 
   const handleReset = () => {
     resetErrorBoundary?.();

@@ -16,7 +16,7 @@ import { AppVersion } from '@/shared/components/app-version';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/form';
 import { config } from '@/shared/config';
 import { siteConfig } from '@/shared/config/site';
-import { AnalyticsService } from '@/shared/lib/analytics-client';
+import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 const privacyFormSchema = z.object({
   enableAnalytics: z.boolean(),
@@ -67,14 +67,17 @@ export function InfoSection() {
               render={({ field }) => (
                 <FormItem className='flex flex-row items-center justify-between rounded border p-4'>
                   <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>Share usage data</FormLabel>
+                    <FormLabel className='text-base'>Share analytics and performance data</FormLabel>
                     <FormDescription>
-                      Optional usage data helps us understand which features are useful and where Kijk can be improved.
-                      Technical error reports remain active so we can detect and fix problems. These reports do not
-                      include user-specific information.{' '}
+                      Optional product analytics and sanitized Sentry router tracing help us understand feature usage
+                      and navigation performance. Tracing starts only after consent, samples 10% of navigations, and
+                      excludes route parameters and request tracing. Turning this off stops new performance traces.
+                      Minimal technical error reports are separate and remain active so we can detect and fix problems.
+                      They contain scrubbed diagnostics and a short-lived request correlation ID, not account IDs or
+                      submitted household, resource or consumption values.{' '}
                       <a
                         className='text-foreground underline underline-offset-4'
-                        href={`${config.WebUrl}/privacy`}
+                        href='/privacy'
                         rel='noopener noreferrer'
                         target='_blank'
                       >
@@ -105,7 +108,7 @@ export function InfoSection() {
           </a>
           <a
             className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-            href={`${config.WebUrl}/privacy`}
+            href='/privacy'
             rel='noopener noreferrer'
             target='_blank'
           >

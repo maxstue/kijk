@@ -9,7 +9,6 @@ namespace Kijk.Infrastructure.Telemetry;
 public interface ITelemetryService
 {
     void SetCorrelationId(string correlationId);
-    void SetUser(string? userId, string? extAuthId);
 
     /// <summary>
     /// Sends the problem details to the error reporting service.

@@ -22,6 +22,12 @@ export const router = createRouter({
   scrollRestoration: true,
 });
 
+/**
+ * The type of the router instance. This is used for type safety when using the router in other parts of the
+ * application.
+ */
+export type AppRouter = typeof router;
+
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {

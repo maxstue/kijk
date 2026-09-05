@@ -29,11 +29,13 @@ export function AnalyticsBanner() {
           </div>
           <div className='p-4'>
             <p className='flex flex-col gap-2 text-start text-sm font-normal'>
-              Optional usage data helps us understand which features are useful and where Kijk can be improved.
+              Optional analytics and sanitized route-performance data help us understand which features are useful and
+              where Kijk can be improved. Router tracing starts only after you accept and samples 10% of navigations.
               Technical error reports remain active so we can detect and fix problems. These reports do not include
               user-specific information.
               <span className='text-xs'>
-                Choose whether you want to share optional usage data. You can change this later in the privacy settings.
+                Choose whether you want to share optional analytics and performance data. You can withdraw consent in
+                the privacy settings at any time.
               </span>
               <a
                 className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
@@ -41,7 +43,7 @@ export function AnalyticsBanner() {
                 rel='noopener noreferrer'
                 target='_blank'
               >
-                Learn more
+                Learn more about privacy
                 <ExternalLink className='h-4 w-4' />
               </a>
             </p>

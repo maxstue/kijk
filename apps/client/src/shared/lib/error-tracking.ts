@@ -1,52 +1,82 @@
+import { browserStorage } from '@kijk/core/lib/browser-storage';
 import * as Sentry from '@sentry/react';
 
-import type { router } from '@/router';
+import type { AppRouter } from '@/router';
 import { config } from '@/shared/config';
+import { scrubErrorEvent, scrubPerformanceSpan, scrubPerformanceTransaction } from '@/shared/lib/error-event-scrubber';
+import type { CookieConsent } from '@/shared/types/analytics';
+import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
 
-type Router = typeof router;
+const performanceSampleRate = 0.1;
 
-/** ErrorService is a wrapper around the Sentry error tracking library. */
-const ErrorService = {
-  captureException: (error: unknown, extra?: Record<string, unknown>) => {
-    Sentry.captureException(error, { extra });
-  },
+interface ErrorTrackingService {
+  captureException(error: unknown): void;
+  init(router: AppRouter): void;
+  setPerformanceConsent(consent: CookieConsent): void;
+}
 
-  captureMessage: (message: string) => {
-    Sentry.captureMessage(message);
-  },
-  getInstance: () => Sentry,
+class SentryErrorTrackingService implements ErrorTrackingService {
+  private router?: AppRouter;
+  private routerTracingInstalled = false;
 
-  init: (router: Router) => {
+  captureException(error: unknown) {
+    Sentry.captureException(error);
+  }
+
+  init(router: AppRouter) {
+    this.router = router;
     Sentry.init({
       dsn: config.SentryDsn,
       environment: config.Mode,
-      integrations: [
-        Sentry.extraErrorDataIntegration(),
-        Sentry.browserProfilingIntegration(),
-        Sentry.tanstackRouterBrowserTracingIntegration(router),
-      ],
-      // Set tracesSampleRate to 1.0 to capture 100%
-      // Of transactions for performance monitoring.
-      // We recommend adjusting this value in production
-      tracesSampleRate: 0.5,
-      // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
-      tracePropagationTargets: [
-        'localhost',
-        /^https:\/\/kijk-api\.xyz\/api/,
-        /^https:\/\/kijk-app\.xyz/,
-        /^https:\/\/kijk\.xyz/,
-      ],
-
-      // Set profilesSampleRate to 1.0 to profile every transaction.
-      // Since profilesSampleRate is relative to tracesSampleRate,
-      // The final profiling rate can be computed as tracesSampleRate * profilesSampleRate
-      // For example, a tracesSampleRate of 0.5 and profilesSampleRate of 0.5 would
-      // Results in 25% of transactions being profiled (0.5*0.5=0.25)
-      profilesSampleRate: 0.5,
+      integrations: [],
+      maxBreadcrumbs: 0,
+      beforeBreadcrumb: () => null,
+      beforeSend: scrubErrorEvent,
+      beforeSendSpan: scrubPerformanceSpan,
+      beforeSendTransaction: (event) => (hasPerformanceConsent() ? scrubPerformanceTransaction(event) : null),
+      sendDefaultPii: false,
+      tracePropagationTargets: [],
+      tracesSampler: () => (hasPerformanceConsent() ? performanceSampleRate : 0),
     });
-  },
 
-  withProfiler: Sentry.withProfiler,
-};
+    this.enableRouterTracing(getPerformanceConsent());
+  }
+
+  setPerformanceConsent(consent: CookieConsent) {
+    this.enableRouterTracing(consent);
+  }
+
+  private enableRouterTracing(consent: CookieConsent) {
+    if (consent !== 'accepted' || this.routerTracingInstalled || !this.router) return;
+
+    Sentry.addIntegration(
+      Sentry.tanstackRouterBrowserTracingIntegration(this.router, {
+        enableHTTPTimings: false,
+        enableInp: false,
+        enableLongAnimationFrame: false,
+        enableLongTask: false,
+        instrumentNavigation: true,
+        instrumentPageLoad: true,
+        linkPreviousTrace: 'off',
+        traceFetch: false,
+        traceXHR: false,
+      }),
+    );
+    this.routerTracingInstalled = true;
+  }
+}
+
+function getPerformanceConsent() {
+  return browserStorage.hasItem(COOKIE_CONSENT_KEY)
+    ? browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY)!
+    : 'undecided';
+}
+
+function hasPerformanceConsent() {
+  return getPerformanceConsent() === 'accepted';
+}
+
+/** Provider-neutral entry point for privacy-preserving error and performance reporting. */
+const ErrorService = new SentryErrorTrackingService();
 
 export { ErrorService };

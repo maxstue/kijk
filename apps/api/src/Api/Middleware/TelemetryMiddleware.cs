@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.Features;
@@ -12,19 +11,9 @@ public class TelemetryMiddleware(ITelemetryService telemetryService) : IMiddlewa
         var correlationId = GetCorrelationId(context);
         telemetryService.SetCorrelationId(correlationId);
 
-        var (userId, extAuthId) = GetRawUser(context.User);
-        telemetryService.SetUser(userId, extAuthId);
-
         // write correlationId into response header for client reference
         context.Response.Headers[AppConstants.CorrelationId] = correlationId;
         await next(context);
-    }
-
-    private static (string?, string?) GetRawUser(ClaimsPrincipal user)
-    {
-        var userId = user.FindFirstValue("sub");
-        var externalAuthId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        return (userId, externalAuthId);
     }
 
     // TODO : DRY with ExtendRequestLoggingMiddleware

@@ -11,10 +11,9 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { ThemeModeSwitcher } from '@/shared/components/theme-mode-switcher';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { markReactReady } from '@/shared/lib/bootstrap-loader';
-import { ErrorService } from '@/shared/lib/error-tracking';
 import { queryClient } from '@/shared/lib/query-client';
 
-export const App = ErrorService.withProfiler(function App() {
+export function App() {
   useLayoutEffect(() => {
     markReactReady();
   }, []);
@@ -36,4 +35,4 @@ export const App = ErrorService.withProfiler(function App() {
       </QueryClientProvider>
     </ErrorBoundary>
   );
-});
+}

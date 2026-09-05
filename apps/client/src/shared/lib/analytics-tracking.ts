@@ -3,11 +3,12 @@ import { posthog } from 'posthog-js';
 import type { CaptureOptions, PostHogConfig, Properties } from 'posthog-js';
 
 import { config } from '@/shared/config';
+import { ErrorService } from '@/shared/lib/error-tracking';
 import type { CookieConsent } from '@/shared/types/analytics';
 import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
 
 /** AnalyticsService is a wrapper around the Posthog analytics library. */
-const AnalyticsClient = {
+const AnalyticsService = {
   captureEvent: (event_name: string, properties?: Properties | null, options?: CaptureOptions) => {
     posthog.capture(event_name, properties, options);
   },
@@ -51,26 +52,34 @@ const AnalyticsClient = {
     }) satisfies Partial<PostHogConfig>,
   setCookieConsent: (consent: CookieConsent) => {
     browserStorage.setItem(COOKIE_CONSENT_KEY, consent);
+    ErrorService.setPerformanceConsent(consent);
     if (!config.PosthogKey || !config.PosthogUrl) {
       return;
     }
     if (consent === 'accepted') {
-      AnalyticsClient.getInstance().set_config({
-        autocapture: true,
-        capture_pageview: true,
-        persistence: 'localStorage+cookie',
-      });
-      AnalyticsClient.getInstance().opt_in_capturing();
+      enableAnalytics();
+      return;
     }
-    if (consent === 'declined' || consent === 'undecided') {
-      AnalyticsClient.getInstance().opt_out_capturing();
-      AnalyticsClient.getInstance().set_config({
-        autocapture: false,
-        capture_pageview: false,
-        persistence: 'memory',
-      });
-    }
+    disableAnalytics();
   },
 };
 
-export { AnalyticsClient as AnalyticsService };
+export { AnalyticsService };
+
+function enableAnalytics() {
+  AnalyticsService.getInstance().set_config({
+    autocapture: true,
+    capture_pageview: true,
+    persistence: 'localStorage+cookie',
+  });
+  AnalyticsService.getInstance().opt_in_capturing();
+}
+
+function disableAnalytics() {
+  AnalyticsService.getInstance().opt_out_capturing();
+  AnalyticsService.getInstance().set_config({
+    autocapture: false,
+    capture_pageview: false,
+    persistence: 'memory',
+  });
+}

@@ -8,7 +8,7 @@ import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { isReadyCurrentUser } from '@/shared/api/users/types';
 import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
-import { AnalyticsService } from '@/shared/lib/analytics-client';
+import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 import { CORRELATION_ID_HEADER } from '@/shared/types/api';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 

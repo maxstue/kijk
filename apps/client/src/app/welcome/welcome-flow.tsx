@@ -34,7 +34,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
-import { config } from '@/shared/config';
 import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 import { ApiError } from '@/shared/types/errors/api-error';
 
@@ -339,12 +338,14 @@ function PrivacyStep({ control }: { control: ReturnType<typeof useForm<UserStepF
           <FormItem>
             <FormLabel>Help improve Kijk</FormLabel>
             <FormDescription>
-              Usage data is optional and helps us understand which features are useful and where Kijk can be improved.
-              Technical error reports are always active so we can detect and fix problems. These reports do not include
-              user-specific information.{' '}
+              Usage and route-performance data is optional and helps us understand which features are useful and where
+              Kijk can be improved. Sentry router tracing starts only after you accept and uses a 10% sample without
+              route parameters or request tracing. Minimal technical error reports are processed separately and remain
+              active so we can detect and fix problems. They contain scrubbed diagnostics and a short-lived request
+              correlation ID, not account IDs or submitted household, resource or consumption values.{' '}
               <a
                 className='text-foreground underline underline-offset-4'
-                href={`${config.WebUrl}/privacy`}
+                href='/privacy'
                 rel='noopener noreferrer'
                 target='_blank'
               >
@@ -355,10 +356,14 @@ function PrivacyStep({ control }: { control: ReturnType<typeof useForm<UserStepF
               <RadioGroup className='grid gap-3 pt-2' value={field.value ?? ''} onValueChange={field.onChange}>
                 <Choice
                   value='Accepted'
-                  title='Share usage data'
-                  description='Send optional usage data to help improve Kijk.'
+                  title='Share usage and performance data'
+                  description='Send optional product analytics and sanitized route-performance measurements.'
                 />
-                <Choice value='Declined' title='Do not share' description='Do not send optional usage data.' />
+                <Choice
+                  value='Declined'
+                  title='Do not share'
+                  description='Do not send optional analytics or tracing.'
+                />
               </RadioGroup>
             </FormControl>
             <FormMessage />
@@ -382,7 +387,7 @@ function ReviewStep() {
       <ReviewItem label='Sign-in profile' value={useExternalProfile ? 'Name and image used' : 'Not used'} />
       <ReviewItem label='Household' value={householdName} />
       <ReviewItem label='Default resources' value={useDefaultResources ? 'All defaults' : 'None'} />
-      <ReviewItem label='Usage data' value={analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
+      <ReviewItem label='Analytics and tracing' value={analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
     </dl>
   );
 }
@@ -404,7 +409,7 @@ function stepDescription(step: number) {
   return [
     'Confirm the profile information connected to your account.',
     'Choose a name and whether to add all default resource types.',
-    'Choose whether to share optional usage data to help improve Kijk.',
+    'Choose whether to share optional usage and route-performance data to help improve Kijk.',
     'Everything can be changed later in settings.',
   ][step];
 }

@@ -1,10 +1,9 @@
 import type { components } from '@/shared/api/generated/kijk';
-import type { Optional } from '@/shared/types/common';
 
 export type ApiProblemDetails = components['schemas']['Problem'] & {
   correlationId?: string;
   errorType?: string;
-  errors?: Optional<ApiProblemDetailsError[]>;
+  errors?: ApiProblemDetailsError[];
   requestId?: string;
   timestamp?: string;
   traceId?: string;

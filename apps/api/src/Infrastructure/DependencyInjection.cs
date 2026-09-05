@@ -45,7 +45,6 @@ public static class DependencyInjection
         {
             services.ConfigureOptions<AuthOptions>(configuration)
                 .ConfigureOptions<ConnectionOptions>(configuration)
-                .ConfigureOptions<TelemetryOptions>(configuration, ServiceLifetime.Singleton)
                 .ConfigureOptions<PersistenceOptions>(configuration);
 
             return services;

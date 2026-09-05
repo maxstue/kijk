@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
@@ -30,6 +31,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SsoCallbackRoute = SsoCallbackRouteImport.update({
@@ -96,6 +102,7 @@ const AuthenticatedAppSettingsSectionRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedAppIndexRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/consumptions': typeof AuthenticatedAppConsumptionsRoute
   '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedAppIndexRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/consumptions': typeof AuthenticatedAppConsumptionsRoute
   '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/privacy'
     | '/sso-callback'
     | '/consumptions'
     | '/consumptions-limits'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/privacy'
     | '/sso-callback'
     | '/consumptions'
     | '/consumptions-limits'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/privacy'
     | '/sso-callback'
     | '/_authenticated/_app'
     | '/_authenticated/_onboarding'
@@ -178,6 +190,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PrivacyRoute: typeof PrivacyRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
 }
 
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sso-callback': {
@@ -346,6 +366,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  PrivacyRoute: PrivacyRoute,
   SsoCallbackRoute: SsoCallbackRoute,
 }
 export const routeTree = rootRouteImport

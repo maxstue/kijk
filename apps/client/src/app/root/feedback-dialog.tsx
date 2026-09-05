@@ -10,7 +10,7 @@ import type { FeedbackFormValues } from '@/app/root/schemas';
 import { feedbackSchema } from '@/app/root/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { config } from '@/shared/config';
-import { AnalyticsService } from '@/shared/lib/analytics-client';
+import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 const onInvalid = () => {
   toast('Invalid form', { description: 'Something went wrong. Please try again later ' });

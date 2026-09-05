@@ -1,50 +1,24 @@
-using Kijk.Infrastructure.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Infrastructure.Telemetry;
 
 /// <inheritdoc cref="ITelemetryService"/>
-public class TelemetryService(IHub client, TelemetryOptions options) : ITelemetryService
+public class TelemetryService(IHub client) : ITelemetryService
 {
-    public void SetCorrelationId(string correlationId) => client.ConfigureScope(s => s.SetTag("trace_Id", correlationId));
-
-    public void SetUser(string? userId, string? extAuthId)
-    {
-        if (userId == null)
-        {
-            return;
-        }
-
-        var pseudoId = Anonymizer.PseudoId(userId, options.Salt);
-
-        if (extAuthId == null)
-        {
-            client.ConfigureScope(s => s.User = new() { Id = pseudoId });
-            return;
-        }
-
-        var dict = new Dictionary<string, string> { { "extAuthId", extAuthId } };
-        client.ConfigureScope(s => s.User = new() { Id = pseudoId, Other = dict });
-    }
+    public void SetCorrelationId(string correlationId) => client.ConfigureScope(s => s.SetTag("correlation_id", correlationId));
 
     ///  <inheritdoc cref="ITelemetryService.SendProblemDetails"/>
     public void SendProblemDetails(ProblemDetails problemDetails)
     {
-        client.CaptureMessage(problemDetails.Detail ?? "No detail", opt =>
+        client.CaptureMessage("API problem", opt =>
         {
-            opt.SetExtra("Response", problemDetails);
-            opt.SetExtra("Status", problemDetails.Status);
-            opt.SetExtra("Title", problemDetails.Title);
-            opt.SetExtra("Detail", problemDetails.Detail);
-            opt.SetExtra("Type", problemDetails.Type);
-            opt.SetExtra("Instance", problemDetails.Instance);
-            opt.SetExtra("CorrelationId", problemDetails.Extensions.TryGetValue("correlationId", out var correlationId) ? correlationId : null);
-            opt.SetExtra("ErrorType", problemDetails.Extensions.TryGetValue("errorType", out var errorType) ? errorType : null);
-            opt.SetExtra("Extensions", problemDetails.Extensions);
-            if (problemDetails is ValidationProblemDetails validationProblemDetails)
-            {
-                opt.SetExtra("errors", validationProblemDetails.Errors);
-            }
+            opt.SetTag("http_status", problemDetails.Status?.ToString() ?? "unknown");
+            opt.SetTag("error_code", problemDetails.Extensions.TryGetValue("errorCode", out var errorCode)
+                ? errorCode?.ToString() ?? "unknown"
+                : "unknown");
+            opt.SetTag("error_type", problemDetails.Extensions.TryGetValue("errorType", out var errorType)
+                ? errorType?.ToString() ?? "unknown"
+                : "unknown");
         });
     }
 }
