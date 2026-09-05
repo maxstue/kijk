@@ -52,10 +52,11 @@ jobs:
             pnpm-lock.yaml
             pnpm-workspace.yaml
 
-  database-create-migration:
-    name: 'Migrate Database 🏗️'
-    needs: [detect-changes]
+  database-migration:
+    name: 'Migrate Database 🗃️'
     runs-on: ubuntu-latest
+    environment:
+      name: production-db
     defaults:
       run:
         working-directory: ./apps/api
@@ -74,39 +75,9 @@ jobs:
 
       - name: '🛠️ Create migrations bundle'
         run: |
-          dotnet tool restore &&
+          dotnet tool restore
+          dotnet restore ./Kijk.slnx
           dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext --self-contained
-
-      - name: 'run ls'
-        run: |
-          ls -al
-
-      - name: '⬆️ Upload EF Migrations Bundle Artifact'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: efbundle
-          path: ./apps/api/efbundle
-          retention-days: 5
-          if-no-files-found: error
-
-  database-apply-migration:
-    name: Apply Database Migration 🗃️
-    needs: [database-create-migration, detect-changes]
-    runs-on: ubuntu-latest
-    environment:
-      name: production-db
-    defaults:
-      run:
-        working-directory: ./apps/api
-    steps:
-      - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: '⬇️ Download EF Migrations Bundle Artifact'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: efbundle
-          path: ./apps/api
 
       - name: 'Make bundle executable'
         run: chmod +x ./efbundle
@@ -132,12 +103,11 @@ jobs:
 
   deploy-api:
     name: 'Deploy Api 🚂'
-    needs: [database-create-migration, database-apply-migration, detect-changes]
+    needs: [database-migration, detect-changes]
     if: >
       always() &&
       (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.api == 'true') &&
-      needs.database-create-migration.result == 'success' &&
-      needs.database-apply-migration.result == 'success'
+      needs.database-migration.result == 'success'
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     environment:
@@ -157,12 +127,11 @@ jobs:
 
   deploy-client:
     name: 'Deploy Client 🚂'
-    needs: [database-create-migration, database-apply-migration, detect-changes]
+    needs: [database-migration, detect-changes]
     if: >
       always() &&
       (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.client == 'true') &&
-      needs.database-create-migration.result == 'success' &&
-      needs.database-apply-migration.result == 'success'
+      needs.database-migration.result == 'success'
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     environment:
