@@ -79,7 +79,7 @@ jobs:
         run: |
           dotnet tool restore
           dotnet restore ./Kijk.slnx
-          dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext --self-contained
+          dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext
 
       - name: 'Make bundle executable'
         run: chmod +x ./efbundle
