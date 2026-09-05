@@ -74,6 +74,8 @@ jobs:
           dotnet tool install --global dotnet-ef
 
       - name: '🛠️ Create migrations bundle'
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.API_MIGRATION_CONNECTION }}
         run: |
           dotnet tool restore
           dotnet restore ./Kijk.slnx
