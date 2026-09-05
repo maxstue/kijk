@@ -27,7 +27,7 @@ export function App() {
               <TooltipProvider>
                 <RouterProvider />
                 <ThemeModeSwitcher />
-                <Toaster />
+                <Toaster position='top-right' />
               </TooltipProvider>
             </AnalyticsProvider>
           </AuthProvider>

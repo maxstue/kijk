@@ -10,6 +10,7 @@ import {
 import { EditIcon } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
+import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
 import { ConsumptionUpdateForm } from '@/app/consumptions/update-form';
 import type { Consumption } from '@/shared/types/domain';
 
@@ -31,7 +32,10 @@ export function ConsumptionEditButton({ data }: Props) {
       </DialogTrigger>
       <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
         <DialogHeader>
-          <DialogTitle>Update Consumption</DialogTitle>
+          <DialogTitle className='flex items-center gap-2'>
+            Update Consumption
+            <ConsumptionLimitWarning resourceId={data.resource.id} />
+          </DialogTitle>
           <DialogDescription>Update this consumption.</DialogDescription>
         </DialogHeader>
         <Suspense>

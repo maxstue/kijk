@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
 import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
+import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
 import ConsumptionStats from '@/app/consumptions/stats';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
@@ -25,7 +26,10 @@ export function ConsumptionMonthView({ consumptions }: { consumptions: Consumpti
           {consumptions.map((item) => (
             <Card key={item.id} className='transition-shadow hover:shadow-md'>
               <CardHeader>
-                <CardTitle>{item.name}</CardTitle>
+                <CardTitle className='flex items-center gap-2'>
+                  {item.name}
+                  <ConsumptionLimitWarning resourceId={item.resource.id} />
+                </CardTitle>
               </CardHeader>
               <CardContent className='flex flex-col gap-2'>
                 <div className='text-muted-foreground flex items-center justify-between'>

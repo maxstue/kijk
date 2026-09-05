@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 
 import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
 import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
+import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
 import { allResourceTypes, ConsumptionTypeFilter } from '@/app/consumptions/type-filter';
 import { DataTable } from '@/shared/components/data-table';
 import { ResourceUnit } from '@/shared/components/resources-unit';
@@ -15,6 +16,12 @@ const defaultSort: ColumnSort = { desc: true, id: 'date' };
 const columns: Array<ColumnDef<Consumption>> = [
   {
     accessorKey: 'name',
+    cell: ({ row }) => (
+      <div className='flex items-center gap-2'>
+        <span>{row.original.name}</span>
+        <ConsumptionLimitWarning resourceId={row.original.resource.id} />
+      </div>
+    ),
     header: 'Name',
   },
   {
