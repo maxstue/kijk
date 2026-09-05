@@ -1,5 +1,6 @@
-import { Logo } from '@kijk/ui/components/logo';
 import type { IconNode as LucideIcon, LucideProps } from 'lucide-react';
+
+export { Logo as LogoIcon } from '@kijk/ui/components/logo';
 
 export {
   AlertTriangle as WarningIcon,
@@ -31,8 +32,6 @@ export {
   Users as UsersIcon,
   X as CloseIcon,
 } from 'lucide-react';
-
-export { Logo as LogoIcon };
 
 export type Icon = LucideIcon;
 
