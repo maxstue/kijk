@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Input } from '@kijk/ui/components/input';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import type { Dispatch } from 'react';
 import { useForm } from 'react-hook-form';
@@ -14,7 +14,6 @@ import { UserAuthForm } from '@/app/auth/auth-form';
 import type { AuthCodeSchema } from '@/app/auth/schemas';
 import { authCodeSchema } from '@/app/auth/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { config } from '@/shared/config';
 
 interface Props {
   goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>>;
@@ -81,8 +80,8 @@ export function SignUp({ goto, redirectTo }: Props) {
         </CardContent>
       </Card>
       <div className='text-muted-foreground [&_a]:hover:text-primary text-center text-xs text-balance [&_a]:underline [&_a]:underline-offset-4'>
-        By clicking continue, you agree to our <a href={`${config.WebUrl}/terms`}>Terms of Service</a> and{' '}
-        <a href={`${config.WebUrl}/privacy`}>Privacy Policy</a>.
+        By clicking continue, you agree to our <Link to='/terms'>Terms of Service</Link> and{' '}
+        <Link to='/privacy'>Privacy Policy</Link>.
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ const resources = {
 
 const consumptions = {
   all: ['consumptions'] as const,
+  byAll: () => [...consumptions.all, 'usage', 'getBy'] as const,
   by: (year?: string, month?: string) => [...consumptions.all, 'usage', 'getBy', year, month] as const,
   stats: (year?: string, month?: string) => [...consumptions.all, 'stats', year, month] as const,
   statsAll: () => [...consumptions.all, 'stats'] as const,

@@ -14,7 +14,6 @@ import { useUpdateUser } from '@/app/settings/profile/use-update-user';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AppVersion } from '@/shared/components/app-version';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/form';
-import { config } from '@/shared/config';
 import { siteConfig } from '@/shared/config/site';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
@@ -99,7 +98,7 @@ export function InfoSection() {
         <div className='flex gap-4'>
           <a
             className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-            href={`${config.WebUrl}/terms`}
+            href='/terms'
             rel='noopener noreferrer'
             target='_blank'
           >

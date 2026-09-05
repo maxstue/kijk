@@ -2,7 +2,6 @@ import { cn } from '@kijk/core/utils/style';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { CookieIcon, ExternalLink } from 'lucide-react';
 
-import { config } from '@/shared/config';
 import { useAnalyticsConsent } from '@/shared/hooks/use-analytics-consent';
 
 export function AnalyticsBanner() {
@@ -39,7 +38,7 @@ export function AnalyticsBanner() {
               </span>
               <a
                 className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
-                href={`${config.WebUrl}/privacy`}
+                href='/privacy'
                 rel='noopener noreferrer'
                 target='_blank'
               >

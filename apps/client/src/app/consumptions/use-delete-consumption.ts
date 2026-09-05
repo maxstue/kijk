@@ -8,9 +8,9 @@ export const useDeleteConsumption = () => {
 
   return useMutation({
     ...deleteConsumptionMutationOptions(),
-    async onSuccess(_, variables) {
+    async onSuccess() {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.consumptions.by(variables.year?.toString(), variables.month),
+        queryKey: queryKeys.consumptions.byAll(),
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() }),

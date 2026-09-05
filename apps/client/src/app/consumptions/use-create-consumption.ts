@@ -23,6 +23,7 @@ export const useCreateConsumption = () => {
         queryClient.setQueryData(queryKey, newConsumptionsUsage);
       }
       await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.byAll() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
       ]);

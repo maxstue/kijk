@@ -9,7 +9,6 @@ const envSchema = z.object({
   // App
   BaseApiUrl: z.url(),
   ApiUrl: z.url(),
-  WebUrl: z.url(),
   Version: z.string(),
   // Devtools
   DevToolsLogger: z.string().transform((x) => x === 'true'),
@@ -28,7 +27,6 @@ const envParse = envSchema.safeParse({
   // App
   BaseApiUrl: import.meta.env.VITE_BASE_API_URL,
   ApiUrl: import.meta.env.VITE_API_URL,
-  WebUrl: import.meta.env.VITE_WEB_URL,
   Version: import.meta.env.VITE_APP_VERSION,
   // Devtools
   DevToolsLogger: import.meta.env.VITE_DEVTOOLS_LOGGER,

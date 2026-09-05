@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/_app/index'
@@ -41,6 +42,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const SsoCallbackRoute = SsoCallbackRouteImport.update({
   id: '/sso-callback',
   path: '/sso-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
+  '/terms': typeof TermsRoute
   '/consumptions': typeof AuthenticatedAppConsumptionsRoute
   '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/home': typeof AuthenticatedAppHomeRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
+  '/terms': typeof TermsRoute
   '/consumptions': typeof AuthenticatedAppConsumptionsRoute
   '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/home': typeof AuthenticatedAppHomeRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
   '/_authenticated/_app/consumptions': typeof AuthenticatedAppConsumptionsRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacy'
     | '/sso-callback'
+    | '/terms'
     | '/consumptions'
     | '/consumptions-limits'
     | '/home'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacy'
     | '/sso-callback'
+    | '/terms'
     | '/consumptions'
     | '/consumptions-limits'
     | '/home'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacy'
     | '/sso-callback'
+    | '/terms'
     | '/_authenticated/_app'
     | '/_authenticated/_onboarding'
     | '/_authenticated/_app/consumptions'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PrivacyRoute: typeof PrivacyRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       path: '/sso-callback'
       fullPath: '/sso-callback'
       preLoaderRoute: typeof SsoCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app': {
@@ -368,6 +388,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PrivacyRoute: PrivacyRoute,
   SsoCallbackRoute: SsoCallbackRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,13 +1,12 @@
 import { useSignIn } from '@clerk/react/legacy';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
-import { config } from '@/shared/config';
 
 interface Props {
   goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>>;
@@ -61,21 +60,26 @@ export function Login({ goto, redirectTo }: Props) {
           <CardDescription>Login with your Apple or Google account</CardDescription>
         </CardHeader>
         <CardContent>
-          <>
-            <div className='grid gap-6'>
-              <UserAuthForm btnLabel='Login' redirectTo={redirectTo} onSubmit={handleLogin} />
-              <div className='text-center text-sm'>
-                <Button variant='link' onClick={handleGoToSignUp}>
-                  Don&apos;t have an account? Sign Up
-                </Button>
-              </div>
+          <div className='grid gap-6'>
+            <UserAuthForm btnLabel='Login' redirectTo={redirectTo} onSubmit={handleLogin} />
+            <div className='text-center text-sm'>
+              <Button variant='link' onClick={handleGoToSignUp}>
+                Don&apos;t have an account? Sign Up
+              </Button>
             </div>
-          </>
+          </div>
         </CardContent>
       </Card>
       <div className='text-muted-foreground [&_a]:hover:text-primary text-center text-xs text-balance [&_a]:underline [&_a]:underline-offset-4'>
-        By clicking continue, you agree to our <a href={`${config.WebUrl}/terms`}>Terms of Service</a> and{' '}
-        <a href={`${config.WebUrl}/privacy`}>Privacy Policy</a>.
+        By clicking continue, you agree to our{' '}
+        <Link to='/terms' rel='noopener noreferrer' target='_blank'>
+          Terms of Service
+        </Link>{' '}
+        and{' '}
+        <Link to='/privacy' rel='noopener noreferrer' target='_blank'>
+          Privacy Policy
+        </Link>
+        .
       </div>
     </div>
   );

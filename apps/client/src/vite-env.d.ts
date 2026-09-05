@@ -7,7 +7,6 @@ interface ImportMetaEnv {
   // Base
   VITE_BASE_API_URL: string;
   VITE_API_URL: string;
-  VITE_WEB_URL: string;
   VITE_APP_VERSION: string;
   // Devtools
   VITE_DEVTOOLS_LOGGER: string;

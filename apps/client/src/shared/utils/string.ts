@@ -30,8 +30,7 @@ Feedback, bug reports and suggestions are welcome on GitHub: https://github.com/
 
 /** A welcome message for users in the browser console. */
 export function welcome() {
-  const styles = ['font-size: 10px'].join(';');
-  console.log(`%c${message}`, styles);
+  console.log(`${message}`);
 }
 
 /**
