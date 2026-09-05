@@ -37,7 +37,7 @@ jobs:
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
-            apps/api/src/Infrastructure/Migrations/**
+            apps/api/src/Infrastructure/Persistence/Migrations/**
 
       - name: 'Detect Client changes'
         id: client-changes
@@ -55,7 +55,6 @@ jobs:
   database-create-migration:
     name: 'Migrate Database 🏗️'
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -93,7 +92,6 @@ jobs:
   database-apply-migration:
     name: Apply Database Migration 🗃️
     needs: [database-create-migration, detect-changes]
-    if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     environment:
       name: production-db
@@ -116,7 +114,21 @@ jobs:
       - name: '🍎 Apply migrations bundle'
         env:
           API_MIGRATION_CONNECTION: ${{ secrets.API_MIGRATION_CONNECTION }}
-        run: ./efbundle --connection "$API_MIGRATION_CONNECTION"
+        run: |
+          set -euo pipefail
+
+          migration_output="$(mktemp)"
+          ./efbundle --connection "$API_MIGRATION_CONNECTION" 2>&1 | tee "$migration_output"
+
+          if grep -q "No migrations were applied" "$migration_output"; then
+            echo "::notice title=Database migration::Database was already up to date; no migrations were applied."
+            echo "### 🗃️ Database migration" >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ Database was already up to date; no migrations were applied." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::notice title=Database migration::Database migrations were applied successfully."
+            echo "### 🗃️ Database migration" >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ Database migrations were applied successfully." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   deploy-api:
     name: 'Deploy Api 🚂'
@@ -124,13 +136,8 @@ jobs:
     if: >
       always() &&
       (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.api == 'true') &&
-      (
-        needs.detect-changes.outputs.infra != 'true' ||
-        (
-          needs.database-create-migration.result == 'success' &&
-          needs.database-apply-migration.result == 'success'
-        )
-      )
+      needs.database-create-migration.result == 'success' &&
+      needs.database-apply-migration.result == 'success'
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     environment:
@@ -154,13 +161,8 @@ jobs:
     if: >
       always() &&
       (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.client == 'true') &&
-      (
-        needs.detect-changes.outputs.infra != 'true' ||
-        (
-          needs.database-create-migration.result == 'success' &&
-          needs.database-apply-migration.result == 'success'
-        )
-      )
+      needs.database-create-migration.result == 'success' &&
+      needs.database-apply-migration.result == 'success'
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
     environment:
