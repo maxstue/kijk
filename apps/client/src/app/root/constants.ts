@@ -28,7 +28,7 @@ export const mainNav = [
   },
   {
     icon: TriangleAlertIcon,
-    isActive: false,
+    isActive: true,
     title: 'Limits',
     url: '/consumptions-limits',
   },

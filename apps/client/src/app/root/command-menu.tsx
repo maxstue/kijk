@@ -12,7 +12,6 @@ import {
   CommandSeparator,
 } from '@kijk/ui/components/command';
 import { DialogDescription, DialogTitle } from '@kijk/ui/components/dialog';
-import { Icons } from '@kijk/ui/components/icons';
 import { useNavigate } from '@tanstack/react-router';
 import { HousePlug, Laptop, LayoutDashboard, Moon, SunMedium } from 'lucide-react';
 import type { Dialog } from 'radix-ui';
@@ -116,7 +115,7 @@ export function CommandMenu({ ...props }: Props) {
             <CommandSeparator />
             <CommandGroup heading='Settings'>
               {settingsNav.map((item) => {
-                const Icon = Icons[item.icon];
+                const Icon = item.icon;
                 return (
                   <CommandItem
                     key={item.label}

@@ -7,7 +7,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@kijk/ui/components/alert-dialog';
-import { Icons } from '@kijk/ui/components/icons';
+import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { toast } from 'sonner';
 
 import { useDeleteResource } from '@/app/resources/use-delete-resource';
@@ -54,7 +54,7 @@ export function ResourceTypeDeleteContent({ onClose, resourceType }: Props) {
             handleDelete();
           }}
         >
-          {isPending ? <Icons.spinner className='size-5 animate-spin' /> : 'Delete'}
+          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Delete'}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

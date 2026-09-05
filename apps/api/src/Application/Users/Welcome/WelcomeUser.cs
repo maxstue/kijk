@@ -32,6 +32,7 @@ public class WelcomeUserHandler(
             .Include(x => x.Resources)
             .Include(x => x.UserHouseholds)
             .ThenInclude(x => x.Household)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (user?.OnboardingCompleted is true)

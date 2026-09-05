@@ -22,7 +22,10 @@ export const useCreateConsumption = () => {
         const newConsumptionsUsage = [...cachedConsumptionsUsage, data];
         queryClient.setQueryData(queryKey, newConsumptionsUsage);
       }
-      await queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
+      ]);
     },
   });
 };

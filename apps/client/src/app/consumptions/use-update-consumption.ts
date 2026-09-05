@@ -9,7 +9,9 @@ export const useUpdateConsumption = () => {
   const queryClient = useQueryClient();
   return useMutation({
     ...updateConsumptionMutationOptions(),
-    onSuccess(data, variables) {
+    async onSuccess(data, variables) {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all });
+
       const consumptionDate = variables.consumption.date;
       if (!consumptionDate) {
         return;

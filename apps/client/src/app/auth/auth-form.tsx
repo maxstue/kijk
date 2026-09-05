@@ -2,7 +2,7 @@ import { useSignIn } from '@clerk/react/legacy';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
-import { Icons } from '@kijk/ui/components/icons';
+import { GitHubIcon, SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -63,7 +63,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
             </div>
             <Button disabled={isLoading} type='submit'>
               {!isLoading && btnLabel}
-              {isLoading && <Icons.spinner className='h-5 w-5 animate-spin' />}
+              {isLoading && <SpinnerIcon className='h-5 w-5 animate-spin' />}
             </Button>
           </div>
         </form>
@@ -79,11 +79,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
       {/* Social logins */}
       {Allowed_Providers.map((provider) => (
         <Button key={provider} disabled={isLoading} variant='outline' onClick={handleSignUp}>
-          {isLoading ? (
-            <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
-          ) : (
-            <Icons.gitHub className='mr-2 h-4 w-4' />
-          )}{' '}
+          {isLoading ? <SpinnerIcon className='mr-2 h-4 w-4 animate-spin' /> : <GitHubIcon className='mr-2 h-4 w-4' />}{' '}
           {provider}
         </Button>
       ))}

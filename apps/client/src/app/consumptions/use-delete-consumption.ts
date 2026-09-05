@@ -12,7 +12,10 @@ export const useDeleteConsumption = () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.consumptions.by(variables.year?.toString(), variables.month),
       });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
+      ]);
     },
   });
 };
