@@ -42,5 +42,9 @@
   },
   "[css]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "sonarlint.connectedMode.project": {
+    "connectionId": "maxstue",
+    "projectKey": "maxstue_kijk"
   }
 }

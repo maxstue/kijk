@@ -690,6 +690,8 @@ export interface components {
       periodStart: string;
       /** Format: date-time */
       periodEnd: string;
+      /** Format: date-time */
+      lastOccurrence: null | string;
     };
     ConsumptionResourceResponse: {
       /** Format: uuid */

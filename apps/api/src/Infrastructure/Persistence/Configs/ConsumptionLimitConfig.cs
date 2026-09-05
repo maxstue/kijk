@@ -1,4 +1,4 @@
-﻿using Kijk.Domain.Entities;
+using Kijk.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,7 +13,6 @@ public class ConsumptionLimitConfig : IEntityTypeConfiguration<ConsumptionLimit>
         builder.HasIndex(x => new { x.HouseholdId, x.ResourceId, x.Period }).IsUnique();
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(250);
-        builder.ComplexProperty(x => x.LastOccurrence, x => x.Property(m => m.Value).HasColumnName("last_occurrence"));
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()

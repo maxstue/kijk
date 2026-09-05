@@ -1,3 +1,4 @@
+using Kijk.Application.ConsumptionLimits.Shared;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
@@ -10,7 +11,7 @@ namespace Kijk.Application.Consumptions.Update;
 /// <summary>
 /// Handler for updating consumption.
 /// </summary>
-public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<UpdateConsumptionHandler> logger) : IHandler
+public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<UpdateConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> UpdateAsync(Guid id, UpdateConsumptionRequest request, CancellationToken cancellationToken)
     {
@@ -74,6 +75,7 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
             existingResourceUsage.Value = previousMonthConsumptionValue + request.Value ?? existingResourceUsage.Value;
         }
 
+        await ConsumptionLimitOccurrence.RecordAsync(dbContext, existingResourceUsage, timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return existingResourceUsage.ToResponse();

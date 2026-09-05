@@ -33,18 +33,41 @@ public sealed class UpdateConsumptionLimitHandler(IAppDbContext dbContext, Curre
             return Error.Conflict("A consumption limit already exists for this resource and period");
         }
 
-        limit.Update(request.Name.Trim(), request.Description?.Trim(), request.Limit, request.Period, request.Active);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        var (start, end) = ConsumptionLimitEvaluation.GetPeriodRange(limit.Period, utcNow);
+        var yearStart = new DateTime(utcNow.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var yearEnd = yearStart.AddYears(1);
         var consumptions = await dbContext.Consumptions
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
                            && item.ResourceId == limit.ResourceId
-                           && item.Date.Value >= start
-                           && item.Date.Value < end)
+                           && item.Date.Value >= yearStart && item.Date.Value < yearEnd)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
+        var wasReached = limit.Active && limit.Period == request.Period
+                         && ConsumptionLimitEvaluation.ToResponse(limit, consumptions, utcNow).IsExceeded;
+
+        limit.Update(request.Name.Trim(), request.Description?.Trim(), request.Limit, request.Period, request.Active);
+        limit.RecordOccurrence(wasReached, ConsumptionLimitEvaluation.ToResponse(limit, consumptions, utcNow).IsExceeded, utcNow);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            var duplicateExists = await dbContext.ConsumptionsLimits
+                .AsNoTracking()
+                .AnyAsync(
+                    item => item.Id != id
+                            && item.HouseholdId == currentUser.ActiveHouseholdId
+                            && item.ResourceId == limit.ResourceId
+                            && item.Period == request.Period,
+                    cancellationToken);
+            if (!duplicateExists)
+            {
+                throw;
+            }
+
+            return Error.Conflict("A consumption limit already exists for this resource and period");
+        }
 
         return ConsumptionLimitEvaluation.ToResponse(limit, consumptions, utcNow);
     }

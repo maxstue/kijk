@@ -50,7 +50,18 @@ public sealed class CreateConsumptionLimitHandler(
                 request.Limit,
                 request.Period,
                 request.Active),
-            resource, user, household, utcNow);
+            resource, user, household);
+
+        var (start, end) = ConsumptionLimitEvaluation.GetPeriodRange(limit.Period, utcNow);
+        var consumptions = await dbContext.Consumptions
+            .Where(item => item.HouseholdId == household.Id
+                           && item.ResourceId == resource.Id
+                           && item.Date.Value >= start
+                           && item.Date.Value < end)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        limit.RecordOccurrence(false, consumptions.Sum(item => item.Value) >= limit.Limit, utcNow);
 
         dbContext.ConsumptionsLimits.Add(limit);
         try
@@ -73,15 +84,6 @@ public sealed class CreateConsumptionLimitHandler(
 
             return Error.Conflict("A consumption limit already exists for this resource and period");
         }
-
-        var (start, end) = ConsumptionLimitEvaluation.GetPeriodRange(limit.Period, utcNow);
-        var consumptions = await dbContext.Consumptions
-            .Where(item => item.HouseholdId == household.Id
-                           && item.ResourceId == resource.Id
-                           && item.Date.Value >= start
-                           && item.Date.Value < end)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
 
         return ConsumptionLimitEvaluation.ToResponse(limit, consumptions, utcNow);
     }

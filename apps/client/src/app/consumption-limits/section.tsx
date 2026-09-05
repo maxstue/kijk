@@ -91,6 +91,16 @@ function LimitCard({ limit }: { limit: ConsumptionLimit }) {
           </div>
         )}
         <UsageProgress limit={limit} />
+        <p className='text-muted-foreground text-sm'>
+          Last reached:{' '}
+          {limit.lastOccurrence ? (
+            <time dateTime={limit.lastOccurrence}>
+              {new Date(limit.lastOccurrence).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+            </time>
+          ) : (
+            'Not recorded yet'
+          )}
+        </p>
         {limit.description && <p className='text-muted-foreground text-sm'>{limit.description}</p>}
       </CardContent>
       <CardFooter className='justify-end'>

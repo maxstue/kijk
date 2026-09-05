@@ -53,6 +53,7 @@ internal static class ConsumptionLimitEvaluation
             utilizationPercentage,
             actualValue >= limit.Limit,
             start,
-            end);
+            end,
+            limit.LastOccurrence);
     }
 }

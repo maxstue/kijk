@@ -1,3 +1,4 @@
+using Kijk.Application.ConsumptionLimits.Shared;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
@@ -10,7 +11,7 @@ namespace Kijk.Application.Consumptions.Create;
 /// <summary>
 /// Handler for creating a new consumption.
 /// </summary>
-public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateConsumptionHandler> logger) : IHandler
+public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<CreateConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest request, CancellationToken cancellationToken)
     {
@@ -54,6 +55,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         var consumption = await CreateConsumption(request, resource, household, cancellationToken);
 
         dbContext.Consumptions.Add(consumption);
+        await ConsumptionLimitOccurrence.RecordAsync(dbContext, consumption, timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return consumption.ToResponse();

@@ -18,7 +18,8 @@ public sealed record ConsumptionLimitResponse(
     decimal UtilizationPercentage,
     bool IsExceeded,
     DateTime PeriodStart,
-    DateTime PeriodEnd);
+    DateTime PeriodEnd,
+    DateTime? LastOccurrence);
 
 /// <summary>
 /// The resource governed by a consumption limit.
