@@ -1,0 +1,39 @@
+name: Deploy to Railway
+description: Deploy the checked-out repository to a specific Railway service.
+
+inputs:
+  api_token:
+    description: Railway API token authorized to deploy the service.
+    required: true
+  project_id:
+    description: Railway project ID.
+    required: true
+  service_id:
+    description: Railway service ID.
+    required: true
+  environment_id:
+    description: Railway environment ID.
+    required: true
+  release_summary:
+    description: Audit message attached to the Railway deployment.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: '🚀 Deploy service'
+      shell: bash
+      env:
+        RAILWAY_API_TOKEN: ${{ inputs.api_token }}
+        RAILWAY_PROJECT_ID: ${{ inputs.project_id }}
+        RAILWAY_SERVICE_ID: ${{ inputs.service_id }}
+        RAILWAY_ENVIRONMENT_ID: ${{ inputs.environment_id }}
+        RAILWAY_RELEASE_SUMMARY: ${{ inputs.release_summary }}
+      run: |
+        set -euo pipefail
+        railway up \
+          --project "$RAILWAY_PROJECT_ID" \
+          --service "$RAILWAY_SERVICE_ID" \
+          --environment "$RAILWAY_ENVIRONMENT_ID" \
+          --ci \
+          -m "$RAILWAY_RELEASE_SUMMARY"

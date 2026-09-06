@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "infisical run --project-config-dir=../.. --path=/Client -- vite",
     "api:generate": "openapi-typescript ../api/src/Api/kijk_openapi.json -o src/shared/api/generated/kijk.ts && oxfmt src/shared/api/generated/kijk.ts",
     "build": "tsc && vite build",
     "preview": "vite preview",

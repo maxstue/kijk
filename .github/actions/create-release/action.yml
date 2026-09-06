@@ -1,0 +1,77 @@
+name: Create release
+description: Create a release from the deployed commit and mark it with a Git note.
+
+inputs:
+  github_token:
+    description: GitHub token authorized to create and push the release.
+    required: true
+  source_sha:
+    description: Commit SHA deployed by the preceding jobs.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: '🔎 Verify deployed commit and release marker'
+      id: release-marker
+      shell: bash
+      env:
+        SOURCE_SHA: ${{ inputs.source_sha }}
+      run: |
+        set -euo pipefail
+
+        if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
+          echo "::error title=Release source changed::main advanced while the production deployment was running. Start a new release run."
+          exit 1
+        fi
+
+        git fetch origin refs/notes/railway-releases:refs/notes/railway-releases || true
+
+        if git notes --ref=railway-releases show "$SOURCE_SHA" >/dev/null 2>&1; then
+          echo "Release marker already exists for ${SOURCE_SHA}; skipping release."
+          echo "release=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "release=true" >> "$GITHUB_OUTPUT"
+
+    - name: '🔧 Install pnpm'
+      if: steps.release-marker.outputs.release == 'true'
+      uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+    - name: '🔧 Use Node.js'
+      if: steps.release-marker.outputs.release == 'true'
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version-file: package.json
+        cache: pnpm
+
+    - name: '📦 Install dependencies'
+      if: steps.release-marker.outputs.release == 'true'
+      shell: bash
+      run: pnpm ci
+
+    - name: '⚙️ Configure git'
+      if: steps.release-marker.outputs.release == 'true'
+      shell: bash
+      run: |
+        git config user.name "Release Workflow"
+        git config user.email "maxstue2304@gmail.com"
+
+    - name: '🚀 Release'
+      if: steps.release-marker.outputs.release == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: pnpm run release --ci
+
+    - name: '📝 Mark source commit as released'
+      if: steps.release-marker.outputs.release == 'true'
+      shell: bash
+      env:
+        SOURCE_SHA: ${{ inputs.source_sha }}
+      run: |
+        set -euo pipefail
+        git fetch origin refs/notes/railway-releases:refs/notes/railway-releases || true
+        git notes --ref=railway-releases add -m "released by ${GITHUB_RUN_ID}" "$SOURCE_SHA"
+        git push origin refs/notes/railway-releases

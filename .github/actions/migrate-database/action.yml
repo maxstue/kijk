@@ -1,0 +1,56 @@
+name: Migrate database
+description: Build an EF Core migrations bundle and apply it to a database.
+
+inputs:
+  connection_string:
+    description: Connection string used to build and apply the migrations bundle.
+    required: true
+  dotnet_version:
+    description: .NET SDK version used to build the migrations bundle.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: '🔧 Setup .NET'
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      with:
+        dotnet-version: ${{ inputs.dotnet_version }}
+
+    - name: '🛠️ Create migrations bundle'
+      shell: bash
+      working-directory: ./apps/api
+      env:
+        ConnectionStrings__DefaultConnection: ${{ inputs.connection_string }}
+        OpenApiGenerateDocuments: 'false'
+        OpenApiGenerateDocumentsOnBuild: 'false'
+      run: |
+        set -euo pipefail
+        dotnet tool restore
+        dotnet restore ./Kijk.slnx
+        dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext
+        chmod +x ./efbundle
+
+    - name: '🍎 Apply migrations bundle'
+      shell: bash
+      working-directory: ./apps/api
+      env:
+        API_MIGRATION_CONNECTION: ${{ inputs.connection_string }}
+      run: |
+        set -euo pipefail
+
+        migration_output="$(mktemp)"
+        ./efbundle --connection "$API_MIGRATION_CONNECTION" 2>&1 | tee "$migration_output"
+
+        echo "### 🗃️ Database migration" >> "$GITHUB_STEP_SUMMARY"
+
+        if grep -q "No migrations were applied" "$migration_output"; then
+          echo "::notice title=Database migration::Database was already up to date; no migrations were applied."
+          echo "✅ Database was already up to date; no migrations were applied." >> "$GITHUB_STEP_SUMMARY"
+        elif grep -q "Applying migration" "$migration_output"; then
+          echo "::notice title=Database migration::Database migrations were applied successfully."
+          echo "✅ Database migrations were applied successfully." >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo "::notice title=Database migration::Migration bundle completed successfully; inspect the step log for details."
+          echo "✅ Migration bundle completed successfully; inspect the step log for details." >> "$GITHUB_STEP_SUMMARY"
+        fi

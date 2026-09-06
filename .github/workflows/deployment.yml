@@ -1,233 +1,105 @@
-name: Deployment
+name: Production Release
 
 on:
   workflow_dispatch:
+
 permissions:
   contents: read
 
 concurrency:
-  group: production-deployment
+  group: production-release
   cancel-in-progress: false
 
-env:
-  DOTNET_VERSION: '10.x.x'
-
 jobs:
-  detect-changes:
-    name: '🔎 Detect Changes'
+  validate-source:
+    name: 'Validate Release Source 🔎'
     runs-on: ubuntu-latest
-    outputs:
-      api: ${{ steps.api-changes.outputs.any_changed }}
-      infra: ${{ steps.infra-changes.outputs.any_changed }}
-      client: ${{ steps.client-changes.outputs.any_changed }}
+    timeout-minutes: 1
     steps:
-      - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: 'Detect API changes'
-        id: api-changes
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
-        with:
-          files: |
-            apps/api/**
-            global.json
-
-      - name: 'Detect Infrastructure changes'
-        id: infra-changes
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
-        with:
-          files: |
-            apps/api/src/Infrastructure/Persistence/Migrations/**
-
-      - name: 'Detect Client changes'
-        id: client-changes
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
-        with:
-          files: |
-            apps/client/**
-            package.json
-            packages/config/**
-            packages/core/**
-            packages/ui/**
-            pnpm-lock.yaml
-            pnpm-workspace.yaml
-
-  database-migration:
-    name: 'Migrate Database 🗃️'
-    runs-on: ubuntu-latest
-    environment:
-      name: production-db
-    defaults:
-      run:
-        working-directory: ./apps/api
-    steps:
-      - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: 🔧 Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: '📦 Install dotnet-ef'
-        run: |
-          dotnet tool install --global dotnet-ef
-
-      - name: '🛠️ Create migrations bundle'
+      - name: 'Require main branch'
         env:
-          ConnectionStrings__DefaultConnection: ${{ secrets.API_MIGRATION_CONNECTION }}
-          OpenApiGenerateDocuments: 'false'
-          OpenApiGenerateDocumentsOnBuild: 'false'
+          RELEASE_REF: ${{ github.ref }}
         run: |
-          dotnet tool restore
-          dotnet restore ./Kijk.slnx
-          dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext --verbose
-
-      - name: 'Make bundle executable'
-        run: chmod +x ./efbundle
-
-      - name: '🍎 Apply migrations bundle'
-        env:
-          API_MIGRATION_CONNECTION: ${{ secrets.API_MIGRATION_CONNECTION }}
-        run: |
-          set -euo pipefail
-
-          migration_output="$(mktemp)"
-          ./efbundle --connection "$API_MIGRATION_CONNECTION" 2>&1 | tee "$migration_output"
-
-          if grep -q "No migrations were applied" "$migration_output"; then
-            echo "::notice title=Database migration::Database was already up to date; no migrations were applied."
-            echo "### 🗃️ Database migration" >> "$GITHUB_STEP_SUMMARY"
-            echo "✅ Database was already up to date; no migrations were applied." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "::notice title=Database migration::Database migrations were applied successfully."
-            echo "### 🗃️ Database migration" >> "$GITHUB_STEP_SUMMARY"
-            echo "✅ Database migrations were applied successfully." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$RELEASE_REF" != "refs/heads/main" ]; then
+            echo "::error title=Invalid release source::Production releases must be started from the main branch."
+            exit 1
           fi
 
-  deploy-api:
-    name: 'Deploy Api 🚂'
-    needs: [database-migration, detect-changes]
-    if: >
-      always() &&
-      (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.api == 'true') &&
-      needs.database-migration.result == 'success'
+  migrate-database:
+    name: 'Migrate Database 🗃️'
+    needs: [validate-source]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production-db
+    steps:
+      - name: '🏖️ Checkout Repository'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: '🗃️ Build and apply migrations'
+        uses: ./.github/actions/migrate-database
+        with:
+          connection_string: ${{ secrets.API_MIGRATION_CONNECTION }}
+          dotnet_version: '10.x.x'
+
+  deploy-api:
+    name: 'Deploy API 🚂'
+    needs: [migrate-database]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     container: ghcr.io/railwayapp/cli:latest
     environment:
       name: production
     steps:
       - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: '🚀 Deploy Api to Railway'
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
-          RAILWAY_ENVIRONMENT_ID: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
-        run: |
-          set -euo pipefail
-          railway up --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT_ID" --ci
+
+      - name: '🚀 Deploy API to Railway'
+        uses: ./.github/actions/deploy-railway
+        with:
+          api_token: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+          project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
+          service_id: ${{ secrets.RAILWAY_API_SERVICE_ID }}
+          environment_id: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
+          release_summary: Deploy API from ${{ github.sha }}
 
   deploy-client:
     name: 'Deploy Client 🚂'
-    needs: [database-migration, detect-changes]
-    if: >
-      always() &&
-      (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.client == 'true') &&
-      needs.database-migration.result == 'success'
+    needs: [migrate-database]
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     container: ghcr.io/railwayapp/cli:latest
     environment:
       name: production
     steps:
       - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: '🚀 Deploy Client to Railway'
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
-          RAILWAY_ENVIRONMENT_ID: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
-        run: |
-          set -euo pipefail
-          railway up --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT_ID" --ci
+        uses: ./.github/actions/deploy-railway
+        with:
+          api_token: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+          project_id: ${{ secrets.RAILWAY_PROJECT_ID }}
+          service_id: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
+          environment_id: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
+          release_summary: Deploy client from ${{ github.sha }}
 
   release:
-    name: Release 📝
+    name: 'Create Release 📝'
     needs: [deploy-api, deploy-client]
-    if: >
-      always() &&
-      (
-        needs.deploy-api.result == 'success' ||
-        needs.deploy-client.result == 'success'
-      ) &&
-      needs.deploy-api.result != 'failure' &&
-      needs.deploy-api.result != 'cancelled' &&
-      needs.deploy-client.result != 'failure' &&
-      needs.deploy-client.result != 'cancelled'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:
-      - name: '🏖️ Checkout Repository'
+      - name: '🏖️ Checkout main'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           fetch-depth: 0
 
-      - name: '🔎 Check release marker'
-        id: release-marker
-        env:
-          SOURCE_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-
-          git fetch origin refs/notes/railway-releases:refs/notes/railway-releases || true
-
-          if git notes --ref=railway-releases show "$SOURCE_SHA" >/dev/null 2>&1; then
-            echo "Release marker already exists for ${SOURCE_SHA}; skipping release."
-            echo "release=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "release=true" >> "$GITHUB_OUTPUT"
-
-      - name: '🔧 Install pnpm'
-        if: steps.release-marker.outputs.release == 'true'
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
-        id: pnpm-install
-
-      - name: '🔧 Use Node.js'
-        if: steps.release-marker.outputs.release == 'true'
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - name: '📝 Create release'
+        uses: ./.github/actions/create-release
         with:
-          node-version-file: package.json
-          cache: 'pnpm'
-
-      - name: '📦 Install dependencies'
-        if: steps.release-marker.outputs.release == 'true'
-        run: pnpm ci
-
-      - name: 'Initialize git'
-        if: steps.release-marker.outputs.release == 'true'
-        run: |
-          git config --global user.name "Release Workflow"
-          git config --global user.email "maxstue2304@gmail.com"
-
-      - name: '🚀 Release'
-        if: steps.release-marker.outputs.release == 'true'
-        run: pnpm run release --ci
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: '📝 Mark source commit as released'
-        if: steps.release-marker.outputs.release == 'true'
-        env:
-          SOURCE_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-
-          git fetch origin refs/notes/railway-releases:refs/notes/railway-releases || true
-          git notes --ref=railway-releases add -m "released by ${GITHUB_RUN_ID}" "$SOURCE_SHA"
-          git push origin refs/notes/railway-releases
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_sha: ${{ github.sha }}
