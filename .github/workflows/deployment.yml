@@ -76,10 +76,12 @@ jobs:
       - name: '🛠️ Create migrations bundle'
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.API_MIGRATION_CONNECTION }}
+          OpenApiGenerateDocuments: 'false'
+          OpenApiGenerateDocumentsOnBuild: 'false'
         run: |
           dotnet tool restore
           dotnet restore ./Kijk.slnx
-          dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext
+          dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext --verbose
 
       - name: 'Make bundle executable'
         run: chmod +x ./efbundle

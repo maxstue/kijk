@@ -6,8 +6,8 @@
 
         <OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
         <OpenApiGenerateDocumentsOptions>--file-name kijk</OpenApiGenerateDocumentsOptions>
-        <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
-        <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
+        <OpenApiGenerateDocuments Condition="'$(OpenApiGenerateDocuments)' == ''">true</OpenApiGenerateDocuments>
+        <OpenApiGenerateDocumentsOnBuild Condition="'$(OpenApiGenerateDocumentsOnBuild)' == ''">true</OpenApiGenerateDocumentsOnBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
     <ItemGroup>
