@@ -45,6 +45,9 @@ jobs:
       - name: 📦 Install JavaScript dependencies
         run: pnpm ci
 
+      - name: 🎭 Install Playwright browser
+        run: pnpm --filter kijk-client exec playwright install --with-deps chromium
+
       - name: 📦 Restore .NET dependencies
         run: dotnet restore apps/api/Kijk.slnx
 
