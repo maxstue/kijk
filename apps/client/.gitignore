@@ -6,6 +6,11 @@ dev-dist
 
 # generated files
 .tanstack
+.vitest
+coverage
+playwright-report
+playwright/.clerk
+test-results
 
 
 #Ignore vscode AI rules

@@ -30,8 +30,13 @@ permissions:
 
 jobs:
   basic:
-    name: "🛠️ Build, Lint/Format"
+    name: "🛠️ Build, Lint/Format, Test"
     runs-on: ubuntu-latest
+    env:
+      CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      E2E_CLERK_USER_EMAIL: ${{ secrets.E2E_CLERK_USER_EMAIL }}
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
 
     steps:
       - name: "🏖️ Checkout Repository"
@@ -49,9 +54,9 @@ jobs:
 
       - name: "📦 Install dependencies"
         run: pnpm ci
-      # Enable at later time
-      # - name: Run the tests and generate coverage report
-      #   run: npm test -- --coverage
+
+      - name: "🌐 Install Playwright browser"
+        run: pnpm --filter kijk-client exec playwright install --with-deps chromium
 
       - name: "🧱 Build"
         run: pnpm build:client
@@ -64,6 +69,12 @@ jobs:
 
       - name: "🔍 Lint"
         run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui lint
+
+      - name: "📊 Frontend tests and coverage"
+        run: pnpm --filter kijk-client test:coverage
+
+      - name: "🎭 Frontend E2E tests"
+        run: pnpm --filter kijk-client test:e2e
 
       - name: "🔍 Audit"
         run: pnpm audit

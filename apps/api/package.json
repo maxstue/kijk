@@ -21,6 +21,9 @@
     "fmt": "dotnet format --verify-no-changes --exclude '**/Migrations/'",
     "fmt:fix": "dotnet format --exclude '**/Migrations/'",
     "clean": "dotnet clean",
+    "start:release": "infisical run --project-config-dir=../.. --path=/Api -- dotnet run --project src/Api/Api.csproj --configuration Release --no-build --launch-profile dev",
+    "load:health": "k6 run tests/Kijk.LoadTests/health.js",
+    "load:resources": "k6 run tests/Kijk.LoadTests/resources.js",
     "start": "dotnet Api.dll"
   }
 }

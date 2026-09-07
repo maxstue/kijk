@@ -8,6 +8,13 @@
     "api:generate": "openapi-typescript ../api/src/Api/kijk_openapi.json -o src/shared/api/generated/kijk.ts && oxfmt src/shared/api/generated/kijk.ts",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run --project unit",
+    "test:component": "vitest run --project component",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "typecheck": "tsc --noEmit",
     "lint": "pnpm oxlint",
     "lint:fix": "pnpm oxlint --fix",
@@ -53,8 +60,10 @@
   },
   "devDependencies": {
     "@clerk/shared": "catalog:",
+    "@clerk/testing": "catalog:",
     "@kijk/config": "workspace:*",
     "@kijk/oxlint-plugin-boundaries": "workspace:*",
+    "@playwright/test": "catalog:",
     "@tanstack/eslint-plugin-query": "catalog:",
     "@tanstack/eslint-plugin-router": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",
@@ -63,17 +72,28 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "@vitejs/devtools": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "eslint-plugin-react-hooks": "catalog:",
     "globals": "catalog:",
+    "msw": "catalog:",
     "openapi-typescript": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
+    "playwright": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vitest-browser-react": "catalog:"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

@@ -31,16 +31,34 @@ jobs:
           global-json-file: apps/api/global.json
 
       - name: 📦 Install dependencies
-        run: dotnet restore "src/Api/Api.csproj"
+        run: dotnet restore "Kijk.slnx"
 
       - name: 🧱 Build
-        run: dotnet build "src/Api/Api.csproj" -c Release --no-restore
+        run: dotnet build "Kijk.slnx" -c Release --no-restore
 
       - name: 🧹 Format
         run: dotnet format --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
 
       - name: 🧪 Test
-        run: dotnet test "src/Api/Api.csproj" --configuration Release --no-build
+        run: |
+          dotnet test --project tests/Kijk.ArchitectureTests/Kijk.ArchitectureTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults
+          dotnet test --project tests/Kijk.UnitTests/Kijk.UnitTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults \
+            --coverage \
+            --coverage-output unit.coverage.xml \
+            --coverage-output-format xml
+          dotnet test --project tests/Kijk.IntegrationTests/Kijk.IntegrationTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults \
+            --coverage \
+            --coverage-output integration.coverage.xml \
+            --coverage-output-format xml
 
       - name: 🔍 Audit
         run: |

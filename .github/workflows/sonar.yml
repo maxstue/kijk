@@ -59,11 +59,53 @@ jobs:
             /k:"maxstue_kijk" \
             /o:"maxstue" \
             /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.coverage.xml" \
+            /d:sonar.javascript.lcov.reportPaths="apps/client/coverage/lcov.info" \
             /d:sonar.plsql.file.suffixes="tab,pkb" \
             /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
 
-      - name: 🧱 Build .NET solution
-        run: dotnet build apps/api/Kijk.slnx --configuration Release --no-restore
+      - name: 🧱 Build
+        run: |
+          dotnet build apps/api/Kijk.slnx --configuration Release --no-restore
+          pnpm build:client
+
+      - name: 🧹 Format
+        run: |
+          dotnet format apps/api/Kijk.slnx --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
+          pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui fmt
+
+      - name: 🔍 Lint
+        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui lint
+
+      - name: 🧪 Tests and coverage
+        run: |
+          dotnet test --project apps/api/tests/Kijk.ArchitectureTests/Kijk.ArchitectureTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory apps/api/TestResults
+          dotnet test --project apps/api/tests/Kijk.UnitTests/Kijk.UnitTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory apps/api/TestResults \
+            --coverage \
+            --coverage-output unit.coverage.xml \
+            --coverage-output-format xml
+          dotnet test --project apps/api/tests/Kijk.IntegrationTests/Kijk.IntegrationTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory apps/api/TestResults \
+            --coverage \
+            --coverage-output integration.coverage.xml \
+            --coverage-output-format xml
+          pnpm --filter kijk-client test:coverage
+
+      - name: 🔍 .NET audit
+        run: dotnet list apps/api/Kijk.slnx package --vulnerable --include-transitive
+        continue-on-error: true
+
+      - name: 🔍 JavaScript audit
+        run: pnpm audit
+        continue-on-error: true
 
       - name: 🔎 Complete SonarQube Cloud analysis
         env:
