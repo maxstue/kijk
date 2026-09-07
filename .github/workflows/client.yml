@@ -3,79 +3,81 @@ name: Client 💻
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ['main']
     paths:
-      - ".github/workflows/client.yml"
-      - "apps/client/**"
-      - "package.json"
-      - "packages/config/**"
-      - "packages/core/**"
-      - "packages/ui/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
+      - '.github/workflows/client.yml'
+      - 'apps/client/**'
+      - 'package.json'
+      - 'packages/config/**'
+      - 'packages/core/**'
+      - 'packages/ui/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
   pull_request:
-    branches: ["main", "develop"]
+    branches: ['main', 'develop']
     paths:
-      - ".github/workflows/client.yml"
-      - "apps/client/**"
-      - "package.json"
-      - "packages/config/**"
-      - "packages/core/**"
-      - "packages/ui/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
+      - '.github/workflows/client.yml'
+      - 'apps/client/**'
+      - 'package.json'
+      - 'packages/config/**'
+      - 'packages/core/**'
+      - 'packages/ui/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
 
 permissions:
   contents: read
 
 jobs:
   basic:
-    name: "🛠️ Build, Lint/Format, Test"
+    name: '🛠️ Build, Lint/Format, Test'
     runs-on: ubuntu-latest
-    env:
-      CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
-      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-      E2E_CLERK_USER_EMAIL: ${{ secrets.E2E_CLERK_USER_EMAIL }}
-      VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
 
     steps:
-      - name: "🏖️ Checkout Repository"
+      - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: "🔧 Install pnpm"
+      - name: '🔧 Install pnpm'
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         id: pnpm-install
 
-      - name: "🔧 Use Node.js"
+      - name: '🔧 Use Node.js'
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: package.json
-          cache: "pnpm"
+          cache: 'pnpm'
 
-      - name: "📦 Install dependencies"
+      - name: '📦 Install dependencies'
         run: pnpm ci
 
-      - name: "🌐 Install Playwright browser"
+      - name: '🌐 Install Playwright browser'
         run: pnpm --filter kijk-client exec playwright install --with-deps chromium
 
-      - name: "🧱 Build"
+      - name: '🧱 Build'
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
         run: pnpm build:client
 
-      - name: "🧪 Typecheck"
+      - name: '🧪 Typecheck'
         run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui typecheck
 
-      - name: "🧹 Format"
+      - name: '🧹 Format'
         run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui fmt
 
-      - name: "🔍 Lint"
+      - name: '🔍 Lint'
         run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui lint
 
-      - name: "📊 Frontend tests and coverage"
+      - name: '📊 Frontend tests and coverage'
         run: pnpm --filter kijk-client test:coverage
 
-      - name: "🎭 Frontend E2E tests"
+      - name: '🎭 Frontend E2E tests'
+        env:
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          E2E_CLERK_USER_EMAIL: ${{ secrets.E2E_CLERK_USER_EMAIL }}
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
         run: pnpm --filter kijk-client test:e2e
 
-      - name: "🔍 Audit"
+      - name: '🔍 Audit'
         run: pnpm audit
         continue-on-error: true

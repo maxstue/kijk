@@ -61,8 +61,10 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
                 var comparisonUsages = comparisonYearUsages.Find(x => x.TypeName == resource.TypeName && x.TypeUnit == resource.TypeUnit)
                     ?.Usages ?? [];
 
-                return CalculateStats(resource.TypeName, resource.TypeUnit, resource.TypeColor, year, month, selectedYearUsages,
-                    comparisonUsages, comparisonMonthUsages);
+                return CalculateStats(new(
+                    new(resource.TypeName, resource.TypeUnit, resource.TypeColor),
+                    new(year, month),
+                    new(selectedYearUsages, comparisonUsages, comparisonMonthUsages)));
             })
             .ToList();
 
@@ -108,15 +110,19 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
         return (currentYear, currentMonth);
     }
 
-    private static ConsumptionStatsResponse CalculateStats(string type, string unit, string color, int selectedYear, string selectedMonth,
-        IList<Domain.Entities.Consumption> selectedYearEnergies, IList<Domain.Entities.Consumption> comparisonYearEnergies,
-        IList<Domain.Entities.Consumption> comparisonMonthEnergies)
+    private static ConsumptionStatsResponse CalculateStats(StatsCalculationParameters parameters)
     {
-        var selectedMonthInt = DateTime.ParseExact(selectedMonth, "MMMM", CultureInfo.InvariantCulture).Month;
+        var selectedMonthInt = DateTime.ParseExact(parameters.Period.SelectedMonth, "MMMM", CultureInfo.InvariantCulture).Month;
 
-        var selectedYearEnergiesByType = selectedYearEnergies.Where(x => x.Resource.Name == type && x.Resource.Unit == unit).ToList();
-        var comparisonYearEnergiesByType = comparisonYearEnergies.Where(x => x.Resource.Name == type && x.Resource.Unit == unit).ToList();
-        var comparisonMonthEnergiesByType = comparisonMonthEnergies.Where(x => x.Resource.Name == type && x.Resource.Unit == unit).ToList();
+        var selectedYearEnergiesByType = parameters.Usages.SelectedYear
+            .Where(x => x.Resource.Name == parameters.Resource.Type && x.Resource.Unit == parameters.Resource.Unit)
+            .ToList();
+        var comparisonYearEnergiesByType = parameters.Usages.ComparisonYear
+            .Where(x => x.Resource.Name == parameters.Resource.Type && x.Resource.Unit == parameters.Resource.Unit)
+            .ToList();
+        var comparisonMonthEnergiesByType = parameters.Usages.ComparisonMonth
+            .Where(x => x.Resource.Name == parameters.Resource.Type && x.Resource.Unit == parameters.Resource.Unit)
+            .ToList();
 
         var selectedMonthEnergies = selectedYearEnergiesByType.Where(x => x.Date.Value.Month == selectedMonthInt).ToList();
 
@@ -126,15 +132,29 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
         var yearMax = selectedYearEnergiesByType.Select(x => x.Value).DefaultIfEmpty(0).Max();
 
         var compYearTotal = comparisonYearEnergiesByType.Sum(x => x.Value);
-        var compYearDiff = CalculateYearDiff(selectedYear, yearTotal, compYearTotal);
+        var compYearDiff = CalculateYearDiff(parameters.Period.SelectedYear, yearTotal, compYearTotal);
 
         var compMonthTotal = comparisonMonthEnergiesByType.Sum(x => x.Value);
         var selectedMonthTotal = selectedMonthEnergies.Sum(x => x.Value);
-        var compMonthDiff = CalculateMonthDiff(selectedYear, selectedMonthInt, selectedMonthTotal, compMonthTotal);
+        var compMonthDiff = CalculateMonthDiff(parameters.Period.SelectedYear, selectedMonthInt, selectedMonthTotal, compMonthTotal);
 
-        return new ConsumptionStatsResponse(new ConsumptionStatsResourceResponse(type, unit, color), selectedMonthTotal, yearTotal, yearAverage,
+        return new ConsumptionStatsResponse(new ConsumptionStatsResourceResponse(parameters.Resource.Type, parameters.Resource.Unit, parameters.Resource.Color), selectedMonthTotal, yearTotal, yearAverage,
             yearMin, yearMax, compYearTotal, compYearDiff, compMonthTotal, compMonthDiff);
     }
+
+    private sealed record StatsCalculationParameters(
+        StatsResourceParameters Resource,
+        StatsPeriodParameters Period,
+        StatsUsageParameters Usages);
+
+    private sealed record StatsResourceParameters(string Type, string Unit, string Color);
+
+    private sealed record StatsPeriodParameters(int SelectedYear, string SelectedMonth);
+
+    private sealed record StatsUsageParameters(
+        IList<Domain.Entities.Consumption> SelectedYear,
+        IList<Domain.Entities.Consumption> ComparisonYear,
+        IList<Domain.Entities.Consumption> ComparisonMonth);
 
     private static decimal CalculateYearDiff(int selectedYear, decimal selectedYearTotal, decimal compYearTotal)
     {
