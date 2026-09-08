@@ -48,7 +48,7 @@ const columns: Array<ColumnDef<Consumption>> = [
     id: 'actions',
     cell: ({ row }) => (
       <div className='flex justify-end gap-2'>
-        <ConsumptionEditButton data={row.original} />
+        <ConsumptionEditButton id={row.original.id} />
         <ConsumptionDeleteButton id={row.original.id} date={row.original.date} />
       </div>
     ),

@@ -5,6 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import {
   createConsumption,
   deleteConsumption,
+  getConsumption,
   getConsumptionsBy,
   getConsumptionsStats,
   getYears,
@@ -28,6 +29,12 @@ export const consumptionsByQueryOptions = (year?: number | string, month?: strin
     queryKey: queryKeys.consumptions.by(y, m),
   });
 };
+
+export const consumptionQueryOptions = (id: string) =>
+  queryOptions({
+    queryFn: ({ signal }) => getConsumption(id, signal),
+    queryKey: queryKeys.consumptions.detail(id),
+  });
 
 export const consumptionsStatsQueryOptions = (year?: number | string, month?: string) => {
   const y = year ? year.toString() : undefined;

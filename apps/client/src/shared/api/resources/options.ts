@@ -2,13 +2,19 @@ import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/api/query-keys';
 
-import { createResource, deleteResource, getResources, updateResource } from './requests';
+import { createResource, deleteResource, getResource, getResources, updateResource } from './requests';
 import type { ResourceData, UpdateResourceData } from './types';
 
 export const resourcesQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getResources(signal),
     queryKey: queryKeys.resources.list(),
+  });
+
+export const resourceQueryOptions = (id: string) =>
+  queryOptions({
+    queryFn: ({ signal }) => getResource(id, signal),
+    queryKey: queryKeys.resources.detail(id),
   });
 
 export const createResourceMutationOptions = () =>

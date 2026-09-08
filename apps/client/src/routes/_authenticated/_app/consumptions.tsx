@@ -10,7 +10,7 @@ import {
 import { Separator } from '@kijk/ui/components/separator';
 import { Tabs, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { Outlet, createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { Plus } from 'lucide-react';
 import { Suspense, useState } from 'react';
@@ -119,6 +119,7 @@ function UsagePage() {
           </div>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 }

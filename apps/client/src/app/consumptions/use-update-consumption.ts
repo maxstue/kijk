@@ -10,6 +10,8 @@ export const useUpdateConsumption = () => {
   return useMutation({
     ...updateConsumptionMutationOptions(),
     async onSuccess(data, variables) {
+      queryClient.setQueryData(queryKeys.consumptions.detail(data.id), data);
+
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.byAll() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),

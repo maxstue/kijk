@@ -23,6 +23,8 @@ import { Route as AuthenticatedAppHomeRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppResourcesRouteImport } from './routes/_authenticated/_app/resources'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
 import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
+import { Route as AuthenticatedAppConsumptionsConsumptionIdRouteImport } from './routes/_authenticated/_app/consumptions.$consumptionId'
+import { Route as AuthenticatedAppResourcesResourceIdRouteImport } from './routes/_authenticated/_app/resources.$resourceId'
 import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings.$section'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -98,6 +100,18 @@ const AuthenticatedOnboardingWelcomeRoute =
     path: '/welcome',
     getParentRoute: () => AuthenticatedOnboardingRouteRoute,
   } as any)
+const AuthenticatedAppConsumptionsConsumptionIdRoute =
+  AuthenticatedAppConsumptionsConsumptionIdRouteImport.update({
+    id: '/$consumptionId',
+    path: '/$consumptionId',
+    getParentRoute: () => AuthenticatedAppConsumptionsRoute,
+  } as any)
+const AuthenticatedAppResourcesResourceIdRoute =
+  AuthenticatedAppResourcesResourceIdRouteImport.update({
+    id: '/$resourceId',
+    path: '/$resourceId',
+    getParentRoute: () => AuthenticatedAppResourcesRoute,
+  } as any)
 const AuthenticatedAppSettingsSectionRoute =
   AuthenticatedAppSettingsSectionRouteImport.update({
     id: '/$section',
@@ -111,12 +125,14 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
-  '/consumptions': typeof AuthenticatedAppConsumptionsRoute
+  '/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
   '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/home': typeof AuthenticatedAppHomeRoute
-  '/resources': typeof AuthenticatedAppResourcesRoute
+  '/resources': typeof AuthenticatedAppResourcesRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
+  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
 }
 export interface FileRoutesByTo {
@@ -125,12 +141,14 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
-  '/consumptions': typeof AuthenticatedAppConsumptionsRoute
+  '/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
   '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/home': typeof AuthenticatedAppHomeRoute
-  '/resources': typeof AuthenticatedAppResourcesRoute
+  '/resources': typeof AuthenticatedAppResourcesRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
+  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
 }
 export interface FileRoutesById {
@@ -142,13 +160,15 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
-  '/_authenticated/_app/consumptions': typeof AuthenticatedAppConsumptionsRoute
+  '/_authenticated/_app/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
   '/_authenticated/_app/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/_authenticated/_app/home': typeof AuthenticatedAppHomeRoute
-  '/_authenticated/_app/resources': typeof AuthenticatedAppResourcesRoute
+  '/_authenticated/_app/resources': typeof AuthenticatedAppResourcesRouteWithChildren
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/_authenticated/_app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/_app/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/_authenticated/_app/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
 }
 export interface FileRouteTypes {
@@ -165,6 +185,8 @@ export interface FileRouteTypes {
     | '/resources'
     | '/settings'
     | '/welcome'
+    | '/consumptions/$consumptionId'
+    | '/resources/$resourceId'
     | '/settings/$section'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -179,6 +201,8 @@ export interface FileRouteTypes {
     | '/resources'
     | '/settings'
     | '/welcome'
+    | '/consumptions/$consumptionId'
+    | '/resources/$resourceId'
     | '/settings/$section'
   id:
     | '__root__'
@@ -196,6 +220,8 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/settings'
     | '/_authenticated/_onboarding/welcome'
     | '/_authenticated/_app/'
+    | '/_authenticated/_app/consumptions/$consumptionId'
+    | '/_authenticated/_app/resources/$resourceId'
     | '/_authenticated/_app/settings/$section'
   fileRoutesById: FileRoutesById
 }
@@ -307,6 +333,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingWelcomeRouteImport
       parentRoute: typeof AuthenticatedOnboardingRouteRoute
     }
+    '/_authenticated/_app/consumptions/$consumptionId': {
+      id: '/_authenticated/_app/consumptions/$consumptionId'
+      path: '/$consumptionId'
+      fullPath: '/consumptions/$consumptionId'
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsConsumptionIdRouteImport
+      parentRoute: typeof AuthenticatedAppConsumptionsRoute
+    }
+    '/_authenticated/_app/resources/$resourceId': {
+      id: '/_authenticated/_app/resources/$resourceId'
+      path: '/$resourceId'
+      fullPath: '/resources/$resourceId'
+      preLoaderRoute: typeof AuthenticatedAppResourcesResourceIdRouteImport
+      parentRoute: typeof AuthenticatedAppResourcesRoute
+    }
     '/_authenticated/_app/settings/$section': {
       id: '/_authenticated/_app/settings/$section'
       path: '/$section'
@@ -316,6 +356,36 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAppConsumptionsRouteChildren {
+  AuthenticatedAppConsumptionsConsumptionIdRoute: typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+}
+
+const AuthenticatedAppConsumptionsRouteChildren: AuthenticatedAppConsumptionsRouteChildren =
+  {
+    AuthenticatedAppConsumptionsConsumptionIdRoute:
+      AuthenticatedAppConsumptionsConsumptionIdRoute,
+  }
+
+const AuthenticatedAppConsumptionsRouteWithChildren =
+  AuthenticatedAppConsumptionsRoute._addFileChildren(
+    AuthenticatedAppConsumptionsRouteChildren,
+  )
+
+interface AuthenticatedAppResourcesRouteChildren {
+  AuthenticatedAppResourcesResourceIdRoute: typeof AuthenticatedAppResourcesResourceIdRoute
+}
+
+const AuthenticatedAppResourcesRouteChildren: AuthenticatedAppResourcesRouteChildren =
+  {
+    AuthenticatedAppResourcesResourceIdRoute:
+      AuthenticatedAppResourcesResourceIdRoute,
+  }
+
+const AuthenticatedAppResourcesRouteWithChildren =
+  AuthenticatedAppResourcesRoute._addFileChildren(
+    AuthenticatedAppResourcesRouteChildren,
+  )
 
 interface AuthenticatedAppSettingsRouteChildren {
   AuthenticatedAppSettingsSectionRoute: typeof AuthenticatedAppSettingsSectionRoute
@@ -332,20 +402,21 @@ const AuthenticatedAppSettingsRouteWithChildren =
   )
 
 interface AuthenticatedAppRouteRouteChildren {
-  AuthenticatedAppConsumptionsRoute: typeof AuthenticatedAppConsumptionsRoute
+  AuthenticatedAppConsumptionsRoute: typeof AuthenticatedAppConsumptionsRouteWithChildren
   AuthenticatedAppConsumptionsLimitsRoute: typeof AuthenticatedAppConsumptionsLimitsRoute
   AuthenticatedAppHomeRoute: typeof AuthenticatedAppHomeRoute
-  AuthenticatedAppResourcesRoute: typeof AuthenticatedAppResourcesRoute
+  AuthenticatedAppResourcesRoute: typeof AuthenticatedAppResourcesRouteWithChildren
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
-  AuthenticatedAppConsumptionsRoute: AuthenticatedAppConsumptionsRoute,
+  AuthenticatedAppConsumptionsRoute:
+    AuthenticatedAppConsumptionsRouteWithChildren,
   AuthenticatedAppConsumptionsLimitsRoute:
     AuthenticatedAppConsumptionsLimitsRoute,
   AuthenticatedAppHomeRoute: AuthenticatedAppHomeRoute,
-  AuthenticatedAppResourcesRoute: AuthenticatedAppResourcesRoute,
+  AuthenticatedAppResourcesRoute: AuthenticatedAppResourcesRouteWithChildren,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }

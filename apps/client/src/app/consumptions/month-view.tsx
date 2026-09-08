@@ -43,7 +43,7 @@ export function ConsumptionMonthView({ consumptions }: { consumptions: Consumpti
               </CardContent>
               <CardFooter className='flex w-full justify-end gap-2 border-t pt-4'>
                 <ConsumptionDeleteButton id={item.id} date={item.date} />
-                <ConsumptionEditButton data={item} />
+                <ConsumptionEditButton id={item.id} />
               </CardFooter>
             </Card>
           ))}

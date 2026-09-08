@@ -7,6 +7,15 @@ export async function getResources(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/resources', { signal }));
 }
 
+export async function getResource(id: string, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient.GET('/api/resources/{id}', {
+      params: { path: { id } },
+      signal,
+    }),
+  );
+}
+
 export async function createResource(data: ResourceData, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient.POST('/api/resources', {

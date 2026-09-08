@@ -28,6 +28,15 @@ export async function getConsumptionsBy(year?: string, month?: string, signal?: 
   );
 }
 
+export async function getConsumption(id: string, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient.GET('/api/consumptions/{id}', {
+      params: { path: { id } },
+      signal,
+    }),
+  );
+}
+
 /**
  * Get stats for the resource usage.
  *

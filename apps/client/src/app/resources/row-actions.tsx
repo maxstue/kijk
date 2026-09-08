@@ -1,6 +1,5 @@
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,13 +9,13 @@ import {
   DropdownMenuTrigger,
 } from '@kijk/ui/components/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
+import { useNavigate } from '@tanstack/react-router';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ResourceTypeDeleteContent } from '@/app/resources/delete-content';
-import { ResourceTypeUpdateForm } from '@/app/resources/update-form';
 import { CreatorTypes, type CreatorType, type Resource } from '@/shared/types/domain';
 
 interface DataTableRowActionsProps<TData> {
@@ -26,7 +25,7 @@ interface DataTableRowActionsProps<TData> {
 
 export function ResourceTypeRowActions<TData extends Resource>({ canManage, row }: DataTableRowActionsProps<TData>) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const navigate = useNavigate();
   const resourceType = row.original;
   const managementRestriction = getManagementRestriction(resourceType.creatorType, canManage);
   const managementActionsDisabled = managementRestriction !== undefined;
@@ -37,7 +36,6 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
   }, [resourceType.name]);
 
   const handleCloseDeleteDialog = useCallback(() => setShowDeleteDialog(false), []);
-  const handleCloseUpdateDialog = useCallback(() => setShowUpdateDialog(false), []);
 
   return (
     <>
@@ -55,7 +53,13 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
             disabled={managementActionsDisabled}
             label='Update'
             tooltip={managementRestriction ?? 'Update resource'}
-            onSelect={() => setShowUpdateDialog(true)}
+            onSelect={() =>
+              navigate({
+                to: '/resources/$resourceId',
+                params: { resourceId: resourceType.id },
+                search: (previous) => previous,
+              })
+            }
           />
           <DropdownMenuSeparator />
           <ResourceManagementMenuItem
@@ -67,15 +71,6 @@ export function ResourceTypeRowActions<TData extends Resource>({ canManage, row 
           />
         </DropdownMenuContent>
       </DropdownMenu>
-      <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
-        <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-          <DialogHeader>
-            <DialogTitle>Update {resourceType.name}</DialogTitle>
-            <DialogDescription>Change the values.</DialogDescription>
-          </DialogHeader>
-          <ResourceTypeUpdateForm initialData={resourceType} onClose={handleCloseUpdateDialog} />
-        </DialogContent>
-      </Dialog>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <ResourceTypeDeleteContent resourceType={resourceType} onClose={handleCloseDeleteDialog} />
       </AlertDialog>

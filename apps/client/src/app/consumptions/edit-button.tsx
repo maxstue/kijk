@@ -1,47 +1,18 @@
 import { Button } from '@kijk/ui/components/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@kijk/ui/components/dialog';
+import { Link } from '@tanstack/react-router';
 import { EditIcon } from 'lucide-react';
-import { Suspense, useState } from 'react';
-
-import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
-import { ConsumptionUpdateForm } from '@/app/consumptions/update-form';
-import type { Consumption } from '@/shared/types/domain';
 
 interface Props {
-  data: Consumption;
+  id: string;
 }
 
-export function ConsumptionEditButton({ data }: Props) {
-  const [showDialog, setShowDialog] = useState(false);
-
-  const handleClose = () => setShowDialog(false);
-
+export function ConsumptionEditButton({ id }: Props) {
   return (
-    <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogTrigger asChild>
-        <Button className='text-muted-foreground' size='icon' variant='outline'>
-          <EditIcon className='size-4' />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            Update Consumption
-            <ConsumptionLimitWarning resourceId={data.resource.id} />
-          </DialogTitle>
-          <DialogDescription>Update this consumption.</DialogDescription>
-        </DialogHeader>
-        <Suspense>
-          <ConsumptionUpdateForm initialData={data} onClose={handleClose} />
-        </Suspense>
-      </DialogContent>
-    </Dialog>
+    <Button asChild className='text-muted-foreground' size='icon' variant='outline'>
+      <Link to='/consumptions/$consumptionId' params={{ consumptionId: id }} search={(previous) => previous}>
+        <EditIcon className='size-4' />
+        <span className='sr-only'>Edit consumption</span>
+      </Link>
+    </Button>
   );
 }

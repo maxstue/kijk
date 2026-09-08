@@ -4,6 +4,7 @@ const users = {
 
 const resources = {
   all: ['resources'] as const,
+  detail: (id: string) => [...resources.all, 'detail', id] as const,
   list: () => [...resources.all, 'list'] as const,
 };
 
@@ -11,6 +12,7 @@ const consumptions = {
   all: ['consumptions'] as const,
   byAll: () => [...consumptions.all, 'usage', 'getBy'] as const,
   by: (year?: string, month?: string) => [...consumptions.all, 'usage', 'getBy', year, month] as const,
+  detail: (id: string) => [...consumptions.all, 'detail', id] as const,
   stats: (year?: string, month?: string) => [...consumptions.all, 'stats', year, month] as const,
   statsAll: () => [...consumptions.all, 'stats'] as const,
   years: () => [...consumptions.all, 'years'] as const,

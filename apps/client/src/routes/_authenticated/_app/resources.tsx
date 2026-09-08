@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { Outlet, createFileRoute } from '@tanstack/react-router';
 
 import { ResourceTypesSection } from '@/app/resources/section';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
@@ -19,6 +19,7 @@ function ResourcesPage() {
   return (
     <div className='space-y-6 pt-10'>
       <ResourceTypesSection />
+      <Outlet />
     </div>
   );
 }
