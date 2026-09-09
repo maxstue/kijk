@@ -1231,6 +1231,8 @@
           "name",
           "description",
           "value",
+          "valueType",
+          "calculatedConsumption",
           "resource",
           "date"
         ],
@@ -1257,6 +1259,17 @@
             ],
             "format": "double"
           },
+          "valueType": {
+            "$ref": "#/components/schemas/ConsumptionValueType"
+          },
+          "calculatedConsumption": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
           "resource": {
             "$ref": "#/components/schemas/ConsumptionResourceResponse"
           },
@@ -1268,12 +1281,17 @@
       },
       "ConsumptionStatsResourceResponse": {
         "required": [
+          "id",
           "name",
           "unit",
           "color"
         ],
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "name": {
             "type": "string"
           },
@@ -1376,6 +1394,12 @@
             "format": "double"
           }
         }
+      },
+      "ConsumptionValueType": {
+        "enum": [
+          "Absolute",
+          "Relative"
+        ]
       },
       "CreateConsumptionLimitRequest": {
         "required": [

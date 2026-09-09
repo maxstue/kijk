@@ -1,5 +1,4 @@
 using Kijk.Domain.Entities;
-using Kijk.Domain.ValueObjects;
 using Riok.Mapperly.Abstractions;
 
 namespace Kijk.Application.Consumptions.Shared;
@@ -23,6 +22,4 @@ public static partial class ConsumptionResponseMapper
     /// <param name="source">The consumption query.</param>
     /// <returns>The projected response query.</returns>
     public static partial IQueryable<ConsumptionResponse> ToResponse(this IQueryable<Consumption> source);
-
-    private static DateTime MapDate(MonthYear source) => source.Value;
 }

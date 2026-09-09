@@ -1,3 +1,5 @@
+using Kijk.Domain.Entities;
+
 namespace Kijk.Application.Consumptions.Shared;
 
 public record ConsumptionResponse(
@@ -5,6 +7,8 @@ public record ConsumptionResponse(
     string Name,
     string? Description,
     decimal Value,
+    ConsumptionValueType ValueType,
+    decimal CalculatedConsumption,
     ConsumptionResourceResponse Resource,
     DateTime Date);
 

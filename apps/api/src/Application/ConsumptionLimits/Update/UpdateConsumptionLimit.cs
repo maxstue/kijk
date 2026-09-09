@@ -39,7 +39,7 @@ public sealed class UpdateConsumptionLimitHandler(IAppDbContext dbContext, Curre
         var consumptions = await dbContext.Consumptions
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
                            && item.ResourceId == limit.ResourceId
-                           && item.Date.Value >= yearStart && item.Date.Value < yearEnd)
+                           && item.Date >= yearStart && item.Date < yearEnd)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
         var wasReached = limit.Active && limit.Period == request.Period

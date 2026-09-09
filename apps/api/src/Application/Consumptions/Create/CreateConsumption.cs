@@ -3,6 +3,7 @@ using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
 using Kijk.Domain.Entities;
+using Kijk.Domain.Services;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -25,23 +26,6 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
             return Error.NotFound("Household not found");
         }
 
-        // use a month range which is translatable by EF instead of accessing Date.Month/Year properties
-        var monthStart = new DateTime(request.Date.Year, request.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-        var nextMonth = monthStart.AddMonths(1);
-
-        var foundConsumption = await dbContext.Consumptions
-            .Include(x => x.Resource)
-            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId
-                        && x.Date.Value >= monthStart
-                        && x.Date.Value < nextMonth
-                        && x.ResourceId == request.ResourceId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (foundConsumption is not null)
-        {
-            logger.LogWarning("Consumption for '{ResourceName}' already exists for {Date:MMMM yyyy}", request.Name, request.Date);
-            return Error.Conflict($"Consumption for '{foundConsumption.Resource.Name}' already exists for {request.Date:MMMM yyyy}");
-        }
-
         var resource = await dbContext
             .GetUserAvailableResources(currentUser)
             .FirstOrDefaultAsync(resource => resource.Id == request.ResourceId, cancellationToken);
@@ -52,49 +36,42 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
             return Error.NotFound("Resource is not available in the active household");
         }
 
-        var consumption = await CreateConsumption(request, resource, household, cancellationToken);
+        var consumption = Consumption.Create(
+            request.Name,
+            resource,
+            request.Value,
+            household,
+            request.Date,
+            (ConsumptionValueType)request.ValueType,
+            calculatedConsumption: 0m);
+
+        var existingConsumptions = await dbContext.Consumptions
+            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+                           && item.ResourceId == request.ResourceId)
+            .ToListAsync(cancellationToken);
+        var before = ConsumptionLimitOccurrence.Capture(existingConsumptions);
+
+        var calculation = ConsumptionTimelineCalculator.CalculateInsertion(consumption, existingConsumptions);
+        if (calculation.IsError)
+        {
+            logger.LogWarning(
+                "Could not add consumption for resource '{ResourceId}' on {Date:yyyy-MM-dd}: {Reason}",
+                request.ResourceId,
+                request.Date,
+                calculation.Error.Description);
+            return calculation.Error;
+        }
 
         dbContext.Consumptions.Add(consumption);
-        await ConsumptionLimitOccurrence.RecordAsync(dbContext, consumption, timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
+        await ConsumptionLimitOccurrence.RecordAsync(
+            dbContext,
+            household.Id,
+            before,
+            existingConsumptions.Append(consumption).ToList(),
+            timeProvider.GetUtcNow().UtcDateTime,
+            cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return consumption.ToResponse();
-    }
-
-    private async Task<Consumption> CreateConsumption(CreateConsumptionRequest request, Resource resource, Household household, CancellationToken cancellationToken)
-    {
-        var calculatedValue = request.Value;
-        if (request.ValueType == CreateConsumptionValueTypes.Absolute)
-        {
-            return Consumption.Create(
-                request.Name,
-                resource,
-                calculatedValue,
-                household,
-                request.Date
-            );
-        }
-
-        var currentMonth = new DateTime(request.Date.Year, request.Date.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-        var previousMonth = currentMonth.AddMonths(-1);
-
-        var previousMonthConsumptionValue = await dbContext.Consumptions
-            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId
-                        && x.Date.Value >= previousMonth
-                        && x.Date.Value < currentMonth
-                        && x.ResourceId == request.ResourceId)
-            .OrderByDescending(x => x.Date.Value)
-            .Select(x => x.Value)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        calculatedValue = previousMonthConsumptionValue + request.Value;
-
-        return Consumption.Create(
-            request.Name,
-            resource,
-            calculatedValue,
-            household,
-            request.Date
-        );
     }
 }

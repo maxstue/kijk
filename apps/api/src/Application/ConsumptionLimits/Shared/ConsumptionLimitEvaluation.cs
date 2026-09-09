@@ -34,9 +34,9 @@ internal static class ConsumptionLimitEvaluation
         var (start, end) = GetPeriodRange(limit.Period, utcNow);
         var actualValue = consumptions
             .Where(consumption => consumption.ResourceId == limit.ResourceId
-                                  && consumption.Date.Value >= start
-                                  && consumption.Date.Value < end)
-            .Sum(consumption => consumption.Value);
+                                  && consumption.Date >= start
+                                  && consumption.Date < end)
+            .Sum(consumption => consumption.CalculatedConsumption);
         var remainingValue = Math.Max(0, limit.Limit - actualValue);
         var utilizationPercentage = limit.Limit == 0 ? 0 : decimal.Round(actualValue / limit.Limit * 100, 2);
 

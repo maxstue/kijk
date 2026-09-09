@@ -27,7 +27,7 @@ public class GetYearsConsumptionHandler(IAppDbContext dbContext, CurrentUser cur
             .AsNoTracking()
             .Where(x => x.Id == houseHoldId)
             .SelectMany(x => x.Consumptions)
-            .Select(x => x.Date.Value.Year)
+            .Select(x => x.Date.Year)
             .Distinct()
             .ToListAsync(cancellationToken);
 

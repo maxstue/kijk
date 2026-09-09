@@ -27,8 +27,8 @@ public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentU
         var response = await dbContext.Consumptions
             .AsNoTracking()
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
-            .If(year != null, q => q.Where(x => x.Date.Value.Year == year))
-            .If(monthInt != -1, q => q.Where(x => x.Date.Value.Month == monthInt))
+            .If(year != null, q => q.Where(x => x.Date.Year == year))
+            .If(monthInt != -1, q => q.Where(x => x.Date.Month == monthInt))
             .ToResponse()
             .ToListAsync(cancellationToken);
 

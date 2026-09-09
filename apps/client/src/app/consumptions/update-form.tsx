@@ -19,7 +19,6 @@ import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption'
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/domain';
-import { ValueTypes } from '@/shared/types/domain';
 
 interface Props {
   initialData: Consumption;
@@ -36,7 +35,7 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
       date: initialData.date ? new Date(initialData.date) : new Date(),
       resourceId: initialData.resource.id,
       value: Number(initialData.value),
-      valueType: ValueTypes.ABSOLUTE,
+      valueType: initialData.valueType,
     },
     resolver: zodResolver(consumptionUpdateSchema),
   });
@@ -63,12 +62,12 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
       <form className='flex flex-col gap-4' onSubmit={form.handleSubmit(onSubmit, handleError)} noValidate>
         <FormField control={form.control} name='name' render={(props) => <ConsumptionNameField {...props} />} />
         <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
-          <FormField control={form.control} name='value' render={(props) => <ConsumptionValueField {...props} />} />
           <FormField
             control={form.control}
             name='valueType'
             render={(props) => <ConsumptionValueTypeField {...props} />}
           />
+          <FormField control={form.control} name='value' render={(props) => <ConsumptionValueField {...props} />} />
           <Suspense fallback={<Loader className='size-6' />}>
             <FormField
               control={form.control}

@@ -707,11 +707,16 @@ export interface components {
       description: null | string;
       /** Format: double */
       value: number | string;
+      valueType: components['schemas']['ConsumptionValueType'];
+      /** Format: double */
+      calculatedConsumption: number | string;
       resource: components['schemas']['ConsumptionResourceResponse'];
       /** Format: date-time */
       date: string;
     };
     ConsumptionStatsResourceResponse: {
+      /** Format: uuid */
+      id: string;
       name: string;
       unit: string;
       color: string;
@@ -737,6 +742,8 @@ export interface components {
       /** Format: double */
       comparisonMonthDiff: number | string;
     };
+    /** @enum {unknown} */
+    ConsumptionValueType: 'Absolute' | 'Relative';
     CreateConsumptionLimitRequest: {
       name: string;
       description: null | string;

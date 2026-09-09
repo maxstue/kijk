@@ -56,8 +56,8 @@ public sealed class CreateConsumptionLimitHandler(
         var consumptions = await dbContext.Consumptions
             .Where(item => item.HouseholdId == household.Id
                            && item.ResourceId == resource.Id
-                           && item.Date.Value >= start
-                           && item.Date.Value < end)
+                           && item.Date >= start
+                           && item.Date < end)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 

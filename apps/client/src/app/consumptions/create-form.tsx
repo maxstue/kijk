@@ -66,12 +66,12 @@ export function ConsumptionCreateForm({ onClose }: Props) {
           <FormField control={form.control} name='name' render={(props) => <ConsumptionNameField {...props} />} />
           <ErrorBoundary fallback={<div className='text-destructive-foreground'>Error loading resources</div>}>
             <div>
-              <FormField control={form.control} name='value' render={(props) => <ConsumptionValueField {...props} />} />
               <FormField
                 control={form.control}
                 name='valueType'
                 render={(props) => <ConsumptionValueTypeField {...props} />}
               />
+              <FormField control={form.control} name='value' render={(props) => <ConsumptionValueField {...props} />} />
               <Suspense fallback={<Loader className='size-6' />}>
                 <FormField
                   control={form.control}

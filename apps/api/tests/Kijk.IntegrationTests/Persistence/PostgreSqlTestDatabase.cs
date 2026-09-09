@@ -12,9 +12,15 @@ internal static class PostgreSqlTestDatabase
 {
     private static readonly PostgreSqlContainer Container = new PostgreSqlBuilder("postgres:18-alpine").Build();
     private static Respawner _respawner = null!;
+    private static bool _started;
 
     internal static async Task StartAsync()
     {
+        if (_started)
+        {
+            return;
+        }
+
         await Container.StartAsync();
         await using var dbContext = CreateDbContext();
         await dbContext.Database.MigrateAsync();
@@ -27,9 +33,12 @@ internal static class PostgreSqlTestDatabase
             SchemasToInclude = ["public"],
             TablesToIgnore = ["__EFMigrationsHistory"]
         });
+        _started = true;
     }
 
-    internal static Task StopAsync() => Container.DisposeAsync().AsTask();
+    // The container is shared by all integration-test classes and Testcontainers
+    // disposes it when the test process exits.
+    internal static Task StopAsync() => Task.CompletedTask;
 
     internal static async Task ResetAsync()
     {

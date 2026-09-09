@@ -38,6 +38,14 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
+                    b.Property<decimal>("CalculatedConsumption")
+                        .HasColumnType("numeric")
+                        .HasColumnName("calculated_consumption");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
@@ -70,14 +78,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("value");
 
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Date", "Kijk.Domain.Entities.Consumption.Date#MonthYear", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<DateTime>("Value")
-                                .HasColumnType("timestamp with time zone")
-                                .HasColumnName("date");
-                        });
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("value_type");
 
                     b.HasKey("Id")
                         .HasName("pk_consumptions");

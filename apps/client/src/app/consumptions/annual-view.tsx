@@ -10,6 +10,7 @@ import { allResourceTypes, ConsumptionTypeFilter } from '@/app/consumptions/type
 import { DataTable } from '@/shared/components/data-table';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { Consumption } from '@/shared/types/domain';
+import { ValueTypes } from '@/shared/types/domain';
 
 const defaultSort: ColumnSort = { desc: true, id: 'date' };
 
@@ -37,7 +38,22 @@ const columns: Array<ColumnDef<Consumption>> = [
         {row.original.value} <ResourceUnit type={row.original.resource} />
       </span>
     ),
-    header: 'Value',
+    header: 'Entered value',
+  },
+  {
+    accessorKey: 'valueType',
+    cell: ({ row }) =>
+      row.original.valueType === ValueTypes.ABSOLUTE ? 'Meter reading' : 'Consumption since previous reading',
+    header: 'Entry type',
+  },
+  {
+    accessorKey: 'calculatedConsumption',
+    cell: ({ row }) => (
+      <span>
+        {row.original.calculatedConsumption} <ResourceUnit type={row.original.resource} />
+      </span>
+    ),
+    header: 'Consumption',
   },
   {
     accessorKey: 'date',

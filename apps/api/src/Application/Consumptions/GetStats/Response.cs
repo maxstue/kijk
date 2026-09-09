@@ -14,4 +14,4 @@ public record ConsumptionStatsResponse(
     decimal ComparisonMonth,
     decimal ComparisonMonthDiff);
 
-public record ConsumptionStatsResourceResponse(string Name, string Unit, string Color);
+public record ConsumptionStatsResourceResponse(Guid Id, string Name, string Unit, string Color);

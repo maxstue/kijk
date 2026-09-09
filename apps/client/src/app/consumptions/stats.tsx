@@ -42,7 +42,7 @@ export default function ConsumptionStats() {
       ) : (
         <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
           {data.stats.map((item) => (
-            <Card key={item.resource.name + item.resource.unit + item.yearTotal} className='bg-background shadow-none'>
+            <Card key={item.resource.id} className='bg-background shadow-none'>
               <CardHeader className='flex flex-row items-center gap-2 space-y-0 pb-2'>
                 <span
                   aria-hidden='true'

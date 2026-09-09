@@ -1,4 +1,3 @@
-import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
@@ -46,20 +45,21 @@ export function ConsumptionValueField<TFormValues extends ConsumptionFormValues>
 }: FieldProps<TFormValues, 'value'>) {
   const { control } = useFormContext<TFormValues>();
   const resourceId = useWatch<TFormValues>({ control, name: 'resourceId' as FieldPath<TFormValues> });
+  const valueType = useWatch<TFormValues>({ control, name: 'valueType' as FieldPath<TFormValues> });
   const { data } = useSuspenseQuery(resourcesQueryOptions());
   const resource = data.find((item) => item.id === resourceId);
 
   return (
     <FormItem className={className}>
       <FormLabel className='flex gap-2'>
-        Amount
+        {valueType === ValueTypes.ABSOLUTE ? 'Meter reading' : 'Consumption since previous reading'}
         <div className='flex'>
           (<ResourceUnit type={resource} />)
         </div>
       </FormLabel>
       <FormControl>
         <Input
-          placeholder='Value in kWh'
+          placeholder={valueType === ValueTypes.ABSOLUTE ? 'Current meter reading' : 'Consumed amount'}
           type='number'
           {...field}
           onChange={(event) => field.onChange(event.target.valueAsNumber)}
@@ -77,26 +77,35 @@ export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormVal
   return (
     <FormItem className={className}>
       <FormLabel className='flex items-center gap-2'>
-        Value Type
+        Entry type
         <Tooltip>
           <TooltipTrigger asChild>
             <InfoIcon className='text-muted-foreground size-4' />
           </TooltipTrigger>
           <TooltipContent>
-            <p className='text-sm'>Toggle between absolute and relative value types.</p>
+            <p className='max-w-64 text-sm'>
+              A meter reading is cumulative. Consumption since the previous reading is added directly to the period.
+            </p>
           </TooltipContent>
         </Tooltip>
       </FormLabel>
 
-      <FormControl className='flex items-center gap-2'>
-        <div className='flex items-center gap-2'>
-          <Checkbox
-            checked={field.value === ValueTypes.ABSOLUTE}
-            onCheckedChange={(checked) => field.onChange(checked ? ValueTypes.ABSOLUTE : ValueTypes.RELATIVE)}
-          />
-          <div className='select-none'>{field.value}</div>
-        </div>
-      </FormControl>
+      <Select value={field.value} onValueChange={field.onChange}>
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          <SelectItem value={ValueTypes.ABSOLUTE}>Meter reading</SelectItem>
+          <SelectItem value={ValueTypes.RELATIVE}>Consumption since previous reading</SelectItem>
+        </SelectContent>
+      </Select>
+      <p className='text-muted-foreground text-xs'>
+        {field.value === ValueTypes.ABSOLUTE
+          ? 'Enter the cumulative value currently shown on the meter.'
+          : 'Enter only the amount consumed since the previous reading.'}
+      </p>
     </FormItem>
   );
 }

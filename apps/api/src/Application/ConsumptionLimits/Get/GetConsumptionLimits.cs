@@ -53,7 +53,7 @@ public sealed class GetConsumptionLimitsHandler(IAppDbContext dbContext, Current
         return await dbContext.Consumptions
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
                            && ids.Contains(item.ResourceId)
-                           && item.Date.Value >= yearStart)
+                           && item.Date >= yearStart)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
