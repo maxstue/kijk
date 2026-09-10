@@ -1,5 +1,5 @@
-import { cn } from '@kijk/core/utils/style';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { cn } from 'cn';
 import type { ComponentProps } from 'react';
 
 export function Loader({ className }: ComponentProps<'div'>) {

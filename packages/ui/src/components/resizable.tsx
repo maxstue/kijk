@@ -1,6 +1,6 @@
 import * as ResizablePrimitive from 'react-resizable-panels';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 
 function ResizablePanelGroup({ className, ...props }: ResizablePrimitive.GroupProps) {
   return (

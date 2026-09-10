@@ -15,7 +15,7 @@
   "menuAccent": "subtle",
   "aliases": {
     "components": "@kijk/ui/components",
-    "utils": "@kijk/core/utils/style",
+    "utils": "cn",
     "ui": "@kijk/ui/components",
     "lib": "@kijk/core/lib",
     "hooks": "@kijk/core/hooks"

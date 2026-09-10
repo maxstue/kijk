@@ -1,4 +1,4 @@
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Label, Slot } from 'radix-ui';
 import * as React from 'react';
 import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';

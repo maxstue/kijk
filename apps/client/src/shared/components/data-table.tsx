@@ -1,6 +1,5 @@
 // 'use no memo' until the react compiler/table bug is fixed https://github.com/TanStack/table/issues/5567
 'use no memo';
-import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
@@ -13,6 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import type { ColumnDef, ColumnFiltersState, ColumnSort, SortingState } from '@tanstack/react-table';
+import { cn } from 'cn';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 

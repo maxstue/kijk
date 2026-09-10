@@ -1,4 +1,4 @@
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Tooltip as TooltipPrimitive } from 'radix-ui';
 import * as React from 'react';
 

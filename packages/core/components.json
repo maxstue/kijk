@@ -12,7 +12,7 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@kijk/ui/components",
-    "utils": "@kijk/core/utils/style",
+    "utils": "cn",
     "hooks": "@kijk/core/hooks",
     "lib": "@kijk/core/lib",
     "ui": "@kijk/ui/components"

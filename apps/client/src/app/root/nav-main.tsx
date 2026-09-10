@@ -1,4 +1,3 @@
-import { cn } from '@kijk/core/utils/style';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -7,6 +6,7 @@ import {
   SidebarMenuItem,
 } from '@kijk/ui/components/sidebar';
 import { Link } from '@tanstack/react-router';
+import { cn } from 'cn';
 
 import { CommandMenu } from '@/app/root/command-menu';
 import { mainNav } from '@/app/root/constants';

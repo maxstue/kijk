@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
 

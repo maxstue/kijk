@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Accordion as AccordionPrimitive } from 'radix-ui';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 
 function Accordion({ className, ...props }: React.ComponentProps<typeof AccordionPrimitive.Root>) {

@@ -1,4 +1,4 @@
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 
 import { config } from '@/shared/config';
 import { siteConfig } from '@/shared/config/site';

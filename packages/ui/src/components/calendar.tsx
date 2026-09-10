@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { DayPicker, getDefaultClassNames, type DayButton, type Locale } from 'react-day-picker';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from 'lucide-react';
 

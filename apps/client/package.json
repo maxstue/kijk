@@ -42,6 +42,7 @@
     "@tanstack/router-plugin": "catalog:",
     "@tanstack/zod-adapter": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "cn": "catalog:",
     "date-fns": "catalog:",
     "framer-motion": "catalog:",
     "immer": "catalog:",

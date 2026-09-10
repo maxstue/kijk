@@ -1,7 +1,7 @@
-import { cn } from '@kijk/core/utils/style';
 import { Button } from '@kijk/ui/components/button';
 import { Calendar } from '@kijk/ui/components/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
+import { cn } from 'cn';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 

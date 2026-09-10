@@ -17,11 +17,9 @@
     "fmt:fix": "oxfmt"
   },
   "dependencies": {
-    "clsx": "catalog:",
     "immer": "catalog:",
     "react": "catalog:",
     "sonner": "catalog:",
-    "tailwind-merge": "catalog:",
     "zod": "catalog:",
     "zustand": "catalog:"
   },

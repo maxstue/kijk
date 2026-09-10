@@ -1,9 +1,9 @@
-import { cn } from '@kijk/core/utils/style';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
+import { cn } from 'cn';
 import { format, parseISO } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 

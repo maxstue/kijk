@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { cn } from '@kijk/core/utils/style';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kijk/ui/components/accordion';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { Separator } from '@kijk/ui/components/separator';
 import { Switch } from '@kijk/ui/components/switch';
 import { useQuery } from '@tanstack/react-query';
+import { cn } from 'cn';
 import { ExternalLink } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';

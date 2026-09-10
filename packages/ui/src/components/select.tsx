@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Select as SelectPrimitive } from 'radix-ui';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from 'lucide-react';
 
 function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {

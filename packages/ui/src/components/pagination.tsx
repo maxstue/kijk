@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
 

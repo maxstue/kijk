@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Slot } from 'radix-ui';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Separator } from '@kijk/ui/components/separator';
 
 const buttonGroupVariants = cva(

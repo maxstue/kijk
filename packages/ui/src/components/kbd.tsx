@@ -1,4 +1,4 @@
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 
 function Kbd({ className, ...props }: React.ComponentProps<'kbd'>) {
   return (

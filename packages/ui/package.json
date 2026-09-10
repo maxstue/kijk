@@ -19,7 +19,7 @@
     "@kijk/core": "workspace:*",
     "@radix-ui/react-slot": "catalog:",
     "class-variance-authority": "catalog:",
-    "clsx": "catalog:",
+    "cn": "catalog:",
     "cmdk": "catalog:",
     "date-fns": "catalog:",
     "embla-carousel-react": "catalog:",
@@ -33,7 +33,6 @@
     "recharts": "catalog:",
     "shadcn": "catalog:",
     "sonner": "catalog:",
-    "tailwind-merge": "catalog:",
     "tw-animate-css": "catalog:",
     "vaul": "catalog:"
   },

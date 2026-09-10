@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { Slot } from 'radix-ui';
 
 import { useIsMobile } from '@kijk/core/hooks/use-mobile';
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Separator } from '@kijk/ui/components/separator';

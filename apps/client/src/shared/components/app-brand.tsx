@@ -1,5 +1,5 @@
-import { cn } from '@kijk/core/utils/style';
 import { LogoIcon } from '@kijk/ui/components/icons';
+import { cn } from 'cn';
 
 import { siteConfig } from '@/shared/config/site';
 

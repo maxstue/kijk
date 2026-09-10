@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { cn } from '@kijk/core/utils/style';
+import { cn } from 'cn';
 import { Label } from '@kijk/ui/components/label';
 import { Separator } from '@kijk/ui/components/separator';
 
