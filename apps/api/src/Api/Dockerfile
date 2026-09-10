@@ -14,6 +14,7 @@ COPY ["src/Shared/Shared.csproj", "src/Shared/"]
 COPY ["src/Application/Application.csproj", "src/Application/"]
 COPY ["./.editorconfig", "./"]
 COPY ["./Directory.Build.props", "./"]
+COPY ["./Directory.Build.Release.props", "./"]
 COPY ["./Directory.Packages.props", "./"]
 RUN dotnet restore "src/Api/Api.csproj"
 COPY ["src/Api/", "src/Api/"]

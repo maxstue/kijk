@@ -8,6 +8,9 @@ inputs:
   source_sha:
     description: Commit SHA deployed by the preceding jobs.
     required: true
+  version:
+    description: Version embedded into the deployed artifacts.
+    required: true
 
 runs:
   using: composite
@@ -63,7 +66,8 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-      run: pnpm run release --ci
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: pnpm exec release-it "$RELEASE_VERSION" --ci
 
     - name: '📝 Mark source commit as released'
       if: steps.release-marker.outputs.release == 'true'

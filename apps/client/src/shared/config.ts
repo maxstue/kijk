@@ -1,6 +1,7 @@
 import { logger } from '@kijk/core/lib/logger';
 import { z } from 'zod';
 
+import releaseMetadata from '@/release-metadata.json';
 import { AppError } from '@/shared/types/errors/app-error';
 
 const envSchema = z.object({
@@ -9,6 +10,7 @@ const envSchema = z.object({
   // App
   BaseApiUrl: z.url(),
   ApiUrl: z.url(),
+  Commit: z.string(),
   Version: z.string(),
   // Devtools
   DevToolsLogger: z.string().transform((x) => x === 'true'),
@@ -27,7 +29,8 @@ const envParse = envSchema.safeParse({
   // App
   BaseApiUrl: import.meta.env.VITE_BASE_API_URL,
   ApiUrl: import.meta.env.VITE_API_URL,
-  Version: import.meta.env.VITE_APP_VERSION,
+  Commit: releaseMetadata.commit,
+  Version: releaseMetadata.version,
   // Devtools
   DevToolsLogger: import.meta.env.VITE_DEVTOOLS_LOGGER,
   // Auth

@@ -1,0 +1,7 @@
+<Project>
+    <PropertyGroup>
+        <KijkCommitSha>development</KijkCommitSha>
+        <Version>0.0.0</Version>
+        <InformationalVersion>$(Version)+$(KijkCommitSha)</InformationalVersion>
+    </PropertyGroup>
+</Project>

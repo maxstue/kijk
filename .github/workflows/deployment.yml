@@ -25,9 +25,50 @@ jobs:
             exit 1
           fi
 
+  prepare-release:
+    name: 'Prepare Release 🏷️'
+    needs: [validate-source]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      source_sha: ${{ steps.release.outputs.source_sha }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: '🏖️ Checkout Repository'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: '🔧 Install pnpm'
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: '🔧 Use Node.js'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: '📦 Install dependencies'
+        run: pnpm ci
+
+      - name: '🏷️ Determine release metadata'
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(pnpm exec release-it --release-version --no-git.changelog)"
+
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error title=Invalid release version::release-it returned '$version'."
+            exit 1
+          fi
+
+          echo "source_sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
   migrate-database:
     name: 'Migrate Database 🗃️'
-    needs: [validate-source]
+    needs: [prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -44,7 +85,7 @@ jobs:
 
   deploy-api:
     name: 'Deploy API 🚂'
-    needs: [migrate-database]
+    needs: [migrate-database, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container: ghcr.io/railwayapp/cli:latest
@@ -62,10 +103,12 @@ jobs:
           service_id: ${{ secrets.RAILWAY_API_SERVICE_ID }}
           environment_id: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
           release_summary: Deploy API from ${{ github.sha }}
+          release_version: ${{ needs.prepare-release.outputs.version }}
+          source_sha: ${{ needs.prepare-release.outputs.source_sha }}
 
   deploy-client:
     name: 'Deploy Client 🚂'
-    needs: [migrate-database]
+    needs: [migrate-database, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container: ghcr.io/railwayapp/cli:latest
@@ -83,10 +126,12 @@ jobs:
           service_id: ${{ secrets.RAILWAY_CLIENT_SERVICE_ID }}
           environment_id: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
           release_summary: Deploy client from ${{ github.sha }}
+          release_version: ${{ needs.prepare-release.outputs.version }}
+          source_sha: ${{ needs.prepare-release.outputs.source_sha }}
 
   release:
     name: 'Create Release 📝'
-    needs: [deploy-api, deploy-client]
+    needs: [deploy-api, deploy-client, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -102,4 +147,5 @@ jobs:
         uses: ./.github/actions/create-release
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          source_sha: ${{ github.sha }}
+          source_sha: ${{ needs.prepare-release.outputs.source_sha }}
+          version: ${{ needs.prepare-release.outputs.version }}
