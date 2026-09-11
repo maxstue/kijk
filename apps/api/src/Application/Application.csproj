@@ -5,6 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Api.SourceGenerators\Api.SourceGenerators.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Domain\Domain.csproj"/>
     </ItemGroup>
 

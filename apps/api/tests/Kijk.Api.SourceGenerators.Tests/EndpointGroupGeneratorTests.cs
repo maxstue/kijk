@@ -99,12 +99,27 @@ public class EndpointGroupGeneratorTests
         await Assert.That(result.Diagnostics.Select(static diagnostic => diagnostic.Id)).Contains("KIJKSG002");
     }
 
-    private static GeneratorRunResult RunGenerator(string source)
+    [Test]
+    public async Task ReferencedEndpointContractsDoNotGenerateMappingsInConsumingAssembly()
     {
+        var apiReference = CreateMetadataReference(Contracts);
+
+        var result = RunGenerator("public sealed class ConsumerType { }", [apiReference]);
+
+        await Assert.That(result.Diagnostics).IsEmpty();
+        await Assert.That(result.GeneratedTrees).IsEmpty();
+        await Assert.That(result.OutputCompilation.GetDiagnostics().Where(static diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)).IsEmpty();
+    }
+
+    private static GeneratorRunResult RunGenerator(
+        string source,
+        IReadOnlyCollection<MetadataReference>? additionalReferences = null)
+    {
+        var references = GetMetadataReferences().Concat(additionalReferences ?? []).ToArray();
         var compilation = CSharpCompilation.Create(
             assemblyName: "GeneratorTests",
             syntaxTrees: [CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview))],
-            references: GetMetadataReferences(),
+            references: references,
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         GeneratorDriver driver = CSharpGeneratorDriver.Create(new EndpointGroupGenerator())
@@ -113,6 +128,23 @@ public class EndpointGroupGeneratorTests
 
         var result = driver.GetRunResult().Results.Single();
         return new GeneratorRunResult(result.Diagnostics, result.GeneratedSources.Select(static sourceResult => sourceResult.SyntaxTree).ToImmutableArray(), outputCompilation);
+    }
+
+    private static PortableExecutableReference CreateMetadataReference(string source)
+    {
+        var compilation = CSharpCompilation.Create(
+            assemblyName: "Kijk.Api.Contracts",
+            syntaxTrees: [CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview))],
+            references: GetMetadataReferences(),
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        using var stream = new MemoryStream();
+        var emitResult = compilation.Emit(stream);
+        if (!emitResult.Success)
+        {
+            throw new InvalidOperationException(string.Join(Environment.NewLine, emitResult.Diagnostics));
+        }
+
+        return MetadataReference.CreateFromImage(stream.ToArray());
     }
 
     private static IEnumerable<MetadataReference> GetMetadataReferences()

@@ -42,7 +42,15 @@ public sealed class EndpointGroupGenerator : IIncrementalGenerator
             .Where(static symbol => symbol is not null)
             .Select(static (symbol, _) => symbol!);
 
-        context.RegisterSourceOutput(endpointGroups.Collect(), static (sourceContext, symbols) => Execute(sourceContext, symbols));
+        context.RegisterSourceOutput(
+            endpointGroups.Collect().Combine(context.CompilationProvider),
+            static (sourceContext, input) =>
+            {
+                if (IsApiCompilation(input.Right))
+                {
+                    Execute(sourceContext, input.Left);
+                }
+            });
     }
 
     private static INamedTypeSymbol? GetEndpointGroup(GeneratorSyntaxContext context, CancellationToken cancellationToken)
@@ -57,6 +65,13 @@ public sealed class EndpointGroupGenerator : IIncrementalGenerator
         return endpointGroup is not null && symbol.AllInterfaces.Any(@interface => SymbolEqualityComparer.Default.Equals(@interface, endpointGroup))
             ? symbol
             : null;
+    }
+
+    private static bool IsApiCompilation(Compilation compilation)
+    {
+        var endpointGroup = compilation.GetTypeByMetadataName(EndpointGroupMetadataName);
+        return endpointGroup is not null
+            && SymbolEqualityComparer.Default.Equals(endpointGroup.ContainingAssembly, compilation.Assembly);
     }
 
     private static void Execute(SourceProductionContext context, ImmutableArray<INamedTypeSymbol> candidates)
