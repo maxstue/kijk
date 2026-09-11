@@ -19,7 +19,6 @@ public static class DependencyInjection
             .AddControllerOptions()
             .AddValidation()
             .AddCompression()
-            .AddEndpoints()
             .AddMiddlewares()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddHttpClient()

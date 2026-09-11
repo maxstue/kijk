@@ -60,6 +60,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Api.SourceGenerators\Api.SourceGenerators.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Application\Application.csproj" />
         <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
         <ProjectReference Include="..\Shared\Shared.csproj" />

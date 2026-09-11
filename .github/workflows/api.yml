@@ -41,6 +41,10 @@ jobs:
 
       - name: 🧪 Test
         run: |
+          dotnet test --project tests/Kijk.Api.SourceGenerators.Tests/Kijk.Api.SourceGenerators.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults
           dotnet test --project tests/Kijk.ArchitectureTests/Kijk.ArchitectureTests.csproj \
             --configuration Release \
             --no-build \
