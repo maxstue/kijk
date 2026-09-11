@@ -2,6 +2,7 @@ import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { InfoIcon } from 'lucide-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
@@ -11,6 +12,7 @@ import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { DatePicker } from '@/shared/components/date-picker';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { ResourceUnit } from '@/shared/components/resources-unit';
+import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 
 type ConsumptionFormValues = ConsumptionCreateFormSchema | ConsumptionUpdateFormSchema;
@@ -22,6 +24,44 @@ type ConsumptionFieldPath<
 interface FieldProps<TFormValues extends ConsumptionFormValues, TName extends keyof ConsumptionCreateFormSchema> {
   className?: string;
   field: ControllerRenderProps<TFormValues, ConsumptionFieldPath<TFormValues, TName>>;
+}
+
+interface RunningTotalProps {
+  consumptions: Consumption[];
+  excludeId?: string;
+}
+
+export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTotalProps) {
+  const { control } = useFormContext<ConsumptionFormValues>();
+  const date = useWatch({ control, name: 'date' });
+  const resourceId = useWatch({ control, name: 'resourceId' });
+  const value = useWatch({ control, name: 'value' });
+  const valueType = useWatch({ control, name: 'valueType' });
+  const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
+  const resource = resources.find((item) => item.id === resourceId);
+  const entryDate = date instanceof Date ? format(date, 'yyyy-MM-dd') : '';
+  const previousEntry = consumptions.find(
+    (item) =>
+      item.id !== excludeId &&
+      item.resource.id === resourceId &&
+      item.date.slice(0, 10) <= entryDate &&
+      item.calculatedMeterReading != null,
+  );
+  const numericValue = Number(value);
+  const total =
+    valueType === ValueTypes.ABSOLUTE
+      ? numericValue
+      : previousEntry?.calculatedMeterReading == null
+        ? undefined
+        : Number(previousEntry.calculatedMeterReading) + numericValue;
+
+  return (
+    <div className='bg-muted/40 grid grid-cols-[minmax(0,1fr)_auto_auto] items-baseline gap-2 rounded-md px-3 py-2 text-sm'>
+      <span className='text-muted-foreground'>Running meter total</span>
+      <span className='text-right font-medium tabular-nums'>{Number.isFinite(total) ? total : '—'}</span>
+      {Number.isFinite(total) ? <ResourceUnit type={resource} /> : <span />}
+    </div>
+  );
 }
 
 export function ConsumptionNameField<TFormValues extends ConsumptionFormValues>({
@@ -80,11 +120,15 @@ export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormVal
         Entry type
         <Tooltip>
           <TooltipTrigger asChild>
-            <InfoIcon className='text-muted-foreground size-4' />
+            <button type='button' aria-label='Explain entry type'>
+              <InfoIcon className='text-muted-foreground size-4' />
+            </button>
           </TooltipTrigger>
           <TooltipContent>
             <p className='max-w-64 text-sm'>
-              A meter reading is cumulative. Consumption since the previous reading is added directly to the period.
+              {field.value === ValueTypes.ABSOLUTE
+                ? 'Enter the cumulative value currently shown on the meter.'
+                : 'Enter the consumed amount, not the meter value. It is added to the last known meter reading to calculate the running total.'}
             </p>
           </TooltipContent>
         </Tooltip>
@@ -101,11 +145,6 @@ export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormVal
           <SelectItem value={ValueTypes.RELATIVE}>Consumption since previous reading</SelectItem>
         </SelectContent>
       </Select>
-      <p className='text-muted-foreground text-xs'>
-        {field.value === ValueTypes.ABSOLUTE
-          ? 'Enter the cumulative value currently shown on the meter.'
-          : 'Enter only the amount consumed since the previous reading.'}
-      </p>
     </FormItem>
   );
 }

@@ -103,13 +103,28 @@ public class ConsumptionTimelineCalculatorTests
         await Assert.That(nextAbsolute.CalculatedConsumption).IsEqualTo(60m);
     }
 
+    [Test]
+    public async Task CalculateMeterReadingsAdvancesAbsoluteBaselineWithRelativeEntries()
+    {
+        var baseline = CreateConsumption(2026, 9, 1, 2_300m, ConsumptionValueType.Absolute);
+        var relative = CreateConsumption(2026, 9, 10, 230m, ConsumptionValueType.Relative);
+        var reading = CreateConsumption(2026, 9, 20, 2_560m, ConsumptionValueType.Absolute);
+
+        var result = ConsumptionTimelineCalculator.CalculateMeterReadings([reading, relative, baseline]);
+
+        await Assert.That(result[baseline.Id]).IsEqualTo(2_300m);
+        await Assert.That(result[relative.Id]).IsEqualTo(2_530m);
+        await Assert.That(result[reading.Id]).IsEqualTo(2_560m);
+    }
+
     private Consumption CreateConsumption(
         int year,
         int month,
         int day,
         decimal value,
-        ConsumptionValueType valueType) =>
-        Consumption.Create(
+        ConsumptionValueType valueType)
+    {
+        var consumption = Consumption.Create(
             "Reading",
             resource,
             value,
@@ -117,4 +132,8 @@ public class ConsumptionTimelineCalculatorTests
             new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc),
             valueType,
             calculatedConsumption: 0m);
+
+        consumption.Id = Guid.NewGuid();
+        return consumption;
+    }
 }

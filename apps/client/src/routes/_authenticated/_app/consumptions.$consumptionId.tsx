@@ -1,9 +1,10 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
 import { ConsumptionUpdateForm } from '@/app/consumptions/update-form';
-import { consumptionQueryOptions } from '@/shared/api/consumptions/options';
+import { consumptionQueryOptions, consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 
 export const Route = createFileRoute('/_authenticated/_app/consumptions/$consumptionId')({
   loader: ({ context: { queryClient }, params: { consumptionId } }) =>
@@ -13,6 +14,8 @@ export const Route = createFileRoute('/_authenticated/_app/consumptions/$consump
 
 function ConsumptionEditDialog() {
   const consumption = Route.useLoaderData();
+  const { year } = Route.useSearch();
+  const { data: consumptions } = useSuspenseQuery(consumptionsByQueryOptions(year));
   const navigate = Route.useNavigate();
   const closeDialog = () =>
     navigate({
@@ -31,7 +34,7 @@ function ConsumptionEditDialog() {
           </DialogTitle>
           <DialogDescription>Update this consumption.</DialogDescription>
         </DialogHeader>
-        <ConsumptionUpdateForm initialData={consumption} onClose={closeDialog} />
+        <ConsumptionUpdateForm consumptions={consumptions} initialData={consumption} onClose={closeDialog} />
       </DialogContent>
     </Dialog>
   );

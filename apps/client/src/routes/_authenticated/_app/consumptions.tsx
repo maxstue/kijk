@@ -47,6 +47,7 @@ export const Route = createFileRoute('/_authenticated/_app/consumptions')({
       queryClient.ensureQueryData(
         consumptionsByQueryOptions(deps.year, deps.view === 'month' ? deps.month : undefined),
       ),
+      queryClient.ensureQueryData(consumptionsByQueryOptions(deps.year)),
       queryClient.ensureQueryData(consumptionLimitsQueryOptions()),
     ]);
   },
@@ -58,6 +59,7 @@ function UsagePage() {
   const { month, view, year } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { data } = useSuspenseQuery(consumptionsByQueryOptions(year, view === 'month' ? month : undefined));
+  const { data: yearlyConsumptions } = useSuspenseQuery(consumptionsByQueryOptions(year));
 
   const handleClose = () => setShowDialog(false);
 
@@ -106,7 +108,7 @@ function UsagePage() {
                     <DialogDescription>Add a new consumption.</DialogDescription>
                   </DialogHeader>
                   <Suspense>
-                    <ConsumptionCreateForm onClose={handleClose} />
+                    <ConsumptionCreateForm consumptions={yearlyConsumptions} onClose={handleClose} />
                   </Suspense>
                 </DialogContent>
               </Dialog>
@@ -114,7 +116,7 @@ function UsagePage() {
             {view === 'year' ? (
               <ConsumptionAnnualView consumptions={data} />
             ) : (
-              <ConsumptionMonthView consumptions={data} />
+              <ConsumptionMonthView consumptions={data} month={month} year={year} />
             )}
           </div>
         </div>

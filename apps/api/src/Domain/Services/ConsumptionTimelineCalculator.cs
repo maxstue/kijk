@@ -9,6 +9,25 @@ namespace Kijk.Domain.Services;
 public static class ConsumptionTimelineCalculator
 {
     /// <summary>
+    /// Calculates the effective meter reading after every entry in a single resource timeline.
+    /// </summary>
+    /// <param name="consumptions">The complete timeline for one household and resource.</param>
+    /// <returns>A meter reading for each entry, or <see langword="null"/> until an absolute baseline exists.</returns>
+    public static IReadOnlyDictionary<Guid, decimal?> CalculateMeterReadings(IEnumerable<Consumption> consumptions)
+    {
+        decimal? meterReading = null;
+        var readings = new Dictionary<Guid, decimal?>();
+
+        foreach (var consumption in OrderTimeline(consumptions))
+        {
+            meterReading = ApplyToMeterReading(meterReading, consumption);
+            readings[consumption.Id] = meterReading;
+        }
+
+        return readings;
+    }
+
+    /// <summary>
     /// Recalculates every entry in chronological order.
     /// </summary>
     /// <param name="consumptions">The complete timeline for one household and resource.</param>
@@ -17,10 +36,7 @@ public static class ConsumptionTimelineCalculator
     {
         decimal? meterReading = null;
 
-        foreach (var consumption in consumptions
-                     .OrderBy(item => item.Date)
-                     .ThenBy(item => item.CreatedAt)
-                     .ThenBy(item => item.Id))
+        foreach (var consumption in OrderTimeline(consumptions))
         {
             var calculation = CalculateConsumption(consumption, meterReading);
             if (calculation.IsError)
@@ -46,11 +62,7 @@ public static class ConsumptionTimelineCalculator
         Consumption consumption,
         IEnumerable<Consumption> existingConsumptions)
     {
-        var timeline = existingConsumptions
-            .OrderBy(item => item.Date)
-            .ThenBy(item => item.CreatedAt)
-            .ThenBy(item => item.Id)
-            .ToList();
+        var timeline = OrderTimeline(existingConsumptions).ToList();
 
         decimal? meterReading = null;
         var insertionIndex = timeline.FindLastIndex(item => item.Date <= consumption.Date) + 1;
@@ -117,4 +129,10 @@ public static class ConsumptionTimelineCalculator
             ConsumptionValueType.Relative => null,
             _ => throw new ArgumentOutOfRangeException(nameof(consumption), consumption.ValueType, "Unsupported consumption value type")
         };
+
+    private static IOrderedEnumerable<Consumption> OrderTimeline(IEnumerable<Consumption> consumptions) =>
+        consumptions
+            .OrderBy(item => item.Date)
+            .ThenBy(item => item.CreatedAt)
+            .ThenBy(item => item.Id);
 }

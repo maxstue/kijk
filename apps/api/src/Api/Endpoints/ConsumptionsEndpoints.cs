@@ -2,6 +2,7 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Consumptions.Create;
 using Kijk.Application.Consumptions.Delete;
+using Kijk.Application.Consumptions.Export;
 using Kijk.Application.Consumptions.GetById;
 using Kijk.Application.Consumptions.GetByYearMonth;
 using Kijk.Application.Consumptions.GetStats;
@@ -29,6 +30,16 @@ public class ConsumptionsEndpoints : IEndpointGroup
         group.MapGet("/{id:guid}", GetById)
             .WithName("GetConsumptionById")
             .WithSummary("Gets a consumption by id");
+
+        group.MapGet("/{id:guid}/export", ExportById)
+            .WithSummary("Exports a consumption as CSV")
+            .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv")
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapGet("/export", ExportMonth)
+            .WithSummary("Exports all consumptions for a month as CSV")
+            .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv")
+            .ProducesValidationProblem();
 
         group.MapGet("/", GetByYearMonth)
             .WithSummary("Gets all consumptions for the current user by year, month and type");
@@ -63,6 +74,35 @@ public class ConsumptionsEndpoints : IEndpointGroup
     {
         var result = await handler.GetByIdAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Exports a consumption as CSV.
+    /// </summary>
+    private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> ExportById(
+        Guid id,
+        ExportConsumptionHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.ExportByIdAsync(id, cancellationToken);
+        return result.IsError
+            ? TypedResults.Problem(result.Error.ToProblemDetails())
+            : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
+    }
+
+    /// <summary>
+    /// Exports all consumptions for a month as CSV.
+    /// </summary>
+    private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> ExportMonth(
+        [FromQuery] int year,
+        [FromQuery] string month,
+        ExportConsumptionHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.ExportMonthAsync(year, month, cancellationToken);
+        return result.IsError
+            ? TypedResults.Problem(result.Error.ToProblemDetails())
+            : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
     }
 
     /// <summary>

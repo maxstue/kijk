@@ -10,6 +10,7 @@ import {
   ConsumptionDateField,
   ConsumptionNameField,
   ConsumptionResourceField,
+  ConsumptionRunningTotal,
   ConsumptionValueField,
   ConsumptionValueTypeField,
 } from '@/app/consumptions/form-fields';
@@ -21,11 +22,12 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/domain';
 
 interface Props {
+  consumptions: Consumption[];
   initialData: Consumption;
   onClose: () => void;
 }
 
-export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
+export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Props) {
   const { isPending, mutate } = useUpdateConsumption();
 
   const form = useForm({
@@ -77,6 +79,7 @@ export function ConsumptionUpdateForm({ onClose, initialData }: Props) {
           </Suspense>
         </ErrorBoundary>
         <FormField control={form.control} name='date' render={(props) => <ConsumptionDateField {...props} />} />
+        <ConsumptionRunningTotal consumptions={consumptions} excludeId={initialData.id} />
         <Button className='mt-6' disabled={isPending} type='submit'>
           {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Update'}
         </Button>

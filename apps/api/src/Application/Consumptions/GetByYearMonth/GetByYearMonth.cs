@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Services;
 using Kijk.Shared;
-using Kijk.Shared.Extensions;
 
 namespace Kijk.Application.Consumptions.GetByYearMonth;
 
@@ -24,13 +24,25 @@ public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentU
             monthInt = parsedMonth.Month;
         }
 
-        var response = await dbContext.Consumptions
+        var consumptions = await dbContext.Consumptions
             .AsNoTracking()
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
-            .If(year != null, q => q.Where(x => x.Date.Year == year))
-            .If(monthInt != -1, q => q.Where(x => x.Date.Month == monthInt))
-            .ToResponse()
+            .Include(x => x.Resource)
             .ToListAsync(cancellationToken);
+
+        var calculatedMeterReadings = consumptions
+            .GroupBy(item => item.ResourceId)
+            .SelectMany(group => ConsumptionTimelineCalculator.CalculateMeterReadings(group))
+            .ToDictionary(item => item.Key, item => item.Value);
+
+        var response = consumptions
+            .Where(item => year is null || item.Date.Year == year)
+            .Where(item => monthInt == -1 || item.Date.Month == monthInt)
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.Id)
+            .Select(item => item.ToResponse() with { CalculatedMeterReading = calculatedMeterReadings[item.Id] })
+            .ToList();
 
         return response;
     }

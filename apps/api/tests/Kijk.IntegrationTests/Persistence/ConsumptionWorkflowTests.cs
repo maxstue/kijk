@@ -1,5 +1,7 @@
 using Kijk.Application.Consumptions.Create;
 using Kijk.Application.Consumptions.Delete;
+using Kijk.Application.Consumptions.Export;
+using Kijk.Application.Consumptions.GetByYearMonth;
 using Kijk.Application.Consumptions.GetStats;
 using Kijk.Application.Consumptions.Update;
 using Kijk.Domain.Entities;
@@ -21,6 +23,80 @@ public class ConsumptionWorkflowTests
 
     [Before(Test)]
     public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
+
+    [Test]
+    public async Task ExportMonthIncludesOnlyActiveHouseholdAndRequestedMonth()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var fixture = await CreateFixtureAsync(dbContext);
+        var create = CreateHandler(dbContext, fixture.CurrentUser, TimeProvider.System);
+
+        await CreateAsync(create, "Earlier", 10m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 1));
+        await CreateAsync(create, "Later", 20m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 20));
+        await CreateAsync(create, "Other month", 30m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 10, 1));
+
+        var result = await new ExportConsumptionHandler(dbContext, fixture.CurrentUser)
+            .ExportMonthAsync(2026, "september", CancellationToken.None);
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        var csv = System.Text.Encoding.UTF8.GetString(result.Value.Content);
+        await Assert.That(result.Value.FileName).IsEqualTo("consumptions-2026-09.csv");
+        await Assert.That(csv).Contains("Later");
+        await Assert.That(csv).Contains("Earlier");
+        await Assert.That(csv).DoesNotContain("Other month");
+        await Assert.That(csv.IndexOf("Later", StringComparison.Ordinal)).IsLessThan(csv.IndexOf("Earlier", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public async Task GetByYearMonthReturnsNewestConsumptionFirst()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var fixture = await CreateFixtureAsync(dbContext);
+        var create = CreateHandler(dbContext, fixture.CurrentUser, TimeProvider.System);
+
+        await CreateAsync(create, "Earlier", 10m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 1));
+        await CreateAsync(create, "Later", 20m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 20));
+
+        var result = await new GetByYearMonthHandler(dbContext, fixture.CurrentUser)
+            .GetByYearMonthAsync(2026, "September", CancellationToken.None);
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        await Assert.That(result.Value.Count).IsEqualTo(2);
+        await Assert.That(result.Value[0].Name).IsEqualTo("Later");
+        await Assert.That(result.Value[1].Name).IsEqualTo("Earlier");
+    }
+
+    [Test]
+    public async Task ExportByIdRejectsConsumptionFromAnotherHousehold()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var fixture = await CreateFixtureAsync(dbContext);
+        var otherHousehold = Household.Create("Other household");
+        var otherResource = new Resource
+        {
+            Name = "Gas",
+            Unit = "m3",
+            Color = "#334455",
+            CreatorType = CreatorType.User,
+            Household = otherHousehold
+        };
+        var foreignConsumption = Consumption.Create(
+            "Foreign",
+            otherResource,
+            42m,
+            otherHousehold,
+            UtcDate(2026, 9, 2),
+            ConsumptionValueType.Relative,
+            42m);
+        dbContext.AddRange(otherHousehold, otherResource, foreignConsumption);
+        await dbContext.SaveChangesAsync();
+
+        var result = await new ExportConsumptionHandler(dbContext, fixture.CurrentUser)
+            .ExportByIdAsync(foreignConsumption.Id, CancellationToken.None);
+
+        await Assert.That(result.IsError).IsTrue();
+        await Assert.That(result.Error.Type).IsEqualTo(ErrorType.NotFound);
+    }
 
     [Test]
     public async Task StatsAggregateCalculatedConsumptionByMonth()

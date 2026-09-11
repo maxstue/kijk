@@ -14,6 +14,7 @@ public static partial class ConsumptionResponseMapper
     /// </summary>
     /// <param name="source">The consumption to map.</param>
     /// <returns>The mapped response.</returns>
+    [MapperIgnoreTarget(nameof(ConsumptionResponse.CalculatedMeterReading))]
     public static partial ConsumptionResponse ToResponse(this Consumption source);
 
     /// <summary>

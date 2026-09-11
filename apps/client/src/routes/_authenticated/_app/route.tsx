@@ -32,9 +32,9 @@ export const Route = createFileRoute('/_authenticated/_app')({
 
 function AppLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className='h-svh overflow-hidden'>
       <AppSidebar />
-      <SidebarInset className='min-h-[calc(100svh-(--spacing(4)))]'>
+      <SidebarInset className='h-svh min-h-0 overflow-y-auto md:peer-data-[variant=inset]:h-[calc(100svh-(--spacing(4)))]'>
         <SiteHeader />
         <div className='p-4'>
           <Outlet />

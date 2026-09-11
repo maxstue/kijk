@@ -11,6 +11,7 @@ import {
   ConsumptionDateField,
   ConsumptionNameField,
   ConsumptionResourceField,
+  ConsumptionRunningTotal,
   ConsumptionValueField,
   ConsumptionValueTypeField,
 } from '@/app/consumptions/form-fields';
@@ -19,16 +20,18 @@ import { consumptionCreateSchema } from '@/app/consumptions/schemas';
 import { useCreateConsumption } from '@/app/consumptions/use-create-consumption';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 import { getMonthIndexFromString } from '@/shared/utils/months';
 
 const route = getRouteApi('/_authenticated/_app/consumptions');
 
 interface Props {
+  consumptions: Consumption[];
   onClose: () => void;
 }
 
-export function ConsumptionCreateForm({ onClose }: Props) {
+export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
   const { isPending, mutate } = useCreateConsumption();
   const { month, year } = route.useSearch();
 
@@ -82,6 +85,7 @@ export function ConsumptionCreateForm({ onClose }: Props) {
             </div>
           </ErrorBoundary>
           <FormField control={form.control} name='date' render={(props) => <ConsumptionDateField {...props} />} />
+          <ConsumptionRunningTotal consumptions={consumptions} />
           <Button className='mt-6' disabled={isPending} type='submit'>
             {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Add'}
           </Button>
