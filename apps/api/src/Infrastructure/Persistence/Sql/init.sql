@@ -28,8 +28,8 @@ COMMIT;
 
 -- Insert default resource types
 START TRANSACTION;
-INSERT INTO resources (id, name, color, unit, creator_type, created_at)
-VALUES ('0195624d-9b3b-7a85-84ff-e4b906cfd0df', 'Water', '#3498db', 'L', 'system', now()),
-       ('0195624d-0a57-7a48-86b6-9b2bdac93e4f', 'Electricity', '#f1c40f', 'kWh', 'system', now()),
-       ('0195624d-1a9b-7ad1-b9df-64e05622e324', 'Gas', '#e74c3c', 'm3', 'system', now());
+INSERT INTO resources (id, name, color, icon, unit, creator_type, created_at)
+VALUES ('0195624d-9b3b-7a85-84ff-e4b906cfd0df', 'Water', '#3498db', 'droplets', 'L', 'system', now()),
+       ('0195624d-0a57-7a48-86b6-9b2bdac93e4f', 'Electricity', '#f1c40f', 'zap', 'kWh', 'system', now()),
+       ('0195624d-1a9b-7ad1-b9df-64e05622e324', 'Gas', '#e74c3c', 'flame', 'm3', 'system', now());
 COMMIT;

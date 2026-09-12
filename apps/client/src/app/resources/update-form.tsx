@@ -4,7 +4,12 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { ResourceColorField, ResourceNameField, ResourceUnitField } from '@/app/resources/form-fields';
+import {
+  ResourceColorField,
+  ResourceIconField,
+  ResourceNameField,
+  ResourceUnitField,
+} from '@/app/resources/form-fields';
 import type { ResourceFormValues } from '@/app/resources/schemas';
 import { resourceSchema } from '@/app/resources/schemas';
 import { useUpdateResource } from '@/app/resources/use-update-resource';
@@ -24,6 +29,7 @@ export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
   const form = useForm({
     defaultValues: {
       color: initialData.color,
+      icon: initialData.icon,
       name: initialData.name,
       unit: initialData.unit,
     },
@@ -51,6 +57,7 @@ export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
         <FormField control={form.control} name='name' render={(props) => <ResourceNameField {...props} />} />
         <FormField control={form.control} name='unit' render={(props) => <ResourceUnitField {...props} />} />
         <FormField control={form.control} name='color' render={(props) => <ResourceColorField {...props} />} />
+        <FormField control={form.control} name='icon' render={(props) => <ResourceIconField {...props} />} />
         <Button className='mt-6' disabled={isPending || !form.formState.isDirty} type='submit'>
           {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Update'}
         </Button>

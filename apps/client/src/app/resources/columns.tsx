@@ -4,6 +4,7 @@ import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { ResourceTypeRowActions } from '@/app/resources/row-actions';
+import { ResourceIcon } from '@/shared/components/resource-icon';
 import type { Resource } from '@/shared/types/domain';
 
 export const resourceDefaultSort: ColumnSort = { desc: false, id: 'name' };
@@ -11,6 +12,12 @@ export const resourceDefaultSort: ColumnSort = { desc: false, id: 'name' };
 export const getResourceTypeColumns = (canManage: boolean): Array<ColumnDef<Resource>> => [
   {
     accessorKey: 'name',
+    cell: ({ row }) => (
+      <div className='flex items-center gap-2'>
+        <ResourceIcon className='size-4' color={row.original.color} name={row.original.icon} />
+        <span>{row.original.name}</span>
+      </div>
+    ),
     header: ({ column }) => (
       <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Name

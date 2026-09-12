@@ -34,6 +34,7 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
             Name = name,
             Unit = unit,
             Color = request.Color,
+            Icon = request.Icon,
             CreatorType = CreatorType.User,
             Household = household
         };

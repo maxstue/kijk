@@ -24,6 +24,11 @@ public class Resource : BaseEntity
     public required string Color { get; set; }
 
     /// <summary>
+    /// Gets or sets the Lucide icon name used to represent the resource.
+    /// </summary>
+    public required string Icon { get; set; }
+
+    /// <summary>
     /// Indicates who created the resource.
     /// A 'User' or 'System'.
     /// </summary>

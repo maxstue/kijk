@@ -35,6 +35,7 @@ public class UpdateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 
         resource.Name = name;
         resource.Color = request.Color ?? resource.Color;
+        resource.Icon = request.Icon ?? resource.Icon;
         resource.Unit = unit;
 
         await dbContext.SaveChangesAsync(cancellationToken);

@@ -37,6 +37,7 @@ catalog:
   "@tanstack/react-router": ^1.170.33
   "@tanstack/react-router-devtools": ^1.167.1
   "@tanstack/react-table": ^8.21.3
+  "@tanstack/react-virtual": ^3.14.10
   "@tanstack/router-plugin": ^1.168.36
   "@tanstack/zod-adapter": ^1.167.0
   "@total-typescript/ts-reset": ^0.6.1

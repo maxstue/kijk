@@ -1,5 +1,7 @@
 import type { Resource, ResourceStats } from '@/shared/types/domain';
 
+import { ResourceIcon } from './resource-icon';
+
 interface Props {
   type?: Resource | ResourceStats;
 }
@@ -15,7 +17,8 @@ export function ResourceUnit({ type }: Props) {
   }
 
   return (
-    <div className='flex items-center'>
+    <div className='flex items-center gap-1'>
+      <ResourceIcon className='size-3.5' color={type.color} name={type.icon} />
       <span className='text-xs' style={{ color: type.color }}>
         {type.unit}
       </span>

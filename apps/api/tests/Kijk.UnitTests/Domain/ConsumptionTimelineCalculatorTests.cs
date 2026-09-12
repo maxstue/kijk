@@ -12,6 +12,7 @@ public class ConsumptionTimelineCalculatorTests
         Name = "Electricity",
         Unit = "kWh",
         Color = "#112233",
+        Icon = "zap",
         CreatorType = CreatorType.System
     };
 

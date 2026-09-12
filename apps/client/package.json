@@ -39,6 +39,7 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-table": "catalog:",
+    "@tanstack/react-virtual": "catalog:",
     "@tanstack/router-plugin": "catalog:",
     "@tanstack/zod-adapter": "catalog:",
     "@vitejs/plugin-react": "catalog:",

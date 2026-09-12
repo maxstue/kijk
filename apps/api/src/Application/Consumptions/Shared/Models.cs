@@ -18,4 +18,4 @@ public record ConsumptionResponse(
     public decimal? CalculatedMeterReading { get; init; }
 }
 
-public record ConsumptionResourceResponse(Guid Id, string Name, string Unit, string Color);
+public record ConsumptionResourceResponse(Guid Id, string Name, string Unit, string Color, string Icon);

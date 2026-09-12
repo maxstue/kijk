@@ -5,5 +5,6 @@ namespace Kijk.Application.Resources.Update;
 /// </summary>
 /// <param name="Name">The optional resource name.</param>
 /// <param name="Color">The optional six-digit hex color.</param>
+/// <param name="Icon">The optional Lucide icon name.</param>
 /// <param name="Unit">The optional unit of measurement.</param>
-public record UpdateResourceRequest(string? Name, string? Color, string? Unit);
+public record UpdateResourceRequest(string? Name, string? Color, string? Icon, string? Unit);

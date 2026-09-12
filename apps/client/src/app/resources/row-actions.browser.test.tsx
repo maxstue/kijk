@@ -17,6 +17,7 @@ test('update action navigates to the canonical resource path and preserves searc
   const resource: Resource = {
     color: '#123456',
     creatorType: 'User',
+    icon: 'zap',
     id: 'resource-7',
     name: 'Electricity',
     unit: 'kWh',

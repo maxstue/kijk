@@ -14,8 +14,10 @@ public class ResourceConfig : IEntityTypeConfiguration<Resource>
         builder.Property(x => x.Name).HasMaxLength(30);
         builder.Property(x => x.Unit).HasMaxLength(10);
         builder.Property(x => x.Color).HasMaxLength(7);
+        builder.Property(x => x.Icon).HasMaxLength(50);
 
         builder.Property(x => x.Color).HasDefaultValue(AppConstants.Colors.Default);
+        builder.Property(x => x.Icon).HasDefaultValue("circle");
 
         builder.Property<string>("NormalizedName")
             .HasMaxLength(30)

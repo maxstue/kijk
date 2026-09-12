@@ -17,7 +17,7 @@ public class ConsumptionCsvWriterTests
             1234.56m,
             ConsumptionValueType.Relative,
             12.34m,
-            new ConsumptionResourceResponse(Guid.NewGuid(), "Electricity", "kWh", "#fff"),
+            new ConsumptionResourceResponse(Guid.NewGuid(), "Electricity", "kWh", "#fff", "zap"),
             new DateTime(2026, 9, 11, 0, 0, 0, DateTimeKind.Utc));
 
         var content = ConsumptionCsvWriter.Write([consumption]);

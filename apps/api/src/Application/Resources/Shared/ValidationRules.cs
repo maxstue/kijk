@@ -5,6 +5,12 @@ namespace Kijk.Application.Resources.Shared;
 /// </summary>
 public static class ResourceValidationRules
 {
+    /// <summary>Maximum allowed Lucide icon name length.</summary>
+    public const int IconMaximumLength = 50;
+
+    /// <summary>Pattern accepted for Lucide icon names.</summary>
+    public const string IconPattern = "^[a-z0-9]+(?:-[a-z0-9]+)*$";
+
     /// <summary>Minimum allowed resource name length.</summary>
     public const int NameMinimumLength = 2;
 

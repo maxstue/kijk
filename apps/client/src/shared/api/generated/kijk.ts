@@ -790,6 +790,7 @@ export interface components {
       name: string;
       unit: string;
       color: string;
+      icon: string;
     };
     ConsumptionResponse: {
       /** Format: uuid */
@@ -813,6 +814,7 @@ export interface components {
       name: string;
       unit: string;
       color: string;
+      icon: string;
     };
     ConsumptionStatsResponse: {
       resource: components['schemas']['ConsumptionStatsResourceResponse'];
@@ -862,6 +864,7 @@ export interface components {
     CreateResourceRequest: {
       name: string;
       color: string;
+      icon: string;
       unit: string;
     };
     /** @enum {unknown} */
@@ -945,6 +948,7 @@ export interface components {
       id: string;
       name: string;
       color: string;
+      icon: string;
       unit: string;
       creatorType: components['schemas']['CreatorType'];
     };
@@ -971,6 +975,7 @@ export interface components {
     UpdateResourceRequest: {
       name: null | string;
       color: null | string;
+      icon: null | string;
       unit: null | string;
     };
     UpdateUserRequest: {

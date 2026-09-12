@@ -46,6 +46,7 @@ public class ConsumptionLimitTests
             Name = "Electricity",
             Unit = "kWh",
             Color = "#112233",
+            Icon = "zap",
             CreatorType = CreatorType.System
         };
         var user = User.Init("test-user", "Test User", "test@example.invalid");

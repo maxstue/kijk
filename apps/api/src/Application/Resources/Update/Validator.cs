@@ -11,7 +11,7 @@ public sealed class UpdateResourceRequestValidator : AbstractValidator<UpdateRes
     public UpdateResourceRequestValidator()
     {
         RuleFor(request => request)
-            .Must(request => request.Name is not null || request.Color is not null || request.Unit is not null)
+            .Must(request => request.Name is not null || request.Color is not null || request.Icon is not null || request.Unit is not null)
             .WithErrorCode(ErrorCodes.ValidationError)
             .WithMessage("At least one resource property must be set");
 
@@ -28,6 +28,14 @@ public sealed class UpdateResourceRequestValidator : AbstractValidator<UpdateRes
             .WithErrorCode(ErrorCodes.ValidationError)
             .WithMessage("'Color' must be a valid six-digit hex color")
             .When(request => request.Color is not null);
+
+        RuleFor(request => request.Icon)
+            .NotEmpty()
+            .MaximumLength(ResourceValidationRules.IconMaximumLength)
+            .Matches(ResourceValidationRules.IconPattern)
+            .WithErrorCode(ErrorCodes.ValidationError)
+            .WithMessage("'Icon' must be a valid icon name")
+            .When(request => request.Icon is not null);
 
         RuleFor(request => request.Unit)
             .NotEmpty()

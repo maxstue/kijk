@@ -4,6 +4,8 @@ import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 import type { ResourceFormValues } from '@/app/resources/schemas';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 
+import { ResourceIconPicker } from './icon-picker';
+
 interface FieldProps<TName extends keyof ResourceFormValues> {
   className?: string;
   field: ControllerRenderProps<ResourceFormValues, TName & FieldPath<ResourceFormValues>>;
@@ -39,6 +41,18 @@ export function ResourceColorField({ className, field }: FieldProps<'color'>) {
       <FormLabel>Color</FormLabel>
       <FormControl>
         <Input placeholder='Color, e.g. `#123456`' type='color' {...field} onChange={field.onChange} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
+}
+
+export function ResourceIconField({ className, field }: FieldProps<'icon'>) {
+  return (
+    <FormItem className={className}>
+      <FormLabel>Icon</FormLabel>
+      <FormControl>
+        <ResourceIconPicker value={field.value} onChange={field.onChange} />
       </FormControl>
       <FormMessage />
     </FormItem>

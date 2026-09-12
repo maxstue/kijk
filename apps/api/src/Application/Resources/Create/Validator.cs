@@ -20,6 +20,13 @@ public class CreateResourceRequestValidator : AbstractValidator<CreateResourceRe
             .WithErrorCode(ErrorCodes.ValidationError)
             .WithMessage("'Color' must be a valid six-digit hex color");
 
+        RuleFor(x => x.Icon)
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Icon' must be set")
+            .MaximumLength(ResourceValidationRules.IconMaximumLength)
+            .Matches(ResourceValidationRules.IconPattern)
+            .WithErrorCode(ErrorCodes.ValidationError)
+            .WithMessage("'Icon' must be a valid icon name");
+
         RuleFor(x => x.Unit)
             .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Unit' must be set")
             .Must(unit => !string.IsNullOrWhiteSpace(unit)).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Unit' must not be whitespace")

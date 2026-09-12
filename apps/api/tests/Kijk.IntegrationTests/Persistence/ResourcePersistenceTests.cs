@@ -29,6 +29,7 @@ public class ResourcePersistenceTests
             .RuleFor(resource => resource.Name, fake => fake.Random.String2(12, "abcdefghijklmnopqrstuvwxyz"))
             .RuleFor(resource => resource.Unit, fake => fake.PickRandom("kWh", "Liter", "m3"))
             .RuleFor(resource => resource.Color, fake => fake.Internet.Color())
+            .RuleFor(resource => resource.Icon, _ => "circle")
             .RuleFor(resource => resource.CreatorType, _ => CreatorType.User)
             .RuleFor(resource => resource.Household, _ => household);
         var resources = faker.Generate(3);
@@ -83,6 +84,7 @@ public class ResourcePersistenceTests
         Name = name,
         Unit = unit,
         Color = "#112233",
+        Icon = "circle",
         CreatorType = CreatorType.User,
         Household = household
     };

@@ -4,7 +4,12 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { ResourceColorField, ResourceNameField, ResourceUnitField } from '@/app/resources/form-fields';
+import {
+  ResourceColorField,
+  ResourceIconField,
+  ResourceNameField,
+  ResourceUnitField,
+} from '@/app/resources/form-fields';
 import { useCreateResource } from '@/app/resources/use-create-resource';
 import { Form, FormField } from '@/shared/components/form';
 
@@ -21,6 +26,7 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
   const form = useForm({
     defaultValues: {
       color: '#000000',
+      icon: 'circle',
       name: '',
       unit: '',
     },
@@ -45,6 +51,7 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
         <FormField control={form.control} name='name' render={(props) => <ResourceNameField {...props} />} />
         <FormField control={form.control} name='unit' render={(props) => <ResourceUnitField {...props} />} />
         <FormField control={form.control} name='color' render={(props) => <ResourceColorField {...props} />} />
+        <FormField control={form.control} name='icon' render={(props) => <ResourceIconField {...props} />} />
         <Button className='mt-6' disabled={isPending} type='submit'>
           {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Add'}
         </Button>

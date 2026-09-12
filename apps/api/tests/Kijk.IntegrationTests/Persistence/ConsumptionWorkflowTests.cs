@@ -77,6 +77,7 @@ public class ConsumptionWorkflowTests
             Name = "Gas",
             Unit = "m3",
             Color = "#334455",
+            Icon = "flame",
             CreatorType = CreatorType.User,
             Household = otherHousehold
         };
@@ -222,6 +223,7 @@ public class ConsumptionWorkflowTests
             Name = "Electricity",
             Unit = "kWh",
             Color = "#112233",
+            Icon = "zap",
             CreatorType = CreatorType.User,
             Household = household
         };

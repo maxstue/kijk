@@ -12,7 +12,14 @@ test('renders a fallback when no resource is available', async () => {
 test('renders the resource unit and color', async () => {
   const screen = await render(
     <ResourceUnit
-      type={{ color: '#123456', creatorType: 'User', id: crypto.randomUUID(), name: 'Electricity', unit: 'kWh' }}
+      type={{
+        color: '#123456',
+        creatorType: 'User',
+        icon: 'zap',
+        id: crypto.randomUUID(),
+        name: 'Electricity',
+        unit: 'kWh',
+      }}
     />,
   );
 
