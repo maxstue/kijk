@@ -29,9 +29,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🔧 Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: apps/api/global.json
+        uses: ./.github/actions/setup-dotnet
 
       - name: 🔧 Install pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
@@ -49,7 +47,7 @@ jobs:
         run: pnpm --filter kijk-client exec playwright install --with-deps chromium
 
       - name: 📦 Restore .NET dependencies
-        run: dotnet restore apps/api/Kijk.slnx
+        run: dotnet restore apps/api/Kijk.slnx --locked-mode
 
       - name: 📦 Install SonarScanner for .NET
         run: dotnet tool install dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
@@ -74,7 +72,7 @@ jobs:
 
       - name: 🧹 Format
         run: |
-          dotnet format apps/api/Kijk.slnx --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
+          dotnet format apps/api/Kijk.slnx --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
           pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui fmt
 
       - name: 🔍 Lint

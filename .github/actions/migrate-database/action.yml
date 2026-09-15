@@ -5,17 +5,12 @@ inputs:
   connection_string:
     description: Connection string used to build and apply the migrations bundle.
     required: true
-  dotnet_version:
-    description: .NET SDK version used to build the migrations bundle.
-    required: true
 
 runs:
   using: composite
   steps:
     - name: '🔧 Setup .NET'
-      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-      with:
-        dotnet-version: ${{ inputs.dotnet_version }}
+      uses: ./.github/actions/setup-dotnet
 
     - name: '🛠️ Create migrations bundle'
       shell: bash
@@ -27,7 +22,7 @@ runs:
       run: |
         set -euo pipefail
         dotnet tool restore
-        dotnet restore ./Kijk.slnx
+        dotnet restore ./Kijk.slnx --locked-mode
         dotnet ef migrations bundle --startup-project ./src/Api/ --project ./src/Infrastructure/ --context AppDbContext
         chmod +x ./efbundle
 

@@ -4,13 +4,23 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ["apps/api/**"]
+    paths:
+      - "apps/api/**"
+      - ".github/actions/setup-dotnet/**"
+      - ".github/workflows/api.yml"
   pull_request:
     branches: ["main", "develop"]
-    paths: ["apps/api/**"]
+    paths:
+      - "apps/api/**"
+      - ".github/actions/setup-dotnet/**"
+      - ".github/workflows/api.yml"
 
 permissions:
   contents: read
+
+concurrency:
+  group: api-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -20,24 +30,23 @@ jobs:
   basic:
     name: "🛠️ Build, Lint/Format & Test"
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: 🏖️ Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔧 Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: apps/api/global.json
+        uses: ./.github/actions/setup-dotnet
 
       - name: 📦 Install dependencies
-        run: dotnet restore "Kijk.slnx"
+        run: dotnet restore "Kijk.slnx" --locked-mode
 
       - name: 🧱 Build
         run: dotnet build "Kijk.slnx" -c Release --no-restore
 
       - name: 🧹 Format
-        run: dotnet format --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
+        run: dotnet format --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
 
       - name: 🧪 Test
         run: |
@@ -74,4 +83,3 @@ jobs:
           else
             echo 'No vulnerabilities found!'
           fi
-        continue-on-error: true

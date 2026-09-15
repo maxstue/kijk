@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "SonarAnalyzer.CSharp": {
+        "type": "Direct",
+        "requested": "[10.33.0.1635, )",
+        "resolved": "10.33.0.1635",
+        "contentHash": "nOwgvMh7p64z62GTy2n4Ki51DVy4Q2ejxxfuclW6Y5u6Htk1i2RNRqxuONiZ/4aaBi8V6RwzuCcGTOFcoVoQOg=="
+      },
+      "NetEscapades.EnumGenerators.Generators": {
+        "type": "Transitive",
+        "resolved": "1.0.0-beta21",
+        "contentHash": "hztPmuEjHzLqDM4gvXfRuaBAQt3EpRaduQoLW8jDxIk1lXuJwTGl+L5NTERx5WKyV3vDzQK9mDPwzA+E/R2xHA=="
+      },
+      "NetEscapades.EnumGenerators.RuntimeDependencies": {
+        "type": "Transitive",
+        "resolved": "1.0.0-beta21",
+        "contentHash": "BYUQMIv1MFaFurVlxfyVFTTwwgMsfmGJLn2wiP77ZmegZ9WJbcRD+n62v4q2FOrBMPuP0W1bESASM1Wye/8sCw=="
+      },
+      "shared": {
+        "type": "Project",
+        "dependencies": {
+          "NetEscapades.AspNetCore.SecurityHeaders": "[1.3.1, )",
+          "NetEscapades.EnumGenerators": "[1.0.0-beta21, )"
+        }
+      },
+      "NetEscapades.AspNetCore.SecurityHeaders": {
+        "type": "CentralTransitive",
+        "requested": "[1.3.1, )",
+        "resolved": "1.3.1",
+        "contentHash": "wccVMVSGq9nQ43SjJl1s/VaAo+iWauJYWiZy/Hkvszk2vCQdq7aRn7GL3LTBMsnHuI13JRMfCi9Lk8747+njUg=="
+      },
+      "NetEscapades.EnumGenerators": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.0-beta21, )",
+        "resolved": "1.0.0-beta21",
+        "contentHash": "GVhHFXkDBqzD96oc6sJGh9LQh+f50KvbwGxy+k5JuzIS8BHuTANo34tlJrv9T7jmofbucnE4pPhvPMu8dS0QUg==",
+        "dependencies": {
+          "NetEscapades.EnumGenerators.Generators": "1.0.0-beta21",
+          "NetEscapades.EnumGenerators.RuntimeDependencies": "1.0.0-beta21"
+        }
+      }
+    }
+  }
+}
