@@ -8,6 +8,7 @@ public record ConsumptionResponse(
     string? Description,
     decimal Value,
     ConsumptionValueType ValueType,
+    bool StartsNewMeterSegment,
     decimal CalculatedConsumption,
     ConsumptionResourceResponse Resource,
     DateTime Date)

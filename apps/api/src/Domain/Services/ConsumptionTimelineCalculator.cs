@@ -20,6 +20,11 @@ public static class ConsumptionTimelineCalculator
 
         foreach (var consumption in OrderTimeline(consumptions))
         {
+            if (consumption.StartsNewMeterSegment)
+            {
+                meterReading = null;
+            }
+
             meterReading = ApplyToMeterReading(meterReading, consumption);
             readings[consumption.Id] = meterReading;
         }
@@ -38,6 +43,11 @@ public static class ConsumptionTimelineCalculator
 
         foreach (var consumption in OrderTimeline(consumptions))
         {
+            if (consumption.StartsNewMeterSegment)
+            {
+                meterReading = null;
+            }
+
             var calculation = CalculateConsumption(consumption, meterReading);
             if (calculation.IsError)
             {
@@ -69,7 +79,17 @@ public static class ConsumptionTimelineCalculator
 
         foreach (var item in timeline.Take(insertionIndex))
         {
+            if (item.StartsNewMeterSegment)
+            {
+                meterReading = null;
+            }
+
             meterReading = ApplyToMeterReading(meterReading, item);
+        }
+
+        if (consumption.StartsNewMeterSegment)
+        {
+            meterReading = null;
         }
 
         var calculation = CalculateConsumption(consumption, meterReading);
@@ -83,6 +103,11 @@ public static class ConsumptionTimelineCalculator
 
         foreach (var item in timeline.Skip(insertionIndex))
         {
+            if (item.StartsNewMeterSegment)
+            {
+                break;
+            }
+
             if (item.ValueType == ConsumptionValueType.Relative)
             {
                 meterReading = ApplyToMeterReading(meterReading, item);

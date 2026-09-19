@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import {
   ConsumptionDateField,
   ConsumptionNameField,
+  ConsumptionResetField,
   ConsumptionResourceField,
   ConsumptionRunningTotal,
   ConsumptionValueField,
@@ -44,6 +45,7 @@ export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
       resourceId: undefined,
       value: 0,
       valueType: ValueTypes.ABSOLUTE,
+      startsNewMeterSegment: false,
     },
     resolver: zodResolver(consumptionCreateSchema),
   });
@@ -51,15 +53,21 @@ export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
   const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionCreateFormSchema) {
-    mutate(data, {
-      onError(error) {
-        toast.error(error.name, { description: error.message });
+    mutate(
+      {
+        ...data,
+        startsNewMeterSegment: data.valueType === ValueTypes.ABSOLUTE && data.startsNewMeterSegment,
       },
-      onSuccess() {
-        toast.success('Successfully created');
-        onClose();
+      {
+        onError(error) {
+          toast.error(error.name, { description: error.message });
+        },
+        onSuccess() {
+          toast.success('Successfully created');
+          onClose();
+        },
       },
-    });
+    );
   }
 
   return (
@@ -85,6 +93,11 @@ export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
             </div>
           </ErrorBoundary>
           <FormField control={form.control} name='date' render={(props) => <ConsumptionDateField {...props} />} />
+          <FormField
+            control={form.control}
+            name='startsNewMeterSegment'
+            render={(props) => <ConsumptionResetField {...props} />}
+          />
           <ConsumptionRunningTotal consumptions={consumptions} />
           <Button className='mt-6' disabled={isPending} type='submit'>
             {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Add'}

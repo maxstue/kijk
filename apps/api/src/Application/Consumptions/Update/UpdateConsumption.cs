@@ -71,6 +71,11 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         existingResourceUsage.Name = request.Name ?? existingResourceUsage.Name;
         existingResourceUsage.Value = request.Value ?? existingResourceUsage.Value;
         existingResourceUsage.ValueType = (ConsumptionValueType)request.ValueType;
+        if (request.StartsNewMeterSegment && existingResourceUsage.ValueType != ConsumptionValueType.Absolute)
+        {
+            return Error.Validation("A new meter segment must start with an absolute meter reading");
+        }
+        existingResourceUsage.StartsNewMeterSegment = request.StartsNewMeterSegment;
         if (destinationResource is not null)
         {
             existingResourceUsage.ResourceId = destinationResource.Id;

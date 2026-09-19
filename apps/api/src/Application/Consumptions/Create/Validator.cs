@@ -24,5 +24,11 @@ public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsump
             .WithErrorCode(ErrorCodes.ValidationError)
             .WithMessage("'Date' must not be in the future")
             .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Date' must be set");
+
+        RuleFor(x => x.StartsNewMeterSegment)
+            .Equal(false)
+            .When(x => x.ValueType != CreateConsumptionValueTypes.Absolute)
+            .WithErrorCode(ErrorCodes.ValidationError)
+            .WithMessage("A new meter segment must start with an absolute meter reading");
     }
 }

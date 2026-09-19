@@ -2,7 +2,7 @@ import { Badge } from '@kijk/ui/components/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
 import { format, parseISO } from 'date-fns';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, RefreshCcw } from 'lucide-react';
 import { Suspense } from 'react';
 
 import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
@@ -40,7 +40,14 @@ export function ConsumptionMonthView({ consumptions, month, year }: Props) {
         </div>
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
           {consumptions.map((item) => (
-            <Card key={item.id} className='transition-shadow hover:shadow-md'>
+            <Card
+              key={item.id}
+              className={
+                item.startsNewMeterSegment
+                  ? 'bg-primary/5 ring-primary/20 border-0 shadow-sm ring-1 transition-shadow hover:shadow-md'
+                  : 'transition-shadow hover:shadow-md'
+              }
+            >
               <CardHeader>
                 <div className='flex items-start justify-between gap-3'>
                   <div className='space-y-2'>
@@ -49,6 +56,12 @@ export function ConsumptionMonthView({ consumptions, month, year }: Props) {
                       <ConsumptionLimitWarning resourceId={item.resource.id} />
                     </CardTitle>
                     <div className='flex items-center gap-2'>
+                      {item.startsNewMeterSegment ? (
+                        <Badge className='bg-primary/10 text-primary gap-1 border-0' variant='secondary'>
+                          <RefreshCcw className='size-3' />
+                          Meter reset
+                        </Badge>
+                      ) : undefined}
                       <Badge variant='outline'>
                         {item.valueType === ValueTypes.ABSOLUTE ? 'Meter reading' : 'Direct consumption entry'}
                       </Badge>
@@ -86,7 +99,9 @@ export function ConsumptionMonthView({ consumptions, month, year }: Props) {
                 </div>
                 {item.calculatedMeterReading == null ? <span /> : <ResourceUnit type={item.resource} />}
               </CardContent>
-              <CardFooter className='flex w-full justify-between gap-2 border-t pt-4'>
+              <CardFooter
+                className={`flex w-full justify-between gap-2 border-t pt-4 ${item.startsNewMeterSegment ? 'border-primary/15' : ''}`}
+              >
                 <ConsumptionExportButton consumptionId={item.id} />
                 <div className='flex gap-2'>
                   <ConsumptionDeleteButton id={item.id} date={item.date} />

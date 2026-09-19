@@ -800,6 +800,7 @@ export interface components {
       /** Format: double */
       value: number | string;
       valueType: components['schemas']['ConsumptionValueType'];
+      startsNewMeterSegment: boolean;
       /** Format: double */
       calculatedConsumption: number | string;
       resource: components['schemas']['ConsumptionResourceResponse'];
@@ -858,6 +859,8 @@ export interface components {
       resourceId: string;
       /** Format: date-time */
       date: string;
+      /** @default false */
+      startsNewMeterSegment: boolean;
     };
     /** @enum {unknown} */
     CreateConsumptionValueTypes: 'Absolute' | 'Relative';
@@ -969,6 +972,8 @@ export interface components {
       resourceId: null | string;
       /** Format: date-time */
       date: null | string;
+      /** @default false */
+      startsNewMeterSegment: boolean;
     };
     /** @enum {unknown} */
     UpdateConsumptionValueTypes: 'Absolute' | 'Relative';

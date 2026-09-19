@@ -35,6 +35,11 @@ public sealed class Consumption : BaseEntity
     public ConsumptionValueType ValueType { get; set; } = ConsumptionValueType.Relative;
 
     /// <summary>
+    /// Indicates that this absolute reading starts a new meter calculation segment.
+    /// </summary>
+    public bool StartsNewMeterSegment { get; set; }
+
+    /// <summary>
     /// The normalized consumption represented by this entry.
     /// </summary>
     public decimal CalculatedConsumption { get; set; }
@@ -64,6 +69,7 @@ public sealed class Consumption : BaseEntity
         DateTime date,
         ConsumptionValueType valueType,
         decimal calculatedConsumption,
+        bool startsNewMeterSegment = false,
         string? description = null) =>
         new()
         {
@@ -72,6 +78,7 @@ public sealed class Consumption : BaseEntity
             Resource = type,
             Value = value,
             ValueType = valueType,
+            StartsNewMeterSegment = startsNewMeterSegment,
             CalculatedConsumption = calculatedConsumption,
             Date = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc),
             Household = household

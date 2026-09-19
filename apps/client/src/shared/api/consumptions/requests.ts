@@ -72,6 +72,7 @@ export async function createConsumption(data: ConsumptionData, signal?: AbortSig
         resourceId: data.resourceId,
         value: data.value,
         valueType: data.valueType ?? 'Absolute',
+        startsNewMeterSegment: data.startsNewMeterSegment ?? false,
       },
       signal,
     }),
@@ -87,6 +88,7 @@ export async function updateConsumption(id: string, data: Partial<ConsumptionDat
         resourceId: data.resourceId ?? null,
         value: data.value ?? null,
         valueType: data.valueType ?? 'Absolute',
+        startsNewMeterSegment: data.startsNewMeterSegment ?? false,
       },
       params: {
         path: { id },

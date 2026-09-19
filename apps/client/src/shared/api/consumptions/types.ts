@@ -7,6 +7,7 @@ export interface ConsumptionData {
   resourceId: string;
   value: number | string;
   valueType?: components['schemas']['CreateConsumptionRequest']['valueType'];
+  startsNewMeterSegment?: boolean;
 }
 
 export interface UpdateConsumptionData {

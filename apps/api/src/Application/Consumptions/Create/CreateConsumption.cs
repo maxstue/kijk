@@ -43,7 +43,8 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
             household,
             request.Date,
             (ConsumptionValueType)request.ValueType,
-            calculatedConsumption: 0m);
+            calculatedConsumption: 0m,
+            request.StartsNewMeterSegment);
 
         var existingConsumptions = await dbContext.Consumptions
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId

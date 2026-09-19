@@ -10,6 +10,7 @@ export const consumptionCreateSchema = z.object({
     message: 'Value must be at least 1 character',
   }),
   valueType: z.enum(ValueTypes).default('Absolute'),
+  startsNewMeterSegment: z.boolean().default(false),
   resourceId: z.uuid(),
   householdId: z.uuid().optional(),
   // Date is not allowed to be in the future
@@ -29,6 +30,7 @@ export const consumptionUpdateSchema = z.object({
     message: 'Value must be at least 1 character',
   }),
   valueType: z.enum(ValueTypes).default('Absolute'),
+  startsNewMeterSegment: z.boolean().default(false),
   resourceId: z.uuid(),
   householdId: z.uuid().optional(),
   // Date is not allowed to be in the future

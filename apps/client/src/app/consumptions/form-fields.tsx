@@ -1,3 +1,4 @@
+import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
@@ -190,6 +191,35 @@ export function ConsumptionDateField<TFormValues extends ConsumptionFormValues>(
       <FormControl>
         <DatePicker date={field.value} setDate={field.onChange} {...field} />
       </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
+}
+
+export function ConsumptionResetField<TFormValues extends ConsumptionFormValues>({
+  className,
+  field,
+}: FieldProps<TFormValues, 'startsNewMeterSegment'>) {
+  const { control } = useFormContext<TFormValues>();
+  const valueType = useWatch<TFormValues>({ control, name: 'valueType' as FieldPath<TFormValues> });
+
+  if (valueType !== ValueTypes.ABSOLUTE) {
+    return null;
+  }
+
+  return (
+    <FormItem className={className}>
+      <div className='border-primary/20 bg-primary/5 flex items-start gap-3 rounded-md border border-l-2 p-3'>
+        <FormControl>
+          <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+        </FormControl>
+        <div className='space-y-1 leading-none'>
+          <FormLabel>Meter replacement or counter reset</FormLabel>
+          <p className='text-muted-foreground text-sm leading-normal'>
+            Start a new calculation segment at this reading. Earlier measurement history remains unchanged.
+          </p>
+        </div>
+      </div>
       <FormMessage />
     </FormItem>
   );

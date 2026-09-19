@@ -15,6 +15,7 @@ public class ConsumptionConfig : IEntityTypeConfiguration<Consumption>
         builder.Property(x => x.Description).HasMaxLength(250);
         builder.Property(x => x.Date);
         builder.Property(x => x.ValueType).HasConversion<string>().HasMaxLength(16);
+        builder.Property(x => x.StartsNewMeterSegment);
         builder.Property(x => x.CalculatedConsumption);
 
         builder.Property(m => m.CreatedAt)

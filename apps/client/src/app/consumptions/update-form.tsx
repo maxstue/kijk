@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import {
   ConsumptionDateField,
   ConsumptionNameField,
+  ConsumptionResetField,
   ConsumptionResourceField,
   ConsumptionRunningTotal,
   ConsumptionValueField,
@@ -20,6 +21,7 @@ import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption'
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/domain';
+import { ValueTypes } from '@/shared/types/domain';
 
 interface Props {
   consumptions: Consumption[];
@@ -38,6 +40,7 @@ export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Pr
       resourceId: initialData.resource.id,
       value: Number(initialData.value),
       valueType: initialData.valueType,
+      startsNewMeterSegment: initialData.startsNewMeterSegment,
     },
     resolver: zodResolver(consumptionUpdateSchema),
   });
@@ -46,7 +49,13 @@ export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Pr
 
   function onSubmit(data: ConsumptionUpdateFormSchema) {
     mutate(
-      { consumption: data, id: data.id },
+      {
+        consumption: {
+          ...data,
+          startsNewMeterSegment: data.valueType === ValueTypes.ABSOLUTE && data.startsNewMeterSegment,
+        },
+        id: data.id,
+      },
       {
         onError(error) {
           toast.error(error.name, { description: error.message });
@@ -79,6 +88,11 @@ export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Pr
           </Suspense>
         </ErrorBoundary>
         <FormField control={form.control} name='date' render={(props) => <ConsumptionDateField {...props} />} />
+        <FormField
+          control={form.control}
+          name='startsNewMeterSegment'
+          render={(props) => <ConsumptionResetField {...props} />}
+        />
         <ConsumptionRunningTotal consumptions={consumptions} excludeId={initialData.id} />
         <Button className='mt-6' disabled={isPending} type='submit'>
           {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Update'}

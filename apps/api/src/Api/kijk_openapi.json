@@ -1364,6 +1364,7 @@
           "description",
           "value",
           "valueType",
+          "startsNewMeterSegment",
           "calculatedConsumption",
           "resource",
           "date"
@@ -1393,6 +1394,9 @@
           },
           "valueType": {
             "$ref": "#/components/schemas/ConsumptionValueType"
+          },
+          "startsNewMeterSegment": {
+            "type": "boolean"
           },
           "calculatedConsumption": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -1617,6 +1621,10 @@
           "date": {
             "type": "string",
             "format": "date-time"
+          },
+          "startsNewMeterSegment": {
+            "type": "boolean",
+            "default": false
           }
         }
       },
@@ -2092,6 +2100,10 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "startsNewMeterSegment": {
+            "type": "boolean",
+            "default": false
           }
         }
       },

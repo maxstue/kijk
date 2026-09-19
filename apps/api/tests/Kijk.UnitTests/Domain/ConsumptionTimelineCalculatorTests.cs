@@ -64,6 +64,36 @@ public class ConsumptionTimelineCalculatorTests
     }
 
     [Test]
+    public async Task MeterResetStartsNewSegmentWithoutNegativeConsumption()
+    {
+        var baseline = CreateConsumption(2026, 9, 1, 1_000m, ConsumptionValueType.Absolute);
+        var reset = CreateConsumption(2026, 9, 10, 12m, ConsumptionValueType.Absolute);
+        reset.StartsNewMeterSegment = true;
+        var nextReading = CreateConsumption(2026, 9, 20, 94m, ConsumptionValueType.Absolute);
+
+        var result = ConsumptionTimelineCalculator.Recalculate([baseline, reset, nextReading]);
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        await Assert.That(reset.CalculatedConsumption).IsEqualTo(0m);
+        await Assert.That(nextReading.CalculatedConsumption).IsEqualTo(82m);
+    }
+
+    [Test]
+    public async Task InsertionBeforeMeterResetDoesNotRecalculateAcrossBoundary()
+    {
+        var baseline = CreateConsumption(2026, 9, 1, 1_000m, ConsumptionValueType.Absolute);
+        var reset = CreateConsumption(2026, 9, 20, 12m, ConsumptionValueType.Absolute);
+        reset.StartsNewMeterSegment = true;
+        reset.CalculatedConsumption = 0m;
+        var historical = CreateConsumption(2026, 9, 10, 25m, ConsumptionValueType.Relative);
+
+        var result = ConsumptionTimelineCalculator.CalculateInsertion(historical, [baseline, reset]);
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        await Assert.That(reset.CalculatedConsumption).IsEqualTo(0m);
+    }
+
+    [Test]
     public async Task HistoricalRelativeEntryRecalculatesNextAbsoluteEntry()
     {
         var baseline = CreateConsumption(2026, 9, 1, 1_000m, ConsumptionValueType.Absolute);
