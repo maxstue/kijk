@@ -1,104 +1,234 @@
 import { Badge } from '@kijk/ui/components/badge';
-import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import { flexRender, getCoreRowModel, getExpandedRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
-import { useMemo, useState } from 'react';
+import { ChevronDown, RefreshCcw } from 'lucide-react';
+import { Fragment, useState } from 'react';
 
-import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
-import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
-import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
-import { allResourceTypes, ConsumptionTypeFilter } from '@/app/consumptions/type-filter';
-import { DataTable } from '@/shared/components/data-table';
+import { ResourceIcon } from '@/shared/components/resource-icon';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { Consumption } from '@/shared/types/domain';
-import { ValueTypes } from '@/shared/types/domain';
 
-const defaultSort: ColumnSort = { desc: true, id: 'date' };
+import { ConsumptionDeleteButton } from './delete-button';
+import { ConsumptionEditButton } from './edit-button';
+import { createAnnualResourceSummaries, type AnnualResourceSummary } from './helpers';
+import { ConsumptionLimitWarning } from './limit-warning';
+import { allResourceTypes, ConsumptionTypeFilter } from './type-filter';
 
-const columns: Array<ColumnDef<Consumption>> = [
+interface AnnualViewProps {
+  consumptions: Consumption[];
+}
+
+const summaryColumns: Array<ColumnDef<AnnualResourceSummary>> = [
+  {
+    id: 'expand',
+    header: '',
+    cell: ({ row }) => (
+      <button
+        type='button'
+        className='text-muted-foreground hover:bg-muted hover:text-foreground inline-flex size-8 items-center justify-center rounded-md'
+        aria-label={row.getIsExpanded() ? 'Collapse entries' : 'Expand entries'}
+        aria-expanded={row.getIsExpanded()}
+        onClick={row.getToggleExpandedHandler()}
+      >
+        <ChevronDown className={`size-4 transition-transform ${row.getIsExpanded() ? 'rotate-180' : ''}`} />
+      </button>
+    ),
+  },
+  {
+    id: 'resource',
+    header: 'Resource',
+    cell: ({ row }) => {
+      const summary = row.original;
+      return (
+        <div className='flex min-w-0 items-center gap-3'>
+          <ResourceIcon name={summary.resource.icon} color={summary.resource.color} className='size-5 shrink-0' />
+          <div className='min-w-0'>
+            <div className='flex items-center gap-2'>
+              <span className='truncate font-medium'>{summary.resource.name}</span>
+              <ConsumptionLimitWarning resourceId={summary.resource.id} />
+            </div>
+            <span className='text-muted-foreground text-xs'>
+              {summary.entryCount} {summary.entryCount === 1 ? 'entry' : 'entries'}
+            </span>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    id: 'total',
+    header: () => <div className='text-right'>Total</div>,
+    cell: ({ row }) => (
+      <div className='text-right'>
+        <div className='flex items-center justify-end gap-1 font-medium tabular-nums'>
+          {row.original.totalValue.toLocaleString()} <ResourceUnit type={row.original.resource} />
+        </div>
+        <div className='text-muted-foreground text-xs'>Total consumption</div>
+      </div>
+    ),
+  },
+];
+
+const entryColumns: Array<ColumnDef<Consumption>> = [
+  {
+    accessorKey: 'date',
+    header: 'Date',
+    cell: ({ row }) => format(parseISO(row.original.date), 'dd.MM.yyyy'),
+  },
   {
     accessorKey: 'name',
+    header: 'Name',
     cell: ({ row }) => (
       <div className='flex items-center gap-2'>
         <span>{row.original.name}</span>
-        <ConsumptionLimitWarning resourceId={row.original.resource.id} />
+        {row.original.startsNewMeterSegment && (
+          <Badge variant='secondary' className='border-0'>
+            <RefreshCcw className='mr-1 size-3' /> Reset
+          </Badge>
+        )}
       </div>
     ),
-    header: 'Name',
   },
   {
-    accessorFn: (consumption) => consumption.resource.name,
-    id: 'resource',
-    cell: ({ row }) => <Badge variant='secondary'>{row.original.resource.name}</Badge>,
-    header: 'Type',
-  },
-  {
-    accessorKey: 'value',
+    id: 'value',
+    header: () => <div className='text-right'>Entered value</div>,
     cell: ({ row }) => (
-      <span>
-        {row.original.value} <ResourceUnit type={row.original.resource} />
-      </span>
+      <div className='flex items-center justify-end gap-1 tabular-nums'>
+        {Number(row.original.value).toLocaleString()} <ResourceUnit type={row.original.resource} />
+      </div>
     ),
-    header: 'Entered value',
   },
   {
-    accessorKey: 'valueType',
-    cell: ({ row }) =>
-      row.original.valueType === ValueTypes.ABSOLUTE ? 'Meter reading' : 'Consumption since previous reading',
-    header: 'Entry type',
-  },
-  {
-    accessorKey: 'calculatedConsumption',
+    id: 'consumption',
+    header: () => <div className='text-right'>Consumption</div>,
     cell: ({ row }) => (
-      <span>
-        {row.original.calculatedConsumption} <ResourceUnit type={row.original.resource} />
-      </span>
+      <div className='text-right tabular-nums'>
+        {row.original.startsNewMeterSegment ? (
+          '—'
+        ) : (
+          <span className='flex items-center justify-end gap-1'>
+            {Number(row.original.calculatedConsumption).toLocaleString()} <ResourceUnit type={row.original.resource} />
+          </span>
+        )}
+      </div>
     ),
-    header: 'Consumption',
-  },
-  {
-    accessorKey: 'date',
-    cell: ({ row }) => format(parseISO(row.original.date), 'dd.MM.yyyy'),
-    header: 'Date',
   },
   {
     id: 'actions',
+    header: '',
     cell: ({ row }) => (
-      <div className='flex justify-end gap-2'>
+      <div className='flex justify-end gap-1'>
         <ConsumptionEditButton id={row.original.id} />
         <ConsumptionDeleteButton id={row.original.id} date={row.original.date} />
       </div>
     ),
-    enableColumnFilter: false,
-    enableHiding: false,
-    enableSorting: false,
-    header: undefined,
   },
 ];
 
-interface Props {
-  consumptions: Consumption[];
+function AnnualEntriesTable({ entries }: { entries: Consumption[] }) {
+  'use no memo';
+
+  const table = useReactTable({
+    columns: entryColumns,
+    data: entries,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  return (
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead key={header.id}>
+                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {table.getRowModel().rows.map((row) => (
+          <TableRow key={row.id} className={row.original.startsNewMeterSegment ? 'bg-primary/5' : undefined}>
+            {row.getVisibleCells().map((cell) => (
+              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
 }
 
-export function ConsumptionAnnualView({ consumptions }: Props) {
-  const [selectedResource, setSelectedResource] = useState(allResourceTypes);
-  const resources = useMemo(
-    () =>
-      [...new Map(consumptions.map((consumption) => [consumption.resource.id, consumption.resource])).values()].sort(
-        (left, right) => left.name.localeCompare(right.name),
-      ),
-    [consumptions],
-  );
-  const filteredConsumptions = useMemo(
-    () =>
-      selectedResource === allResourceTypes
-        ? consumptions
-        : consumptions.filter((consumption) => consumption.resource.id === selectedResource),
-    [consumptions, selectedResource],
-  );
+function AnnualSummaryTable({ summaries }: { summaries: AnnualResourceSummary[] }) {
+  'use no memo';
+
+  const table = useReactTable({
+    columns: summaryColumns,
+    data: summaries,
+    getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getRowCanExpand: () => true,
+    getRowId: (row) => row.resource.id,
+  });
+
   return (
-    <div className='space-y-2'>
-      <ConsumptionTypeFilter resources={resources} value={selectedResource} onSelect={setSelectedResource} />
-      <DataTable columns={columns} data={filteredConsumptions} defaultSort={defaultSort} />
+    <div className='overflow-hidden rounded-lg border'>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className={header.column.id === 'expand' ? 'w-12' : undefined}>
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={summaryColumns.length} className='text-muted-foreground h-24 text-center'>
+                No consumptions found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <Fragment key={row.id}>
+                <TableRow>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                  ))}
+                </TableRow>
+                {row.getIsExpanded() && (
+                  <TableRow key={`${row.id}-entries`}>
+                    <TableCell colSpan={summaryColumns.length} className='bg-muted/20 p-0'>
+                      <AnnualEntriesTable entries={row.original.entries} />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </Fragment>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+export function ConsumptionAnnualView({ consumptions }: AnnualViewProps) {
+  const [resourceId, setResourceId] = useState(allResourceTypes);
+  const summaries = createAnnualResourceSummaries(consumptions);
+  const resources = summaries.map((summary) => summary.resource);
+  const filteredSummaries =
+    resourceId === allResourceTypes ? summaries : summaries.filter((summary) => summary.resource.id === resourceId);
+
+  return (
+    <div className='space-y-4'>
+      <ConsumptionTypeFilter resources={resources} value={resourceId} onSelect={setResourceId} />
+      <AnnualSummaryTable summaries={filteredSummaries} />
     </div>
   );
 }
