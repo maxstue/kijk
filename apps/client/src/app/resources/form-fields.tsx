@@ -1,8 +1,12 @@
 import { Input } from '@kijk/ui/components/input';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 
 import type { ResourceFormValues } from '@/app/resources/schemas';
+import { unitsQueryOptions } from '@/shared/api/units/options';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { UnitSelectOptions } from '@/shared/components/unit-select-options';
 
 import { ResourceIconPicker } from './icon-picker';
 
@@ -23,12 +27,22 @@ export function ResourceNameField({ className, field }: FieldProps<'name'>) {
   );
 }
 
-export function ResourceUnitField({ className, field }: FieldProps<'unit'>) {
+export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
+  const { data } = useSuspenseQuery(unitsQueryOptions());
+  const availableUnits = data.filter((unit) => unit.creatorType === 'System' || unit.isAvailableInActiveHousehold);
+
   return (
     <FormItem className={className}>
       <FormLabel>Unit</FormLabel>
       <FormControl>
-        <Input maxLength={10} placeholder='Unit' {...field} />
+        <Select value={field.value} onValueChange={field.onChange}>
+          <SelectTrigger>
+            <SelectValue placeholder='Select a unit' />
+          </SelectTrigger>
+          <SelectContent>
+            <UnitSelectOptions units={availableUnits} />
+          </SelectContent>
+        </Select>
       </FormControl>
       <FormMessage />
     </FormItem>

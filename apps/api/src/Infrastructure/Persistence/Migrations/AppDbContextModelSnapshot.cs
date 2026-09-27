@@ -310,18 +310,9 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnName("normalized_name")
                         .HasComputedColumnSql("lower(btrim(name))", true);
 
-                    b.Property<string>("NormalizedUnit")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("normalized_unit")
-                        .HasComputedColumnSql("lower(btrim(unit))", true);
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("unit");
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -333,14 +324,17 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .HasDatabaseName("ix_resources_name");
 
-                    b.HasIndex("NormalizedName", "NormalizedUnit")
+                    b.HasIndex("UnitId")
+                        .HasDatabaseName("ix_resources_unit_id");
+
+                    b.HasIndex("NormalizedName", "UnitId")
                         .IsUnique()
-                        .HasDatabaseName("ix_resources_normalized_name_normalized_unit")
+                        .HasDatabaseName("ix_resources_normalized_name_unit_id")
                         .HasFilter("household_id IS NULL");
 
-                    b.HasIndex("HouseholdId", "NormalizedName", "NormalizedUnit")
+                    b.HasIndex("HouseholdId", "NormalizedName", "UnitId")
                         .IsUnique()
-                        .HasDatabaseName("ix_resources_household_id_normalized_name_normalized_unit")
+                        .HasDatabaseName("ix_resources_household_id_normalized_name_unit_id")
                         .HasFilter("household_id IS NOT NULL");
 
                     b.ToTable("resources", (string)null);
@@ -378,6 +372,232 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_roles_name");
 
                     b.ToTable("roles", (string)null);
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("archived_at");
+
+                    b.Property<decimal?>("ConversionFactor")
+                        .HasPrecision(28, 12)
+                        .HasColumnType("numeric(28,12)")
+                        .HasColumnName("conversion_factor");
+
+                    b.Property<string>("ConversionType")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("conversion_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<CreatorType>("CreatorType")
+                        .HasColumnType("creator_type")
+                        .HasColumnName("creator_type");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NormalizedName")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("normalized_name")
+                        .HasComputedColumnSql("lower(btrim(name))", true);
+
+                    b.Property<Guid?>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<string>("QuantityKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("quantity_key");
+
+                    b.Property<Guid?>("ReferenceUnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reference_unit_id");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("symbol");
+
+                    b.Property<string>("UnitsNetUnitName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("units_net_unit_name");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_units");
+
+                    b.HasIndex("ReferenceUnitId")
+                        .HasDatabaseName("ix_units_reference_unit_id");
+
+                    b.HasIndex("OwnerUserId", "NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_units_owner_user_id_normalized_name")
+                        .HasFilter("creator_type = 'user' AND archived_at IS NULL");
+
+                    b.HasIndex("QuantityKey", "UnitsNetUnitName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_units_quantity_key_units_net_unit_name")
+                        .HasFilter("creator_type = 'system'");
+
+                    b.ToTable("units", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-4111-8111-111111111111"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Liter",
+                            QuantityKey = "Volume",
+                            Symbol = "l",
+                            UnitsNetUnitName = "Liter"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-1111-4111-8111-111111111112"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Milliliter",
+                            QuantityKey = "Volume",
+                            Symbol = "ml",
+                            UnitsNetUnitName = "Milliliter"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-1111-4111-8111-111111111113"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Cubic meter",
+                            QuantityKey = "Volume",
+                            Symbol = "m³",
+                            UnitsNetUnitName = "CubicMeter"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-4222-8222-222222222221"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Watt hour",
+                            QuantityKey = "Energy",
+                            Symbol = "Wh",
+                            UnitsNetUnitName = "WattHour"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-4222-8222-222222222222"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Kilowatt hour",
+                            QuantityKey = "Energy",
+                            Symbol = "kWh",
+                            UnitsNetUnitName = "KilowattHour"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-4222-8222-222222222223"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Megawatt hour",
+                            QuantityKey = "Energy",
+                            Symbol = "MWh",
+                            UnitsNetUnitName = "MegawattHour"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-4333-8333-333333333331"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Gram",
+                            QuantityKey = "Mass",
+                            Symbol = "g",
+                            UnitsNetUnitName = "Gram"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-4333-8333-333333333332"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Kilogram",
+                            QuantityKey = "Mass",
+                            Symbol = "kg",
+                            UnitsNetUnitName = "Kilogram"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-4333-8333-333333333333"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Tonne",
+                            QuantityKey = "Mass",
+                            Symbol = "t",
+                            UnitsNetUnitName = "Tonne"
+                        });
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.UnitHousehold", b =>
+                {
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unit_id");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("household_id");
+
+                    b.Property<DateTime>("SharedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shared_at");
+
+                    b.Property<Guid>("SharedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shared_by_user_id");
+
+                    b.HasKey("UnitId", "HouseholdId")
+                        .HasName("pk_unit_households");
+
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_unit_households_household_id");
+
+                    b.HasIndex("SharedByUserId")
+                        .HasDatabaseName("ix_unit_households_shared_by_user_id");
+
+                    b.ToTable("unit_households", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.User", b =>
@@ -618,7 +838,65 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_resources_households_household_id");
 
+                    b.HasOne("Kijk.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_resources_units_unit_id");
+
                     b.Navigation("Household");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
+                {
+                    b.HasOne("Kijk.Domain.Entities.User", "OwnerUser")
+                        .WithMany("Units")
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_units_users_owner_user_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Unit", "ReferenceUnit")
+                        .WithMany()
+                        .HasForeignKey("ReferenceUnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_units_units_reference_unit_id");
+
+                    b.Navigation("OwnerUser");
+
+                    b.Navigation("ReferenceUnit");
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.UnitHousehold", b =>
+                {
+                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                        .WithMany("UnitHouseholds")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_unit_households_households_household_id");
+
+                    b.HasOne("Kijk.Domain.Entities.User", "SharedByUser")
+                        .WithMany()
+                        .HasForeignKey("SharedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_unit_households_users_shared_by_user_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Unit", "Unit")
+                        .WithMany("Households")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_unit_households_units_unit_id");
+
+                    b.Navigation("Household");
+
+                    b.Navigation("SharedByUser");
+
+                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.UserHousehold", b =>
@@ -710,6 +988,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Resources");
 
+                    b.Navigation("UnitHouseholds");
+
                     b.Navigation("UserHouseholds");
                 });
 
@@ -718,8 +998,15 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Navigation("UserHouseholds");
                 });
 
+            modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
+                {
+                    b.Navigation("Households");
+                });
+
             modelBuilder.Entity("Kijk.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Units");
+
                     b.Navigation("UserHouseholds");
                 });
 #pragma warning restore 612, 618

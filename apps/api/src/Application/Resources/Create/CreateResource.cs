@@ -1,5 +1,6 @@
 ﻿using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Units.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -22,11 +23,17 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
         }
 
         var name = request.Name.Trim();
-        var unit = request.Unit.Trim();
-        if (await ResourceHelpers.HasConflictAsync(dbContext, currentUser, name, unit, null, cancellationToken))
+        var unit = await dbContext.GetAvailableUnits(currentUser)
+            .FirstOrDefaultAsync(item => item.Id == request.UnitId, cancellationToken);
+        if (unit is null)
         {
-            logger.LogWarning("Resource with name '{Name}' and unit '{Unit}' already exists", name, unit);
-            return Error.Conflict($"A resource with the name '{name}' and unit '{unit}' already exists");
+            return Error.NotFound("Unit is not available in the active household");
+        }
+
+        if (await ResourceHelpers.HasConflictAsync(dbContext, currentUser, name, unit.Id, null, cancellationToken))
+        {
+            logger.LogWarning("Resource with name '{Name}' and unit '{UnitId}' already exists", name, unit.Id);
+            return Error.Conflict($"A resource with the name '{name}' and unit '{unit.Name}' already exists");
         }
 
         var newResource = new Resource

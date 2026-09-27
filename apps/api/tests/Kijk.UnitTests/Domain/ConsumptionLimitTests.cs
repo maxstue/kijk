@@ -44,7 +44,15 @@ public class ConsumptionLimitTests
         var resource = new Resource
         {
             Name = "Electricity",
-            Unit = "kWh",
+            Unit = new Unit
+            {
+                Name = "Kilowatt hour",
+                Symbol = "kWh",
+                QuantityKey = "Energy",
+                UnitsNetUnitName = "KilowattHour",
+                CreatorType = Kijk.Shared.CreatorType.System,
+                ConversionType = UnitConversionType.UnitsNet
+            },
             Color = "#112233",
             Icon = "zap",
             CreatorType = CreatorType.System

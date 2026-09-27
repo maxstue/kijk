@@ -3,7 +3,7 @@ import { Command, CommandInput } from '@kijk/ui/components/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronsUpDown } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import { formatResourceIconName, resourceIconNames } from '@/shared/lib/resource-icons';
@@ -20,6 +20,7 @@ export function ResourceIconPicker({ onChange, value }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const selectedIcon = value || 'circle';
 
   const matchingIcons = useMemo(() => {
@@ -41,7 +42,7 @@ export function ResourceIconPicker({ onChange, value }: Props) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button className='w-full justify-between font-normal' type='button' variant='outline'>
+        <Button ref={triggerRef} className='w-full justify-between font-normal' type='button' variant='outline'>
           <span className='flex items-center gap-2'>
             <ResourceIcon className='size-4' name={selectedIcon} />
             {formatResourceIconName(selectedIcon)}
@@ -49,7 +50,11 @@ export function ResourceIconPicker({ onChange, value }: Props) {
           <ChevronsUpDown className='text-muted-foreground size-4' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align='start' className='w-(--radix-popover-trigger-width) p-0'>
+      <PopoverContent
+        align='start'
+        className='w-(--radix-popover-trigger-width) p-0'
+        container={triggerRef.current?.closest<HTMLElement>('[data-slot="dialog-content"]')}
+      >
         <Command shouldFilter={false}>
           <CommandInput
             placeholder='Search Lucide icons…'
@@ -62,7 +67,7 @@ export function ResourceIconPicker({ onChange, value }: Props) {
           <div
             ref={setScrollElement}
             aria-label='All Lucide icons'
-            className='h-72 max-h-72 overflow-y-scroll [scrollbar-width:auto] [&::-webkit-scrollbar]:block'
+            className='h-72 max-h-72 [scrollbar-width:auto] overflow-y-scroll [&::-webkit-scrollbar]:block'
             role='listbox'
           >
             {matchingIcons.length === 0 && <div className='py-6 text-center text-sm'>No icons found.</div>}

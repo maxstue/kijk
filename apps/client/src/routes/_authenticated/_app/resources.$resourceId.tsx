@@ -22,12 +22,14 @@ function ResourceEditDialog() {
 
   return (
     <Dialog open onOpenChange={(open) => !open && closeDialog()}>
-      <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-        <DialogHeader>
-          <DialogTitle>Update {resource.name}</DialogTitle>
-          <DialogDescription>Change the values.</DialogDescription>
-        </DialogHeader>
-        <ResourceTypeUpdateForm initialData={resource} onClose={closeDialog} />
+      <DialogContent className='sm:max-w-lg'>
+        <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>Update {resource.name}</DialogTitle>
+            <DialogDescription>Change the values.</DialogDescription>
+          </DialogHeader>
+          <ResourceTypeUpdateForm initialData={resource} onClose={closeDialog} />
+        </div>
       </DialogContent>
     </Dialog>
   );

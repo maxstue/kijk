@@ -23,7 +23,11 @@ public static partial class GetMeUserResponseMapper
 
     [MapProperty(nameof(UserHousehold.Household.Name), nameof(UserHouseholdResponse.Name))]
     [MapProperty(nameof(UserHousehold.Household.Description), nameof(UserHouseholdResponse.Description))]
+    [MapProperty(nameof(UserHousehold.HouseholdId), nameof(UserHouseholdResponse.Id))]
     private static partial UserHouseholdResponse MapHousehold(UserHousehold source);
+
+    [MapProperty(nameof(Resource.Unit) + "." + nameof(Unit.Symbol), nameof(UserResourceResponse.Unit))]
+    private static partial UserResourceResponse MapResource(Resource source);
 
     private static string MapPermission(Permission source) => source.Name;
 }

@@ -2,6 +2,7 @@ using Kijk.Application.ConsumptionLimits.Shared;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
+using Kijk.Application.Units.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
 using Kijk.Shared;
@@ -12,7 +13,12 @@ namespace Kijk.Application.Consumptions.Update;
 /// <summary>
 /// Handler for updating consumption.
 /// </summary>
-public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<UpdateConsumptionHandler> logger) : IHandler
+public class UpdateConsumptionHandler(
+    IAppDbContext dbContext,
+    CurrentUser currentUser,
+    TimeProvider timeProvider,
+    IUnitConversionService unitConversionService,
+    ILogger<UpdateConsumptionHandler> logger) : IHandler
 {
     public async Task<Result<ConsumptionResponse>> UpdateAsync(Guid id, UpdateConsumptionRequest request, CancellationToken cancellationToken)
     {
@@ -28,6 +34,8 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
 
         var existingResourceUsage = await dbContext.Consumptions
             .Include(resourceUsage => resourceUsage.Resource)
+            .ThenInclude(resource => resource.Unit)
+            .ThenInclude(unit => unit.ReferenceUnit)
             .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (existingResourceUsage is null)
         {
@@ -48,6 +56,8 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         {
             var resource = await dbContext
                 .GetUserAvailableResources(currentUser)
+                .Include(item => item.Unit)
+                .ThenInclude(unit => unit.ReferenceUnit)
                 .FirstOrDefaultAsync(resource => resource.Id == resourceId, cancellationToken);
             if (resource is null)
             {
@@ -69,7 +79,23 @@ public class UpdateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
 
         var requestedDate = request.Date ?? existingResourceUsage.Date;
         existingResourceUsage.Name = request.Name ?? existingResourceUsage.Name;
-        existingResourceUsage.Value = request.Value ?? existingResourceUsage.Value;
+        if (request.Value.HasValue)
+        {
+            existingResourceUsage.Value = request.Value.Value;
+        }
+        else if (destinationResource is not null)
+        {
+            var converted = unitConversionService.Convert(
+                existingResourceUsage.Value,
+                existingResourceUsage.Resource.Unit,
+                destinationResource.Unit);
+            if (converted.IsError)
+            {
+                return converted.Error;
+            }
+
+            existingResourceUsage.Value = converted.Value;
+        }
         existingResourceUsage.ValueType = (ConsumptionValueType)request.ValueType;
         if (request.StartsNewMeterSegment && existingResourceUsage.ValueType != ConsumptionValueType.Absolute)
         {

@@ -521,7 +521,8 @@
           "FluentValidation": "[12.1.1, )",
           "Microsoft.EntityFrameworkCore": "[10.0.11, )",
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.11, )",
-          "Sep": "[0.17.0, )"
+          "Sep": "[0.17.0, )",
+          "UnitsNet": "[5.75.1, )"
         }
       },
       "domain": {
@@ -630,6 +631,12 @@
         "dependencies": {
           "csFastFloat": "4.1.6"
         }
+      },
+      "UnitsNet": {
+        "type": "CentralTransitive",
+        "requested": "[5.75.1, )",
+        "resolved": "5.75.1",
+        "contentHash": "k03hA739n11FDke7tcVHyk1YXRoWxYlkNGpNMCTX/gfwV8fbGq1oDoYHaMg0tCxhpv9l2BS6M9EsE7FcszVtSg=="
       }
     }
   }

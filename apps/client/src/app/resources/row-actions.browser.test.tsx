@@ -20,7 +20,10 @@ test('update action navigates to the canonical resource path and preserves searc
     icon: 'zap',
     id: 'resource-7',
     name: 'Electricity',
+    quantityKey: 'Energy',
     unit: 'kWh',
+    unitId: '22222222-2222-4222-8222-222222222222',
+    unitName: 'Kilowatt hour',
   };
   const row = { original: resource } as Parameters<typeof ResourceTypeRowActions<Resource>>[0]['row'];
   const screen = await render(

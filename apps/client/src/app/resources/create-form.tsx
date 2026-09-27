@@ -28,7 +28,7 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
       color: '#000000',
       icon: 'circle',
       name: '',
-      unit: '',
+      unitId: '',
     },
     resolver: zodResolver(resourceSchema),
   });
@@ -49,7 +49,7 @@ export function ResourceTypeCreateForm({ onClose }: Props) {
     <Form {...form}>
       <form className='flex flex-col gap-4' onSubmit={form.handleSubmit(onSubmit)} noValidate>
         <FormField control={form.control} name='name' render={(props) => <ResourceNameField {...props} />} />
-        <FormField control={form.control} name='unit' render={(props) => <ResourceUnitField {...props} />} />
+        <FormField control={form.control} name='unitId' render={(props) => <ResourceUnitField {...props} />} />
         <FormField control={form.control} name='color' render={(props) => <ResourceColorField {...props} />} />
         <FormField control={form.control} name='icon' render={(props) => <ResourceIconField {...props} />} />
         <Button className='mt-6' disabled={isPending} type='submit'>

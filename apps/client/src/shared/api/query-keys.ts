@@ -23,10 +23,24 @@ const consumptionLimits = {
   list: () => [...consumptionLimits.all, 'list'] as const,
 };
 
+const units = {
+  all: ['units'] as const,
+  list: (includeArchived = false) => [...units.all, 'list', includeArchived] as const,
+  page: (
+    scope: 'household' | 'personal',
+    householdId: string | undefined,
+    page: number,
+    pageSize: number,
+    search: string,
+  ) => [...units.all, 'page', scope, householdId, page, pageSize, search] as const,
+  system: () => [...units.all, 'system'] as const,
+};
+
 /** Query keys for the API queries and mutations. */
 export const queryKeys = {
   consumptionLimits,
   consumptions,
   resources,
+  units,
   users,
 } as const;

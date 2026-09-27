@@ -7,4 +7,4 @@ namespace Kijk.Application.Resources.Create;
 /// <param name="Color"></param>
 /// <param name="Icon"></param>
 /// <param name="Unit"></param>
-public record CreateResourceRequest(string Name, string Color, string Icon, string Unit);
+public record CreateResourceRequest(string Name, string Color, string Icon, Guid UnitId);

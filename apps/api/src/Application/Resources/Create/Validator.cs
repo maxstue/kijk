@@ -27,11 +27,7 @@ public class CreateResourceRequestValidator : AbstractValidator<CreateResourceRe
             .WithErrorCode(ErrorCodes.ValidationError)
             .WithMessage("'Icon' must be a valid icon name");
 
-        RuleFor(x => x.Unit)
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Unit' must be set")
-            .Must(unit => !string.IsNullOrWhiteSpace(unit)).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Unit' must not be whitespace")
-            .Length(ResourceValidationRules.UnitMinimumLength, ResourceValidationRules.UnitMaximumLength)
-            .WithErrorCode(ErrorCodes.ValidationError)
-            .WithMessage($"'Unit' must be between {ResourceValidationRules.UnitMinimumLength} and {ResourceValidationRules.UnitMaximumLength} characters long");
+        RuleFor(x => x.UnitId)
+            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'UnitId' must be set");
     }
 }

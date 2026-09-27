@@ -376,11 +376,79 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                 name: "ix_users_resources_user_id",
                 table: "users_resources",
                 column: "user_id");
+
+            // The initial schema predates the icon column. ResourceIcon assigns the
+            // corresponding icons when that column is introduced later.
+            migrationBuilder.Sql(
+                """
+                INSERT INTO roles (id, name, created_at) VALUES
+                    ('0195624d-3c82-73e8-bb7b-b3fac043f2cb', 'User', now()),
+                    ('0195624d-5bd9-754c-a92b-5e0e82e1ede1', 'Admin', now());
+
+                INSERT INTO permissions (id, name, created_at) VALUES
+                    ('0195624d-6b3b-7085-84ff-e4b906cfd0df', 'Read', now()),
+                    ('0195624d-7a57-7248-86b6-9b2bdac93e4f', 'Write', now()),
+                    ('0195624d-8a9b-76d1-b9df-64e05622e324', 'Manage', now());
+
+                INSERT INTO roles_permissions (roles_id, permissions_id) VALUES
+                    ('0195624d-3c82-73e8-bb7b-b3fac043f2cb', '0195624d-6b3b-7085-84ff-e4b906cfd0df'),
+                    ('0195624d-3c82-73e8-bb7b-b3fac043f2cb', '0195624d-7a57-7248-86b6-9b2bdac93e4f'),
+                    ('0195624d-5bd9-754c-a92b-5e0e82e1ede1', '0195624d-6b3b-7085-84ff-e4b906cfd0df'),
+                    ('0195624d-5bd9-754c-a92b-5e0e82e1ede1', '0195624d-7a57-7248-86b6-9b2bdac93e4f'),
+                    ('0195624d-5bd9-754c-a92b-5e0e82e1ede1', '0195624d-8a9b-76d1-b9df-64e05622e324');
+
+                INSERT INTO resources (id, name, color, unit, creator_type, created_at) VALUES
+                    ('0195624d-9b3b-7a85-84ff-e4b906cfd0df', 'Water', '#3498db', 'L', 'system', now()),
+                    ('0195624d-0a57-7a48-86b6-9b2bdac93e4f', 'Electricity', '#f1c40f', 'kWh', 'system', now()),
+                    ('0195624d-1a9b-7ad1-b9df-64e05622e324', 'Gas', '#e74c3c', 'm3', 'system', now());
+                """);
+
+            migrationBuilder.Sql(
+                """
+                CREATE FUNCTION "Update_DateTime_Function"() RETURNS TRIGGER
+                    LANGUAGE PLPGSQL AS
+                $$
+                BEGIN
+                    NEW.updated_at := now();
+                    RETURN NEW;
+                END;
+                $$;
+
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON consumptions
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON consumptions_limits
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON households
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON permissions
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON resources
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON roles
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON user_households
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                CREATE TRIGGER "UpdateTimestamp" BEFORE UPDATE ON users
+                    FOR EACH ROW EXECUTE FUNCTION "Update_DateTime_Function"();
+                """);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql(
+                """
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON consumptions;
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON consumptions_limits;
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON households;
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON permissions;
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON resources;
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON roles;
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON user_households;
+                DROP TRIGGER IF EXISTS "UpdateTimestamp" ON users;
+                DROP FUNCTION IF EXISTS "Update_DateTime_Function"();
+                """);
+
             migrationBuilder.DropTable(
                 name: "consumptions");
 

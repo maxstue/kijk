@@ -28,6 +28,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
 
         var resource = await dbContext
             .GetUserAvailableResources(currentUser)
+            .Include(item => item.Unit)
             .FirstOrDefaultAsync(resource => resource.Id == request.ResourceId, cancellationToken);
         if (resource is null)
         {

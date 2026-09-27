@@ -12,7 +12,6 @@ public class ResourceConfig : IEntityTypeConfiguration<Resource>
         builder.HasKey(x => x.Id);
         builder.HasIndex(x => x.Name);
         builder.Property(x => x.Name).HasMaxLength(30);
-        builder.Property(x => x.Unit).HasMaxLength(10);
         builder.Property(x => x.Color).HasMaxLength(7);
         builder.Property(x => x.Icon).HasMaxLength(50);
 
@@ -22,16 +21,17 @@ public class ResourceConfig : IEntityTypeConfiguration<Resource>
         builder.Property<string>("NormalizedName")
             .HasMaxLength(30)
             .HasComputedColumnSql("lower(btrim(name))", stored: true);
-        builder.Property<string>("NormalizedUnit")
-            .HasMaxLength(10)
-            .HasComputedColumnSql("lower(btrim(unit))", stored: true);
-
-        builder.HasIndex("NormalizedName", "NormalizedUnit")
+        builder.HasIndex("NormalizedName", "UnitId")
             .IsUnique()
             .HasFilter("household_id IS NULL");
-        builder.HasIndex("HouseholdId", "NormalizedName", "NormalizedUnit")
+        builder.HasIndex("HouseholdId", "NormalizedName", "UnitId")
             .IsUnique()
             .HasFilter("household_id IS NOT NULL");
+
+        builder.HasOne(x => x.Unit)
+            .WithMany()
+            .HasForeignKey(x => x.UnitId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Household)
             .WithMany(x => x.Resources)

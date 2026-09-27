@@ -12,6 +12,8 @@ public interface IAppDbContext
     DbSet<Consumption> Consumptions { get; }
     DbSet<ConsumptionLimit> ConsumptionsLimits { get; }
     DbSet<Resource> Resources { get; }
+    DbSet<Unit> Units { get; }
+    DbSet<UnitHousehold> UnitHouseholds { get; }
     DbSet<User> Users { get; }
     DbSet<Role> Roles { get; }
     DbSet<Permission> Permissions { get; }

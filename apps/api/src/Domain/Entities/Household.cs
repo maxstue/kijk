@@ -9,6 +9,7 @@ public sealed class Household : BaseEntity
     public ICollection<Consumption> Consumptions { get; init; } = new List<Consumption>();
     public ICollection<ConsumptionLimit> ConsumptionLimits { get; init; } = new List<ConsumptionLimit>();
     public ICollection<Resource> Resources { get; init; } = new List<Resource>();
+    public ICollection<UnitHousehold> UnitHouseholds { get; init; } = new List<UnitHousehold>();
 
     public static Household Create(string name, string? description = null) =>
         new()

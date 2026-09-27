@@ -31,7 +31,7 @@ export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
       color: initialData.color,
       icon: initialData.icon,
       name: initialData.name,
-      unit: initialData.unit,
+      unitId: initialData.unitId,
     },
     resolver: zodResolver(resourceSchema),
   });
@@ -55,7 +55,7 @@ export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
     <Form {...form}>
       <form className='flex flex-col gap-4' onSubmit={form.handleSubmit(onSubmit, handleSubmitError)} noValidate>
         <FormField control={form.control} name='name' render={(props) => <ResourceNameField {...props} />} />
-        <FormField control={form.control} name='unit' render={(props) => <ResourceUnitField {...props} />} />
+        <FormField control={form.control} name='unitId' render={(props) => <ResourceUnitField {...props} />} />
         <FormField control={form.control} name='color' render={(props) => <ResourceColorField {...props} />} />
         <FormField control={form.control} name='icon' render={(props) => <ResourceIconField {...props} />} />
         <Button className='mt-6' disabled={isPending || !form.formState.isDirty} type='submit'>

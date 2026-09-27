@@ -1,3 +1,4 @@
+using Kijk.Application.Units.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,6 +10,7 @@ public static class DependencyInjection
     {
         services.AddModules()
             .AddHandlers()
+            .AddScoped<IUnitConversionService, UnitsNetConversionService>()
             .AddSingleton(TimeProvider.System);
 
         return services;

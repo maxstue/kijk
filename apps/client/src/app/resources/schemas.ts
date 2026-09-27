@@ -11,9 +11,7 @@ export const resourceSchema = z.object({
   name: z.string().trim().min(2, { message: 'Name must be at least 2 characters' }).max(30, {
     message: 'Name must be at most 30 characters',
   }),
-  unit: z.string().trim().min(1, { message: 'Unit must be set' }).max(10, {
-    message: 'Unit must be at most 10 characters',
-  }),
+  unitId: z.string().uuid({ message: 'Unit must be selected' }),
 });
 
 export type ResourceFormValues = z.infer<typeof resourceSchema>;

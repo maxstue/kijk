@@ -23,11 +23,17 @@ public class ResourcePersistenceTests
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var household = Household.Create("Integration household");
         dbContext.Households.Add(household);
+        var units = new[]
+        {
+            CreateUnit("Kilowatt hour", "kWh", "Energy", "KilowattHour"),
+            CreateUnit("Liter", "l", "Volume", "Liter"),
+            CreateUnit("Cubic meter", "m³", "Volume", "CubicMeter")
+        };
 
         var faker = new Faker<Resource>()
             .UseSeed(215)
             .RuleFor(resource => resource.Name, fake => fake.Random.String2(12, "abcdefghijklmnopqrstuvwxyz"))
-            .RuleFor(resource => resource.Unit, fake => fake.PickRandom("kWh", "Liter", "m3"))
+            .RuleFor(resource => resource.Unit, fake => fake.PickRandom(units))
             .RuleFor(resource => resource.Color, fake => fake.Internet.Color())
             .RuleFor(resource => resource.Icon, _ => "circle")
             .RuleFor(resource => resource.CreatorType, _ => CreatorType.User)
@@ -47,9 +53,10 @@ public class ResourcePersistenceTests
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var household = Household.Create("Integration household");
+        var unit = CreateUnit("Kilowatt hour", "kWh", "Energy", "KilowattHour");
         dbContext.Resources.AddRange(
-            CreateResource("Electricity", "kWh", household),
-            CreateResource(" electricity ", " KWH ", household));
+            CreateResource("Electricity", unit, household),
+            CreateResource(" electricity ", unit, household));
 
         var constraintWasEnforced = false;
         try
@@ -79,7 +86,7 @@ public class ResourcePersistenceTests
         await Assert.That(await verificationContext.Households.CountAsync()).IsEqualTo(0);
     }
 
-    private static Resource CreateResource(string name, string unit, Household household) => new()
+    private static Resource CreateResource(string name, Unit unit, Household household) => new()
     {
         Name = name,
         Unit = unit,
@@ -87,5 +94,15 @@ public class ResourcePersistenceTests
         Icon = "circle",
         CreatorType = CreatorType.User,
         Household = household
+    };
+
+    private static Unit CreateUnit(string name, string symbol, string quantityKey, string unitsNetUnitName) => new()
+    {
+        Name = name,
+        Symbol = symbol,
+        QuantityKey = quantityKey,
+        UnitsNetUnitName = unitsNetUnitName,
+        CreatorType = CreatorType.System,
+        ConversionType = UnitConversionType.UnitsNet
     };
 }

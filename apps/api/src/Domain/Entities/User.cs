@@ -30,6 +30,11 @@ public sealed class User : BaseEntity
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
 
     /// <summary>
+    /// Units created by this user.
+    /// </summary>
+    public ICollection<Unit> Units { get; init; } = new List<Unit>();
+
+    /// <summary>
     /// Returns the active household id for the user.
     /// It should never be null as it is set when the user is created.
     /// </summary>

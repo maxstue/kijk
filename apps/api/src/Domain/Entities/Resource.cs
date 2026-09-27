@@ -13,9 +13,14 @@ public class Resource : BaseEntity
     public string Name { get; set; } = null!;
 
     /// <summary>
-    /// Unit of measurement (e.g., "Liters", "kWh")
+    /// Identifier of the unit used by this resource.
     /// </summary>
-    public string Unit { get; set; } = null!;
+    public Guid UnitId { get; set; }
+
+    /// <summary>
+    /// Unit used by this resource.
+    /// </summary>
+    public required Unit Unit { get; set; }
 
     /// <summary>
     /// A color which represents the category.

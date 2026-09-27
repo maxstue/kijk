@@ -47,7 +47,7 @@ internal static class ConsumptionLimitEvaluation
             limit.Limit,
             limit.Period,
             limit.Active,
-            new ConsumptionLimitResourceResponse(limit.Resource.Id, limit.Resource.Name, limit.Resource.Unit, limit.Resource.Color),
+            new ConsumptionLimitResourceResponse(limit.Resource.Id, limit.Resource.Name, limit.Resource.Unit.Symbol, limit.Resource.Color),
             actualValue,
             remainingValue,
             utilizationPercentage,

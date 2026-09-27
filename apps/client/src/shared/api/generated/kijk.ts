@@ -610,6 +610,408 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/units': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets units visible to the current user */
+    get: {
+      parameters: {
+        query: {
+          includeArchived: boolean;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['UnitResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    /** Creates a user unit */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CreateUnitRequest'];
+        };
+      };
+      responses: {
+        /** Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['UnitResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/units/system': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets supported system units */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['UnitResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/units/page': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets a page of units for settings */
+    get: {
+      parameters: {
+        query: {
+          household: boolean;
+          householdId?: string;
+          page: number | string;
+          pageSize: number | string;
+          search?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['UnitPageResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/units/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Updates a user unit */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateUnitRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['UnitResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    /** Deletes an unused user unit */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/units/{id}/archive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Archives a user unit */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/units/{id}/restore': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Restores a user unit */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/units/{id}/households/{householdId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Shares a unit with a household */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+          householdId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    /** Removes a unit from a household */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+          householdId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/users/me': {
     parameters: {
       query?: never;
@@ -868,7 +1270,17 @@ export interface components {
       name: string;
       color: string;
       icon: string;
-      unit: string;
+      /** Format: uuid */
+      unitId: string;
+    };
+    CreateUnitRequest: {
+      name: string;
+      symbol: string;
+      /** Format: uuid */
+      referenceUnitId: string;
+      /** Format: double */
+      conversionFactor: number | string;
+      shareWithHouseholdIds: null | string[];
     };
     /** @enum {unknown} */
     CreatorType: 'System' | 'User';
@@ -952,8 +1364,47 @@ export interface components {
       name: string;
       color: string;
       icon: string;
+      /** Format: uuid */
+      unitId: string;
       unit: string;
+      unitName: string;
+      quantityKey: string;
       creatorType: components['schemas']['CreatorType'];
+    };
+    /** @enum {unknown} */
+    UnitConversionType: 'UnitsNet' | 'Factor' | 'None';
+    UnitPageResponse: {
+      items: components['schemas']['UnitResponse'][];
+      /** Format: int32 */
+      totalCount: number | string;
+      /** Format: int32 */
+      customCount: number | string;
+      /** Format: int32 */
+      page: number | string;
+      /** Format: int32 */
+      pageSize: number | string;
+    };
+    UnitResponse: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      symbol: string;
+      creatorType: components['schemas']['CreatorType'];
+      conversionType: components['schemas']['UnitConversionType'];
+      quantityKey: string;
+      unitsNetUnitName: null | string;
+      /** Format: uuid */
+      referenceUnitId: null | string;
+      /** Format: double */
+      conversionFactor: null | number | string;
+      /** Format: uuid */
+      ownerUserId: null | string;
+      isOwner: boolean;
+      isAvailableInActiveHousehold: boolean;
+      isArchived: boolean;
+      /** Format: int32 */
+      resourceCount: number | string;
+      householdIds: string[];
     };
     UpdateConsumptionLimitRequest: {
       name: string;
@@ -981,7 +1432,16 @@ export interface components {
       name: null | string;
       color: null | string;
       icon: null | string;
-      unit: null | string;
+      /** Format: uuid */
+      unitId: null | string;
+    };
+    UpdateUnitRequest: {
+      name: string;
+      symbol: string;
+      /** Format: uuid */
+      referenceUnitId: string;
+      /** Format: double */
+      conversionFactor: number | string;
     };
     UpdateUserRequest: {
       userName: null | string;

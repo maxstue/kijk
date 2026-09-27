@@ -22,6 +22,8 @@ internal static class ResourceHelpers
     {
         var resource = await dbContext
             .GetUserAvailableResources(currentUser)
+            .Include(resource => resource.Unit)
+            .ThenInclude(unit => unit.ReferenceUnit)
             .FirstOrDefaultAsync(resource => resource.Id == resourceId, cancellationToken);
         if (resource is null)
         {
@@ -40,19 +42,17 @@ internal static class ResourceHelpers
     /// <param name="dbContext">The application database context.</param>
     /// <param name="currentUser">The current authenticated user.</param>
     /// <param name="name">The resource name.</param>
-    /// <param name="unit">The resource unit.</param>
+    /// <param name="unitId">The resource unit identifier.</param>
     /// <param name="excludedResourceId">An optional resource identifier to exclude from the query.</param>
     /// <param name="cancellationToken">A token used to cancel the operation.</param>
     /// <returns><see langword="true"/> when a conflicting resource exists; otherwise <see langword="false"/>.</returns>
-    internal static Task<bool> HasConflictAsync(IAppDbContext dbContext, CurrentUser currentUser, string name, string unit, Guid? excludedResourceId, CancellationToken cancellationToken)
+    internal static Task<bool> HasConflictAsync(IAppDbContext dbContext, CurrentUser currentUser, string name, Guid unitId, Guid? excludedResourceId, CancellationToken cancellationToken)
     {
         var normalizedName = name.Trim().ToLowerInvariant();
-        var normalizedUnit = unit.Trim().ToLowerInvariant();
-
         var resources = dbContext.Resources.Where(resource =>
             (resource.CreatorType == CreatorType.System || resource.HouseholdId == currentUser.ActiveHouseholdId)
             && resource.Name.Trim().ToLower() == normalizedName
-            && resource.Unit.Trim().ToLower() == normalizedUnit);
+            && resource.UnitId == unitId);
 
         if (excludedResourceId.HasValue)
         {

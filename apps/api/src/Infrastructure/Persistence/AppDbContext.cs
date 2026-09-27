@@ -20,6 +20,8 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Consumption> Consumptions { get; set; }
     public DbSet<ConsumptionLimit> ConsumptionsLimits { get; set; }
     public DbSet<Resource> Resources { get; set; }
+    public DbSet<Unit> Units { get; set; }
+    public DbSet<UnitHousehold> UnitHouseholds { get; set; }
     public DbSet<User> Users { get; set; }
 
     public DbSet<Role> Roles { get; set; }

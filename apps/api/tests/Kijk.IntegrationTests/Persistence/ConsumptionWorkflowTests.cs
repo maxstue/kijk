@@ -72,10 +72,11 @@ public class ConsumptionWorkflowTests
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var fixture = await CreateFixtureAsync(dbContext);
         var otherHousehold = Household.Create("Other household");
+        var cubicMeter = await dbContext.Units.SingleAsync(unit => unit.Id == new Guid("11111111-1111-4111-8111-111111111113"));
         var otherResource = new Resource
         {
             Name = "Gas",
-            Unit = "m3",
+            Unit = cubicMeter,
             Color = "#334455",
             Icon = "flame",
             CreatorType = CreatorType.User,
@@ -176,7 +177,8 @@ public class ConsumptionWorkflowTests
         await AssertCalculatedAsync(dbContext, "Later reading", 70m);
 
         var relative = await dbContext.Consumptions.SingleAsync(item => item.Name == "Intervening usage");
-        var updateResult = await new UpdateConsumptionHandler(dbContext, fixture.CurrentUser, clock, NullLogger<UpdateConsumptionHandler>.Instance)
+        var updateResult = await new UpdateConsumptionHandler(dbContext, fixture.CurrentUser, clock,
+                new Kijk.Application.Units.Shared.UnitsNetConversionService(), NullLogger<UpdateConsumptionHandler>.Instance)
             .UpdateAsync(relative.Id, new UpdateConsumptionRequest(null, 40m, UpdateConsumptionValueTypes.Relative, null, null), CancellationToken.None);
         await Assert.That(updateResult.IsSuccess).IsTrue();
         await AssertCalculatedAsync(dbContext, "Later reading", 60m);
@@ -218,10 +220,11 @@ public class ConsumptionWorkflowTests
     private static async Task<TestFixture> CreateFixtureAsync(AppDbContext dbContext)
     {
         var household = Household.Create("Integration household");
+        var kilowattHour = await dbContext.Units.SingleAsync(unit => unit.Id == new Guid("22222222-2222-4222-8222-222222222222"));
         var resource = new Resource
         {
             Name = "Electricity",
-            Unit = "kWh",
+            Unit = kilowattHour,
             Color = "#112233",
             Icon = "zap",
             CreatorType = CreatorType.User,

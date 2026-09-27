@@ -53,12 +53,14 @@ export function ResourceTypesSection() {
                 Create
               </Button>
             </DialogTrigger>
-            <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-              <DialogHeader>
-                <DialogTitle>Create Resource</DialogTitle>
-                <DialogDescription>Create a new resource type.</DialogDescription>
-              </DialogHeader>
-              <ResourceTypeCreateForm onClose={handleClose} />
+            <DialogContent className='sm:max-w-lg'>
+              <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>
+                <DialogHeader>
+                  <DialogTitle>Create Resource</DialogTitle>
+                  <DialogDescription>Create a new resource type.</DialogDescription>
+                </DialogHeader>
+                <ResourceTypeCreateForm onClose={handleClose} />
+              </div>
             </DialogContent>
           </Dialog>
         </div>
