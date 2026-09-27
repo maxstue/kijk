@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { ConnectedSignInMethods } from '@/app/settings/profile/providers';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/use-update-user';
@@ -20,10 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
-import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 
 export function ProfileForm() {
-  const { providerName } = useSignInProviderName();
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const currentUser = currentAccount?.user;
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
@@ -59,8 +58,8 @@ export function ProfileForm() {
           fullName={externalIdentity?.fullName}
           imageUrl={externalIdentity?.imageUrl}
           profileEnabled={currentUser?.useExternalProfile ?? false}
-          provider={providerName}
         />
+        <ConnectedSignInMethods />
         <FormField
           control={form.control}
           name='useExternalProfile'
@@ -72,7 +71,7 @@ export function ProfileForm() {
               <div className='space-y-1'>
                 <FormLabel>Use sign-in profile</FormLabel>
                 <FormDescription>
-                  Show the full name and profile image from your {providerName} account in Kijk.
+                  Show the full name and profile image from your sign-in account in Kijk.
                 </FormDescription>
               </div>
               <FormMessage />

@@ -3,7 +3,7 @@
 public sealed class Household : BaseEntity
 {
     public required string Name { get; set; }
-    public string? Description { get; init; }
+    public string? Description { get; set; }
 
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
     public ICollection<Consumption> Consumptions { get; init; } = new List<Consumption>();
@@ -19,4 +19,15 @@ public sealed class Household : BaseEntity
         };
 
     public void Rename(string name) => Name = name;
+
+    /// <summary>
+    /// Updates the editable household details.
+    /// </summary>
+    /// <param name="name">The new household name.</param>
+    /// <param name="description">The new household description, if provided.</param>
+    public void UpdateDetails(string name, string? description)
+    {
+        Name = name;
+        Description = description;
+    }
 }

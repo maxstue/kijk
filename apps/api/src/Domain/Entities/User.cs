@@ -84,6 +84,11 @@ public sealed class User : BaseEntity
         OnboardingCompletedAt = completedAt;
     }
 
+    /// <summary>
+    /// Resets onboarding when the user no longer belongs to a household.
+    /// </summary>
+    public void ResetOnboarding() => OnboardingCompletedAt = null;
+
     public void UpdateAnalyticsConsent(AnalyticsConsent analyticsConsent, DateTime updatedAt)
     {
         AnalyticsConsent = analyticsConsent;

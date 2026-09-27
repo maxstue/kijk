@@ -19,7 +19,13 @@ public sealed class UserHousehold : BaseEntity
     /// <summary>
     /// A boolean which represents if the household is active or not.
     /// </summary>
-    public bool IsActive { get; init; }
+    public bool IsActive { get; private set; }
+
+    /// <summary>
+    /// Sets whether this is the user's active household.
+    /// </summary>
+    /// <param name="isActive">Whether this household should be active.</param>
+    public void SetActive(bool isActive) => IsActive = isActive;
 
     public static UserHousehold Create(User user, Household household, Role role, bool isActive = false) =>
         new()

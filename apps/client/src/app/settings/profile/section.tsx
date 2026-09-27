@@ -7,7 +7,10 @@ export function ProfileSection() {
     <div className='space-y-6'>
       <div>
         <h3 className='text-lg font-medium'>Profile</h3>
-        <p className='text-muted-foreground text-sm'>This is how others will see you on the site.</p>
+        <p className='text-muted-foreground text-sm'>
+          Manage your profile and see which sign-in methods are linked to your account. You can choose whether your
+          sign-in profile name and photo appear in Kijk.
+        </p>
       </div>
       <Separator />
       <ProfileForm />

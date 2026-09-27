@@ -5,7 +5,7 @@ interface AuthIdentitySummaryProps {
   fullName?: string | null;
   imageUrl?: string | null;
   profileEnabled?: boolean;
-  provider: string;
+  provider?: string;
 }
 
 export function AuthIdentitySummary({
@@ -24,7 +24,7 @@ export function AuthIdentitySummary({
       <dl className='min-w-0 space-y-1 text-sm'>
         <IdentityItem label='Full name' value={profileEnabled ? (fullName ?? 'Not provided') : 'Not used in Kijk'} />
         <IdentityItem label='Email' value={email ?? 'Not provided'} />
-        <IdentityItem label='Signed in with' value={provider} />
+        {provider && <IdentityItem label='Signed in with' value={provider} />}
       </dl>
     </div>
   );
