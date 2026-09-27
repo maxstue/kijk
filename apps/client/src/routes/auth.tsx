@@ -21,13 +21,13 @@ export const Route = createFileRoute('/auth')({
       return;
     }
 
-    throw redirect({ to: search.from ?? '/' });
+    throw redirect({ to: search.from ?? '/home' });
   },
 });
 
 function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
-  const { from = '/' } = Route.useSearch();
+  const { from = '/home' } = Route.useSearch();
   useSetSiteHeader(show);
 
   return (

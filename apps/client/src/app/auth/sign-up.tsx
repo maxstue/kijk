@@ -57,7 +57,7 @@ export function SignUp({ goto, redirectTo }: Props) {
       <Card>
         <CardHeader className='text-center'>
           <CardTitle className='text-xl'>Create an account</CardTitle>
-          <CardDescription>Enter your credentials below to create your account</CardDescription>
+          <CardDescription>Create an account with your email, Google, or GitHub</CardDescription>
         </CardHeader>
         <CardContent>
           <>

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -16,7 +17,6 @@ import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
-import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/_app/index'
 import { Route as AuthenticatedAppConsumptionsRouteImport } from './routes/_authenticated/_app/consumptions'
 import { Route as AuthenticatedAppConsumptionsLimitsRouteImport } from './routes/_authenticated/_app/consumptions-limits'
 import { Route as AuthenticatedAppHomeRouteImport } from './routes/_authenticated/_app/home'
@@ -32,6 +32,11 @@ import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRouteImpor
 import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.members'
 import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.units'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -65,11 +70,6 @@ const AuthenticatedOnboardingRouteRoute =
     id: '/_onboarding',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedAppRouteRoute,
-} as any)
 const AuthenticatedAppConsumptionsRoute =
   AuthenticatedAppConsumptionsRouteImport.update({
     id: '/consumptions',
@@ -155,7 +155,7 @@ const AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedAppIndexRoute
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
@@ -176,7 +176,7 @@ export interface FileRoutesByFullPath {
   '/settings/households/$householdId/': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AuthenticatedAppIndexRoute
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
@@ -197,6 +197,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
@@ -210,7 +211,6 @@ export interface FileRoutesById {
   '/_authenticated/_app/resources': typeof AuthenticatedAppResourcesRouteWithChildren
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
-  '/_authenticated/_app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/_app/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
   '/_authenticated/_app/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
@@ -264,6 +264,7 @@ export interface FileRouteTypes {
     | '/settings/households/$householdId'
   id:
     | '__root__'
+    | '/'
     | '/_authenticated'
     | '/auth'
     | '/privacy'
@@ -277,7 +278,6 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/resources'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_onboarding/welcome'
-    | '/_authenticated/_app/'
     | '/_authenticated/_app/consumptions/$consumptionId'
     | '/_authenticated/_app/resources/$resourceId'
     | '/_authenticated/_app/settings/$section'
@@ -289,6 +289,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -298,6 +299,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -346,13 +354,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/_app/': {
-      id: '/_authenticated/_app/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/consumptions': {
       id: '/_authenticated/_app/consumptions'
@@ -532,7 +533,6 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppHomeRoute: typeof AuthenticatedAppHomeRoute
   AuthenticatedAppResourcesRoute: typeof AuthenticatedAppResourcesRouteWithChildren
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
-  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
@@ -543,7 +543,6 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppHomeRoute: AuthenticatedAppHomeRoute,
   AuthenticatedAppResourcesRoute: AuthenticatedAppResourcesRouteWithChildren,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
-  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
 const AuthenticatedAppRouteRouteWithChildren =
@@ -580,6 +579,7 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   PrivacyRoute: PrivacyRoute,

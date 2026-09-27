@@ -57,7 +57,7 @@ export function Login({ goto, redirectTo }: Props) {
       <Card>
         <CardHeader className='text-center'>
           <CardTitle className='text-xl'>Welcome back</CardTitle>
-          <CardDescription>Login with your Apple or Google account</CardDescription>
+          <CardDescription>Sign in with your email, Google, or GitHub account</CardDescription>
         </CardHeader>
         <CardContent>
           <div className='grid gap-6'>

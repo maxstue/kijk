@@ -7,8 +7,36 @@ function PrivacyPolicy() {
     <main className='mx-auto max-w-3xl space-y-8 px-4 py-12'>
       <header className='space-y-2'>
         <h1 className='text-3xl font-semibold'>Privacy Policy</h1>
-        <p className='text-muted-foreground'>Last updated: 5 September 2026</p>
+        <p className='text-muted-foreground'>Last updated: 27 September 2026</p>
       </header>
+
+      <section className='space-y-3'>
+        <h2 className='text-xl font-semibold'>Sign in with Google</h2>
+        <p>
+          If you choose Google sign-in, Google shares basic account information with our authentication provider, Clerk,
+          so we can authenticate you and connect your Google identity to your Kijk account. This may include your Google
+          account identifier, email address, name, and profile image when available. We use this information only to
+          create or access your Kijk account, maintain the sign-in connection, and identify your account in Kijk.
+        </p>
+        <p>
+          Kijk does not request access to Gmail, Google Drive, Calendar, Contacts, or other Google services. We do not
+          sell Google account information, use it for advertising, or use it to train AI or machine-learning models. We
+          share Google sign-in information with Clerk to provide authentication. If you consent to optional product
+          analytics, PostHog receives a pseudonymous Kijk account identifier and app usage events as described below. We
+          do not provide Google passwords or Google API access tokens to PostHog.
+        </p>
+        <p>
+          The Google identity connection is kept while your Kijk account is active. To request deletion, use the contact
+          details in Settings → Info. After verifying your identity, we remove personal data from our active systems and
+          stop further processing, except where retention is required by law or for legitimate business purposes. Google
+          and Clerk handle their own account records under their respective privacy terms.
+        </p>
+        <p>
+          The production Google sign-in flow uses HTTPS. Google passwords remain with Google; Kijk does not receive
+          them. The Google OAuth client secret is kept outside the browser and application source code. Kijk does not
+          use Google access to call Google APIs.
+        </p>
+      </section>
 
       <section className='space-y-3'>
         <h2 className='text-xl font-semibold'>Technical error reporting</h2>
