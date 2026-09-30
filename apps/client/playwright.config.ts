@@ -16,8 +16,13 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'pnpm exec vite --mode test --host 127.0.0.1',
-    reuseExistingServer: !process.env.CI,
+    command: 'pnpm exec vp dev --mode test --host 127.0.0.1',
+    env: {
+      VITE_API_URL: 'http://127.0.0.1:5004',
+      VITE_BASE_API_URL: 'http://127.0.0.1:5004',
+      VITE_E2E_MOCK_API: 'true',
+    },
+    reuseExistingServer: false,
     timeout: 120_000,
     url: 'http://127.0.0.1:5004/privacy',
   },
@@ -29,18 +34,8 @@ export default defineConfig({
     },
     {
       dependencies: ['clerk setup'],
-      name: 'public chromium',
-      testMatch: /public-pages\.spec\.ts/,
+      name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      dependencies: ['clerk setup'],
-      name: 'authenticated chromium',
-      testMatch: /authenticated\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.clerk/user.json',
-      },
     },
   ],
 });

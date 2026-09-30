@@ -28,13 +28,28 @@ class SentryErrorTrackingService implements ErrorTrackingService {
     Sentry.init({
       dsn: config.SentryDsn,
       environment: config.Mode,
-      integrations: [],
+      integrations: [Sentry.browserSessionIntegration({ lifecycle: 'route' })],
+      attachStacktrace: false,
       maxBreadcrumbs: 0,
       beforeBreadcrumb: () => null,
       beforeSend: scrubErrorEvent,
-      beforeSendSpan: scrubPerformanceSpan,
+      beforeSendSpan: Sentry.withStaticSpan(scrubPerformanceSpan),
       beforeSendTransaction: (event) => (hasPerformanceConsent() ? scrubPerformanceTransaction(event) : null),
-      sendDefaultPii: false,
+      dataCollection: {
+        userInfo: false,
+        cookies: false,
+        httpHeaders: {
+          request: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+          response: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+        },
+        httpBodies: [],
+        urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+        genAI: { inputs: false, outputs: false },
+        databaseQueryData: false,
+        graphQL: { document: false, variables: false },
+      },
+      // Static transactions keep the consent check above able to discard a trace after consent is withdrawn.
+      traceLifecycle: 'static',
       tracePropagationTargets: [],
       tracesSampler: () => (hasPerformanceConsent() ? performanceSampleRate : 0),
     });
@@ -52,9 +67,10 @@ class SentryErrorTrackingService implements ErrorTrackingService {
     Sentry.addIntegration(
       Sentry.tanstackRouterBrowserTracingIntegration(this.router, {
         enableHTTPTimings: false,
-        enableInp: false,
+        webVitals: { ignore: ['inp'] },
         enableLongAnimationFrame: false,
         enableLongTask: false,
+        instrumentBfcacheRestore: false,
         instrumentNavigation: true,
         instrumentPageLoad: true,
         linkPreviousTrace: 'off',

@@ -2,7 +2,7 @@ import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import type { PropsWithChildren } from 'react';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import type { ConsumptionLimit } from '@/shared/api/consumption-limits/types';

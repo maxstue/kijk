@@ -73,6 +73,7 @@ function stripUrlData(value: string | undefined) {
 
 function sanitizeRouteName(routeName: string | undefined) {
   if (!routeName) return 'route';
-  if (!routeName.includes('$')) return routeName;
-  return routeName.replaceAll(/\$[^/]+/g, ':parameter');
+  const path = stripUrlData(routeName)!;
+  if (!path.includes('$')) return path;
+  return path.replaceAll(/\$[^/]+/g, ':parameter');
 }

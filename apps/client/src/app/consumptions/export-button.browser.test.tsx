@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import { exportConsumption, exportConsumptionMonth, type CsvDownload } from '@/shared/api/consumptions/requests';

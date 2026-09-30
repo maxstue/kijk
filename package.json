@@ -50,7 +50,8 @@
     "lint-staged": "catalog:",
     "release-it": "catalog:",
     "rimraf": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
   },
   "lint-staged": {
     "apps/client/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:client'",
