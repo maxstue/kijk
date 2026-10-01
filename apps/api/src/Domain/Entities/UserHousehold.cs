@@ -9,12 +9,12 @@ public sealed class UserHousehold : BaseEntity
     public required Household Household { get; init; }
 
     public Guid RoleId { get; init; }
-    public required Role Role { get; init; }
 
     /// <summary>
-    /// A list of extra permissions that the user has in the household.
+    /// The role of the user in the household. It defines the user's permissions in the household.
+    /// Use <see cref="ChangeRole"/> to change it.
     /// </summary>
-    public ICollection<Permission>? UserHouseHoldExtraPermissions { get; init; } = new List<Permission>();
+    public required Role Role { get; set; }
 
     /// <summary>
     /// A boolean which represents if the household is active or not.
@@ -26,6 +26,16 @@ public sealed class UserHousehold : BaseEntity
     /// </summary>
     /// <param name="isActive">Whether this household should be active.</param>
     public void SetActive(bool isActive) => IsActive = isActive;
+
+    /// <summary>
+    /// Changes the role of the user in the household.
+    /// </summary>
+    /// <param name="role">The new role.</param>
+    public void ChangeRole(Role role)
+    {
+        ArgumentNullException.ThrowIfNull(role);
+        Role = role;
+    }
 
     public static UserHousehold Create(User user, Household household, Role role, bool isActive = false) =>
         new()

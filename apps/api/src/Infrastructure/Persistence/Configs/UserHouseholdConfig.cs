@@ -23,9 +23,5 @@ public class UserHouseholdConfig : IEntityTypeConfiguration<UserHousehold>
             .WithMany(x => x.UserHouseholds)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(x => x.UserHouseHoldExtraPermissions)
-            .WithMany(x => x.UserHouseholds)
-            .UsingEntity("user_households_permissions");
     }
 }

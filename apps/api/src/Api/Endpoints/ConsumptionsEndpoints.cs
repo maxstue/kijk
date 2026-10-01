@@ -1,3 +1,4 @@
+using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Consumptions.Create;
@@ -9,6 +10,7 @@ using Kijk.Application.Consumptions.GetStats;
 using Kijk.Application.Consumptions.GetYears;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Consumptions.Update;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -24,40 +26,48 @@ public class ConsumptionsEndpoints : IEndpointGroup
     {
         var group = builder.MapGroup("consumptions")
             .WithTags("Consumptions")
-            .RequireAuthorization(AppConstants.Roles.User)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("/{id:guid}", GetById)
             .WithName("GetConsumptionById")
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.View)
             .WithSummary("Gets a consumption by id");
 
         group.MapGet("/{id:guid}/export", ExportById)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.Export)
             .WithSummary("Exports a consumption as CSV")
             .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv")
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapGet("/export", ExportMonth)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.Export)
             .WithSummary("Exports all consumptions for a month as CSV")
             .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv")
             .ProducesValidationProblem();
 
         group.MapGet("/", GetByYearMonth)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.View)
             .WithSummary("Gets all consumptions for the current user by year, month and type");
 
         group.MapGet("/stats", GetStats)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.View)
             .WithSummary("Gets all consumptions stats");
 
         group.MapGet("/years", GetYears)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.View)
             .WithSummary("Gets all years");
 
         group.MapPost("/", Create)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.Record)
             .WithRequestValidation<CreateConsumptionRequest>()
             .WithSummary("Creates a new consumption");
 
         group.MapPut("/{id:guid}", Update)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.Record)
             .WithSummary("Updates a consumption");
 
         group.MapDelete("/{id:guid}", Delete)
+            .RequireHouseholdPermission(HouseholdPermissions.Consumptions.Record)
             .WithSummary("Deletes a consumption");
 
         return builder;

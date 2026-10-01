@@ -1,6 +1,7 @@
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.GetMe;
+using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -52,7 +53,8 @@ public class WelcomeUserHandler(
 
         if (activeHousehold is null)
         {
-            var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Name == "Admin", cancellationToken);
+            // The user who creates a household becomes its administrator.
+            var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Id == HouseholdRoles.Admin.Id, cancellationToken);
             if (adminRole is null)
             {
                 logger.LogError("Admin role was not found");

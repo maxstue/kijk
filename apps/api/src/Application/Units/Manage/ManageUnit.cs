@@ -1,4 +1,6 @@
+using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 
 namespace Kijk.Application.Units.Manage;
@@ -15,11 +17,14 @@ public sealed class ManageUnitHandler(IAppDbContext dbContext, CurrentUser curre
     {
         var unit = await dbContext.Units.Include(item => item.Households)
             .FirstOrDefaultAsync(item => item.Id == id && item.OwnerUserId == currentUser.Id, cancellationToken);
-        var isMember = await dbContext.UserHouseholds.AnyAsync(
-            link => link.UserId == currentUser.Id && link.HouseholdId == householdId, cancellationToken);
-        if (unit is null || !isMember)
+        if (unit is null)
         {
             return Error.NotFound("Unit or household could not be found");
+        }
+
+        if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, householdId, HouseholdPermissions.Units.Share, cancellationToken) is { } error)
+        {
+            return error;
         }
 
         if (unit.Households.All(link => link.HouseholdId != householdId))
@@ -47,6 +52,11 @@ public sealed class ManageUnitHandler(IAppDbContext dbContext, CurrentUser curre
         if (link is null || link.Unit.OwnerUserId != currentUser.Id)
         {
             return Error.NotFound("Unit share could not be found");
+        }
+
+        if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, householdId, HouseholdPermissions.Units.Share, cancellationToken) is { } error)
+        {
+            return error;
         }
 
         if (await dbContext.Resources.AnyAsync(resource => resource.HouseholdId == householdId && resource.UnitId == id,

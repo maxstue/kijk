@@ -1,3 +1,4 @@
+using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Resources.Create;
@@ -6,6 +7,7 @@ using Kijk.Application.Resources.GetAll;
 using Kijk.Application.Resources.GetById;
 using Kijk.Application.Resources.Shared;
 using Kijk.Application.Resources.Update;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -21,32 +23,33 @@ public class ResourcesEndpoints : IEndpointGroup
     {
         var group = builder.MapGroup("/resources")
             .WithTags("Resources")
-            .RequireAuthorization(AppConstants.Roles.User)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("", GetAll)
+            .RequireHouseholdPermission(HouseholdPermissions.Resources.View)
             .WithSummary("Gets all resources");
 
         group.MapGet("/{id:guid}", GetById)
+            .RequireHouseholdPermission(HouseholdPermissions.Resources.View)
             .WithName("GetResourceById")
             .WithSummary("Gets a resource type");
 
         group.MapPost("", Create)
-            .RequireAuthorization(AppConstants.Roles.Admin)
+            .RequireHouseholdPermission(HouseholdPermissions.Resources.Configure)
             .WithRequestValidation<CreateResourceRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Creates a new resource type");
 
         group.MapPut("/{id:guid}", Update)
-            .RequireAuthorization(AppConstants.Roles.Admin)
+            .RequireHouseholdPermission(HouseholdPermissions.Resources.Configure)
             .WithRequestValidation<UpdateResourceRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Updates a custom resource type");
 
         group.MapDelete("/{id:guid}", Delete)
-            .RequireAuthorization(AppConstants.Roles.Admin)
+            .RequireHouseholdPermission(HouseholdPermissions.Resources.Configure)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Deletes an unused custom resource type");

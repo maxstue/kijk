@@ -3,6 +3,7 @@ using Clerk.BackendAPI;
 using EntityFramework.Exceptions.PostgreSQL;
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Infrastructure.Auth;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;
@@ -143,25 +144,24 @@ public static class DependencyInjection
 
             services.AddScoped<CurrentUser>();
             services.AddScoped<IAuthorizationHandler, OnboardingCompletedAuthorizationHandler>();
-            services.AddScoped<IAuthorizationHandler, ActiveHouseholdRoleAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, HouseholdPermissionAuthorizationHandler>();
 
-            services.AddAuthorizationBuilder()
-                .AddPolicy(AppConstants.Roles.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build())
+            var authorization = services.AddAuthorizationBuilder()
+                .AddPolicy(AppConstants.Policies.Authenticated, policy => policy.RequireAuthenticatedUser())
                 .AddPolicy(
                     AppConstants.Policies.OnboardingCompleted,
                     policy => policy
                         .RequireAuthenticatedUser()
-                        .AddRequirements(new OnboardingCompletedRequirement()))
-                .AddPolicy(
-                    AppConstants.Roles.Admin,
+                        .AddRequirements(new OnboardingCompletedRequirement()));
+
+            foreach (var permission in HouseholdPermissions.All.Select(permission => permission.Name))
+            {
+                authorization.AddPolicy(
+                    AppConstants.Policies.HouseholdPermission(permission),
                     policy => policy
                         .RequireAuthenticatedUser()
-                        .AddRequirements(new ActiveHouseholdRoleRequirement(AppConstants.Roles.Admin)))
-                .AddPolicy(
-                    AppConstants.Roles.User,
-                    policy => policy
-                        .RequireAuthenticatedUser()
-                        .AddRequirements(new ActiveHouseholdRoleRequirement(AppConstants.Roles.User, AppConstants.Roles.Admin)));
+                        .AddRequirements(new HouseholdPermissionRequirement(permission)));
+            }
 
             return services;
         }

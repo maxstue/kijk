@@ -1,9 +1,11 @@
-﻿using Kijk.Api.Extensions;
+﻿using Kijk.Api.Authorization;
+using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
 using Kijk.Application.Users.Update;
 using Kijk.Application.Users.Welcome;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +17,25 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public class UsersEndpoints : IEndpointGroup
 {
+    private const string CurrentUserOnly = "Only reads or changes the current user's own account.";
+
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/users")
             .WithTags("Users");
 
         group.MapGet("/me", GetMe)
+            .WithoutHouseholdPermission(CurrentUserOnly)
             .WithSummary("Gets me");
 
         group.MapPut("", Update)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutHouseholdPermission(CurrentUserOnly)
             .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
 
         group.MapPut("/onboarding", Onboarding)
+            .WithoutHouseholdPermission("Onboarding creates the user's first household.")
             .WithRequestValidation<WelcomeUserRequest>()
             .WithSummary("Completes onboarding and creates the Kijk account when needed");
 
