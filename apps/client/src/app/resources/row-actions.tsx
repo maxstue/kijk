@@ -16,14 +16,15 @@ import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ResourceTypeDeleteContent } from '@/app/resources/delete-content';
+import type { DataTableFeatures } from '@/shared/lib/table-features';
 import { CreatorTypes, type CreatorType, type Resource } from '@/shared/types/domain';
 
-interface DataTableRowActionsProps<TData> {
+interface DataTableRowActionsProps {
   canManage: boolean;
-  row: Row<TData>;
+  row: Row<DataTableFeatures, Resource>;
 }
 
-export function ResourceTypeRowActions<TData extends Resource>({ canManage, row }: DataTableRowActionsProps<TData>) {
+export function ResourceTypeRowActions({ canManage, row }: DataTableRowActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
   const resourceType = row.original;

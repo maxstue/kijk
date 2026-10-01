@@ -15,18 +15,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
 import {
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  tableFeatures,
+  useTable,
 } from '@tanstack/react-table';
-import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  RowSelectionState,
+  SortingState,
+  ColumnVisibilityState,
+} from '@tanstack/react-table';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Columns3Icon, EllipsisVerticalIcon } from 'lucide-react';
 import * as React from 'react';
 
 import dataFile from '@/app/home/data.json';
+import { autoFilterFns, autoSortFns } from '@/shared/lib/table-features';
 
 interface DataFile {
   id: number;
@@ -38,7 +50,20 @@ interface DataFile {
   reviewer: string;
 }
 
-const columns: Array<ColumnDef<DataFile>> = [
+const features = tableFeatures({
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  filteredRowModel: createFilteredRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  filterFns: autoFilterFns,
+  sortFns: autoSortFns,
+});
+
+const columns: Array<ColumnDef<typeof features, DataFile>> = [
   {
     cell: ({ row }) => (
       <div className='flex items-center justify-center'>
@@ -104,8 +129,8 @@ const columns: Array<ColumnDef<DataFile>> = [
 ];
 
 export function HomeTable() {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<ColumnVisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
@@ -113,15 +138,12 @@ export function HomeTable() {
     pageSize: 10,
   });
 
-  const table = useReactTable({
+  const table = useTable({
     columns,
     data: dataFile,
     enableRowSelection: true,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    features,
     getRowId: (row) => row.id.toString(),
-    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
@@ -237,13 +259,13 @@ export function HomeTable() {
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${table.state.pagination.pageSize}`}
                 onValueChange={(value) => {
                   table.setPageSize(Number(value));
                 }}
               >
                 <SelectTrigger className='w-20' id='rows-per-page' size='sm'>
-                  <SelectValue placeholder={table.getState().pagination.pageSize} />
+                  <SelectValue placeholder={table.state.pagination.pageSize} />
                 </SelectTrigger>
                 <SelectContent side='top'>
                   {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -255,7 +277,7 @@ export function HomeTable() {
               </Select>
             </div>
             <div className='flex w-fit items-center justify-center text-sm font-medium'>
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+              Page {table.state.pagination.pageIndex + 1} of {table.getPageCount()}
             </div>
             <div className='ml-auto flex items-center gap-2 lg:ml-0'>
               <Button
