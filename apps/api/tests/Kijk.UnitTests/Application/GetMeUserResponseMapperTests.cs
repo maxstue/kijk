@@ -10,14 +10,15 @@ public class GetMeUserResponseMapperTests
     {
         var householdId = Guid.NewGuid();
         var user = User.Init("test-user", "Test User", "test@example.invalid");
-        user.UserHouseholds.Add(new UserHousehold
+        var membership = new UserHousehold
         {
             User = user,
             HouseholdId = householdId,
             Household = Household.Create("Home"),
-            Role = new Role { Name = "Admin", Permissions = [] },
-            IsActive = true
-        });
+            Role = new Role { Name = "Admin", Permissions = [] }
+        };
+        membership.SetActive(true);
+        user.UserHouseholds.Add(membership);
 
         var response = new[] { user }.AsQueryable().ToResponse().Single();
 
