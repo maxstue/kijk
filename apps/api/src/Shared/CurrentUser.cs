@@ -3,10 +3,13 @@ using Kijk.Shared.Exceptions;
 
 namespace Kijk.Shared;
 
+/// <summary>The authenticated user of the current request. Resolved once per request by the current-user middleware.</summary>
 public class CurrentUser
 {
+    /// <summary>Gets or sets the authenticated principal from the access token.</summary>
     public ClaimsPrincipal? Principal { get; set; }
 
+    /// <summary>Gets or sets the persisted Kijk user, or <see langword="null" /> before the account exists.</summary>
     public SimpleAuthUser? User { get; set; }
 
     /// <summary>
@@ -14,14 +17,22 @@ public class CurrentUser
     /// </summary>
     public bool IsReady => User?.OnboardingCompleted is true;
 
+    /// <summary>Gets the Kijk user id.</summary>
+    /// <exception cref="NullException">The Kijk user does not exist yet.</exception>
     public Guid Id => User?.Id ?? throw new NullException("Kijk user not found");
 
+    /// <summary>Gets the authentication provider's user id from the token.</summary>
+    /// <exception cref="NullException">The token has no user id.</exception>
     public string AuthId => Principal?.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new NullException("'AuthId' not found");
 
+    /// <summary>Gets the display name.</summary>
+    /// <exception cref="NullException">The Kijk user does not exist yet.</exception>
     public string Name => User?.Name ?? throw new NullException("'Name' not found");
 
+    /// <summary>Gets the email address from the token, if present.</summary>
     public string? Email => Principal?.FindFirstValue(ClaimTypes.Email);
 
+    /// <summary>Gets the active household id, or <see langword="null" /> without an active household.</summary>
     public Guid? ActiveHouseholdId => User?.HouseholdId;
 
     /// <summary>

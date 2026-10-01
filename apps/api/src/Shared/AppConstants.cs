@@ -1,5 +1,6 @@
 ﻿namespace Kijk.Shared;
 
+/// <summary>Application-wide constant names.</summary>
 public static class AppConstants
 {
     /// <summary>
@@ -31,13 +32,18 @@ public static class AppConstants
             policy?.StartsWith(HouseholdPermissionPrefix, StringComparison.Ordinal) is true;
     }
 
+    /// <summary>The response header carrying the request correlation id.</summary>
     public const string CorrelationId = "X-Correlation-Id";
 
+    /// <summary>The name of the per-user rate limit policy.</summary>
     public const string RateLimit = "PerUserRatelimit";
+    /// <summary>The name of the CORS policy.</summary>
     public const string Cors = "CorsPolicy";
 
+    /// <summary>Default colors.</summary>
     public static class Colors
     {
+        /// <summary>The default color for new resources.</summary>
         public const string Default = "#89CEA4";
     }
 }

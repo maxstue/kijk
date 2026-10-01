@@ -8,6 +8,7 @@ namespace Kijk.Api.Extensions.OpenApi;
 /// </summary>
 public sealed class InformationTransformer : IOpenApiDocumentTransformer
 {
+    /// <inheritdoc />
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         document.Info = new() { Version = "v1", Title = "Kijk API", Description = "Kijk API to manage your houses" };

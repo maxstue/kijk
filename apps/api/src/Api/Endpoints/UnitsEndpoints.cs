@@ -19,6 +19,7 @@ public sealed class UnitsEndpoints : IEndpointGroup
 {
     private const string UserOwned = "Units are owned by the current user; the handler scopes all queries to the user.";
 
+    /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/units")

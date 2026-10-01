@@ -16,6 +16,10 @@ public class UpdateUserHandler(
     TimeProvider timeProvider,
     ILogger<UpdateUserHandler> logger) : IHandler
 {
+    /// <summary>Updates the current user's settings.</summary>
+    /// <param name="request">The changes.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The updated settings.</returns>
     public async Task<Result<UserResponse>> UpdateAsync(UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var userEntity = await dbContext.Users

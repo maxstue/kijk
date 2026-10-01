@@ -2103,9 +2103,11 @@
         "properties": {
           "roleId": {
             "type": "string",
+            "description": "The identifier of the new role.",
             "format": "uuid"
           }
-        }
+        },
+        "description": "Contains the new role of a household member."
       },
       "ConsumptionLimitResourceResponse": {
         "required": [
@@ -2129,7 +2131,8 @@
           "color": {
             "type": "string"
           }
-        }
+        },
+        "description": "The resource governed by a consumption limit."
       },
       "ConsumptionLimitResponse": {
         "required": [
@@ -2222,7 +2225,8 @@
             ],
             "format": "date-time"
           }
-        }
+        },
+        "description": "A consumption limit together with its current evaluation data."
       },
       "ConsumptionResourceResponse": {
         "required": [
@@ -2236,21 +2240,27 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The resource id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The resource name."
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "description": "The unit symbol."
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "The display color."
           },
           "icon": {
-            "type": "string"
+            "type": "string",
+            "description": "The icon name."
           }
-        }
+        },
+        "description": "The resource of a consumption entry."
       },
       "ConsumptionResponse": {
         "required": [
@@ -2268,16 +2278,19 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The consumption id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The display name."
           },
           "description": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "An optional description."
           },
           "value": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -2285,13 +2298,16 @@
               "number",
               "string"
             ],
+            "description": "The entered value.",
             "format": "double"
           },
           "valueType": {
+            "description": "Whether Value is a meter reading or a relative value.",
             "$ref": "#/components/schemas/ConsumptionValueType"
           },
           "startsNewMeterSegment": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the reading starts a new meter segment."
           },
           "calculatedConsumption": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -2299,13 +2315,16 @@
               "number",
               "string"
             ],
+            "description": "The normalized consumption of this entry.",
             "format": "double"
           },
           "resource": {
+            "description": "The consumed resource.",
             "$ref": "#/components/schemas/ConsumptionResourceResponse"
           },
           "date": {
             "type": "string",
+            "description": "The UTC calendar day.",
             "format": "date-time"
           },
           "calculatedMeterReading": {
@@ -2315,9 +2334,11 @@
               "number",
               "string"
             ],
+            "description": "The effective cumulative meter reading after applying this entry, when an absolute baseline exists.",
             "format": "double"
           }
-        }
+        },
+        "description": "A consumption entry."
       },
       "ConsumptionStatsResourceResponse": {
         "required": [
@@ -2331,21 +2352,27 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The resource id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The resource name."
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "description": "The unit symbol."
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "The display color."
           },
           "icon": {
-            "type": "string"
+            "type": "string",
+            "description": "The icon name."
           }
-        }
+        },
+        "description": "The resource a statistic belongs to."
       },
       "ConsumptionStatsResponse": {
         "required": [
@@ -2363,6 +2390,7 @@
         "type": "object",
         "properties": {
           "resource": {
+            "description": "The resource.",
             "$ref": "#/components/schemas/ConsumptionStatsResourceResponse"
           },
           "monthTotal": {
@@ -2371,6 +2399,7 @@
               "number",
               "string"
             ],
+            "description": "Total of the selected month.",
             "format": "double"
           },
           "yearTotal": {
@@ -2379,6 +2408,7 @@
               "number",
               "string"
             ],
+            "description": "Total of the selected year.",
             "format": "double"
           },
           "yearAverage": {
@@ -2387,6 +2417,7 @@
               "number",
               "string"
             ],
+            "description": "Average monthly total of the selected year (months with entries only).",
             "format": "double"
           },
           "yearMin": {
@@ -2395,6 +2426,7 @@
               "number",
               "string"
             ],
+            "description": "Lowest monthly total of the selected year.",
             "format": "double"
           },
           "yearMax": {
@@ -2403,6 +2435,7 @@
               "number",
               "string"
             ],
+            "description": "Highest monthly total of the selected year.",
             "format": "double"
           },
           "comparisonYear": {
@@ -2411,6 +2444,7 @@
               "number",
               "string"
             ],
+            "description": "Total of the comparison year (previous year for the current year, otherwise the current year).",
             "format": "double"
           },
           "comparisonYearDiff": {
@@ -2419,6 +2453,7 @@
               "number",
               "string"
             ],
+            "description": "Difference between the selected and the comparison year.",
             "format": "double"
           },
           "comparisonMonth": {
@@ -2427,6 +2462,7 @@
               "number",
               "string"
             ],
+            "description": "Total of the comparison month (previous month for the current month, otherwise the current month).",
             "format": "double"
           },
           "comparisonMonthDiff": {
@@ -2435,15 +2471,18 @@
               "number",
               "string"
             ],
+            "description": "Difference between the selected and the comparison month.",
             "format": "double"
           }
-        }
+        },
+        "description": "Consumption statistics of one resource for the selected year and month."
       },
       "ConsumptionValueType": {
         "enum": [
           "Absolute",
           "Relative"
-        ]
+        ],
+        "description": "Describes how a consumption value was entered."
       },
       "CreateConsumptionLimitRequest": {
         "required": [
@@ -2483,7 +2522,8 @@
             "type": "string",
             "format": "uuid"
           }
-        }
+        },
+        "description": "Request for creating a consumption limit."
       },
       "CreateConsumptionRequest": {
         "required": [
@@ -2496,7 +2536,8 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The display name."
           },
           "value": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -2504,30 +2545,37 @@
               "number",
               "string"
             ],
+            "description": "The entered value.",
             "format": "double"
           },
           "valueType": {
+            "description": "Whether Value is a meter reading or the consumed amount.",
             "$ref": "#/components/schemas/CreateConsumptionValueTypes"
           },
           "resourceId": {
             "type": "string",
+            "description": "The consumed resource.",
             "format": "uuid"
           },
           "date": {
             "type": "string",
+            "description": "The consumption date.",
             "format": "date-time"
           },
           "startsNewMeterSegment": {
             "type": "boolean",
+            "description": "Whether a meter reading starts a new segment, e.g. after a meter replacement.",
             "default": false
           }
-        }
+        },
+        "description": "The data of a new consumption."
       },
       "CreateConsumptionValueTypes": {
         "enum": [
           "Absolute",
           "Relative"
-        ]
+        ],
+        "description": "How the entered value of a consumption is interpreted."
       },
       "CreateResourceRequest": {
         "required": [
@@ -2539,19 +2587,24 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The resource name."
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "The display color."
           },
           "icon": {
-            "type": "string"
+            "type": "string",
+            "description": "The icon name."
           },
           "unitId": {
             "type": "string",
+            "description": "The unit id.",
             "format": "uuid"
           }
-        }
+        },
+        "description": "Command to create a new resource type."
       },
       "CreateUnitRequest": {
         "required": [
@@ -2591,33 +2644,40 @@
               "format": "uuid"
             }
           }
-        }
+        },
+        "description": "Creates a reusable user unit."
       },
       "CreatorType": {
         "enum": [
           "System",
           "User"
-        ]
+        ],
+        "description": "Represents who was the creator of the object."
       },
       "CurrentUserResponse": {
         "type": "object",
         "properties": {
           "status": {
+            "description": "Gets the current account state.",
             "$ref": "#/components/schemas/CurrentUserStatus"
           },
           "user": {
+            "description": "Gets the persisted Kijk user when the account is ready.",
             "$ref": "#/components/schemas/GetMeUserResponse"
           },
           "identity": {
+            "description": "Gets the authenticated provider identity.",
             "$ref": "#/components/schemas/ExternalIdentityResponse"
           }
-        }
+        },
+        "description": "Represents the current account while preventing invalid account-state combinations."
       },
       "CurrentUserStatus": {
         "enum": [
           "OnboardingRequired",
           "Ready"
-        ]
+        ],
+        "description": "Describes the account state for the authenticated Clerk identity."
       },
       "ExternalIdentityResponse": {
         "required": [
@@ -2631,21 +2691,25 @@
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The full name, or null when its use is disabled."
           },
           "email": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The primary sign-in email address."
           },
           "imageUrl": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The profile image URL, or null when its use is disabled."
           }
-        }
+        },
+        "description": "Identity data owned by the authentication provider and exposed according to the user's preference."
       },
       "GetMeUserResponse": {
         "required": [
@@ -2726,13 +2790,15 @@
             }
           },
           "onboardingCompleted": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Gets whether the user has completed onboarding."
           },
           "useExternalProfile": {
             "type": [
               "null",
               "boolean"
-            ]
+            ],
+            "description": "Gets whether Kijk may use the external full name and profile image."
           },
           "externalIdentity": {
             "oneOf": [
@@ -2740,11 +2806,13 @@
                 "type": "null"
               },
               {
+                "description": "Gets identity data supplied by the authentication provider.",
                 "$ref": "#/components/schemas/ExternalIdentityResponse"
               }
             ]
           }
-        }
+        },
+        "description": "Represents the persisted Kijk user data for a ready account."
       },
       "GetStatsConsumptionsResponseWrapper": {
         "required": [
@@ -2756,9 +2824,11 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ConsumptionStatsResponse"
-            }
+            },
+            "description": "One entry per resource."
           }
-        }
+        },
+        "description": "Consumption statistics of the active household."
       },
       "GetYearsConsumptionQueryResponse": {
         "required": [
@@ -2775,9 +2845,11 @@
                 "string"
               ],
               "format": "int32"
-            }
+            },
+            "description": "The years."
           }
-        }
+        },
+        "description": "The years with consumptions in the active household."
       },
       "HouseholdMemberResponse": {
         "required": [
@@ -2790,18 +2862,23 @@
         "properties": {
           "userId": {
             "type": "string",
+            "description": "The member's user identifier.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The member's display name."
           },
           "role": {
+            "description": "The member's role in the household.",
             "$ref": "#/components/schemas/HouseholdRoleResponse"
           },
           "isCurrentUser": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the member is the current user."
           }
-        }
+        },
+        "description": "A member of a household."
       },
       "HouseholdRoleResponse": {
         "required": [
@@ -2813,18 +2890,22 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The role identifier.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The role name."
           },
           "permissions": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "The permission names granted by the role."
           }
-        }
+        },
+        "description": "A household role and the permissions it grants."
       },
       "HttpValidationProblemDetails": {
         "type": "object",
@@ -2878,7 +2959,8 @@
           "Month",
           "Quarter",
           "Year"
-        ]
+        ],
+        "description": "Represents a period of time."
       },
       "Problem": {
         "type": "object",
@@ -2991,41 +3073,52 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The resource id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The resource name."
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "The display color."
           },
           "icon": {
-            "type": "string"
+            "type": "string",
+            "description": "The icon name."
           },
           "unitId": {
             "type": "string",
+            "description": "The unit id.",
             "format": "uuid"
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "description": "The unit symbol."
           },
           "unitName": {
-            "type": "string"
+            "type": "string",
+            "description": "The unit name."
           },
           "quantityKey": {
-            "type": "string"
+            "type": "string",
+            "description": "The physical quantity of the unit."
           },
           "creatorType": {
+            "description": "Whether it is a system or a custom resource.",
             "$ref": "#/components/schemas/CreatorType"
           }
-        }
+        },
+        "description": "A resource that consumptions can be recorded for."
       },
       "UnitConversionType": {
         "enum": [
           "UnitsNet",
           "Factor",
           "None"
-        ]
+        ],
+        "description": "Describes how a unit converts to other units of the same physical quantity."
       },
       "UnitPageResponse": {
         "required": [
@@ -3075,7 +3168,8 @@
             ],
             "format": "int32"
           }
-        }
+        },
+        "description": "A server-side page of units for settings views."
       },
       "UnitResponse": {
         "required": [
@@ -3169,7 +3263,8 @@
               "format": "uuid"
             }
           }
-        }
+        },
+        "description": "A unit available to the current user."
       },
       "UpdateConsumptionLimitRequest": {
         "required": [
@@ -3204,7 +3299,8 @@
           "active": {
             "type": "boolean"
           }
-        }
+        },
+        "description": "Request for replacing the editable properties of a consumption limit."
       },
       "UpdateConsumptionRequest": {
         "required": [
@@ -3220,7 +3316,8 @@
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The new display name."
           },
           "value": {
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -3229,9 +3326,11 @@
               "number",
               "string"
             ],
+            "description": "The new value.",
             "format": "double"
           },
           "valueType": {
+            "description": "Whether the value is a meter reading or the consumed amount.",
             "$ref": "#/components/schemas/UpdateConsumptionValueTypes"
           },
           "resourceId": {
@@ -3239,6 +3338,7 @@
               "null",
               "string"
             ],
+            "description": "The new resource.",
             "format": "uuid"
           },
           "date": {
@@ -3246,19 +3346,23 @@
               "null",
               "string"
             ],
+            "description": "The new date.",
             "format": "date-time"
           },
           "startsNewMeterSegment": {
             "type": "boolean",
+            "description": "Whether a meter reading starts a new segment.",
             "default": false
           }
-        }
+        },
+        "description": "Changes to a consumption; `null` values keep the current value."
       },
       "UpdateConsumptionValueTypes": {
         "enum": [
           "Absolute",
           "Relative"
-        ]
+        ],
+        "description": "How the entered value of a consumption is interpreted."
       },
       "UpdateHouseholdRequest": {
         "required": [
@@ -3268,15 +3372,18 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The household name."
           },
           "description": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "An optional household description."
           }
-        }
+        },
+        "description": "Contains the editable details for a household."
       },
       "UpdateResourceRequest": {
         "required": [
@@ -3291,28 +3398,33 @@
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The optional resource name."
           },
           "color": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The optional six-digit hex color."
           },
           "icon": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The optional Lucide icon name."
           },
           "unitId": {
             "type": [
               "null",
               "string"
             ],
+            "description": "The optional unit identifier.",
             "format": "uuid"
           }
-        }
+        },
+        "description": "Request to update one or more properties of a custom resource."
       },
       "UpdateUnitRequest": {
         "required": [
@@ -3341,7 +3453,8 @@
             ],
             "format": "double"
           }
-        }
+        },
+        "description": "Updates user-editable unit metadata."
       },
       "UpdateUserRequest": {
         "required": [
@@ -3357,25 +3470,29 @@
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The new display name."
           },
           "useDefaultResources": {
             "type": [
               "null",
               "boolean"
-            ]
+            ],
+            "description": "Whether the system default resources should be enabled."
           },
           "useExternalProfile": {
             "type": [
               "null",
               "boolean"
-            ]
+            ],
+            "description": "Whether Kijk may use the name and image from the authentication provider."
           },
           "householdName": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The new name of the active household."
           },
           "analyticsConsent": {
             "oneOf": [
@@ -3383,11 +3500,13 @@
                 "type": "null"
               },
               {
+                "description": "The new analytics preference.",
                 "$ref": "#/components/schemas/AnalyticsConsent"
               }
             ]
           }
-        }
+        },
+        "description": "Changes to the current user; `null` values are left unchanged."
       },
       "UserHouseholdResponse": {
         "required": [
@@ -3401,24 +3520,30 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The household id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The household name."
           },
           "description": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "An optional description."
           },
           "role": {
+            "description": "The user's role in the household.",
             "$ref": "#/components/schemas/UserHouseholdRoleResponse"
           },
           "isActive": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether this is the user's active household."
           }
-        }
+        },
+        "description": "A household membership of the current user."
       },
       "UserHouseholdRoleResponse": {
         "required": [
@@ -3430,18 +3555,22 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The role id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The role name."
           },
           "permissions": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "The permissions the role grants."
           }
-        }
+        },
+        "description": "The user's role in a household."
       },
       "UserResourceResponse": {
         "required": [
@@ -3455,21 +3584,27 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The resource id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The resource name."
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "description": "The unit symbol."
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "description": "The display color."
           },
           "creatorType": {
+            "description": "Whether it is a system or a custom resource.",
             "$ref": "#/components/schemas/CreatorType"
           }
-        }
+        },
+        "description": "A resource the user has enabled."
       },
       "UserResponse": {
         "required": [
@@ -3486,31 +3621,36 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The user id.",
             "format": "uuid"
           },
           "authId": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The authentication provider's user id."
           },
           "name": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The display name."
           },
           "email": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The email address."
           },
           "useDefaultResources": {
             "type": [
               "null",
               "boolean"
-            ]
+            ],
+            "description": "Whether the system default resources are enabled."
           },
           "analyticsConsent": {
             "oneOf": [
@@ -3518,6 +3658,7 @@
                 "type": "null"
               },
               {
+                "description": "The analytics preference.",
                 "$ref": "#/components/schemas/AnalyticsConsent"
               }
             ]
@@ -3527,6 +3668,7 @@
               "null",
               "string"
             ],
+            "description": "When the analytics preference last changed.",
             "format": "date-time"
           },
           "onboardingCompletedAt": {
@@ -3534,12 +3676,15 @@
               "null",
               "string"
             ],
+            "description": "When onboarding was completed.",
             "format": "date-time"
           },
           "onboardingCompleted": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Gets whether the user has completed onboarding."
           }
-        }
+        },
+        "description": "The current user's account settings."
       },
       "WelcomeUserRequest": {
         "required": [
@@ -3552,21 +3697,27 @@
         "type": "object",
         "properties": {
           "displayName": {
-            "type": "string"
+            "type": "string",
+            "description": "The display name used by Kijk."
           },
           "householdName": {
-            "type": "string"
+            "type": "string",
+            "description": "The name of the user's active household."
           },
           "useDefaultResources": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether all system default resources should be enabled."
           },
           "useExternalProfile": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether Kijk may use the Clerk-managed full name and profile image."
           },
           "analyticsConsent": {
+            "description": "The user's explicit analytics preference.",
             "$ref": "#/components/schemas/AnalyticsConsent"
           }
-        }
+        },
+        "description": "Completes the setup of a newly registered user."
       }
     },
     "responses": {

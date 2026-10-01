@@ -16,6 +16,11 @@ public class UpdateResourceHandler(
     IUnitConversionService unitConversionService,
     ILogger<UpdateResourceHandler> logger) : IHandler
 {
+    /// <summary>Updates a custom resource of the active household.</summary>
+    /// <param name="id">The resource id.</param>
+    /// <param name="request">The new resource data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The updated resource.</returns>
     public async Task<Result<ResourceResponse>> UpdateAsync(Guid id, UpdateResourceRequest request, CancellationToken cancellationToken)
     {
         var resourceResult = await ResourceHelpers.GetModifiableResourceAsync(dbContext, currentUser, id, cancellationToken);

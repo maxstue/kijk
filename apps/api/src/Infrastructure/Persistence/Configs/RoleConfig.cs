@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Infrastructure.Persistence.Configs;
 
+/// <summary>EF Core mapping of <see cref="Role" />.</summary>
 public class RoleConfig : IEntityTypeConfiguration<Role>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.HasKey(x => x.Id);

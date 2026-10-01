@@ -3,8 +3,10 @@ using Microsoft.OpenApi;
 
 namespace Kijk.Api.Extensions.OpenApi;
 
+/// <summary>Adds the shared problem-details responses to every OpenAPI operation.</summary>
 public class OperationResponseTransformer : IOpenApiOperationTransformer
 {
+    /// <inheritdoc />
     public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
         operation.Responses ??= new();

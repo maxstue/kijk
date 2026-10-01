@@ -10,9 +10,19 @@ namespace Kijk.Application.Units.Manage;
 /// </summary>
 public sealed class ManageUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
+    /// <summary>Archives or restores a unit owned by the current user.</summary>
+    /// <param name="id">The unit id.</param>
+    /// <param name="archived">Whether to archive (<see langword="true" />) or restore it.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns><see langword="true" />, or a not-found error.</returns>
     public Task<Result<bool>> ArchiveAsync(Guid id, bool archived, CancellationToken cancellationToken) =>
         SetArchivedAsync(id, archived, cancellationToken);
 
+    /// <summary>Shares a unit owned by the current user with a household; requires the units:share permission there.</summary>
+    /// <param name="id">The unit id.</param>
+    /// <param name="householdId">The household id.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns><see langword="true" />, or a not-found/authorization error.</returns>
     public async Task<Result<bool>> ShareAsync(Guid id, Guid householdId, CancellationToken cancellationToken)
     {
         var unit = await dbContext.Units.Include(item => item.Households)
@@ -44,6 +54,11 @@ public sealed class ManageUnitHandler(IAppDbContext dbContext, CurrentUser curre
         return true;
     }
 
+    /// <summary>Removes a share of a unit owned by the current user; requires the units:share permission in the household.</summary>
+    /// <param name="id">The unit id.</param>
+    /// <param name="householdId">The household id.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns><see langword="true" />, or a not-found/authorization/conflict error.</returns>
     public async Task<Result<bool>> UnshareAsync(Guid id, Guid householdId, CancellationToken cancellationToken)
     {
         var link = await dbContext.UnitHouseholds
@@ -70,6 +85,10 @@ public sealed class ManageUnitHandler(IAppDbContext dbContext, CurrentUser curre
         return true;
     }
 
+    /// <summary>Deletes an unused, unshared unit owned by the current user.</summary>
+    /// <param name="id">The unit id.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns><see langword="true" />, or a not-found/conflict error.</returns>
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var unit = await dbContext.Units.Include(item => item.Households)

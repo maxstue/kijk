@@ -16,6 +16,7 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public sealed class ConsumptionLimitsEndpoints : IEndpointGroup
 {
+    /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("consumption-limits")

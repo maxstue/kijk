@@ -20,6 +20,11 @@ public class UpdateConsumptionHandler(
     IUnitConversionService unitConversionService,
     ILogger<UpdateConsumptionHandler> logger) : IHandler
 {
+    /// <summary>Updates a consumption of the active household and recalculates affected meter readings.</summary>
+    /// <param name="id">The consumption id.</param>
+    /// <param name="request">The changes.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The updated consumption.</returns>
     public async Task<Result<ConsumptionResponse>> UpdateAsync(Guid id, UpdateConsumptionRequest request, CancellationToken cancellationToken)
     {
         var household = await dbContext.Households

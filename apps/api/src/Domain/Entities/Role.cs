@@ -5,9 +5,12 @@ namespace Kijk.Domain.Entities;
 /// </summary>
 public class Role : BaseEntity
 {
+    /// <summary>Gets the role name.</summary>
     public required string Name { get; init; }
 
+    /// <summary>Gets or sets the permissions granted by the role.</summary>
     public required ICollection<Permission> Permissions { get; set; } = [];
+    /// <summary>Gets or sets the memberships that have this role.</summary>
     public ICollection<UserHousehold>? UserHouseholds { get; set; } = [];
 
     /// <summary>

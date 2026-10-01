@@ -12,6 +12,10 @@ namespace Kijk.Application.Resources.Create;
 /// </summary>
 public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
 {
+    /// <summary>Creates a custom resource in the active household.</summary>
+    /// <param name="request">The resource data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created resource, or a conflict if it already exists.</returns>
     public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest request, CancellationToken cancellationToken)
     {
         var household = await dbContext.Households

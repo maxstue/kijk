@@ -22,10 +22,14 @@ using Serilog;
 
 namespace Kijk.Infrastructure;
 
+/// <summary>Registers the infrastructure services: persistence, authentication, authorization, telemetry and logging.</summary>
 public static class DependencyInjection
 {
     extension(IServiceCollection services)
     {
+        /// <summary>Registers all infrastructure services.</summary>
+        /// <param name="configuration">The application configuration.</param>
+        /// <returns>The service collection.</returns>
         public IServiceCollection AddInfrastructure(IConfiguration configuration) =>
             services.AddOptions(configuration)
                 .AddDatabase(configuration)
@@ -182,7 +186,7 @@ public static class DependencyInjection
         /// Adds logging integration to the WebApplicationBuilder.
         /// This includes Serilog.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The service collection.</returns>
         private IServiceCollection AddLogging(IConfiguration configuration)
         {
             services.AddSerilog((sp, lc) =>

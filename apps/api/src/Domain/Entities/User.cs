@@ -3,6 +3,7 @@ using Kijk.Shared.Exceptions;
 
 namespace Kijk.Domain.Entities;
 
+/// <summary>A Kijk user, linked to an identity of the authentication provider.</summary>
 public sealed class User : BaseEntity
 {
     /// <summary>
@@ -10,16 +11,22 @@ public sealed class User : BaseEntity
     /// </summary>
     public required string AuthId { get; init; }
 
+    /// <summary>Gets or sets the display name.</summary>
     public required string Name { get; set; }
 
+    /// <summary>Gets the email address.</summary>
     public string? Email { get; init; }
 
+    /// <summary>Gets the profile image URL.</summary>
     public string? Image { get; init; }
 
+    /// <summary>Gets the analytics preference, or <see langword="null" /> before the user decided.</summary>
     public AnalyticsConsent? AnalyticsConsent { get; private set; }
 
+    /// <summary>Gets when the analytics preference last changed (UTC).</summary>
     public DateTime? AnalyticsConsentUpdatedAt { get; private set; }
 
+    /// <summary>Gets when onboarding was completed (UTC), or <see langword="null" /> while it is pending.</summary>
     public DateTime? OnboardingCompletedAt { get; private set; }
 
     /// <summary>
@@ -27,6 +34,7 @@ public sealed class User : BaseEntity
     /// </summary>
     public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
 
+    /// <summary>Gets the user's household memberships.</summary>
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
 
     /// <summary>
@@ -38,12 +46,17 @@ public sealed class User : BaseEntity
     /// Returns the active household id for the user.
     /// It should never be null as it is set when the user is created.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The active household id.</returns>
+    /// <exception cref="NullException">The user has no active household.</exception>
     public Guid GetActiveHouseHoldId() => UserHouseholds.SingleOrDefault(x => x.IsActive)?.HouseholdId ?? throw new NullException("Active household not found");
 
     private readonly List<Resource> _resources = [];
+    /// <summary>Gets the resources the user has enabled.</summary>
     public IEnumerable<Resource> Resources => _resources;
 
+    /// <summary>Removes an enabled resource.</summary>
+    /// <param name="resourceId">The resource id.</param>
+    /// <exception cref="ArgumentException">The resource is not enabled for the user.</exception>
     public void DeleteResource(Guid resourceId)
     {
         var resource = _resources.Find(x => x.Id == resourceId) ?? throw new ArgumentException($"Resource with id {resourceId} does not exist for user {Id}");
@@ -51,6 +64,9 @@ public sealed class User : BaseEntity
         _resources.Remove(resource);
     }
 
+    /// <summary>Enables a resource.</summary>
+    /// <param name="resource">The resource.</param>
+    /// <exception cref="ArgumentException">The resource is already enabled.</exception>
     public void AddResource(Resource resource)
     {
         if (_resources.Any(x => x.Id == resource.Id))
@@ -61,6 +77,9 @@ public sealed class User : BaseEntity
         _resources.Add(resource);
     }
 
+    /// <summary>Enables or disables the system default resources.</summary>
+    /// <param name="useDefault">Whether the default resources should be enabled.</param>
+    /// <param name="defaultResources">The system default resources.</param>
     public void SetDefaultResources(bool useDefault, List<Resource> defaultResources)
     {
         var resourceIds = _resources.Select(x => x.Id).ToHashSet();
@@ -76,6 +95,10 @@ public sealed class User : BaseEntity
         }
     }
 
+    /// <summary>Completes onboarding with the chosen name and analytics preference.</summary>
+    /// <param name="displayName">The display name.</param>
+    /// <param name="analyticsConsent">The analytics preference.</param>
+    /// <param name="completedAt">The completion time (UTC).</param>
     public void CompleteOnboarding(string displayName, AnalyticsConsent analyticsConsent, DateTime completedAt)
     {
         Name = displayName;
@@ -89,12 +112,20 @@ public sealed class User : BaseEntity
     /// </summary>
     public void ResetOnboarding() => OnboardingCompletedAt = null;
 
+    /// <summary>Changes the analytics preference.</summary>
+    /// <param name="analyticsConsent">The new preference.</param>
+    /// <param name="updatedAt">The change time (UTC).</param>
     public void UpdateAnalyticsConsent(AnalyticsConsent analyticsConsent, DateTime updatedAt)
     {
         AnalyticsConsent = analyticsConsent;
         AnalyticsConsentUpdatedAt = updatedAt;
     }
 
+    /// <summary>Creates a user whose onboarding is still pending.</summary>
+    /// <param name="authId">The authentication provider's user id.</param>
+    /// <param name="name">The display name.</param>
+    /// <param name="email">The email address.</param>
+    /// <returns>The new user.</returns>
     public static User Init(string authId, string name, string? email) => new()
     {
         AuthId = authId,

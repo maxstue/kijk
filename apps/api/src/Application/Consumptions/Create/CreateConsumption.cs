@@ -14,6 +14,10 @@ namespace Kijk.Application.Consumptions.Create;
 /// </summary>
 public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<CreateConsumptionHandler> logger) : IHandler
 {
+    /// <summary>Records a consumption in the active household and recalculates later meter readings.</summary>
+    /// <param name="request">The consumption data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created consumption.</returns>
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest request, CancellationToken cancellationToken)
     {
         // Load household without including the Consumptions navigation to avoid materializing it as a fixed-size array during fixup

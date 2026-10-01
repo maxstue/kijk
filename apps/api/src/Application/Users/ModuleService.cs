@@ -10,6 +10,7 @@ namespace Kijk.Application.Users;
 /// </summary>
 public class ModuleService : IModule
 {
+    /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         services.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();

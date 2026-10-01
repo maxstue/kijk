@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Infrastructure.Persistence.Configs;
 
+/// <summary>EF Core mapping of <see cref="Permission" />.</summary>
 public class PermissionConfig : IEntityTypeConfiguration<Permission>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
         builder.HasKey(x => x.Id);

@@ -1,13 +1,19 @@
 ﻿namespace Kijk.Domain.Entities;
 
+/// <summary>A user's membership in a household, including the user's role there.</summary>
 public sealed class UserHousehold : BaseEntity
 {
+    /// <summary>Gets the id of <see cref="User" />.</summary>
     public Guid UserId { get; init; }
+    /// <summary>Gets the member.</summary>
     public required User User { get; init; }
 
+    /// <summary>Gets the id of <see cref="Household" />.</summary>
     public Guid HouseholdId { get; init; }
+    /// <summary>Gets the household.</summary>
     public required Household Household { get; init; }
 
+    /// <summary>Gets the id of <see cref="Role" />.</summary>
     public Guid RoleId { get; init; }
 
     /// <summary>
@@ -37,6 +43,12 @@ public sealed class UserHousehold : BaseEntity
         Role = role;
     }
 
+    /// <summary>Creates a membership.</summary>
+    /// <param name="user">The member.</param>
+    /// <param name="household">The household.</param>
+    /// <param name="role">The member's role.</param>
+    /// <param name="isActive">Whether this becomes the user's active household.</param>
+    /// <returns>The new membership.</returns>
     public static UserHousehold Create(User user, Household household, Role role, bool isActive = false) =>
         new()
         {

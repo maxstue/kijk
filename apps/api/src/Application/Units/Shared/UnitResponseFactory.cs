@@ -8,6 +8,12 @@ namespace Kijk.Application.Units.Shared;
 /// </summary>
 public static class UnitResponseFactory
 {
+    /// <summary>Creates the response for a unit as seen by the current user.</summary>
+    /// <param name="unit">The unit with its household shares loaded.</param>
+    /// <param name="currentUser">The current user.</param>
+    /// <param name="resourceCount">The number of resources using the unit.</param>
+    /// <param name="householdId">The household context; defaults to the active household.</param>
+    /// <returns>The response.</returns>
     public static UnitResponse Create(Unit unit, CurrentUser currentUser, int resourceCount, Guid? householdId = null) => new(
         unit.Id,
         unit.Name,

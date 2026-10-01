@@ -11,6 +11,11 @@ namespace Kijk.Application.Consumptions.GetByYearMonth;
 /// </summary>
 public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
+    /// <summary>Gets the consumptions of the active household, newest first.</summary>
+    /// <param name="year">The year, or <see langword="null" /> for all years.</param>
+    /// <param name="month">The English month name, or <see langword="null" /> for all months.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The consumptions, or a validation error for an invalid month.</returns>
     public async Task<Result<List<ConsumptionResponse>>> GetByYearMonthAsync(int? year, string? month, CancellationToken cancellationToken)
     {
         var monthInt = -1;

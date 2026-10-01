@@ -19,6 +19,7 @@ public class UsersEndpoints : IEndpointGroup
 {
     private const string CurrentUserOnly = "Only reads or changes the current user's own account.";
 
+    /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/users")
@@ -45,9 +46,9 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Gets the current user.
     /// </summary>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> GetMe(GetMeUserHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.GetMeAsync(cancellationToken);
@@ -57,10 +58,10 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Updates the current user.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="request">The request body.</param>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<UserResponse>, ProblemHttpResult>> Update(UpdateUserRequest request, UpdateUserHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.UpdateAsync(request, cancellationToken);
@@ -70,10 +71,10 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Registers a new user and sets some default values.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="request">The request body.</param>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> Onboarding([FromBody] WelcomeUserRequest request, WelcomeUserHandler handler,
         CancellationToken cancellationToken)
     {

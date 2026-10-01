@@ -10,6 +10,10 @@ namespace Kijk.Application.Units.Create;
 /// </summary>
 public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
+    /// <summary>Creates a unit owned by the current user and optionally shares it with households.</summary>
+    /// <param name="request">The unit data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created unit.</returns>
     public async Task<Result<UnitResponse>> CreateAsync(CreateUnitRequest request, CancellationToken cancellationToken)
     {
         var reference = await dbContext.Units

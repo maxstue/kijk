@@ -6,14 +6,15 @@ using Sentry.Extensibility;
 
 namespace Kijk.Infrastructure.Telemetry;
 
+/// <summary>Host builder extensions for telemetry.</summary>
 public static class HostExtensions
 {
     /// <summary>
     /// Adds telemetry tracking to the application.
     /// This includes error reporting to Sentry.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
+    /// <param name="builder">The web application builder.</param>
+    /// <returns>The web application builder.</returns>
     public static WebApplicationBuilder AddTelemetryTracking(this WebApplicationBuilder builder)
     {
         builder.WebHost.UseSentry(options =>

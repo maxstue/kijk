@@ -7,6 +7,7 @@ namespace Kijk.Application.Units.Create;
 /// </summary>
 public sealed class CreateUnitRequestValidator : AbstractValidator<CreateUnitRequest>
 {
+    /// <summary>Creates the validator rules for new units.</summary>
     public CreateUnitRequestValidator()
     {
         RuleFor(request => request.Name).NotEmpty().MaximumLength(50).WithErrorCode(ErrorCodes.ValidationError);

@@ -10,7 +10,7 @@ public interface IModule
     /// <summary>
     /// Registers services for the module.
     /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection.</returns>
     IServiceCollection RegisterServices(IServiceCollection services);
 }

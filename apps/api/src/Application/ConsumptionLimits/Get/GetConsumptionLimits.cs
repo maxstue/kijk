@@ -9,6 +9,9 @@ namespace Kijk.Application.ConsumptionLimits.Get;
 /// </summary>
 public sealed class GetConsumptionLimitsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
+    /// <summary>Gets all limits of the active household with their current evaluation.</summary>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The limits.</returns>
     public async Task<Result<List<ConsumptionLimitResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var limits = await dbContext.ConsumptionsLimits
@@ -24,6 +27,10 @@ public sealed class GetConsumptionLimitsHandler(IAppDbContext dbContext, Current
         return limits.Select(limit => ConsumptionLimitEvaluation.ToResponse(limit, consumptions, utcNow)).ToList();
     }
 
+    /// <summary>Gets a limit of the active household with its current evaluation.</summary>
+    /// <param name="id">The limit id.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The limit, or a not-found error.</returns>
     public async Task<Result<ConsumptionLimitResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var limit = await dbContext.ConsumptionsLimits

@@ -7,6 +7,7 @@ namespace Kijk.Application.Consumptions.Create;
 /// </summary>
 public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsumptionRequest>
 {
+    /// <summary>Creates the validator rules for new consumptions.</summary>
     public CreateConsumptionCommandValidator()
     {
         RuleFor(x => x.Name)
