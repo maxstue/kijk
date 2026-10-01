@@ -27,7 +27,7 @@ public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentU
         var consumptions = await dbContext.Consumptions
             .AsNoTracking()
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
-            .Include(x => x.Resource)
+            .Include(x => x.Resource).ThenInclude(resource => resource.Unit)
             .ToListAsync(cancellationToken);
 
         var calculatedMeterReadings = consumptions
