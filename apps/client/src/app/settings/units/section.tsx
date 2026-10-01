@@ -14,6 +14,7 @@ import { Link } from '@tanstack/react-router';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 
+import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
 import { systemUnitsQueryOptions, unitPageQueryOptions } from '@/shared/api/units/options';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 
@@ -39,6 +40,9 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
   const activeHousehold = households.find((household) => household.isActive);
   const householdId = selectedHouseholdId ?? activeHousehold?.id;
   const selectedHousehold = households.find((household) => household.id === householdId);
+  const shareableHouseholds = households.filter((household) =>
+    hasHouseholdPermission(household, HouseholdPermissions.units.share),
+  );
 
   return (
     <div className='space-y-6'>
@@ -98,7 +102,7 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
         <CardContent>
           <UnitTable
             householdId={householdId}
-            households={households}
+            shareableHouseholds={shareableHouseholds}
             isPending={isPending}
             items={pageData?.items ?? []}
             page={page}

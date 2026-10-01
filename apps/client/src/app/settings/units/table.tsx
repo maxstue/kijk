@@ -9,7 +9,8 @@ import { UnitRowActions } from './row-actions';
 
 interface Props {
   householdId?: string;
-  households: Array<{ id: string; name: string }>;
+  /** Households in which the user's role allows sharing units. */
+  shareableHouseholds: Array<{ id: string; name: string }>;
   isPending: boolean;
   items: Unit[];
   page: number;
@@ -24,7 +25,7 @@ interface Props {
 
 export function UnitTable({
   householdId,
-  households,
+  shareableHouseholds,
   isPending,
   items,
   page,
@@ -99,7 +100,7 @@ export function UnitTable({
                   <TableCell>
                     <UnitRowActions
                       householdId={householdId}
-                      households={households}
+                      shareableHouseholds={shareableHouseholds}
                       scope={scope}
                       systemUnits={systemUnits}
                       unit={unit}

@@ -15,6 +15,7 @@ import { useState } from 'react';
 
 import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/columns';
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
+import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { DataTable } from '@/shared/components/data-table';
@@ -26,7 +27,7 @@ export function ResourceTypesSection() {
   const { data } = useSuspenseQuery(resourcesQueryOptions());
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const activeHousehold = currentAccount?.user?.households?.find((household) => household.isActive);
-  const canManage = activeHousehold?.role.name === 'Admin';
+  const canManage = hasHouseholdPermission(activeHousehold, HouseholdPermissions.resources.configure);
   const columns = getResourceTypeColumns(canManage);
 
   const handleClose = () => setShowDialog(false);
@@ -47,7 +48,7 @@ export function ResourceTypesSection() {
             <DialogTrigger asChild>
               <Button
                 disabled={!canManage}
-                title={canManage ? undefined : 'Household admin role required'}
+                title={canManage ? undefined : 'Your household role does not allow managing resources'}
                 variant='outline'
               >
                 Create

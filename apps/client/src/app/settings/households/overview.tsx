@@ -13,7 +13,7 @@ const sections = [
     section: 'general',
   },
   {
-    description: 'Your membership and role in this household',
+    description: 'Members, roles, and what each role allows',
     icon: Users,
     label: 'Members',
     section: 'members',

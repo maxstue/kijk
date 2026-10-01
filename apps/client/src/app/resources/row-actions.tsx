@@ -85,7 +85,7 @@ function getManagementRestriction(creatorType: CreatorType, canManage: boolean) 
   }
 
   if (!canManage) {
-    return 'Household admin role required.';
+    return 'Your household role does not allow managing resources.';
   }
 }
 

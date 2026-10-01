@@ -27,13 +27,14 @@ import { UnitUpdateForm } from './update-form';
 
 interface Props {
   householdId?: string;
-  households: Array<{ id: string; name: string }>;
+  /** Households in which the user's role allows sharing units. */
+  shareableHouseholds: Array<{ id: string; name: string }>;
   scope: 'household' | 'personal';
   systemUnits: Unit[];
   unit: Unit;
 }
 
-export function UnitRowActions({ householdId, households, scope, systemUnits, unit }: Props) {
+export function UnitRowActions({ householdId, scope, shareableHouseholds, systemUnits, unit }: Props) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
@@ -41,7 +42,8 @@ export function UnitRowActions({ householdId, households, scope, systemUnits, un
   const shareMutation = useMutation(shareUnitMutationOptions());
   const unshareMutation = useMutation(unshareUnitMutationOptions());
   const canDelete = Number(unit.resourceCount) === 0 && unit.householdIds.length === 0;
-  const canUnshare = scope === 'household' && unit.isOwner && householdId;
+  const canUnshare =
+    scope === 'household' && unit.isOwner && shareableHouseholds.some((household) => household.id === householdId);
 
   function restore() {
     archiveMutation.mutate(
@@ -115,7 +117,7 @@ export function UnitRowActions({ householdId, households, scope, systemUnits, un
             {scope === 'personal' &&
               unit.isOwner &&
               !unit.isArchived &&
-              households
+              shareableHouseholds
                 .filter((household) => !unit.householdIds.includes(household.id))
                 .map((household) => (
                   <DropdownMenuItem
