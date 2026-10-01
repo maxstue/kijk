@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "infisical run --project-config-dir=../.. --path=/Client -- vp dev",
-    "api:generate": "openapi-typescript ../api/src/Api/kijk_openapi.json -o src/shared/api/generated/kijk.ts && oxfmt src/shared/api/generated/kijk.ts",
+    "api:generate": "pnpm --filter @kijk/openapi-codegen generate && oxfmt src/shared/api/generated/kijk.ts",
     "build": "tsc && vp build",
     "preview": "vp preview",
     "test": "vp test run",
@@ -81,7 +81,6 @@
     "eslint-plugin-react-hooks": "catalog:",
     "globals": "catalog:",
     "msw": "catalog:",
-    "openapi-typescript": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
