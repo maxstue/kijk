@@ -3,6 +3,7 @@ using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Shared;
 using Kijk.Domain.Authorization;
+using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -46,25 +47,10 @@ public class UpdateUserHandler(
             userEntity.Name = request.UserName.Trim();
         }
 
-        if (request.HouseholdName is not null)
+        if (request.HouseholdName is not null
+            && await RenameActiveHouseholdAsync(userEntity, request.HouseholdName.Trim(), cancellationToken) is { } renameError)
         {
-            var activeHousehold = userEntity.UserHouseholds.SingleOrDefault(x => x.IsActive)?.Household;
-            if (activeHousehold is null)
-            {
-                logger.LogWarning("Active household for user with id '{Id}' not found", currentUser.Id);
-                return Error.NotFound("Active household not found");
-            }
-
-            var householdName = request.HouseholdName.Trim();
-            if (!string.Equals(householdName, activeHousehold.Name, StringComparison.Ordinal))
-            {
-                if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, activeHousehold.Id, HouseholdPermissions.Household.Configure, cancellationToken) is { } error)
-                {
-                    return error;
-                }
-
-                activeHousehold.Rename(householdName);
-            }
+            return renameError;
         }
 
         if (request.AnalyticsConsent is not null)
@@ -77,25 +63,49 @@ public class UpdateUserHandler(
             await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile.Value, cancellationToken);
         }
 
-        var hasDefaultResources = userEntity.Resources.Any(x => x.CreatorType == CreatorType.System);
-
-        if (request.UseDefaultResources is true && !hasDefaultResources)
-        {
-            var defaultTypes = await dbContext.Resources
-                .Where(x => x.CreatorType == CreatorType.System)
-                .ToListAsync(cancellationToken);
-            userEntity.SetDefaultResources(true, defaultTypes);
-        }
-        else if (request.UseDefaultResources is false && hasDefaultResources)
-        {
-            var defaultTypes = await dbContext.Resources
-                .Where(x => x.CreatorType == CreatorType.System)
-                .ToListAsync(cancellationToken);
-            userEntity.SetDefaultResources(false, defaultTypes);
-        }
+        await SetDefaultResourcesAsync(userEntity, request.UseDefaultResources, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return userEntity.ToResponse(userEntity.Resources.Any(resource => resource.CreatorType == CreatorType.System));
+    }
+
+    /// <summary>Renames the user's active household; a changed name requires the household:configure permission.</summary>
+    private async Task<Error?> RenameActiveHouseholdAsync(User user, string householdName, CancellationToken cancellationToken)
+    {
+        var activeHousehold = user.UserHouseholds.SingleOrDefault(x => x.IsActive)?.Household;
+        if (activeHousehold is null)
+        {
+            logger.LogWarning("Active household for user with id '{Id}' not found", currentUser.Id);
+            return Error.NotFound("Active household not found");
+        }
+
+        if (string.Equals(householdName, activeHousehold.Name, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, activeHousehold.Id, HouseholdPermissions.Household.Configure, cancellationToken) is { } error)
+        {
+            return error;
+        }
+
+        activeHousehold.Rename(householdName);
+        return null;
+    }
+
+    /// <summary>Enables or disables the system default resources when the requested state differs.</summary>
+    private async Task SetDefaultResourcesAsync(User user, bool? useDefaultResources, CancellationToken cancellationToken)
+    {
+        var hasDefaultResources = user.Resources.Any(x => x.CreatorType == CreatorType.System);
+        if (useDefaultResources is null || useDefaultResources == hasDefaultResources)
+        {
+            return;
+        }
+
+        var defaultTypes = await dbContext.Resources
+            .Where(x => x.CreatorType == CreatorType.System)
+            .ToListAsync(cancellationToken);
+        user.SetDefaultResources(useDefaultResources.Value, defaultTypes);
     }
 }

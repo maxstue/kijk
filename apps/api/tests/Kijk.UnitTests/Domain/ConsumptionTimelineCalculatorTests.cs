@@ -1,5 +1,6 @@
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
+using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
 
 namespace Kijk.UnitTests.Domain;
@@ -166,11 +167,9 @@ public class ConsumptionTimelineCalculatorTests
         var consumption = Consumption.Create(
             "Reading",
             resource,
-            value,
             household,
             new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc),
-            valueType,
-            calculatedConsumption: 0m);
+            new ConsumptionReading(value, valueType, CalculatedConsumption: 0m));
 
         consumption.Id = Guid.NewGuid();
         return consumption;

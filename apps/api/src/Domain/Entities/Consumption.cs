@@ -1,3 +1,5 @@
+using Kijk.Domain.ValueObjects;
+
 namespace Kijk.Domain.Entities;
 
 /// <summary>
@@ -68,33 +70,27 @@ public sealed class Consumption : BaseEntity
     /// <summary>Creates a consumption; the date is normalized to the UTC calendar day.</summary>
     /// <param name="name">The display name.</param>
     /// <param name="type">The consumed resource.</param>
-    /// <param name="value">The entered value.</param>
     /// <param name="household">The owning household.</param>
     /// <param name="date">The consumption date.</param>
-    /// <param name="valueType">Whether <paramref name="value" /> is a meter reading or a relative value.</param>
-    /// <param name="calculatedConsumption">The normalized consumption of this entry.</param>
-    /// <param name="startsNewMeterSegment">Whether this reading starts a new meter segment.</param>
+    /// <param name="reading">The entered value and how it is interpreted.</param>
     /// <param name="description">An optional description.</param>
     /// <returns>The new consumption.</returns>
     public static Consumption Create(
         string name,
         Resource type,
-        decimal value,
         Household household,
         DateTime date,
-        ConsumptionValueType valueType,
-        decimal calculatedConsumption,
-        bool startsNewMeterSegment = false,
+        ConsumptionReading reading,
         string? description = null) =>
         new()
         {
             Name = name,
             Description = description,
             Resource = type,
-            Value = value,
-            ValueType = valueType,
-            StartsNewMeterSegment = startsNewMeterSegment,
-            CalculatedConsumption = calculatedConsumption,
+            Value = reading.Value,
+            ValueType = reading.ValueType,
+            StartsNewMeterSegment = reading.StartsNewMeterSegment,
+            CalculatedConsumption = reading.CalculatedConsumption,
             Date = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc),
             Household = household
         };

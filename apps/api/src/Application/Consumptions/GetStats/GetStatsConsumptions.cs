@@ -28,7 +28,7 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
         }
 
         var selectedYearUsages = await dbContext.Consumptions
-            .Include(x => x.Resource).ThenInclude(resource => resource.Unit)
+            .Include(x => x.Resource.Unit)
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
             .Where(x => x.Date.Year == year)
             .AsNoTracking()
@@ -39,13 +39,13 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
         var comparisonYearUsages = await dbContext.Consumptions
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
             .Where(x => x.Date.Year == comparisonYear)
-            .Include(x => x.Resource).ThenInclude(resource => resource.Unit)
+            .Include(x => x.Resource.Unit)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
         var comparisonMonth = GetComparisonMonthPeriod(year, selectedMonth);
         var comparisonMonthUsages = await dbContext.Consumptions
-            .Include(x => x.Resource).ThenInclude(resource => resource.Unit)
+            .Include(x => x.Resource.Unit)
             .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
             .Where(x => x.Date.Year == comparisonMonth.Year)
             .Where(x => x.Date.Month == comparisonMonth.Month)

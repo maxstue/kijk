@@ -5,6 +5,7 @@ using Kijk.Application.Consumptions.GetByYearMonth;
 using Kijk.Application.Consumptions.GetStats;
 using Kijk.Application.Consumptions.Update;
 using Kijk.Domain.Entities;
+using Kijk.Domain.ValueObjects;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -85,11 +86,9 @@ public class ConsumptionWorkflowTests
         var foreignConsumption = Consumption.Create(
             "Foreign",
             otherResource,
-            42m,
             otherHousehold,
             UtcDate(2026, 9, 2),
-            ConsumptionValueType.Relative,
-            42m);
+            new ConsumptionReading(42m, ConsumptionValueType.Relative, 42m));
         dbContext.AddRange(otherHousehold, otherResource, foreignConsumption);
         await dbContext.SaveChangesAsync();
 

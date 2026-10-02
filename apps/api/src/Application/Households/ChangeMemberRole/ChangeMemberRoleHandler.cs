@@ -39,8 +39,7 @@ public sealed class ChangeMemberRoleHandler(IAppDbContext dbContext, CurrentUser
 
         var membership = await dbContext.UserHouseholds
             .Include(link => link.User)
-            .Include(link => link.Role)
-                .ThenInclude(role => role.Permissions)
+            .Include(link => link.Role.Permissions)
             .FirstOrDefaultAsync(link => link.HouseholdId == householdId && link.UserId == userId, cancellationToken);
         if (membership is null)
         {

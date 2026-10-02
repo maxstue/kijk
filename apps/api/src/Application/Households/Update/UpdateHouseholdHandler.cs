@@ -20,8 +20,7 @@ public sealed class UpdateHouseholdHandler(IAppDbContext dbContext, CurrentUser 
     {
         var membership = await dbContext.UserHouseholds
             .Include(link => link.Household)
-            .Include(link => link.Role)
-                .ThenInclude(role => role.Permissions)
+            .Include(link => link.Role.Permissions)
             .FirstOrDefaultAsync(link => link.UserId == currentUser.Id && link.HouseholdId == id, cancellationToken);
 
         if (membership is null)

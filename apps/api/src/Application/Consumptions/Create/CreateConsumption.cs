@@ -4,6 +4,7 @@ using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
+using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -44,12 +45,13 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         var consumption = Consumption.Create(
             request.Name,
             resource,
-            request.Value,
             household,
             request.Date,
-            (ConsumptionValueType)request.ValueType,
-            calculatedConsumption: 0m,
-            request.StartsNewMeterSegment);
+            new ConsumptionReading(
+                request.Value,
+                (ConsumptionValueType)request.ValueType,
+                CalculatedConsumption: 0m,
+                request.StartsNewMeterSegment));
 
         var existingConsumptions = await dbContext.Consumptions
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId

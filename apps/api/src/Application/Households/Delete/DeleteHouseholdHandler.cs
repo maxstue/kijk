@@ -22,8 +22,7 @@ public sealed class DeleteHouseholdHandler(IAppDbContext dbContext, CurrentUser 
             .Include(item => item.UserHouseholds)
                 .ThenInclude(link => link.User)
             .Include(item => item.UserHouseholds)
-                .ThenInclude(link => link.Role)
-                    .ThenInclude(role => role.Permissions)
+                .ThenInclude(link => link.Role.Permissions)
             .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
         var currentMembership = household?.UserHouseholds.SingleOrDefault(link => link.UserId == currentUser.Id);

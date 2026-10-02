@@ -1,6 +1,7 @@
 ﻿using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Units.Shared;
+using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -37,64 +38,22 @@ public class UpdateResourceHandler(
         var resource = resourceResult.Value;
 
         var name = request.Name?.Trim() ?? resource.Name;
-        var unit = resource.Unit;
-        if (request.UnitId.HasValue && request.UnitId.Value != resource.UnitId)
+        var unitResult = await ResolveUnitAsync(resource, request.UnitId, cancellationToken);
+        if (unitResult.IsError)
         {
-            unit = await dbContext.GetAvailableUnits(currentUser)
-                .Include(item => item.ReferenceUnit)
-                .FirstOrDefaultAsync(item => item.Id == request.UnitId.Value, cancellationToken);
-            if (unit is null)
-            {
-                return Error.NotFound("Unit is not available in the active household");
-            }
-
-            if (!string.Equals(resource.Unit.QuantityKey, unit.QuantityKey, StringComparison.Ordinal))
-            {
-                return Error.Validation($"'{resource.Unit.Name}' and '{unit.Name}' represent different quantities and cannot be converted");
-            }
+            return unitResult.Error;
         }
 
+        var unit = unitResult.Value;
         if (await ResourceHelpers.HasConflictAsync(dbContext, currentUser, name, unit.Id, id, cancellationToken))
         {
             logger.LogWarning("Resource with name '{Name}' and unit '{UnitId}' already exists", name, unit.Id);
             return Error.Conflict($"A resource with the name '{name}' and unit '{unit.Name}' already exists");
         }
 
-        if (unit.Id != resource.UnitId)
+        if (unit.Id != resource.UnitId && await ConvertToUnitAsync(resource, unit, cancellationToken) is { } conversionError)
         {
-            var consumptions = await dbContext.Consumptions
-                .Where(item => item.ResourceId == resource.Id)
-                .ToListAsync(cancellationToken);
-            foreach (var consumption in consumptions)
-            {
-                var converted = unitConversionService.Convert(consumption.Value, resource.Unit, unit);
-                if (converted.IsError)
-                {
-                    return converted.Error;
-                }
-
-                consumption.Value = converted.Value;
-            }
-
-            var calculation = ConsumptionTimelineCalculator.Recalculate(consumptions);
-            if (calculation.IsError)
-            {
-                return calculation.Error;
-            }
-
-            var limits = await dbContext.ConsumptionsLimits
-                .Where(item => item.ResourceId == resource.Id)
-                .ToListAsync(cancellationToken);
-            foreach (var limit in limits)
-            {
-                var converted = unitConversionService.Convert(limit.Limit, resource.Unit, unit);
-                if (converted.IsError)
-                {
-                    return converted.Error;
-                }
-
-                limit.Update(limit.Name, limit.Description, converted.Value, limit.Period, limit.Active);
-            }
+            return conversionError;
         }
 
         resource.Name = name;
@@ -106,5 +65,66 @@ public class UpdateResourceHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return resource.ToResponse();
+    }
+
+    /// <summary>Resolves the requested unit, which must measure the same quantity as the current unit.</summary>
+    private async Task<Result<Unit>> ResolveUnitAsync(Resource resource, Guid? unitId, CancellationToken cancellationToken)
+    {
+        if (!unitId.HasValue || unitId.Value == resource.UnitId)
+        {
+            return resource.Unit;
+        }
+
+        var unit = await dbContext.GetAvailableUnits(currentUser)
+            .Include(item => item.ReferenceUnit)
+            .FirstOrDefaultAsync(item => item.Id == unitId.Value, cancellationToken);
+        if (unit is null)
+        {
+            return Error.NotFound("Unit is not available in the active household");
+        }
+
+        return string.Equals(resource.Unit.QuantityKey, unit.QuantityKey, StringComparison.Ordinal)
+            ? unit
+            : Error.Validation($"'{resource.Unit.Name}' and '{unit.Name}' represent different quantities and cannot be converted");
+    }
+
+    /// <summary>Converts the resource's consumptions and limits into the new unit and recalculates the readings.</summary>
+    private async Task<Error?> ConvertToUnitAsync(Resource resource, Unit unit, CancellationToken cancellationToken)
+    {
+        var consumptions = await dbContext.Consumptions
+            .Where(item => item.ResourceId == resource.Id)
+            .ToListAsync(cancellationToken);
+        foreach (var consumption in consumptions)
+        {
+            var converted = unitConversionService.Convert(consumption.Value, resource.Unit, unit);
+            if (converted.IsError)
+            {
+                return converted.Error;
+            }
+
+            consumption.Value = converted.Value;
+        }
+
+        var calculation = ConsumptionTimelineCalculator.Recalculate(consumptions);
+        if (calculation.IsError)
+        {
+            return calculation.Error;
+        }
+
+        var limits = await dbContext.ConsumptionsLimits
+            .Where(item => item.ResourceId == resource.Id)
+            .ToListAsync(cancellationToken);
+        foreach (var limit in limits)
+        {
+            var converted = unitConversionService.Convert(limit.Limit, resource.Unit, unit);
+            if (converted.IsError)
+            {
+                return converted.Error;
+            }
+
+            limit.Update(limit.Name, limit.Description, converted.Value, limit.Period, limit.Active);
+        }
+
+        return null;
     }
 }
