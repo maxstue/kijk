@@ -95,7 +95,12 @@ jobs:
       - name: 🔍 Lint
         run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries lint
 
-      - name: 🧪 Tests and coverage
+      # Frontend tests run in their own step before the .NET tests, so the browser tests do not start while the
+      # Testcontainers databases of the integration tests are still shutting down.
+      - name: 🧪 Frontend tests and coverage
+        run: pnpm --filter kijk-client test:coverage
+
+      - name: 🧪 .NET tests and coverage
         working-directory: apps/api
         run: |
           dotnet test --project tests/Kijk.ArchitectureTests/Kijk.ArchitectureTests.csproj \
@@ -116,7 +121,6 @@ jobs:
             --coverage \
             --coverage-output integration.coverage.xml \
             --coverage-output-format xml
-          pnpm --filter kijk-client test:coverage
 
       - name: 🔍 .NET audit
         run: dotnet list apps/api/Kijk.slnx package --vulnerable --include-transitive
