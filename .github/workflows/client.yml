@@ -80,7 +80,10 @@ jobs:
     runs-on: ubuntu-latest
     # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
     # dev /CI/E2e and prod /CI/Sonar.
-    environment: ci
+    # deployment: false uses the environment for its variables and OIDC subject without creating a deployment entry.
+    environment:
+      name: ci
+      deployment: false
     permissions:
       contents: read
       id-token: write
