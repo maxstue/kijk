@@ -21,6 +21,11 @@ jobs:
       github.actor != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
+    # The sonar environment binds the Infisical identity (OIDC subject) that may only read prod /CI/Sonar.
+    environment: sonar
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: 🏖️ Checkout Repository
@@ -58,9 +63,19 @@ jobs:
       - name: 📦 Install SonarScanner for .NET
         run: dotnet tool install dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
 
+      - name: 🔐 Load SonarQube token
+        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
+        with:
+          method: oidc
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
+          domain: https://eu.infisical.com
+          env-slug: prod
+          secret-path: /CI/Sonar
+
       - name: 🔎 Begin SonarQube Cloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: |
           "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin \
             /k:"maxstue_kijk" \
@@ -112,5 +127,5 @@ jobs:
 
       - name: 🔎 Complete SonarQube Cloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: '"${{ runner.temp }}/scanner/dotnet-sonarscanner" end /d:sonar.token="$SONAR_TOKEN"'
