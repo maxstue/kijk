@@ -74,6 +74,8 @@ jobs:
           env-slug: prod
           secret-path: /CI/Sonar
 
+      # The generated lockfile is not analyzed (package names like "react-password-toggle-field" trigger S2068).
+      # S2699 does not recognize Vitest browser assertions (`await expect.element(...)`) in component tests.
       - name: 🔎 Begin SonarQube Cloud analysis
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
@@ -85,7 +87,11 @@ jobs:
             /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.coverage.xml" \
             /d:sonar.javascript.lcov.reportPaths="apps/client/coverage/lcov.info" \
             /d:sonar.plsql.file.suffixes="tab,pkb" \
-            /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
+            /d:sonar.postgres.file.suffixes="sql,pgsql,psql" \
+            /d:sonar.exclusions="**/pnpm-lock.yaml" \
+            /d:sonar.issue.ignore.multicriteria="browsertests" \
+            /d:sonar.issue.ignore.multicriteria.browsertests.ruleKey="typescript:S2699" \
+            /d:sonar.issue.ignore.multicriteria.browsertests.resourceKey="**/*.browser.test.tsx"
 
       - name: 🧱 Build
         run: |
