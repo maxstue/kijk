@@ -48,6 +48,13 @@ jobs:
       - name: 📦 Restore .NET dependencies
         run: dotnet restore apps/api/Kijk.slnx --locked-mode
 
+      # Runs before the SonarQube analysis starts: `sonarscanner begin` injects the server's rule set, and
+      # `dotnet format` would then apply those analyzer fixes and fail the check.
+      - name: 🧹 Format
+        run: |
+          dotnet format apps/api/Kijk.slnx --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
+          pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries fmt
+
       - name: 📦 Install SonarScanner for .NET
         run: dotnet tool install dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
 
@@ -68,11 +75,6 @@ jobs:
         run: |
           dotnet build apps/api/Kijk.slnx --configuration Release --no-restore
           pnpm build:client
-
-      - name: 🧹 Format
-        run: |
-          dotnet format apps/api/Kijk.slnx --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
-          pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries fmt
 
       - name: 🔍 Lint
         run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries lint
