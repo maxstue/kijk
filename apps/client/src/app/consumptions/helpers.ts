@@ -37,7 +37,7 @@ export function createAnnualResourceSummaries(consumptions: Consumption[]): Annu
 
   return [...summaries.values()]
     .map((summary) => {
-      const entries = summary.entries.sort((left, right) => right.date.localeCompare(left.date));
+      const entries = summary.entries.toSorted((left, right) => right.date.localeCompare(left.date));
       const latestReadingEntry = entries.find((entry) => entry.calculatedMeterReading != null);
       const numericMeterReading = Number(latestReadingEntry?.calculatedMeterReading);
       const latestMeterReading = Number.isFinite(numericMeterReading) ? numericMeterReading : undefined;

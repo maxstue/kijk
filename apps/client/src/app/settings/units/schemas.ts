@@ -6,7 +6,7 @@ export const createUnitSchema = z.object({
     message: 'Conversion factor must be greater than zero',
   }),
   name: z.string().trim().min(1, 'Name is required').max(50),
-  referenceUnitId: z.string().uuid('Reference unit must be selected'),
+  referenceUnitId: z.uuid('Reference unit must be selected'),
   symbol: z.string().trim().min(1, 'Symbol is required').max(20),
 });
 

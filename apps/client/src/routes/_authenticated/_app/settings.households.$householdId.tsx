@@ -21,7 +21,7 @@ export const Route = createFileRoute('/_authenticated/_app/settings/households/$
     return { household, user };
   },
   notFoundComponent: () => <p className='text-muted-foreground'>This household is not available to your account.</p>,
-  parseParams: (parameters) => ({ householdId: z.string().uuid().parse(parameters.householdId) }),
+  parseParams: (parameters) => ({ householdId: z.uuid().parse(parameters.householdId) }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });
 

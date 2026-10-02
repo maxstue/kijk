@@ -12,7 +12,7 @@ export const resourceSchema = z.object({
   name: z.string().trim().min(2, { message: 'Name must be at least 2 characters' }).max(30, {
     message: 'Name must be at most 30 characters',
   }),
-  unitId: z.string().uuid({ message: 'Unit must be selected' }),
+  unitId: z.uuid({ error: 'Unit must be selected' }),
 });
 
 /** Values of the resource forms. */

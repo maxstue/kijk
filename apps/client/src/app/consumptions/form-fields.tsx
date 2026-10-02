@@ -50,12 +50,13 @@ export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTota
       item.calculatedMeterReading != null,
   );
   const numericValue = Number(value);
-  const total =
-    valueType === ValueTypes.ABSOLUTE
-      ? numericValue
-      : previousEntry?.calculatedMeterReading == null
-        ? undefined
-        : Number(previousEntry.calculatedMeterReading) + numericValue;
+  // A meter reading is the total itself; a relative value adds to the previous reading, if there is one.
+  let total: number | undefined;
+  if (valueType === ValueTypes.ABSOLUTE) {
+    total = numericValue;
+  } else if (previousEntry?.calculatedMeterReading != null) {
+    total = Number(previousEntry.calculatedMeterReading) + numericValue;
+  }
 
   return (
     <div className='bg-muted/40 grid grid-cols-[minmax(0,1fr)_auto_auto] items-baseline gap-2 rounded-md px-3 py-2 text-sm'>

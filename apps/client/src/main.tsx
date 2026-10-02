@@ -10,20 +10,16 @@ import { App } from './app';
 
 import '@kijk/ui/globals.css';
 
-async function start() {
-  if (import.meta.env.MODE === 'test' && import.meta.env.VITE_E2E_MOCK_API === 'true') {
-    await import('./test/e2e/setup');
-  }
-
-  welcome();
-  ErrorService.init(router);
-  AnalyticsService.init();
-
-  ReactDOM.createRoot(document.querySelector('#app')!).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
+if (import.meta.env.MODE === 'test' && import.meta.env.VITE_E2E_MOCK_API === 'true') {
+  await import('./test/e2e/setup');
 }
 
-void start();
+welcome();
+ErrorService.init(router);
+AnalyticsService.init();
+
+ReactDOM.createRoot(document.querySelector('#app')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
