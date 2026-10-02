@@ -21,8 +21,9 @@ jobs:
       github.actor != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
-    # The sonar environment binds the Infisical identity (OIDC subject) that may only read prod /CI/Sonar.
-    environment: sonar
+    # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
+    # dev /CI/E2e and prod /CI/Sonar.
+    environment: ci
     permissions:
       contents: read
       id-token: write

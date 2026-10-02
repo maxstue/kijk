@@ -78,8 +78,9 @@ jobs:
     name: '🎭 E2E tests'
     needs: [basic]
     runs-on: ubuntu-latest
-    # The e2e environment binds the Infisical identity (OIDC subject) that may only read the Clerk dev secrets.
-    environment: e2e
+    # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
+    # dev /CI/E2e and prod /CI/Sonar.
+    environment: ci
     permissions:
       contents: read
       id-token: write
