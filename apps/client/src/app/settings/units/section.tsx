@@ -41,6 +41,10 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
   const activeHousehold = households.find((household) => household.isActive);
   const householdId = selectedHouseholdId ?? activeHousehold?.id;
   const selectedHousehold = households.find((household) => household.id === householdId);
+  // In the household scope a new unit is shared with that household right away, which needs units:share.
+  const canCreate =
+    scope === 'personal' ||
+    (householdId !== undefined && hasHouseholdPermission(selectedHousehold, HouseholdPermissions.units.share));
   const shareableHouseholds = households.filter((household) =>
     hasHouseholdPermission(household, HouseholdPermissions.units.share),
   );
@@ -78,7 +82,11 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
       <div className='flex justify-end'>
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
-            <Button disabled={scope === 'household' && !householdId} variant='outline'>
+            <Button
+              disabled={!canCreate}
+              title={canCreate ? undefined : 'Your household role does not allow sharing units'}
+              variant='outline'
+            >
               Create
             </Button>
           </DialogTrigger>
