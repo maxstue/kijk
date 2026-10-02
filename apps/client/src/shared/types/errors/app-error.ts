@@ -1,3 +1,4 @@
+/** Category of an {@link AppError}. */
 export type ErrorType = 'UNKNOWN' | 'AUTHENTICATION' | 'ENVIRONMENT' | 'VALIDATION';
 
 interface CtorType<TData> {

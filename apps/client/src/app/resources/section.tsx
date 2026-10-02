@@ -22,6 +22,7 @@ import { DataTable } from '@/shared/components/data-table';
 import { CreatorTypes } from '@/shared/types/domain';
 import type { Resource } from '@/shared/types/domain';
 
+/** Resources page: statistics, the resource table and the create dialog. */
 export function ResourceTypesSection() {
   const [showDialog, setShowDialog] = useState(false);
   const { data } = useSuspenseQuery(resourcesQueryOptions());

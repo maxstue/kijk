@@ -12,6 +12,7 @@ interface Props {
   roles: HouseholdRole[];
 }
 
+/** Select that changes another member's role right away. */
 export function MemberRoleSelect({ householdId, member, roles }: Props) {
   const queryClient = useQueryClient();
   const changeRoleMutation = useMutation(changeHouseholdMemberRoleMutationOptions());

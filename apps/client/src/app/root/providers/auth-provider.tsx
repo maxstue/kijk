@@ -7,6 +7,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
+/** Provides Clerk authentication; shows the init loader until Clerk is loaded. */
 export const AuthProvider = ({ children }: Props) => (
   <ClerkProvider afterSignOutUrl='/' publishableKey={config.AuthPublishableKey}>
     <InnerAuthProvider>{children}</InnerAuthProvider>

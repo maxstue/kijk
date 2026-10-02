@@ -20,6 +20,7 @@ interface Props {
   unit: Unit;
 }
 
+/** Form to edit a unit owned by the user. */
 export function UnitUpdateForm({ onClose, systemUnits, unit }: Props) {
   const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation(updateUnitMutationOptions());

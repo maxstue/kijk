@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
+/** Periods a limit can apply to. */
 export const periods = ['Month', 'Quarter', 'Year'] as const;
 
+/** Validation of the limit form. */
 export const consumptionLimitSchema = z.object({
   active: z.boolean(),
   description: z.string().trim().max(250, 'Description must be at most 250 characters'),
@@ -11,4 +13,5 @@ export const consumptionLimitSchema = z.object({
   resourceId: z.string().min(1, 'Select a resource'),
 });
 
+/** Values of the limit form. */
 export type ConsumptionLimitFormValues = z.infer<typeof consumptionLimitSchema>;

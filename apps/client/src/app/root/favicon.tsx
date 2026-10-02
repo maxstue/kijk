@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
+/** Switches to the inactive favicon while the tab is hidden. Renders nothing. */
 export const Favicon = () => {
   const updateIcon = useCallback(() => {
     const link = document.querySelector("link[rel='icon'][sizes='any']");

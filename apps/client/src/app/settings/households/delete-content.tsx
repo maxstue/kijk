@@ -19,6 +19,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 
 import { useHouseholdSettings } from './context';
 
+/** Confirmation dialog content for deleting the household with all of its data. */
 export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
   const { household, user } = useHouseholdSettings();
   const [confirmation, setConfirmation] = useState('');

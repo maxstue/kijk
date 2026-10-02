@@ -10,6 +10,7 @@ type Props =
   | { consumptionId: string; disabled?: never; month?: never; year?: never }
   | { consumptionId?: never; disabled?: boolean; month: Months; year: number };
 
+/** Downloads a single consumption (`consumptionId`) or a whole month (`year` + `month`) as CSV. */
 export function ConsumptionExportButton(props: Props) {
   const [isExporting, setIsExporting] = useState(false);
   const isSingleExport = props.consumptionId !== undefined;

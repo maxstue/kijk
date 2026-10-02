@@ -41,6 +41,7 @@ const createDefaultValues: ConsumptionLimitFormValues = {
   resourceId: '',
 };
 
+/** Form to create a limit, or to edit `initialData` when given. */
 export function ConsumptionLimitForm({ initialData, onClose }: Props) {
   const createMutation = useCreateConsumptionLimit();
   const updateMutation = useUpdateConsumptionLimit();

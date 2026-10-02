@@ -18,6 +18,7 @@ interface Props {
   resourceType: Resource;
 }
 
+/** Confirmation dialog content for deleting a resource. */
 export function ResourceTypeDeleteContent({ onClose, resourceType }: Props) {
   const { isPending, mutate } = useDeleteResource();
 

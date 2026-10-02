@@ -4,6 +4,7 @@ import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { isReadyCurrentUser } from '@/shared/api/users/types';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 
+/** Layout for onboarding; redirects to `/home` once onboarding is completed. */
 export const Route = createFileRoute('/_authenticated/_onboarding')({
   beforeLoad: async ({ context: { queryClient } }) => {
     const currentUser = await queryClient.ensureQueryData(currentUserQueryOptions());

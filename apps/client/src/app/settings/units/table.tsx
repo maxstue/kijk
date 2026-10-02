@@ -23,6 +23,7 @@ interface Props {
   totalCount: number;
 }
 
+/** Paginated, searchable unit table. */
 export function UnitTable({
   householdId,
   shareableHouseholds,

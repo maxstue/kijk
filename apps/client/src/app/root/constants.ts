@@ -7,6 +7,7 @@ interface MainNavItem {
   isActive: boolean;
 }
 
+/** Entries of the main navigation. */
 export const mainNav = [
   {
     icon: LayoutDashboardIcon,

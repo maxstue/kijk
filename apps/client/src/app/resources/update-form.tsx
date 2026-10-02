@@ -23,6 +23,7 @@ interface Props {
 
 const handleSubmitError = () => toast.error('Resource could not be updated');
 
+/** Form to edit a custom resource, prefilled with `initialData`. */
 export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
   const { isPending, mutate } = useUpdateResource();
 

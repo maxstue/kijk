@@ -19,6 +19,7 @@ import { ConsumptionLimitForm } from '@/app/consumption-limits/form';
 import { consumptionLimitsQueryOptions } from '@/shared/api/consumption-limits/options';
 import type { ConsumptionLimit } from '@/shared/api/consumption-limits/types';
 
+/** Page section listing the household's limits with create and edit actions. */
 export function ConsumptionLimitsSection() {
   const { data } = useSuspenseQuery(consumptionLimitsQueryOptions());
   const [showCreateDialog, setShowCreateDialog] = useState(false);

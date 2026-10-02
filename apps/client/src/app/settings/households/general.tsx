@@ -31,6 +31,7 @@ import { HouseholdBackLink } from './back-link';
 import { useHouseholdSettings } from './context';
 import { HouseholdDeleteContent } from './delete-content';
 
+/** General household settings: editable details and deletion, depending on the user's permissions. */
 export function HouseholdGeneral() {
   const { household } = useHouseholdSettings();
   const canConfigure = hasHouseholdPermission(household, HouseholdPermissions.household.configure);

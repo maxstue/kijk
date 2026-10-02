@@ -19,6 +19,11 @@ interface Props<TData extends RowData> {
   defaultSort?: ColumnSort;
 }
 
+/**
+ * Client-side table with name filter, sortable columns and pagination (10 rows per page).
+ *
+ * The filter input targets the column with id `name`.
+ */
 export function DataTable<TData extends RowData>({ columns, data, actions, defaultSort }: Props<TData>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

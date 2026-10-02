@@ -128,6 +128,7 @@ const columns: Array<ColumnDef<typeof features, DataFile>> = [
   },
 ];
 
+/** Dashboard table with selection, column visibility and pagination (demo data from `data.json`). */
 export function HomeTable() {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [columnVisibility, setColumnVisibility] = React.useState<ColumnVisibilityState>({});

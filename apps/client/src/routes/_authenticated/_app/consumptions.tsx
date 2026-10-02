@@ -36,6 +36,7 @@ const searchSchema = z.object({
   year: z.number().default(new Date().getFullYear()),
 });
 
+/** `/consumptions`: consumptions of the year/month in the search params, with statistics. */
 export const Route = createFileRoute('/_authenticated/_app/consumptions')({
   component: UsagePage,
   validateSearch: zodValidator(searchSchema),

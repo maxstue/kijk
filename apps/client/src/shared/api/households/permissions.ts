@@ -30,6 +30,7 @@ export const HouseholdPermissions = {
 } as const;
 
 type PermissionGroups = typeof HouseholdPermissions;
+/** Any permission name from {@link HouseholdPermissions}. */
 export type HouseholdPermission = {
   [Group in keyof PermissionGroups]: PermissionGroups[Group][keyof PermissionGroups[Group]];
 }[keyof PermissionGroups];

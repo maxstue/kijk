@@ -22,6 +22,7 @@ interface Props {
   id: string;
 }
 
+/** Deletes a consumption after confirmation. */
 export function ConsumptionDeleteButton({ id, date }: Props) {
   const [showModal, setShowModal] = useState(false);
   const { mutate } = useDeleteConsumption();

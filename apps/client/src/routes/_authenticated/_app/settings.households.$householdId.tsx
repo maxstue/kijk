@@ -7,6 +7,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
+/** `/settings/households/$householdId`: loads the household and provides it to its settings pages. */
 export const Route = createFileRoute('/_authenticated/_app/settings/households/$householdId')({
   component: HouseholdSettingsPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,

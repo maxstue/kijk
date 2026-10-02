@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 
+/** Form for the display name, active household name, default resources and profile usage. */
 export function ProfileForm() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const currentUser = currentAccount?.user;

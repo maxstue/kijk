@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 
 import { AppBrand } from '@/shared/components/app-brand';
 
+/** Page shown for unknown routes. */
 export function NotFound() {
   return (
     <main className='flex min-h-full flex-col items-center justify-center gap-6 p-6 text-center'>

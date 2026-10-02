@@ -15,6 +15,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { deleteUnitMutationOptions } from '@/shared/api/units/options';
 import type { Unit } from '@/shared/api/units/types';
 
+/** Confirmation dialog content for deleting a unit. */
 export function UnitDeleteContent({ onClose, unit }: { onClose: () => void; unit: Unit }) {
   const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation(deleteUnitMutationOptions());

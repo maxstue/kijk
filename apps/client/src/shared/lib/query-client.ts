@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 
+/** Shared TanStack Query client: no retries, no refetch on focus, 60 s stale time. */
 const queryClient = new QueryClient({
   defaultOptions: {
     mutations: {

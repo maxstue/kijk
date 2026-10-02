@@ -26,6 +26,7 @@ const sections = [
   },
 ] as const satisfies ReadonlyArray<{ description: string; icon: LucideIcon; label: string; section: string }>;
 
+/** Overview of a household's settings sections. */
 export function HouseholdOverview() {
   const { household } = useHouseholdSettings();
 

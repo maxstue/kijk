@@ -5,6 +5,7 @@ import { householdMembersQueryOptions, householdRolesQueryOptions } from '@/shar
 import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
+/** `/settings/households/$householdId/members`: members and roles; preloads members and roles. */
 export const Route = createFileRoute('/_authenticated/_app/settings/households/$householdId/members')({
   component: HouseholdMembers,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,

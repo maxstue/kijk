@@ -26,6 +26,7 @@ interface Props {
   scope: 'household' | 'personal';
 }
 
+/** Units page for personal units or the units of a household, with statistics, table and create dialog. */
 export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props) {
   const [showDialog, setShowDialog] = useState(false);
   const [page, setPage] = useState(1);

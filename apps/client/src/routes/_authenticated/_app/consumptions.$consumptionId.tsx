@@ -6,6 +6,7 @@ import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
 import { ConsumptionUpdateForm } from '@/app/consumptions/update-form';
 import { consumptionQueryOptions, consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 
+/** `/consumptions/$consumptionId`: edit dialog of a consumption. */
 export const Route = createFileRoute('/_authenticated/_app/consumptions/$consumptionId')({
   loader: ({ context: { queryClient }, params: { consumptionId } }) =>
     queryClient.ensureQueryData(consumptionQueryOptions(consumptionId)),

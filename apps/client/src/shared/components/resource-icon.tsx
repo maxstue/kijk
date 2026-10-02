@@ -9,6 +9,7 @@ interface Props {
   testId?: string;
 }
 
+/** Renders a resource's Lucide icon by name, falling back to the default icon. */
 export function ResourceIcon({ className, color, name, testId }: Props) {
   const iconName = isResourceIconName(name) ? name : defaultResourceIcon;
 

@@ -22,6 +22,7 @@ interface Props {
   year: number;
 }
 
+/** Month view: list of the month's entries with value type explanations and actions. */
 export function ConsumptionMonthView({ consumptions, month, year }: Props) {
   return (
     <>

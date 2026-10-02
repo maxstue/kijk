@@ -15,6 +15,7 @@ import type { Consumption, Resource } from '@/shared/types/domain';
 
 const Route = getRouteApi('/_authenticated/_app/consumptions');
 
+/** Sortable table of the consumptions of the selected year and month. */
 export function ConsumptionMonthTable() {
   const { month, year } = Route.useSearch();
 

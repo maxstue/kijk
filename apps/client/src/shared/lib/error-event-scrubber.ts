@@ -42,6 +42,7 @@ export function scrubErrorEvent(event: ErrorEvent): ErrorEvent {
   };
 }
 
+/** Removes span data and personal values from the span description before it is sent to Sentry. */
 export function scrubPerformanceSpan<T extends { data?: Record<string, unknown>; description?: string }>(span: T): T {
   return {
     ...span,
@@ -50,6 +51,10 @@ export function scrubPerformanceSpan<T extends { data?: Record<string, unknown>;
   };
 }
 
+/**
+ * Strips user, request, tags, context and breadcrumbs from a performance transaction and sanitizes route names before
+ * it is sent to Sentry.
+ */
 export function scrubPerformanceTransaction(event: TransactionEvent): TransactionEvent {
   return {
     ...event,

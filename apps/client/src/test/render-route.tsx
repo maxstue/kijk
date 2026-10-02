@@ -13,6 +13,10 @@ interface RenderRouteOptions {
   seedQueryClient: (queryClient: QueryClient) => void;
 }
 
+/**
+ * Renders the app router at `initialEntry` in a browser test with a seeded query client; auth guards and the overview
+ * loader are stubbed out.
+ */
 export async function renderRoute({ initialEntry, overviewRoute, seedQueryClient }: RenderRouteOptions) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },

@@ -22,6 +22,7 @@ const privacyFormSchema = z.object({
 });
 type PrivacyFormValues = z.infer<typeof privacyFormSchema>;
 
+/** Info and privacy settings, including the analytics consent. */
 export function InfoSection() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const { mutate, isPending } = useUpdateUser();

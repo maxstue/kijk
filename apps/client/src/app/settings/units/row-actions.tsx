@@ -34,6 +34,7 @@ interface Props {
   unit: Unit;
 }
 
+/** Row menu of the unit table: edit, share, archive or restore, remove from household and delete. */
 export function UnitRowActions({ householdId, scope, shareableHouseholds, systemUnits, unit }: Props) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);

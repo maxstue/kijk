@@ -13,6 +13,7 @@ import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { markReactReady } from '@/shared/lib/bootstrap-loader';
 import { queryClient } from '@/shared/lib/query-client';
 
+/** App root: error boundary, providers (auth, analytics, query, tooltips), theme handling and toasts around the router. */
 export function App() {
   useLayoutEffect(() => {
     markReactReady();

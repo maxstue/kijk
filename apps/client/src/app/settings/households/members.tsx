@@ -15,6 +15,7 @@ import { HouseholdBackLink } from './back-link';
 import { useHouseholdSettings } from './context';
 import { MemberRoleSelect } from './member-role-select';
 
+/** Members page: member list with roles, the user's own permissions and the role overview. */
 export function HouseholdMembers() {
   const { household } = useHouseholdSettings();
   const { data: members } = useSuspenseQuery(householdMembersQueryOptions(household.id));

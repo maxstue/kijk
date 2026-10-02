@@ -24,6 +24,7 @@ interface DataTableRowActionsProps {
   row: Row<DataTableFeatures, Resource>;
 }
 
+/** Row menu of the resource table: copy name, edit and delete. System resources and missing permissions disable editing. */
 export function ResourceTypeRowActions({ canManage, row }: DataTableRowActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();

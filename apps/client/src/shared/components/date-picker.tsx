@@ -10,6 +10,7 @@ interface Props {
   setDate: (date?: Date) => void;
 }
 
+/** Button that opens a calendar popover to pick a date. */
 export function DatePicker(props: Props) {
   return (
     <Popover>

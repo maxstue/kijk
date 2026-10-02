@@ -54,4 +54,5 @@ export const dataTableFeatures = tableFeatures({
   sortFns: autoSortFns,
 });
 
+/** Feature set type of {@link dataTableFeatures}; use it for column definitions of `DataTable`. */
 export type DataTableFeatures = typeof dataTableFeatures;

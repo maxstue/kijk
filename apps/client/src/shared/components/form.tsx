@@ -6,6 +6,7 @@ import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 
 // TODO refactor using tanstack-form and use shadcn Field component as base
 
+/** React Hook Form provider for a form built from the `Form*` components. */
 const Form = FormProvider;
 
 interface FormFieldContextValue<
@@ -17,6 +18,7 @@ interface FormFieldContextValue<
 
 const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
+/** Connects a form field to React Hook Form and provides its name to the nested `Form*` components. */
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -28,6 +30,7 @@ const FormField = <
   </FormFieldContext.Provider>
 );
 
+/** Returns ids and validation state of the surrounding form field. Use inside `FormField` and `FormItem`. */
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
   const itemContext = React.useContext(FormItemContext);
@@ -53,6 +56,7 @@ interface FormItemContextValue {
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
+/** Wraps a label, control, description and message and gives them a shared id. */
 function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
   const id = React.useId();
 
@@ -63,6 +67,7 @@ function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Label of the field; turns red when the field is invalid. */
 function FormLabel({ className, ...props }: React.ComponentProps<typeof Label.Root>) {
   const { error, formItemId } = useFormField();
 
@@ -77,6 +82,7 @@ function FormLabel({ className, ...props }: React.ComponentProps<typeof Label.Ro
   );
 }
 
+/** Passes id and ARIA attributes for description and error to the wrapped control. */
 function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
@@ -91,6 +97,7 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
   );
 }
 
+/** Help text of the field. */
 function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
   const { formDescriptionId } = useFormField();
 
@@ -104,6 +111,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
+/** Validation error of the field, or its children when the field is valid. */
 function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField();
   const content = error ? String(error.message ?? '') : props.children;

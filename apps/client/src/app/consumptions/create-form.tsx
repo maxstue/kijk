@@ -32,6 +32,7 @@ interface Props {
   onClose: () => void;
 }
 
+/** Form to record a consumption; `consumptions` are used to show the running meter total. */
 export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
   const { isPending, mutate } = useCreateConsumption();
   const { month, year } = route.useSearch();

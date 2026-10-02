@@ -29,6 +29,7 @@ interface Props {
   onClose: () => void;
 }
 
+/** Form to edit a consumption, prefilled with `initialData`. */
 export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Props) {
   const { isPending, mutate } = useUpdateConsumption();
 

@@ -1,5 +1,6 @@
 import type { Consumption } from '@/shared/types/domain';
 
+/** A resource's consumptions of a year with their total. */
 export interface AnnualResourceSummary {
   entries: Consumption[];
   entryCount: number;
@@ -11,6 +12,7 @@ interface PendingAnnualResourceSummary extends Omit<AnnualResourceSummary, 'tota
   recordedConsumption: number;
 }
 
+/** Groups consumptions by resource, sorts each group newest first and sums the calculated consumption. */
 export function createAnnualResourceSummaries(consumptions: Consumption[]): AnnualResourceSummary[] {
   const summaries = new Map<string, PendingAnnualResourceSummary>();
 

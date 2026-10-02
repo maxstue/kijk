@@ -12,6 +12,7 @@ import { settingsTo } from '@/shared/navigation/settings';
 
 const sectionSchema = z.enum(settingsTo);
 
+/** `/settings/$section`: a personal settings section. */
 export const Route = createFileRoute('/_authenticated/_app/settings/$section')({
   component: SettingsSectionPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,

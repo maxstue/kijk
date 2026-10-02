@@ -2,6 +2,7 @@ import { Separator } from '@kijk/ui/components/separator';
 
 import { ProfileForm } from '@/app/settings/profile/form';
 
+/** Profile settings section. */
 export function ProfileSection() {
   return (
     <div className='space-y-6'>

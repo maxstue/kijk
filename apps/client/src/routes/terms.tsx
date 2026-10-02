@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+/** `/terms`: terms of service. */
 export const Route = createFileRoute('/terms')({ component: TermsOfService });
 
 function TermsOfService() {

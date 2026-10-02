@@ -11,6 +11,7 @@ const authSearchSchema = z.object({
   from: z.string().optional(),
 });
 
+/** `/auth`: sign-in and sign-up; signed-in users are sent to `from` or `/home`. */
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
   component: AuthPage,

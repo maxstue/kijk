@@ -231,6 +231,7 @@ function AnnualSummaryTable({ summaries }: { summaries: AnnualResourceSummary[] 
   );
 }
 
+/** Year view: one expandable row per resource with its yearly total and entries, filterable by resource. */
 export function ConsumptionAnnualView({ consumptions }: AnnualViewProps) {
   const [resourceId, setResourceId] = useState(allResourceTypes);
   const summaries = createAnnualResourceSummaries(consumptions);

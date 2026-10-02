@@ -15,6 +15,7 @@ const handleGotToRoot = () => {
   globalThis.location.href = '/';
 };
 
+/** Error boundary fallback; reports the error and offers going home or retrying. */
 export function AppError({ error, resetErrorBoundary }: Props) {
   ErrorService.captureException(error);
 

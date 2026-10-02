@@ -6,6 +6,7 @@ interface Props {
   id: string;
 }
 
+/** Opens the edit page of a consumption, keeping the current search params. */
 export function ConsumptionEditButton({ id }: Props) {
   return (
     <Button asChild className='text-muted-foreground' size='icon' variant='outline'>
