@@ -74,7 +74,6 @@ jobs:
           env-slug: prod
           secret-path: /CI/Sonar
 
-      # The generated lockfile is not analyzed (package names like "react-password-toggle-field" trigger S2068).
       - name: 🔎 Begin SonarQube Cloud analysis
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
@@ -86,8 +85,7 @@ jobs:
             /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.coverage.xml" \
             /d:sonar.javascript.lcov.reportPaths="apps/client/coverage/lcov.info" \
             /d:sonar.plsql.file.suffixes="tab,pkb" \
-            /d:sonar.postgres.file.suffixes="sql,pgsql,psql" \
-            /d:sonar.exclusions="**/pnpm-lock.yaml"
+            /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
 
       - name: 🧱 Build
         run: |
