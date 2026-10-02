@@ -1,6 +1,8 @@
-﻿using Kijk.Application.Shared.Identity;
+﻿using Kijk.Application.Shared.Authorization;
+using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Shared;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +18,10 @@ public class UpdateUserHandler(
     TimeProvider timeProvider,
     ILogger<UpdateUserHandler> logger) : IHandler
 {
-    /// <summary>Updates the current user's settings.</summary>
+    /// <summary>
+    /// Updates the current user's settings. Renaming the active household additionally requires the
+    /// household:configure permission there; sending the unchanged name is always allowed.
+    /// </summary>
     /// <param name="request">The changes.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The updated settings.</returns>
@@ -50,7 +55,16 @@ public class UpdateUserHandler(
                 return Error.NotFound("Active household not found");
             }
 
-            activeHousehold.Rename(request.HouseholdName.Trim());
+            var householdName = request.HouseholdName.Trim();
+            if (!string.Equals(householdName, activeHousehold.Name, StringComparison.Ordinal))
+            {
+                if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, activeHousehold.Id, HouseholdPermissions.Household.Configure, cancellationToken) is { } error)
+                {
+                    return error;
+                }
+
+                activeHousehold.Rename(householdName);
+            }
         }
 
         if (request.AnalyticsConsent is not null)

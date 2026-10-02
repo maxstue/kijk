@@ -29,7 +29,7 @@ public sealed class UnitsEndpoints : IEndpointGroup
         group.MapGet("", GetAll).WithoutHouseholdPermission(UserOwned).WithSummary("Gets units visible to the current user");
         group.MapGet("/system", GetSystem).WithoutHouseholdPermission("System units are public reference data.").WithSummary("Gets supported system units");
         group.MapGet("/page", GetPage).WithoutHouseholdPermission(UserOwned).WithSummary("Gets a page of units for settings");
-        group.MapPost("", Create).WithoutHouseholdPermission(UserOwned).WithRequestValidation<CreateUnitRequest>().WithSummary("Creates a user unit");
+        group.MapPost("", Create).WithoutHouseholdPermission("Creates a unit owned by the current user; sharing it with households is checked in the handler (units:share).").WithRequestValidation<CreateUnitRequest>().WithSummary("Creates a user unit");
         group.MapPut("/{id:guid}", Update).WithoutHouseholdPermission(UserOwned).WithRequestValidation<UpdateUnitRequest>().WithSummary("Updates a user unit");
         group.MapPost("/{id:guid}/archive", Archive).WithoutHouseholdPermission(UserOwned).WithSummary("Archives a user unit");
         group.MapPost("/{id:guid}/restore", Restore).WithoutHouseholdPermission(UserOwned).WithSummary("Restores a user unit");

@@ -31,7 +31,7 @@ public class UsersEndpoints : IEndpointGroup
 
         group.MapPut("", Update)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
-            .WithoutHouseholdPermission(CurrentUserOnly)
+            .WithoutHouseholdPermission("Changes the current user's account; renaming the active household is checked in the handler (household:configure).")
             .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
 

@@ -2,12 +2,16 @@ using Kijk.Api.Mappers;
 using Kijk.Application.Households.ChangeMemberRole;
 using Kijk.Application.Households.GetMembers;
 using Kijk.Application.Households.Update;
+using Kijk.Application.Shared.Identity;
+using Kijk.Application.Units.Create;
 using Kijk.Application.Units.Manage;
+using Kijk.Application.Users.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Kijk.IntegrationTests.Persistence;
 
@@ -159,6 +163,45 @@ public class HouseholdRoleTests
         await Assert.That(result.Error.Type).IsEqualTo(ErrorType.Authorization);
     }
 
+    [Test]
+    public async Task MemberCannotRenameTheHouseholdThroughTheProfileButCanSaveTheUnchangedName()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var household = await CreateHouseholdAsync(dbContext);
+        var member = await AddMemberAsync(dbContext, household, "member", HouseholdRoles.Member);
+        var handler = new UpdateUserHandler(
+            dbContext, new UnusedIdentityProvider(), CurrentUserFor(member, household), TimeProvider.System, NullLogger<UpdateUserHandler>.Instance);
+
+        var rename = await handler.UpdateAsync(new UpdateUserRequest("member", null, null, "Renamed", null), CancellationToken.None);
+        var unchanged = await handler.UpdateAsync(new UpdateUserRequest("Member renamed", null, null, household.Name, null), CancellationToken.None);
+
+        await Assert.That(rename.Error.Type).IsEqualTo(ErrorType.Authorization);
+        await Assert.That(unchanged.IsSuccess).IsTrue();
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var householdName = await verification.Households.Where(item => item.Id == household.Id).Select(item => item.Name).SingleAsync();
+        await Assert.That(householdName).IsEqualTo(household.Name);
+    }
+
+    [Test]
+    public async Task CreatingAUnitSharedWithTheHouseholdRequiresTheSharePermission()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var household = await CreateHouseholdAsync(dbContext);
+        var admin = await AddMemberAsync(dbContext, household, "admin", HouseholdRoles.Admin);
+        var member = await AddMemberAsync(dbContext, household, "member", HouseholdRoles.Member);
+        var kilowattHour = new Guid("22222222-2222-4222-8222-222222222222");
+
+        var asMember = await new CreateUnitHandler(dbContext, CurrentUserFor(member, household), TimeProvider.System)
+            .CreateAsync(new CreateUnitRequest("Member battery", "mbat", kilowattHour, 2m, [household.Id]), CancellationToken.None);
+        var asAdmin = await new CreateUnitHandler(dbContext, CurrentUserFor(admin, household), TimeProvider.System)
+            .CreateAsync(new CreateUnitRequest("Admin battery", "abat", kilowattHour, 2m, [household.Id]), CancellationToken.None);
+
+        await Assert.That(asMember.Error.Type).IsEqualTo(ErrorType.Authorization);
+        await Assert.That(asAdmin.IsSuccess).IsTrue();
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.Units.AnyAsync(unit => unit.Name == "Member battery")).IsFalse();
+    }
+
     private static async Task<Household> CreateHouseholdAsync(AppDbContext dbContext)
     {
         var household = Household.Create("Shared household");
@@ -179,4 +222,13 @@ public class HouseholdRoleTests
 
     private static CurrentUser CurrentUserFor(User user, Household activeHousehold) =>
         new() { User = new SimpleAuthUser(user.Id, user.AuthId, activeHousehold.Id, user.Name, user.Email, true) };
+
+    private sealed class UnusedIdentityProvider : IIdentityProvider
+    {
+        public Task<ExternalIdentity> GetAsync(string authId, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+
+        public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+    }
 }
