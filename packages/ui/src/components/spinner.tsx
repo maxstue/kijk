@@ -1,6 +1,7 @@
 import { cn } from 'cn';
 import { Loader2Icon } from 'lucide-react';
 
+/** Animated loading indicator. */
 function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <Loader2Icon

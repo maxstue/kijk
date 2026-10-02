@@ -6,6 +6,7 @@ import { Tabs as TabsPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Switches between panels of content. */
 function Tabs({ className, orientation = 'horizontal', ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
   return (
     <TabsPrimitive.Root
@@ -17,6 +18,7 @@ function Tabs({ className, orientation = 'horizontal', ...props }: React.Compone
   );
 }
 
+/** Class names of the tab list variants. */
 const tabsListVariants = cva(
   'group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-horizontal/tabs:h-9 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none',
   {
@@ -32,6 +34,7 @@ const tabsListVariants = cva(
   },
 );
 
+/** Row of tab triggers; `variant` sets the style. */
 function TabsList({
   className,
   variant = 'default',
@@ -47,6 +50,7 @@ function TabsList({
   );
 }
 
+/** Activates its tab panel. */
 function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
   return (
     <TabsPrimitive.Trigger
@@ -63,6 +67,7 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
   );
 }
 
+/** Panel shown while its tab is active. */
 function TabsContent({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Content>) {
   return (
     <TabsPrimitive.Content

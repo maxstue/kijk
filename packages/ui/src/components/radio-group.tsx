@@ -5,10 +5,12 @@ import { RadioGroup as RadioGroupPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Group of mutually exclusive options. */
 function RadioGroup({ className, ...props }: React.ComponentProps<typeof RadioGroupPrimitive.Root>) {
   return <RadioGroupPrimitive.Root data-slot='radio-group' className={cn('grid w-full gap-3', className)} {...props} />;
 }
 
+/** A single radio option. */
 function RadioGroupItem({ className, ...props }: React.ComponentProps<typeof RadioGroupPrimitive.Item>) {
   return (
     <RadioGroupPrimitive.Item

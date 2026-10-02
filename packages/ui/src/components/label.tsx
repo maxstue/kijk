@@ -5,6 +5,7 @@ import { Label as LabelPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Accessible label for a form control. */
 function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
   return (
     <LabelPrimitive.Root

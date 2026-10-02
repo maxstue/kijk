@@ -2,6 +2,7 @@ import * as ResizablePrimitive from 'react-resizable-panels';
 
 import { cn } from 'cn';
 
+/** Group of panels that can be resized against each other. */
 function ResizablePanelGroup({ className, ...props }: ResizablePrimitive.GroupProps) {
   return (
     <ResizablePrimitive.Group
@@ -12,10 +13,12 @@ function ResizablePanelGroup({ className, ...props }: ResizablePrimitive.GroupPr
   );
 }
 
+/** A resizable panel. */
 function ResizablePanel({ ...props }: ResizablePrimitive.PanelProps) {
   return <ResizablePrimitive.Panel data-slot='resizable-panel' {...props} />;
 }
 
+/** Drag handle between panels; `withHandle` shows a grip. */
 function ResizableHandle({
   withHandle,
   className,

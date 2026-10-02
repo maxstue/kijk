@@ -5,6 +5,7 @@ import { ScrollArea as ScrollAreaPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Scroll container with custom scrollbars. */
 function ScrollArea({ className, children, ...props }: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
   return (
     <ScrollAreaPrimitive.Root data-slot='scroll-area' className={cn('relative', className)} {...props}>
@@ -20,6 +21,7 @@ function ScrollArea({ className, children, ...props }: React.ComponentProps<type
   );
 }
 
+/** Scrollbar of a scroll area. */
 function ScrollBar({
   className,
   orientation = 'vertical',

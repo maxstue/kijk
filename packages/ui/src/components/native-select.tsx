@@ -7,6 +7,7 @@ type NativeSelectProps = Omit<React.ComponentProps<'select'>, 'size'> & {
   size?: 'sm' | 'default';
 };
 
+/** Styled native `select` element. */
 function NativeSelect({ className, size = 'default', ...props }: NativeSelectProps) {
   return (
     <div
@@ -29,12 +30,14 @@ function NativeSelect({ className, size = 'default', ...props }: NativeSelectPro
   );
 }
 
+/** Option of a native select. */
 function NativeSelectOption({ className, ...props }: React.ComponentProps<'option'>) {
   return (
     <option data-slot='native-select-option' className={cn('bg-[Canvas] text-[CanvasText]', className)} {...props} />
   );
 }
 
+/** Option group of a native select. */
 function NativeSelectOptGroup({ className, ...props }: React.ComponentProps<'optgroup'>) {
   return (
     <optgroup

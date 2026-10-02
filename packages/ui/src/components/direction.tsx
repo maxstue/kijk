@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Direction } from 'radix-ui';
 
+/** Sets the reading direction (ltr/rtl) for the nested components. */
 function DirectionProvider({
   dir,
   direction,
@@ -13,6 +14,7 @@ function DirectionProvider({
   return <Direction.DirectionProvider dir={direction ?? dir}>{children}</Direction.DirectionProvider>;
 }
 
+/** Returns the reading direction from the nearest `DirectionProvider`. */
 const useDirection = Direction.useDirection;
 
 export { DirectionProvider, useDirection };

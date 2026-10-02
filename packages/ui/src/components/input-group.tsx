@@ -6,6 +6,7 @@ import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Textarea } from '@kijk/ui/components/textarea';
 
+/** Input with attached addons such as icons, text or buttons. */
 function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -38,6 +39,7 @@ const inputGroupAddonVariants = cva(
   },
 );
 
+/** Addon placed before or after the input; clicks focus the input. */
 function InputGroupAddon({
   className,
   align = 'inline-start',
@@ -74,6 +76,7 @@ const inputGroupButtonVariants = cva('flex items-center gap-2 text-sm shadow-non
   },
 });
 
+/** Button inside an input group. */
 function InputGroupButton({
   className,
   type = 'button',
@@ -92,6 +95,7 @@ function InputGroupButton({
   );
 }
 
+/** Static text inside an input group. */
 function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
@@ -104,6 +108,7 @@ function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
   );
 }
 
+/** Input of an input group. */
 function InputGroupInput({ className, ...props }: React.ComponentProps<'input'>) {
   return (
     <Input
@@ -117,6 +122,7 @@ function InputGroupInput({ className, ...props }: React.ComponentProps<'input'>)
   );
 }
 
+/** Textarea of an input group. */
 function InputGroupTextarea({ className, ...props }: React.ComponentProps<'textarea'>) {
   return (
     <Textarea

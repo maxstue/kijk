@@ -4,18 +4,22 @@ import { Select as SelectPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from 'lucide-react';
 
+/** Dropdown to select a single value. */
 function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root data-slot='select' {...props} />;
 }
 
+/** Groups related options. */
 function SelectGroup({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Group>) {
   return <SelectPrimitive.Group data-slot='select-group' className={cn('scroll-my-1 p-1', className)} {...props} />;
 }
 
+/** Displays the selected value or a placeholder. */
 function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.Value>) {
   return <SelectPrimitive.Value data-slot='select-value' {...props} />;
 }
 
+/** Button showing the selected value; `size` sets its height. */
 function SelectTrigger({
   className,
   size = 'default',
@@ -42,6 +46,7 @@ function SelectTrigger({
   );
 }
 
+/** Panel with the options. */
 function SelectContent({
   className,
   children,
@@ -80,6 +85,7 @@ function SelectContent({
   );
 }
 
+/** Heading of an option group. */
 function SelectLabel({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Label>) {
   return (
     <SelectPrimitive.Label
@@ -90,6 +96,7 @@ function SelectLabel({ className, ...props }: React.ComponentProps<typeof Select
   );
 }
 
+/** A selectable option. */
 function SelectItem({ className, children, ...props }: React.ComponentProps<typeof SelectPrimitive.Item>) {
   return (
     <SelectPrimitive.Item
@@ -110,6 +117,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
   );
 }
 
+/** Divider between options. */
 function SelectSeparator({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Separator>) {
   return (
     <SelectPrimitive.Separator
@@ -120,6 +128,7 @@ function SelectSeparator({ className, ...props }: React.ComponentProps<typeof Se
   );
 }
 
+/** Scrolls the options up. */
 function SelectScrollUpButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {
   return (
     <SelectPrimitive.ScrollUpButton
@@ -135,6 +144,7 @@ function SelectScrollUpButton({ className, ...props }: React.ComponentProps<type
   );
 }
 
+/** Scrolls the options down. */
 function SelectScrollDownButton({
   className,
   ...props

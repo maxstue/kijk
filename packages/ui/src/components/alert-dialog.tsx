@@ -4,18 +4,22 @@ import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
 
+/** Modal dialog that requires a decision, e.g. to confirm a destructive action. */
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot='alert-dialog' {...props} />;
 }
 
+/** Opens the alert dialog. */
 function AlertDialogTrigger({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
   return <AlertDialogPrimitive.Trigger data-slot='alert-dialog-trigger' {...props} />;
 }
 
+/** Renders the alert dialog into a portal. */
 function AlertDialogPortal({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {
   return <AlertDialogPrimitive.Portal data-slot='alert-dialog-portal' {...props} />;
 }
 
+/** Backdrop behind the alert dialog. */
 function AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {
   return (
     <AlertDialogPrimitive.Overlay
@@ -29,6 +33,7 @@ function AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
+/** Panel of the alert dialog, including portal and overlay. */
 function AlertDialogContent({
   className,
   size = 'default',
@@ -52,6 +57,7 @@ function AlertDialogContent({
   );
 }
 
+/** Layout container for title, description and media. */
 function AlertDialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -65,6 +71,7 @@ function AlertDialogHeader({ className, ...props }: React.ComponentProps<'div'>)
   );
 }
 
+/** Layout container for the actions. */
 function AlertDialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -78,6 +85,7 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<'div'>)
   );
 }
 
+/** Icon or image area in the alert dialog header. */
 function AlertDialogMedia({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -91,6 +99,7 @@ function AlertDialogMedia({ className, ...props }: React.ComponentProps<'div'>) 
   );
 }
 
+/** Accessible title of the alert dialog. */
 function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
   return (
     <AlertDialogPrimitive.Title
@@ -104,6 +113,7 @@ function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof A
   );
 }
 
+/** Accessible description of the alert dialog. */
 function AlertDialogDescription({
   className,
   ...props
@@ -120,6 +130,7 @@ function AlertDialogDescription({
   );
 }
 
+/** Button that confirms and closes the alert dialog. */
 function AlertDialogAction({
   className,
   variant = 'default',
@@ -134,6 +145,7 @@ function AlertDialogAction({
   );
 }
 
+/** Button that cancels and closes the alert dialog. */
 function AlertDialogCancel({
   className,
   variant = 'outline',

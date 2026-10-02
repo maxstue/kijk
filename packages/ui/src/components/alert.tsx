@@ -19,10 +19,12 @@ const alertVariants = cva(
   },
 );
 
+/** Callout for important messages; `variant` sets the tone. */
 function Alert({ className, variant, ...props }: React.ComponentProps<'div'> & VariantProps<typeof alertVariants>) {
   return <div data-slot='alert' role='alert' className={cn(alertVariants({ variant }), className)} {...props} />;
 }
 
+/** Title of an alert. */
 function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -36,6 +38,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Body text of an alert. */
 function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -49,6 +52,7 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
   );
 }
 
+/** Action area in the top corner of an alert. */
 function AlertAction({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='alert-action' className={cn('absolute top-2.5 right-3', className)} {...props} />;
 }
