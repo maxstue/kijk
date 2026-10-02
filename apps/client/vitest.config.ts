@@ -38,6 +38,8 @@ export default defineConfig({
             instances: [{ browser: 'chromium' }],
             provider: playwright(),
           },
+          // Shared CI runners time out while starting many browser iframes in parallel; run files one by one there.
+          fileParallelism: !process.env.CI,
           include: ['src/**/*.browser.test.tsx'],
           name: 'component',
           setupFiles: ['./src/test/browser-setup.ts'],
