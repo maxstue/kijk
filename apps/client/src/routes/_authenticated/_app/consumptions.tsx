@@ -25,8 +25,10 @@ import { ConsumptionMonthView } from '@/app/consumptions/month-view';
 import { ConsumptionYearSwitcher } from '@/app/consumptions/year-switcher';
 import { consumptionLimitsQueryOptions } from '@/shared/api/consumption-limits/options';
 import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { NotFound } from '@/shared/components/not-found';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 import { getMonthFromDate, monthSchema } from '@/shared/utils/months';
 
@@ -56,6 +58,7 @@ export const Route = createFileRoute('/_authenticated/_app/consumptions')({
 
 function UsagePage() {
   useSetSiteHeader('Consumptions');
+  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
   const [showDialog, setShowDialog] = useState(false);
   const { month, view, year } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -98,7 +101,11 @@ function UsagePage() {
                     </Suspense>
                   </div>
                   <DialogTrigger asChild>
-                    <Button variant='outline'>
+                    <Button
+                      disabled={!canRecord}
+                      title={canRecord ? undefined : 'Your household role does not allow recording consumptions'}
+                      variant='outline'
+                    >
                       Add <Plus />
                     </Button>
                   </DialogTrigger>

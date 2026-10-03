@@ -2,8 +2,13 @@ import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import { exportConsumption, exportConsumptionMonth, type CsvDownload } from '@/shared/api/consumptions/requests';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 
 import { ConsumptionExportButton } from './export-button';
+
+vi.mock('@/shared/hooks/use-household-permission', () => ({
+  useHouseholdPermission: vi.fn<() => boolean>(() => true),
+}));
 
 vi.mock('@/shared/api/consumptions/requests', () => ({
   exportConsumption: vi.fn<(id: string, signal?: AbortSignal) => Promise<CsvDownload>>(),
@@ -15,6 +20,7 @@ const exportMonth = vi.mocked(exportConsumptionMonth);
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(useHouseholdPermission).mockReturnValue(true);
   vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:consumption-export');
   vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
@@ -42,4 +48,18 @@ test('disables an empty month export', async () => {
   const screen = await render(<ConsumptionExportButton disabled month='september' year={2026} />);
 
   await expect.element(screen.getByRole('button', { name: 'Export monthly consumptions' })).toBeDisabled();
+});
+
+test('disables single and monthly exports without the export permission', async () => {
+  vi.mocked(useHouseholdPermission).mockReturnValue(false);
+  const screen = await render(
+    <>
+      <ConsumptionExportButton consumptionId='consumption-42' />
+      <ConsumptionExportButton month='september' year={2026} />
+    </>,
+  );
+  await expect.element(screen.getByRole('button', { name: 'Export consumption', exact: true })).toBeDisabled();
+  await expect.element(screen.getByRole('button', { name: 'Export monthly consumptions' })).toBeDisabled();
+  expect(exportSingle).not.toHaveBeenCalled();
+  expect(exportMonth).not.toHaveBeenCalled();
 });

@@ -16,6 +16,7 @@ public sealed class GetConsumptionLimitsHandler(IAppDbContext dbContext, Current
     {
         var limits = await dbContext.ConsumptionsLimits
             .Include(item => item.Resource)
+            .ThenInclude(resource => resource.Unit)
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId)
             .OrderBy(item => item.Resource.Name)
             .ThenBy(item => item.Period)
@@ -35,6 +36,7 @@ public sealed class GetConsumptionLimitsHandler(IAppDbContext dbContext, Current
     {
         var limit = await dbContext.ConsumptionsLimits
             .Include(item => item.Resource)
+            .ThenInclude(resource => resource.Unit)
             .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (limit is null)

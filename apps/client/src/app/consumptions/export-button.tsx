@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { exportConsumption, exportConsumptionMonth } from '@/shared/api/consumptions/requests';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import type { Months } from '@/shared/utils/months';
 
 type Props =
@@ -12,11 +14,13 @@ type Props =
 
 /** Downloads a single consumption (`consumptionId`) or a whole month (`year` + `month`) as CSV. */
 export function ConsumptionExportButton(props: Props) {
+  const canExport = useHouseholdPermission(HouseholdPermissions.consumptions.export);
   const [isExporting, setIsExporting] = useState(false);
   const isSingleExport = props.consumptionId !== undefined;
   const label = isSingleExport ? 'Export consumption' : 'Export monthly consumptions';
 
   const handleExport = async () => {
+    if (!canExport) return;
     setIsExporting(true);
     try {
       const download = isSingleExport
@@ -38,7 +42,8 @@ export function ConsumptionExportButton(props: Props) {
   return (
     <Button
       aria-label={label}
-      disabled={isExporting || props.disabled}
+      disabled={!canExport || isExporting || props.disabled}
+      title={canExport ? undefined : 'Your household role does not allow exporting consumptions'}
       onClick={handleExport}
       size={isSingleExport ? 'icon' : 'default'}
       variant='outline'

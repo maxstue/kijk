@@ -18,8 +18,10 @@ import {
 import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
 import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 
@@ -31,6 +33,7 @@ interface Props {
 
 /** Form to edit a consumption, prefilled with `initialData`. */
 export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Props) {
+  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
   const { isPending, mutate } = useUpdateConsumption();
 
   const form = useForm({
@@ -49,6 +52,7 @@ export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Pr
   const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionUpdateFormSchema) {
+    if (!canRecord) return;
     mutate(
       {
         consumption: {
@@ -95,7 +99,12 @@ export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Pr
           render={(props) => <ConsumptionResetField {...props} />}
         />
         <ConsumptionRunningTotal consumptions={consumptions} excludeId={initialData.id} />
-        <Button className='mt-6' disabled={isPending} type='submit'>
+        <Button
+          className='mt-6'
+          disabled={!canRecord || isPending}
+          title={canRecord ? undefined : 'Your household role does not allow recording consumptions'}
+          type='submit'
+        >
           {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Update'}
         </Button>
       </form>

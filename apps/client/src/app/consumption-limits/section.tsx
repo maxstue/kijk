@@ -18,9 +18,12 @@ import { useState } from 'react';
 import { ConsumptionLimitForm } from '@/app/consumption-limits/form';
 import { consumptionLimitsQueryOptions } from '@/shared/api/consumption-limits/options';
 import type { ConsumptionLimit } from '@/shared/api/consumption-limits/types';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 
 /** Page section listing the household's limits with create and edit actions. */
 export function ConsumptionLimitsSection() {
+  const canPlan = useHouseholdPermission(HouseholdPermissions.limits.plan);
   const { data } = useSuspenseQuery(consumptionLimitsQueryOptions());
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
@@ -35,7 +38,11 @@ export function ConsumptionLimitsSection() {
         </div>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button variant='outline'>
+            <Button
+              disabled={!canPlan}
+              title={canPlan ? undefined : 'Your household role does not allow planning limits'}
+              variant='outline'
+            >
               <Plus /> Add limit
             </Button>
           </DialogTrigger>
@@ -60,7 +67,7 @@ export function ConsumptionLimitsSection() {
       ) : (
         <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-3'>
           {data.map((limit) => (
-            <LimitCard key={limit.id} limit={limit} />
+            <LimitCard key={limit.id} canPlan={canPlan} limit={limit} />
           ))}
         </div>
       )}
@@ -68,7 +75,7 @@ export function ConsumptionLimitsSection() {
   );
 }
 
-function LimitCard({ limit }: { limit: ConsumptionLimit }) {
+function LimitCard({ limit, canPlan }: { limit: ConsumptionLimit; canPlan: boolean }) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const isExceeded = limit.isExceeded && limit.active;
 
@@ -107,7 +114,12 @@ function LimitCard({ limit }: { limit: ConsumptionLimit }) {
       <CardFooter className='justify-end'>
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
           <DialogTrigger asChild>
-            <Button size='sm' variant='ghost'>
+            <Button
+              disabled={!canPlan}
+              title={canPlan ? undefined : 'Your household role does not allow planning limits'}
+              size='sm'
+              variant='ghost'
+            >
               <Pencil /> Edit
             </Button>
           </DialogTrigger>

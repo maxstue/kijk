@@ -15,6 +15,8 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { getMonthFromDate } from '@/shared/utils/months';
 
 interface Props {
@@ -24,10 +26,12 @@ interface Props {
 
 /** Deletes a consumption after confirmation. */
 export function ConsumptionDeleteButton({ id, date }: Props) {
+  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
   const [showModal, setShowModal] = useState(false);
   const { mutate } = useDeleteConsumption();
 
   const handleDelete = () => {
+    if (!canRecord) return;
     const consumptionDate = new Date(date);
     const month = getMonthFromDate(consumptionDate);
     const year = consumptionDate.getFullYear();
@@ -48,7 +52,12 @@ export function ConsumptionDeleteButton({ id, date }: Props) {
   return (
     <AlertDialog open={showModal} onOpenChange={setShowModal}>
       <AlertDialogTrigger asChild>
-        <Button size='icon' variant='destructive'>
+        <Button
+          disabled={!canRecord}
+          title={canRecord ? undefined : 'Your household role does not allow deleting consumptions'}
+          size='icon'
+          variant='destructive'
+        >
           <Trash2Icon className='size-4' />
         </Button>
       </AlertDialogTrigger>
@@ -61,7 +70,7 @@ export function ConsumptionDeleteButton({ id, date }: Props) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant='destructive' onClick={handleDelete}>
+          <AlertDialogAction disabled={!canRecord} variant='destructive' onClick={handleDelete}>
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

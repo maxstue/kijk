@@ -21,6 +21,7 @@ public sealed class UpdateConsumptionLimitHandler(IAppDbContext dbContext, Curre
     {
         var limit = await dbContext.ConsumptionsLimits
             .Include(item => item.Resource)
+            .ThenInclude(resource => resource.Unit)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (limit is null)
         {

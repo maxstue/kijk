@@ -32,6 +32,7 @@ public sealed class CreateConsumptionLimitHandler(
         }
 
         var resource = await dbContext.GetUserAvailableResources(currentUser)
+            .Include(item => item.Unit)
             .FirstOrDefaultAsync(item => item.Id == request.ResourceId, cancellationToken);
         if (resource is null)
         {

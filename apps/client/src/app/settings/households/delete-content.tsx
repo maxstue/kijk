@@ -18,6 +18,7 @@ import { deleteHouseholdMutationOptions } from '@/shared/api/households/options'
 import { queryKeys } from '@/shared/api/query-keys';
 
 import { useHouseholdSettings } from './context';
+import { clearHouseholdData } from './helpers';
 
 /** Confirmation dialog content for deleting the household with all of its data. */
 export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
@@ -33,6 +34,7 @@ export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
       onError: (error) => toast.error(error.message),
       onSuccess: () => {
         void (async () => {
+          await clearHouseholdData(queryClient);
           await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
           toast.success(`Deleted household: ${household.name}`);
           onClose();
