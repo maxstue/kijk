@@ -70,7 +70,9 @@ export function UnitRowActions({ householdId, households, scope, systemUnits, un
   }
 
   function unshare() {
-    if (!householdId) return;
+    if (!householdId) {
+      return;
+    }
     unshareMutation.mutate(
       { householdId, id: unit.id },
       {

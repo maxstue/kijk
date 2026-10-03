@@ -4,6 +4,7 @@ import { defineConfig } from 'oxlint';
 export default defineConfig({
   plugins: ['eslint'],
   rules: {
+    'eslint/curly': ['error', 'all'],
     'eslint/no-unused-vars': [
       'error',
       {

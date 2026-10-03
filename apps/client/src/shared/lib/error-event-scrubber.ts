@@ -65,14 +65,20 @@ export function scrubPerformanceTransaction(event: TransactionEvent): Transactio
 }
 
 function stripUrlData(value: string | undefined) {
-  if (!value) return value;
+  if (!value) {
+    return value;
+  }
 
   const dataStart = value.search(/[?#]/);
   return dataStart === -1 ? value : value.slice(0, dataStart);
 }
 
 function sanitizeRouteName(routeName: string | undefined) {
-  if (!routeName) return 'route';
-  if (!routeName.includes('$')) return routeName;
+  if (!routeName) {
+    return 'route';
+  }
+  if (!routeName.includes('$')) {
+    return routeName;
+  }
   return routeName.replaceAll(/\$[^/]+/g, ':parameter');
 }

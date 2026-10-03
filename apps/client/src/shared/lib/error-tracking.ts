@@ -47,7 +47,9 @@ class SentryErrorTrackingService implements ErrorTrackingService {
   }
 
   private enableRouterTracing(consent: CookieConsent) {
-    if (consent !== 'accepted' || this.routerTracingInstalled || !this.router) return;
+    if (consent !== 'accepted' || this.routerTracingInstalled || !this.router) {
+      return;
+    }
 
     Sentry.addIntegration(
       Sentry.tanstackRouterBrowserTracingIntegration(this.router, {
