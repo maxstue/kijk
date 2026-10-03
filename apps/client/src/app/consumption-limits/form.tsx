@@ -56,7 +56,9 @@ export function ConsumptionLimitForm({ initialData, onClose }: Props) {
   });
 
   function onSubmit(values: ConsumptionLimitFormValues) {
-    if (!canPlan) return;
+    if (!canPlan) {
+      return;
+    }
     const onError = (error: Error) => toast.error(error.name, { description: error.message });
     const onSuccess = () => {
       toast.success(initialData ? 'Limit updated' : 'Limit created');

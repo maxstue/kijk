@@ -31,7 +31,9 @@ export function ConsumptionDeleteButton({ id, date }: Props) {
   const { mutate } = useDeleteConsumption();
 
   const handleDelete = () => {
-    if (!canRecord) return;
+    if (!canRecord) {
+      return;
+    }
     const consumptionDate = new Date(date);
     const month = getMonthFromDate(consumptionDate);
     const year = consumptionDate.getFullYear();

@@ -20,7 +20,9 @@ export function ConsumptionExportButton(props: Props) {
   const label = isSingleExport ? 'Export consumption' : 'Export monthly consumptions';
 
   const handleExport = async () => {
-    if (!canExport) return;
+    if (!canExport) {
+      return;
+    }
     setIsExporting(true);
     try {
       const download = isSingleExport

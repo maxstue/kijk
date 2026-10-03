@@ -57,7 +57,9 @@ export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
   const handleError = () => toast('Error updating');
 
   function onSubmit(data: ConsumptionCreateFormSchema) {
-    if (!canRecord) return;
+    if (!canRecord) {
+      return;
+    }
     mutate(
       {
         ...data,

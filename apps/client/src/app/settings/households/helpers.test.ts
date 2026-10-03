@@ -16,7 +16,9 @@ test('loads the remaining household instead of fresh cached data from the delete
     queryKeys.units.list(),
     queryKeys.households.members('deleted-household'),
   ];
-  for (const queryKey of keys) client.setQueryData(queryKey, ['deleted-household']);
+  for (const queryKey of keys) {
+    client.setQueryData(queryKey, ['deleted-household']);
+  }
   client.setQueryData(queryKeys.users.me, { user: 'current-user' });
 
   await clearHouseholdData(client);

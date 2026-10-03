@@ -12,7 +12,9 @@ interface Props {
 /** Opens the edit page of a consumption, keeping the current search params. */
 export function ConsumptionEditButton({ id }: Props) {
   const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
-  if (!canRecord) return null;
+  if (!canRecord) {
+    return null;
+  }
 
   return (
     <Button asChild className='text-muted-foreground' size='icon' variant='outline'>
