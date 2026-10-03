@@ -137,8 +137,12 @@ function LimitCard({ limit, canPlan }: { limit: ConsumptionLimit; canPlan: boole
 }
 
 function LimitStatus({ active, exceeded }: { active: boolean; exceeded: boolean }) {
-  if (!active) return <Badge variant='secondary'>Paused</Badge>;
-  if (exceeded) return <Badge variant='destructive'>Limit reached</Badge>;
+  if (!active) {
+    return <Badge variant='secondary'>Paused</Badge>;
+  }
+  if (exceeded) {
+    return <Badge variant='destructive'>Limit reached</Badge>;
+  }
   return <Badge variant='outline'>Active</Badge>;
 }
 

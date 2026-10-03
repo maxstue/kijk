@@ -73,7 +73,9 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
   }
 
   function unshare() {
-    if (!householdId) return;
+    if (!householdId) {
+      return;
+    }
     unshareMutation.mutate(
       { householdId, id: unit.id },
       {

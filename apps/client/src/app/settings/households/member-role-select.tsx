@@ -18,7 +18,9 @@ export function MemberRoleSelect({ householdId, member, roles }: Props) {
   const changeRoleMutation = useMutation(changeHouseholdMemberRoleMutationOptions());
 
   function changeRole(roleId: string) {
-    if (roleId === member.role.id) return;
+    if (roleId === member.role.id) {
+      return;
+    }
     changeRoleMutation.mutate(
       { householdId, roleId, userId: member.userId },
       {
