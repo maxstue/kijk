@@ -70,15 +70,21 @@ export function scrubPerformanceTransaction(event: TransactionEvent): Transactio
 }
 
 function stripUrlData(value: string | undefined) {
-  if (!value) return value;
+  if (!value) {
+    return value;
+  }
 
   const dataStart = value.search(/[?#]/);
   return dataStart === -1 ? value : value.slice(0, dataStart);
 }
 
 function sanitizeRouteName(routeName: string | undefined) {
-  if (!routeName) return 'route';
+  if (!routeName) {
+    return 'route';
+  }
   const path = stripUrlData(routeName)!;
-  if (!path.includes('$')) return path;
+  if (!path.includes('$')) {
+    return path;
+  }
   return path.replaceAll(/\$[^/]+/g, ':parameter');
 }
