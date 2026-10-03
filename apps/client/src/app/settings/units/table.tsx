@@ -132,7 +132,11 @@ export function UnitTable({
 
 /** Returns the message shown instead of rows while loading or when there are no units. */
 function getStatusMessage(isPending: boolean, itemCount: number) {
-  if (isPending) return 'Loading units...';
-  if (itemCount === 0) return 'No results.';
+  if (isPending) {
+    return 'Loading units...';
+  }
+  if (itemCount === 0) {
+    return 'No results.';
+  }
   return undefined;
 }
