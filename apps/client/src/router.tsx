@@ -7,6 +7,7 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 import { queryClient } from '@/shared/lib/query-client';
 
 // Create a new router instance
+/** The app router with the generated route tree. */
 export const router = createRouter({
   context: {
     authClient: undefined!,
@@ -26,6 +27,7 @@ export const router = createRouter({
  * The type of the router instance. This is used for type safety when using the router in other parts of the
  * application.
  */
+/** Type of {@link router}. */
 export type AppRouter = typeof router;
 
 // Register the router instance for type safety

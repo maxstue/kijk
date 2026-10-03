@@ -24,6 +24,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { siteConfig } from '@/shared/config/site';
 
+/** Sidebar account menu: settings, feedback and sign-out. */
 export function AccountMenu() {
   const { signOut } = useAuth();
   const { data: currentAccount } = useQuery(currentUserQueryOptions());

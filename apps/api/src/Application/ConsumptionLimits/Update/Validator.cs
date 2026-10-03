@@ -7,6 +7,7 @@ namespace Kijk.Application.ConsumptionLimits.Update;
 /// </summary>
 public sealed class UpdateConsumptionLimitValidator : AbstractValidator<UpdateConsumptionLimitRequest>
 {
+    /// <summary>Creates the validator rules for consumption limit updates.</summary>
     public UpdateConsumptionLimitValidator()
     {
         RuleFor(request => request.Name)

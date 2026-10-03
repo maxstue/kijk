@@ -11,6 +11,9 @@ namespace Kijk.Application.Resources.GetAll;
 /// </summary>
 public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger) : IHandler
 {
+    /// <summary>Gets the resources available in the active household.</summary>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The resources.</returns>
     public async Task<Result<List<ResourceResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var resources = await dbContext

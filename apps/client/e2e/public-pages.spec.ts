@@ -23,5 +23,5 @@ test('redirects an unauthenticated user from a protected route', async ({ page }
   await page.goto('/home');
 
   await expect(page).toHaveURL(/\/auth\?from=/);
-  await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
+  await expect(page.getByText('Welcome back', { exact: true })).toBeVisible();
 });

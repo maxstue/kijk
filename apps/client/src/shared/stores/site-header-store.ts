@@ -21,5 +21,7 @@ const siteHeaderStore = createStoreFactory<State>('theme-store', (set) => ({
   title: 'Kijk',
 }));
 
+/** Store with the title shown in the site header. */
 export const useSiteHeaderStore = siteHeaderStore as UseBoundStore<StoreApi<Omit<State, 'actions'>>>;
+/** Returns the actions of the site header store. */
 export const useSiteHeaderStoreActions = () => siteHeaderStore((state) => state.actions);

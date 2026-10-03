@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Infrastructure.Persistence.Configs;
 
+/// <summary>EF Core mapping of <see cref="Household" />.</summary>
 public class HouseholdConfig : IEntityTypeConfiguration<Household>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Household> builder)
     {
         builder.HasKey(x => x.Id);

@@ -10,6 +10,7 @@ namespace Kijk.Application.Units.Shared;
 /// </summary>
 public sealed class UnitsNetConversionService : IUnitConversionService
 {
+    /// <inheritdoc />
     public Result<UnitMetadata> Resolve(string unitName)
     {
         foreach (var quantity in Quantity.Infos)
@@ -27,6 +28,7 @@ public sealed class UnitsNetConversionService : IUnitConversionService
         return Error.Validation($"Unknown unit '{unitName}'");
     }
 
+    /// <inheritdoc />
     public Result<decimal> Convert(decimal value, Unit source, Unit target)
     {
         if (!string.Equals(source.QuantityKey, target.QuantityKey, StringComparison.Ordinal))

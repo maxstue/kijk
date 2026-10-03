@@ -4,8 +4,10 @@ using Microsoft.OpenApi;
 
 namespace Kijk.Api.Extensions.OpenApi;
 
+/// <summary>Adds reusable problem-details responses to the OpenAPI components.</summary>
 public class ComponentResponseTransformer : IOpenApiDocumentTransformer
 {
+    /// <inheritdoc />
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         document.Components ??= new();

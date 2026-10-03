@@ -56,6 +56,7 @@ interface WelcomeFlowProps {
   onComplete: () => Promise<void>;
 }
 
+/** Multi-step onboarding: profile, household, privacy and review; calls `onComplete` when done. */
 export function WelcomeFlow({
   email,
   fullName,

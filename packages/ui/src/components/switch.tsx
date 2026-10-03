@@ -5,6 +5,7 @@ import { Switch as SwitchPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** On/off toggle switch. */
 function Switch({
   className,
   size = 'default',

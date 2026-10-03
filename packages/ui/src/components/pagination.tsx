@@ -4,6 +4,7 @@ import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
 
+/** Page navigation. */
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (
     <nav
@@ -16,10 +17,12 @@ function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   );
 }
 
+/** List of pagination items. */
 function PaginationContent({ className, ...props }: React.ComponentProps<'ul'>) {
   return <ul data-slot='pagination-content' className={cn('flex items-center gap-1', className)} {...props} />;
 }
 
+/** A single pagination entry. */
 function PaginationItem({ ...props }: React.ComponentProps<'li'>) {
   return <li data-slot='pagination-item' {...props} />;
 }
@@ -29,6 +32,7 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, 'size'> &
   React.ComponentProps<'a'>;
 
+/** Link to a page; `isActive` marks the current page. */
 function PaginationLink({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) {
   return (
     <Button asChild variant={isActive ? 'outline' : 'ghost'} size={size} className={cn(className)}>
@@ -37,6 +41,7 @@ function PaginationLink({ className, isActive, size = 'icon', ...props }: Pagina
   );
 }
 
+/** Link to the previous page. */
 function PaginationPrevious({
   className,
   text = 'Previous',
@@ -50,6 +55,7 @@ function PaginationPrevious({
   );
 }
 
+/** Link to the next page. */
 function PaginationNext({
   className,
   text = 'Next',
@@ -63,6 +69,7 @@ function PaginationNext({
   );
 }
 
+/** Placeholder for skipped pages. */
 function PaginationEllipsis({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span

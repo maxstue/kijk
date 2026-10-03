@@ -38,6 +38,7 @@ const Route = getRouteApi('/_authenticated/_app/consumptions');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
+/** Year picker that updates the `year` search param and can add a year without entries. */
 export function ConsumptionYearSwitcher({ className }: YProps) {
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);

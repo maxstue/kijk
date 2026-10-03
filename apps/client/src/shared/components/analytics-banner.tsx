@@ -4,6 +4,7 @@ import { CookieIcon, ExternalLink } from 'lucide-react';
 
 import { useAnalyticsConsent } from '@/shared/hooks/use-analytics-consent';
 
+/** Cookie banner asking for analytics consent; hidden once the user decided. */
 export function AnalyticsBanner() {
   const { consent, isPending, isReady, updateConsent } = useAnalyticsConsent();
 

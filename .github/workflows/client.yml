@@ -10,6 +10,7 @@ on:
       - 'package.json'
       - 'packages/config/**'
       - 'packages/core/**'
+      - 'packages/oxlint-plugin-boundaries/**'
       - 'packages/ui/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -21,6 +22,7 @@ on:
       - 'package.json'
       - 'packages/config/**'
       - 'packages/core/**'
+      - 'packages/oxlint-plugin-boundaries/**'
       - 'packages/ui/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -37,47 +39,90 @@ jobs:
       - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: '🔧 Install pnpm'
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        id: pnpm-install
-
-      - name: '🔧 Use Node.js'
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - name: '🔧 Set up Vite+'
+        uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
-          node-version-file: package.json
-          cache: 'pnpm'
+          version-file: package.json
+          node-version: '26'
+          cache: true
+          run-install: false
 
       - name: '📦 Install dependencies'
-        run: pnpm ci
+        run: vp install --frozen-lockfile
 
       - name: '🌐 Install Playwright browser'
         run: pnpm --filter kijk-client exec playwright install --with-deps chromium
 
+      # The build only checks that the client compiles. The Clerk publishable key is validated at runtime and
+      # Railway builds the deployed client with its own variables, so no secrets are needed here.
       - name: '🧱 Build'
-        env:
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
         run: pnpm build:client
 
       - name: '🧪 Typecheck'
         run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui typecheck
 
       - name: '🧹 Format'
-        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui fmt
+        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries fmt
 
       - name: '🔍 Lint'
-        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui lint
+        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries lint
 
       - name: '📊 Frontend tests and coverage'
         run: pnpm --filter kijk-client test:coverage
 
-      - name: '🎭 Frontend E2E tests'
-        env:
-          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-          E2E_CLERK_USER_EMAIL: ${{ secrets.E2E_CLERK_USER_EMAIL }}
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
-        run: pnpm --filter kijk-client test:e2e
-
       - name: '🔍 Audit'
         run: pnpm audit
         continue-on-error: true
+
+  e2e:
+    name: '🎭 E2E tests'
+    needs: [basic]
+    runs-on: ubuntu-latest
+    # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
+    # dev /CI/E2e and prod /CI/Sonar.
+    # deployment: false uses the environment for its variables and OIDC subject without creating a deployment entry.
+    environment:
+      name: ci
+      deployment: false
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: '🏖️ Checkout Repository'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: '🔧 Set up Vite+'
+        uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
+        with:
+          version-file: package.json
+          node-version: '26'
+          cache: true
+          run-install: false
+
+      - name: '📦 Install dependencies'
+        run: vp install --frozen-lockfile
+
+      - name: '🌐 Install Playwright browser'
+        run: pnpm --filter kijk-client exec playwright install --with-deps chromium
+
+      - name: '🔐 Load Clerk dev secrets'
+        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
+        with:
+          method: oidc
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
+          domain: https://eu.infisical.com
+          env-slug: dev
+          secret-path: /CI/E2e
+
+      - name: '🎭 Frontend E2E tests'
+        run: pnpm --filter kijk-client exec playwright test
+
+      - name: '📎 Upload Playwright results'
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-results
+          path: apps/client/test-results
+          retention-days: 7

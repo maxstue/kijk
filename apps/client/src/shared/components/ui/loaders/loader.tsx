@@ -2,6 +2,7 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { cn } from 'cn';
 import type { ComponentProps } from 'react';
 
+/** Small spinning loader. */
 export function Loader({ className }: ComponentProps<'div'>) {
   return (
     <div className='flex items-center justify-center'>

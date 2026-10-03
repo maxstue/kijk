@@ -24,6 +24,7 @@ interface Props extends Dialog.DialogProps {
   isCollapsed?: boolean;
 }
 
+/** Command palette (⌘K) to navigate the app. */
 export function CommandMenu({ ...props }: Props) {
   const navigate = useNavigate({ from: '/' });
   const [open, setOpen] = useState(false);

@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
 
+/** `/`: public landing page. */
 export const Route = createFileRoute('/')({ component: PublicHomePage });
 
 function PublicHomePage() {

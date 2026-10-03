@@ -10,6 +10,7 @@ namespace Kijk.Application.Resources;
 /// </summary>
 public class ModuleService : IModule
 {
+    /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         // Validators

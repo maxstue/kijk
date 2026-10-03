@@ -50,7 +50,8 @@
     "lint-staged": "catalog:",
     "release-it": "catalog:",
     "rimraf": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
   },
   "lint-staged": {
     "apps/client/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:client'",
@@ -63,7 +64,7 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "^11",
+      "version": "^12",
       "onFail": "download"
     },
     "runtime": {
@@ -74,6 +75,6 @@
   },
   "engines": {
     "node": ">=26",
-    "pnpm": ">=11"
+    "pnpm": ">=12"
   }
 }

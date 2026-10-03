@@ -7,6 +7,7 @@ import { cn } from 'cn';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from 'lucide-react';
 
+/** Date picker calendar based on React DayPicker. */
 function Calendar({
   className,
   classNames,
@@ -133,6 +134,7 @@ function Calendar({
   );
 }
 
+/** Day cell button of the calendar. */
 function CalendarDayButton({
   className,
   day,
@@ -144,7 +146,9 @@ function CalendarDayButton({
 
   const ref = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {
-    if (modifiers.focused) ref.current?.focus();
+    if (modifiers.focused) {
+      ref.current?.focus();
+    }
   }, [modifiers.focused]);
 
   return (

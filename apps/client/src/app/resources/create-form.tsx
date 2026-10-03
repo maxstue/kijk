@@ -20,6 +20,7 @@ interface Props {
   onClose?: () => void;
 }
 
+/** Form to create a custom resource. */
 export function ResourceTypeCreateForm({ onClose }: Props) {
   const { isPending, mutate } = useCreateResource();
 

@@ -13,7 +13,7 @@ const sections = [
     section: 'general',
   },
   {
-    description: 'Your membership and role in this household',
+    description: 'Members, roles, and what each role allows',
     icon: Users,
     label: 'Members',
     section: 'members',
@@ -26,6 +26,7 @@ const sections = [
   },
 ] as const satisfies ReadonlyArray<{ description: string; icon: LucideIcon; label: string; section: string }>;
 
+/** Overview of a household's settings sections. */
 export function HouseholdOverview() {
   const { household } = useHouseholdSettings();
 

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteConsumptionMutationOptions } from '@/shared/api/consumptions/options';
 import { queryKeys } from '@/shared/api/query-keys';
 
+/** Deletes a consumption and refreshes consumption lists, stats and limits. */
 export const useDeleteConsumption = () => {
   const queryClient = useQueryClient();
 

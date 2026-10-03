@@ -7,6 +7,7 @@ namespace Kijk.Application.Users.Update;
 /// </summary>
 public sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
 {
+    /// <summary>Creates the validator rules for user updates.</summary>
     public UpdateUserRequestValidator()
     {
         RuleFor(request => request.UserName)

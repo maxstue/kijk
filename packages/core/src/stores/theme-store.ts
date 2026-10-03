@@ -27,5 +27,7 @@ const themeStore = createStoreFactory<State>('theme-store', (set) => ({
   },
 }));
 
+/** Store with the theme mode (light, dark or system), persisted in browser storage. */
 export const useThemeStore = themeStore as UseBoundStore<StoreApi<Omit<State, 'actions'>>>;
+/** Returns the actions of the theme store. */
 export const useThemeStoreActions = () => themeStore((state: State) => state.actions);

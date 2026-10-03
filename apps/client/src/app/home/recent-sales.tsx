@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 
+/** Dashboard list of recent entries (static demo data). */
 export function RecentSales() {
   return (
     <div className='flex flex-col gap-6'>

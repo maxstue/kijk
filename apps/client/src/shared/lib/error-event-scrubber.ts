@@ -42,6 +42,7 @@ export function scrubErrorEvent(event: ErrorEvent): ErrorEvent {
   };
 }
 
+/** Removes span data and personal values from the span description before it is sent to Sentry. */
 export function scrubPerformanceSpan<T extends { data?: Record<string, unknown>; description?: string }>(span: T): T {
   return {
     ...span,
@@ -50,6 +51,10 @@ export function scrubPerformanceSpan<T extends { data?: Record<string, unknown>;
   };
 }
 
+/**
+ * Strips user, request, tags, context and breadcrumbs from a performance transaction and sanitizes route names before
+ * it is sent to Sentry.
+ */
 export function scrubPerformanceTransaction(event: TransactionEvent): TransactionEvent {
   return {
     ...event,
@@ -65,14 +70,21 @@ export function scrubPerformanceTransaction(event: TransactionEvent): Transactio
 }
 
 function stripUrlData(value: string | undefined) {
-  if (!value) return value;
+  if (!value) {
+    return value;
+  }
 
   const dataStart = value.search(/[?#]/);
   return dataStart === -1 ? value : value.slice(0, dataStart);
 }
 
 function sanitizeRouteName(routeName: string | undefined) {
-  if (!routeName) return 'route';
-  if (!routeName.includes('$')) return routeName;
-  return routeName.replaceAll(/\$[^/]+/g, ':parameter');
+  if (!routeName) {
+    return 'route';
+  }
+  const path = stripUrlData(routeName)!;
+  if (!path.includes('$')) {
+    return path;
+  }
+  return path.replaceAll(/\$[^/]+/g, ':parameter');
 }

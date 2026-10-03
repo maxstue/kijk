@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 
 import { Route as resourcesRoute } from '@/routes/_authenticated/_app/resources';
 import { queryKeys } from '@/shared/api/query-keys';
@@ -16,6 +16,7 @@ test('loads the canonical resource URL and closes to the overview while preservi
         name: 'Electricity',
         unit: 'kWh',
       });
+      queryClient.setQueryData(queryKeys.units.list(), []);
     },
   });
 

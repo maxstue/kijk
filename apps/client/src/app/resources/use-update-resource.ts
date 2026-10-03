@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/shared/api/query-keys';
 import { updateResourceMutationOptions } from '@/shared/api/resources/options';
 
+/** Updates a resource and refreshes resource and consumption queries. */
 export const useUpdateResource = () => {
   const queryClient = useQueryClient();
 

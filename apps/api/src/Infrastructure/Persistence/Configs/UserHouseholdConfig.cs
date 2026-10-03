@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Infrastructure.Persistence.Configs;
 
+/// <summary>EF Core mapping of <see cref="UserHousehold" />.</summary>
 public class UserHouseholdConfig : IEntityTypeConfiguration<UserHousehold>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<UserHousehold> builder)
     {
         builder.HasKey(x => new { x.UserId, x.HouseholdId });
@@ -23,9 +25,5 @@ public class UserHouseholdConfig : IEntityTypeConfiguration<UserHousehold>
             .WithMany(x => x.UserHouseholds)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(x => x.UserHouseHoldExtraPermissions)
-            .WithMany(x => x.UserHouseholds)
-            .UsingEntity("user_households_permissions");
     }
 }

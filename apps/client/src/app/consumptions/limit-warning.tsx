@@ -8,6 +8,7 @@ interface Props {
   resourceId: string;
 }
 
+/** Warning icon with tooltip when an active limit of the resource is exceeded. */
 export function ConsumptionLimitWarning({ resourceId }: Props) {
   const { data } = useSuspenseQuery(consumptionLimitsQueryOptions());
   const exceededLimits = data.filter((limit) => limit.active && limit.isExceeded && limit.resource.id === resourceId);

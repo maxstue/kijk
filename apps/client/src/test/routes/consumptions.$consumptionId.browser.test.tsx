@@ -1,11 +1,17 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 
 import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/consumptions';
 import { queryKeys } from '@/shared/api/query-keys';
 import { renderRoute } from '@/test/render-route';
 
 test('loads the canonical consumption URL and closes to the overview while preserving search', async () => {
-  const resource = { color: '#123456', creatorType: 'User', id: 'resource-7', name: 'Electricity', unit: 'kWh' };
+  const resource = {
+    color: '#123456',
+    creatorType: 'User',
+    id: 'resource-7',
+    name: 'Electricity',
+    unit: 'kWh',
+  };
   const { router, screen } = await renderRoute({
     initialEntry: '/consumptions/consumption-42?view=month&year=2026&month=september',
     overviewRoute: consumptionsRoute,
@@ -19,6 +25,7 @@ test('loads the canonical consumption URL and closes to the overview while prese
       });
       queryClient.setQueryData(queryKeys.resources.list(), [resource]);
       queryClient.setQueryData(queryKeys.consumptionLimits.list(), []);
+      queryClient.setQueryData(queryKeys.consumptions.by('2026'), []);
     },
   });
 

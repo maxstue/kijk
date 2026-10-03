@@ -3,6 +3,7 @@ import { Progress as ProgressPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Progress bar; `value` is a percentage. */
 function Progress({ className, value, ...props }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
   return (
     <ProgressPrimitive.Root

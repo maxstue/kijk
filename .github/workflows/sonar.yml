@@ -21,6 +21,15 @@ jobs:
       github.actor != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
+    # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
+    # dev /CI/E2e and prod /CI/Sonar.
+    # deployment: false uses the environment for its variables and OIDC subject without creating a deployment entry.
+    environment:
+      name: ci
+      deployment: false
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: 🏖️ Checkout Repository
@@ -31,17 +40,16 @@ jobs:
       - name: 🔧 Setup .NET
         uses: ./.github/actions/setup-dotnet
 
-      - name: 🔧 Install pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - name: 🔧 Use Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - name: 🔧 Set up Vite+
+        uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
-          node-version-file: package.json
-          cache: "pnpm"
+          version-file: package.json
+          node-version: '26'
+          cache: true
+          run-install: false
 
       - name: 📦 Install JavaScript dependencies
-        run: pnpm ci
+        run: vp install --frozen-lockfile
 
       - name: 🎭 Install Playwright browser
         run: pnpm --filter kijk-client exec playwright install --with-deps chromium
@@ -49,12 +57,29 @@ jobs:
       - name: 📦 Restore .NET dependencies
         run: dotnet restore apps/api/Kijk.slnx --locked-mode
 
+      # Runs before the SonarQube analysis starts: `sonarscanner begin` injects the server's rule set, and
+      # `dotnet format` would then apply those analyzer fixes and fail the check.
+      - name: 🧹 Format
+        run: |
+          dotnet format apps/api/Kijk.slnx --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
+          pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries fmt
+
       - name: 📦 Install SonarScanner for .NET
         run: dotnet tool install dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
 
+      - name: 🔐 Load SonarQube token
+        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
+        with:
+          method: oidc
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
+          domain: https://eu.infisical.com
+          env-slug: prod
+          secret-path: /CI/Sonar
+
       - name: 🔎 Begin SonarQube Cloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: |
           "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin \
             /k:"maxstue_kijk" \
@@ -70,15 +95,15 @@ jobs:
           dotnet build apps/api/Kijk.slnx --configuration Release --no-restore
           pnpm build:client
 
-      - name: 🧹 Format
-        run: |
-          dotnet format apps/api/Kijk.slnx --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
-          pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui fmt
-
       - name: 🔍 Lint
-        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui lint
+        run: pnpm --filter kijk-client --filter @kijk/config --filter @kijk/core --filter @kijk/ui --filter @kijk/oxlint-plugin-boundaries lint
 
-      - name: 🧪 Tests and coverage
+      # Frontend tests run in their own step before the .NET tests, so the browser tests do not start while the
+      # Testcontainers databases of the integration tests are still shutting down.
+      - name: 🧪 Frontend tests and coverage
+        run: pnpm --filter kijk-client test:coverage
+
+      - name: 🧪 .NET tests and coverage
         working-directory: apps/api
         run: |
           dotnet test --project tests/Kijk.ArchitectureTests/Kijk.ArchitectureTests.csproj \
@@ -99,7 +124,6 @@ jobs:
             --coverage \
             --coverage-output integration.coverage.xml \
             --coverage-output-format xml
-          pnpm --filter kijk-client test:coverage
 
       - name: 🔍 .NET audit
         run: dotnet list apps/api/Kijk.slnx package --vulnerable --include-transitive
@@ -111,5 +135,5 @@ jobs:
 
       - name: 🔎 Complete SonarQube Cloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: '"${{ runner.temp }}/scanner/dotnet-sonarscanner" end /d:sonar.token="$SONAR_TOKEN"'

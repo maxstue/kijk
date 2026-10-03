@@ -10,8 +10,10 @@ interface HouseholdSettingsContextValue {
   user: User;
 }
 
+/** Household and user of the household settings pages, provided by the household route. */
 export const HouseholdSettingsContext = createContext<HouseholdSettingsContextValue | null>(null);
 
+/** Returns the household settings context; throws outside the household settings routes. */
 export function useHouseholdSettings() {
   const context = useContext(HouseholdSettingsContext);
   if (!context) {

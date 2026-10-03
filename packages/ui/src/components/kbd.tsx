@@ -1,5 +1,6 @@
 import { cn } from 'cn';
 
+/** Displays a keyboard key. */
 function Kbd({ className, ...props }: React.ComponentProps<'kbd'>) {
   return (
     <kbd
@@ -13,6 +14,7 @@ function Kbd({ className, ...props }: React.ComponentProps<'kbd'>) {
   );
 }
 
+/** Groups keys of a shortcut. */
 function KbdGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return <kbd data-slot='kbd-group' className={cn('inline-flex items-center gap-1', className)} {...props} />;
 }

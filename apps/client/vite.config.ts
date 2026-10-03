@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, lazyPlugins } from 'vite-plus';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: env.SENTRY_ENABLE === 'true',
     },
-    plugins: [
+    plugins: lazyPlugins(() => [
       // ViteDevTools({ builtinDevTools: false }),
       tanstackDevtools({
         removeDevtoolsOnBuild: true,
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
         },
         telemetry: env.SENTRY_ENABLE_TELEMETRY === 'true',
       }),
-    ],
+    ]),
     resolve: {
       tsconfigPaths: true,
     },

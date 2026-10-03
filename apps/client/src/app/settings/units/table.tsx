@@ -9,7 +9,8 @@ import { UnitRowActions } from './row-actions';
 
 interface Props {
   householdId?: string;
-  households: Array<{ id: string; name: string }>;
+  /** Households in which the user's role allows sharing units. */
+  shareableHouseholds: Array<{ id: string; name: string }>;
   isPending: boolean;
   items: Unit[];
   page: number;
@@ -22,9 +23,10 @@ interface Props {
   totalCount: number;
 }
 
+/** Paginated, searchable unit table. */
 export function UnitTable({
   householdId,
-  households,
+  shareableHouseholds,
   isPending,
   items,
   page,
@@ -37,6 +39,7 @@ export function UnitTable({
   totalCount,
 }: Props) {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const statusMessage = getStatusMessage(isPending, items.length);
   return (
     <div className='min-w-0'>
       <div className='my-4'>
@@ -62,16 +65,10 @@ export function UnitTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isPending ? (
+            {statusMessage ? (
               <TableRow>
                 <TableCell className='h-24 text-center' colSpan={5}>
-                  Loading units...
-                </TableCell>
-              </TableRow>
-            ) : items.length === 0 ? (
-              <TableRow>
-                <TableCell className='h-24 text-center' colSpan={5}>
-                  No results.
+                  {statusMessage}
                 </TableCell>
               </TableRow>
             ) : (
@@ -99,7 +96,7 @@ export function UnitTable({
                   <TableCell>
                     <UnitRowActions
                       householdId={householdId}
-                      households={households}
+                      shareableHouseholds={shareableHouseholds}
                       scope={scope}
                       systemUnits={systemUnits}
                       unit={unit}
@@ -131,4 +128,15 @@ export function UnitTable({
       </div>
     </div>
   );
+}
+
+/** Returns the message shown instead of rows while loading or when there are no units. */
+function getStatusMessage(isPending: boolean, itemCount: number) {
+  if (isPending) {
+    return 'Loading units...';
+  }
+  if (itemCount === 0) {
+    return 'No results.';
+  }
+  return undefined;
 }

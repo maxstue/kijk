@@ -55,7 +55,7 @@ Deployment is handled through the repository's GitHub Actions workflows.
 ## ⛏️ Built Using <a name = "built_using"></a>
 
 - [React](https://react.dev/) - Frontend Library
-- [Vite](https://vitejs.dev/) - Bundler
+- [Vite+](https://viteplus.dev/) - Frontend toolchain
 - [Tailwind](https://tailwindcss.com/) - Styling
 - [dotnet](https://dotnet.microsoft.com/en-us/) - Server Framework
 - [PostgreSQL](https://www.postgresql.org/) - Database

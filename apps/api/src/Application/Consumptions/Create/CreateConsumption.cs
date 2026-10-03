@@ -4,6 +4,7 @@ using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
+using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -14,6 +15,10 @@ namespace Kijk.Application.Consumptions.Create;
 /// </summary>
 public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<CreateConsumptionHandler> logger) : IHandler
 {
+    /// <summary>Records a consumption in the active household and recalculates later meter readings.</summary>
+    /// <param name="request">The consumption data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created consumption.</returns>
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest request, CancellationToken cancellationToken)
     {
         // Load household without including the Consumptions navigation to avoid materializing it as a fixed-size array during fixup
@@ -40,12 +45,13 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         var consumption = Consumption.Create(
             request.Name,
             resource,
-            request.Value,
             household,
             request.Date,
-            (ConsumptionValueType)request.ValueType,
-            calculatedConsumption: 0m,
-            request.StartsNewMeterSegment);
+            new ConsumptionReading(
+                request.Value,
+                (ConsumptionValueType)request.ValueType,
+                CalculatedConsumption: 0m,
+                request.StartsNewMeterSegment));
 
         var existingConsumptions = await dbContext.Consumptions
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId

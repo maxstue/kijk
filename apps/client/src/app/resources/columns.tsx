@@ -5,11 +5,14 @@ import { ArrowUpDown } from 'lucide-react';
 
 import { ResourceTypeRowActions } from '@/app/resources/row-actions';
 import { ResourceIcon } from '@/shared/components/resource-icon';
+import type { DataTableFeatures } from '@/shared/lib/table-features';
 import type { Resource } from '@/shared/types/domain';
 
+/** Default sorting of the resource table (by name). */
 export const resourceDefaultSort: ColumnSort = { desc: false, id: 'name' };
 
-export const getResourceTypeColumns = (canManage: boolean): Array<ColumnDef<Resource>> => [
+/** Columns of the resource table; `canManage` enables the management actions. */
+export const getResourceTypeColumns = (canManage: boolean): Array<ColumnDef<DataTableFeatures, Resource>> => [
   {
     accessorKey: 'name',
     cell: ({ row }) => (

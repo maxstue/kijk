@@ -1,3 +1,4 @@
+/** Static site metadata and external links. */
 export const siteConfig = {
   description: 'Beautifully designed household app built with shadcn/ui and nextjs',
   email: 'mail:kijk@justmax.xyz',

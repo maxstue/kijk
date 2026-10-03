@@ -7,6 +7,7 @@ namespace Kijk.Infrastructure.Persistence;
 /// </summary>
 public class ConnectionOptions : IConfigOptions
 {
+    /// <inheritdoc />
     public static string SectionName => "DefaultConnection";
 
 }

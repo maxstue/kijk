@@ -12,6 +12,7 @@ const THEMES = { light: '', dark: '.dark' } as const;
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
 type TooltipNameType = number | string;
 
+/** Label, icon and color (or per-theme colors) of each chart series, keyed by data key. */
 export type ChartConfig = Record<
   string,
   {
@@ -36,6 +37,7 @@ function useChart() {
   return context;
 }
 
+/** Responsive Recharts container that provides the chart config and its CSS color variables. */
 function ChartContainer({
   id,
   className,
@@ -74,6 +76,7 @@ function ChartContainer({
   );
 }
 
+/** Emits the CSS variables for the series colors of a chart. */
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([, config]) => config.theme ?? config.color);
 
@@ -103,8 +106,10 @@ ${colorConfig
   );
 };
 
+/** Recharts tooltip. */
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
+/** Styled tooltip content using the chart config labels and colors. */
 function ChartTooltipContent({
   active,
   payload,
@@ -230,8 +235,10 @@ function ChartTooltipContent({
   );
 }
 
+/** Recharts legend. */
 const ChartLegend = RechartsPrimitive.Legend;
 
+/** Styled legend content using the chart config labels and colors. */
 function ChartLegendContent({
   className,
   hideIcon = false,

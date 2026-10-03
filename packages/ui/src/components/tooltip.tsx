@@ -2,18 +2,22 @@ import { cn } from 'cn';
 import { Tooltip as TooltipPrimitive } from 'radix-ui';
 import * as React from 'react';
 
+/** Provides shared tooltip settings like the open delay. */
 function TooltipProvider({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return <TooltipPrimitive.Provider data-slot='tooltip-provider' {...props} />;
 }
 
+/** Short hint shown on hover or focus. */
 function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   return <TooltipPrimitive.Root data-slot='tooltip' {...props} />;
 }
 
+/** Element that shows the tooltip. */
 function TooltipTrigger({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger data-slot='tooltip-trigger' {...props} />;
 }
 
+/** Content of the tooltip. */
 function TooltipContent({
   className,
   sideOffset = 0,

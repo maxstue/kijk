@@ -459,6 +459,218 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/households/roles': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the household roles and their permissions */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['HouseholdRoleResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/households/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Updates household details */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateHouseholdRequest'];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    /** Deletes a household and its data */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/households/{id}/members': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the members of a household with their roles */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['HouseholdMemberResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/households/{id}/members/{userId}/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Changes the role of another household member */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+          userId: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['ChangeMemberRoleRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['HouseholdMemberResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/resources': {
     parameters: {
       query?: never;
@@ -1155,6 +1367,10 @@ export interface components {
   schemas: {
     /** @enum {unknown} */
     AnalyticsConsent: 'Accepted' | 'Declined' | null;
+    ChangeMemberRoleRequest: {
+      /** Format: uuid */
+      roleId: string;
+    };
     ConsumptionLimitResourceResponse: {
       /** Format: uuid */
       id: string;
@@ -1319,6 +1535,19 @@ export interface components {
     GetYearsConsumptionQueryResponse: {
       years: (number | string)[];
     };
+    HouseholdMemberResponse: {
+      /** Format: uuid */
+      userId: string;
+      name: string;
+      role: components['schemas']['HouseholdRoleResponse'];
+      isCurrentUser: boolean;
+    };
+    HouseholdRoleResponse: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      permissions: string[];
+    };
     HttpValidationProblemDetails: {
       type?: null | string;
       title?: null | string;
@@ -1428,6 +1657,10 @@ export interface components {
     };
     /** @enum {unknown} */
     UpdateConsumptionValueTypes: 'Absolute' | 'Relative';
+    UpdateHouseholdRequest: {
+      name: string;
+      description: null | string;
+    };
     UpdateResourceRequest: {
       name: null | string;
       color: null | string;

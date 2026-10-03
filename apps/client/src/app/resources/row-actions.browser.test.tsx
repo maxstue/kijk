@@ -1,5 +1,5 @@
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import type { Resource } from '@/shared/types/domain';
@@ -25,7 +25,7 @@ test('update action navigates to the canonical resource path and preserves searc
     unitId: '22222222-2222-4222-8222-222222222222',
     unitName: 'Kilowatt hour',
   };
-  const row = { original: resource } as Parameters<typeof ResourceTypeRowActions<Resource>>[0]['row'];
+  const row = { original: resource } as Parameters<typeof ResourceTypeRowActions>[0]['row'];
   const screen = await render(
     <TooltipProvider>
       <ResourceTypeRowActions canManage row={row} />

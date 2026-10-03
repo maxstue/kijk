@@ -3,10 +3,12 @@ import { unwrapApiResponse } from '@/shared/utils/http';
 
 import type { UpdateUserData, WelcomeUserData } from './types';
 
+/** Loads the current account state. */
 export async function getCurrentUser(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/users/me', { signal }));
 }
 
+/** Updates the user's settings; omitted values stay unchanged. */
 export async function updateUser(data: UpdateUserData) {
   return unwrapApiResponse(
     await apiClient.PUT('/api/users', {
@@ -21,6 +23,7 @@ export async function updateUser(data: UpdateUserData) {
   );
 }
 
+/** Completes onboarding and creates the account and first household if needed. */
 export async function welcomeUser(data: WelcomeUserData) {
   return unwrapApiResponse(
     await apiClient.PUT('/api/users/onboarding', {

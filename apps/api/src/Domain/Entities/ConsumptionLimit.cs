@@ -7,7 +7,9 @@ namespace Kijk.Domain.Entities;
 /// </summary>
 public sealed class ConsumptionLimit : BaseEntity
 {
+    /// <summary>Gets or sets the display name of the limit.</summary>
     public required string Name { get; set; }
+    /// <summary>Gets or sets an optional description.</summary>
     public string? Description { get; set; }
 
     /// <summary>
@@ -42,18 +44,21 @@ public sealed class ConsumptionLimit : BaseEntity
         }
     }
 
+    /// <summary>Gets or sets the id of <see cref="Resource" />.</summary>
     public Guid ResourceId { get; set; }
     /// <summary>
     /// The resource that the limit is for.
     /// </summary>
     public required Resource Resource { get; set; }
 
+    /// <summary>Gets or sets the id of <see cref="CreatedBy" />.</summary>
     public Guid CreatedById { get; set; }
     /// <summary>
     /// The user that created the limit.
     /// </summary>
     public required User CreatedBy { get; set; }
 
+    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
     public Guid HouseholdId { get; set; }
     /// <summary>
     /// The household that the limit is for.

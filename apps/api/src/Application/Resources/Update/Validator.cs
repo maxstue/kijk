@@ -8,6 +8,7 @@ namespace Kijk.Application.Resources.Update;
 /// </summary>
 public sealed class UpdateResourceRequestValidator : AbstractValidator<UpdateResourceRequest>
 {
+    /// <summary>Creates the validator rules for resource updates.</summary>
     public UpdateResourceRequestValidator()
     {
         RuleFor(request => request)

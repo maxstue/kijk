@@ -1,8 +1,14 @@
 import type { ReactNode } from 'react';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+
 import { ConsumptionEditButton } from './edit-button';
+
+vi.mock('@/shared/hooks/use-household-permission', () => ({
+  useHouseholdPermission: vi.fn<() => boolean>(() => true),
+}));
 
 const navigate = vi.fn<(options: Record<string, unknown>) => void>();
 
@@ -19,7 +25,10 @@ interface LinkProps {
   to: string;
 }
 
-beforeEach(() => navigate.mockClear());
+beforeEach(() => {
+  navigate.mockClear();
+  vi.mocked(useHouseholdPermission).mockReturnValue(true);
+});
 
 test('navigates to the canonical consumption path and preserves search', async () => {
   const screen = await render(<ConsumptionEditButton id='consumption-42' />);
@@ -33,4 +42,11 @@ test('navigates to the canonical consumption path and preserves search', async (
   const searchUpdater = navigate.mock.calls[0]?.[0].search as (previous: object) => object;
   const previousSearch = { month: 'september', view: 'month', year: 2026 };
   expect(searchUpdater(previousSearch)).toBe(previousSearch);
+});
+
+test('does not offer editing without the record permission', async () => {
+  vi.mocked(useHouseholdPermission).mockReturnValue(false);
+  const screen = await render(<ConsumptionEditButton id='consumption-42' />);
+  expect(screen.container.querySelector('button')).toBeNull();
+  expect(navigate).not.toHaveBeenCalled();
 });

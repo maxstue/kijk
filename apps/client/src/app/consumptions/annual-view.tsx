@@ -1,6 +1,13 @@
 import { Badge } from '@kijk/ui/components/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import { flexRender, getCoreRowModel, getExpandedRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
+import {
+  createExpandedRowModel,
+  flexRender,
+  rowExpandingFeature,
+  tableFeatures,
+  useTable,
+} from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { ChevronDown, RefreshCcw } from 'lucide-react';
 import { Fragment, useState } from 'react';
@@ -19,7 +26,14 @@ interface AnnualViewProps {
   consumptions: Consumption[];
 }
 
-const summaryColumns: Array<ColumnDef<AnnualResourceSummary>> = [
+const summaryFeatures = tableFeatures({
+  rowExpandingFeature,
+  expandedRowModel: createExpandedRowModel(),
+});
+
+const entryFeatures = tableFeatures({});
+
+const summaryColumns: Array<ColumnDef<typeof summaryFeatures, AnnualResourceSummary>> = [
   {
     id: 'expand',
     header: '',
@@ -70,7 +84,7 @@ const summaryColumns: Array<ColumnDef<AnnualResourceSummary>> = [
   },
 ];
 
-const entryColumns: Array<ColumnDef<Consumption>> = [
+const entryColumns: Array<ColumnDef<typeof entryFeatures, Consumption>> = [
   {
     accessorKey: 'date',
     header: 'Date',
@@ -129,10 +143,10 @@ const entryColumns: Array<ColumnDef<Consumption>> = [
 function AnnualEntriesTable({ entries }: { entries: Consumption[] }) {
   'use no memo';
 
-  const table = useReactTable({
+  const table = useTable({
     columns: entryColumns,
     data: entries,
-    getCoreRowModel: getCoreRowModel(),
+    features: entryFeatures,
   });
 
   return (
@@ -151,7 +165,7 @@ function AnnualEntriesTable({ entries }: { entries: Consumption[] }) {
       <TableBody>
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id} className={row.original.startsNewMeterSegment ? 'bg-primary/5' : undefined}>
-            {row.getVisibleCells().map((cell) => (
+            {row.getAllCells().map((cell) => (
               <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
             ))}
           </TableRow>
@@ -164,11 +178,10 @@ function AnnualEntriesTable({ entries }: { entries: Consumption[] }) {
 function AnnualSummaryTable({ summaries }: { summaries: AnnualResourceSummary[] }) {
   'use no memo';
 
-  const table = useReactTable({
+  const table = useTable({
     columns: summaryColumns,
     data: summaries,
-    getCoreRowModel: getCoreRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
+    features: summaryFeatures,
     getRowCanExpand: () => true,
     getRowId: (row) => row.resource.id,
   });
@@ -198,7 +211,7 @@ function AnnualSummaryTable({ summaries }: { summaries: AnnualResourceSummary[] 
             table.getRowModel().rows.map((row) => (
               <Fragment key={row.id}>
                 <TableRow>
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
@@ -218,6 +231,7 @@ function AnnualSummaryTable({ summaries }: { summaries: AnnualResourceSummary[] 
   );
 }
 
+/** Year view: one expandable row per resource with its yearly total and entries, filterable by resource. */
 export function ConsumptionAnnualView({ consumptions }: AnnualViewProps) {
   const [resourceId, setResourceId] = useState(allResourceTypes);
   const summaries = createAnnualResourceSummaries(consumptions);

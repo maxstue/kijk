@@ -12,6 +12,7 @@ internal static class PostgreSqlTestDatabase
 {
     private static readonly PostgreSqlContainer Container = new PostgreSqlBuilder("postgres:18-alpine").Build();
     private static Respawner _respawner = null!;
+    private static string _restoreSystemUnitsSql = null!;
     private static bool _started;
 
     internal static async Task StartAsync()
@@ -27,11 +28,29 @@ internal static class PostgreSqlTestDatabase
 
         await using var connection = new NpgsqlConnection(Container.GetConnectionString());
         await connection.OpenAsync();
+
+        // Respawn truncates with CASCADE, which also empties units owned by users. Keep a copy of the seeded system
+        // units outside the reset schema and restore them after every reset.
+        await using (var columns = new NpgsqlCommand(
+            """
+            SELECT string_agg(quote_ident(column_name), ', ' ORDER BY ordinal_position)
+            FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = 'units' AND is_generated = 'NEVER'
+            """,
+            connection))
+        {
+            var unitColumns = (string)(await columns.ExecuteScalarAsync())!;
+            _restoreSystemUnitsSql = $"INSERT INTO units ({unitColumns}) SELECT {unitColumns} FROM test_seed.units";
+        }
+
+        await ExecuteAsync(connection, "CREATE SCHEMA test_seed; CREATE TABLE test_seed.units AS SELECT * FROM units WHERE creator_type = 'system'");
+
         _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.Postgres,
             SchemasToInclude = ["public"],
-            TablesToIgnore = ["__EFMigrationsHistory"]
+            // Household roles and permissions are reference data seeded by migrations.
+            TablesToIgnore = ["__EFMigrationsHistory", "roles", "permissions", "roles_permissions"]
         });
         _started = true;
     }
@@ -45,6 +64,13 @@ internal static class PostgreSqlTestDatabase
         await using var connection = new NpgsqlConnection(Container.GetConnectionString());
         await connection.OpenAsync();
         await _respawner.ResetAsync(connection);
+        await ExecuteAsync(connection, _restoreSystemUnitsSql);
+    }
+
+    private static async Task ExecuteAsync(NpgsqlConnection connection, string sql)
+    {
+        await using var command = new NpgsqlCommand(sql, connection);
+        await command.ExecuteNonQueryAsync();
     }
 
     internal static AppDbContext CreateDbContext()

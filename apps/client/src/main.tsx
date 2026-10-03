@@ -10,6 +10,10 @@ import { App } from './app';
 
 import '@kijk/ui/globals.css';
 
+if (import.meta.env.MODE === 'test' && import.meta.env.VITE_E2E_MOCK_API === 'true') {
+  await import('./test/e2e/setup');
+}
+
 welcome();
 ErrorService.init(router);
 AnalyticsService.init();

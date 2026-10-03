@@ -2,6 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from 'cn';
 
+/** Empty state shown when there is no data. */
 function Empty({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -15,6 +16,7 @@ function Empty({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Layout container for media, title and description. */
 function EmptyHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div data-slot='empty-header' className={cn('flex max-w-sm flex-col items-center gap-2', className)} {...props} />
@@ -36,6 +38,7 @@ const emptyMediaVariants = cva(
   },
 );
 
+/** Icon or illustration of the empty state. */
 function EmptyMedia({
   className,
   variant = 'default',
@@ -51,6 +54,7 @@ function EmptyMedia({
   );
 }
 
+/** Title of the empty state. */
 function EmptyTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -61,6 +65,7 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Explanation of the empty state. */
 function EmptyDescription({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <div
@@ -74,6 +79,7 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
+/** Actions of the empty state, e.g. a create button. */
 function EmptyContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

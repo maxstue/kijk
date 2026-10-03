@@ -102,7 +102,7 @@ public class ResourcePersistenceTests
         Symbol = symbol,
         QuantityKey = quantityKey,
         UnitsNetUnitName = unitsNetUnitName,
-        CreatorType = CreatorType.System,
+        CreatorType = CreatorType.User,
         ConversionType = UnitConversionType.UnitsNet
     };
 }

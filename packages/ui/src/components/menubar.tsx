@@ -4,6 +4,7 @@ import { Menubar as MenubarPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react';
 
+/** Horizontal bar of menus, like a desktop application menu. */
 function Menubar({ className, ...props }: React.ComponentProps<typeof MenubarPrimitive.Root>) {
   return (
     <MenubarPrimitive.Root
@@ -14,22 +15,27 @@ function Menubar({ className, ...props }: React.ComponentProps<typeof MenubarPri
   );
 }
 
+/** A single menu of the menubar. */
 function MenubarMenu({ ...props }: React.ComponentProps<typeof MenubarPrimitive.Menu>) {
   return <MenubarPrimitive.Menu data-slot='menubar-menu' {...props} />;
 }
 
+/** Groups related menu items. */
 function MenubarGroup({ ...props }: React.ComponentProps<typeof MenubarPrimitive.Group>) {
   return <MenubarPrimitive.Group data-slot='menubar-group' {...props} />;
 }
 
+/** Renders a menubar menu into a portal. */
 function MenubarPortal({ ...props }: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
   return <MenubarPrimitive.Portal data-slot='menubar-portal' {...props} />;
 }
 
+/** Group of mutually exclusive radio items. */
 function MenubarRadioGroup({ ...props }: React.ComponentProps<typeof MenubarPrimitive.RadioGroup>) {
   return <MenubarPrimitive.RadioGroup data-slot='menubar-radio-group' {...props} />;
 }
 
+/** Opens a menubar menu. */
 function MenubarTrigger({ className, ...props }: React.ComponentProps<typeof MenubarPrimitive.Trigger>) {
   return (
     <MenubarPrimitive.Trigger
@@ -43,6 +49,7 @@ function MenubarTrigger({ className, ...props }: React.ComponentProps<typeof Men
   );
 }
 
+/** Panel of a menubar menu. */
 function MenubarContent({
   className,
   align = 'start',
@@ -67,6 +74,7 @@ function MenubarContent({
   );
 }
 
+/** A menu action; `variant="destructive"` highlights dangerous actions. */
 function MenubarItem({
   className,
   inset,
@@ -90,6 +98,7 @@ function MenubarItem({
   );
 }
 
+/** A menu item that toggles a value. */
 function MenubarCheckboxItem({
   className,
   children,
@@ -120,6 +129,7 @@ function MenubarCheckboxItem({
   );
 }
 
+/** A menu item that selects one value of a radio group. */
 function MenubarRadioItem({
   className,
   children,
@@ -148,6 +158,7 @@ function MenubarRadioItem({
   );
 }
 
+/** Non-interactive label in the menu. */
 function MenubarLabel({
   className,
   inset,
@@ -165,6 +176,7 @@ function MenubarLabel({
   );
 }
 
+/** Divider between menu items. */
 function MenubarSeparator({ className, ...props }: React.ComponentProps<typeof MenubarPrimitive.Separator>) {
   return (
     <MenubarPrimitive.Separator
@@ -175,6 +187,7 @@ function MenubarSeparator({ className, ...props }: React.ComponentProps<typeof M
   );
 }
 
+/** Keyboard shortcut hint of a menu item. */
 function MenubarShortcut({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
@@ -188,10 +201,12 @@ function MenubarShortcut({ className, ...props }: React.ComponentProps<'span'>) 
   );
 }
 
+/** Nested submenu. */
 function MenubarSub({ ...props }: React.ComponentProps<typeof MenubarPrimitive.Sub>) {
   return <MenubarPrimitive.Sub data-slot='menubar-sub' {...props} />;
 }
 
+/** Item that opens a submenu. */
 function MenubarSubTrigger({
   className,
   inset,
@@ -216,6 +231,7 @@ function MenubarSubTrigger({
   );
 }
 
+/** Panel of a submenu. */
 function MenubarSubContent({ className, ...props }: React.ComponentProps<typeof MenubarPrimitive.SubContent>) {
   return (
     <MenubarPrimitive.SubContent

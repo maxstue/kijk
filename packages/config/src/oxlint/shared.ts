@@ -1,3 +1,4 @@
+/** Paths every oxlint config ignores. */
 export const sharedIgnorePatterns = [
   '**/build/**',
   '**/coverage/**',

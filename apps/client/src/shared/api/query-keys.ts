@@ -2,6 +2,12 @@ const users = {
   me: ['users', 'me'] as const,
 };
 
+const households = {
+  all: ['households'] as const,
+  members: (householdId: string) => [...households.all, 'members', householdId] as const,
+  roles: () => [...households.all, 'roles'] as const,
+};
+
 const resources = {
   all: ['resources'] as const,
   detail: (id: string) => [...resources.all, 'detail', id] as const,
@@ -40,6 +46,7 @@ const units = {
 export const queryKeys = {
   consumptionLimits,
   consumptions,
+  households,
   resources,
   units,
   users,

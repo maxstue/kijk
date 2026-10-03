@@ -12,8 +12,8 @@ public class GetYearsConsumptionHandler(IAppDbContext dbContext, CurrentUser cur
     /// <summary>
     /// Retrieves all years that have consumption usages and all years in between.
     /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The years with consumptions.</returns>
     public async Task<Result<GetYearsConsumptionQueryResponse>> GetYearsAsync(CancellationToken cancellationToken)
     {
         var houseHoldId = currentUser.ActiveHouseholdId;

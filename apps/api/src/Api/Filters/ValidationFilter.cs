@@ -3,10 +3,11 @@
 /// <summary>
 /// A filter for validating the request body with a validator.
 /// </summary>
-/// <param name="validator"></param>
+/// <param name="validator">The validator for the request type.</param>
 /// <typeparam name="T">The type to validate.</typeparam>
 public class ValidationFilter<T>(IValidator<T> validator) : IEndpointFilter where T : class
 {
+    /// <inheritdoc />
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         var objectToValidate = context.Arguments.OfType<T>().FirstOrDefault()

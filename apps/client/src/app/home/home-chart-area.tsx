@@ -115,6 +115,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+/** Dashboard area chart (static demo data). */
 export function HomeChartArea() {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = useState(isMobile ? '7d' : '90d');

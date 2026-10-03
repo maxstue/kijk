@@ -5,6 +5,7 @@ import { lazy } from 'react';
 
 import { config } from '@/shared/config';
 
+/** TanStack Query and Router devtools plus the dev-mode indicator. */
 export function RootDevtools() {
   return (
     <>

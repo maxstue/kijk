@@ -7,6 +7,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
+/** `/settings/households/$householdId/units`: units of the household. */
 export const Route = createFileRoute('/_authenticated/_app/settings/households/$householdId/units')({
   component: HouseholdUnitsPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,

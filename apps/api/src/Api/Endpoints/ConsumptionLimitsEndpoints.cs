@@ -1,9 +1,11 @@
+using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.ConsumptionLimits.Create;
 using Kijk.Application.ConsumptionLimits.Get;
 using Kijk.Application.ConsumptionLimits.Shared;
 using Kijk.Application.ConsumptionLimits.Update;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -14,17 +16,17 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public sealed class ConsumptionLimitsEndpoints : IEndpointGroup
 {
+    /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("consumption-limits")
             .WithTags("Consumption Limits")
-            .RequireAuthorization(AppConstants.Roles.User)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).WithSummary("Gets consumption limits for the active household");
-        group.MapGet("/{id:guid}", GetById).WithName("GetConsumptionLimitById").WithSummary("Gets a consumption limit by id");
-        group.MapPost("/", Create).WithRequestValidation<CreateConsumptionLimitRequest>().WithSummary("Creates a consumption limit");
-        group.MapPut("/{id:guid}", Update).WithRequestValidation<UpdateConsumptionLimitRequest>().WithSummary("Updates a consumption limit");
+        group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Limits.View).WithSummary("Gets consumption limits for the active household");
+        group.MapGet("/{id:guid}", GetById).RequireHouseholdPermission(HouseholdPermissions.Limits.View).WithName("GetConsumptionLimitById").WithSummary("Gets a consumption limit by id");
+        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Limits.Plan).WithRequestValidation<CreateConsumptionLimitRequest>().WithSummary("Creates a consumption limit");
+        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Limits.Plan).WithRequestValidation<UpdateConsumptionLimitRequest>().WithSummary("Updates a consumption limit");
 
         return builder;
     }

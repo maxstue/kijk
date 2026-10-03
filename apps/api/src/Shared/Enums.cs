@@ -8,7 +8,9 @@ namespace Kijk.Shared;
 [EnumExtensions]
 public enum CreatorType
 {
+    /// <summary>Created and maintained by Kijk.</summary>
     System,
+    /// <summary>Created by a user.</summary>
     User
 }
 
@@ -18,8 +20,11 @@ public enum CreatorType
 [EnumExtensions]
 public enum Period
 {
+    /// <summary>A calendar month.</summary>
     Month,
+    /// <summary>A calendar quarter.</summary>
     Quarter,
+    /// <summary>A calendar year.</summary>
     Year
 }
 
@@ -29,6 +34,8 @@ public enum Period
 [EnumExtensions]
 public enum AnalyticsConsent
 {
+    /// <summary>The user allows analytics.</summary>
     Accepted,
+    /// <summary>The user does not allow analytics.</summary>
     Declined
 }

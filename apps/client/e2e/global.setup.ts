@@ -21,7 +21,7 @@ setup('authenticate the E2E user', async ({ page }) => {
   await clerk.signIn({ emailAddress, page });
   await page.goto('/home');
 
-  await expect(page).not.toHaveURL(/\/auth(?:\?|$)/);
+  await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
   await mkdir('playwright/.clerk', { recursive: true });
   await page.context().storageState({ path: authFile });
 });

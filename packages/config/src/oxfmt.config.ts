@@ -1,5 +1,6 @@
 import type { FormatConfig } from 'oxfmt';
 
+/** Oxfmt settings shared by all workspaces. */
 export const sharedFormatConfig = {
   printWidth: 120,
   singleQuote: true,

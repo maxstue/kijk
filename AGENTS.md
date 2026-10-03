@@ -11,22 +11,21 @@
 ### Root (pnpm)
 ```bash
 pnpm dev          # client + api (parallel)
-pnpm dev:all      # all apps
 pnpm dev:client   # client only
 pnpm dev:api      # api only
 pnpm build        # all apps (parallel)
-pnpm lint:all     # lint all
-pnpm fmt:all      # fmt all
+pnpm lint         # lint all workspaces
+pnpm fmt          # check formatting in all workspaces
 pnpm release      # auto-changelog + GitHub release (CalVer: yyyy.mm.minor)
 ```
 
 ### Client (`apps/client`)
 ```bash
-pnpm dev          # vite dev
-pnpm build        # tsc && vite build
+pnpm dev          # Vite+ dev server via Infisical
+pnpm build        # tsc && vp build
 pnpm lint         # oxlint
 pnpm fmt          # oxfmt --check
-pnpm fmt:fix       # oxfmt
+pnpm fmt:fix     # oxfmt
 pnpm typecheck    # tsc --noEmit
 ```
 
@@ -77,14 +76,16 @@ dotnet ef database update                   # creates/updates DB schema
 - **Client data access**: reusable API calls, query keys, `queryOptions`, and `mutationOptions` live in `apps/client/src/shared/api`; keep feature form schemas inside their feature folders
 - **Client query keys**: use `apps/client/src/shared/api/query-keys.ts` for cache reads, writes, and invalidations instead of ad hoc key arrays
 - **API**: Clean Architecture layers: Api → Application → Domain/Infrastructure/Shared
+- **API authorization**: Clerk only authenticates. Roles and permissions are household-scoped, stored in the database, and defined as code catalogs in `Domain/Authorization` (`HouseholdPermissions`, `HouseholdRoles`, seeded via EF `HasData`). Check permissions, never role names. Every authenticated endpoint must declare one of `.RequireHouseholdPermission(...)` (active household), `.RequireRouteHouseholdPermission(...)` (handler checks the route household via `AuthorizeHouseholdAsync`), or `.WithoutHouseholdPermission(reason)`; `EndpointAuthorizationTests` enforces this. The client mirrors the catalog in `apps/client/src/shared/api/households/permissions.ts`.
 - **Database**: PostgreSQL via Docker Compose; schema managed with `dotnet ef`
 - **UI package**: `@kijk/ui` exports from `src/components/*`
 - **Core package**: `@kijk/core` exports from `src/utils/*`, `src/lib/*`, `src/hooks/*`, `src/stores/*`
 
 ## Important Conventions
 
-- **Node/pnpm**: Managed via `package.json` (`engines`, root `packageManager`, root `devEngines`)
+- **Node/pnpm**: Managed via `package.json` (`engines`, `devEngines`)
 - **.NET**: 10.0 (per `global.json`)
+- **Vite+ config**: `apps/client/vite.config.ts` configures the client app.
 - **Format config**: `oxfmt.config.ts` (printWidth: 120, singleQuote, LF line endings)
 - **Client lint/format**: Uses oxlint/oxfmt (NOT eslint/prettier for code style)
 - **Frontend checks**: After client/frontend edits, always run React Doctor on the changed code. If it fails, committing is still allowed, but the final response must include a clear warning with the failed command and reason.
@@ -111,19 +112,3 @@ build → format → lint → audit
 - **Forms**: React Hook Form + Zod
 - **Charts**: Recharts
 - **UI Primitives**: base-ui/react + radix-ui
-
-<!-- sonar:begin:codex-secrets-on-read -->
-# SonarQube secrets scanning for files protocol
-
-Before reading any file in this workspace, scan it for secrets with the deterministic scanner:
-
-```bash
-sonar analyze secrets <path/to/file>
-```
-
-If the command reports that the file contains a secret, **do not read the file**. Instead:
-
-1. Inform the user that the file appears to contain a secret or credential and that reading it would expose the value in chat history, logs, and any downstream telemetry.
-2. Advise them to rotate the leaked credential at its source of truth and remove it from the file.
-3. Do not proceed with the original request until the secret has been removed.
-<!-- sonar:end:codex-secrets-on-read -->

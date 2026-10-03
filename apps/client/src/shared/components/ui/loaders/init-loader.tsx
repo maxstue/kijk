@@ -3,6 +3,7 @@ import { useLayoutEffect } from 'react';
 import { AppBrand } from '@/shared/components/app-brand';
 import { isBootstrapLoaderPresent, registerBootstrapLoader } from '@/shared/lib/bootstrap-loader';
 
+/** Full-screen loader for app start; hands over to the bootstrap loader from index.html when present. */
 export function InitLoader() {
   const bootstrapLoaderIsPresent = isBootstrapLoaderPresent();
 
