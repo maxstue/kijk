@@ -23,6 +23,14 @@ public interface IAppDbContext
     DbSet<UnitHousehold> UnitHouseholds { get; }
     /// <summary>Gets the users.</summary>
     DbSet<User> Users { get; }
+    /// <summary>Gets the transaction categories.</summary>
+    DbSet<Category> Categories { get; }
+    /// <summary>Gets the budgets.</summary>
+    DbSet<Budget> Budgets { get; }
+    /// <summary>Gets the bank accounts.</summary>
+    DbSet<Account> Accounts { get; }
+    /// <summary>Gets the transactions.</summary>
+    DbSet<Transaction> Transactions { get; }
     /// <summary>Gets the household roles.</summary>
     DbSet<Role> Roles { get; }
     /// <summary>Gets the household permissions.</summary>

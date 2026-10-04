@@ -41,6 +41,33 @@ public static class HouseholdPermissions
     }
 
     /// <summary>
+    /// Permissions for transactions, accounts and categories.
+    /// </summary>
+    public static class Finances
+    {
+        /// <summary>View transactions, accounts, categories and the budget overview.</summary>
+        public const string View = "finances:view";
+
+        /// <summary>Record, correct, categorize and delete transactions.</summary>
+        public const string Record = "finances:record";
+
+        /// <summary>Import transactions from bank exports.</summary>
+        public const string Import = "finances:import";
+
+        /// <summary>Create, change and delete accounts and custom categories.</summary>
+        public const string Configure = "finances:configure";
+    }
+
+    /// <summary>
+    /// Permissions for budgets.
+    /// </summary>
+    public static class Budgets
+    {
+        /// <summary>Create and change budgets.</summary>
+        public const string Plan = "budgets:plan";
+    }
+
+    /// <summary>
     /// Permissions for household resources.
     /// </summary>
     public static class Resources
@@ -101,6 +128,11 @@ public static class HouseholdPermissions
         new(new("0e065002-1522-4138-a96b-52e657b7cbcc"), Household.Configure),
         new(new("4ab7acac-5b5f-41b4-a3f7-7174694781b1"), Household.Delete),
         new(new("55d9913b-dcb6-43bc-b9b8-0b840508c795"), Members.View),
-        new(new("39e9c646-8685-4fb5-a0d9-68233d3d605c"), Members.AssignRole)
+        new(new("39e9c646-8685-4fb5-a0d9-68233d3d605c"), Members.AssignRole),
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a11"), Finances.View),
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a12"), Finances.Record),
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a13"), Finances.Import),
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a14"), Finances.Configure),
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a15"), Budgets.Plan)
     ];
 }

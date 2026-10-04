@@ -33,7 +33,7 @@ public static class HouseholdRoles
         [.. HouseholdPermissions.All.Select(permission => permission.Name)]);
 
     /// <summary>
-    /// Records and analyses consumptions. This is the default role for other household members.
+    /// Records and analyses consumptions and transactions. This is the default role for other household members.
     /// </summary>
     public static RoleDefinition Member { get; } = new(
         new("0195624d-3c82-73e8-bb7b-b3fac043f2cb"),
@@ -44,7 +44,10 @@ public static class HouseholdRoles
             Consumptions.Export,
             Limits.View,
             Resources.View,
-            Members.View
+            Members.View,
+            Finances.View,
+            Finances.Record,
+            Finances.Import
         ]);
 
     /// <summary>
@@ -57,7 +60,8 @@ public static class HouseholdRoles
             Consumptions.View,
             Limits.View,
             Resources.View,
-            Members.View
+            Members.View,
+            Finances.View
         ]);
 
     /// <summary>

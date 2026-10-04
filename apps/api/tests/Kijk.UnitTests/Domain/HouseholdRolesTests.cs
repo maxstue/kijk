@@ -44,6 +44,8 @@ public partial class HouseholdRolesTests
     [Arguments(HouseholdPermissions.Household.Configure)]
     [Arguments(HouseholdPermissions.Household.Delete)]
     [Arguments(HouseholdPermissions.Members.AssignRole)]
+    [Arguments(HouseholdPermissions.Finances.Configure)]
+    [Arguments(HouseholdPermissions.Budgets.Plan)]
     public async Task MemberAndViewerDoNotGetAdministrativePermissions(string permission)
     {
         await Assert.That(HouseholdRoles.Member.Permissions).DoesNotContain(permission);

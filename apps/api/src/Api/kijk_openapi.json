@@ -6,6 +6,734 @@
     "version": "v1"
   },
   "paths": {
+    "/api/accounts": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Gets the accounts of the active household",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Creates an account",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/accounts/{id}": {
+      "put": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Updates an account",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Deletes an account without transactions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/budgets": {
+      "get": {
+        "tags": [
+          "Budgets"
+        ],
+        "summary": "Gets all budget versions of the active household",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BudgetResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Budgets"
+        ],
+        "summary": "Creates a budget for a category from a month on",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBudgetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/budgets/overview": {
+      "get": {
+        "tags": [
+          "Budgets"
+        ],
+        "summary": "Evaluates the budgets for a calendar month",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOverviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/budgets/{id}": {
+      "put": {
+        "tags": [
+          "Budgets"
+        ],
+        "summary": "Updates a budget version",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBudgetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Budgets"
+        ],
+        "summary": "Deletes a budget version",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Gets the categories available to the active household",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Creates a custom category",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/categories/{id}": {
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Updates a custom category",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Deletes an unused custom category",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/consumption-limits": {
       "get": {
         "tags": [
@@ -1337,6 +2065,313 @@
         ]
       }
     },
+    "/api/transactions": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Gets transactions of the active household, optionally by year, month or without category",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "uncategorized",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransactionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Records a transaction manually",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/transactions/{id}": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Gets a transaction by id",
+        "operationId": "GetTransactionById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Updates a transaction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Deletes a transaction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/units": {
       "get": {
         "tags": [
@@ -2088,10 +3123,330 @@
   },
   "components": {
     "schemas": {
+      "AccountResponse": {
+        "required": [
+          "id",
+          "name",
+          "ibanLast4"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The account id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The display name."
+          },
+          "ibanLast4": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The last four characters of the IBAN, if known."
+          }
+        },
+        "description": "A bank account of the household."
+      },
       "AnalyticsConsent": {
         "enum": [
           "Accepted",
           "Declined",
+          null
+        ]
+      },
+      "BudgetCategoryResponse": {
+        "required": [
+          "categoryId",
+          "name",
+          "icon",
+          "color",
+          "budgetId",
+          "budget",
+          "spent",
+          "pending",
+          "remaining",
+          "utilizationPercentage",
+          "isExceeded"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "description": "The category id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The category name."
+          },
+          "icon": {
+            "type": "string",
+            "description": "The category icon."
+          },
+          "color": {
+            "type": "string",
+            "description": "The category color."
+          },
+          "budgetId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The applicable budget version, if any.",
+            "format": "uuid"
+          },
+          "budget": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "The applicable monthly amount, if any.",
+            "format": "double"
+          },
+          "spent": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Booked expenses minus refunds.",
+            "format": "double"
+          },
+          "pending": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Pending expenses that do not count yet.",
+            "format": "double"
+          },
+          "remaining": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "The amount left, if a budget applies.",
+            "format": "double"
+          },
+          "utilizationPercentage": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "The used share of the budget in percent, if a budget applies.",
+            "format": "double"
+          },
+          "isExceeded": {
+            "type": "boolean",
+            "description": "Whether the spending is over the budget."
+          }
+        },
+        "description": "The spending of an expense category in the evaluated month."
+      },
+      "BudgetOverviewResponse": {
+        "required": [
+          "year",
+          "month",
+          "totalBudget",
+          "totalSpent",
+          "income",
+          "uncategorizedExpenses",
+          "uncategorizedIncome",
+          "pendingExpenses",
+          "categories"
+        ],
+        "type": "object",
+        "properties": {
+          "year": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The evaluated year.",
+            "format": "int32"
+          },
+          "month": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The evaluated month (1-12).",
+            "format": "int32"
+          },
+          "totalBudget": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The sum of all active budgets.",
+            "format": "double"
+          },
+          "totalSpent": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "All booked expenses minus refunds, including uncategorized expenses.",
+            "format": "double"
+          },
+          "income": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Booked transactions in income categories.",
+            "format": "double"
+          },
+          "uncategorizedExpenses": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Booked expenses without a category.",
+            "format": "double"
+          },
+          "uncategorizedIncome": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Booked incoming payments without a category.",
+            "format": "double"
+          },
+          "pendingExpenses": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Expenses the bank has not booked yet; they do not count against budgets.",
+            "format": "double"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BudgetCategoryResponse"
+            },
+            "description": "The expense categories with an active budget or with transactions in the month."
+          }
+        },
+        "description": "The budget evaluation of a month."
+      },
+      "BudgetResponse": {
+        "required": [
+          "id",
+          "categoryId",
+          "categoryName",
+          "amount",
+          "validFrom",
+          "active"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The budget id.",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "The category id.",
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "The category name."
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The monthly amount in EUR.",
+            "format": "double"
+          },
+          "validFrom": {
+            "type": "string",
+            "description": "The first day of the first month the budget applies to.",
+            "format": "date"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the budget is evaluated."
+          }
+        },
+        "description": "A budget version: a monthly amount for a category from a month on."
+      },
+      "CategoryKind": {
+        "enum": [
+          "Expense",
+          "Income"
+        ],
+        "description": "Represents whether a category groups expenses or income."
+      },
+      "CategoryResponse": {
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "color",
+          "kind",
+          "creatorType"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The category id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The display name."
+          },
+          "icon": {
+            "type": "string",
+            "description": "The Lucide icon name."
+          },
+          "color": {
+            "type": "string",
+            "description": "The hex color."
+          },
+          "kind": {
+            "description": "Whether the category groups expenses or income.",
+            "$ref": "#/components/schemas/CategoryKind"
+          },
+          "creatorType": {
+            "description": "Whether it is a system or a custom category.",
+            "$ref": "#/components/schemas/CreatorType"
+          }
+        },
+        "description": "A category that transactions and budgets can be assigned to."
+      },
+      "CategorySource": {
+        "enum": [
+          "Rule",
+          "Similarity",
+          "Ai",
+          "Manual",
           null
         ]
       },
@@ -2484,6 +3839,84 @@
         ],
         "description": "Describes how a consumption value was entered."
       },
+      "CreateAccountRequest": {
+        "required": [
+          "name",
+          "ibanLast4"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ibanLast4": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "Request for creating an account."
+      },
+      "CreateBudgetRequest": {
+        "required": [
+          "categoryId",
+          "amount",
+          "validFrom",
+          "active"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "description": "The expense category.",
+            "format": "uuid"
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The monthly amount in EUR.",
+            "format": "double"
+          },
+          "validFrom": {
+            "type": "string",
+            "description": "Any day of the first month the budget applies to.",
+            "format": "date"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the budget is evaluated."
+          }
+        },
+        "description": "Request for creating a budget for a category from a month on."
+      },
+      "CreateCategoryRequest": {
+        "required": [
+          "name",
+          "icon",
+          "color",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CategoryKind"
+          }
+        },
+        "description": "Request for creating a custom category."
+      },
       "CreateConsumptionLimitRequest": {
         "required": [
           "name",
@@ -2605,6 +4038,74 @@
           }
         },
         "description": "Command to create a new resource type."
+      },
+      "CreateTransactionRequest": {
+        "required": [
+          "bookingDate",
+          "amount",
+          "counterparty",
+          "purpose",
+          "status",
+          "isTransfer",
+          "accountId",
+          "categoryId"
+        ],
+        "type": "object",
+        "properties": {
+          "bookingDate": {
+            "type": "string",
+            "description": "The booking date.",
+            "format": "date"
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The signed amount in EUR; negative values are expenses.",
+            "format": "double"
+          },
+          "counterparty": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The counterparty, if known."
+          },
+          "purpose": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The purpose, if known."
+          },
+          "status": {
+            "description": "Whether the transaction is booked or pending.",
+            "$ref": "#/components/schemas/TransactionStatus"
+          },
+          "isTransfer": {
+            "type": "boolean",
+            "description": "Whether it is a transfer between the household's own accounts."
+          },
+          "accountId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The account, if any.",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category, or `null` to leave it uncategorized.",
+            "format": "uuid"
+          }
+        },
+        "description": "Request for recording a transaction manually."
       },
       "CreateUnitRequest": {
         "required": [
@@ -3112,6 +4613,120 @@
         },
         "description": "A resource that consumptions can be recorded for."
       },
+      "TransactionResponse": {
+        "required": [
+          "id",
+          "bookingDate",
+          "amount",
+          "currency",
+          "counterparty",
+          "purpose",
+          "status",
+          "isTransfer",
+          "accountId",
+          "accountName",
+          "categoryId",
+          "categoryName",
+          "categorySource"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The transaction id.",
+            "format": "uuid"
+          },
+          "bookingDate": {
+            "type": "string",
+            "description": "The booking date.",
+            "format": "date"
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The signed amount; negative values are expenses.",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "description": "The ISO 4217 currency code."
+          },
+          "counterparty": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The counterparty, if known."
+          },
+          "purpose": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The cleaned purpose, if known."
+          },
+          "status": {
+            "description": "Whether the transaction is booked or pending.",
+            "$ref": "#/components/schemas/TransactionStatus"
+          },
+          "isTransfer": {
+            "type": "boolean",
+            "description": "Whether it is a transfer between the household's own accounts."
+          },
+          "accountId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The account id, if assigned.",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The account name, if assigned."
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category id, if categorized.",
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category name, if categorized."
+          },
+          "categorySource": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "How the category was assigned, if categorized.",
+                "$ref": "#/components/schemas/CategorySource"
+              }
+            ]
+          }
+        },
+        "description": "A transaction of the household."
+      },
+      "TransactionStatus": {
+        "enum": [
+          "Booked",
+          "Pending"
+        ],
+        "description": "Represents the booking status of a transaction."
+      },
       "UnitConversionType": {
         "enum": [
           "UnitsNet",
@@ -3265,6 +4880,72 @@
           }
         },
         "description": "A unit available to the current user."
+      },
+      "UpdateAccountRequest": {
+        "required": [
+          "name",
+          "ibanLast4"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ibanLast4": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "Request for replacing the editable properties of an account."
+      },
+      "UpdateBudgetRequest": {
+        "required": [
+          "amount",
+          "active"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The monthly amount in EUR.",
+            "format": "double"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the budget is evaluated."
+          }
+        },
+        "description": "Request for changing the amount or active state of a budget version."
+      },
+      "UpdateCategoryRequest": {
+        "required": [
+          "name",
+          "icon",
+          "color",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CategoryKind"
+          }
+        },
+        "description": "Request for replacing the editable properties of a custom category."
       },
       "UpdateConsumptionLimitRequest": {
         "required": [
@@ -3425,6 +5106,74 @@
           }
         },
         "description": "Request to update one or more properties of a custom resource."
+      },
+      "UpdateTransactionRequest": {
+        "required": [
+          "bookingDate",
+          "amount",
+          "counterparty",
+          "purpose",
+          "status",
+          "isTransfer",
+          "accountId",
+          "categoryId"
+        ],
+        "type": "object",
+        "properties": {
+          "bookingDate": {
+            "type": "string",
+            "description": "The booking date.",
+            "format": "date"
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The signed amount in EUR; negative values are expenses.",
+            "format": "double"
+          },
+          "counterparty": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The counterparty, if known."
+          },
+          "purpose": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The purpose, if known."
+          },
+          "status": {
+            "description": "Whether the transaction is booked or pending.",
+            "$ref": "#/components/schemas/TransactionStatus"
+          },
+          "isTransfer": {
+            "type": "boolean",
+            "description": "Whether it is a transfer between the household's own accounts."
+          },
+          "accountId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The account, if any.",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category, or `null` to mark it as uncategorized. A changed category counts as set manually.",
+            "format": "uuid"
+          }
+        },
+        "description": "Request for replacing the editable properties of a transaction."
       },
       "UpdateUnitRequest": {
         "required": [
@@ -3802,6 +5551,15 @@
   },
   "tags": [
     {
+      "name": "Accounts"
+    },
+    {
+      "name": "Budgets"
+    },
+    {
+      "name": "Categories"
+    },
+    {
       "name": "Consumption Limits"
     },
     {
@@ -3812,6 +5570,9 @@
     },
     {
       "name": "Resources"
+    },
+    {
+      "name": "Transactions"
     },
     {
       "name": "Units"

@@ -35,6 +35,14 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<UnitHousehold> UnitHouseholds { get; set; }
     /// <inheritdoc />
     public DbSet<User> Users { get; set; }
+    /// <inheritdoc />
+    public DbSet<Category> Categories { get; set; }
+    /// <inheritdoc />
+    public DbSet<Budget> Budgets { get; set; }
+    /// <inheritdoc />
+    public DbSet<Account> Accounts { get; set; }
+    /// <inheritdoc />
+    public DbSet<Transaction> Transactions { get; set; }
 
     /// <inheritdoc />
     public DbSet<Role> Roles { get; set; }
