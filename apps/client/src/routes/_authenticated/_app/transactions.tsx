@@ -1,0 +1,113 @@
+import { Button } from '@kijk/ui/components/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kijk/ui/components/dialog';
+import { Separator } from '@kijk/ui/components/separator';
+import { Switch } from '@kijk/ui/components/switch';
+import { createFileRoute } from '@tanstack/react-router';
+import { zodValidator } from '@tanstack/zod-adapter';
+import { Plus } from 'lucide-react';
+import { useId, useState } from 'react';
+import { z } from 'zod';
+
+import { AccountsDialog } from '@/app/transactions/accounts-dialog';
+import { TransactionForm } from '@/app/transactions/form';
+import { TransactionList } from '@/app/transactions/list';
+import { accountsQueryOptions } from '@/shared/api/accounts/options';
+import { categoriesQueryOptions } from '@/shared/api/categories/options';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { transactionsQueryOptions } from '@/shared/api/transactions/options';
+import { AppError } from '@/shared/components/errors/app-error';
+import { MonthSwitcher } from '@/shared/components/month-switcher';
+import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+
+const searchSchema = z.object({
+  month: z
+    .number()
+    .int()
+    .min(1)
+    .max(12)
+    .default(new Date().getMonth() + 1),
+  uncategorized: z.boolean().optional(),
+  year: z.number().int().min(2000).max(9999).default(new Date().getFullYear()),
+});
+
+/** `/transactions`: transactions of the month in the search params, optionally only uncategorized ones. */
+export const Route = createFileRoute('/_authenticated/_app/transactions')({
+  component: TransactionsPage,
+  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search: { month, uncategorized, year } }) => ({ month, uncategorized, year }),
+  loader: async ({ context: { queryClient }, deps }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(transactionsQueryOptions(deps)),
+      queryClient.ensureQueryData(categoriesQueryOptions()),
+      queryClient.ensureQueryData(accountsQueryOptions()),
+    ]);
+  },
+  pendingComponent: () => <Loader className='h-6 w-6' />,
+});
+
+function TransactionsPage() {
+  useSetSiteHeader('Transactions');
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const uncategorizedId = useId();
+
+  return (
+    <div className='space-y-6 pt-10'>
+      <div className='flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between'>
+        <div>
+          <h2 className='text-2xl font-bold tracking-tight'>Transactions</h2>
+          <p className='text-muted-foreground'>Record and categorize the bookings behind your budgets.</p>
+        </div>
+        <div className='flex flex-wrap items-center gap-2'>
+          <MonthSwitcher
+            month={search.month}
+            year={search.year}
+            onChange={(value) => navigate({ search: (previous) => ({ ...previous, ...value }) })}
+          />
+          <AccountsDialog />
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button
+                disabled={!canRecord}
+                title={canRecord ? undefined : 'Your household role does not allow recording transactions'}
+              >
+                <Plus /> Add transaction
+              </Button>
+            </DialogTrigger>
+            <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+              <DialogHeader>
+                <DialogTitle>Add transaction</DialogTitle>
+                <DialogDescription>Record a booking by hand.</DialogDescription>
+              </DialogHeader>
+              <TransactionForm onClose={() => setShowCreateDialog(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+      <Separator />
+      <label className='flex w-fit items-center gap-2 text-sm' htmlFor={uncategorizedId}>
+        <Switch
+          checked={search.uncategorized ?? false}
+          id={uncategorizedId}
+          onCheckedChange={(checked) =>
+            navigate({ search: (previous) => ({ ...previous, uncategorized: checked || undefined }) })
+          }
+        />
+        Only uncategorized
+      </label>
+      <TransactionList filters={search} />
+    </div>
+  );
+}

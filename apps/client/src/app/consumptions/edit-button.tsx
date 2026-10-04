@@ -18,7 +18,12 @@ export function ConsumptionEditButton({ id }: Props) {
 
   return (
     <Button asChild className='text-muted-foreground' size='icon' variant='outline'>
-      <Link to='/consumptions/$consumptionId' params={{ consumptionId: id }} search={(previous) => previous}>
+      <Link
+        from='/consumptions'
+        to='/consumptions/$consumptionId'
+        params={{ consumptionId: id }}
+        search={(previous) => previous}
+      >
         <EditIcon className='size-4' />
         <span className='sr-only'>Edit consumption</span>
       </Link>

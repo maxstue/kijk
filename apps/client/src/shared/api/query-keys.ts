@@ -1,3 +1,5 @@
+import type { TransactionFilters } from '@/shared/api/transactions/types';
+
 const users = {
   me: ['users', 'me'] as const,
 };
@@ -29,6 +31,27 @@ const consumptionLimits = {
   list: () => [...consumptionLimits.all, 'list'] as const,
 };
 
+const categories = {
+  all: ['categories'] as const,
+  list: () => [...categories.all, 'list'] as const,
+};
+
+const accounts = {
+  all: ['accounts'] as const,
+  list: () => [...accounts.all, 'list'] as const,
+};
+
+const budgets = {
+  all: ['budgets'] as const,
+  list: () => [...budgets.all, 'list'] as const,
+  overview: (year: number, month: number) => [...budgets.all, 'overview', year, month] as const,
+};
+
+const transactions = {
+  all: ['transactions'] as const,
+  list: (filters: TransactionFilters) => [...transactions.all, 'list', filters] as const,
+};
+
 const units = {
   all: ['units'] as const,
   list: (includeArchived = false) => [...units.all, 'list', includeArchived] as const,
@@ -44,10 +67,14 @@ const units = {
 
 /** Query keys for the API queries and mutations. */
 export const queryKeys = {
+  accounts,
+  budgets,
+  categories,
   consumptionLimits,
   consumptions,
   households,
   resources,
+  transactions,
   units,
   users,
 } as const;

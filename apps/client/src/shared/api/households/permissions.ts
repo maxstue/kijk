@@ -3,10 +3,19 @@
  * permissions, never role names.
  */
 export const HouseholdPermissions = {
+  budgets: {
+    plan: 'budgets:plan',
+  },
   consumptions: {
     export: 'consumptions:export',
     record: 'consumptions:record',
     view: 'consumptions:view',
+  },
+  finances: {
+    configure: 'finances:configure',
+    import: 'finances:import',
+    record: 'finances:record',
+    view: 'finances:view',
   },
   household: {
     configure: 'household:configure',
@@ -37,9 +46,14 @@ export type HouseholdPermission = {
 
 /** Human-readable descriptions of each permission, used to show what a role allows. */
 export const householdPermissionLabels: Record<HouseholdPermission, string> = {
+  'budgets:plan': 'Create and change budgets',
   'consumptions:export': 'Export consumptions',
   'consumptions:record': 'Record and correct consumptions',
   'consumptions:view': 'View consumptions and statistics',
+  'finances:configure': 'Create, change and delete accounts and categories',
+  'finances:import': 'Import transactions from bank exports',
+  'finances:record': 'Record, categorize and correct transactions',
+  'finances:view': 'View transactions and the budget overview',
   'household:configure': 'Change household details',
   'household:delete': 'Delete the household',
   'limits:plan': 'Create and change consumption limits',

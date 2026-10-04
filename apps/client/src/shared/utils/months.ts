@@ -62,3 +62,16 @@ export function getMonthIndexFromString(month: string) {
 }
 
 const isMonth = (value: string): value is Months => monthSchema.safeParse(value).success;
+
+const monthYearFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
+
+/** Formats a month (1-12) and year in the browser's locale, e.g. "October 2026". */
+export function formatMonthYear(year: number, month: number) {
+  return monthYearFormatter.format(new Date(year, month - 1));
+}
+
+/** Shifts a month (1-12) by `delta` months across year boundaries. */
+export function shiftMonth(year: number, month: number, delta: number) {
+  const date = new Date(year, month - 1 + delta, 1);
+  return { month: date.getMonth() + 1, year: date.getFullYear() };
+}
