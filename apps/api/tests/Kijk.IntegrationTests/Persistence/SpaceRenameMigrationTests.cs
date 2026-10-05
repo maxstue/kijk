@@ -9,12 +9,22 @@ using Npgsql;
 
 namespace Kijk.IntegrationTests.Persistence;
 
-// Renaming households to spaces must keep all data.
+// Renaming households to spaces must keep all data, and all migrations together must end in exactly the schema the
+// model describes: same columns, keys, constraints and indexes.
 [NotInParallel]
 public class SpaceRenameMigrationTests
 {
     private const string BeforeRename = "20261005164941_RenameConsumptionLimitsToLimits";
     private const string Rename = "20261005193222_RenameHouseholdsToSpaces";
+
+    private const string NamesQuery = """
+        SELECT 'column ' || table_name || '.' || column_name FROM information_schema.columns WHERE table_schema = 'public'
+        UNION ALL
+        SELECT 'index ' || tablename || '.' || indexname FROM pg_indexes WHERE schemaname = 'public'
+        UNION ALL
+        SELECT 'constraint ' || conrelid::regclass || '.' || conname FROM pg_constraint c
+        JOIN pg_namespace n ON n.oid = c.connamespace WHERE n.nspname = 'public'
+        """;
 
     [Before(Class)]
     public static Task StartDatabase() => PostgreSqlTestDatabase.StartAsync();
@@ -45,6 +55,44 @@ public class SpaceRenameMigrationTests
         await migrator.MigrateAsync(BeforeRename);
         await Assert.That(await ScalarAsync(connectionString, $"SELECT name FROM accounts WHERE household_id = '{household}'")).IsEqualTo("Giro");
         await Assert.That(await ScalarAsync(connectionString, "SELECT count(*)::text FROM permissions WHERE name LIKE 'household:%'")).IsEqualTo("2");
+    }
+
+    [Test]
+    public async Task MigratedSchemaMatchesTheModel()
+    {
+        var migrated = await CreateDatabaseAsync("space_rename_migrated");
+        var created = await CreateDatabaseAsync("space_rename_created");
+        await using (var dbContext = CreateDbContext(migrated))
+        {
+            await dbContext.Database.MigrateAsync();
+        }
+
+        await using (var dbContext = CreateDbContext(created))
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+
+        var migratedNames = await NamesAsync(migrated);
+        var modelNames = await NamesAsync(created);
+        // The migration history is EF's own bookkeeping and not part of the model.
+        migratedNames.RemoveWhere(name => name.Contains("__EFMigrationsHistory", StringComparison.Ordinal) || name.Contains("ef_migrations_history", StringComparison.Ordinal));
+
+        await Assert.That(migratedNames.Order()).IsEquivalentTo(modelNames.Order());
+    }
+
+    private static async Task<HashSet<string>> NamesAsync(string connectionString)
+    {
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var command = new NpgsqlCommand(NamesQuery, connection);
+        await using var reader = await command.ExecuteReaderAsync();
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        while (await reader.ReadAsync())
+        {
+            names.Add(reader.GetString(0));
+        }
+
+        return names;
     }
 
     private static async Task<string> CreateDatabaseAsync(string name)
