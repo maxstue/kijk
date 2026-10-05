@@ -1,6 +1,6 @@
 import { Button } from '@kijk/ui/components/button';
+import { useMutation } from '@tanstack/react-query';
 import { DownloadIcon, LoaderCircleIcon } from 'lucide-react';
-import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
@@ -12,27 +12,24 @@ import { saveDownload } from '@/shared/utils/download';
 /** Downloads the transactions matching `filters` as CSV. */
 export function TransactionExportButton({ filters }: { filters: TransactionFilters }) {
   const canExport = useHouseholdPermission(HouseholdPermissions.finances.export);
-  const [isExporting, setIsExporting] = useState(false);
-
-  async function onExport() {
-    setIsExporting(true);
-    try {
-      saveDownload(await exportTransactions(filters));
-    } catch (error) {
-      toast.error('Export failed', { description: error instanceof Error ? error.message : undefined });
-    } finally {
-      setIsExporting(false);
-    }
-  }
+  const exportMutation = useMutation({
+    mutationFn: () => exportTransactions(filters),
+    onError: (error) => toast.error('Export failed', { description: error.message }),
+    onSuccess: saveDownload,
+  });
 
   return (
     <Button
-      disabled={!canExport || isExporting}
+      disabled={!canExport || exportMutation.isPending}
       title={canExport ? undefined : 'Your household role does not allow exporting transactions'}
       variant='outline'
-      onClick={onExport}
+      onClick={() => exportMutation.mutate()}
     >
-      {isExporting ? <LoaderCircleIcon className='size-4 animate-spin' /> : <DownloadIcon className='size-4' />}
+      {exportMutation.isPending ? (
+        <LoaderCircleIcon className='size-4 animate-spin' />
+      ) : (
+        <DownloadIcon className='size-4' />
+      )}
       Export CSV
     </Button>
   );

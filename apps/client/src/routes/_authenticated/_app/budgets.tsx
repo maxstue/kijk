@@ -11,13 +11,12 @@ import { Separator } from '@kijk/ui/components/separator';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { z } from 'zod';
 
 import { CategoriesDialog } from '@/app/budgets/categories-dialog';
 import { BudgetForm } from '@/app/budgets/form';
 import { BudgetOverview } from '@/app/budgets/overview';
-import { BudgetStatistics } from '@/app/budgets/statistics';
 import { budgetOverviewQueryOptions, budgetsQueryOptions } from '@/shared/api/budgets/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
@@ -26,6 +25,11 @@ import { MonthSwitcher } from '@/shared/components/month-switcher';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+
+// Loaded on demand: the statistics sit below the overview and pull in the chart library.
+const BudgetStatistics = lazy(() =>
+  import('@/app/budgets/statistics').then((module) => ({ default: module.BudgetStatistics })),
+);
 
 const searchSchema = z.object({
   month: z
@@ -91,7 +95,9 @@ function BudgetsPage() {
       </div>
       <Separator />
       <BudgetOverview month={month} year={year} />
-      <BudgetStatistics month={month} year={year} />
+      <Suspense fallback={<Loader className='h-6 w-6' />}>
+        <BudgetStatistics month={month} year={year} />
+      </Suspense>
     </div>
   );
 }
