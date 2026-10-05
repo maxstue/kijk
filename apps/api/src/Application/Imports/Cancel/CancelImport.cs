@@ -1,4 +1,5 @@
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
@@ -15,7 +16,7 @@ public sealed class CancelImportHandler(IAppDbContext dbContext, CurrentUser cur
     /// <returns>The cancelled import, or a not-found or conflict error.</returns>
     public async Task<Result<ImportJobResponse>> CancelAsync(Guid id, CancellationToken cancellationToken)
     {
-        var job = await dbContext.ImportJobs
+        var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (job is null)

@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
@@ -14,7 +15,7 @@ public sealed class DeleteTransactionHandler(IAppDbContext dbContext, CurrentUse
     /// <returns><see langword="true" />, or a not-found error.</returns>
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var transaction = await dbContext.Transactions
+        var transaction = await dbContext.GetVisibleTransactions(currentUser)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (transaction is null)
         {

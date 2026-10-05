@@ -27,7 +27,7 @@ public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser cur
     /// <returns>The completed import, or a not-found, validation or conflict error.</returns>
     public async Task<Result<ImportJobResponse>> CommitAsync(Guid id, CommitImportRequest request, CancellationToken cancellationToken)
     {
-        var job = await dbContext.ImportJobs
+        var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .Include(item => item.Household)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
@@ -75,7 +75,7 @@ public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser cur
         catch (DbUpdateConcurrencyException)
         {
             // Another request committed or cancelled the import in the meantime; report the state it left.
-            var current = await dbContext.ImportJobs.Include(item => item.Account).AsNoTracking().FirstAsync(item => item.Id == id, cancellationToken);
+            var current = await dbContext.GetVisibleImports(currentUser).Include(item => item.Account).AsNoTracking().FirstAsync(item => item.Id == id, cancellationToken);
             return current.Status == ImportJobStatus.Done ? current.ToResponse() : Error.Conflict("The import was changed in the meantime");
         }
 

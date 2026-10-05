@@ -1,6 +1,8 @@
 using Kijk.Application.Budgets.Shared;
+using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
@@ -42,16 +44,22 @@ public sealed class CreateBudgetHandler(IAppDbContext dbContext, CurrentUser cur
             return Error.Validation("Budgets can only be set for expense categories");
         }
 
+        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, request.Visibility == Visibility.Shared, HouseholdPermissions.Budgets.Plan, cancellationToken) is { } error)
+        {
+            return error;
+        }
+
         var validFrom = new MonthYear(request.ValidFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc));
+        Guid? ownerId = request.Visibility == Visibility.Private ? user.Id : null;
         var exists = await dbContext.Budgets.AnyAsync(
-            item => item.HouseholdId == household.Id && item.CategoryId == category.Id && item.ValidFrom == validFrom.Value,
+            item => item.HouseholdId == household.Id && item.OwnerId == ownerId && item.CategoryId == category.Id && item.ValidFrom == validFrom.Value,
             cancellationToken);
         if (exists)
         {
             return Error.Conflict(DuplicateMessage);
         }
 
-        var budget = Budget.Create(request.Amount, validFrom, request.Active, category, user, household);
+        var budget = Budget.Create(request.Amount, validFrom, request.Active, category, user, household, request.Visibility);
         dbContext.Budgets.Add(budget);
         try
         {
@@ -60,7 +68,7 @@ public sealed class CreateBudgetHandler(IAppDbContext dbContext, CurrentUser cur
         catch (DbUpdateException)
         {
             var duplicateExists = await dbContext.Budgets.AsNoTracking().AnyAsync(
-                item => item.HouseholdId == household.Id && item.CategoryId == category.Id && item.ValidFrom == validFrom.Value,
+                item => item.HouseholdId == household.Id && item.OwnerId == ownerId && item.CategoryId == category.Id && item.ValidFrom == validFrom.Value,
                 cancellationToken);
             if (!duplicateExists)
             {

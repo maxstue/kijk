@@ -1,5 +1,6 @@
 using Kijk.Application.Imports.Categorization;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
@@ -49,7 +50,7 @@ public sealed class ImportAiPreviewHandler(IAppDbContext dbContext, CurrentUser 
     /// <returns>The changed item, or a not-found or conflict error.</returns>
     public async Task<Result<AiPreviewItemResponse>> UpdateAsync(Guid id, string key, UpdateAiPreviewItemRequest request, CancellationToken cancellationToken)
     {
-        var job = await dbContext.ImportJobs
+        var job = await dbContext.GetVisibleImports(currentUser)
             .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (job is null)
@@ -86,7 +87,7 @@ public sealed class ImportAiPreviewHandler(IAppDbContext dbContext, CurrentUser 
     }
 
     private Task<Guid?> FindHouseholdAsync(Guid id, CancellationToken cancellationToken) =>
-        dbContext.ImportJobs
+        dbContext.GetVisibleImports(currentUser)
             .Where(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId)
             .Select(item => (Guid?)item.HouseholdId)
             .FirstOrDefaultAsync(cancellationToken);

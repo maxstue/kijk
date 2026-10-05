@@ -53,11 +53,11 @@ public sealed class GetBudgetStatisticsHandler(IAppDbContext dbContext, CurrentU
         var end = last.AddMonths(1);
 
         var categories = await dbContext.GetAvailableCategories(currentUser).AsNoTracking().ToListAsync(cancellationToken);
-        var budgets = await dbContext.Budgets
+        var budgets = await dbContext.GetVisibleBudgets(currentUser)
             .Where(budget => budget.HouseholdId == currentUser.ActiveHouseholdId && budget.ValidFrom < end)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
-        var transactions = await dbContext.Transactions
+        var transactions = await dbContext.GetVisibleTransactions(currentUser)
             .Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId
                                   && transaction.BookingDate >= first
                                   && transaction.BookingDate < end)

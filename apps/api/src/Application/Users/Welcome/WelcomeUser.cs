@@ -63,6 +63,11 @@ public class WelcomeUserHandler(
 
             activeHousehold = Household.Create(request.HouseholdName.Trim());
             user.UserHouseholds.Add(UserHousehold.Create(user, activeHousehold, adminRole, true));
+            if (!user.UserHouseholds.Any(link => link.Household.IsPersonal))
+            {
+                // Every user also gets a personal space that is never shared.
+                user.UserHouseholds.Add(UserHousehold.Create(user, Household.CreatePersonal(), adminRole));
+            }
         }
 
         var defaultResources = await dbContext.Resources

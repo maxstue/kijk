@@ -1,5 +1,7 @@
+using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 
 namespace Kijk.Application.Accounts.Delete;
@@ -20,6 +22,11 @@ public sealed class DeleteAccountHandler(IAppDbContext dbContext, CurrentUser cu
         if (account is null)
         {
             return Error.NotFound("Account could not be found");
+        }
+
+        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, account.Visibility == Visibility.Shared, HouseholdPermissions.Finances.Configure, cancellationToken) is { } error)
+        {
+            return error;
         }
 
         if (account.Kind == AccountKind.Cash)

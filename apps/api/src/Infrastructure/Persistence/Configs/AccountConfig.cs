@@ -29,6 +29,12 @@ public class AccountConfig : IEntityTypeConfiguration<Account>
         builder.Property(m => m.UpdatedAt)
             .ValueGeneratedOnUpdate();
 
+        builder.Ignore(x => x.Visibility);
+        builder.HasOne(x => x.Owner)
+            .WithMany()
+            .HasForeignKey(x => x.OwnerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasOne(x => x.Household)
             .WithMany(x => x.Accounts)
             .HasForeignKey(x => x.HouseholdId)

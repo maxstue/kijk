@@ -1,5 +1,6 @@
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -18,7 +19,7 @@ public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser curre
     /// <returns>The imports, newest first.</returns>
     public async Task<Result<List<ImportJobResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var jobs = await dbContext.ImportJobs
+        var jobs = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId)
             .OrderByDescending(item => item.CreatedAt)
@@ -120,7 +121,7 @@ public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser curre
     }
 
     private Task<ImportJob?> FindAsync(Guid id, CancellationToken cancellationToken) =>
-        dbContext.ImportJobs
+        dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);

@@ -1,4 +1,5 @@
 using Kijk.Domain.ValueObjects;
+using Kijk.Shared;
 
 namespace Kijk.Domain.Entities;
 
@@ -32,6 +33,18 @@ public sealed class Budget : BaseEntity
     /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
     public Guid HouseholdId { get; set; }
 
+    /// <summary>
+    /// Gets the member who alone sees and uses this budget, or <see langword="null" /> for a budget of the whole space.
+    /// For its owner a private budget replaces the shared budget of the same category.
+    /// </summary>
+    public Guid? OwnerId { get; }
+
+    /// <summary>Gets the owner of a private budget.</summary>
+    public User? Owner { get; private set; }
+
+    /// <summary>Gets who can see the budget.</summary>
+    public Visibility Visibility => OwnerId is null ? Visibility.Shared : Visibility.Private;
+
     /// <summary>Gets or sets the household the budget belongs to.</summary>
     public required Household Household { get; set; }
 
@@ -43,7 +56,14 @@ public sealed class Budget : BaseEntity
     /// <param name="createdBy">The creating user.</param>
     /// <param name="household">The owning household.</param>
     /// <returns>The new budget.</returns>
-    public static Budget Create(decimal amount, MonthYear validFrom, bool active, Category category, User createdBy, Household household) =>
+    public static Budget Create(
+        decimal amount,
+        MonthYear validFrom,
+        bool active,
+        Category category,
+        User createdBy,
+        Household household,
+        Visibility visibility = Visibility.Shared) =>
         new()
         {
             Amount = amount,
@@ -51,7 +71,8 @@ public sealed class Budget : BaseEntity
             Active = active,
             Category = category,
             CreatedBy = createdBy,
-            Household = household
+            Household = household,
+            Owner = visibility == Visibility.Private ? createdBy : null
         };
 
     /// <summary>Updates the amount and active state of this budget version.</summary>

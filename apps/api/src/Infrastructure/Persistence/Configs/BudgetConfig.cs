@@ -11,7 +11,20 @@ public class BudgetConfig : IEntityTypeConfiguration<Budget>
     public void Configure(EntityTypeBuilder<Budget> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.HouseholdId, x.CategoryId, x.ValidFrom }).IsUnique();
+        // One version per month and category: once for the space and once per member's private budgets.
+        builder.HasIndex(x => new { x.HouseholdId, x.CategoryId, x.ValidFrom })
+            .HasDatabaseName("ix_budgets_household_id_category_id_valid_from")
+            .HasFilter("owner_id IS NULL")
+            .IsUnique();
+        builder.HasIndex(x => new { x.HouseholdId, x.OwnerId, x.CategoryId, x.ValidFrom })
+            .HasDatabaseName("ix_budgets_household_id_owner_id_category_id_valid_from")
+            .HasFilter("owner_id IS NOT NULL")
+            .IsUnique();
+        builder.Ignore(x => x.Visibility);
+        builder.HasOne(x => x.Owner)
+            .WithMany()
+            .HasForeignKey(x => x.OwnerId)
+            .OnDelete(DeleteBehavior.Restrict);
         builder.Property(x => x.Amount).HasPrecision(18, 2);
 
         builder.Property(m => m.CreatedAt)

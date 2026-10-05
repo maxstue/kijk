@@ -40,4 +40,24 @@ public static class HouseholdAuthorization
             true => null
         };
     }
+
+    /// <summary>
+    /// Checks the permission needed to change something every member of the active household sees. Private accounts
+    /// and budgets only need the endpoint's base permission, because they concern their owner alone.
+    /// </summary>
+    /// <param name="dbContext">The application database context.</param>
+    /// <param name="currentUser">The current user.</param>
+    /// <param name="touchesShared">Whether the change creates, changes or removes something shared.</param>
+    /// <param name="permission">The permission required for shared items.</param>
+    /// <param name="cancellationToken">A token used to cancel the operation.</param>
+    /// <returns><see langword="null" /> when allowed, otherwise the authorization error.</returns>
+    public static async Task<Error?> AuthorizeSharedChangeAsync(
+        this IAppDbContext dbContext,
+        CurrentUser currentUser,
+        bool touchesShared,
+        string permission,
+        CancellationToken cancellationToken) =>
+        touchesShared && currentUser.ActiveHouseholdId is { } householdId
+            ? await dbContext.AuthorizeHouseholdAsync(currentUser.Id, householdId, permission, cancellationToken)
+            : null;
 }

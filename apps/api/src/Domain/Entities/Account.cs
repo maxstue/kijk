@@ -19,6 +19,18 @@ public sealed class Account : BaseEntity
     /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
     public Guid HouseholdId { get; set; }
 
+    /// <summary>
+    /// Gets the member who alone can see the account and its transactions, or <see langword="null" /> when every member
+    /// of the space can.
+    /// </summary>
+    public Guid? OwnerId { get; private set; }
+
+    /// <summary>Gets the owner of a private account.</summary>
+    public User? Owner { get; }
+
+    /// <summary>Gets who can see the account.</summary>
+    public Visibility Visibility => OwnerId is null ? Visibility.Shared : Visibility.Private;
+
     /// <summary>Gets or sets the household the account belongs to.</summary>
     public required Household Household { get; set; }
 
@@ -55,4 +67,8 @@ public sealed class Account : BaseEntity
         Name = name;
         IbanLast4 = ibanLast4;
     }
+
+    /// <summary>Makes the account private to a member or shares it with the whole space.</summary>
+    /// <param name="ownerId">The member, or <see langword="null" /> to share the account.</param>
+    public void SetOwner(Guid? ownerId) => OwnerId = Kind == AccountKind.Cash ? null : ownerId;
 }

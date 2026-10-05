@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Transactions.Shared;
 using Kijk.Shared;
@@ -26,7 +27,7 @@ public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser 
             return Error.Validation("Year or month is invalid");
         }
 
-        var query = dbContext.Transactions
+        var query = dbContext.GetVisibleTransactions(currentUser)
             .Include(transaction => transaction.Account)
             .Include(transaction => transaction.Category)
             .Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId);
@@ -58,7 +59,7 @@ public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser 
     /// <returns>The transaction, or a not-found error.</returns>
     public async Task<Result<TransactionResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var transaction = await dbContext.Transactions
+        var transaction = await dbContext.GetVisibleTransactions(currentUser)
             .Include(item => item.Account)
             .Include(item => item.Category)
             .AsNoTracking()

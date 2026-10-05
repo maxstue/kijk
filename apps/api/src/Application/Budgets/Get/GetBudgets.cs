@@ -17,7 +17,7 @@ public sealed class GetBudgetsHandler(IAppDbContext dbContext, CurrentUser curre
     /// <returns>The budgets, ordered by category and newest version first.</returns>
     public async Task<Result<List<BudgetResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var budgets = await dbContext.Budgets
+        var budgets = await dbContext.GetVisibleBudgets(currentUser)
             .Include(budget => budget.Category)
             .Where(budget => budget.HouseholdId == currentUser.ActiveHouseholdId)
             .OrderBy(budget => budget.Category.Name)
@@ -45,11 +45,11 @@ public sealed class GetBudgetsHandler(IAppDbContext dbContext, CurrentUser curre
         var end = start.AddMonths(1);
 
         var categories = await dbContext.GetAvailableCategories(currentUser).AsNoTracking().ToListAsync(cancellationToken);
-        var budgets = await dbContext.Budgets
+        var budgets = await dbContext.GetVisibleBudgets(currentUser)
             .Where(budget => budget.HouseholdId == currentUser.ActiveHouseholdId && budget.ValidFrom <= start)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
-        var transactions = await dbContext.Transactions
+        var transactions = await dbContext.GetVisibleTransactions(currentUser)
             .Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId
                                   && transaction.BookingDate >= start
                                   && transaction.BookingDate < end)

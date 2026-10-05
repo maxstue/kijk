@@ -18,5 +18,6 @@ public sealed class CreateAccountValidator : AbstractValidator<CreateAccountRequ
             .Matches(AccountValidationRules.IbanLast4Pattern).WithErrorCode(ErrorCodes.ValidationError)
             .WithMessage("'IbanLast4' must contain exactly the last four characters of the IBAN")
             .When(request => request.IbanLast4 is not null);
+        RuleFor(request => request.Visibility).IsInEnum().WithErrorCode(ErrorCodes.ValidationError);
     }
 }

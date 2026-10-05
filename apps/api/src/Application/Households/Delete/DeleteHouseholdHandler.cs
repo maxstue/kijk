@@ -31,6 +31,11 @@ public sealed class DeleteHouseholdHandler(IAppDbContext dbContext, CurrentUser 
             return Error.NotFound("Household could not be found");
         }
 
+        if (household.IsPersonal)
+        {
+            return Error.Conflict("A personal space cannot be deleted");
+        }
+
         if (!currentMembership.Role.HasPermission(HouseholdPermissions.Household.Delete))
         {
             return Error.Authorization("Your household role does not allow deleting the household");

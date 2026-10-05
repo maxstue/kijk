@@ -16,16 +16,22 @@ public static class BudgetCalculator
 {
     /// <summary>
     /// Returns the budget version that applies to each category in the given month: the latest one that starts in or
-    /// before that month.
+    /// before that month. Private budgets replace the shared budget of their category, so pass only the budgets the
+    /// viewing member may see.
     /// </summary>
-    /// <param name="budgets">All budget versions of the household.</param>
+    /// <param name="budgets">The budget versions visible to the viewing member.</param>
     /// <param name="month">The evaluated month.</param>
     /// <returns>The applicable budget per category id, including inactive ones.</returns>
     public static Dictionary<Guid, Budget> GetEffectiveBudgets(IEnumerable<Budget> budgets, MonthYear month) =>
         budgets
             .Where(budget => budget.ValidFrom <= month.ToDateTime())
             .GroupBy(budget => budget.CategoryId)
-            .ToDictionary(group => group.Key, group => group.MaxBy(budget => budget.ValidFrom)!);
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .OrderByDescending(budget => budget.OwnerId is not null)
+                    .ThenByDescending(budget => budget.ValidFrom)
+                    .First());
 
     /// <summary>Evaluates the budgets for a month.</summary>
     /// <param name="month">The evaluated month.</param>

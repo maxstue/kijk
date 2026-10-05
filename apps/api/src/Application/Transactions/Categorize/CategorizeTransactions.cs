@@ -56,7 +56,7 @@ public sealed class CategorizeTransactionsHandler(IAppDbContext dbContext, Curre
         }
 
         var ids = request.Ids.Distinct().ToList();
-        var transactions = await dbContext.Transactions
+        var transactions = await dbContext.GetVisibleTransactions(currentUser)
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId && ids.Contains(item.Id))
             .ToListAsync(cancellationToken);
         if (transactions.Count != ids.Count)

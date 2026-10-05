@@ -25,9 +25,9 @@ public sealed class AccountsEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the accounts of the active household");
-        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Configure).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account");
-        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Configure).WithRequestValidation<UpdateAccountRequest>().WithSummary("Updates an account");
-        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Configure).WithSummary("Deletes an account without transactions");
+        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account; shared accounts additionally require finances:configure");
+        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<UpdateAccountRequest>().WithSummary("Updates an account; shared accounts additionally require finances:configure");
+        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes an account without transactions; shared accounts additionally require finances:configure");
 
         return builder;
     }

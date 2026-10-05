@@ -3,6 +3,7 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
+using Kijk.Application.Users.SwitchHousehold;
 using Kijk.Application.Users.Update;
 using Kijk.Application.Users.Welcome;
 using Kijk.Domain.Authorization;
@@ -34,6 +35,11 @@ public class UsersEndpoints : IEndpointGroup
             .WithoutHouseholdPermission("Changes the current user's account; renaming the active household is checked in the handler (household:configure).")
             .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
+
+        group.MapPut("/active-household", SwitchHousehold)
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutHouseholdPermission("Any member may switch to a space they belong to; the handler checks the membership.")
+            .WithSummary("Switches the active space of the current user");
 
         group.MapPut("/onboarding", Onboarding)
             .WithoutHouseholdPermission("Onboarding creates the user's first household.")
@@ -79,6 +85,15 @@ public class UsersEndpoints : IEndpointGroup
         CancellationToken cancellationToken)
     {
         var result = await handler.WelcomeAsync(request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> SwitchHousehold(
+        SwitchHouseholdRequest request,
+        SwitchHouseholdHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.SwitchAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 }

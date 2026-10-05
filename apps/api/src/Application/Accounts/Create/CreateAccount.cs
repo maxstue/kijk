@@ -1,5 +1,7 @@
 using Kijk.Application.Accounts.Shared;
+using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -25,7 +27,14 @@ public sealed class CreateAccountHandler(IAppDbContext dbContext, CurrentUser cu
             return Error.NotFound("Active household was not found");
         }
 
+        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, request.Visibility == Visibility.Shared, HouseholdPermissions.Finances.Configure, cancellationToken) is { } error)
+        {
+            return error;
+        }
+
         var account = Account.Create(request.Name.Trim(), request.IbanLast4?.ToUpperInvariant(), household);
+        // A private account belongs to its creator; in a personal space everything is private anyway.
+        account.SetOwner(request.Visibility == Visibility.Private ? currentUser.Id : null);
         dbContext.Accounts.Add(account);
         await dbContext.SaveChangesAsync(cancellationToken);
 

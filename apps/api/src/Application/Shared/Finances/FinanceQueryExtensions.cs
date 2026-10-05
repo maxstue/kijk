@@ -22,11 +22,45 @@ public static class FinanceQueryExtensions
                 category.CreatorType == CreatorType.System || category.HouseholdId == currentUser.ActiveHouseholdId);
 
         /// <summary>
-        /// Returns the accounts of the active household.
+        /// Returns the accounts of the active household the current member may see: shared ones and their own private
+        /// ones.
         /// </summary>
         /// <param name="currentUser">The current authenticated user.</param>
-        /// <returns>A query containing the household's accounts.</returns>
+        /// <returns>A query containing the visible accounts.</returns>
         public IQueryable<Account> GetHouseholdAccounts(CurrentUser currentUser) =>
-            dbContext.Accounts.Where(account => account.HouseholdId == currentUser.ActiveHouseholdId);
+            dbContext.Accounts.Where(account => account.HouseholdId == currentUser.ActiveHouseholdId
+                                                && (account.OwnerId == null || account.OwnerId == currentUser.Id));
+
+        /// <summary>
+        /// Returns the transactions of the active household the current member may see. Transactions inherit the
+        /// visibility of their account.
+        /// </summary>
+        /// <param name="currentUser">The current authenticated user.</param>
+        /// <returns>A query containing the visible transactions.</returns>
+        public IQueryable<Transaction> GetVisibleTransactions(CurrentUser currentUser) =>
+            dbContext.Transactions.Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId
+                                                        && (transaction.Account == null
+                                                            || transaction.Account.OwnerId == null
+                                                            || transaction.Account.OwnerId == currentUser.Id));
+
+        /// <summary>
+        /// Returns the budget versions of the active household the current member may see: shared ones and their own
+        /// private ones.
+        /// </summary>
+        /// <param name="currentUser">The current authenticated user.</param>
+        /// <returns>A query containing the visible budgets.</returns>
+        public IQueryable<Budget> GetVisibleBudgets(CurrentUser currentUser) =>
+            dbContext.Budgets.Where(budget => budget.HouseholdId == currentUser.ActiveHouseholdId
+                                              && (budget.OwnerId == null || budget.OwnerId == currentUser.Id));
+
+        /// <summary>
+        /// Returns the imports of the active household the current member may see; imports inherit the visibility of
+        /// their account.
+        /// </summary>
+        /// <param name="currentUser">The current authenticated user.</param>
+        /// <returns>A query containing the visible imports.</returns>
+        public IQueryable<ImportJob> GetVisibleImports(CurrentUser currentUser) =>
+            dbContext.ImportJobs.Where(job => job.HouseholdId == currentUser.ActiveHouseholdId
+                                              && (job.Account.OwnerId == null || job.Account.OwnerId == currentUser.Id));
     }
 }

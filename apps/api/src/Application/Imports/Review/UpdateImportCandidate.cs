@@ -33,7 +33,7 @@ public sealed class UpdateImportCandidateHandler(IAppDbContext dbContext, Curren
         UpdateImportCandidateRequest request,
         CancellationToken cancellationToken)
     {
-        var job = await dbContext.ImportJobs
+        var job = await dbContext.GetVisibleImports(currentUser)
             .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (job is null)

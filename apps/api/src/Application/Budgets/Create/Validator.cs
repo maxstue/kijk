@@ -18,5 +18,6 @@ public sealed class CreateBudgetValidator : AbstractValidator<CreateBudgetReques
         RuleFor(request => request.ValidFrom)
             .Must(date => date.Year is >= 2000 and <= 9999).WithErrorCode(ErrorCodes.ValidationError)
             .WithMessage("'ValidFrom' must be a valid month");
+        RuleFor(request => request.Visibility).IsInEnum().WithErrorCode(ErrorCodes.ValidationError);
     }
 }

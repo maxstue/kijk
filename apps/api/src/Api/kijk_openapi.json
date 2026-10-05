@@ -58,7 +58,7 @@
         "tags": [
           "Accounts"
         ],
-        "summary": "Creates an account",
+        "summary": "Creates an account; shared accounts additionally require finances:configure",
         "requestBody": {
           "content": {
             "application/json": {
@@ -114,7 +114,7 @@
         "tags": [
           "Accounts"
         ],
-        "summary": "Updates an account",
+        "summary": "Updates an account; shared accounts additionally require finances:configure",
         "parameters": [
           {
             "name": "id",
@@ -179,7 +179,7 @@
         "tags": [
           "Accounts"
         ],
-        "summary": "Deletes an account without transactions",
+        "summary": "Deletes an account without transactions; shared accounts additionally require finances:configure",
         "parameters": [
           {
             "name": "id",
@@ -276,7 +276,7 @@
         "tags": [
           "Budgets"
         ],
-        "summary": "Creates a budget for a category from a month on",
+        "summary": "Creates a budget for a category from a month on; shared budgets additionally require budgets:plan",
         "requestBody": {
           "content": {
             "application/json": {
@@ -492,7 +492,7 @@
         "tags": [
           "Budgets"
         ],
-        "summary": "Updates a budget version",
+        "summary": "Updates a budget version; shared budgets additionally require budgets:plan",
         "parameters": [
           {
             "name": "id",
@@ -557,7 +557,7 @@
         "tags": [
           "Budgets"
         ],
-        "summary": "Deletes a budget version",
+        "summary": "Deletes a budget version; shared budgets additionally require budgets:plan",
         "parameters": [
           {
             "name": "id",
@@ -4337,6 +4337,62 @@
         ]
       }
     },
+    "/api/users/active-household": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Switches the active space of the current user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchHouseholdRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/users/onboarding": {
       "put": {
         "tags": [
@@ -4408,7 +4464,8 @@
           "id",
           "name",
           "ibanLast4",
-          "kind"
+          "kind",
+          "visibility"
         ],
         "type": "object",
         "properties": {
@@ -4431,6 +4488,9 @@
           "kind": {
             "description": "Whether it is a bank account or the cash account.",
             "$ref": "#/components/schemas/AccountKind"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
           }
         },
         "description": "A bank account of the household."
@@ -4536,7 +4596,8 @@
           "pending",
           "remaining",
           "utilizationPercentage",
-          "isExceeded"
+          "isExceeded",
+          "budgetVisibility"
         ],
         "type": "object",
         "properties": {
@@ -4616,6 +4677,17 @@
           "isExceeded": {
             "type": "boolean",
             "description": "Whether the spending is over the budget."
+          },
+          "budgetVisibility": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Whether the applicable budget is shared or the member's private one.",
+                "$ref": "#/components/schemas/Visibility"
+              }
+            ]
           }
         },
         "description": "The spending of an expense category in the evaluated month."
@@ -4723,7 +4795,8 @@
           "categoryName",
           "amount",
           "validFrom",
-          "active"
+          "active",
+          "visibility"
         ],
         "type": "object",
         "properties": {
@@ -4758,6 +4831,10 @@
           "active": {
             "type": "boolean",
             "description": "Whether the budget is evaluated."
+          },
+          "visibility": {
+            "description": "Whether the budget belongs to the whole space or only to the current member.",
+            "$ref": "#/components/schemas/Visibility"
           }
         },
         "description": "A budget version: a monthly amount for a category from a month on."
@@ -5520,6 +5597,9 @@
               "null",
               "string"
             ]
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
           }
         },
         "description": "Request for creating an account."
@@ -5555,6 +5635,10 @@
           "active": {
             "type": "boolean",
             "description": "Whether the budget is evaluated."
+          },
+          "visibility": {
+            "description": "A private budget is seen and used only by its creator and replaces the shared budget of the category for them.",
+            "$ref": "#/components/schemas/Visibility"
           }
         },
         "description": "Request for creating a budget for a category from a month on."
@@ -6889,6 +6973,20 @@
         },
         "description": "A resource that consumptions can be recorded for."
       },
+      "SwitchHouseholdRequest": {
+        "required": [
+          "householdId"
+        ],
+        "type": "object",
+        "properties": {
+          "householdId": {
+            "type": "string",
+            "description": "The space to switch to; the user must be a member.",
+            "format": "uuid"
+          }
+        },
+        "description": "Request for switching the active space of the current user."
+      },
       "TransactionResponse": {
         "required": [
           "id",
@@ -7191,6 +7289,16 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "visibility": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Visibility"
+              }
             ]
           }
         },
@@ -7639,7 +7747,8 @@
           "name",
           "description",
           "role",
-          "isActive"
+          "isActive",
+          "isPersonal"
         ],
         "type": "object",
         "properties": {
@@ -7666,6 +7775,10 @@
           "isActive": {
             "type": "boolean",
             "description": "Whether this is the user's active household."
+          },
+          "isPersonal": {
+            "type": "boolean",
+            "description": "Whether this is the user's personal space, which is never shared."
           }
         },
         "description": "A household membership of the current user."
@@ -7815,6 +7928,13 @@
           }
         },
         "description": "The current user's account settings."
+      },
+      "Visibility": {
+        "enum": [
+          "Shared",
+          "Private"
+        ],
+        "description": "Represents who can see an account or a budget within a shared space."
       },
       "WelcomeUserRequest": {
         "required": [

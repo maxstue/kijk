@@ -1,5 +1,6 @@
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Ai;
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
@@ -34,7 +35,7 @@ public sealed class CategorizeImportHandler(IAppDbContext dbContext, CurrentUser
     /// <returns>The import, or a not-found, validation or conflict error.</returns>
     public async Task<Result<ImportJobResponse>> CategorizeAsync(Guid id, CategorizeImportRequest request, CancellationToken cancellationToken)
     {
-        var job = await dbContext.ImportJobs
+        var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .Include(item => item.Household)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);

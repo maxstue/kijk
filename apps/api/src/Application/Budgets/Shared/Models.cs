@@ -1,5 +1,6 @@
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
+using Kijk.Shared;
 
 namespace Kijk.Application.Budgets.Shared;
 
@@ -10,7 +11,8 @@ namespace Kijk.Application.Budgets.Shared;
 /// <param name="Amount">The monthly amount in EUR.</param>
 /// <param name="ValidFrom">The first day of the first month the budget applies to.</param>
 /// <param name="Active">Whether the budget is evaluated.</param>
-public sealed record BudgetResponse(Guid Id, Guid CategoryId, string CategoryName, decimal Amount, DateOnly ValidFrom, bool Active);
+/// <param name="Visibility">Whether the budget belongs to the whole space or only to the current member.</param>
+public sealed record BudgetResponse(Guid Id, Guid CategoryId, string CategoryName, decimal Amount, DateOnly ValidFrom, bool Active, Visibility Visibility);
 
 /// <summary>The budget evaluation of a month.</summary>
 /// <param name="Year">The evaluated year.</param>
@@ -45,6 +47,7 @@ public sealed record BudgetOverviewResponse(
 /// <param name="Remaining">The amount left, if a budget applies.</param>
 /// <param name="UtilizationPercentage">The used share of the budget in percent, if a budget applies.</param>
 /// <param name="IsExceeded">Whether the spending is over the budget.</param>
+/// <param name="BudgetVisibility">Whether the applicable budget is shared or the member's private one.</param>
 public sealed record BudgetCategoryResponse(
     Guid CategoryId,
     string Name,
@@ -56,7 +59,8 @@ public sealed record BudgetCategoryResponse(
     decimal Pending,
     decimal? Remaining,
     decimal? UtilizationPercentage,
-    bool IsExceeded);
+    bool IsExceeded,
+    Visibility? BudgetVisibility);
 
 /// <summary>
 /// Maps budget entities and evaluations to API responses.
@@ -67,7 +71,7 @@ public static class BudgetResponseMapper
     /// <param name="source">The budget.</param>
     /// <returns>The response.</returns>
     public static BudgetResponse ToResponse(this Budget source) =>
-        new(source.Id, source.CategoryId, source.Category.Name, source.Amount, DateOnly.FromDateTime(source.ValidFrom), source.Active);
+        new(source.Id, source.CategoryId, source.Category.Name, source.Amount, DateOnly.FromDateTime(source.ValidFrom), source.Active, source.Visibility);
 
     /// <summary>Maps a month evaluation to a response.</summary>
     /// <param name="source">The evaluation.</param>
@@ -93,5 +97,6 @@ public static class BudgetResponseMapper
                 item.Pending,
                 item.Remaining,
                 item.UtilizationPercentage,
-                item.IsExceeded)).ToList());
+                item.IsExceeded,
+                item.Budget?.Visibility)).ToList());
 }

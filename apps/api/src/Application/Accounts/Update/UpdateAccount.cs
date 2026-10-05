@@ -1,6 +1,8 @@
 using Kijk.Application.Accounts.Shared;
+using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 
 namespace Kijk.Application.Accounts.Update;
@@ -24,7 +26,15 @@ public sealed class UpdateAccountHandler(IAppDbContext dbContext, CurrentUser cu
             return Error.NotFound("Account could not be found");
         }
 
+        var visibility = request.Visibility ?? account.Visibility;
+        var touchesShared = account.Visibility == Visibility.Shared || visibility == Visibility.Shared;
+        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, touchesShared, HouseholdPermissions.Finances.Configure, cancellationToken) is { } error)
+        {
+            return error;
+        }
+
         account.Update(request.Name.Trim(), request.IbanLast4?.ToUpperInvariant());
+        account.SetOwner(visibility == Visibility.Private ? currentUser.Id : null);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return account.ToResponse();

@@ -87,7 +87,8 @@ public record ExternalIdentityResponse(string? FullName, string? Email, string? 
 /// <param name="Description">An optional description.</param>
 /// <param name="Role">The user's role in the household.</param>
 /// <param name="IsActive">Whether this is the user's active household.</param>
-public record UserHouseholdResponse(Guid Id, string Name, string? Description, UserHouseholdRoleResponse Role, bool IsActive);
+/// <param name="IsPersonal">Whether this is the user's personal space, which is never shared.</param>
+public record UserHouseholdResponse(Guid Id, string Name, string? Description, UserHouseholdRoleResponse Role, bool IsActive, bool IsPersonal);
 
 /// <summary>The user's role in a household.</summary>
 /// <param name="Id">The role id.</param>

@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Transactions.Shared;
 using Kijk.Domain.Entities;
@@ -17,7 +18,7 @@ public sealed class UpdateTransactionHandler(IAppDbContext dbContext, CurrentUse
     /// <returns>The updated transaction, or a not-found error.</returns>
     public async Task<Result<TransactionResponse>> UpdateAsync(Guid id, UpdateTransactionRequest request, CancellationToken cancellationToken)
     {
-        var transaction = await dbContext.Transactions
+        var transaction = await dbContext.GetVisibleTransactions(currentUser)
             .Include(item => item.Account)
             .Include(item => item.Category)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);

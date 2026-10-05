@@ -1,5 +1,6 @@
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -26,7 +27,7 @@ public sealed class ConfirmImportMappingHandler(
     /// <returns>The import, or a not-found, validation or conflict error.</returns>
     public async Task<Result<ImportJobResponse>> ConfirmAsync(Guid id, CsvImportMapping mapping, CancellationToken cancellationToken)
     {
-        var job = await dbContext.ImportJobs
+        var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (job is null)

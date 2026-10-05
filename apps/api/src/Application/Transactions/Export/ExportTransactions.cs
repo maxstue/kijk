@@ -1,5 +1,6 @@
 using System.Globalization;
 using Kijk.Application.Shared.Csv;
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -32,7 +33,7 @@ public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUs
             return Error.Validation("Year or month is invalid");
         }
 
-        var query = dbContext.Transactions
+        var query = dbContext.GetVisibleTransactions(currentUser)
             .Include(transaction => transaction.Account)
             .Include(transaction => transaction.Category)
             .Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId);

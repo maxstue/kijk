@@ -29,9 +29,9 @@ public sealed class BudgetsEndpoints : IEndpointGroup
         group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets all budget versions of the active household");
         group.MapGet("/statistics", GetStatistics).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the spending per category over several months");
         group.MapGet("/overview", GetOverview).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Evaluates the budgets for a calendar month");
-        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Budgets.Plan).WithRequestValidation<CreateBudgetRequest>().WithSummary("Creates a budget for a category from a month on");
-        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Budgets.Plan).WithRequestValidation<UpdateBudgetRequest>().WithSummary("Updates a budget version");
-        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Budgets.Plan).WithSummary("Deletes a budget version");
+        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CreateBudgetRequest>().WithSummary("Creates a budget for a category from a month on; shared budgets additionally require budgets:plan");
+        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<UpdateBudgetRequest>().WithSummary("Updates a budget version; shared budgets additionally require budgets:plan");
+        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes a budget version; shared budgets additionally require budgets:plan");
 
         return builder;
     }

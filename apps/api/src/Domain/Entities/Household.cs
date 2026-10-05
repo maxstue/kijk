@@ -22,6 +22,11 @@ public sealed class Household : BaseEntity
     /// </summary>
     public bool MinimizeData { get; private set; }
 
+    /// <summary>
+    /// Gets whether this is a member's personal space: created automatically, never shared and never deleted.
+    /// </summary>
+    public bool IsPersonal { get; private set; }
+
     /// <summary>Gets the memberships of this household.</summary>
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
     /// <summary>Gets the consumptions recorded for this household.</summary>
@@ -59,6 +64,18 @@ public sealed class Household : BaseEntity
         household.Accounts.Add(Account.CreateCash(household));
         return household;
     }
+
+    /// <summary>Creates the personal space of a user with its cash account.</summary>
+    /// <returns>The new personal space.</returns>
+    public static Household CreatePersonal()
+    {
+        var household = Create(PersonalName);
+        household.IsPersonal = true;
+        return household;
+    }
+
+    /// <summary>The default name of a personal space.</summary>
+    public const string PersonalName = "Personal";
 
     /// <summary>Sets how much of the purpose text is kept when imported transactions are stored.</summary>
     /// <param name="retention">The retention.</param>

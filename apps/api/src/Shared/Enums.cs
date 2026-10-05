@@ -183,3 +183,15 @@ public enum AiDataSharing
     /// <summary>Counterparty and purpose are sent after removing identifiers and the names of private persons.</summary>
     Strict
 }
+
+/// <summary>
+/// Represents who can see an account or a budget within a shared space.
+/// </summary>
+[EnumExtensions]
+public enum Visibility
+{
+    /// <summary>Every member of the space.</summary>
+    Shared,
+    /// <summary>Only its owner.</summary>
+    Private
+}

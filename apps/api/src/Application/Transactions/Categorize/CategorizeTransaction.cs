@@ -42,7 +42,7 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
         CategorizeTransactionRequest request,
         CancellationToken cancellationToken)
     {
-        var transaction = await dbContext.Transactions
+        var transaction = await dbContext.GetVisibleTransactions(currentUser)
             .Include(item => item.Account)
             .Include(item => item.Category)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
@@ -120,15 +120,15 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
     {
         var others = scope switch
         {
-            CategoryRuleScope.Counterparty => await dbContext.Transactions
+            CategoryRuleScope.Counterparty => await dbContext.GetVisibleTransactions(currentUser)
                 .Where(item => item.HouseholdId == corrected.HouseholdId && item.Id != corrected.Id && item.CounterpartyKey == key)
                 .ToListAsync(cancellationToken),
-            CategoryRuleScope.Merchant => (await dbContext.Transactions
+            CategoryRuleScope.Merchant => (await dbContext.GetVisibleTransactions(currentUser)
                     .Where(item => item.HouseholdId == corrected.HouseholdId && item.Id != corrected.Id && item.CounterpartyKey == null && item.IsMerchantPayment && item.Counterparty != null)
                     .ToListAsync(cancellationToken))
                 .Where(item => CategoryRuleKeys.For(null, item.Counterparty, isMerchantPayment: true)?.Key == key)
                 .ToList(),
-            _ => (await dbContext.Transactions
+            _ => (await dbContext.GetVisibleTransactions(currentUser)
                     .Where(item => item.HouseholdId == corrected.HouseholdId && item.Id != corrected.Id && item.Purpose != null)
                     .ToListAsync(cancellationToken))
                 .Where(item => PurposeKeywords.Contains(item.Purpose, key))
