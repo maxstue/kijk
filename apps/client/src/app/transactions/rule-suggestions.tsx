@@ -38,7 +38,8 @@ function writeHidden(ids: string[]) {
 export function RuleSuggestions({ canRecord }: { canRecord: boolean }) {
   const { data } = useQuery(categoryRuleSuggestionsQueryOptions());
   const [hidden, setHidden] = useState(readHidden);
-  const visible = (data ?? []).filter((suggestion) => !hidden.includes(suggestion.id));
+  const hiddenIds = new Set(hidden);
+  const visible = (data ?? []).filter((suggestion) => !hiddenIds.has(suggestion.id));
   if (visible.length === 0) {
     return null;
   }
