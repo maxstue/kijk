@@ -4,6 +4,7 @@ using Kijk.Api.Models;
 using Kijk.Application.CategoryRules.Delete;
 using Kijk.Application.CategoryRules.Get;
 using Kijk.Application.CategoryRules.Shared;
+using Kijk.Application.CategoryRules.Suggestions;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -23,6 +24,7 @@ public sealed class CategoryRulesEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the remembered category corrections of the active household");
+        group.MapGet("/suggestions", GetSuggestions).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule");
         group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes a remembered category correction");
 
         return builder;
@@ -31,6 +33,14 @@ public sealed class CategoryRulesEndpoints : IEndpointGroup
     private static async Task<Results<Ok<List<CategoryRuleResponse>>, ProblemHttpResult>> GetAll(GetCategoryRulesHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.GetAllAsync(cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<List<CategoryRuleSuggestionResponse>>, ProblemHttpResult>> GetSuggestions(
+        GetCategoryRuleSuggestionsHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.GetAsync(cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

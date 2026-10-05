@@ -869,6 +869,55 @@
         ]
       }
     },
+    "/api/category-rules/suggestions": {
+      "get": {
+        "tags": [
+          "Category Rules"
+        ],
+        "summary": "Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryRuleSuggestionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/category-rules/{id}": {
       "delete": {
         "tags": [
@@ -5110,6 +5159,66 @@
           "Keyword"
         ],
         "description": "Represents what a category rule matches on."
+      },
+      "CategoryRuleSuggestionResponse": {
+        "required": [
+          "id",
+          "scope",
+          "label",
+          "categoryId",
+          "categoryName",
+          "manualCount",
+          "uncategorizedCount",
+          "transactionId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A stable id of the suggestion, e.g. for hiding it."
+          },
+          "scope": {
+            "description": "What the rule would match on.",
+            "$ref": "#/components/schemas/CategoryRuleScope"
+          },
+          "label": {
+            "type": "string",
+            "description": "The merchant or counterparty as shown in the transactions."
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "The category set by hand.",
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "The category name."
+          },
+          "manualCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "How often the category was set by hand.",
+            "format": "int32"
+          },
+          "uncategorizedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "How many transactions without category the rule would categorize right away.",
+            "format": "int32"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "The latest transaction categorized by hand; remembering its category creates the rule.",
+            "format": "uuid"
+          }
+        },
+        "description": "A rule Kijk suggests because a member set the same category for a merchant or counterparty by hand."
       },
       "CategorySource": {
         "enum": [
