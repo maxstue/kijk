@@ -16,16 +16,16 @@ import { Plus } from 'lucide-react';
 import { Suspense, useState } from 'react';
 import { z } from 'zod';
 
-import { ConsumptionLimitWarnings } from '@/app/consumption-limits/warnings';
 import { ConsumptionAnnualView } from '@/app/consumptions/annual-view';
 import { ConsumptionCreateForm } from '@/app/consumptions/create-form';
 import { ConsumptionCurrentPeriodButton } from '@/app/consumptions/current-period-button';
 import { ConsumptionMonthNav } from '@/app/consumptions/month-nav';
 import { ConsumptionMonthView } from '@/app/consumptions/month-view';
 import { ConsumptionYearSwitcher } from '@/app/consumptions/year-switcher';
-import { consumptionLimitsQueryOptions } from '@/shared/api/consumption-limits/options';
+import { LimitWarnings } from '@/app/limits/warnings';
 import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { limitsQueryOptions } from '@/shared/api/limits/options';
 import { NotFound } from '@/shared/components/not-found';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
@@ -51,7 +51,7 @@ export const Route = createFileRoute('/_authenticated/_app/consumptions')({
         consumptionsByQueryOptions(deps.year, deps.view === 'month' ? deps.month : undefined),
       ),
       queryClient.ensureQueryData(consumptionsByQueryOptions(deps.year)),
-      queryClient.ensureQueryData(consumptionLimitsQueryOptions()),
+      queryClient.ensureQueryData(limitsQueryOptions()),
     ]);
   },
 });
@@ -69,7 +69,7 @@ function UsagePage() {
 
   return (
     <div className='space-y-6 pt-10'>
-      <ConsumptionLimitWarnings />
+      <LimitWarnings />
       <div className='space-y-0.5'>
         <h2 className='text-2xl font-bold tracking-tight'>Resource usage</h2>
         <p className='text-muted-foreground'>Manage your monthly usage or review a full year by resource type</p>

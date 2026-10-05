@@ -15,7 +15,7 @@ export const useDeleteConsumption = () => {
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.limits.all }),
       ]);
     },
   });

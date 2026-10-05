@@ -630,130 +630,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/consumption-limits': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Gets consumption limits for the active household */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ConsumptionLimitResponse'][];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    put?: never;
-    /** Creates a consumption limit */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateConsumptionLimitRequest'];
-        };
-      };
-      responses: {
-        /** Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ConsumptionLimitResponse'];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/consumption-limits/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Gets a consumption limit by id */
-    get: operations['GetConsumptionLimitById'];
-    /** Updates a consumption limit */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateConsumptionLimitRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ConsumptionLimitResponse'];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/consumptions/{id}': {
     parameters: {
       query?: never;
@@ -1883,6 +1759,130 @@ export interface paths {
           };
           content: {
             'application/json': components['schemas']['ImportSettingsResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/limits': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets consumption limits for the active household */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LimitResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    /** Creates a consumption limit */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CreateLimitRequest'];
+        };
+      };
+      responses: {
+        /** Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LimitResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/limits/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets a consumption limit by id */
+    get: operations['GetLimitById'];
+    /** Updates a consumption limit */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateLimitRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LimitResponse'];
           };
         };
         400: components['responses']['400'];
@@ -3298,39 +3298,6 @@ export interface components {
       /** Confirms committing although many rows could not be parsed. */
       acceptErrors: boolean;
     };
-    /** The resource governed by a consumption limit. */
-    ConsumptionLimitResourceResponse: {
-      /** Format: uuid */
-      id: string;
-      name: string;
-      unit: string;
-      color: string;
-    };
-    /** A consumption limit together with its current evaluation data. */
-    ConsumptionLimitResponse: {
-      /** Format: uuid */
-      id: string;
-      name: string;
-      description: null | string;
-      /** Format: double */
-      limit: number | string;
-      period: components['schemas']['Period'];
-      active: boolean;
-      resource: components['schemas']['ConsumptionLimitResourceResponse'];
-      /** Format: double */
-      actualValue: number | string;
-      /** Format: double */
-      remainingValue: number | string;
-      /** Format: double */
-      utilizationPercentage: number | string;
-      isExceeded: boolean;
-      /** Format: date-time */
-      periodStart: string;
-      /** Format: date-time */
-      periodEnd: string;
-      /** Format: date-time */
-      lastOccurrence: null | string;
-    };
     /** The resource of a consumption entry. */
     ConsumptionResourceResponse: {
       /**
@@ -3511,17 +3478,6 @@ export interface components {
       color: string;
       kind: components['schemas']['CategoryKind'];
     };
-    /** Request for creating a consumption limit. */
-    CreateConsumptionLimitRequest: {
-      name: string;
-      description: null | string;
-      /** Format: double */
-      limit: number | string;
-      period: components['schemas']['Period'];
-      active: boolean;
-      /** Format: uuid */
-      resourceId: string;
-    };
     /** The data of a new consumption. */
     CreateConsumptionRequest: {
       /** The display name. */
@@ -3559,6 +3515,17 @@ export interface components {
      * @enum {unknown}
      */
     CreateConsumptionValueTypes: 'Absolute' | 'Relative';
+    /** Request for creating a consumption limit. */
+    CreateLimitRequest: {
+      name: string;
+      description: null | string;
+      /** Format: double */
+      limit: number | string;
+      period: components['schemas']['Period'];
+      active: boolean;
+      /** Format: uuid */
+      resourceId: string;
+    };
     /** Command to create a new resource type. */
     CreateResourceRequest: {
       /** The resource name. */
@@ -3994,6 +3961,39 @@ export interface components {
       /** Whether imports store neither names of private persons nor counterparty keys. */
       minimizeData: boolean;
     };
+    /** The resource governed by a consumption limit. */
+    LimitResourceResponse: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      unit: string;
+      color: string;
+    };
+    /** A consumption limit together with its current evaluation data. */
+    LimitResponse: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      description: null | string;
+      /** Format: double */
+      limit: number | string;
+      period: components['schemas']['Period'];
+      active: boolean;
+      resource: components['schemas']['LimitResourceResponse'];
+      /** Format: double */
+      actualValue: number | string;
+      /** Format: double */
+      remainingValue: number | string;
+      /** Format: double */
+      utilizationPercentage: number | string;
+      isExceeded: boolean;
+      /** Format: date-time */
+      periodStart: string;
+      /** Format: date-time */
+      periodEnd: string;
+      /** Format: date-time */
+      lastOccurrence: null | string;
+    };
     /** @enum {unknown} */
     MappingSource: 'Profile' | 'Suggestion' | 'Ai' | null;
     /**
@@ -4199,15 +4199,6 @@ export interface components {
       color: string;
       kind: components['schemas']['CategoryKind'];
     };
-    /** Request for replacing the editable properties of a consumption limit. */
-    UpdateConsumptionLimitRequest: {
-      name: string;
-      description: null | string;
-      /** Format: double */
-      limit: number | string;
-      period: components['schemas']['Period'];
-      active: boolean;
-    };
     /** Changes to a consumption; `null` values keep the current value. */
     UpdateConsumptionRequest: {
       /** The new display name. */
@@ -4275,6 +4266,15 @@ export interface components {
       aiDataSharing?: null | components['schemas']['AiDataSharing'];
       /** Whether imports store neither names of private persons nor counterparty keys; unchanged when omitted. */
       minimizeData?: null | boolean;
+    };
+    /** Request for replacing the editable properties of a consumption limit. */
+    UpdateLimitRequest: {
+      name: string;
+      description: null | string;
+      /** Format: double */
+      limit: number | string;
+      period: components['schemas']['Period'];
+      active: boolean;
     };
     /** Request to update one or more properties of a custom resource. */
     UpdateResourceRequest: {
@@ -4524,35 +4524,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  GetConsumptionLimitById: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ConsumptionLimitResponse'];
-        };
-      };
-      400: components['responses']['400'];
-      401: components['responses']['401'];
-      403: components['responses']['403'];
-      404: components['responses']['404'];
-      409: components['responses']['409'];
-      429: components['responses']['429'];
-      500: components['responses']['500'];
-    };
-  };
   GetConsumptionById: {
     parameters: {
       query?: never;
@@ -4600,6 +4571,35 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ImportJobResponse'];
+        };
+      };
+      400: components['responses']['400'];
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      404: components['responses']['404'];
+      409: components['responses']['409'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  GetLimitById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LimitResponse'];
         };
       };
       400: components['responses']['400'];

@@ -111,12 +111,12 @@ public class UpdateResourceHandler(
             return calculation.Error;
         }
 
-        var limits = await dbContext.ConsumptionsLimits
+        var limits = await dbContext.Limits
             .Where(item => item.ResourceId == resource.Id)
             .ToListAsync(cancellationToken);
         foreach (var limit in limits)
         {
-            var converted = unitConversionService.Convert(limit.Limit, resource.Unit, unit);
+            var converted = unitConversionService.Convert(limit.Threshold, resource.Unit, unit);
             if (converted.IsError)
             {
                 return converted.Error;

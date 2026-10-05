@@ -70,11 +70,11 @@ public sealed class DeleteHouseholdHandler(IAppDbContext dbContext, CurrentUser 
         var consumptions = await dbContext.Consumptions
             .Where(item => item.HouseholdId == id)
             .ToListAsync(cancellationToken);
-        var consumptionLimits = await dbContext.ConsumptionsLimits
+        var limits = await dbContext.Limits
             .Where(item => item.HouseholdId == id)
             .ToListAsync(cancellationToken);
         dbContext.Consumptions.RemoveRange(consumptions);
-        dbContext.ConsumptionsLimits.RemoveRange(consumptionLimits);
+        dbContext.Limits.RemoveRange(limits);
         dbContext.Households.Remove(household);
 
         await dbContext.SaveChangesAsync(cancellationToken);

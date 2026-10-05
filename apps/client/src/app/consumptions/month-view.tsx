@@ -8,7 +8,7 @@ import { Suspense } from 'react';
 import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
 import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
 import { ConsumptionExportButton } from '@/app/consumptions/export-button';
-import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
+import { LimitWarning } from '@/app/consumptions/limit-warning';
 import ConsumptionStats from '@/app/consumptions/stats';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
@@ -54,7 +54,7 @@ export function ConsumptionMonthView({ consumptions, month, year }: Props) {
                   <div className='space-y-2'>
                     <CardTitle className='flex items-center gap-2'>
                       {item.name}
-                      <ConsumptionLimitWarning resourceId={item.resource.id} />
+                      <LimitWarning resourceId={item.resource.id} />
                     </CardTitle>
                     <div className='flex items-center gap-2'>
                       {item.startsNewMeterSegment ? (

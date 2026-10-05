@@ -15,7 +15,7 @@ export const useUpdateConsumption = () => {
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.byAll() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.limits.all }),
       ]);
 
       const consumptionDate = variables.consumption.date;

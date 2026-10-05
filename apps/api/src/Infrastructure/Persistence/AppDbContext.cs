@@ -27,7 +27,7 @@ public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
     /// <inheritdoc />
     public DbSet<Consumption> Consumptions { get; set; }
     /// <inheritdoc />
-    public DbSet<ConsumptionLimit> ConsumptionsLimits { get; set; }
+    public DbSet<Limit> Limits { get; set; }
     /// <inheritdoc />
     public DbSet<Resource> Resources { get; set; }
     /// <inheritdoc />

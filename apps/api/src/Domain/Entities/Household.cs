@@ -32,7 +32,7 @@ public sealed class Household : BaseEntity
     /// <summary>Gets the consumptions recorded for this household.</summary>
     public ICollection<Consumption> Consumptions { get; init; } = new List<Consumption>();
     /// <summary>Gets the consumption limits of this household.</summary>
-    public ICollection<ConsumptionLimit> ConsumptionLimits { get; init; } = new List<ConsumptionLimit>();
+    public ICollection<Limit> Limits { get; init; } = new List<Limit>();
     /// <summary>Gets the custom resources owned by this household.</summary>
     public ICollection<Resource> Resources { get; init; } = new List<Resource>();
     /// <summary>Gets the units shared with this household.</summary>

@@ -1,10 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
-using Kijk.Application.ConsumptionLimits.Create;
-using Kijk.Application.ConsumptionLimits.Update;
 using Kijk.Application.Consumptions.Update;
 using Kijk.Application.Households.ChangeMemberRole;
 using Kijk.Application.Households.Update;
+using Kijk.Application.Limits.Create;
+using Kijk.Application.Limits.Update;
 using Kijk.Application.Resources.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
@@ -33,7 +33,7 @@ public class HouseholdPermissionHttpTests
         var fixture = await CreateFixtureAsync(role);
         await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
 
-        foreach (var path in new[] { "/api/resources", "/api/consumptions", "/api/consumption-limits", $"/api/consumption-limits/{fixture.Limit.Id}", $"/api/households/{fixture.Household.Id}/members" })
+        foreach (var path in new[] { "/api/resources", "/api/consumptions", "/api/limits", $"/api/limits/{fixture.Limit.Id}", $"/api/households/{fixture.Household.Id}/members" })
         {
             using var response = await host.Client.GetAsync(path);
             if (response.StatusCode != HttpStatusCode.OK)
@@ -82,12 +82,12 @@ public class HouseholdPermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PutAsJsonAsync($"/api/consumption-limits/{fixture.Limit.Id}",
-            new UpdateConsumptionLimitRequest("Updated budget", null, 200m, fixture.Limit.Period, true));
+        using var response = await host.Client.PutAsJsonAsync($"/api/limits/{fixture.Limit.Id}",
+            new UpdateLimitRequest("Updated budget", null, 200m, fixture.Limit.Period, true));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
-        using var created = await host.Client.PostAsJsonAsync("/api/consumption-limits",
-            new CreateConsumptionLimitRequest("Yearly budget", null, 500m, Period.Year, true, fixture.Resource.Id));
+        using var created = await host.Client.PostAsJsonAsync("/api/limits",
+            new CreateLimitRequest("Yearly budget", null, 500m, Period.Year, true, fixture.Resource.Id));
         await Assert.That(created.StatusCode).IsEqualTo(expected == HttpStatusCode.OK ? HttpStatusCode.Created : HttpStatusCode.Forbidden);
     }
 
@@ -231,7 +231,7 @@ public class HouseholdPermissionHttpTests
         user.AddResource(resource);
         otherUser.AddResource(resource);
         var consumption = Consumption.Create("Reading", resource, household, new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc), new ConsumptionReading(10m, ConsumptionValueType.Relative, 10m));
-        var limit = ConsumptionLimit.Create(new("Budget", null, 100m, Period.Month, true), resource, user, household);
+        var limit = Limit.Create(new("Budget", null, 100m, Period.Month, true), resource, user, household);
         var unit = new Unit { Name = "Bucket", Symbol = "bucket", QuantityKey = "Custom:bucket", CreatorType = CreatorType.User, ConversionType = UnitConversionType.None, OwnerUser = user };
         dbContext.AddRange(user, otherUser, resource, consumption, limit, unit);
         await dbContext.SaveChangesAsync();
@@ -245,5 +245,5 @@ public class HouseholdPermissionHttpTests
         return user;
     }
 
-    private sealed record Fixture(Household Household, User User, User OtherUser, Resource Resource, Consumption Consumption, ConsumptionLimit Limit, Unit Unit);
+    private sealed record Fixture(Household Household, User User, User OtherUser, Resource Resource, Consumption Consumption, Limit Limit, Unit Unit);
 }
