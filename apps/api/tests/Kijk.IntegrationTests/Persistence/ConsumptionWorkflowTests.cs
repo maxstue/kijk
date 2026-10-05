@@ -129,12 +129,12 @@ public class ConsumptionWorkflowTests
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var fixture = await CreateFixtureAsync(dbContext);
-        var limit = ConsumptionLimit.Create(
-            new ConsumptionLimitSettings("Monthly electricity", null, 50m, Period.Month, true),
+        var limit = Limit.Create(
+            new LimitSettings("Monthly electricity", null, 50m, Period.Month, true),
             fixture.Resource,
             fixture.User,
             fixture.Household);
-        dbContext.ConsumptionsLimits.Add(limit);
+        dbContext.Limits.Add(limit);
         await dbContext.SaveChangesAsync();
 
         var firstOccurrence = new DateTimeOffset(2026, 9, 8, 12, 0, 0, TimeSpan.Zero);

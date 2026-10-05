@@ -27,17 +27,17 @@ public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentU
 
         var consumptionCount = await dbContext.Consumptions
             .CountAsync(consumption => consumption.ResourceId == id, cancellationToken);
-        var consumptionLimitCount = await dbContext.ConsumptionsLimits
+        var limitCount = await dbContext.Limits
             .CountAsync(limit => limit.ResourceId == id, cancellationToken);
-        if (consumptionCount > 0 || consumptionLimitCount > 0)
+        if (consumptionCount > 0 || limitCount > 0)
         {
             logger.LogWarning(
-                "Resource '{ResourceId}' cannot be deleted because it is used by {ConsumptionCount} consumptions and {ConsumptionLimitCount} consumption limits",
+                "Resource '{ResourceId}' cannot be deleted because it is used by {ConsumptionCount} consumptions and {LimitCount} consumption limits",
                 id,
                 consumptionCount,
-                consumptionLimitCount);
+                limitCount);
             return Error.Conflict(
-                $"Resource cannot be deleted because it is used by {consumptionCount} consumption(s) and {consumptionLimitCount} consumption limit(s)");
+                $"Resource cannot be deleted because it is used by {consumptionCount} consumption(s) and {limitCount} consumption limit(s)");
         }
 
         dbContext.Resources.Remove(resource);

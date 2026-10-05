@@ -1,5 +1,5 @@
-﻿using Kijk.Application.ConsumptionLimits.Shared;
-using Kijk.Application.Consumptions.Shared;
+﻿using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Limits.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
 using Kijk.Application.Units.Shared;
@@ -68,7 +68,7 @@ public class UpdateConsumptionHandler(
                 .ToListAsync(cancellationToken);
         }
 
-        var before = ConsumptionLimitOccurrence.Capture(
+        var before = LimitOccurrence.Capture(
             originalTimeline.Concat(destinationTimeline ?? []));
 
         if (ApplyChanges(existingResourceUsage, request, destinationResource) is { } changeError)
@@ -86,7 +86,7 @@ public class UpdateConsumptionHandler(
             return calculation.Error;
         }
 
-        await ConsumptionLimitOccurrence.RecordAsync(
+        await LimitOccurrence.RecordAsync(
             dbContext,
             household.Id,
             before,

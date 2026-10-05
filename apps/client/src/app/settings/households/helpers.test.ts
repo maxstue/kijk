@@ -12,7 +12,7 @@ test('loads the remaining household instead of fresh cached data from the delete
     queryKeys.consumptions.by('2026'),
     queryKeys.consumptions.stats('2026'),
     queryKeys.consumptions.years(),
-    queryKeys.consumptionLimits.list(),
+    queryKeys.limits.list(),
     queryKeys.units.list(),
     queryKeys.households.members('deleted-household'),
   ];

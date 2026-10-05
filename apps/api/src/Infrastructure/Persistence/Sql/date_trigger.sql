@@ -16,10 +16,10 @@ CREATE TRIGGER "UpdateTimestamp"
     FOR EACH ROW
 EXECUTE FUNCTION "Update_DateTime_Function"();
 
--- Add Trigger to the consumptions_limits table
+-- Add Trigger to the limits table
 CREATE TRIGGER "UpdateTimestamp"
     BEFORE UPDATE
-    ON "consumptions_limits"
+    ON "limits"
     FOR EACH ROW
 EXECUTE FUNCTION "Update_DateTime_Function"();
 

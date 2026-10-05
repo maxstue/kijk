@@ -1,5 +1,5 @@
-using Kijk.Application.ConsumptionLimits.Shared;
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Limits.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
 using Kijk.Domain.Entities;
@@ -57,7 +57,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
             .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
                            && item.ResourceId == request.ResourceId)
             .ToListAsync(cancellationToken);
-        var before = ConsumptionLimitOccurrence.Capture(existingConsumptions);
+        var before = LimitOccurrence.Capture(existingConsumptions);
 
         var calculation = ConsumptionTimelineCalculator.CalculateInsertion(consumption, existingConsumptions);
         if (calculation.IsError)
@@ -71,7 +71,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         }
 
         dbContext.Consumptions.Add(consumption);
-        await ConsumptionLimitOccurrence.RecordAsync(
+        await LimitOccurrence.RecordAsync(
             dbContext,
             household.Id,
             before,

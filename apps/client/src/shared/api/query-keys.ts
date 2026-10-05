@@ -27,9 +27,9 @@ const consumptions = {
   years: () => [...consumptions.all, 'years'] as const,
 };
 
-const consumptionLimits = {
-  all: ['consumption-limits'] as const,
-  list: () => [...consumptionLimits.all, 'list'] as const,
+const limits = {
+  all: ['limits'] as const,
+  list: () => [...limits.all, 'list'] as const,
 };
 
 const categories = {
@@ -89,7 +89,7 @@ export const queryKeys = {
   budgets,
   categories,
   categoryRules,
-  consumptionLimits,
+  limits,
   consumptions,
   households,
   imports,

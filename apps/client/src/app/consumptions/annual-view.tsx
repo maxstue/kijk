@@ -19,7 +19,7 @@ import type { Consumption } from '@/shared/types/domain';
 import { ConsumptionDeleteButton } from './delete-button';
 import { ConsumptionEditButton } from './edit-button';
 import { createAnnualResourceSummaries, type AnnualResourceSummary } from './helpers';
-import { ConsumptionLimitWarning } from './limit-warning';
+import { LimitWarning } from './limit-warning';
 import { allResourceTypes, ConsumptionTypeFilter } from './type-filter';
 
 interface AnnualViewProps {
@@ -60,7 +60,7 @@ const summaryColumns: Array<ColumnDef<typeof summaryFeatures, AnnualResourceSumm
           <div className='min-w-0'>
             <div className='flex items-center gap-2'>
               <span className='truncate font-medium'>{summary.resource.name}</span>
-              <ConsumptionLimitWarning resourceId={summary.resource.id} />
+              <LimitWarning resourceId={summary.resource.id} />
             </div>
             <span className='text-muted-foreground text-xs'>
               {summary.entryCount} {summary.entryCount === 1 ? 'entry' : 'entries'}

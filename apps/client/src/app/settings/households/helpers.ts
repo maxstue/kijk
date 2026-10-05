@@ -7,7 +7,7 @@ export async function clearHouseholdData(queryClient: QueryClient) {
   const roots = [
     queryKeys.resources.all,
     queryKeys.consumptions.all,
-    queryKeys.consumptionLimits.all,
+    queryKeys.limits.all,
     queryKeys.units.all,
     queryKeys.households.all,
   ];

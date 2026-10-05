@@ -19,8 +19,8 @@ import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
 import { Route as AuthenticatedAppBudgetsRouteImport } from './routes/_authenticated/_app/budgets'
 import { Route as AuthenticatedAppConsumptionsRouteImport } from './routes/_authenticated/_app/consumptions'
-import { Route as AuthenticatedAppConsumptionsLimitsRouteImport } from './routes/_authenticated/_app/consumptions-limits'
 import { Route as AuthenticatedAppHomeRouteImport } from './routes/_authenticated/_app/home'
+import { Route as AuthenticatedAppLimitsRouteImport } from './routes/_authenticated/_app/limits'
 import { Route as AuthenticatedAppResourcesRouteImport } from './routes/_authenticated/_app/resources'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
 import { Route as AuthenticatedAppTransactionsRouteImport } from './routes/_authenticated/_app/transactions'
@@ -85,15 +85,14 @@ const AuthenticatedAppConsumptionsRoute =
     path: '/consumptions',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAppConsumptionsLimitsRoute =
-  AuthenticatedAppConsumptionsLimitsRouteImport.update({
-    id: '/consumptions-limits',
-    path: '/consumptions-limits',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
 const AuthenticatedAppHomeRoute = AuthenticatedAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
+const AuthenticatedAppLimitsRoute = AuthenticatedAppLimitsRouteImport.update({
+  id: '/limits',
+  path: '/limits',
   getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
 const AuthenticatedAppResourcesRoute =
@@ -189,8 +188,8 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/budgets': typeof AuthenticatedAppBudgetsRoute
   '/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
-  '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/home': typeof AuthenticatedAppHomeRoute
+  '/limits': typeof AuthenticatedAppLimitsRoute
   '/resources': typeof AuthenticatedAppResourcesRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
   '/transactions': typeof AuthenticatedAppTransactionsRoute
@@ -214,8 +213,8 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/budgets': typeof AuthenticatedAppBudgetsRoute
   '/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
-  '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/home': typeof AuthenticatedAppHomeRoute
+  '/limits': typeof AuthenticatedAppLimitsRoute
   '/resources': typeof AuthenticatedAppResourcesRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
   '/transactions': typeof AuthenticatedAppTransactionsRoute
@@ -242,8 +241,8 @@ export interface FileRoutesById {
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
   '/_authenticated/_app/budgets': typeof AuthenticatedAppBudgetsRoute
   '/_authenticated/_app/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
-  '/_authenticated/_app/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/_authenticated/_app/home': typeof AuthenticatedAppHomeRoute
+  '/_authenticated/_app/limits': typeof AuthenticatedAppLimitsRoute
   '/_authenticated/_app/resources': typeof AuthenticatedAppResourcesRouteWithChildren
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
   '/_authenticated/_app/transactions': typeof AuthenticatedAppTransactionsRoute
@@ -269,8 +268,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/budgets'
     | '/consumptions'
-    | '/consumptions-limits'
     | '/home'
+    | '/limits'
     | '/resources'
     | '/settings'
     | '/transactions'
@@ -294,8 +293,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/budgets'
     | '/consumptions'
-    | '/consumptions-limits'
     | '/home'
+    | '/limits'
     | '/resources'
     | '/settings'
     | '/transactions'
@@ -321,8 +320,8 @@ export interface FileRouteTypes {
     | '/_authenticated/_onboarding'
     | '/_authenticated/_app/budgets'
     | '/_authenticated/_app/consumptions'
-    | '/_authenticated/_app/consumptions-limits'
     | '/_authenticated/_app/home'
+    | '/_authenticated/_app/limits'
     | '/_authenticated/_app/resources'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_app/transactions'
@@ -420,18 +419,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppConsumptionsRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/_app/consumptions-limits': {
-      id: '/_authenticated/_app/consumptions-limits'
-      path: '/consumptions-limits'
-      fullPath: '/consumptions-limits'
-      preLoaderRoute: typeof AuthenticatedAppConsumptionsLimitsRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
     '/_authenticated/_app/home': {
       id: '/_authenticated/_app/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedAppHomeRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/limits': {
+      id: '/_authenticated/_app/limits'
+      path: '/limits'
+      fullPath: '/limits'
+      preLoaderRoute: typeof AuthenticatedAppLimitsRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/resources': {
@@ -609,8 +608,8 @@ const AuthenticatedAppSettingsRouteWithChildren =
 interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppBudgetsRoute: typeof AuthenticatedAppBudgetsRoute
   AuthenticatedAppConsumptionsRoute: typeof AuthenticatedAppConsumptionsRouteWithChildren
-  AuthenticatedAppConsumptionsLimitsRoute: typeof AuthenticatedAppConsumptionsLimitsRoute
   AuthenticatedAppHomeRoute: typeof AuthenticatedAppHomeRoute
+  AuthenticatedAppLimitsRoute: typeof AuthenticatedAppLimitsRoute
   AuthenticatedAppResourcesRoute: typeof AuthenticatedAppResourcesRouteWithChildren
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
   AuthenticatedAppTransactionsRoute: typeof AuthenticatedAppTransactionsRoute
@@ -622,9 +621,8 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppBudgetsRoute: AuthenticatedAppBudgetsRoute,
   AuthenticatedAppConsumptionsRoute:
     AuthenticatedAppConsumptionsRouteWithChildren,
-  AuthenticatedAppConsumptionsLimitsRoute:
-    AuthenticatedAppConsumptionsLimitsRoute,
   AuthenticatedAppHomeRoute: AuthenticatedAppHomeRoute,
+  AuthenticatedAppLimitsRoute: AuthenticatedAppLimitsRoute,
   AuthenticatedAppResourcesRoute: AuthenticatedAppResourcesRouteWithChildren,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
   AuthenticatedAppTransactionsRoute: AuthenticatedAppTransactionsRoute,

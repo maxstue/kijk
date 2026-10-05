@@ -34,7 +34,7 @@ public class HouseholdConfig : IEntityTypeConfiguration<Household>
             .HasForeignKey(x => x.HouseholdId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(x => x.ConsumptionLimits)
+        builder.HasMany(x => x.Limits)
             .WithOne(x => x.Household)
             .HasForeignKey(x => x.HouseholdId)
             .OnDelete(DeleteBehavior.Cascade);

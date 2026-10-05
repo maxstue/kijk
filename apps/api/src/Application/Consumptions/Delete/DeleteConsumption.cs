@@ -1,4 +1,4 @@
-using Kijk.Application.ConsumptionLimits.Shared;
+using Kijk.Application.Limits.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Services;
 using Kijk.Shared;
@@ -34,7 +34,7 @@ public class DeleteConsumptionHandler(
                            && item.ResourceId == foundEntity.ResourceId
                            && item.Id != foundEntity.Id)
             .ToListAsync(cancellationToken);
-        var before = ConsumptionLimitOccurrence.Capture(remainingTimeline.Append(foundEntity));
+        var before = LimitOccurrence.Capture(remainingTimeline.Append(foundEntity));
 
         var calculation = ConsumptionTimelineCalculator.Recalculate(remainingTimeline);
         if (calculation.IsError)
@@ -47,7 +47,7 @@ public class DeleteConsumptionHandler(
         }
 
         dbContext.Consumptions.Remove(foundEntity);
-        await ConsumptionLimitOccurrence.RecordAsync(
+        await LimitOccurrence.RecordAsync(
             dbContext,
             foundEntity.HouseholdId,
             before,

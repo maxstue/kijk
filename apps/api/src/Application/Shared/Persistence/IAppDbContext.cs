@@ -14,7 +14,7 @@ public interface IAppDbContext
     /// <summary>Gets the consumptions.</summary>
     DbSet<Consumption> Consumptions { get; }
     /// <summary>Gets the consumption limits.</summary>
-    DbSet<ConsumptionLimit> ConsumptionsLimits { get; }
+    DbSet<Limit> Limits { get; }
     /// <summary>Gets the resources.</summary>
     DbSet<Resource> Resources { get; }
     /// <summary>Gets the units.</summary>

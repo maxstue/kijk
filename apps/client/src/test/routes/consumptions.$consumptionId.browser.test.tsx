@@ -24,7 +24,7 @@ test('loads the canonical consumption URL and closes to the overview while prese
         value: 42,
       });
       queryClient.setQueryData(queryKeys.resources.list(), [resource]);
-      queryClient.setQueryData(queryKeys.consumptionLimits.list(), []);
+      queryClient.setQueryData(queryKeys.limits.list(), []);
       queryClient.setQueryData(queryKeys.consumptions.by('2026'), []);
     },
   });

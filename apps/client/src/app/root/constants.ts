@@ -38,7 +38,7 @@ export const mainNav = [
     icon: TriangleAlertIcon,
     isActive: true,
     title: 'Limits',
-    url: '/consumptions-limits',
+    url: '/limits',
   },
   {
     icon: PiggyBankIcon,

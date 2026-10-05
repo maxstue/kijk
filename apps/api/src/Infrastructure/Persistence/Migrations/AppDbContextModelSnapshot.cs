@@ -485,86 +485,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.ToTable("consumptions", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Domain.Entities.ConsumptionLimit", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("boolean")
-                        .HasColumnName("active");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_id");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("description");
-
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
-                    b.Property<DateTime?>("LastOccurrence")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_occurrence");
-
-                    b.Property<decimal>("Limit")
-                        .HasColumnType("numeric")
-                        .HasColumnName("limit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<int>("Period")
-                        .HasColumnType("integer")
-                        .HasColumnName("period");
-
-                    b.Property<Guid>("ResourceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("resource_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_consumptions_limits");
-
-                    b.HasIndex("CreatedById")
-                        .HasDatabaseName("ix_consumptions_limits_created_by_id");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("ix_consumptions_limits_name");
-
-                    b.HasIndex("ResourceId")
-                        .HasDatabaseName("ix_consumptions_limits_resource_id");
-
-                    b.HasIndex("HouseholdId", "ResourceId", "Period")
-                        .IsUnique()
-                        .HasDatabaseName("ix_consumptions_limits_household_id_resource_id_period");
-
-                    b.ToTable("consumptions_limits", (string)null);
-                });
-
             modelBuilder.Entity("Kijk.Domain.Entities.Household", b =>
                 {
                     b.Property<Guid>("Id")
@@ -974,6 +894,86 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_import_profiles_household_id_header_fingerprint_version");
 
                     b.ToTable("import_profiles", (string)null);
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Limit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean")
+                        .HasColumnName("active");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("description");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("household_id");
+
+                    b.Property<DateTime?>("LastOccurrence")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_occurrence");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Period")
+                        .HasColumnType("integer")
+                        .HasColumnName("period");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resource_id");
+
+                    b.Property<decimal>("Threshold")
+                        .HasColumnType("numeric")
+                        .HasColumnName("threshold");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_limits");
+
+                    b.HasIndex("CreatedById")
+                        .HasDatabaseName("ix_limits_created_by_id");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("ix_limits_name");
+
+                    b.HasIndex("ResourceId")
+                        .HasDatabaseName("ix_limits_resource_id");
+
+                    b.HasIndex("HouseholdId", "ResourceId", "Period")
+                        .IsUnique()
+                        .HasDatabaseName("ix_limits_household_id_resource_id_period");
+
+                    b.ToTable("limits", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Permission", b =>
@@ -2066,36 +2066,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Navigation("Resource");
                 });
 
-            modelBuilder.Entity("Kijk.Domain.Entities.ConsumptionLimit", b =>
-                {
-                    b.HasOne("Kijk.Domain.Entities.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_consumptions_limits_users_created_by_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
-                        .WithMany("ConsumptionLimits")
-                        .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_consumptions_limits_households_household_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Resource", "Resource")
-                        .WithMany()
-                        .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_consumptions_limits_resources_resource_id");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Household");
-
-                    b.Navigation("Resource");
-                });
-
             modelBuilder.Entity("Kijk.Domain.Entities.ImportCandidate", b =>
                 {
                     b.HasOne("Kijk.Domain.Entities.ImportJob", "ImportJob")
@@ -2160,6 +2130,36 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_import_profiles_households_household_id");
 
                     b.Navigation("Household");
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Limit", b =>
+                {
+                    b.HasOne("Kijk.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_limits_users_created_by_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                        .WithMany("Limits")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_limits_households_household_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Resource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_limits_resources_resource_id");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Household");
+
+                    b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Resource", b =>
@@ -2350,11 +2350,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
                     b.Navigation("CategoryRules");
 
-                    b.Navigation("ConsumptionLimits");
-
                     b.Navigation("Consumptions");
 
                     b.Navigation("ImportJobs");
+
+                    b.Navigation("Limits");
 
                     b.Navigation("Resources");
 
