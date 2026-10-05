@@ -7,7 +7,9 @@ using Kijk.Application.Accounts.Shared;
 using Kijk.Application.Budgets.Create;
 using Kijk.Application.Budgets.Shared;
 using Kijk.Application.Budgets.Update;
+using Kijk.Application.CategoryRules.Shared;
 using Kijk.Application.Shared.Identity;
+using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Create;
 using Kijk.Application.Transactions.Shared;
 using Kijk.Application.Users.SwitchSpace;
@@ -138,6 +140,55 @@ public class SpaceHttpTests
         await Assert.That(adminGroceries.Budget).IsEqualTo(300m);
         await Assert.That(adminGroceries.BudgetVisibility).IsEqualTo(Visibility.Shared);
         await Assert.That(foreignUpdate.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task RulesRememberedFromPrivateAccountsStayPrivate()
+    {
+        var (admin, member) = await CreateSharedSpaceAsync();
+        Guid privateBooking;
+        Guid sharedBooking;
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var space = await dbContext.Spaces.SingleAsync(item => item.Name == "Shared space");
+            var memberUser = await dbContext.Users.SingleAsync(item => item.Id == member.Id);
+            var privateAccount = Account.Create("Mine", null, space);
+            privateAccount.SetOwner(member.Id);
+            var sharedAccount = Account.Create("Joint", null, space);
+            var job = ImportJob.Create("export.csv", sharedAccount, memberUser, space);
+            var mine = Booking(privateAccount, "Secret Shop", "private-1");
+            var joint = Booking(sharedAccount, "Secret Shop", "shared-1");
+            dbContext.AddRange(privateAccount, sharedAccount, job, mine, joint);
+            await dbContext.SaveChangesAsync();
+            (privateBooking, sharedBooking) = (mine.Id, joint.Id);
+
+            Transaction Booking(Account account, string counterparty, string key) => Transaction.CreateImported(
+                new TransactionDetails(new DateTime(2026, 10, 4, 0, 0, 0, DateTimeKind.Utc), -9m, counterparty, null, TransactionStatus.Booked, false),
+                new TransactionKeys(key, null, 1, true),
+                account,
+                job,
+                memberUser,
+                space);
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(member.AuthId);
+        using var adminClient = host.CreateClient(admin.AuthId);
+
+        using var remembered = await host.Client.PutAsJsonAsync($"/api/transactions/{privateBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
+        var result = (await remembered.Content.ReadFromJsonAsync<CategorizeTransactionResponse>(Json))!;
+        var ownRules = (await host.Client.GetFromJsonAsync<List<CategoryRuleResponse>>("/api/category-rules", Json))!;
+        var adminRules = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>("/api/category-rules", Json))!;
+
+        await Assert.That(result.AppliedToOthers).IsEqualTo(0);
+        await Assert.That(ownRules.Single().Visibility).IsEqualTo(Visibility.Private);
+        await Assert.That(adminRules).IsEmpty();
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That((await verification.Transactions.SingleAsync(item => item.Id == sharedBooking)).CategoryId).IsNull();
+
+        // Remembering from the shared account creates a shared rule next to the private one.
+        using var shared = await host.Client.PutAsJsonAsync($"/api/transactions/{sharedBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
+        var adminRulesAfter = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>("/api/category-rules", Json))!;
+        await Assert.That(adminRulesAfter.Single().Visibility).IsEqualTo(Visibility.Shared);
     }
 
     private static async Task<(User Admin, User Member)> CreateSharedSpaceAsync()

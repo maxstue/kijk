@@ -32,6 +32,18 @@ public sealed class CategoryRule : BaseEntity
     /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
     public Guid SpaceId { get; set; }
 
+    /// <summary>
+    /// Gets the member a rule remembered from a private transaction belongs to. It is visible only to them and applies
+    /// only to their private accounts. <see langword="null" /> for rules of the whole space.
+    /// </summary>
+    public Guid? OwnerId { get; private set; }
+
+    /// <summary>Gets the owner of a private rule.</summary>
+    public User? Owner { get; }
+
+    /// <summary>Gets who can see and use the rule.</summary>
+    public Visibility Visibility => OwnerId is null ? Visibility.Shared : Visibility.Private;
+
     /// <summary>Gets or sets the space the rule belongs to.</summary>
     public Space? Space { get; set; }
 
@@ -41,8 +53,9 @@ public sealed class CategoryRule : BaseEntity
     /// <param name="label">The counterparty name shown to users.</param>
     /// <param name="category">The category to assign.</param>
     /// <param name="spaceId">The owning space.</param>
+    /// <param name="ownerId">The member for a rule remembered from a private transaction, otherwise <see langword="null" />.</param>
     /// <returns>The new rule.</returns>
-    public static CategoryRule CreateFromCorrection(CategoryRuleScope scope, string key, string label, Category category, Guid spaceId)
+    public static CategoryRule CreateFromCorrection(CategoryRuleScope scope, string key, string label, Category category, Guid spaceId, Guid? ownerId = null)
     {
         var rule = new CategoryRule
         {
@@ -50,7 +63,8 @@ public sealed class CategoryRule : BaseEntity
             Key = key,
             Label = label,
             Origin = CategoryRuleOrigin.User,
-            SpaceId = spaceId
+            SpaceId = spaceId,
+            OwnerId = ownerId
         };
         rule.ChangeCategory(category);
         return rule;

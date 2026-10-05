@@ -5118,7 +5118,8 @@
           "label",
           "categoryId",
           "categoryName",
-          "createdAt"
+          "createdAt",
+          "visibility"
         ],
         "type": "object",
         "properties": {
@@ -5148,6 +5149,10 @@
             "type": "string",
             "description": "When the rule was created.",
             "format": "date-time"
+          },
+          "visibility": {
+            "description": "Whether the rule applies to the whole space or only to the member's private accounts.",
+            "$ref": "#/components/schemas/Visibility"
           }
         },
         "description": "A remembered category correction."

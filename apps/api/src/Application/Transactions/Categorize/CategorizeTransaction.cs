@@ -79,8 +79,10 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
 
             // A keyword rule is labelled with its keyword only, so it holds nothing about the counterparty.
             var label = rule.Scope == CategoryRuleScope.Keyword ? rule.Key : transaction.Counterparty ?? string.Empty;
-            await RememberAsync(rule.Scope, rule.Key, label, category, cancellationToken);
-            applied = await ApplyToOthersAsync(transaction, rule.Scope, rule.Key, category, cancellationToken);
+            // Remembering from a private account keeps the rule private, so its label never reaches other members.
+            var ownerId = transaction.Account?.OwnerId;
+            await RememberAsync(rule.Scope, rule.Key, label, category, ownerId, cancellationToken);
+            applied = await ApplyToOthersAsync(transaction, rule.Scope, rule.Key, category, ownerId, cancellationToken);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -100,15 +102,15 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
             : null;
     }
 
-    private async Task RememberAsync(CategoryRuleScope scope, string key, string label, Category category, CancellationToken cancellationToken)
+    private async Task RememberAsync(CategoryRuleScope scope, string key, string label, Category category, Guid? ownerId, CancellationToken cancellationToken)
     {
         var spaceId = currentUser.ActiveSpaceId!.Value;
         var existing = await dbContext.CategoryRules.FirstOrDefaultAsync(
-            item => item.SpaceId == spaceId && item.Scope == scope && item.Key == key,
+            item => item.SpaceId == spaceId && item.OwnerId == ownerId && item.Scope == scope && item.Key == key,
             cancellationToken);
         if (existing is null)
         {
-            dbContext.CategoryRules.Add(CategoryRule.CreateFromCorrection(scope, key, label, category, spaceId));
+            dbContext.CategoryRules.Add(CategoryRule.CreateFromCorrection(scope, key, label, category, spaceId, ownerId));
             return;
         }
 
@@ -116,19 +118,28 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
         existing.Label = label;
     }
 
-    private async Task<int> ApplyToOthersAsync(Transaction corrected, CategoryRuleScope scope, string key, Category category, CancellationToken cancellationToken)
+    private async Task<int> ApplyToOthersAsync(
+        Transaction corrected,
+        CategoryRuleScope scope,
+        string key,
+        Category category,
+        Guid? ownerId,
+        CancellationToken cancellationToken)
     {
+        // A private rule only categorizes the owner's private accounts.
+        var candidates = dbContext.GetVisibleTransactions(currentUser)
+            .Where(item => ownerId == null || item.Account != null && item.Account.OwnerId == ownerId);
         var others = scope switch
         {
-            CategoryRuleScope.Counterparty => await dbContext.GetVisibleTransactions(currentUser)
+            CategoryRuleScope.Counterparty => await candidates
                 .Where(item => item.SpaceId == corrected.SpaceId && item.Id != corrected.Id && item.CounterpartyKey == key)
                 .ToListAsync(cancellationToken),
-            CategoryRuleScope.Merchant => (await dbContext.GetVisibleTransactions(currentUser)
+            CategoryRuleScope.Merchant => (await candidates
                     .Where(item => item.SpaceId == corrected.SpaceId && item.Id != corrected.Id && item.CounterpartyKey == null && item.IsMerchantPayment && item.Counterparty != null)
                     .ToListAsync(cancellationToken))
                 .Where(item => CategoryRuleKeys.For(null, item.Counterparty, isMerchantPayment: true)?.Key == key)
                 .ToList(),
-            _ => (await dbContext.GetVisibleTransactions(currentUser)
+            _ => (await candidates
                     .Where(item => item.SpaceId == corrected.SpaceId && item.Id != corrected.Id && item.Purpose != null)
                     .ToListAsync(cancellationToken))
                 .Where(item => PurposeKeywords.Contains(item.Purpose, key))

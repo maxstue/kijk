@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
@@ -14,7 +15,7 @@ public sealed class DeleteCategoryRuleHandler(IAppDbContext dbContext, CurrentUs
     /// <returns><see langword="true" />, or a not-found error.</returns>
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var rule = await dbContext.CategoryRules
+        var rule = await dbContext.GetVisibleRules(currentUser)
             .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (rule is null)
         {

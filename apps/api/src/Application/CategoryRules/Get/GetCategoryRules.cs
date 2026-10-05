@@ -1,4 +1,5 @@
 using Kijk.Application.CategoryRules.Shared;
+using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
@@ -14,7 +15,7 @@ public sealed class GetCategoryRulesHandler(IAppDbContext dbContext, CurrentUser
     /// <returns>The rules.</returns>
     public async Task<Result<List<CategoryRuleResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var rules = await dbContext.CategoryRules
+        var rules = await dbContext.GetVisibleRules(currentUser)
             .Include(item => item.Category)
             .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
             .OrderBy(item => item.Label)

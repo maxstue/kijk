@@ -154,7 +154,7 @@ public sealed class ImportJobProcessor(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var corrections = await LoadManualCorrectionsAsync(job, cancellationToken);
-        var rules = await LoadRulesAsync(job.SpaceId, cancellationToken);
+        var rules = await LoadRulesAsync(job, cancellationToken);
         var minimizeData = await dbContext.Spaces
             .Where(item => item.Id == job.SpaceId)
             .Select(item => item.MinimizeData)
@@ -340,11 +340,17 @@ public sealed class ImportJobProcessor(
         return corrections.GroupBy(item => item.BookingKey).ToDictionary(group => group.Key, group => group.First().CategoryId);
     }
 
-    private async Task<RuleSet> LoadRulesAsync(Guid spaceId, CancellationToken cancellationToken)
+    private async Task<RuleSet> LoadRulesAsync(ImportJob job, CancellationToken cancellationToken)
     {
+        // Imports into a private account also use the owner's private rules; those win over the space's rules.
+        var accountOwnerId = await dbContext.Accounts
+            .Where(item => item.Id == job.AccountId)
+            .Select(item => item.OwnerId)
+            .FirstOrDefaultAsync(cancellationToken);
         var rules = await dbContext.CategoryRules
-            .Where(item => item.SpaceId == spaceId)
-            .OrderBy(item => item.Priority)
+            .Where(item => item.SpaceId == job.SpaceId && (item.OwnerId == null || accountOwnerId != null && item.OwnerId == accountOwnerId))
+            .OrderBy(item => item.OwnerId != null)
+            .ThenBy(item => item.Priority)
             .ThenBy(item => item.CreatedAt)
             .Select(item => new { item.Scope, item.Key, item.CategoryId })
             .ToListAsync(cancellationToken);

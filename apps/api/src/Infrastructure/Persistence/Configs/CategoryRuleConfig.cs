@@ -11,7 +11,20 @@ public class CategoryRuleConfig : IEntityTypeConfiguration<CategoryRule>
     public void Configure(EntityTypeBuilder<CategoryRule> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.SpaceId, x.Scope, x.Key }).IsUnique();
+        // One rule per key for the space and one per key for each member's private rules.
+        builder.HasIndex(x => new { x.SpaceId, x.Scope, x.Key })
+            .HasDatabaseName("ix_category_rules_space_id_scope_key")
+            .HasFilter("owner_id IS NULL")
+            .IsUnique();
+        builder.HasIndex(x => new { x.SpaceId, x.OwnerId, x.Scope, x.Key })
+            .HasDatabaseName("ix_category_rules_space_id_owner_id_scope_key")
+            .HasFilter("owner_id IS NOT NULL")
+            .IsUnique();
+        builder.Ignore(x => x.Visibility);
+        builder.HasOne(x => x.Owner)
+            .WithMany()
+            .HasForeignKey(x => x.OwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
         builder.Property(x => x.Key).HasMaxLength(200);
         builder.Property(x => x.Label).HasMaxLength(200);
 

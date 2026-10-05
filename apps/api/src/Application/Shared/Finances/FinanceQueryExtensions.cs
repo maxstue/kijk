@@ -54,6 +54,16 @@ public static class FinanceQueryExtensions
                                               && (budget.OwnerId == null || budget.OwnerId == currentUser.Id));
 
         /// <summary>
+        /// Returns the category rules of the active space the current member may see: shared ones and their own
+        /// private ones.
+        /// </summary>
+        /// <param name="currentUser">The current authenticated user.</param>
+        /// <returns>A query containing the visible rules.</returns>
+        public IQueryable<CategoryRule> GetVisibleRules(CurrentUser currentUser) =>
+            dbContext.CategoryRules.Where(rule => rule.SpaceId == currentUser.ActiveSpaceId
+                                                  && (rule.OwnerId == null || rule.OwnerId == currentUser.Id));
+
+        /// <summary>
         /// Returns the imports of the active space the current member may see; imports inherit the visibility of
         /// their account.
         /// </summary>
