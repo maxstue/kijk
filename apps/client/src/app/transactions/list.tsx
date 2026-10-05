@@ -29,9 +29,9 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { TransactionForm } from '@/app/transactions/form';
-import { withCategory } from '@/app/transactions/helpers';
+import { RememberDialog } from '@/app/transactions/remember-dialog';
 import { noneValue } from '@/app/transactions/schemas';
-import { useDeleteTransaction, useUpdateTransaction } from '@/app/transactions/use-transaction-mutations';
+import { useCategorizeTransaction, useDeleteTransaction } from '@/app/transactions/use-transaction-mutations';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { transactionsQueryOptions } from '@/shared/api/transactions/options';
@@ -113,34 +113,56 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
 
 function CategorySelect({ disabled, transaction }: { disabled: boolean; transaction: Transaction }) {
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
-  const updateMutation = useUpdateTransaction();
+  const categorizeMutation = useCategorizeTransaction();
+  const [rememberTarget, setRememberTarget] = useState<{ categoryId: string; transaction: Transaction }>();
 
   function onChange(value: string) {
     const categoryId = value === noneValue ? null : value;
-    updateMutation.mutate(
-      { id: transaction.id, transaction: withCategory(transaction, categoryId) },
-      { onError: (error) => toast.error(error.name, { description: error.message }) },
+    categorizeMutation.mutate(
+      { correction: { categoryId, remember: false }, id: transaction.id },
+      {
+        onError: (error) => toast.error(error.name, { description: error.message }),
+        onSuccess: ({ transaction: updated }) => {
+          if (!categoryId || (!updated.rememberScope && updated.rememberKeywords.length === 0)) {
+            return;
+          }
+          toast.success('Only this transaction was changed', {
+            action: { label: 'Remember…', onClick: () => setRememberTarget({ categoryId, transaction: updated }) },
+          });
+        },
+      },
     );
   }
 
+  const rememberCategoryName = categories.find((category) => category.id === rememberTarget?.categoryId)?.name ?? '';
   return (
-    <Select
-      disabled={disabled || updateMutation.isPending}
-      value={transaction.categoryId ?? noneValue}
-      onValueChange={onChange}
-    >
-      <SelectTrigger aria-label='Category' className='w-44' size='sm'>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={noneValue}>Uncategorized</SelectItem>
-        {categories.map((category) => (
-          <SelectItem key={category.id} value={category.id}>
-            {category.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <>
+      {rememberTarget && (
+        <RememberDialog
+          categoryId={rememberTarget.categoryId}
+          categoryName={rememberCategoryName}
+          transaction={rememberTarget.transaction}
+          onClose={() => setRememberTarget(undefined)}
+        />
+      )}
+      <Select
+        disabled={disabled || categorizeMutation.isPending}
+        value={transaction.categoryId ?? noneValue}
+        onValueChange={onChange}
+      >
+        <SelectTrigger aria-label='Category' className='w-44' size='sm'>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={noneValue}>Uncategorized</SelectItem>
+          {categories.map((category) => (
+            <SelectItem key={category.id} value={category.id}>
+              {category.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
   );
 }
 

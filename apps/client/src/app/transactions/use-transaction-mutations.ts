@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/api/query-keys';
 import {
+  categorizeTransactionMutationOptions,
   createTransactionMutationOptions,
   deleteTransactionMutationOptions,
   updateTransactionMutationOptions,
@@ -33,4 +34,10 @@ export function useUpdateTransaction() {
 export function useDeleteTransaction() {
   const invalidate = useInvalidateFinances();
   return useMutation({ ...deleteTransactionMutationOptions(), onSuccess: invalidate });
+}
+
+/** Corrects the category of a transaction and refreshes transactions and budget evaluations. */
+export function useCategorizeTransaction() {
+  const invalidate = useInvalidateFinances();
+  return useMutation({ ...categorizeTransactionMutationOptions(), onSuccess: invalidate });
 }

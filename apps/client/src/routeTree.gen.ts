@@ -26,6 +26,8 @@ import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppTransactionsRouteImport } from './routes/_authenticated/_app/transactions'
 import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
 import { Route as AuthenticatedAppConsumptionsConsumptionIdRouteImport } from './routes/_authenticated/_app/consumptions.$consumptionId'
+import { Route as AuthenticatedAppImportsIndexRouteImport } from './routes/_authenticated/_app/imports.index'
+import { Route as AuthenticatedAppImportsImportIdRouteImport } from './routes/_authenticated/_app/imports.$importId'
 import { Route as AuthenticatedAppResourcesResourceIdRouteImport } from './routes/_authenticated/_app/resources.$resourceId'
 import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings.$section'
 import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdRouteImport } from './routes/_authenticated/_app/settings.households.$householdId'
@@ -124,6 +126,18 @@ const AuthenticatedAppConsumptionsConsumptionIdRoute =
     path: '/$consumptionId',
     getParentRoute: () => AuthenticatedAppConsumptionsRoute,
   } as any)
+const AuthenticatedAppImportsIndexRoute =
+  AuthenticatedAppImportsIndexRouteImport.update({
+    id: '/imports/',
+    path: '/imports/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppImportsImportIdRoute =
+  AuthenticatedAppImportsImportIdRouteImport.update({
+    id: '/imports/$importId',
+    path: '/imports/$importId',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
 const AuthenticatedAppResourcesResourceIdRoute =
   AuthenticatedAppResourcesResourceIdRouteImport.update({
     id: '/$resourceId',
@@ -182,8 +196,10 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof AuthenticatedAppTransactionsRoute
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/imports/$importId': typeof AuthenticatedAppImportsImportIdRoute
   '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
+  '/imports/': typeof AuthenticatedAppImportsIndexRoute
   '/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
   '/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
   '/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
@@ -205,8 +221,10 @@ export interface FileRoutesByTo {
   '/transactions': typeof AuthenticatedAppTransactionsRoute
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/imports/$importId': typeof AuthenticatedAppImportsImportIdRoute
   '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
+  '/imports': typeof AuthenticatedAppImportsIndexRoute
   '/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
   '/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
   '/settings/households/$householdId/units': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
@@ -231,8 +249,10 @@ export interface FileRoutesById {
   '/_authenticated/_app/transactions': typeof AuthenticatedAppTransactionsRoute
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/_authenticated/_app/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/_authenticated/_app/imports/$importId': typeof AuthenticatedAppImportsImportIdRoute
   '/_authenticated/_app/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
+  '/_authenticated/_app/imports/': typeof AuthenticatedAppImportsIndexRoute
   '/_authenticated/_app/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
   '/_authenticated/_app/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
   '/_authenticated/_app/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
@@ -256,8 +276,10 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/welcome'
     | '/consumptions/$consumptionId'
+    | '/imports/$importId'
     | '/resources/$resourceId'
     | '/settings/$section'
+    | '/imports/'
     | '/settings/households/$householdId'
     | '/settings/households/$householdId/general'
     | '/settings/households/$householdId/members'
@@ -279,8 +301,10 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/welcome'
     | '/consumptions/$consumptionId'
+    | '/imports/$importId'
     | '/resources/$resourceId'
     | '/settings/$section'
+    | '/imports'
     | '/settings/households/$householdId/general'
     | '/settings/households/$householdId/members'
     | '/settings/households/$householdId/units'
@@ -304,8 +328,10 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/transactions'
     | '/_authenticated/_onboarding/welcome'
     | '/_authenticated/_app/consumptions/$consumptionId'
+    | '/_authenticated/_app/imports/$importId'
     | '/_authenticated/_app/resources/$resourceId'
     | '/_authenticated/_app/settings/$section'
+    | '/_authenticated/_app/imports/'
     | '/_authenticated/_app/settings/households/$householdId'
     | '/_authenticated/_app/settings/households/$householdId/general'
     | '/_authenticated/_app/settings/households/$householdId/members'
@@ -443,6 +469,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppConsumptionsConsumptionIdRouteImport
       parentRoute: typeof AuthenticatedAppConsumptionsRoute
     }
+    '/_authenticated/_app/imports/': {
+      id: '/_authenticated/_app/imports/'
+      path: '/imports'
+      fullPath: '/imports/'
+      preLoaderRoute: typeof AuthenticatedAppImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/imports/$importId': {
+      id: '/_authenticated/_app/imports/$importId'
+      path: '/imports/$importId'
+      fullPath: '/imports/$importId'
+      preLoaderRoute: typeof AuthenticatedAppImportsImportIdRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/_authenticated/_app/resources/$resourceId': {
       id: '/_authenticated/_app/resources/$resourceId'
       path: '/$resourceId'
@@ -574,6 +614,8 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppResourcesRoute: typeof AuthenticatedAppResourcesRouteWithChildren
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
   AuthenticatedAppTransactionsRoute: typeof AuthenticatedAppTransactionsRoute
+  AuthenticatedAppImportsImportIdRoute: typeof AuthenticatedAppImportsImportIdRoute
+  AuthenticatedAppImportsIndexRoute: typeof AuthenticatedAppImportsIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
@@ -586,6 +628,8 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppResourcesRoute: AuthenticatedAppResourcesRouteWithChildren,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
   AuthenticatedAppTransactionsRoute: AuthenticatedAppTransactionsRoute,
+  AuthenticatedAppImportsImportIdRoute: AuthenticatedAppImportsImportIdRoute,
+  AuthenticatedAppImportsIndexRoute: AuthenticatedAppImportsIndexRoute,
 }
 
 const AuthenticatedAppRouteRouteWithChildren =

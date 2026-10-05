@@ -21,3 +21,12 @@ export interface TransactionFilters {
   uncategorized?: boolean;
   year?: number;
 }
+
+/** Payload for correcting the category of a transaction. */
+export type CategorizeTransactionRequest = components['schemas']['CategorizeTransactionRequest'];
+
+/** Variables of the categorize mutation. */
+export interface CategorizeTransactionData {
+  id: string;
+  correction: CategorizeTransactionRequest;
+}

@@ -1,7 +1,12 @@
 import { apiClient } from '@/shared/lib/api-client';
 import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
-import type { CreateTransactionRequest, TransactionFilters, UpdateTransactionData } from './types';
+import type {
+  CategorizeTransactionData,
+  CreateTransactionRequest,
+  TransactionFilters,
+  UpdateTransactionData,
+} from './types';
 
 /** Loads the transactions of the active household, newest first. */
 export async function getTransactions(filters: TransactionFilters, signal?: AbortSignal) {
@@ -27,4 +32,14 @@ export async function updateTransaction(data: UpdateTransactionData, signal?: Ab
 /** Deletes a transaction. */
 export async function deleteTransaction(id: string, signal?: AbortSignal) {
   return ensureApiSuccess(await apiClient.DELETE('/api/transactions/{id}', { params: { path: { id } }, signal }));
+}
+
+/** Corrects the category, optionally remembering it for the merchant or counterparty. */
+export async function categorizeTransaction(data: CategorizeTransactionData) {
+  return unwrapApiResponse(
+    await apiClient.PUT('/api/transactions/{id}/category', {
+      body: data.correction,
+      params: { path: { id: data.id } },
+    }),
+  );
 }

@@ -2,8 +2,19 @@ import { keepPreviousData, mutationOptions, queryOptions } from '@tanstack/react
 
 import { queryKeys } from '@/shared/api/query-keys';
 
-import { createTransaction, deleteTransaction, getTransactions, updateTransaction } from './requests';
-import type { CreateTransactionRequest, TransactionFilters, UpdateTransactionData } from './types';
+import {
+  categorizeTransaction,
+  createTransaction,
+  deleteTransaction,
+  getTransactions,
+  updateTransaction,
+} from './requests';
+import type {
+  CategorizeTransactionData,
+  CreateTransactionRequest,
+  TransactionFilters,
+  UpdateTransactionData,
+} from './types';
 
 /** Query for the transactions matching the filters. */
 export const transactionsQueryOptions = (filters: TransactionFilters) =>
@@ -29,4 +40,10 @@ export const updateTransactionMutationOptions = () =>
 export const deleteTransactionMutationOptions = () =>
   mutationOptions({
     mutationFn: (id: string) => deleteTransaction(id),
+  });
+
+/** Mutation that corrects the category of a transaction. */
+export const categorizeTransactionMutationOptions = () =>
+  mutationOptions({
+    mutationFn: (data: CategorizeTransactionData) => categorizeTransaction(data),
   });

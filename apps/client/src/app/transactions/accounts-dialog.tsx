@@ -58,15 +58,19 @@ export function AccountsDialog() {
                   {account.name}
                   {account.ibanLast4 && <span className='text-muted-foreground'> …{account.ibanLast4}</span>}
                 </span>
-                <Button
-                  aria-label={`Delete ${account.name}`}
-                  disabled={!canConfigure || deleteMutation.isPending}
-                  size='icon-sm'
-                  variant='ghost'
-                  onClick={() => onDelete(account.id)}
-                >
-                  <Trash2 />
-                </Button>
+                {account.kind === 'Cash' ? (
+                  <span className='text-muted-foreground text-xs'>For manual transactions; never imported</span>
+                ) : (
+                  <Button
+                    aria-label={`Delete ${account.name}`}
+                    disabled={!canConfigure || deleteMutation.isPending}
+                    size='icon-sm'
+                    variant='ghost'
+                    onClick={() => onDelete(account.id)}
+                  >
+                    <Trash2 />
+                  </Button>
+                )}
               </li>
             ))}
           </ul>

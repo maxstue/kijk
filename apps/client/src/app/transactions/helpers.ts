@@ -52,17 +52,3 @@ export function toRequest(values: TransactionFormValues): CreateTransactionReque
     status: values.pending ? 'Pending' : 'Booked',
   };
 }
-
-/** Request payload that only changes the category of a transaction and keeps everything else. */
-export function withCategory(transaction: Transaction, categoryId: string | null): CreateTransactionRequest {
-  return {
-    accountId: transaction.accountId ?? null,
-    amount: transaction.amount,
-    bookingDate: transaction.bookingDate,
-    categoryId,
-    counterparty: transaction.counterparty ?? null,
-    isTransfer: transaction.isTransfer,
-    purpose: transaction.purpose ?? null,
-    status: transaction.status,
-  };
-}

@@ -497,6 +497,92 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/category-rules': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the remembered category corrections of the active household */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CategoryRuleResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/category-rules/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Deletes a remembered category correction */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/consumption-limits': {
     parameters: {
       query?: never;
@@ -1167,6 +1253,463 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/imports': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the latest imports of the active household */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportJobResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    /** Uploads a bank export and starts its import */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            /** Format: uuid */
+            accountId: string;
+          } & {
+            file: components['schemas']['IFormFile'];
+          };
+        };
+      };
+      responses: {
+        /** Accepted */
+        202: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportJobResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets an import by id */
+    get: operations['GetImportById'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/preview': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the first rows of an uploaded file for the column mapping */
+    get: {
+      parameters: {
+        query?: {
+          delimiter?: string;
+          encoding?: string;
+          headerRowIndex?: number | string;
+        };
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportPreviewResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/candidates': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the rows of an import waiting for review */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportCandidateResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/mapping': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Confirms the column mapping and starts reading the file */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CsvImportMapping'];
+        };
+      };
+      responses: {
+        /** Accepted */
+        202: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportJobResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/candidates/{candidateId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Changes the category or exclusion of a row during the review */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+          candidateId: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateImportCandidateRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportCandidateResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/commit': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Replaces the account's transactions in the covered months with the reviewed rows */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CommitImportRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportJobResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/cancel': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Cancels an open import and deletes its file */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportJobResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/settings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the import settings of the active household */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportSettingsResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    /** Changes the import settings of the active household */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateImportSettingsRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportSettingsResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/resources': {
     parameters: {
       query?: never;
@@ -1468,6 +2011,55 @@ export interface paths {
         500: components['responses']['500'];
       };
     };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/transactions/{id}/category': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Corrects the category of a transaction, optionally remembering it for the merchant or counterparty */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CategorizeTransactionRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CategorizeTransactionResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -2016,6 +2608,12 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /**
+     * Represents the kind of a household account.
+     *
+     * @enum {unknown}
+     */
+    AccountKind: 'Bank' | 'Cash';
     /** A bank account of the household. */
     AccountResponse: {
       /**
@@ -2028,6 +2626,8 @@ export interface components {
       name: string;
       /** The last four characters of the IBAN, if known. */
       ibanLast4: null | string;
+      /** Whether it is a bank account or the cash account. */
+      kind: components['schemas']['AccountKind'];
     };
     /** @enum {unknown} */
     AnalyticsConsent: 'Accepted' | 'Declined' | null;
@@ -2168,6 +2768,36 @@ export interface components {
       /** Whether the budget is evaluated. */
       active: boolean;
     };
+    /** Request for correcting the category of a transaction. */
+    CategorizeTransactionRequest: {
+      /**
+       * Format: uuid
+       *
+       * The category, or `null` to mark the transaction as uncategorized.
+       */
+      categoryId: null | string;
+      /**
+       * `false` corrects only this transaction. `true` also remembers the category for this merchant or counterparty,
+       * applies it to its other automatically categorized transactions and to future imports.
+       */
+      remember: boolean;
+      /**
+       * With Remember: remembers the category for all bookings whose purpose contains this word (one of
+       * IReadOnlyList&lt;string&gt; TransactionResponse.RememberKeywords) instead of for the merchant or counterparty.
+       */
+      keyword?: null | string;
+    };
+    /** The corrected transaction. */
+    CategorizeTransactionResponse: {
+      /** The transaction. */
+      transaction: components['schemas']['TransactionResponse'];
+      /**
+       * Format: int32
+       *
+       * The number of other transactions that got the remembered category.
+       */
+      appliedToOthers: number | string;
+    };
     /**
      * Represents whether a category groups expenses or income.
      *
@@ -2193,6 +2823,39 @@ export interface components {
       /** Whether it is a system or a custom category. */
       creatorType: components['schemas']['CreatorType'];
     };
+    /** A remembered category correction. */
+    CategoryRuleResponse: {
+      /**
+       * Format: uuid
+       *
+       * The rule id.
+       */
+      id: string;
+      /** What the rule matches on. */
+      scope: components['schemas']['CategoryRuleScope'];
+      /** The counterparty name shown when the rule was created. */
+      label: string;
+      /**
+       * Format: uuid
+       *
+       * The assigned category.
+       */
+      categoryId: string;
+      /** The assigned category's name. */
+      categoryName: string;
+      /**
+       * Format: date-time
+       *
+       * When the rule was created.
+       */
+      createdAt: string;
+    };
+    /**
+     * Represents what a category rule matches on.
+     *
+     * @enum {unknown}
+     */
+    CategoryRuleScope: 'Merchant' | 'Counterparty' | 'Keyword';
     /** @enum {unknown} */
     CategorySource: 'Rule' | 'Similarity' | 'Ai' | 'Manual' | null;
     /** Contains the new role of a household member. */
@@ -2203,6 +2866,13 @@ export interface components {
        * The identifier of the new role.
        */
       roleId: string;
+    };
+    /** Request for committing an import. */
+    CommitImportRequest: {
+      /** Edge months the file covers completely and that should be replaced too. */
+      includedEdgeMonths: string[];
+      /** Confirms committing although many rows could not be parsed. */
+      acceptErrors: boolean;
     };
     /** The resource governed by a consumption limit. */
     ConsumptionLimitResourceResponse: {
@@ -2528,6 +3198,100 @@ export interface components {
      * @enum {unknown}
      */
     CreatorType: 'System' | 'User';
+    /**
+     * Describes how the columns of a bank export map to transaction fields. Only declarative options, never code.
+     * Column indexes are 0-based.
+     */
+    CsvImportMapping: {
+      /** The field delimiter, one character. */
+      delimiter: string;
+      /** The text encoding: `utf-8` or `windows-1252`. */
+      encoding: string;
+      /**
+       * Format: int32
+       *
+       * The 0-based index of the header among the non-empty records; records above it are metadata and ignored.
+       */
+      headerRowIndex: number | string;
+      /**
+       * Format: int32
+       *
+       * The booking date column.
+       */
+      dateColumn: number | string;
+      /** The date format, one of IReadOnlyList&lt;string&gt; CsvImportMapping.DateFormats. */
+      dateFormat: string;
+      /**
+       * Format: int32
+       *
+       * The signed amount column; alternatively use debit and credit columns.
+       */
+      amountColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * The column with outgoing amounts, if the export splits them.
+       */
+      debitColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * The column with incoming amounts, if the export splits them.
+       */
+      creditColumn: null | number | string;
+      /** The decimal separator: `,` or `.`. */
+      decimalSeparator: string;
+      /**
+       * Format: int32
+       *
+       * The payee, or the counterparty of all bookings.
+       */
+      counterpartyColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * The payer, used for incoming payments when the export has separate columns.
+       */
+      payerColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * The purpose column.
+       */
+      purposeColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * The counterparty IBAN column.
+       */
+      counterpartyIbanColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * The SEPA creditor id column.
+       */
+      creditorIdColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * A unique booking id of the bank, if the export has one.
+       */
+      bankReferenceColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * A column that marks pending bookings.
+       */
+      statusColumn: null | number | string;
+      /**
+       * Format: int32
+       *
+       * The booking type, e.g. "Lastschrift" or "Überweisung"; marks card payments and direct debits.
+       */
+      bookingTypeColumn?: null | number | string;
+      /** Gets all mapped column indexes. */
+      mappedColumns?: null | (number | string)[];
+    };
     /** Represents the current account while preventing invalid account-state combinations. */
     CurrentUserResponse: {
       /** Gets the current account state. */
@@ -2621,6 +3385,170 @@ export interface components {
         [key: string]: string[];
       };
     };
+    /** Format: binary */
+    IFormFile: string;
+    /** A row of an import waiting for review. */
+    ImportCandidateResponse: {
+      /**
+       * Format: uuid
+       *
+       * The candidate id.
+       */
+      id: string;
+      /**
+       * Format: int32
+       *
+       * The record number in the file.
+       */
+      rowNumber: number | string;
+      /**
+       * Format: date
+       *
+       * The booking date, if valid.
+       */
+      bookingDate: null | string;
+      /**
+       * Format: double
+       *
+       * The signed amount, if valid.
+       */
+      amount: null | number | string;
+      /** The counterparty. */
+      counterparty: null | string;
+      /** The cleaned purpose. */
+      purpose: null | string;
+      /** Whether the booking is booked or pending. */
+      status: components['schemas']['TransactionStatus'];
+      /**
+       * Format: uuid
+       *
+       * The proposed or chosen category.
+       */
+      categoryId: null | string;
+      categorySource: null | components['schemas']['CategorySource'];
+      /** Why the row could not be parsed. */
+      errors: null | string;
+      /** Whether the row will not be imported. */
+      excluded: boolean;
+    };
+    /** The state of an import. */
+    ImportJobResponse: {
+      /**
+       * Format: uuid
+       *
+       * The import id.
+       */
+      id: string;
+      /** The processing state. */
+      status: components['schemas']['ImportJobStatus'];
+      /** The uploaded file name. */
+      fileName: string;
+      /**
+       * Format: uuid
+       *
+       * The bank account.
+       */
+      accountId: string;
+      /** The bank account name. */
+      accountName: string;
+      /**
+       * Format: int32
+       *
+       * The number of data rows.
+       */
+      rowCount: number | string;
+      /**
+       * Format: int32
+       *
+       * The number of rows read so far.
+       */
+      processedRows: number | string;
+      /**
+       * Format: int32
+       *
+       * The number of rows that could not be parsed.
+       */
+      errorCount: number | string;
+      /**
+       * Format: int32
+       *
+       * The number of transactions created by the commit.
+       */
+      importedCount: number | string;
+      /** Whether committing needs an explicit confirmation because too many rows failed. */
+      hasHighErrorRate: boolean;
+      /** Why the import failed, without file content. */
+      error: null | string;
+      proposedMapping: null | components['schemas']['CsvImportMapping'];
+      proposedMappingSource: null | components['schemas']['MappingSource'];
+      /** Whether the AI format detection could not be reached, so a weaker proposal is shown. */
+      aiUnavailable: boolean;
+      mapping: null | components['schemas']['CsvImportMapping'];
+      /** Months the file covers completely; committing replaces them. */
+      fullMonths: string[];
+      /** The first and last month, which the file may cover only partly. */
+      edgeMonths: string[];
+      /** Months replaced by the commit. */
+      replacedMonths: string[];
+      /** Edge months the user did not import. */
+      skippedMonths: string[];
+      /**
+       * Format: date-time
+       *
+       * When the file was uploaded.
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       *
+       * When the import was committed, cancelled or failed.
+       */
+      completedAt: null | string;
+    };
+    /**
+     * Represents the processing state of a CSV import.
+     *
+     * @enum {unknown}
+     */
+    ImportJobStatus:
+      | 'Pending'
+      | 'Analyzing'
+      | 'NeedsMapping'
+      | 'Reading'
+      | 'NeedsReview'
+      | 'Done'
+      | 'Failed'
+      | 'Cancelled';
+    /** The first rows of an uploaded file, for choosing the column mapping. */
+    ImportPreviewResponse: {
+      /** The encoding used to decode the file. */
+      encoding: string;
+      /** The delimiter used to split it. */
+      delimiter: string;
+      /**
+       * Format: int32
+       *
+       * The index of the header among the non-empty records.
+       */
+      headerRowIndex: number | string;
+      /** The header fields. */
+      headers: string[];
+      /** The first data rows. */
+      rows: string[][];
+      /**
+       * Format: int32
+       *
+       * The number of non-empty records in the file.
+       */
+      recordCount: number | string;
+    };
+    /** The import settings of the active household. */
+    ImportSettingsResponse: {
+      /** How much of the purpose text imported transactions keep. */
+      purposeRetention: components['schemas']['PurposeRetention'];
+    };
+    /** @enum {unknown} */
+    MappingSource: 'Profile' | 'Suggestion' | 'Ai' | null;
     /**
      * Represents a period of time.
      *
@@ -2653,6 +3581,12 @@ export interface components {
       detail?: null | string;
       instance?: null | string;
     };
+    /**
+     * Represents how much of the purpose text a household keeps after an import.
+     *
+     * @enum {unknown}
+     */
+    PurposeRetention: 'Keep' | 'Truncate' | 'Remove';
     /** A resource that consumptions can be recorded for. */
     ResourceResponse: {
       /**
@@ -2729,6 +3663,9 @@ export interface components {
       /** The category name, if categorized. */
       categoryName: null | string;
       categorySource: null | components['schemas']['CategorySource'];
+      rememberScope: null | components['schemas']['CategoryRuleScope'];
+      /** Words of the purpose that a correction can be remembered for instead. */
+      rememberKeywords: string[];
     };
     /**
      * Represents the booking status of a transaction.
@@ -2852,6 +3789,22 @@ export interface components {
       name: string;
       /** An optional household description. */
       description: null | string;
+    };
+    /** Request for changing a row during the review. */
+    UpdateImportCandidateRequest: {
+      /**
+       * Format: uuid
+       *
+       * The category, or `null` to leave the row uncategorized.
+       */
+      categoryId: null | string;
+      /** Whether the row is not imported. */
+      excluded: boolean;
+    };
+    /** Request for changing the import settings of the active household. */
+    UpdateImportSettingsRequest: {
+      /** How much of the purpose text imported transactions keep. */
+      purposeRetention: components['schemas']['PurposeRetention'];
     };
     /** Request to update one or more properties of a custom resource. */
     UpdateResourceRequest: {
@@ -3136,6 +4089,35 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ConsumptionResponse'];
+        };
+      };
+      400: components['responses']['400'];
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      404: components['responses']['404'];
+      409: components['responses']['409'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  GetImportById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportJobResponse'];
         };
       };
       400: components['responses']['400'];

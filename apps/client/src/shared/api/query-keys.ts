@@ -1,3 +1,4 @@
+import type { ImportPreviewParams } from '@/shared/api/imports/types';
 import type { TransactionFilters } from '@/shared/api/transactions/types';
 
 const users = {
@@ -52,6 +53,20 @@ const transactions = {
   list: (filters: TransactionFilters) => [...transactions.all, 'list', filters] as const,
 };
 
+const imports = {
+  all: ['imports'] as const,
+  candidates: (id: string) => [...imports.all, 'candidates', id] as const,
+  detail: (id: string) => [...imports.all, 'detail', id] as const,
+  list: () => [...imports.all, 'list'] as const,
+  preview: (id: string, params: ImportPreviewParams) => [...imports.all, 'preview', id, params] as const,
+  settings: () => [...imports.all, 'settings'] as const,
+};
+
+const categoryRules = {
+  all: ['category-rules'] as const,
+  list: () => [...categoryRules.all, 'list'] as const,
+};
+
 const units = {
   all: ['units'] as const,
   list: (includeArchived = false) => [...units.all, 'list', includeArchived] as const,
@@ -70,9 +85,11 @@ export const queryKeys = {
   accounts,
   budgets,
   categories,
+  categoryRules,
   consumptionLimits,
   consumptions,
   households,
+  imports,
   resources,
   transactions,
   units,

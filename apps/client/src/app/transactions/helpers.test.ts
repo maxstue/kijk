@@ -36,6 +36,8 @@ describe('toFormValues', () => {
       id: '1',
       isTransfer: false,
       purpose: null,
+      rememberKeywords: [],
+      rememberScope: null,
       status: 'Pending',
     });
 

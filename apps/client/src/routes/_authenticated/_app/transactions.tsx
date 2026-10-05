@@ -9,15 +9,16 @@ import {
 } from '@kijk/ui/components/dialog';
 import { Separator } from '@kijk/ui/components/separator';
 import { Switch } from '@kijk/ui/components/switch';
-import { createFileRoute } from '@tanstack/react-router';
+import { Link, createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import { useId, useState } from 'react';
 import { z } from 'zod';
 
 import { AccountsDialog } from '@/app/transactions/accounts-dialog';
 import { TransactionForm } from '@/app/transactions/form';
 import { TransactionList } from '@/app/transactions/list';
+import { RulesDialog } from '@/app/transactions/rules-dialog';
 import { accountsQueryOptions } from '@/shared/api/accounts/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
@@ -77,6 +78,12 @@ function TransactionsPage() {
             onChange={(value) => navigate({ search: (previous) => ({ ...previous, ...value }) })}
           />
           <AccountsDialog />
+          <RulesDialog />
+          <Button asChild variant='outline'>
+            <Link to='/imports'>
+              <Upload /> Import CSV
+            </Link>
+          </Button>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
               <Button
