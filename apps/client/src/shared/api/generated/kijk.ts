@@ -3302,6 +3302,8 @@ export interface components {
        * When the rule was created.
        */
       createdAt: string;
+      /** Whether the rule applies to the whole space or only to the member's private accounts. */
+      visibility: components['schemas']['Visibility'];
     };
     /**
      * Represents what a category rule matches on.

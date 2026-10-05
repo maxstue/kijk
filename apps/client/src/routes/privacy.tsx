@@ -21,8 +21,9 @@ function PrivacyPolicy() {
           including to administrators of the space.
         </p>
         <p>
-          Category rules apply to the whole space. If you remember a category for a counterparty, its name is shown in
-          the space&apos;s list of remembered rules, also when the transaction itself is private.
+          Category rules you remember from a shared account apply to the whole space, and its members see the
+          counterparty&apos;s name in the list of remembered rules. Rules you remember from a private account stay
+          private: only you see them, and they only apply to your private accounts.
         </p>
       </section>
 

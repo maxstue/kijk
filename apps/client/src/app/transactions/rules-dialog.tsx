@@ -15,6 +15,7 @@ import { categoryRulesQueryOptions, deleteCategoryRuleMutationOptions } from '@/
 import type { CategoryRule } from '@/shared/api/category-rules/types';
 import { queryKeys } from '@/shared/api/query-keys';
 import { SpacePermissions } from '@/shared/api/spaces/permissions';
+import { PrivateBadge } from '@/shared/components/visibility-select';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const ruleScopeLabels: Record<CategoryRule['scope'], string> = {
@@ -67,6 +68,11 @@ export function RulesDialog() {
               <li key={rule.id} className='flex items-center justify-between gap-3 py-2'>
                 <span>
                   {rule.label || 'Unnamed'} <span className='text-muted-foreground'>→ {rule.categoryName}</span>
+                  {rule.visibility === 'Private' && (
+                    <span className='ml-2'>
+                      <PrivateBadge />
+                    </span>
+                  )}
                   <span className='text-muted-foreground block text-xs'>{ruleScopeLabels[rule.scope]}</span>
                 </span>
                 <Button
