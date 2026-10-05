@@ -41,6 +41,7 @@ const currentUser = {
     authId: 'e2e-mock-user',
     name: 'E2E User',
     email: 'e2e@example.test',
+    aiEnabled: true,
     analyticsConsent: 'Declined',
     analyticsConsentUpdatedAt: null,
     onboardingCompletedAt: '2026-01-01T00:00:00Z',

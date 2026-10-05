@@ -5,6 +5,7 @@ import type { ImportJobStatus } from '@/shared/api/imports/types';
 
 const variants: Record<ImportJobStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   Analyzing: 'secondary',
+  Categorizing: 'secondary',
   Cancelled: 'outline',
   Done: 'default',
   Failed: 'destructive',

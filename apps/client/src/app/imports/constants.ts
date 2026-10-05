@@ -1,4 +1,4 @@
-import type { CsvImportMapping, ImportJobStatus, PurposeRetention } from '@/shared/api/imports/types';
+import type { AiDataSharing, CsvImportMapping, ImportJobStatus, PurposeRetention } from '@/shared/api/imports/types';
 
 /** Mapping fields that point to a column, with the label shown in the column dropdown. */
 export const columnRoles = [
@@ -46,9 +46,16 @@ export const purposeRetentionLabels: Record<PurposeRetention, string> = {
   Truncate: 'Keep only the first 40 characters',
 };
 
+/** Labels of the AI data-sharing levels. */
+export const aiDataSharingLabels: Record<AiDataSharing, string> = {
+  Off: 'Off – only on request for a single import',
+  Strict: 'Strict – offer cleaned counterparty and purpose, no names',
+};
+
 /** Labels of the import states. */
 export const importStatusLabels: Record<ImportJobStatus, string> = {
   Analyzing: 'Detecting format',
+  Categorizing: 'Suggesting categories',
   Cancelled: 'Cancelled',
   Done: 'Imported',
   Failed: 'Failed',

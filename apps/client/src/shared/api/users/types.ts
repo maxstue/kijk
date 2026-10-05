@@ -14,6 +14,7 @@ export function isReadyCurrentUser(
 
 /** Changes to the user's settings. */
 export interface UpdateUserData {
+  aiEnabled?: boolean | null;
   analyticsConsent?: 'Accepted' | 'Declined' | null;
   householdName?: string | null;
   useDefaultResources?: boolean | null;

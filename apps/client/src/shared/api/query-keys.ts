@@ -57,6 +57,7 @@ const imports = {
   all: ['imports'] as const,
   candidates: (id: string) => [...imports.all, 'candidates', id] as const,
   detail: (id: string) => [...imports.all, 'detail', id] as const,
+  aiPreview: (id: string) => [...imports.all, 'ai-preview', id] as const,
   list: () => [...imports.all, 'list'] as const,
   preview: (id: string, params: ImportPreviewParams) => [...imports.all, 'preview', id, params] as const,
   settings: () => [...imports.all, 'settings'] as const,

@@ -43,14 +43,23 @@ function ImportStep({ job }: { job: ImportJob }) {
   }
 }
 
+const processingTitles: Partial<Record<ImportJob['status'], string>> = {
+  Categorizing: 'Suggesting categories',
+  Reading: 'Reading the file',
+};
+
 function ProcessingCard({ job }: { job: ImportJob }) {
   const rowCount = Number(job.rowCount);
   const processed = Number(job.processedRows);
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{job.status === 'Reading' ? 'Reading the file' : 'Detecting the format'}</CardTitle>
-        <CardDescription>This runs in the background; you can leave this page and come back later.</CardDescription>
+        <CardTitle>{processingTitles[job.status] ?? 'Detecting the format'}</CardTitle>
+        <CardDescription>
+          {job.status === 'Categorizing'
+            ? 'Cleaned transaction texts are sent to the AI provider. This runs in the background; the rows stay as they are if it fails.'
+            : 'This runs in the background; you can leave this page and come back later.'}
+        </CardDescription>
       </CardHeader>
       {job.status === 'Reading' && rowCount > 0 && (
         <CardContent className='space-y-2'>

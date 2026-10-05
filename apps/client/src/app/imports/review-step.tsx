@@ -1,4 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
+import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Checkbox } from '@kijk/ui/components/checkbox';
@@ -8,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { TriangleAlert } from 'lucide-react';
+import { CreditCard, Sparkles, TriangleAlert } from 'lucide-react';
 import { useId, useState } from 'react';
 import { toast } from 'sonner';
 
+import { ImportAiCategorization } from '@/app/imports/ai-preview';
 import { formatImportMonth } from '@/app/imports/helpers';
 import { useCancelImport, useCommitImport, useUpdateImportCandidate } from '@/app/imports/use-import-mutations';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
@@ -103,6 +105,8 @@ export function ImportReviewStep({ job }: { job: ImportJob }) {
           </AlertDescription>
         </Alert>
       )}
+      <CardSettlements candidates={valid} importId={job.id} />
+      <ImportAiCategorization job={job} />
       <CandidateTable candidates={valid} importId={job.id} months={months} />
       <div className='flex flex-wrap items-center justify-end gap-2'>
         <span className='text-muted-foreground text-sm'>{importedCount} transactions will be imported</span>
@@ -116,6 +120,67 @@ export function ImportReviewStep({ job }: { job: ImportJob }) {
           {commitMutation.isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Import'}
         </Button>
       </div>
+    </div>
+  );
+}
+
+/** Credit card statements found in the file; they count as offset only when the user confirms it per row. */
+function CardSettlements({ candidates, importId }: { candidates: ImportCandidate[]; importId: string }) {
+  const statements = candidates.filter((candidate) => candidate.isCardSettlement && !candidate.excluded);
+  if (statements.length === 0) {
+    return null;
+  }
+
+  return (
+    <Alert>
+      <CreditCard />
+      <AlertTitle>
+        {statements.length === 1
+          ? 'A credit card statement was found'
+          : `${statements.length} credit card statements were found`}
+      </AlertTitle>
+      <AlertDescription>
+        <p>
+          If you import the single purchases of the card separately, tick the statement so it only offsets them and is
+          not counted twice. Otherwise leave it unticked and it counts as an expense.
+        </p>
+        <div className='mt-3 space-y-2'>
+          {statements.map((statement) => (
+            <CardSettlementOption key={statement.id} candidate={statement} importId={importId} />
+          ))}
+        </div>
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+function CardSettlementOption({ candidate, importId }: { candidate: ImportCandidate; importId: string }) {
+  const updateMutation = useUpdateImportCandidate(importId);
+  const id = useId();
+
+  function onCheckedChange(checked: boolean) {
+    updateMutation.mutate(
+      {
+        candidate: { categoryId: candidate.categoryId ?? null, countsAsOffset: checked, excluded: candidate.excluded },
+        candidateId: candidate.id,
+        importId,
+      },
+      { onError: (error) => toast.error(error.name, { description: error.message }) },
+    );
+  }
+
+  return (
+    <div className='flex items-center gap-2'>
+      <Checkbox
+        checked={candidate.countsAsOffset}
+        disabled={updateMutation.isPending}
+        id={id}
+        onCheckedChange={(checked) => onCheckedChange(checked === true)}
+      />
+      <Label className='font-normal' htmlFor={id}>
+        {candidate.bookingDate} · {candidate.purpose ?? candidate.counterparty} ·{' '}
+        {formatStringToCurrency(candidate.amount ?? 0)} — purchases imported separately
+      </Label>
     </div>
   );
 }
@@ -153,7 +218,9 @@ function CandidateTable({
     <Card>
       <CardHeader>
         <CardTitle>Transactions</CardTitle>
-        <CardDescription>Categories come from your earlier corrections and remembered merchants.</CardDescription>
+        <CardDescription>
+          Categories come from your earlier corrections, remembered merchants and, if you allow it, the AI.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -227,6 +294,11 @@ function CandidateRow({
           <div className='text-muted-foreground max-w-80 truncate text-xs'>{candidate.purpose}</div>
         )}
         {candidate.status === 'Pending' && <div className='text-muted-foreground text-xs'>Pending</div>}
+        {candidate.isCardSettlement && (
+          <Badge className='mt-1' variant='outline'>
+            {candidate.countsAsOffset ? 'Card statement · offset' : 'Card statement'}
+          </Badge>
+        )}
       </TableCell>
       <TableCell>
         <Select
@@ -246,6 +318,11 @@ function CandidateRow({
             ))}
           </SelectContent>
         </Select>
+        {candidate.categorySource === 'Ai' && (
+          <Badge className='mt-1' variant='outline'>
+            <Sparkles className='size-3' /> AI suggestion
+          </Badge>
+        )}
       </TableCell>
       <TableCell className='text-right whitespace-nowrap'>{formatStringToCurrency(candidate.amount ?? 0)}</TableCell>
     </TableRow>

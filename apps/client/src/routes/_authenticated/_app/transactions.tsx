@@ -40,12 +40,17 @@ const searchSchema = z.object({
   year: z.number().int().min(2000).max(9999).default(new Date().getFullYear()),
 });
 
-/** `/transactions`: transactions of the month in the search params, optionally only uncategorized ones. */
+/** The list's filters: the month of the search params, or all months when only uncategorized ones are shown. */
+function toFilters({ month, uncategorized, year }: z.infer<typeof searchSchema>) {
+  return uncategorized ? { uncategorized: true } : { month, year };
+}
+
+/** `/transactions`: transactions of the month in the search params, or all uncategorized ones. */
 export const Route = createFileRoute('/_authenticated/_app/transactions')({
   component: TransactionsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   validateSearch: zodValidator(searchSchema),
-  loaderDeps: ({ search: { month, uncategorized, year } }) => ({ month, uncategorized, year }),
+  loaderDeps: ({ search }) => toFilters(search),
   loader: async ({ context: { queryClient }, deps }) => {
     await Promise.all([
       queryClient.ensureQueryData(transactionsQueryOptions(deps)),
@@ -72,11 +77,13 @@ function TransactionsPage() {
           <p className='text-muted-foreground'>Record and categorize the bookings behind your budgets.</p>
         </div>
         <div className='flex flex-wrap items-center gap-2'>
-          <MonthSwitcher
-            month={search.month}
-            year={search.year}
-            onChange={(value) => navigate({ search: (previous) => ({ ...previous, ...value }) })}
-          />
+          {!search.uncategorized && (
+            <MonthSwitcher
+              month={search.month}
+              year={search.year}
+              onChange={(value) => navigate({ search: (previous) => ({ ...previous, ...value }) })}
+            />
+          )}
           <AccountsDialog />
           <RulesDialog />
           <Button asChild variant='outline'>
@@ -112,9 +119,9 @@ function TransactionsPage() {
             navigate({ search: (previous) => ({ ...previous, uncategorized: checked || undefined }) })
           }
         />
-        Only uncategorized
+        Only uncategorized, from all months
       </label>
-      <TransactionList filters={search} />
+      <TransactionList filters={toFilters(search)} selectable={(search.uncategorized ?? false) && canRecord} />
     </div>
   );
 }

@@ -30,3 +30,6 @@ export interface CategorizeTransactionData {
   id: string;
   correction: CategorizeTransactionRequest;
 }
+
+/** Payload for assigning one category to several transactions. */
+export type CategorizeTransactionsRequest = components['schemas']['CategorizeTransactionsRequest'];

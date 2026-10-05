@@ -2,12 +2,14 @@ import { apiClient } from '@/shared/lib/api-client';
 import { unwrapApiResponse } from '@/shared/utils/http';
 
 import type {
+  CategorizeImportRequest,
   CommitImportRequest,
   CreateImportData,
   CsvImportMapping,
   ImportPreviewParams,
-  PurposeRetention,
+  UpdateAiPreviewItemData,
   UpdateImportCandidateData,
+  UpdateImportSettingsRequest,
 } from './types';
 
 /** Loads the latest imports of the active household. */
@@ -77,7 +79,29 @@ export async function getImportSettings(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/imports/settings', { signal }));
 }
 
-/** Changes how much of the purpose text imported transactions keep. */
-export async function updateImportSettings(purposeRetention: PurposeRetention) {
-  return unwrapApiResponse(await apiClient.PUT('/api/imports/settings', { body: { purposeRetention } }));
+/** Changes the import settings of the active household. */
+export async function updateImportSettings(data: UpdateImportSettingsRequest) {
+  return unwrapApiResponse(await apiClient.PUT('/api/imports/settings', { body: data }));
+}
+
+/** Starts the AI categorization of the rows without a category. */
+export async function categorizeImport(id: string, data: CategorizeImportRequest) {
+  return unwrapApiResponse(
+    await apiClient.POST('/api/imports/{id}/categorize', { body: data, params: { path: { id } } }),
+  );
+}
+
+/** Loads exactly the texts the AI categorization of an import would send. */
+export async function getImportAiPreview(id: string, signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient.GET('/api/imports/{id}/ai-preview', { params: { path: { id } }, signal }));
+}
+
+/** Deselects or selects a text of the AI preview. */
+export async function updateImportAiPreviewItem(id: string, data: UpdateAiPreviewItemData) {
+  return unwrapApiResponse(
+    await apiClient.PUT('/api/imports/{id}/ai-preview/{key}', {
+      body: { excluded: data.excluded },
+      params: { path: { id, key: data.key } },
+    }),
+  );
 }

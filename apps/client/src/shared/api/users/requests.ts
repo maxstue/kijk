@@ -13,6 +13,7 @@ export async function updateUser(data: UpdateUserData) {
   return unwrapApiResponse(
     await apiClient.PUT('/api/users', {
       body: {
+        aiEnabled: data.aiEnabled ?? null,
         analyticsConsent: data.analyticsConsent ?? null,
         householdName: data.householdName ?? null,
         useDefaultResources: data.useDefaultResources ?? null,

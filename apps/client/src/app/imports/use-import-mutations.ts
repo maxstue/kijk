@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
   cancelImportMutationOptions,
+  categorizeImportMutationOptions,
   commitImportMutationOptions,
   confirmImportMappingMutationOptions,
   createImportMutationOptions,
+  updateImportAiPreviewItemMutationOptions,
   updateImportCandidateMutationOptions,
   updateImportSettingsMutationOptions,
 } from '@/shared/api/imports/options';
@@ -38,7 +40,10 @@ export function useUpdateImportCandidate(id: string) {
   return useMutation({
     ...updateImportCandidateMutationOptions(),
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(id) });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(id) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(id) }),
+      ]);
     },
   });
 }
@@ -76,6 +81,32 @@ export function useUpdateImportSettings() {
     ...updateImportSettingsMutationOptions(),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.imports.settings() });
+    },
+  });
+}
+
+/** Starts the AI categorization of an import and refreshes it and its rows. */
+export function useCategorizeImport(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...categorizeImportMutationOptions(id),
+    async onSuccess() {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.imports.detail(id) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(id) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(id) }),
+      ]);
+    },
+  });
+}
+
+/** Deselects or selects a text of the AI preview and refreshes the preview. */
+export function useUpdateImportAiPreviewItem(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...updateImportAiPreviewItemMutationOptions(id),
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(id) });
     },
   });
 }

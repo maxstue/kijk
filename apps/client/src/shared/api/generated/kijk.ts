@@ -1542,6 +1542,150 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/imports/{id}/ai-preview': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets exactly the texts the AI categorization would send */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['AiPreviewResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/ai-preview/{key}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Deselects or selects a text of the AI preview */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+          key: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateAiPreviewItemRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['AiPreviewItemResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/imports/{id}/categorize': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Proposes categories with the AI for the rows that have none */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CategorizeImportRequest'];
+        };
+      };
+      responses: {
+        /** Accepted */
+        202: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportJobResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/imports/{id}/commit': {
     parameters: {
       query?: never;
@@ -2011,6 +2155,53 @@ export interface paths {
         500: components['responses']['500'];
       };
     };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/transactions/category': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Assigns one category to several transactions */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CategorizeTransactionsRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CategorizeTransactionsResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -2629,6 +2820,42 @@ export interface components {
       /** Whether it is a bank account or the cash account. */
       kind: components['schemas']['AccountKind'];
     };
+    /**
+     * Represents which transaction data a household lets the AI categorization see.
+     *
+     * @enum {unknown}
+     */
+    AiDataSharing: 'Off' | 'Strict';
+    /** A distinct text the AI categorization would send. */
+    AiPreviewItemResponse: {
+      /** The id of the text within the import. */
+      key: string;
+      /** The counterparty as sent. */
+      counterparty: null | string;
+      /** The purpose as sent. */
+      purpose: null | string;
+      /** Whether money came in; the amount itself is never sent. */
+      incoming: boolean;
+      /**
+       * Format: int32
+       *
+       * The number of rows that share the text.
+       */
+      rowCount: number | string;
+      /** Whether the user deselected the text. */
+      excluded: boolean;
+    };
+    /** What the AI categorization of an import would send. */
+    AiPreviewResponse: {
+      /** The distinct texts. */
+      items: components['schemas']['AiPreviewItemResponse'][];
+      /**
+       * Format: int32
+       *
+       * Rows without a category that are not sent because nothing useful remains after cleaning.
+       */
+      withheldRows: number | string;
+    };
     /** @enum {unknown} */
     AnalyticsConsent: 'Accepted' | 'Declined' | null;
     /** The spending of an expense category in the evaluated month. */
@@ -2768,6 +2995,10 @@ export interface components {
       /** Whether the budget is evaluated. */
       active: boolean;
     };
+    /** Request for categorizing the rows of an import with the AI. */
+    CategorizeImportRequest: {
+      aiDataSharing?: null | components['schemas']['AiDataSharing'];
+    };
     /** Request for correcting the category of a transaction. */
     CategorizeTransactionRequest: {
       /**
@@ -2797,6 +3028,26 @@ export interface components {
        * The number of other transactions that got the remembered category.
        */
       appliedToOthers: number | string;
+    };
+    /** Request for assigning one category to several transactions, e.g. from the list of uncategorized transactions. */
+    CategorizeTransactionsRequest: {
+      /** The transactions. */
+      ids: string[];
+      /**
+       * Format: uuid
+       *
+       * The category, or `null` to mark them as uncategorized.
+       */
+      categoryId: null | string;
+    };
+    /** The result of assigning a category to several transactions. */
+    CategorizeTransactionsResponse: {
+      /**
+       * Format: int32
+       *
+       * The number of changed transactions.
+       */
+      updated: number | string;
     };
     /**
      * Represents whether a category groups expenses or income.
@@ -3328,6 +3579,7 @@ export interface components {
       analyticsConsentUpdatedAt: null | string;
       /** Format: date-time */
       onboardingCompletedAt: null | string;
+      aiEnabled: boolean;
       households: null | components['schemas']['UserHouseholdResponse'][];
       resources: null | components['schemas']['UserResourceResponse'][];
       /** Gets whether the user has completed onboarding. */
@@ -3430,6 +3682,10 @@ export interface components {
       errors: null | string;
       /** Whether the row will not be imported. */
       excluded: boolean;
+      /** Whether the row looks like a credit card statement. */
+      isCardSettlement: boolean;
+      /** Whether the card statement only offsets separately imported purchases. */
+      countsAsOffset: boolean;
     };
     /** The state of an import. */
     ImportJobResponse: {
@@ -3483,6 +3739,16 @@ export interface components {
       proposedMappingSource: null | components['schemas']['MappingSource'];
       /** Whether the AI format detection could not be reached, so a weaker proposal is shown. */
       aiUnavailable: boolean;
+      /** Which data the AI categorization of this import may see. */
+      aiDataSharing: components['schemas']['AiDataSharing'];
+      /**
+       * Format: int32
+       *
+       * The number of rows the AI categorized in the last run.
+       */
+      aiCategorizedCount: number | string;
+      /** Whether the AI could not be reached, so some rows stay uncategorized. */
+      aiCategorizationUnavailable: boolean;
       mapping: null | components['schemas']['CsvImportMapping'];
       /** Months the file covers completely; committing replaces them. */
       fullMonths: string[];
@@ -3518,7 +3784,8 @@ export interface components {
       | 'NeedsReview'
       | 'Done'
       | 'Failed'
-      | 'Cancelled';
+      | 'Cancelled'
+      | 'Categorizing';
     /** The first rows of an uploaded file, for choosing the column mapping. */
     ImportPreviewResponse: {
       /** The encoding used to decode the file. */
@@ -3546,6 +3813,10 @@ export interface components {
     ImportSettingsResponse: {
       /** How much of the purpose text imported transactions keep. */
       purposeRetention: components['schemas']['PurposeRetention'];
+      /** Which transaction data the AI categorization may see. */
+      aiDataSharing: components['schemas']['AiDataSharing'];
+      /** Whether imports store neither names of private persons nor counterparty keys. */
+      minimizeData: boolean;
     };
     /** @enum {unknown} */
     MappingSource: 'Profile' | 'Suggestion' | 'Ai' | null;
@@ -3719,6 +3990,11 @@ export interface components {
       name: string;
       ibanLast4: null | string;
     };
+    /** Request for deselecting or selecting a text in the AI preview. */
+    UpdateAiPreviewItemRequest: {
+      /** Whether the rows sharing the text stay on the server. */
+      excluded: boolean;
+    };
     /** Request for changing the amount or active state of a budget version. */
     UpdateBudgetRequest: {
       /**
@@ -3800,11 +4076,19 @@ export interface components {
       categoryId: null | string;
       /** Whether the row is not imported. */
       excluded: boolean;
+      /**
+       * For a card statement: whether its single purchases are imported separately, so it only offsets them. Unchanged
+       * when omitted.
+       */
+      countsAsOffset?: null | boolean;
     };
     /** Request for changing the import settings of the active household. */
     UpdateImportSettingsRequest: {
       /** How much of the purpose text imported transactions keep. */
       purposeRetention: components['schemas']['PurposeRetention'];
+      aiDataSharing?: null | components['schemas']['AiDataSharing'];
+      /** Whether imports store neither names of private persons nor counterparty keys; unchanged when omitted. */
+      minimizeData?: null | boolean;
     };
     /** Request to update one or more properties of a custom resource. */
     UpdateResourceRequest: {
@@ -3876,6 +4160,8 @@ export interface components {
       /** The new name of the active household. */
       householdName: null | string;
       analyticsConsent: null | components['schemas']['AnalyticsConsent'];
+      /** Whether AI features are allowed for the user. */
+      aiEnabled?: null | boolean;
     };
     /** A household membership of the current user. */
     UserHouseholdResponse: {
@@ -3953,6 +4239,8 @@ export interface components {
        * When onboarding was completed.
        */
       onboardingCompletedAt: null | string;
+      /** Whether AI features are allowed for the user. */
+      aiEnabled: boolean;
       /** Gets whether the user has completed onboarding. */
       onboardingCompleted?: boolean;
     };

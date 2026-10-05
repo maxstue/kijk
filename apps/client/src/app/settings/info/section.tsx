@@ -18,6 +18,7 @@ import { siteConfig } from '@/shared/config/site';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 const privacyFormSchema = z.object({
+  enableAi: z.boolean(),
   enableAnalytics: z.boolean(),
 });
 type PrivacyFormValues = z.infer<typeof privacyFormSchema>;
@@ -29,6 +30,7 @@ export function InfoSection() {
   const form = useForm<PrivacyFormValues>({
     resolver: zodResolver(privacyFormSchema),
     values: {
+      enableAi: currentAccount?.user?.aiEnabled ?? true,
       enableAnalytics: currentAccount?.user?.analyticsConsent === 'Accepted',
     },
   });
@@ -36,7 +38,7 @@ export function InfoSection() {
   function onSubmit(data: PrivacyFormValues) {
     const analyticsConsent = data.enableAnalytics ? 'Accepted' : 'Declined';
     mutate(
-      { analyticsConsent },
+      { aiEnabled: data.enableAi, analyticsConsent },
       {
         onSuccess(updatedUser) {
           AnalyticsService.setCookieConsent(updatedUser.analyticsConsent === 'Accepted' ? 'accepted' : 'declined');
@@ -83,6 +85,25 @@ export function InfoSection() {
                       >
                         Learn more in our Privacy Policy.
                       </a>
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='enableAi'
+              render={({ field }) => (
+                <FormItem className='flex flex-row items-center justify-between rounded border p-4'>
+                  <div className='space-y-0.5'>
+                    <FormLabel className='text-base'>AI features</FormLabel>
+                    <FormDescription>
+                      Lets Kijk suggest categories for imported transactions. When this is off, the AI buttons disappear
+                      and Kijk never sends anything to an AI provider on your behalf, whatever the household setting
+                      says.
                     </FormDescription>
                   </div>
                   <FormControl>

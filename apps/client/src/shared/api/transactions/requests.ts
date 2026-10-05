@@ -3,6 +3,7 @@ import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type {
   CategorizeTransactionData,
+  CategorizeTransactionsRequest,
   CreateTransactionRequest,
   TransactionFilters,
   UpdateTransactionData,
@@ -42,4 +43,9 @@ export async function categorizeTransaction(data: CategorizeTransactionData) {
       params: { path: { id: data.id } },
     }),
   );
+}
+
+/** Assigns one category to several transactions; it counts as set by hand. */
+export async function categorizeTransactions(data: CategorizeTransactionsRequest) {
+  return unwrapApiResponse(await apiClient.PUT('/api/transactions/category', { body: data }));
 }

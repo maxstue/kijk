@@ -14,6 +14,16 @@ export type ImportCandidate = components['schemas']['ImportCandidateResponse'];
 export type ImportSettings = components['schemas']['ImportSettingsResponse'];
 /** How much of the purpose text imported transactions keep. */
 export type PurposeRetention = components['schemas']['PurposeRetention'];
+/** Which transaction data the AI categorization may see. */
+export type AiDataSharing = components['schemas']['AiDataSharing'];
+/** Payload for changing the import settings. */
+export type UpdateImportSettingsRequest = components['schemas']['UpdateImportSettingsRequest'];
+/** Payload for categorizing an import with the AI. */
+export type CategorizeImportRequest = components['schemas']['CategorizeImportRequest'];
+/** What the AI categorization of an import would send. */
+export type AiPreview = components['schemas']['AiPreviewResponse'];
+/** A distinct text the AI categorization would send. */
+export type AiPreviewItem = components['schemas']['AiPreviewItemResponse'];
 /** Payload for committing an import. */
 export type CommitImportRequest = components['schemas']['CommitImportRequest'];
 /** Payload for changing a row during the review. */
@@ -37,4 +47,10 @@ export interface UpdateImportCandidateData {
   importId: string;
   candidateId: string;
   candidate: UpdateImportCandidateRequest;
+}
+
+/** Variables of the AI preview mutation. */
+export interface UpdateAiPreviewItemData {
+  key: string;
+  excluded: boolean;
 }

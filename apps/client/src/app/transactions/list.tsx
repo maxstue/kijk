@@ -12,6 +12,7 @@ import {
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
+import { Checkbox } from '@kijk/ui/components/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +32,11 @@ import { toast } from 'sonner';
 import { TransactionForm } from '@/app/transactions/form';
 import { RememberDialog } from '@/app/transactions/remember-dialog';
 import { noneValue } from '@/app/transactions/schemas';
-import { useCategorizeTransaction, useDeleteTransaction } from '@/app/transactions/use-transaction-mutations';
+import {
+  useCategorizeTransaction,
+  useCategorizeTransactions,
+  useDeleteTransaction,
+} from '@/app/transactions/use-transaction-mutations';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { transactionsQueryOptions } from '@/shared/api/transactions/options';
@@ -39,9 +44,34 @@ import type { Transaction, TransactionFilters } from '@/shared/api/transactions/
 import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
-/** Table of the transactions matching `filters`, with inline categorizing, editing and deleting. */
-export function TransactionList({ filters }: { filters: TransactionFilters }) {
+/**
+ * Table of the transactions matching `filters`, with inline categorizing, editing and deleting. `selectable` adds
+ * checkboxes for assigning one category to several transactions at once.
+ */
+export function TransactionList({
+  filters,
+  selectable = false,
+}: {
+  filters: TransactionFilters;
+  selectable?: boolean;
+}) {
   const { data } = useSuspenseQuery(transactionsQueryOptions(filters));
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
+  // Transactions that left the list, e.g. because they got a category, are no longer selected.
+  const selected = data.filter((transaction) => selectedIds.has(transaction.id)).map((transaction) => transaction.id);
+  const allSelected = data.length > 0 && selected.length === data.length;
+
+  function toggle(id: string, checked: boolean) {
+    setSelectedIds((previous) => {
+      const next = new Set(previous);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
 
   if (data.length === 0) {
     return (
@@ -56,31 +86,116 @@ export function TransactionList({ filters }: { filters: TransactionFilters }) {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Date</TableHead>
-          <TableHead>Counterparty</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead className='text-right'>Amount</TableHead>
-          <TableHead className='w-24' />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((transaction) => (
-          <TransactionRow key={transaction.id} transaction={transaction} />
-        ))}
-      </TableBody>
-    </Table>
+    <div className='space-y-3'>
+      {selectable && <BulkCategoryBar selectedIds={selected} onDone={() => setSelectedIds(new Set())} />}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {selectable && (
+              <TableHead className='w-10'>
+                <Checkbox
+                  aria-label='Select all transactions'
+                  checked={allSelected}
+                  onCheckedChange={(checked) =>
+                    setSelectedIds(checked === true ? new Set(data.map((transaction) => transaction.id)) : new Set())
+                  }
+                />
+              </TableHead>
+            )}
+            <TableHead>Date</TableHead>
+            <TableHead>Counterparty</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead className='text-right'>Amount</TableHead>
+            <TableHead className='w-24' />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((transaction) => (
+            <TransactionRow
+              key={transaction.id}
+              selection={
+                selectable
+                  ? { checked: selectedIds.has(transaction.id), onChange: (checked) => toggle(transaction.id, checked) }
+                  : undefined
+              }
+              transaction={transaction}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 
-function TransactionRow({ transaction }: { transaction: Transaction }) {
+/** Assigns one category to the selected transactions; it counts as set by hand. */
+function BulkCategoryBar({ selectedIds, onDone }: { selectedIds: string[]; onDone: () => void }) {
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
+  const categorizeMutation = useCategorizeTransactions();
+  const [categoryId, setCategoryId] = useState<string>();
+
+  function onAssign() {
+    if (!categoryId) {
+      return;
+    }
+    categorizeMutation.mutate(
+      { categoryId, ids: selectedIds },
+      {
+        onError: (error) => toast.error(error.name, { description: error.message }),
+        onSuccess: ({ updated }) => {
+          toast.success(`${updated} transactions categorized`);
+          onDone();
+        },
+      },
+    );
+  }
+
+  return (
+    <div className='bg-muted/50 flex flex-wrap items-center gap-2 rounded-md border p-2'>
+      <span className='text-muted-foreground px-1 text-sm'>{selectedIds.length} selected</span>
+      <Select value={categoryId ?? ''} onValueChange={setCategoryId}>
+        <SelectTrigger aria-label='Category for the selected transactions' className='w-48' size='sm'>
+          <SelectValue placeholder='Choose a category' />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((category) => (
+            <SelectItem key={category.id} value={category.id}>
+              {category.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Button
+        disabled={!categoryId || selectedIds.length === 0 || categorizeMutation.isPending}
+        size='sm'
+        onClick={onAssign}
+      >
+        Assign to {selectedIds.length}
+      </Button>
+    </div>
+  );
+}
+
+function TransactionRow({
+  selection,
+  transaction,
+}: {
+  selection?: { checked: boolean; onChange: (checked: boolean) => void };
+  transaction: Transaction;
+}) {
   const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
   const amount = Number(transaction.amount);
 
   return (
     <TableRow>
+      {selection && (
+        <TableCell>
+          <Checkbox
+            aria-label='Select transaction'
+            checked={selection.checked}
+            onCheckedChange={(checked) => selection.onChange(checked === true)}
+          />
+        </TableCell>
+      )}
       <TableCell className='whitespace-nowrap'>
         {new Date(`${transaction.bookingDate}T00:00:00`).toLocaleDateString(undefined, { dateStyle: 'medium' })}
       </TableCell>

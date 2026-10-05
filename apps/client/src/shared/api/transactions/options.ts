@@ -4,6 +4,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 
 import {
   categorizeTransaction,
+  categorizeTransactions,
   createTransaction,
   deleteTransaction,
   getTransactions,
@@ -11,6 +12,7 @@ import {
 } from './requests';
 import type {
   CategorizeTransactionData,
+  CategorizeTransactionsRequest,
   CreateTransactionRequest,
   TransactionFilters,
   UpdateTransactionData,
@@ -46,4 +48,10 @@ export const deleteTransactionMutationOptions = () =>
 export const categorizeTransactionMutationOptions = () =>
   mutationOptions({
     mutationFn: (data: CategorizeTransactionData) => categorizeTransaction(data),
+  });
+
+/** Mutation that assigns one category to several transactions. */
+export const categorizeTransactionsMutationOptions = () =>
+  mutationOptions({
+    mutationFn: (data: CategorizeTransactionsRequest) => categorizeTransactions(data),
   });

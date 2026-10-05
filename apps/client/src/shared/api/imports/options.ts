@@ -4,28 +4,33 @@ import { queryKeys } from '@/shared/api/query-keys';
 
 import {
   cancelImport,
+  categorizeImport,
   commitImport,
   confirmImportMapping,
   createImport,
   getImport,
+  getImportAiPreview,
   getImportCandidates,
   getImportPreview,
   getImportSettings,
   getImports,
+  updateImportAiPreviewItem,
   updateImportCandidate,
   updateImportSettings,
 } from './requests';
 import type {
+  CategorizeImportRequest,
   CommitImportRequest,
   CreateImportData,
   CsvImportMapping,
   ImportJobStatus,
   ImportPreviewParams,
-  PurposeRetention,
+  UpdateAiPreviewItemData,
   UpdateImportCandidateData,
+  UpdateImportSettingsRequest,
 } from './types';
 
-const processingStatuses: ImportJobStatus[] = ['Pending', 'Analyzing', 'Reading'];
+const processingStatuses: ImportJobStatus[] = ['Pending', 'Analyzing', 'Reading', 'Categorizing'];
 const pollIntervalMs = 1500;
 
 /** Returns whether the import is processed in the background, so its state should be polled. */
@@ -61,6 +66,13 @@ export const importCandidatesQueryOptions = (id: string) =>
     queryKey: queryKeys.imports.candidates(id),
   });
 
+/** Query for the texts the AI categorization of an import would send. */
+export const importAiPreviewQueryOptions = (id: string) =>
+  queryOptions({
+    queryFn: ({ signal }) => getImportAiPreview(id, signal),
+    queryKey: queryKeys.imports.aiPreview(id),
+  });
+
 /** Query for the import settings of the active household. */
 export const importSettingsQueryOptions = () =>
   queryOptions({
@@ -89,4 +101,12 @@ export const cancelImportMutationOptions = (id: string) => mutationOptions({ mut
 
 /** Mutation that changes the import settings. */
 export const updateImportSettingsMutationOptions = () =>
-  mutationOptions({ mutationFn: (purposeRetention: PurposeRetention) => updateImportSettings(purposeRetention) });
+  mutationOptions({ mutationFn: (data: UpdateImportSettingsRequest) => updateImportSettings(data) });
+
+/** Mutation that lets the AI propose categories for the rows without one. */
+export const categorizeImportMutationOptions = (id: string) =>
+  mutationOptions({ mutationFn: (data: CategorizeImportRequest) => categorizeImport(id, data) });
+
+/** Mutation that deselects or selects a text of the AI preview. */
+export const updateImportAiPreviewItemMutationOptions = (id: string) =>
+  mutationOptions({ mutationFn: (data: UpdateAiPreviewItemData) => updateImportAiPreviewItem(id, data) });
