@@ -5,7 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { createCategory, deleteCategory, getCategories } from './requests';
 import type { CreateCategoryRequest } from './types';
 
-/** Query for the categories available to the active household. */
+/** Query for the categories available to the active space. */
 export const categoriesQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getCategories(signal),

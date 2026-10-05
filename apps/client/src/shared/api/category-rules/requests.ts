@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/lib/api-client';
 import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
-/** Loads the remembered category corrections of the active household. */
+/** Loads the remembered category corrections of the active space. */
 export async function getCategoryRules(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/category-rules', { signal }));
 }

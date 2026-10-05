@@ -31,7 +31,7 @@ export function ResourceNameField({ className, field }: FieldProps<'name'>) {
 /** Unit select of the resource forms. */
 export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
   const { data } = useSuspenseQuery(unitsQueryOptions());
-  const availableUnits = data.filter((unit) => unit.creatorType === 'System' || unit.isAvailableInActiveHousehold);
+  const availableUnits = data.filter((unit) => unit.creatorType === 'System' || unit.isAvailableInActiveSpace);
 
   return (
     <FormItem className={className}>

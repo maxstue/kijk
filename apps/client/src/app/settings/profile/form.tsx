@@ -10,7 +10,7 @@ import { ConnectedSignInMethods } from '@/app/settings/profile/providers';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/use-update-user';
-import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
+import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
@@ -23,20 +23,20 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 
-/** Form for the display name, active household name, default resources and profile usage. */
+/** Form for the display name, active space name, default resources and profile usage. */
 export function ProfileForm() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const currentUser = currentAccount?.user;
-  const activeHousehold = currentUser?.households?.find((household) => household.isActive);
+  const activeSpace = currentUser?.spaces?.find((space) => space.isActive);
   const externalIdentity = currentUser?.externalIdentity;
-  const canRenameHousehold = hasHouseholdPermission(activeHousehold, HouseholdPermissions.household.configure);
+  const canRenameSpace = hasSpacePermission(activeSpace, SpacePermissions.space.configure);
 
   const { mutate } = useUpdateUser();
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
-      householdName: activeHousehold?.name ?? '',
+      spaceName: activeSpace?.name ?? '',
       useDefaultResources: currentUser?.resources?.some((resource) => resource.creatorType === 'System') ?? false,
       useExternalProfile: currentUser?.useExternalProfile ?? false,
       userName: currentUser?.name ?? '',
@@ -97,15 +97,15 @@ export function ProfileForm() {
         />
         <FormField
           control={form.control}
-          name='householdName'
+          name='spaceName'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Space name</FormLabel>
               <FormControl>
-                <Input disabled={!canRenameHousehold} placeholder='My space' {...field} />
+                <Input disabled={!canRenameSpace} placeholder='My space' {...field} />
               </FormControl>
               <FormDescription>
-                {canRenameHousehold
+                {canRenameSpace
                   ? 'The name of your active space.'
                   : 'Your role in this space does not allow renaming the space.'}
               </FormDescription>

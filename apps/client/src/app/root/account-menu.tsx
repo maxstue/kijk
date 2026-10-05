@@ -65,7 +65,7 @@ export function AccountMenu() {
         onNavigateToSettings={() => navigate({ to: '/settings' })}
         onOpenFeedback={() => setShowFeedback(true)}
         onSignOut={handleSignOut}
-        spaces={currentAccount?.user?.households ?? []}
+        spaces={currentAccount?.user?.spaces ?? []}
       />
       <FeedbackDialog onClose={() => setShowFeedback(false)} />
     </Dialog>
@@ -77,7 +77,7 @@ type CurrentUser = components['schemas']['GetMeUserResponse'];
 interface AccountMenuData {
   displayName?: string | null;
   email?: string | null;
-  householdName: string;
+  spaceName: string;
   imageUrl?: string | null;
   initials: string;
 }
@@ -89,7 +89,7 @@ function getAccountMenuData(user?: CurrentUser): AccountMenuData {
   return {
     displayName,
     email,
-    householdName: getActiveHouseholdName(user),
+    spaceName: getActiveSpaceName(user),
     imageUrl: getImageUrl(user),
     initials: getInitialChars(getIdentityLabel(displayName, email)),
   };
@@ -111,11 +111,11 @@ function getIdentityLabel(displayName?: string | null, email?: string | null) {
   return displayName ?? email ?? undefined;
 }
 
-function getActiveHouseholdName(user?: CurrentUser) {
-  return user?.households?.find((household) => household.isActive)?.name ?? siteConfig.name;
+function getActiveSpaceName(user?: CurrentUser) {
+  return user?.spaces?.find((space) => space.isActive)?.name ?? siteConfig.name;
 }
 
-type Space = NonNullable<CurrentUser['households']>[number];
+type Space = NonNullable<CurrentUser['spaces']>[number];
 
 interface AccountMenuDropdownProps {
   account: AccountMenuData;
@@ -141,10 +141,10 @@ function AccountMenuDropdown({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
-              tooltip={account.householdName}
+              tooltip={account.spaceName}
             >
               <LogoIcon className='text-sidebar-foreground size-5 shrink-0' />
-              <span className='truncate font-medium'>{account.householdName}</span>
+              <span className='truncate font-medium'>{account.spaceName}</span>
               <ChevronsUpDown className='ml-auto size-3.5' />
             </SidebarMenuButton>
           </DropdownMenuTrigger>

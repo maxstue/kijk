@@ -12,7 +12,7 @@ import type { BudgetFormValues } from '@/app/budgets/schemas';
 import { useSaveBudget } from '@/app/budgets/use-save-budget';
 import { budgetsQueryOptions } from '@/shared/api/budgets/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import {
   Form,
   FormControl,
@@ -25,7 +25,7 @@ import {
 import { FormSwitchItem } from '@/shared/components/form-switch-item';
 import { type Visibility, VisibilitySelect } from '@/shared/components/visibility-select';
 import { useActiveSpace } from '@/shared/hooks/use-active-space';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatMonthYear } from '@/shared/utils/months';
 
 interface Props {
@@ -42,7 +42,7 @@ interface Props {
 
 /** Form that sets the monthly budget of an expense category from the selected month on. */
 export function BudgetForm({ categoryId, initialAmount, initialVisibility, month, onClose, year }: Props) {
-  const canPlan = useHouseholdPermission(HouseholdPermissions.budgets.plan);
+  const canPlan = useSpacePermission(SpacePermissions.budgets.plan);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
   const { data: budgets } = useSuspenseQuery(budgetsQueryOptions());

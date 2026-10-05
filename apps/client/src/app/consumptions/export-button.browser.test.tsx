@@ -2,12 +2,12 @@ import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import { exportConsumption, exportConsumptionMonth, type CsvDownload } from '@/shared/api/consumptions/requests';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 import { ConsumptionExportButton } from './export-button';
 
-vi.mock('@/shared/hooks/use-household-permission', () => ({
-  useHouseholdPermission: vi.fn<() => boolean>(() => true),
+vi.mock('@/shared/hooks/use-space-permission', () => ({
+  useSpacePermission: vi.fn<() => boolean>(() => true),
 }));
 
 vi.mock('@/shared/api/consumptions/requests', () => ({
@@ -20,7 +20,7 @@ const exportMonth = vi.mocked(exportConsumptionMonth);
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(useHouseholdPermission).mockReturnValue(true);
+  vi.mocked(useSpacePermission).mockReturnValue(true);
   vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:consumption-export');
   vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
@@ -51,7 +51,7 @@ test('disables an empty month export', async () => {
 });
 
 test('disables single and monthly exports without the export permission', async () => {
-  vi.mocked(useHouseholdPermission).mockReturnValue(false);
+  vi.mocked(useSpacePermission).mockReturnValue(false);
   const screen = await render(
     <>
       <ConsumptionExportButton consumptionId='consumption-42' />

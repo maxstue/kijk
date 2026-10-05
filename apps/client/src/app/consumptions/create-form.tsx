@@ -19,10 +19,10 @@ import {
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionCreateSchema } from '@/app/consumptions/schemas';
 import { useCreateConsumption } from '@/app/consumptions/use-create-consumption';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 import { getMonthIndexFromString } from '@/shared/utils/months';
@@ -36,7 +36,7 @@ interface Props {
 
 /** Form to record a consumption; `consumptions` are used to show the running meter total. */
 export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
-  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
+  const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const { isPending, mutate } = useCreateConsumption();
   const { month, year } = route.useSearch();
 

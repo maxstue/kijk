@@ -10,7 +10,7 @@ export type CsvImportMapping = components['schemas']['CsvImportMapping'];
 export type ImportPreview = components['schemas']['ImportPreviewResponse'];
 /** A row of an import waiting for review. */
 export type ImportCandidate = components['schemas']['ImportCandidateResponse'];
-/** The import settings of the active household. */
+/** The import settings of the active space. */
 export type ImportSettings = components['schemas']['ImportSettingsResponse'];
 /** How much of the purpose text imported transactions keep. */
 export type PurposeRetention = components['schemas']['PurposeRetention'];

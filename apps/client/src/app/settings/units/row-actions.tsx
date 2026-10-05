@@ -26,25 +26,24 @@ import { UnitDeleteContent } from './delete-content';
 import { UnitUpdateForm } from './update-form';
 
 interface Props {
-  householdId?: string;
-  /** Households in which the user's role allows sharing units. */
-  shareableHouseholds: Array<{ id: string; name: string }>;
-  scope: 'household' | 'personal';
+  spaceId?: string;
+  /** Spaces in which the user's role allows sharing units. */
+  shareableSpaces: Array<{ id: string; name: string }>;
+  scope: 'space' | 'personal';
   systemUnits: Unit[];
   unit: Unit;
 }
 
-/** Row menu of the unit table: edit, share, archive or restore, remove from household and delete. */
-export function UnitRowActions({ householdId, scope, shareableHouseholds, systemUnits, unit }: Props) {
+/** Row menu of the unit table: edit, share, archive or restore, remove from space and delete. */
+export function UnitRowActions({ spaceId, scope, shareableSpaces, systemUnits, unit }: Props) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
   const archiveMutation = useMutation(archiveUnitMutationOptions());
   const shareMutation = useMutation(shareUnitMutationOptions());
   const unshareMutation = useMutation(unshareUnitMutationOptions());
-  const canDelete = Number(unit.resourceCount) === 0 && unit.householdIds.length === 0;
-  const canUnshare =
-    scope === 'household' && unit.isOwner && shareableHouseholds.some((household) => household.id === householdId);
+  const canDelete = Number(unit.resourceCount) === 0 && unit.spaceIds.length === 0;
+  const canUnshare = scope === 'space' && unit.isOwner && shareableSpaces.some((space) => space.id === spaceId);
 
   function restore() {
     archiveMutation.mutate(
@@ -59,9 +58,9 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
     );
   }
 
-  function share(targetHouseholdId: string) {
+  function share(targetSpaceId: string) {
     shareMutation.mutate(
-      { householdId: targetHouseholdId, id: unit.id },
+      { spaceId: targetSpaceId, id: unit.id },
       {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
@@ -73,11 +72,11 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
   }
 
   function unshare() {
-    if (!householdId) {
+    if (!spaceId) {
       return;
     }
     unshareMutation.mutate(
-      { householdId, id: unit.id },
+      { spaceId, id: unit.id },
       {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
@@ -120,15 +119,11 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
             {scope === 'personal' &&
               unit.isOwner &&
               !unit.isArchived &&
-              shareableHouseholds
-                .filter((household) => !unit.householdIds.includes(household.id))
-                .map((household) => (
-                  <DropdownMenuItem
-                    key={household.id}
-                    disabled={shareMutation.isPending}
-                    onSelect={() => share(household.id)}
-                  >
-                    Share with {household.name}
+              shareableSpaces
+                .filter((space) => !unit.spaceIds.includes(space.id))
+                .map((space) => (
+                  <DropdownMenuItem key={space.id} disabled={shareMutation.isPending} onSelect={() => share(space.id)}>
+                    Share with {space.name}
                   </DropdownMenuItem>
                 ))}
             {unit.isArchived && unit.isOwner && (
@@ -136,7 +131,7 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
                 Restore
               </DropdownMenuItem>
             )}
-            {scope === 'household' && (
+            {scope === 'space' && (
               <DropdownMenuItem disabled={!canUnshare || unshareMutation.isPending} onSelect={unshare}>
                 Remove from space
               </DropdownMenuItem>

@@ -14,9 +14,9 @@ import { limitSchema, periods } from '@/app/limits/schemas';
 import type { LimitFormValues } from '@/app/limits/schemas';
 import { useCreateLimit } from '@/app/limits/use-create-limit';
 import { useUpdateLimit } from '@/app/limits/use-update-limit';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import type { Limit } from '@/shared/api/limits/types';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import {
   Form,
   FormControl,
@@ -26,7 +26,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Resource } from '@/shared/types/domain';
 
 interface Props {
@@ -45,7 +45,7 @@ const createDefaultValues: LimitFormValues = {
 
 /** Form to create a limit, or to edit `initialData` when given. */
 export function LimitForm({ initialData, onClose }: Props) {
-  const canPlan = useHouseholdPermission(HouseholdPermissions.limits.plan);
+  const canPlan = useSpacePermission(SpacePermissions.limits.plan);
   const createMutation = useCreateLimit();
   const updateMutation = useUpdateLimit();
   const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
@@ -243,7 +243,7 @@ function ActiveField({ form }: FormComponentProps) {
 }
 
 function SubmitButton({ form, isEditing, isPending }: FormComponentProps & { isEditing: boolean; isPending: boolean }) {
-  const canPlan = useHouseholdPermission(HouseholdPermissions.limits.plan);
+  const canPlan = useSpacePermission(SpacePermissions.limits.plan);
   const label = isEditing ? 'Update limit' : 'Create limit';
 
   return (

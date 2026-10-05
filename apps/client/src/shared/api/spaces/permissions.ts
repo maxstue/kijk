@@ -1,8 +1,8 @@
 /**
- * Household permissions granted by the fixed household roles. Mirrors `HouseholdPermissions` in the API; check
- * permissions, never role names.
+ * Space permissions granted by the fixed space roles. Mirrors `SpacePermissions` in the API; check permissions, never
+ * role names.
  */
-export const HouseholdPermissions = {
+export const SpacePermissions = {
   budgets: {
     plan: 'budgets:plan',
   },
@@ -18,9 +18,9 @@ export const HouseholdPermissions = {
     record: 'finances:record',
     view: 'finances:view',
   },
-  household: {
-    configure: 'household:configure',
-    delete: 'household:delete',
+  space: {
+    configure: 'space:configure',
+    delete: 'space:delete',
   },
   limits: {
     plan: 'limits:plan',
@@ -39,14 +39,14 @@ export const HouseholdPermissions = {
   },
 } as const;
 
-type PermissionGroups = typeof HouseholdPermissions;
-/** Any permission name from {@link HouseholdPermissions}. */
-export type HouseholdPermission = {
+type PermissionGroups = typeof SpacePermissions;
+/** Any permission name from {@link SpacePermissions}. */
+export type SpacePermission = {
   [Group in keyof PermissionGroups]: PermissionGroups[Group][keyof PermissionGroups[Group]];
 }[keyof PermissionGroups];
 
 /** Human-readable descriptions of each permission, used to show what a role allows. */
-export const householdPermissionLabels: Record<HouseholdPermission, string> = {
+export const spacePermissionLabels: Record<SpacePermission, string> = {
   'budgets:plan': 'Create and change budgets',
   'consumptions:export': 'Export consumptions',
   'consumptions:record': 'Record and correct consumptions',
@@ -56,8 +56,8 @@ export const householdPermissionLabels: Record<HouseholdPermission, string> = {
   'finances:import': 'Import transactions from bank exports',
   'finances:record': 'Record, categorize and correct transactions',
   'finances:view': 'View transactions and the budget overview',
-  'household:configure': 'Change space details',
-  'household:delete': 'Delete the space',
+  'space:configure': 'Change space details',
+  'space:delete': 'Delete the space',
   'limits:plan': 'Create and change consumption limits',
   'limits:view': 'View consumption limits',
   'members:assign-role': 'Change the roles of other members',
@@ -67,11 +67,11 @@ export const householdPermissionLabels: Record<HouseholdPermission, string> = {
   'units:share': 'Share units with the space',
 };
 
-interface HouseholdWithRole {
+interface SpaceWithRole {
   role: { permissions: readonly string[] };
 }
 
-/** Returns whether the user's role in the household grants the permission. */
-export function hasHouseholdPermission(household: HouseholdWithRole | undefined, permission: HouseholdPermission) {
-  return household?.role.permissions.includes(permission) ?? false;
+/** Returns whether the user's role in the space grants the permission. */
+export function hasSpacePermission(space: SpaceWithRole | undefined, permission: SpacePermission) {
+  return space?.role.permissions.includes(permission) ?? false;
 }

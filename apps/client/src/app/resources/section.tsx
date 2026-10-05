@@ -15,8 +15,8 @@ import { useState } from 'react';
 
 import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/columns';
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
-import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
+import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { DataTable } from '@/shared/components/data-table';
 import { CreatorTypes } from '@/shared/types/domain';
@@ -27,8 +27,8 @@ export function ResourceTypesSection() {
   const [showDialog, setShowDialog] = useState(false);
   const { data } = useSuspenseQuery(resourcesQueryOptions());
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const activeHousehold = currentAccount?.user?.households?.find((household) => household.isActive);
-  const canManage = hasHouseholdPermission(activeHousehold, HouseholdPermissions.resources.configure);
+  const activeSpace = currentAccount?.user?.spaces?.find((space) => space.isActive);
+  const canManage = hasSpacePermission(activeSpace, SpacePermissions.resources.configure);
   const columns = getResourceTypeColumns(canManage);
 
   const handleClose = () => setShowDialog(false);

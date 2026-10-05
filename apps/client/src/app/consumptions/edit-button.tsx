@@ -2,8 +2,8 @@ import { Button } from '@kijk/ui/components/button';
 import { Link } from '@tanstack/react-router';
 import { EditIcon } from 'lucide-react';
 
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 interface Props {
   id: string;
@@ -11,7 +11,7 @@ interface Props {
 
 /** Opens the edit page of a consumption, keeping the current search params. */
 export function ConsumptionEditButton({ id }: Props) {
-  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
+  const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   if (!canRecord) {
     return null;
   }

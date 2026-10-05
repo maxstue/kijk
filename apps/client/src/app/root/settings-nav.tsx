@@ -13,10 +13,10 @@ import { ArrowLeftIcon, LockIcon, UsersIcon } from 'lucide-react';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { settingsNavGroups } from '@/shared/navigation/settings';
 
-/** Sidebar navigation of the settings pages, including one entry per household. */
+/** Sidebar navigation of the settings pages, including one entry per space. */
 export function SettingsNav() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const households = currentAccount?.user?.households ?? [];
+  const spaces = currentAccount?.user?.spaces ?? [];
   return (
     <>
       <SidebarGroup>
@@ -36,20 +36,20 @@ export function SettingsNav() {
 
       {settingsNavGroups.map((group) => (
         <SidebarGroup key={group.label}>
-          <SidebarGroupLabel>{group.label === 'Household' ? 'Spaces' : group.label}</SidebarGroupLabel>
+          <SidebarGroupLabel>{group.label === 'Space' ? 'Spaces' : group.label}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {group.label === 'Household'
-                ? households.map((household) => (
-                    <SidebarMenuItem key={household.id}>
+              {group.label === 'Space'
+                ? spaces.map((space) => (
+                    <SidebarMenuItem key={space.id}>
                       <SidebarMenuButton asChild>
                         <Link
                           activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' }}
-                          params={{ householdId: household.id }}
-                          to='/settings/households/$householdId'
+                          params={{ spaceId: space.id }}
+                          to='/settings/spaces/$spaceId'
                         >
-                          {household.isPersonal ? <LockIcon /> : <UsersIcon />}
-                          <span>{household.name}</span>
+                          {space.isPersonal ? <LockIcon /> : <UsersIcon />}
+                          <span>{space.name}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -2,21 +2,21 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { queryKeys } from '@/shared/api/query-keys';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 
 import { LimitsSection } from './section';
 
 vi.mock('@/app/limits/form', () => ({ LimitForm: () => null }));
 
 test.each([
-  { role: 'Admin', permissions: [HouseholdPermissions.limits.plan], disabled: false },
-  { role: 'Member', permissions: [HouseholdPermissions.limits.view], disabled: true },
-  { role: 'Viewer', permissions: [HouseholdPermissions.limits.view], disabled: true },
+  { role: 'Admin', permissions: [SpacePermissions.limits.plan], disabled: false },
+  { role: 'Member', permissions: [SpacePermissions.limits.view], disabled: true },
+  { role: 'Viewer', permissions: [SpacePermissions.limits.view], disabled: true },
 ])('$role gets limit actions matching its permissions', async ({ permissions, disabled }) => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   client.setQueryData(queryKeys.users.me, {
-    user: { households: [{ isActive: true, role: { permissions } }] },
+    user: { spaces: [{ isActive: true, role: { permissions } }] },
   });
   client.setQueryData(queryKeys.limits.list(), [
     {

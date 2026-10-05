@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { exportConsumption, exportConsumptionMonth } from '@/shared/api/consumptions/requests';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { saveDownload } from '@/shared/utils/download';
 import type { Months } from '@/shared/utils/months';
 
@@ -15,7 +15,7 @@ type Props =
 
 /** Downloads a single consumption (`consumptionId`) or a whole month (`year` + `month`) as CSV. */
 export function ConsumptionExportButton(props: Props) {
-  const canExport = useHouseholdPermission(HouseholdPermissions.consumptions.export);
+  const canExport = useSpacePermission(SpacePermissions.consumptions.export);
   const [isExporting, setIsExporting] = useState(false);
   const isSingleExport = props.consumptionId !== undefined;
   const label = isSingleExport ? 'Export consumption' : 'Export monthly consumptions';

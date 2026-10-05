@@ -3,7 +3,7 @@ import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { CreateCategoryRequest } from './types';
 
-/** Loads the system categories and the active household's own categories. */
+/** Loads the system categories and the active space's own categories. */
 export async function getCategories(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/categories', { signal }));
 }

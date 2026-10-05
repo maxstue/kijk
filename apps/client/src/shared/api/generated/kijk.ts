@@ -8,7 +8,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets the accounts of the active household */
+    /** Gets the accounts of the active space */
     get: {
       parameters: {
         query?: never;
@@ -158,7 +158,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets all budget versions of the active household */
+    /** Gets all budget versions of the active space */
     get: {
       parameters: {
         query?: never;
@@ -401,7 +401,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets the categories available to the active household */
+    /** Gets the categories available to the active space */
     get: {
       parameters: {
         query?: never;
@@ -551,7 +551,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets the remembered category corrections of the active household */
+    /** Gets the remembered category corrections of the active space */
     get: {
       parameters: {
         query?: never;
@@ -1010,218 +1010,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/households/roles': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Gets the household roles and their permissions */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['HouseholdRoleResponse'][];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/households/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Updates household details */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateHouseholdRequest'];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    post?: never;
-    /** Deletes a household and its data */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/households/{id}/members': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Gets the members of a household with their roles */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['HouseholdMemberResponse'][];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/households/{id}/members/{userId}/role': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Changes the role of another household member */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-          userId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['ChangeMemberRoleRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['HouseholdMemberResponse'];
-          };
-        };
-        400: components['responses']['400'];
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        404: components['responses']['404'];
-        409: components['responses']['409'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/imports': {
     parameters: {
       query?: never;
@@ -1229,7 +1017,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets the latest imports of the active household */
+    /** Gets the latest imports of the active space */
     get: {
       parameters: {
         query?: never;
@@ -1756,7 +1544,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets the import settings of the active household */
+    /** Gets the import settings of the active space */
     get: {
       parameters: {
         query?: never;
@@ -1784,7 +1572,7 @@ export interface paths {
         500: components['responses']['500'];
       };
     };
-    /** Changes the import settings of the active household */
+    /** Changes the import settings of the active space */
     put: {
       parameters: {
         query?: never;
@@ -1830,7 +1618,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets consumption limits for the active household */
+    /** Gets consumption limits for the active space */
     get: {
       parameters: {
         query?: never;
@@ -2098,6 +1886,218 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/spaces/roles': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the space roles and their permissions */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['SpaceRoleResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/spaces/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Updates space details */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateSpaceRequest'];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    /** Deletes a space and its data */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/spaces/{id}/members': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the members of a space with their roles */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['SpaceMemberResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/spaces/{id}/members/{userId}/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Changes the role of another space member */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+          userId: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['ChangeMemberRoleRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['SpaceMemberResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/transactions': {
     parameters: {
       query?: never;
@@ -2105,7 +2105,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets transactions of the active household, optionally by year, month or without category */
+    /** Gets transactions of the active space, optionally by year, month or without category */
     get: {
       parameters: {
         query?: {
@@ -2524,8 +2524,8 @@ export interface paths {
     get: {
       parameters: {
         query: {
-          household: boolean;
-          householdId?: string;
+          space: boolean;
+          spaceId?: string;
           page: number | string;
           pageSize: number | string;
           search?: string;
@@ -2724,7 +2724,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/units/{id}/households/{householdId}': {
+  '/api/units/{id}/spaces/{spaceId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -2732,14 +2732,14 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Shares a unit with a household */
+    /** Shares a unit with a space */
     put: {
       parameters: {
         query?: never;
         header?: never;
         path: {
           id: string;
-          householdId: string;
+          spaceId: string;
         };
         cookie?: never;
       };
@@ -2762,14 +2762,14 @@ export interface paths {
       };
     };
     post?: never;
-    /** Removes a unit from a household */
+    /** Removes a unit from a space */
     delete: {
       parameters: {
         query?: never;
         header?: never;
         path: {
           id: string;
-          householdId: string;
+          spaceId: string;
         };
         cookie?: never;
       };
@@ -2886,7 +2886,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/users/active-household': {
+  '/api/users/active-space': {
     parameters: {
       query?: never;
       header?: never;
@@ -2904,7 +2904,7 @@ export interface paths {
       };
       requestBody: {
         content: {
-          'application/json': components['schemas']['SwitchHouseholdRequest'];
+          'application/json': components['schemas']['SwitchSpaceRequest'];
         };
       };
       responses: {
@@ -2985,12 +2985,12 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     /**
-     * Represents the kind of a household account.
+     * Represents the kind of a space account.
      *
      * @enum {unknown}
      */
     AccountKind: 'Bank' | 'Cash';
-    /** A bank account of the household. */
+    /** A bank account of the space. */
     AccountResponse: {
       /**
        * Format: uuid
@@ -3007,7 +3007,7 @@ export interface components {
       visibility: components['schemas']['Visibility'];
     };
     /**
-     * Represents which transaction data a household lets the AI categorization see.
+     * Represents which transaction data a space lets the AI categorization see.
      *
      * @enum {unknown}
      */
@@ -3363,7 +3363,7 @@ export interface components {
       /** The active budget per month, or `null` where none applies. */
       budget: (null | number | string)[];
     };
-    /** Contains the new role of a household member. */
+    /** Contains the new role of a space member. */
     ChangeMemberRoleRequest: {
       /**
        * Format: uuid
@@ -3642,7 +3642,7 @@ export interface components {
       purpose: null | string;
       /** Whether the transaction is booked or pending. */
       status: components['schemas']['TransactionStatus'];
-      /** Whether it is a transfer between the household's own accounts. */
+      /** Whether it is a transfer between the space's own accounts. */
       isTransfer: boolean;
       /**
        * Format: uuid
@@ -3665,7 +3665,7 @@ export interface components {
       referenceUnitId: string;
       /** Format: double */
       conversionFactor: number | string;
-      shareWithHouseholdIds: null | string[];
+      shareWithSpaceIds: null | string[];
     };
     /**
      * Represents who was the creator of the object.
@@ -3804,7 +3804,7 @@ export interface components {
       /** Format: date-time */
       onboardingCompletedAt: null | string;
       aiEnabled: boolean;
-      households: null | components['schemas']['UserHouseholdResponse'][];
+      spaces: null | components['schemas']['UserSpaceResponse'][];
       resources: null | components['schemas']['UserResourceResponse'][];
       /** Gets whether the user has completed onboarding. */
       onboardingCompleted?: boolean;
@@ -3812,43 +3812,15 @@ export interface components {
       useExternalProfile?: null | boolean;
       externalIdentity?: null | components['schemas']['ExternalIdentityResponse'];
     };
-    /** Consumption statistics of the active household. */
+    /** Consumption statistics of the active space. */
     GetStatsConsumptionsResponseWrapper: {
       /** One entry per resource. */
       stats: components['schemas']['ConsumptionStatsResponse'][];
     };
-    /** The years with consumptions in the active household. */
+    /** The years with consumptions in the active space. */
     GetYearsConsumptionQueryResponse: {
       /** The years. */
       years: (number | string)[];
-    };
-    /** A member of a household. */
-    HouseholdMemberResponse: {
-      /**
-       * Format: uuid
-       *
-       * The member's user identifier.
-       */
-      userId: string;
-      /** The member's display name. */
-      name: string;
-      /** The member's role in the household. */
-      role: components['schemas']['HouseholdRoleResponse'];
-      /** Whether the member is the current user. */
-      isCurrentUser: boolean;
-    };
-    /** A household role and the permissions it grants. */
-    HouseholdRoleResponse: {
-      /**
-       * Format: uuid
-       *
-       * The role identifier.
-       */
-      id: string;
-      /** The role name. */
-      name: string;
-      /** The permission names granted by the role. */
-      permissions: string[];
     };
     HttpValidationProblemDetails: {
       type?: null | string;
@@ -4033,7 +4005,7 @@ export interface components {
        */
       recordCount: number | string;
     };
-    /** The import settings of the active household. */
+    /** The import settings of the active space. */
     ImportSettingsResponse: {
       /** How much of the purpose text imported transactions keep. */
       purposeRetention: components['schemas']['PurposeRetention'];
@@ -4110,7 +4082,7 @@ export interface components {
       instance?: null | string;
     };
     /**
-     * Represents how much of the purpose text a household keeps after an import.
+     * Represents how much of the purpose text a space keeps after an import.
      *
      * @enum {unknown}
      */
@@ -4144,16 +4116,44 @@ export interface components {
       /** Whether it is a system or a custom resource. */
       creatorType: components['schemas']['CreatorType'];
     };
+    /** A member of a space. */
+    SpaceMemberResponse: {
+      /**
+       * Format: uuid
+       *
+       * The member's user identifier.
+       */
+      userId: string;
+      /** The member's display name. */
+      name: string;
+      /** The member's role in the space. */
+      role: components['schemas']['SpaceRoleResponse'];
+      /** Whether the member is the current user. */
+      isCurrentUser: boolean;
+    };
+    /** A space role and the permissions it grants. */
+    SpaceRoleResponse: {
+      /**
+       * Format: uuid
+       *
+       * The role identifier.
+       */
+      id: string;
+      /** The role name. */
+      name: string;
+      /** The permission names granted by the role. */
+      permissions: string[];
+    };
     /** Request for switching the active space of the current user. */
-    SwitchHouseholdRequest: {
+    SwitchSpaceRequest: {
       /**
        * Format: uuid
        *
        * The space to switch to; the user must be a member.
        */
-      householdId: string;
+      spaceId: string;
     };
-    /** A transaction of the household. */
+    /** A transaction of the space. */
     TransactionResponse: {
       /**
        * Format: uuid
@@ -4181,7 +4181,7 @@ export interface components {
       purpose: null | string;
       /** Whether the transaction is booked or pending. */
       status: components['schemas']['TransactionStatus'];
-      /** Whether it is a transfer between the household's own accounts. */
+      /** Whether it is a transfer between the space's own accounts. */
       isTransfer: boolean;
       /**
        * Format: uuid
@@ -4245,11 +4245,11 @@ export interface components {
       /** Format: uuid */
       ownerUserId: null | string;
       isOwner: boolean;
-      isAvailableInActiveHousehold: boolean;
+      isAvailableInActiveSpace: boolean;
       isArchived: boolean;
       /** Format: int32 */
       resourceCount: number | string;
-      householdIds: string[];
+      spaceIds: string[];
     };
     /** Request for replacing the editable properties of an account. */
     UpdateAccountRequest: {
@@ -4317,13 +4317,6 @@ export interface components {
      * @enum {unknown}
      */
     UpdateConsumptionValueTypes: 'Absolute' | 'Relative';
-    /** Contains the editable details for a household. */
-    UpdateHouseholdRequest: {
-      /** The household name. */
-      name: string;
-      /** An optional household description. */
-      description: null | string;
-    };
     /** Request for changing a row during the review. */
     UpdateImportCandidateRequest: {
       /**
@@ -4340,7 +4333,7 @@ export interface components {
        */
       countsAsOffset?: null | boolean;
     };
-    /** Request for changing the import settings of the active household. */
+    /** Request for changing the import settings of the active space. */
     UpdateImportSettingsRequest: {
       /** How much of the purpose text imported transactions keep. */
       purposeRetention: components['schemas']['PurposeRetention'];
@@ -4372,6 +4365,13 @@ export interface components {
        */
       unitId: null | string;
     };
+    /** Contains the editable details for a space. */
+    UpdateSpaceRequest: {
+      /** The space name. */
+      name: string;
+      /** An optional space description. */
+      description: null | string;
+    };
     /** Request for replacing the editable properties of a transaction. */
     UpdateTransactionRequest: {
       /**
@@ -4392,7 +4392,7 @@ export interface components {
       purpose: null | string;
       /** Whether the transaction is booked or pending. */
       status: components['schemas']['TransactionStatus'];
-      /** Whether it is a transfer between the household's own accounts. */
+      /** Whether it is a transfer between the space's own accounts. */
       isTransfer: boolean;
       /**
        * Format: uuid
@@ -4424,43 +4424,11 @@ export interface components {
       useDefaultResources: null | boolean;
       /** Whether Kijk may use the name and image from the authentication provider. */
       useExternalProfile: null | boolean;
-      /** The new name of the active household. */
-      householdName: null | string;
+      /** The new name of the active space. */
+      spaceName: null | string;
       analyticsConsent: null | components['schemas']['AnalyticsConsent'];
       /** Whether AI features are allowed for the user. */
       aiEnabled?: null | boolean;
-    };
-    /** A household membership of the current user. */
-    UserHouseholdResponse: {
-      /**
-       * Format: uuid
-       *
-       * The household id.
-       */
-      id: string;
-      /** The household name. */
-      name: string;
-      /** An optional description. */
-      description: null | string;
-      /** The user's role in the household. */
-      role: components['schemas']['UserHouseholdRoleResponse'];
-      /** Whether this is the user's active household. */
-      isActive: boolean;
-      /** Whether this is the user's personal space, which is never shared. */
-      isPersonal: boolean;
-    };
-    /** The user's role in a household. */
-    UserHouseholdRoleResponse: {
-      /**
-       * Format: uuid
-       *
-       * The role id.
-       */
-      id: string;
-      /** The role name. */
-      name: string;
-      /** The permissions the role grants. */
-      permissions: string[];
     };
     /** A resource the user has enabled. */
     UserResourceResponse: {
@@ -4513,6 +4481,38 @@ export interface components {
       /** Gets whether the user has completed onboarding. */
       onboardingCompleted?: boolean;
     };
+    /** A space membership of the current user. */
+    UserSpaceResponse: {
+      /**
+       * Format: uuid
+       *
+       * The space id.
+       */
+      id: string;
+      /** The space name. */
+      name: string;
+      /** An optional description. */
+      description: null | string;
+      /** The user's role in the space. */
+      role: components['schemas']['UserSpaceRoleResponse'];
+      /** Whether this is the user's active space. */
+      isActive: boolean;
+      /** Whether this is the user's personal space, which is never shared. */
+      isPersonal: boolean;
+    };
+    /** The user's role in a space. */
+    UserSpaceRoleResponse: {
+      /**
+       * Format: uuid
+       *
+       * The role id.
+       */
+      id: string;
+      /** The role name. */
+      name: string;
+      /** The permissions the role grants. */
+      permissions: string[];
+    };
     /**
      * Represents who can see an account or a budget within a shared space.
      *
@@ -4523,8 +4523,8 @@ export interface components {
     WelcomeUserRequest: {
       /** The display name used by Kijk. */
       displayName: string;
-      /** The name of the user's active household. */
-      householdName: string;
+      /** The name of the user's active space. */
+      spaceName: string;
       /** Whether all system default resources should be enabled. */
       useDefaultResources: boolean;
       /** Whether Kijk may use the Clerk-managed full name and profile image. */

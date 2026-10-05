@@ -25,13 +25,13 @@ import { RulesDialog } from '@/app/transactions/rules-dialog';
 import { accountsQueryOptions } from '@/shared/api/accounts/options';
 import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { transactionsQueryOptions } from '@/shared/api/transactions/options';
 import { AppError } from '@/shared/components/errors/app-error';
 import { MonthSwitcher } from '@/shared/components/month-switcher';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const searchSchema = z.object({
   month: z
@@ -73,7 +73,7 @@ function TransactionsPage() {
   useSetSiteHeader('Transactions');
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const uncategorizedId = useId();
 

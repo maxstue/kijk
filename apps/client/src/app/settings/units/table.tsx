@@ -8,14 +8,14 @@ import type { Unit } from '@/shared/api/units/types';
 import { UnitRowActions } from './row-actions';
 
 interface Props {
-  householdId?: string;
-  /** Households in which the user's role allows sharing units. */
-  shareableHouseholds: Array<{ id: string; name: string }>;
+  spaceId?: string;
+  /** Spaces in which the user's role allows sharing units. */
+  shareableSpaces: Array<{ id: string; name: string }>;
   isPending: boolean;
   items: Unit[];
   page: number;
   pageSize: number;
-  scope: 'household' | 'personal';
+  scope: 'space' | 'personal';
   search: string;
   setPage: (page: number) => void;
   setSearch: (search: string) => void;
@@ -25,8 +25,8 @@ interface Props {
 
 /** Paginated, searchable unit table. */
 export function UnitTable({
-  householdId,
-  shareableHouseholds,
+  spaceId,
+  shareableSpaces,
   isPending,
   items,
   page,
@@ -95,8 +95,8 @@ export function UnitTable({
                   <TableCell>{unit.isArchived ? 'Archived' : 'Active'}</TableCell>
                   <TableCell>
                     <UnitRowActions
-                      householdId={householdId}
-                      shareableHouseholds={shareableHouseholds}
+                      spaceId={spaceId}
+                      shareableSpaces={shareableSpaces}
                       scope={scope}
                       systemUnits={systemUnits}
                       unit={unit}

@@ -8,18 +8,18 @@ import { toast } from 'sonner';
 
 import { aiDataSharingLabels, purposeRetentionLabels } from '@/app/imports/constants';
 import { useUpdateImportSettings } from '@/app/imports/use-import-mutations';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { importSettingsQueryOptions } from '@/shared/api/imports/options';
 import type { AiDataSharing, ImportSettings, PurposeRetention } from '@/shared/api/imports/types';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const retentions = Object.keys(purposeRetentionLabels) as PurposeRetention[];
 const sharingLevels = Object.keys(aiDataSharingLabels) as AiDataSharing[];
 
 /** Cards for choosing how much of the purpose text imported transactions keep and what the AI may see. */
 export function ImportSettingsCard() {
-  const canConfigure = useHouseholdPermission(HouseholdPermissions.finances.configure);
+  const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
   const { data } = useSuspenseQuery(importSettingsQueryOptions());
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const updateMutation = useUpdateImportSettings();

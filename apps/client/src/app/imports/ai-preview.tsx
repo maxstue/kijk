@@ -18,7 +18,7 @@ import { currentUserQueryOptions } from '@/shared/api/users/options';
 
 /**
  * AI categorization of an import: shows exactly what would be sent, lets the user deselect texts and starts it. Hidden
- * when the user turned AI off; collapsed when the household's default is Off.
+ * when the user turned AI off; collapsed when the space's default is Off.
  */
 export function ImportAiCategorization({ job }: { job: ImportJob }) {
   const { data: currentUser } = useQuery(currentUserQueryOptions());

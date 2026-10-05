@@ -13,7 +13,7 @@ export const consumptionCreateSchema = z.object({
   valueType: z.enum(ValueTypes).default('Absolute'),
   startsNewMeterSegment: z.boolean().default(false),
   resourceId: z.uuid(),
-  householdId: z.uuid().optional(),
+  spaceId: z.uuid().optional(),
   // Date is not allowed to be in the future
   date: z.date().max(new Date(), {
     message: 'Date cannot be in the future',
@@ -35,7 +35,7 @@ export const consumptionUpdateSchema = z.object({
   valueType: z.enum(ValueTypes).default('Absolute'),
   startsNewMeterSegment: z.boolean().default(false),
   resourceId: z.uuid(),
-  householdId: z.uuid().optional(),
+  spaceId: z.uuid().optional(),
   // Date is not allowed to be in the future
   date: z.date().max(new Date(), {
     message: 'Date cannot be in the future',

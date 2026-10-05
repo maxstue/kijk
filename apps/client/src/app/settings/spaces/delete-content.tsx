@@ -14,31 +14,31 @@ import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { deleteHouseholdMutationOptions } from '@/shared/api/households/options';
 import { queryKeys } from '@/shared/api/query-keys';
+import { deleteSpaceMutationOptions } from '@/shared/api/spaces/options';
 
-import { useHouseholdSettings } from './context';
-import { clearHouseholdData } from './helpers';
+import { useSpaceSettings } from './context';
+import { clearSpaceData } from './helpers';
 
-/** Confirmation dialog content for deleting the household with all of its data. */
-export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
-  const { household, user } = useHouseholdSettings();
+/** Confirmation dialog content for deleting the space with all of its data. */
+export function SpaceDeleteContent({ onClose }: { onClose: () => void }) {
+  const { space, user } = useSpaceSettings();
   const [confirmation, setConfirmation] = useState('');
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { isPending, mutate } = useMutation(deleteHouseholdMutationOptions());
-  const hasAnotherHousehold = user.households?.some((entry) => entry.id !== household.id) ?? false;
+  const { isPending, mutate } = useMutation(deleteSpaceMutationOptions());
+  const hasAnotherSpace = user.spaces?.some((entry) => entry.id !== space.id) ?? false;
 
   function handleDelete() {
-    mutate(household.id, {
+    mutate(space.id, {
       onError: (error) => toast.error(error.message),
       onSuccess: () => {
         void (async () => {
-          await clearHouseholdData(queryClient);
+          await clearSpaceData(queryClient);
           await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
-          toast.success(`Deleted household: ${household.name}`);
+          toast.success(`Deleted space: ${space.name}`);
           onClose();
-          await navigate({ replace: true, to: hasAnotherHousehold ? '/home' : '/welcome' });
+          await navigate({ replace: true, to: hasAnotherSpace ? '/home' : '/welcome' });
         })().catch((error: unknown) =>
           toast.error(error instanceof Error ? error.message : 'Could not open the next page'),
         );
@@ -49,19 +49,19 @@ export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Delete {household.name}?</AlertDialogTitle>
+        <AlertDialogTitle>Delete {space.name}?</AlertDialogTitle>
         <AlertDialogDescription>
           This permanently deletes the space, its resources, consumption history, limits, shared unit access, and member
-          links. Members with no other household will need to set up a new one. This cannot be undone.
+          links. Members with no other space will need to set up a new one. This cannot be undone.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <div className='space-y-2'>
-        <label className='text-sm font-medium' htmlFor='household-delete-confirmation'>
-          Type <span className='font-semibold'>{household.name}</span> to confirm.
+        <label className='text-sm font-medium' htmlFor='space-delete-confirmation'>
+          Type <span className='font-semibold'>{space.name}</span> to confirm.
         </label>
         <Input
           autoComplete='off'
-          id='household-delete-confirmation'
+          id='space-delete-confirmation'
           value={confirmation}
           onChange={(event) => setConfirmation(event.target.value)}
         />
@@ -69,7 +69,7 @@ export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
       <AlertDialogFooter>
         <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
         <AlertDialogAction
-          disabled={isPending || confirmation.trim() !== household.name}
+          disabled={isPending || confirmation.trim() !== space.name}
           variant='destructive'
           onClick={(event) => {
             event.preventDefault();

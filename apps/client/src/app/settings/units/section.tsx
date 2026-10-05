@@ -14,7 +14,7 @@ import { Link } from '@tanstack/react-router';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 
-import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
+import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
 import { systemUnitsQueryOptions, unitPageQueryOptions } from '@/shared/api/units/options';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 
@@ -22,47 +22,44 @@ import { UnitCreateForm } from './create-form';
 import { UnitTable } from './table';
 
 interface Props {
-  householdId?: string;
-  scope: 'household' | 'personal';
+  spaceId?: string;
+  scope: 'space' | 'personal';
 }
 
-/** Units page for personal units or the units of a household, with statistics, table and create dialog. */
-export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props) {
+/** Units page for personal units or the units of a space, with statistics, table and create dialog. */
+export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
   const [showDialog, setShowDialog] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const { data: pageData, isPending } = useQuery(
-    unitPageQueryOptions(scope, selectedHouseholdId, page, 20, deferredSearch),
+    unitPageQueryOptions(scope, selectedSpaceId, page, 20, deferredSearch),
   );
   const { data: systemUnits = [] } = useQuery(systemUnitsQueryOptions());
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const households = currentAccount?.user?.households ?? [];
-  const activeHousehold = households.find((household) => household.isActive);
-  const householdId = selectedHouseholdId ?? activeHousehold?.id;
-  const selectedHousehold = households.find((household) => household.id === householdId);
-  // In the household scope a new unit is shared with that household right away, which needs units:share.
+  const spaces = currentAccount?.user?.spaces ?? [];
+  const activeSpace = spaces.find((space) => space.isActive);
+  const spaceId = selectedSpaceId ?? activeSpace?.id;
+  const selectedSpace = spaces.find((space) => space.id === spaceId);
+  // In the space scope a new unit is shared with that space right away, which needs units:share.
   const canCreate =
-    scope === 'personal' ||
-    (householdId !== undefined && hasHouseholdPermission(selectedHousehold, HouseholdPermissions.units.share));
-  const shareableHouseholds = households.filter((household) =>
-    hasHouseholdPermission(household, HouseholdPermissions.units.share),
-  );
+    scope === 'personal' || (spaceId !== undefined && hasSpacePermission(selectedSpace, SpacePermissions.units.share));
+  const shareableSpaces = spaces.filter((space) => hasSpacePermission(space, SpacePermissions.units.share));
 
   return (
     <div className='space-y-6'>
       <div>
         <h3 className='text-lg font-medium'>
-          {scope === 'personal' ? 'Units' : `${selectedHousehold?.name ?? 'Space'} units`}
+          {scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
         </h3>
         <p className='text-muted-foreground text-sm'>
           {scope === 'personal'
-            ? 'Browse system units and manage the custom units you can use across households.'
+            ? 'Browse system units and manage the custom units you can use across spaces.'
             : 'Browse system units and units shared with this space.'}
         </p>
       </div>
       <Separator />
-      {scope === 'household' && (
+      {scope === 'space' && (
         <p className='text-muted-foreground text-sm'>
           Have a personal unit to use here?{' '}
           <Link
@@ -96,7 +93,7 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
               <DialogDescription>Define a custom unit relative to a supported system unit.</DialogDescription>
             </DialogHeader>
             <UnitCreateForm
-              householdId={scope === 'household' ? householdId : undefined}
+              spaceId={scope === 'space' ? spaceId : undefined}
               onClose={() => setShowDialog(false)}
               systemUnits={systemUnits}
             />
@@ -110,8 +107,8 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
         </CardHeader>
         <CardContent>
           <UnitTable
-            householdId={householdId}
-            shareableHouseholds={shareableHouseholds}
+            spaceId={spaceId}
+            shareableSpaces={shareableSpaces}
             isPending={isPending}
             items={pageData?.items ?? []}
             page={page}

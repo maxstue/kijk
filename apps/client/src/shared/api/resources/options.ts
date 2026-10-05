@@ -5,7 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { createResource, deleteResource, getResource, getResources, updateResource } from './requests';
 import type { ResourceData, UpdateResourceData } from './types';
 
-/** Query for the resources of the active household. */
+/** Query for the resources of the active space. */
 export const resourcesQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getResources(signal),

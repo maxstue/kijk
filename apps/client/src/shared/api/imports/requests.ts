@@ -12,7 +12,7 @@ import type {
   UpdateImportSettingsRequest,
 } from './types';
 
-/** Loads the latest imports of the active household. */
+/** Loads the latest imports of the active space. */
 export async function getImports(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/imports', { signal }));
 }
@@ -74,12 +74,12 @@ export async function cancelImport(id: string) {
   return unwrapApiResponse(await apiClient.POST('/api/imports/{id}/cancel', { params: { path: { id } } }));
 }
 
-/** Loads the import settings of the active household. */
+/** Loads the import settings of the active space. */
 export async function getImportSettings(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/imports/settings', { signal }));
 }
 
-/** Changes the import settings of the active household. */
+/** Changes the import settings of the active space. */
 export async function updateImportSettings(data: UpdateImportSettingsRequest) {
   return unwrapApiResponse(await apiClient.PUT('/api/imports/settings', { body: data }));
 }

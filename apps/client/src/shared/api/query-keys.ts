@@ -5,10 +5,10 @@ const users = {
   me: ['users', 'me'] as const,
 };
 
-const households = {
-  all: ['households'] as const,
-  members: (householdId: string) => [...households.all, 'members', householdId] as const,
-  roles: () => [...households.all, 'roles'] as const,
+const spaces = {
+  all: ['spaces'] as const,
+  members: (spaceId: string) => [...spaces.all, 'members', spaceId] as const,
+  roles: () => [...spaces.all, 'roles'] as const,
 };
 
 const resources = {
@@ -74,13 +74,8 @@ const categoryRules = {
 const units = {
   all: ['units'] as const,
   list: (includeArchived = false) => [...units.all, 'list', includeArchived] as const,
-  page: (
-    scope: 'household' | 'personal',
-    householdId: string | undefined,
-    page: number,
-    pageSize: number,
-    search: string,
-  ) => [...units.all, 'page', scope, householdId, page, pageSize, search] as const,
+  page: (scope: 'space' | 'personal', spaceId: string | undefined, page: number, pageSize: number, search: string) =>
+    [...units.all, 'page', scope, spaceId, page, pageSize, search] as const,
   system: () => [...units.all, 'system'] as const,
 };
 
@@ -92,7 +87,7 @@ export const queryKeys = {
   categoryRules,
   limits,
   consumptions,
-  households,
+  spaces,
   imports,
   resources,
   transactions,

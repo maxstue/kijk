@@ -19,10 +19,10 @@ import { BudgetForm } from '@/app/budgets/form';
 import { toAmount } from '@/app/budgets/helpers';
 import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
 import type { BudgetCategory } from '@/shared/api/budgets/types';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import { PrivateBadge } from '@/shared/components/visibility-select';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 // Recharts is large; load it only when there is something to chart.
@@ -160,8 +160,8 @@ function CategoryCard({ category, month, year }: { category: BudgetCategory; mon
 
 /** Opens the budget form of a category; members without budgets:plan may still set private budgets. */
 function EditBudgetButton({ category, month, year }: { category: BudgetCategory; month: number; year: number }) {
-  const canPlan = useHouseholdPermission(HouseholdPermissions.budgets.plan);
-  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const canPlan = useSpacePermission(SpacePermissions.budgets.plan);
+  const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const canEdit = canPlan || canRecord;
   const [showDialog, setShowDialog] = useState(false);
   const hasBudget = category.budget !== null && category.budget !== undefined;

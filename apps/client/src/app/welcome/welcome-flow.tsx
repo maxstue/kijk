@@ -39,7 +39,7 @@ import { ApiError } from '@/shared/types/errors/api-error';
 
 const steps = [
   { label: 'Profile', value: 'profile' },
-  { label: 'Space', value: 'household' },
+  { label: 'Space', value: 'space' },
   { label: 'Privacy', value: 'privacy' },
   { label: 'Review', value: 'review' },
 ] as const;
@@ -50,17 +50,17 @@ type StepValue = (typeof steps)[number]['value'];
 interface WelcomeFlowProps {
   email?: string | null;
   fullName?: string | null;
-  householdName?: string;
+  spaceName?: string;
   imageUrl?: string | null;
   initialDisplayName: string;
   onComplete: () => Promise<void>;
 }
 
-/** Multi-step onboarding: profile, household, privacy and review; calls `onComplete` when done. */
+/** Multi-step onboarding: profile, space, privacy and review; calls `onComplete` when done. */
 export function WelcomeFlow({
   email,
   fullName,
-  householdName,
+  spaceName,
   imageUrl,
   initialDisplayName,
   onComplete,
@@ -73,7 +73,7 @@ export function WelcomeFlow({
     defaultValues: {
       analyticsConsent: null,
       displayName: initialDisplayName,
-      householdName,
+      spaceName,
       useDefaultResources: true,
       useExternalProfile: null,
     },
@@ -151,9 +151,9 @@ export function WelcomeFlow({
                   <StepperContent
                     preserveLayout
                     className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
-                    value='household'
+                    value='space'
                   >
-                    <HouseholdStep control={form.control} />
+                    <SpaceStep control={form.control} />
                   </StepperContent>
                   <StepperContent
                     preserveLayout
@@ -272,12 +272,12 @@ function ProfileStep({
   );
 }
 
-function HouseholdStep({ control }: { control: ReturnType<typeof useForm<UserStepFormDraft>>['control'] }) {
+function SpaceStep({ control }: { control: ReturnType<typeof useForm<UserStepFormDraft>>['control'] }) {
   return (
     <div className='space-y-6'>
       <FormField
         control={control}
-        name='householdName'
+        name='spaceName'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Space name</FormLabel>
@@ -343,7 +343,7 @@ function PrivacyStep({ control }: { control: ReturnType<typeof useForm<UserStepF
               Kijk can be improved. Sentry router tracing starts only after you accept and uses a 10% sample without
               route parameters or request tracing. Minimal technical error reports are processed separately and remain
               active so we can detect and fix problems. They contain scrubbed diagnostics and a short-lived request
-              correlation ID, not account IDs or submitted household, resource or consumption values.{' '}
+              correlation ID, not account IDs or submitted space, resource or consumption values.{' '}
               <a
                 className='text-foreground underline underline-offset-4'
                 href='/privacy'
@@ -377,16 +377,16 @@ function PrivacyStep({ control }: { control: ReturnType<typeof useForm<UserStepF
 
 function ReviewStep() {
   const { control } = useFormContext<UserStepFormDraft>();
-  const [displayName, useExternalProfile, householdName, useDefaultResources, analyticsConsent] = useWatch({
+  const [displayName, useExternalProfile, spaceName, useDefaultResources, analyticsConsent] = useWatch({
     control,
-    name: ['displayName', 'useExternalProfile', 'householdName', 'useDefaultResources', 'analyticsConsent'],
+    name: ['displayName', 'useExternalProfile', 'spaceName', 'useDefaultResources', 'analyticsConsent'],
   });
 
   return (
     <dl className='divide-y rounded-lg border'>
       <ReviewItem label='Username' value={displayName} />
       <ReviewItem label='Sign-in profile' value={useExternalProfile ? 'Name and image used' : 'Not used'} />
-      <ReviewItem label='Space' value={householdName} />
+      <ReviewItem label='Space' value={spaceName} />
       <ReviewItem label='Default resources' value={useDefaultResources ? 'All defaults' : 'None'} />
       <ReviewItem label='Analytics and tracing' value={analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
     </dl>
@@ -418,7 +418,7 @@ function stepDescription(step: number) {
 function validateStep(form: UseFormReturn<UserStepFormDraft, unknown, UserStepFormValues>, currentStep: number) {
   const fieldsByStep = [
     ['displayName', 'useExternalProfile'],
-    ['householdName', 'useDefaultResources'],
+    ['spaceName', 'useDefaultResources'],
     ['analyticsConsent'],
   ] satisfies Array<Array<keyof UserStepFormDraft>>;
   const fields = fieldsByStep[currentStep];

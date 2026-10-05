@@ -15,7 +15,7 @@ export async function updateUser(data: UpdateUserData) {
       body: {
         aiEnabled: data.aiEnabled ?? null,
         analyticsConsent: data.analyticsConsent ?? null,
-        householdName: data.householdName ?? null,
+        spaceName: data.spaceName ?? null,
         useDefaultResources: data.useDefaultResources ?? null,
         useExternalProfile: data.useExternalProfile ?? null,
         userName: data.userName ?? null,
@@ -24,14 +24,14 @@ export async function updateUser(data: UpdateUserData) {
   );
 }
 
-/** Completes onboarding and creates the account and first household if needed. */
+/** Completes onboarding and creates the account and first space if needed. */
 export async function welcomeUser(data: WelcomeUserData) {
   return unwrapApiResponse(
     await apiClient.PUT('/api/users/onboarding', {
       body: {
         analyticsConsent: data.analyticsConsent,
         displayName: data.displayName,
-        householdName: data.householdName,
+        spaceName: data.spaceName,
         useDefaultResources: data.useDefaultResources,
         useExternalProfile: data.useExternalProfile,
       },
@@ -40,6 +40,6 @@ export async function welcomeUser(data: WelcomeUserData) {
 }
 
 /** Switches the active space; every other request works on the active space. */
-export async function switchHousehold(householdId: string) {
-  return unwrapApiResponse(await apiClient.PUT('/api/users/active-household', { body: { householdId } }));
+export async function switchSpace(spaceId: string) {
+  return unwrapApiResponse(await apiClient.PUT('/api/users/active-space', { body: { spaceId } }));
 }

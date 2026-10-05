@@ -3,7 +3,7 @@ import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { CreateAccountRequest } from './types';
 
-/** Loads the accounts of the active household. */
+/** Loads the accounts of the active space. */
 export async function getAccounts(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/accounts', { signal }));
 }

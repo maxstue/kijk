@@ -18,10 +18,10 @@ import {
 import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
 import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 
@@ -33,7 +33,7 @@ interface Props {
 
 /** Form to edit a consumption, prefilled with `initialData`. */
 export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Props) {
-  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
+  const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const { isPending, mutate } = useUpdateConsumption();
 
   const form = useForm({

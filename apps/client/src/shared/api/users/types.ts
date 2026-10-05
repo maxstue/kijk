@@ -16,7 +16,7 @@ export function isReadyCurrentUser(
 export interface UpdateUserData {
   aiEnabled?: boolean | null;
   analyticsConsent?: 'Accepted' | 'Declined' | null;
-  householdName?: string | null;
+  spaceName?: string | null;
   useDefaultResources?: boolean | null;
   useExternalProfile?: boolean | null;
   userName?: string | null;
@@ -26,7 +26,7 @@ export interface UpdateUserData {
 export interface WelcomeUserData {
   analyticsConsent: 'Accepted' | 'Declined';
   displayName: string;
-  householdName: string;
+  spaceName: string;
   useDefaultResources: boolean;
   useExternalProfile: boolean;
 }

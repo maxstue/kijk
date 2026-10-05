@@ -7,7 +7,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
-/** `/limits`: consumption limits of the active household. */
+/** `/limits`: consumption limits of the active space. */
 export const Route = createFileRoute('/_authenticated/_app/limits')({
   component: LimitsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,

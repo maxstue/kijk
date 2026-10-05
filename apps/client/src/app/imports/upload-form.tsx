@@ -12,14 +12,14 @@ import { toast } from 'sonner';
 
 import { useCreateImport } from '@/app/imports/use-import-mutations';
 import { accountsQueryOptions } from '@/shared/api/accounts/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const maxFileBytes = 5 * 1024 * 1024;
 
-/** Card for uploading a bank export into one of the household's bank accounts. */
+/** Card for uploading a bank export into one of the space's bank accounts. */
 export function ImportUploadForm() {
-  const canImport = useHouseholdPermission(HouseholdPermissions.finances.import);
+  const canImport = useSpacePermission(SpacePermissions.finances.import);
   const { data: accounts } = useSuspenseQuery(accountsQueryOptions());
   const bankAccounts = accounts.filter((account) => account.kind === 'Bank');
   const [accountId, setAccountId] = useState(bankAccounts[0]?.id ?? '');

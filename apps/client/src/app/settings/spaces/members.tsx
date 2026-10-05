@@ -3,31 +3,27 @@ import { Separator } from '@kijk/ui/components/separator';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 
-import { householdMembersQueryOptions, householdRolesQueryOptions } from '@/shared/api/households/options';
-import {
-  HouseholdPermissions,
-  hasHouseholdPermission,
-  householdPermissionLabels,
-} from '@/shared/api/households/permissions';
-import type { HouseholdPermission } from '@/shared/api/households/permissions';
+import { spaceMembersQueryOptions, spaceRolesQueryOptions } from '@/shared/api/spaces/options';
+import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@/shared/api/spaces/permissions';
+import type { SpacePermission } from '@/shared/api/spaces/permissions';
 
-import { HouseholdBackLink } from './back-link';
-import { useHouseholdSettings } from './context';
+import { SpaceBackLink } from './back-link';
+import { useSpaceSettings } from './context';
 import { MemberRoleSelect } from './member-role-select';
 
 /** Members page: member list with roles, the user's own permissions and the role overview. */
-export function HouseholdMembers() {
-  const { household } = useHouseholdSettings();
-  const { data: members } = useSuspenseQuery(householdMembersQueryOptions(household.id));
-  const { data: roles } = useSuspenseQuery(householdRolesQueryOptions());
-  const canAssignRoles = hasHouseholdPermission(household, HouseholdPermissions.members.assignRole);
+export function SpaceMembers() {
+  const { space } = useSpaceSettings();
+  const { data: members } = useSuspenseQuery(spaceMembersQueryOptions(space.id));
+  const { data: roles } = useSuspenseQuery(spaceRolesQueryOptions());
+  const canAssignRoles = hasSpacePermission(space, SpacePermissions.members.assignRole);
 
   return (
     <div className='mx-auto w-full max-w-4xl space-y-6'>
-      <HouseholdBackLink />
+      <SpaceBackLink />
       <div>
         <h2 className='text-lg font-medium'>Members</h2>
-        <p className='text-muted-foreground text-sm'>People in {household.name} and their roles.</p>
+        <p className='text-muted-foreground text-sm'>People in {space.name} and their roles.</p>
       </div>
       <Separator />
 
@@ -42,7 +38,7 @@ export function HouseholdMembers() {
               {member.isCurrentUser && <span className='text-muted-foreground font-normal'> (you)</span>}
             </div>
             {canAssignRoles && !member.isCurrentUser ? (
-              <MemberRoleSelect householdId={household.id} member={member} roles={roles} />
+              <MemberRoleSelect spaceId={space.id} member={member} roles={roles} />
             ) : (
               <span className='bg-muted rounded-md px-2.5 py-1 text-sm'>{member.role.name}</span>
             )}
@@ -57,10 +53,10 @@ export function HouseholdMembers() {
 
       <section className='space-y-3'>
         <div>
-          <h3 className='font-medium'>Your role: {household.role.name}</h3>
+          <h3 className='font-medium'>Your role: {space.role.name}</h3>
           <p className='text-muted-foreground text-sm'>What your role allows in this space.</p>
         </div>
-        <PermissionList permissions={household.role.permissions} />
+        <PermissionList permissions={space.role.permissions} />
       </section>
 
       <section className='space-y-3'>
@@ -89,7 +85,7 @@ function PermissionList({ permissions }: { permissions: readonly string[] }) {
       {permissions.map((permission) => (
         <li key={permission} className='flex items-start gap-2'>
           <Check aria-hidden className='text-muted-foreground mt-0.5 size-4 shrink-0' />
-          <span>{householdPermissionLabels[permission as HouseholdPermission] ?? permission}</span>
+          <span>{spacePermissionLabels[permission as SpacePermission] ?? permission}</span>
         </li>
       ))}
     </ul>

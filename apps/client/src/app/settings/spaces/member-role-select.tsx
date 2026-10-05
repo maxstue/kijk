@@ -2,31 +2,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { changeHouseholdMemberRoleMutationOptions } from '@/shared/api/households/options';
-import type { HouseholdMember, HouseholdRole } from '@/shared/api/households/types';
 import { queryKeys } from '@/shared/api/query-keys';
+import { changeSpaceMemberRoleMutationOptions } from '@/shared/api/spaces/options';
+import type { SpaceMember, SpaceRole } from '@/shared/api/spaces/types';
 
 interface Props {
-  householdId: string;
-  member: HouseholdMember;
-  roles: HouseholdRole[];
+  spaceId: string;
+  member: SpaceMember;
+  roles: SpaceRole[];
 }
 
 /** Select that changes another member's role right away. */
-export function MemberRoleSelect({ householdId, member, roles }: Props) {
+export function MemberRoleSelect({ spaceId, member, roles }: Props) {
   const queryClient = useQueryClient();
-  const changeRoleMutation = useMutation(changeHouseholdMemberRoleMutationOptions());
+  const changeRoleMutation = useMutation(changeSpaceMemberRoleMutationOptions());
 
   function changeRole(roleId: string) {
     if (roleId === member.role.id) {
       return;
     }
     changeRoleMutation.mutate(
-      { householdId, roleId, userId: member.userId },
+      { spaceId, roleId, userId: member.userId },
       {
         onError: (error) => toast.error(error.message),
         onSuccess: (updated) => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.households.members(householdId) });
+          void queryClient.invalidateQueries({ queryKey: queryKeys.spaces.members(spaceId) });
           toast.success(`${updated.name} is now ${updated.role.name}`);
         },
       },

@@ -2,8 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { queryKeys } from '@/shared/api/query-keys';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 
 import { AccountsDialog } from './accounts-dialog';
 
@@ -22,14 +22,14 @@ function createClient(permissions: string[], isPersonal: boolean) {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   client.setQueryData(queryKeys.users.me, {
     status: 'Ready',
-    user: { households: [{ id: 'space', isActive: true, isPersonal, name: 'Space', role: { permissions } }] },
+    user: { spaces: [{ id: 'space', isActive: true, isPersonal, name: 'Space', role: { permissions } }] },
   });
   client.setQueryData(queryKeys.accounts.list(), accounts);
   return client;
 }
 
 test('members keep private accounts and cannot add shared ones', async () => {
-  const client = createClient([HouseholdPermissions.finances.view, HouseholdPermissions.finances.record], false);
+  const client = createClient([SpacePermissions.finances.view, SpacePermissions.finances.record], false);
   const screen = await render(
     <QueryClientProvider client={client}>
       <AccountsDialog />
@@ -48,7 +48,7 @@ test('members keep private accounts and cannot add shared ones', async () => {
 });
 
 test('a personal space offers no visibility choice', async () => {
-  const client = createClient(Object.values(HouseholdPermissions.finances), true);
+  const client = createClient(Object.values(SpacePermissions.finances), true);
   const screen = await render(
     <QueryClientProvider client={client}>
       <AccountsDialog />

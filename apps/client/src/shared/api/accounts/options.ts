@@ -5,7 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { createAccount, deleteAccount, getAccounts } from './requests';
 import type { CreateAccountRequest } from './types';
 
-/** Query for the accounts of the active household. */
+/** Query for the accounts of the active space. */
 export const accountsQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getAccounts(signal),

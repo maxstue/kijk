@@ -37,7 +37,7 @@ const pollIntervalMs = 1500;
 export const isImportProcessing = (status: ImportJobStatus | undefined) =>
   status !== undefined && processingStatuses.includes(status);
 
-/** Query for the latest imports of the active household. */
+/** Query for the latest imports of the active space. */
 export const importsQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getImports(signal),
@@ -73,7 +73,7 @@ export const importAiPreviewQueryOptions = (id: string) =>
     queryKey: queryKeys.imports.aiPreview(id),
   });
 
-/** Query for the import settings of the active household. */
+/** Query for the import settings of the active space. */
 export const importSettingsQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getImportSettings(signal),

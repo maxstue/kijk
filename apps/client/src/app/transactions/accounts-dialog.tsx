@@ -19,19 +19,19 @@ import { accountSchema } from '@/app/transactions/schemas';
 import type { AccountFormValues } from '@/app/transactions/schemas';
 import { useCreateAccount, useDeleteAccount } from '@/app/transactions/use-account-mutations';
 import { accountsQueryOptions } from '@/shared/api/accounts/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { PrivateBadge, VisibilitySelect } from '@/shared/components/visibility-select';
 import { useActiveSpace } from '@/shared/hooks/use-active-space';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 /**
  * Dialog listing the space's bank accounts, with creating and deleting accounts. Members may keep private accounts;
  * shared accounts need finances:configure.
  */
 export function AccountsDialog() {
-  const canConfigure = useHouseholdPermission(HouseholdPermissions.finances.configure);
-  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
+  const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
   const { data: accounts } = useSuspenseQuery(accountsQueryOptions());
   const deleteMutation = useDeleteAccount();

@@ -43,7 +43,7 @@ test('shows nothing when the user turned AI off', async () => {
   await screen.unmount();
 });
 
-test('households with AI off see the preview only on request', async () => {
+test('spaces with AI off see the preview only on request', async () => {
   const client = createClient(true, 'Off');
   const screen = await render(
     <QueryClientProvider client={client}>

@@ -23,7 +23,7 @@ function WelcomePage() {
     <WelcomeFlow
       email={identity.email}
       fullName={identity.fullName}
-      householdName={undefined}
+      spaceName={undefined}
       imageUrl={identity.imageUrl}
       initialDisplayName={identity.fullName ?? ''}
       onComplete={() => navigate({ replace: true, to: '/home' })}

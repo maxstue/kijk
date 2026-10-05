@@ -12,11 +12,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { householdUpdateSchema } from '@/app/settings/households/schemas';
-import type { HouseholdUpdateFormValues } from '@/app/settings/households/schemas';
-import { updateHouseholdMutationOptions } from '@/shared/api/households/options';
-import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
+import { spaceUpdateSchema } from '@/app/settings/spaces/schemas';
+import type { SpaceUpdateFormValues } from '@/app/settings/spaces/schemas';
 import { queryKeys } from '@/shared/api/query-keys';
+import { updateSpaceMutationOptions } from '@/shared/api/spaces/options';
+import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
 import {
   Form,
   FormControl,
@@ -27,41 +27,41 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 
-import { HouseholdBackLink } from './back-link';
-import { useHouseholdSettings } from './context';
-import { HouseholdDeleteContent } from './delete-content';
+import { SpaceBackLink } from './back-link';
+import { useSpaceSettings } from './context';
+import { SpaceDeleteContent } from './delete-content';
 
-/** General household settings: editable details and deletion, depending on the user's permissions. */
-export function HouseholdGeneral() {
-  const { household } = useHouseholdSettings();
-  const canConfigure = hasHouseholdPermission(household, HouseholdPermissions.household.configure);
+/** General space settings: editable details and deletion, depending on the user's permissions. */
+export function SpaceGeneral() {
+  const { space } = useSpaceSettings();
+  const canConfigure = hasSpacePermission(space, SpacePermissions.space.configure);
   // A personal space is created automatically and stays as long as the account exists.
-  const canDelete = !household.isPersonal && hasHouseholdPermission(household, HouseholdPermissions.household.delete);
+  const canDelete = !space.isPersonal && hasSpacePermission(space, SpacePermissions.space.delete);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const updateMutation = useMutation(updateHouseholdMutationOptions());
+  const updateMutation = useMutation(updateSpaceMutationOptions());
 
-  const form = useForm<HouseholdUpdateFormValues>({
+  const form = useForm<SpaceUpdateFormValues>({
     defaultValues: {
-      description: household.description ?? '',
-      name: household.name,
+      description: space.description ?? '',
+      name: space.name,
     },
-    resolver: zodResolver(householdUpdateSchema),
+    resolver: zodResolver(spaceUpdateSchema),
     values: {
-      description: household.description ?? '',
-      name: household.name,
+      description: space.description ?? '',
+      name: space.name,
     },
   });
 
-  function onSubmit(values: HouseholdUpdateFormValues) {
+  function onSubmit(values: SpaceUpdateFormValues) {
     updateMutation.mutate(
       {
         data: {
           description: values.description.trim() || null,
           name: values.name.trim(),
         },
-        id: household.id,
+        id: space.id,
       },
       {
         onError: (error) => toast.error(error.message),
@@ -80,10 +80,10 @@ export function HouseholdGeneral() {
 
   return (
     <div className='mx-auto w-full max-w-4xl space-y-6'>
-      <HouseholdBackLink />
+      <SpaceBackLink />
       <div>
         <h2 className='text-lg font-medium'>General</h2>
-        <p className='text-muted-foreground text-sm'>Basic information about {household.name}.</p>
+        <p className='text-muted-foreground text-sm'>Basic information about {space.name}.</p>
       </div>
       <Separator />
 
@@ -128,12 +128,12 @@ export function HouseholdGeneral() {
           <CardContent className='space-y-5'>
             <div>
               <div className='text-muted-foreground text-sm'>Name</div>
-              <div className='font-medium'>{household.name}</div>
+              <div className='font-medium'>{space.name}</div>
             </div>
             <Separator />
             <div>
               <div className='text-muted-foreground text-sm'>Description</div>
-              <div>{household.description || 'No description added.'}</div>
+              <div>{space.description || 'No description added.'}</div>
             </div>
             <p className='text-muted-foreground text-sm'>
               Your role in this space does not allow editing these details.
@@ -156,7 +156,7 @@ export function HouseholdGeneral() {
               Delete space
             </Button>
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-              <HouseholdDeleteContent onClose={() => setShowDeleteDialog(false)} />
+              <SpaceDeleteContent onClose={() => setShowDeleteDialog(false)} />
             </AlertDialog>
           </section>
         </>

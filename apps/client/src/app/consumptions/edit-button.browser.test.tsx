@@ -2,12 +2,12 @@ import type { ReactNode } from 'react';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 import { ConsumptionEditButton } from './edit-button';
 
-vi.mock('@/shared/hooks/use-household-permission', () => ({
-  useHouseholdPermission: vi.fn<() => boolean>(() => true),
+vi.mock('@/shared/hooks/use-space-permission', () => ({
+  useSpacePermission: vi.fn<() => boolean>(() => true),
 }));
 
 const navigate = vi.fn<(options: Record<string, unknown>) => void>();
@@ -27,7 +27,7 @@ interface LinkProps {
 
 beforeEach(() => {
   navigate.mockClear();
-  vi.mocked(useHouseholdPermission).mockReturnValue(true);
+  vi.mocked(useSpacePermission).mockReturnValue(true);
 });
 
 test('navigates to the canonical consumption path and preserves search', async () => {
@@ -45,7 +45,7 @@ test('navigates to the canonical consumption path and preserves search', async (
 });
 
 test('does not offer editing without the record permission', async () => {
-  vi.mocked(useHouseholdPermission).mockReturnValue(false);
+  vi.mocked(useSpacePermission).mockReturnValue(false);
   const screen = await render(<ConsumptionEditButton id='consumption-42' />);
   expect(screen.container.querySelector('button')).toBeNull();
   expect(navigate).not.toHaveBeenCalled();

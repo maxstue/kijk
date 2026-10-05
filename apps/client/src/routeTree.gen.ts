@@ -30,11 +30,11 @@ import { Route as AuthenticatedAppImportsIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppImportsImportIdRouteImport } from './routes/_authenticated/_app/imports.$importId'
 import { Route as AuthenticatedAppResourcesResourceIdRouteImport } from './routes/_authenticated/_app/resources.$resourceId'
 import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings.$section'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdRouteImport } from './routes/_authenticated/_app/settings.households.$householdId'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.index'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.general'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.members'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.units'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId.index'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId.general'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId.members'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId.units'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -149,35 +149,35 @@ const AuthenticatedAppSettingsSectionRoute =
     path: '/$section',
     getParentRoute: () => AuthenticatedAppSettingsRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdRouteImport.update({
-    id: '/households/$householdId',
-    path: '/households/$householdId',
+const AuthenticatedAppSettingsSpacesSpaceIdRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdRouteImport.update({
+    id: '/spaces/$spaceId',
+    path: '/spaces/$spaceId',
     getParentRoute: () => AuthenticatedAppSettingsRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRouteImport.update({
+const AuthenticatedAppSettingsSpacesSpaceIdIndexRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRouteImport.update({
+const AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport.update({
     id: '/general',
     path: '/general',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRouteImport.update({
+const AuthenticatedAppSettingsSpacesSpaceIdMembersRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport.update({
     id: '/members',
     path: '/members',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRouteImport.update({
+const AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport.update({
     id: '/units',
     path: '/units',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -199,11 +199,11 @@ export interface FileRoutesByFullPath {
   '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/imports/': typeof AuthenticatedAppImportsIndexRoute
-  '/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
-  '/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  '/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  '/settings/households/$householdId/units': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  '/settings/households/$householdId/': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+  '/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteWithChildren
+  '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  '/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  '/settings/spaces/$spaceId/': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -224,10 +224,10 @@ export interface FileRoutesByTo {
   '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/imports': typeof AuthenticatedAppImportsIndexRoute
-  '/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  '/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  '/settings/households/$householdId/units': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  '/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+  '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  '/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  '/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -252,11 +252,11 @@ export interface FileRoutesById {
   '/_authenticated/_app/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/_authenticated/_app/imports/': typeof AuthenticatedAppImportsIndexRoute
-  '/_authenticated/_app/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
-  '/_authenticated/_app/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  '/_authenticated/_app/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  '/_authenticated/_app/settings/households/$householdId/units': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  '/_authenticated/_app/settings/households/$householdId/': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+  '/_authenticated/_app/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteWithChildren
+  '/_authenticated/_app/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -279,11 +279,11 @@ export interface FileRouteTypes {
     | '/resources/$resourceId'
     | '/settings/$section'
     | '/imports/'
-    | '/settings/households/$householdId'
-    | '/settings/households/$householdId/general'
-    | '/settings/households/$householdId/members'
-    | '/settings/households/$householdId/units'
-    | '/settings/households/$householdId/'
+    | '/settings/spaces/$spaceId'
+    | '/settings/spaces/$spaceId/general'
+    | '/settings/spaces/$spaceId/members'
+    | '/settings/spaces/$spaceId/units'
+    | '/settings/spaces/$spaceId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -304,10 +304,10 @@ export interface FileRouteTypes {
     | '/resources/$resourceId'
     | '/settings/$section'
     | '/imports'
-    | '/settings/households/$householdId/general'
-    | '/settings/households/$householdId/members'
-    | '/settings/households/$householdId/units'
-    | '/settings/households/$householdId'
+    | '/settings/spaces/$spaceId/general'
+    | '/settings/spaces/$spaceId/members'
+    | '/settings/spaces/$spaceId/units'
+    | '/settings/spaces/$spaceId'
   id:
     | '__root__'
     | '/'
@@ -331,11 +331,11 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/resources/$resourceId'
     | '/_authenticated/_app/settings/$section'
     | '/_authenticated/_app/imports/'
-    | '/_authenticated/_app/settings/households/$householdId'
-    | '/_authenticated/_app/settings/households/$householdId/general'
-    | '/_authenticated/_app/settings/households/$householdId/members'
-    | '/_authenticated/_app/settings/households/$householdId/units'
-    | '/_authenticated/_app/settings/households/$householdId/'
+    | '/_authenticated/_app/settings/spaces/$spaceId'
+    | '/_authenticated/_app/settings/spaces/$spaceId/general'
+    | '/_authenticated/_app/settings/spaces/$spaceId/members'
+    | '/_authenticated/_app/settings/spaces/$spaceId/units'
+    | '/_authenticated/_app/settings/spaces/$spaceId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -496,40 +496,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsSectionRouteImport
       parentRoute: typeof AuthenticatedAppSettingsRoute
     }
-    '/_authenticated/_app/settings/households/$householdId': {
-      id: '/_authenticated/_app/settings/households/$householdId'
-      path: '/households/$householdId'
-      fullPath: '/settings/households/$householdId'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteImport
+    '/_authenticated/_app/settings/spaces/$spaceId': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId'
+      path: '/spaces/$spaceId'
+      fullPath: '/settings/spaces/$spaceId'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteImport
       parentRoute: typeof AuthenticatedAppSettingsRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/': {
-      id: '/_authenticated/_app/settings/households/$householdId/'
+    '/_authenticated/_app/settings/spaces/$spaceId/': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/'
       path: '/'
-      fullPath: '/settings/households/$householdId/'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/settings/spaces/$spaceId/'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/general': {
-      id: '/_authenticated/_app/settings/households/$householdId/general'
+    '/_authenticated/_app/settings/spaces/$spaceId/general': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/general'
       path: '/general'
-      fullPath: '/settings/households/$householdId/general'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/settings/spaces/$spaceId/general'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/members': {
-      id: '/_authenticated/_app/settings/households/$householdId/members'
+    '/_authenticated/_app/settings/spaces/$spaceId/members': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/members'
       path: '/members'
-      fullPath: '/settings/households/$householdId/members'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/settings/spaces/$spaceId/members'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/units': {
-      id: '/_authenticated/_app/settings/households/$householdId/units'
+    '/_authenticated/_app/settings/spaces/$spaceId/units': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/units'
       path: '/units'
-      fullPath: '/settings/households/$householdId/units'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/settings/spaces/$spaceId/units'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRoute
     }
   }
 }
@@ -564,40 +564,40 @@ const AuthenticatedAppResourcesRouteWithChildren =
     AuthenticatedAppResourcesRouteChildren,
   )
 
-interface AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren {
-  AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+interface AuthenticatedAppSettingsSpacesSpaceIdRouteChildren {
+  AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  AuthenticatedAppSettingsSpacesSpaceIdMembersRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  AuthenticatedAppSettingsSpacesSpaceIdIndexRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 
-const AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren: AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren =
+const AuthenticatedAppSettingsSpacesSpaceIdRouteChildren: AuthenticatedAppSettingsSpacesSpaceIdRouteChildren =
   {
-    AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdMembersRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdMembersRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdIndexRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdIndexRoute,
   }
 
-const AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdRoute._addFileChildren(
-    AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren,
+const AuthenticatedAppSettingsSpacesSpaceIdRouteWithChildren =
+  AuthenticatedAppSettingsSpacesSpaceIdRoute._addFileChildren(
+    AuthenticatedAppSettingsSpacesSpaceIdRouteChildren,
   )
 
 interface AuthenticatedAppSettingsRouteChildren {
   AuthenticatedAppSettingsSectionRoute: typeof AuthenticatedAppSettingsSectionRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
+  AuthenticatedAppSettingsSpacesSpaceIdRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteWithChildren
 }
 
 const AuthenticatedAppSettingsRouteChildren: AuthenticatedAppSettingsRouteChildren =
   {
     AuthenticatedAppSettingsSectionRoute: AuthenticatedAppSettingsSectionRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren,
+    AuthenticatedAppSettingsSpacesSpaceIdRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdRouteWithChildren,
   }
 
 const AuthenticatedAppSettingsRouteWithChildren =

@@ -3,7 +3,7 @@ import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { CreateBudgetRequest, UpdateBudgetData } from './types';
 
-/** Loads all budget versions of the active household. */
+/** Loads all budget versions of the active space. */
 export async function getBudgets(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/budgets', { signal }));
 }

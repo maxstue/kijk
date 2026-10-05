@@ -16,14 +16,14 @@ import { Gauge, Pencil, Plus, TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
 
 import { LimitForm } from '@/app/limits/form';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { limitsQueryOptions } from '@/shared/api/limits/options';
 import type { Limit } from '@/shared/api/limits/types';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
-/** Page section listing the household's limits with create and edit actions. */
+/** Page section listing the space's limits with create and edit actions. */
 export function LimitsSection() {
-  const canPlan = useHouseholdPermission(HouseholdPermissions.limits.plan);
+  const canPlan = useSpacePermission(SpacePermissions.limits.plan);
   const { data } = useSuspenseQuery(limitsQueryOptions());
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 

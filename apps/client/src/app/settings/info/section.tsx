@@ -76,7 +76,7 @@ export function InfoSection() {
                       excludes route parameters and request tracing. Turning this off stops new performance traces.
                       Minimal technical error reports are separate and remain active so we can detect and fix problems.
                       They contain scrubbed diagnostics and a short-lived request correlation ID, not account IDs or
-                      submitted household, resource or consumption values.{' '}
+                      submitted space, resource or consumption values.{' '}
                       <a
                         className='text-foreground underline underline-offset-4'
                         href='/privacy'

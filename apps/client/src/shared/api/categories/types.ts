@@ -1,6 +1,6 @@
 import type { components } from '@/shared/api/generated/kijk';
 
-/** A system or household category. */
+/** A system or space category. */
 export type Category = components['schemas']['CategoryResponse'];
 /** Whether a category groups expenses or income. */
 export type CategoryKind = components['schemas']['CategoryKind'];

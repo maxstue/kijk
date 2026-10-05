@@ -12,7 +12,7 @@ import {
 } from './requests';
 import type { CreateBudgetRequest, UpdateBudgetData } from './types';
 
-/** Query for all budget versions of the active household. */
+/** Query for all budget versions of the active space. */
 export const budgetsQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getBudgets(signal),

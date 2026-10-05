@@ -13,9 +13,9 @@ import { toast } from 'sonner';
 
 import { categoryRulesQueryOptions, deleteCategoryRuleMutationOptions } from '@/shared/api/category-rules/options';
 import type { CategoryRule } from '@/shared/api/category-rules/types';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { queryKeys } from '@/shared/api/query-keys';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const ruleScopeLabels: Record<CategoryRule['scope'], string> = {
   Counterparty: 'Counterparty account',
@@ -25,7 +25,7 @@ const ruleScopeLabels: Record<CategoryRule['scope'], string> = {
 
 /** Dialog listing remembered category corrections, with deleting them. */
 export function RulesDialog() {
-  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const queryClient = useQueryClient();
   const { data: rules = [], isPending } = useQuery(categoryRulesQueryOptions());
   const deleteMutation = useMutation({

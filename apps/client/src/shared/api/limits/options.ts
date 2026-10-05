@@ -5,7 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { createLimit, getLimits, updateLimit } from './requests';
 import type { CreateLimitRequest, UpdateLimitData } from './types';
 
-/** Query for the limits of the active household. */
+/** Query for the limits of the active space. */
 export const limitsQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getLimits(signal),

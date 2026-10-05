@@ -1,6 +1,6 @@
 import type { components } from '@/shared/api/generated/kijk';
 
-/** A transaction of the household. */
+/** A transaction of the space. */
 export type Transaction = components['schemas']['TransactionResponse'];
 /** Whether a transaction is booked or pending. */
 export type TransactionStatus = components['schemas']['TransactionStatus'];

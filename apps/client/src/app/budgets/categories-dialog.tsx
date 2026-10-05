@@ -20,16 +20,16 @@ import { categorySchema } from '@/app/budgets/schemas';
 import type { CategoryFormValues } from '@/app/budgets/schemas';
 import { useCreateCategory, useDeleteCategory } from '@/app/budgets/use-category-mutations';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { ResourceIcon } from '@/shared/components/resource-icon';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const customCategoryIcon = 'tag';
 
-/** Dialog listing all categories, with creating and deleting the household's own categories. */
+/** Dialog listing all categories, with creating and deleting the space's own categories. */
 export function CategoriesDialog() {
-  const canConfigure = useHouseholdPermission(HouseholdPermissions.finances.configure);
+  const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
   const deleteMutation = useDeleteCategory();
 

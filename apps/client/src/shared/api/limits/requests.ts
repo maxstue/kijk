@@ -3,7 +3,7 @@ import { unwrapApiResponse } from '@/shared/utils/http';
 
 import type { CreateLimitRequest, UpdateLimitData } from './types';
 
-/** Loads the limits of the active household with their current evaluation. */
+/** Loads the limits of the active space with their current evaluation. */
 export async function getLimits(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/limits', { signal }));
 }

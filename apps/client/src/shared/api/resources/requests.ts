@@ -3,7 +3,7 @@ import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { ResourceData, UpdateResourceData } from './types';
 
-/** Loads the resources of the active household. */
+/** Loads the resources of the active space. */
 export async function getResources(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/resources', { signal }));
 }

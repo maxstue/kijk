@@ -29,7 +29,7 @@ function SettingsSectionPage() {
         {parameters.section === 'profile' && <ProfileSection />}
         {parameters.section === 'appearance' && <AppearanceSection />}
         {parameters.section === 'units' && <UnitsSection scope='personal' />}
-        {parameters.section === 'household-units' && <UnitsSection scope='household' />}
+        {parameters.section === 'space-units' && <UnitsSection scope='space' />}
         {parameters.section === 'info' && <InfoSection />}
       </div>
     </>

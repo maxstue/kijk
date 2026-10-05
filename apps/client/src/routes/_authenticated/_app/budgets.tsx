@@ -19,12 +19,12 @@ import { BudgetForm } from '@/app/budgets/form';
 import { BudgetOverview } from '@/app/budgets/overview';
 import { budgetOverviewQueryOptions, budgetsQueryOptions } from '@/shared/api/budgets/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { AppError } from '@/shared/components/errors/app-error';
 import { MonthSwitcher } from '@/shared/components/month-switcher';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 // Loaded on demand: the statistics sit below the overview and pull in the chart library.
 const BudgetStatistics = lazy(() =>
@@ -61,8 +61,8 @@ function BudgetsPage() {
   useSetSiteHeader('Budgets');
   const { month, year } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const canPlanShared = useHouseholdPermission(HouseholdPermissions.budgets.plan);
-  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const canPlanShared = useSpacePermission(SpacePermissions.budgets.plan);
+  const canRecord = useSpacePermission(SpacePermissions.finances.record);
   // Members without budgets:plan may still keep private budgets.
   const canPlan = canPlanShared || canRecord;
   const [showCreateDialog, setShowCreateDialog] = useState(false);

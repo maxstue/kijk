@@ -10,7 +10,7 @@ import type {
   UpdateTransactionData,
 } from './types';
 
-/** Loads the transactions of the active household, newest first. */
+/** Loads the transactions of the active space, newest first. */
 export async function getTransactions(filters: TransactionFilters, signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/transactions', { params: { query: filters }, signal }));
 }

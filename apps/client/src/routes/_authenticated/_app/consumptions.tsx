@@ -24,12 +24,12 @@ import { ConsumptionMonthView } from '@/app/consumptions/month-view';
 import { ConsumptionYearSwitcher } from '@/app/consumptions/year-switcher';
 import { LimitWarnings } from '@/app/limits/warnings';
 import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { limitsQueryOptions } from '@/shared/api/limits/options';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { NotFound } from '@/shared/components/not-found';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { getMonthFromDate, monthSchema } from '@/shared/utils/months';
 
 const searchSchema = z.object({
@@ -58,7 +58,7 @@ export const Route = createFileRoute('/_authenticated/_app/consumptions')({
 
 function UsagePage() {
   useSetSiteHeader('Consumptions');
-  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
+  const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const [showDialog, setShowDialog] = useState(false);
   const { month, view, year } = Route.useSearch();
   const navigate = Route.useNavigate();

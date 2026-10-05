@@ -38,10 +38,10 @@ import {
   useDeleteTransaction,
 } from '@/app/transactions/use-transaction-mutations';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { transactionsQueryOptions } from '@/shared/api/transactions/options';
 import type { Transaction, TransactionFilters } from '@/shared/api/transactions/types';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 /**
@@ -182,7 +182,7 @@ function TransactionRow({
   selection?: { checked: boolean; onChange: (checked: boolean) => void };
   transaction: Transaction;
 }) {
-  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const amount = Number(transaction.amount);
 
   return (

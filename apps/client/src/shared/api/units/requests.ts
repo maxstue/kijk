@@ -13,10 +13,10 @@ export async function getSystemUnits(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/units/system', { signal }));
 }
 
-/** Loads a page of the user's personal units or of a household's units. */
+/** Loads a page of the user's personal units or of a space's units. */
 export async function getUnitPage(
-  scope: 'household' | 'personal',
-  householdId: string | undefined,
+  scope: 'space' | 'personal',
+  spaceId: string | undefined,
   page: number,
   pageSize: number,
   search: string,
@@ -26,8 +26,8 @@ export async function getUnitPage(
     await apiClient.GET('/api/units/page', {
       params: {
         query: {
-          household: scope === 'household',
-          ...(householdId ? { householdId } : {}),
+          space: scope === 'space',
+          ...(spaceId ? { spaceId } : {}),
           page,
           pageSize,
           ...(search ? { search } : {}),
@@ -62,20 +62,20 @@ export async function deleteUnit(id: string) {
   return ensureApiSuccess(await apiClient.DELETE('/api/units/{id}', { params: { path: { id } } }));
 }
 
-/** Shares a unit with a household. */
-export async function shareUnit(id: string, householdId: string) {
+/** Shares a unit with a space. */
+export async function shareUnit(id: string, spaceId: string) {
   return ensureApiSuccess(
-    await apiClient.PUT('/api/units/{id}/households/{householdId}', {
-      params: { path: { householdId, id } },
+    await apiClient.PUT('/api/units/{id}/spaces/{spaceId}', {
+      params: { path: { spaceId, id } },
     }),
   );
 }
 
-/** Removes a unit from a household. */
-export async function unshareUnit(id: string, householdId: string) {
+/** Removes a unit from a space. */
+export async function unshareUnit(id: string, spaceId: string) {
   return ensureApiSuccess(
-    await apiClient.DELETE('/api/units/{id}/households/{householdId}', {
-      params: { path: { householdId, id } },
+    await apiClient.DELETE('/api/units/{id}/spaces/{spaceId}', {
+      params: { path: { spaceId, id } },
     }),
   );
 }

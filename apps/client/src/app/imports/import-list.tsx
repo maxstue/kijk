@@ -6,7 +6,7 @@ import { Link } from '@tanstack/react-router';
 import { ImportStatusBadge } from '@/app/imports/status-badge';
 import { importsQueryOptions } from '@/shared/api/imports/options';
 
-/** Table of the household's latest imports, each linking to its details. */
+/** Table of the space's latest imports, each linking to its details. */
 export function ImportList() {
   const { data } = useSuspenseQuery(importsQueryOptions());
 

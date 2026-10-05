@@ -26,17 +26,17 @@ export const unitsQueryOptions = (includeArchived = false) =>
 export const systemUnitsQueryOptions = () =>
   queryOptions({ queryFn: ({ signal }) => getSystemUnits(signal), queryKey: queryKeys.units.system() });
 
-/** Query for a page of personal or household units. */
+/** Query for a page of personal or space units. */
 export const unitPageQueryOptions = (
-  scope: 'household' | 'personal',
-  householdId: string | undefined,
+  scope: 'space' | 'personal',
+  spaceId: string | undefined,
   page: number,
   pageSize: number,
   search: string,
 ) =>
   queryOptions({
-    queryFn: ({ signal }) => getUnitPage(scope, householdId, page, pageSize, search, signal),
-    queryKey: queryKeys.units.page(scope, householdId, page, pageSize, search),
+    queryFn: ({ signal }) => getUnitPage(scope, spaceId, page, pageSize, search, signal),
+    queryKey: queryKeys.units.page(scope, spaceId, page, pageSize, search),
   });
 
 /** Mutation that creates a unit. */
@@ -54,14 +54,14 @@ export const archiveUnitMutationOptions = () =>
 /** Mutation that deletes a unit. */
 export const deleteUnitMutationOptions = () => mutationOptions({ mutationFn: (id: string) => deleteUnit(id) });
 
-/** Mutation that shares a unit with a household. */
+/** Mutation that shares a unit with a space. */
 export const shareUnitMutationOptions = () =>
   mutationOptions({
-    mutationFn: ({ householdId, id }: { householdId: string; id: string }) => shareUnit(id, householdId),
+    mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => shareUnit(id, spaceId),
   });
 
-/** Mutation that removes a unit from a household. */
+/** Mutation that removes a unit from a space. */
 export const unshareUnitMutationOptions = () =>
   mutationOptions({
-    mutationFn: ({ householdId, id }: { householdId: string; id: string }) => unshareUnit(id, householdId),
+    mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => unshareUnit(id, spaceId),
   });
