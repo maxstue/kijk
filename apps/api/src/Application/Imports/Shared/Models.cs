@@ -20,6 +20,9 @@ namespace Kijk.Application.Imports.Shared;
 /// <param name="ProposedMapping">The proposed mapping, while the import waits for one.</param>
 /// <param name="ProposedMappingSource">Where the proposal came from.</param>
 /// <param name="AiUnavailable">Whether the AI format detection could not be reached, so a weaker proposal is shown.</param>
+/// <param name="AiDataSharing">Which data the AI categorization of this import may see.</param>
+/// <param name="AiCategorizedCount">The number of rows the AI categorized in the last run.</param>
+/// <param name="AiCategorizationUnavailable">Whether the AI could not be reached, so some rows stay uncategorized.</param>
 /// <param name="Mapping">The confirmed mapping.</param>
 /// <param name="FullMonths">Months the file covers completely; committing replaces them.</param>
 /// <param name="EdgeMonths">The first and last month, which the file may cover only partly.</param>
@@ -42,6 +45,9 @@ public sealed record ImportJobResponse(
     CsvImportMapping? ProposedMapping,
     MappingSource? ProposedMappingSource,
     bool AiUnavailable,
+    AiDataSharing AiDataSharing,
+    int AiCategorizedCount,
+    bool AiCategorizationUnavailable,
     CsvImportMapping? Mapping,
     List<DateOnly> FullMonths,
     List<DateOnly> EdgeMonths,
@@ -77,6 +83,8 @@ public sealed record ImportPreviewResponse(
 /// <param name="CategorySource">How the category was found.</param>
 /// <param name="Errors">Why the row could not be parsed.</param>
 /// <param name="Excluded">Whether the row will not be imported.</param>
+/// <param name="IsCardSettlement">Whether the row looks like a credit card statement.</param>
+/// <param name="CountsAsOffset">Whether the card statement only offsets separately imported purchases.</param>
 public sealed record ImportCandidateResponse(
     Guid Id,
     int RowNumber,
@@ -88,11 +96,29 @@ public sealed record ImportCandidateResponse(
     Guid? CategoryId,
     CategorySource? CategorySource,
     string? Errors,
-    bool Excluded);
+    bool Excluded,
+    bool IsCardSettlement,
+    bool CountsAsOffset);
 
 /// <summary>The import settings of the active household.</summary>
 /// <param name="PurposeRetention">How much of the purpose text imported transactions keep.</param>
-public sealed record ImportSettingsResponse(PurposeRetention PurposeRetention);
+/// <param name="AiDataSharing">Which transaction data the AI categorization may see.</param>
+/// <param name="MinimizeData">Whether imports store neither names of private persons nor counterparty keys.</param>
+public sealed record ImportSettingsResponse(PurposeRetention PurposeRetention, AiDataSharing AiDataSharing, bool MinimizeData);
+
+/// <summary>A distinct text the AI categorization would send.</summary>
+/// <param name="Key">The id of the text within the import.</param>
+/// <param name="Counterparty">The counterparty as sent.</param>
+/// <param name="Purpose">The purpose as sent.</param>
+/// <param name="Incoming">Whether money came in; the amount itself is never sent.</param>
+/// <param name="RowCount">The number of rows that share the text.</param>
+/// <param name="Excluded">Whether the user deselected the text.</param>
+public sealed record AiPreviewItemResponse(string Key, string? Counterparty, string? Purpose, bool Incoming, int RowCount, bool Excluded);
+
+/// <summary>What the AI categorization of an import would send.</summary>
+/// <param name="Items">The distinct texts.</param>
+/// <param name="WithheldRows">Rows without a category that are not sent because nothing useful remains after cleaning.</param>
+public sealed record AiPreviewResponse(List<AiPreviewItemResponse> Items, int WithheldRows);
 
 /// <summary>
 /// Maps import entities to API responses and serializes mappings.
@@ -131,6 +157,9 @@ public static class ImportMapper
             Deserialize(source.ProposedMapping),
             source.ProposedMappingSource,
             source.AiUnavailable,
+            source.AiDataSharing,
+            source.AiCategorizedCount,
+            source.AiCategorizationUnavailable,
             Deserialize(source.Mapping),
             ToDates(source.FullMonths),
             ToDates(source.EdgeMonths),
@@ -154,7 +183,9 @@ public static class ImportMapper
             source.CategoryId,
             source.CategorySource,
             source.Errors,
-            source.Excluded);
+            source.Excluded,
+            source.IsCardSettlement,
+            source.CountsAsOffset);
 
     private static List<DateOnly> ToDates(IEnumerable<DateTime> months) => [.. months.Order().Select(DateOnly.FromDateTime)];
 }

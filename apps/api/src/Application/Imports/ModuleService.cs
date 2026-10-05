@@ -1,3 +1,5 @@
+using Kijk.Application.Imports.Categorization;
+using Kijk.Application.Imports.Categorize;
 using Kijk.Application.Imports.Detection;
 using Kijk.Application.Imports.Settings;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +15,9 @@ public sealed class ModuleService : IModule
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         services.AddScoped<IValidator<UpdateImportSettingsRequest>, UpdateImportSettingsValidator>();
+        services.AddScoped<IValidator<CategorizeImportRequest>, CategorizeImportValidator>();
         services.AddScoped<ICsvFormatDetector, AiCsvFormatDetector>();
+        services.AddScoped<ITransactionCategorizer, AiTransactionCategorizer>();
         return services;
     }
 }

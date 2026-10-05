@@ -1,9 +1,13 @@
+using Kijk.Application.Imports.Categorization;
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Detection;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Ai;
+using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Security;
+using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
 using Kijk.Shared;
@@ -20,6 +24,8 @@ public sealed class ImportJobProcessor(
     ImportFileReader fileReader,
     IPseudonymizer pseudonymizer,
     ICsvFormatDetector formatDetector,
+    ITransactionCategorizer categorizer,
+    IAiGate aiGate,
     TimeProvider timeProvider,
     ILogger<ImportJobProcessor> logger) : IHandler
 {
@@ -79,7 +85,7 @@ public sealed class ImportJobProcessor(
             }
 
             // Only formats without a confirmed profile reach the AI, and it only sees masked patterns.
-            var detection = await formatDetector.DetectAsync(job.HouseholdId, table, delimiter, encoding, headerIndex, cancellationToken);
+            var detection = await formatDetector.DetectAsync(job.HouseholdId, job.CreatedById, table, delimiter, encoding, headerIndex, cancellationToken);
             if (detection.Mapping is { } detected)
             {
                 job.ProposeMapping(ImportMapper.Serialize(detected), MappingSource.Ai);
@@ -149,6 +155,11 @@ public sealed class ImportJobProcessor(
 
         var corrections = await LoadManualCorrectionsAsync(job, cancellationToken);
         var rules = await LoadRulesAsync(job.HouseholdId, cancellationToken);
+        var minimizeData = await dbContext.Households
+            .Where(item => item.Id == job.HouseholdId)
+            .Select(item => item.MinimizeData)
+            .FirstAsync(cancellationToken);
+        var memberNames = minimizeData ? await AiContexts.LoadMemberNamesAsync(dbContext, job.HouseholdId, cancellationToken) : [];
         var keys = new ImportKeyBuilder(pseudonymizer, job.HouseholdId, job.AccountId);
         var dates = new List<DateTime>();
         var errorCount = 0;
@@ -166,7 +177,7 @@ public sealed class ImportJobProcessor(
                 }
 
                 dates.Add(row.Date!.Value);
-                dbContext.ImportCandidates.Add(CreateCandidate(job.Id, record.RowNumber, row, keys, corrections, rules));
+                dbContext.ImportCandidates.Add(CreateCandidate(job.Id, record.RowNumber, row, keys, corrections, rules, minimizeData ? memberNames : null));
             }
 
             job.ReportProgress(Math.Min(records.Count, (batchIndex + 1) * BatchSize), errorCount);
@@ -174,8 +185,101 @@ public sealed class ImportJobProcessor(
         }
 
         var (fullMonths, edgeMonths) = ImportCoverage.Analyze(dates);
+        // Nothing is sent to the AI yet: the review shows exactly what would go out and the user starts it.
         job.FinishReading(fullMonths, edgeMonths);
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Proposes categories for the candidates that have none. Only sanitized text leaves the server, identical
+    /// contexts are asked once, rows deselected in the preview and card statements are skipped, and categories from
+    /// corrections, rules or the user are never touched. A failure keeps
+    /// all rows and leaves them uncategorized.
+    /// </summary>
+    /// <param name="importJobId">The import.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task that completes when the step is done.</returns>
+    public async Task CategorizeAsync(Guid importJobId, CancellationToken cancellationToken)
+    {
+        var job = await dbContext.ImportJobs.FirstOrDefaultAsync(item => item.Id == importJobId, cancellationToken);
+        if (job is null || job.Status != ImportJobStatus.Categorizing)
+        {
+            return;
+        }
+
+        try
+        {
+            var count = 0;
+            var unavailable = false;
+            // The worker checks everything again: permission, the household's level and the AI gate.
+            var allowed = job.AiDataSharing == AiDataSharing.Strict
+                          && await dbContext.AuthorizeHouseholdAsync(job.CreatedById, job.HouseholdId, HouseholdPermissions.Finances.Import, cancellationToken) is null
+                          && await aiGate.CanUseAiAsync(job.HouseholdId, job.CreatedById, cancellationToken);
+            if (allowed)
+            {
+                (count, unavailable) = await CategorizeCandidatesAsync(job, cancellationToken);
+            }
+
+            job.FinishCategorizing(count, unavailable);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            logger.LogWarning("Categorizing import {ImportJobId} failed with {ExceptionType}", job.Id, exception.GetType().Name);
+            // A cancelled import stays cancelled; otherwise the rows wait for the review without categories.
+            await dbContext.ImportJobs
+                .Where(item => item.Id == importJobId && item.Status == ImportJobStatus.Categorizing)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(item => item.Status, ImportJobStatus.NeedsReview)
+                        .SetProperty(item => item.AiCategorizationUnavailable, true),
+                    cancellationToken);
+        }
+    }
+
+    private async Task<(int Count, bool Unavailable)> CategorizeCandidatesAsync(ImportJob job, CancellationToken cancellationToken)
+    {
+        // Rows the user deselected in the preview stay on the server.
+        var candidates = await AiContexts.Eligible(dbContext, job.Id)
+            .Where(item => !item.AiExcluded)
+            .ToListAsync(cancellationToken);
+        if (candidates.Count == 0)
+        {
+            return (0, false);
+        }
+
+        var memberNames = await AiContexts.LoadMemberNamesAsync(dbContext, job.HouseholdId, cancellationToken);
+        var categories = await dbContext.Categories
+            .Where(item => item.CreatorType == CreatorType.System || item.HouseholdId == job.HouseholdId)
+            .OrderBy(item => item.Name)
+            .Select(item => new CategoryOption(item.Id, item.Name, item.Kind))
+            .ToListAsync(cancellationToken);
+
+        // Identical sanitized contexts are asked only once; the answer applies to every matching row.
+        var (contexts, _) = AiContexts.Build(candidates, memberNames);
+        var result = await categorizer.CategorizeAsync(
+            job.HouseholdId,
+            job.CreatedById,
+            [.. contexts.Select(context => context.Item)],
+            categories,
+            cancellationToken);
+
+        var categorized = 0;
+        foreach (var context in contexts)
+        {
+            if (!result.Assignments.TryGetValue(context.Item.Id, out var categoryId))
+            {
+                continue;
+            }
+
+            foreach (var row in context.Rows)
+            {
+                row.ProposeCategory(categoryId, CategorySource.Ai);
+                categorized++;
+            }
+        }
+
+        return (categorized, result.Unavailable);
     }
 
     private static ImportCandidate CreateCandidate(
@@ -184,24 +288,37 @@ public sealed class ImportJobProcessor(
         ParsedRow row,
         ImportKeyBuilder keys,
         Dictionary<string, Guid> corrections,
-        RuleSet rules)
+        RuleSet rules,
+        IReadOnlyCollection<string>? minimizeWithMemberNames)
     {
+        // The booking key is computed from the full row, so re-imports and corrections are recognized in any mode.
         var (bookingKey, counterpartyKey) = keys.Build(row);
+        var counterparty = row.Counterparty;
+        var purpose = PurposeScrubber.Scrub(row.Purpose);
+        var isCardSettlement = CardSettlementDetector.IsSettlement(row.Amount!.Value, counterparty, purpose);
+        if (minimizeWithMemberNames is not null)
+        {
+            // Data-minimizing households keep neither names of private persons nor the key of the counterparty IBAN.
+            (counterparty, purpose) = TransactionSanitizer.ReplacePersons(counterparty, purpose, row.IsMerchantPayment, minimizeWithMemberNames);
+            counterpartyKey = null;
+        }
+
         var candidate = ImportCandidate.CreateValid(importJobId, rowNumber, new ImportCandidateValues(
             row.Date!.Value,
-            row.Amount!.Value,
-            Truncate(row.Counterparty, 200),
-            Truncate(PurposeScrubber.Scrub(row.Purpose), 500),
+            row.Amount.Value,
+            Truncate(counterparty, 200),
+            Truncate(purpose, 500),
             row.Status,
             row.IsMerchantPayment,
             bookingKey,
-            counterpartyKey));
+            counterpartyKey,
+            isCardSettlement));
 
         if (corrections.TryGetValue(bookingKey, out var correctedCategoryId))
         {
             candidate.ProposeCategory(correctedCategoryId, CategorySource.Manual);
         }
-        else if (rules.Find(counterpartyKey, row.Counterparty, row.IsMerchantPayment, candidate.Purpose) is { } ruleCategoryId)
+        else if (rules.Find(counterpartyKey, candidate.Counterparty, row.IsMerchantPayment, candidate.Purpose) is { } ruleCategoryId)
         {
             candidate.ProposeCategory(ruleCategoryId, CategorySource.Rule);
         }

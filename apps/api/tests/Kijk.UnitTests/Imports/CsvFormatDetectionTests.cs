@@ -49,7 +49,7 @@ public class CsvFormatDetectionTests
         var (table, mapping) = CsvSamples.Detect("dkb-synthetic.csv");
         var chat = new FakeChatClient(DkbAnswer);
 
-        var result = await CreateDetector(chat).DetectAsync(Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
+        var result = await CreateDetector(chat).DetectAsync(Guid.NewGuid(), Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
 
         await Assert.That(result.Outcome).IsEqualTo(CsvFormatDetectionOutcome.Detected);
         await Assert.That(result.Mapping!.AmountColumn).IsEqualTo(8);
@@ -69,7 +69,7 @@ public class CsvFormatDetectionTests
         // Column 3 holds names, not dates.
         var chat = new FakeChatClient(DkbAnswer.Replace("\"dateColumn\":0", "\"dateColumn\":3", StringComparison.Ordinal));
 
-        var result = await CreateDetector(chat).DetectAsync(Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
+        var result = await CreateDetector(chat).DetectAsync(Guid.NewGuid(), Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
 
         await Assert.That(result.Outcome).IsEqualTo(CsvFormatDetectionOutcome.Rejected);
     }
@@ -79,8 +79,8 @@ public class CsvFormatDetectionTests
     {
         var (table, mapping) = CsvSamples.Detect("dkb-synthetic.csv");
 
-        var garbage = await CreateDetector(new FakeChatClient("I think column 0 is the date.")).DetectAsync(Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
-        var failing = await CreateDetector(new FakeChatClient(null)).DetectAsync(Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
+        var garbage = await CreateDetector(new FakeChatClient("I think column 0 is the date.")).DetectAsync(Guid.NewGuid(), Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
+        var failing = await CreateDetector(new FakeChatClient(null)).DetectAsync(Guid.NewGuid(), Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
 
         await Assert.That(garbage.Outcome).IsEqualTo(CsvFormatDetectionOutcome.Rejected);
         await Assert.That(failing.Outcome).IsEqualTo(CsvFormatDetectionOutcome.Unavailable);
@@ -92,7 +92,7 @@ public class CsvFormatDetectionTests
         var (table, mapping) = CsvSamples.Detect("dkb-synthetic.csv");
         var chat = new FakeChatClient(DkbAnswer, rejectJsonSchema: true);
 
-        var result = await CreateDetector(chat).DetectAsync(Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
+        var result = await CreateDetector(chat).DetectAsync(Guid.NewGuid(), Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
 
         await Assert.That(result.Outcome).IsEqualTo(CsvFormatDetectionOutcome.Detected);
         await Assert.That(chat.Requests.Count).IsEqualTo(2);
@@ -105,7 +105,7 @@ public class CsvFormatDetectionTests
         var chat = new FakeChatClient(DkbAnswer);
 
         var result = await new AiCsvFormatDetector(chat, new Gate(false), NullLogger<AiCsvFormatDetector>.Instance)
-            .DetectAsync(Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
+            .DetectAsync(Guid.NewGuid(), Guid.NewGuid(), table, ';', CsvDecoder.Utf8, mapping.HeaderRowIndex, CancellationToken.None);
 
         await Assert.That(result.Outcome).IsEqualTo(CsvFormatDetectionOutcome.NotAllowed);
         await Assert.That(chat.Requests).IsEmpty();
@@ -116,7 +116,7 @@ public class CsvFormatDetectionTests
 
     private sealed class Gate(bool allowed) : IAiGate
     {
-        public Task<bool> CanUseAiAsync(Guid householdId, CancellationToken cancellationToken) => Task.FromResult(allowed);
+        public Task<bool> CanUseAiAsync(Guid householdId, Guid userId, CancellationToken cancellationToken) => Task.FromResult(allowed);
     }
 
     /// <summary>Answers with a fixed text, or throws when the text is null.</summary>

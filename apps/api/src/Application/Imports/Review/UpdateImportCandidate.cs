@@ -10,7 +10,11 @@ namespace Kijk.Application.Imports.Review;
 /// </summary>
 /// <param name="CategoryId">The category, or <see langword="null" /> to leave the row uncategorized.</param>
 /// <param name="Excluded">Whether the row is not imported.</param>
-public sealed record UpdateImportCandidateRequest(Guid? CategoryId, bool Excluded);
+/// <param name="CountsAsOffset">
+/// For a card statement: whether its single purchases are imported separately, so it only offsets them. Unchanged
+/// when omitted.
+/// </param>
+public sealed record UpdateImportCandidateRequest(Guid? CategoryId, bool Excluded, bool? CountsAsOffset = null);
 
 /// <summary>
 /// Changes the category or the exclusion of a row while the import waits for review.
@@ -61,6 +65,11 @@ public sealed class UpdateImportCandidateHandler(IAppDbContext dbContext, Curren
         }
 
         candidate.SetExcluded(request.Excluded);
+        if (request.CountsAsOffset is { } countsAsOffset)
+        {
+            candidate.SetCountsAsOffset(countsAsOffset);
+        }
+
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return candidate.ToResponse();

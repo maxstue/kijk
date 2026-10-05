@@ -22,7 +22,7 @@ internal static class AiDependencyInjection
     public static IServiceCollection AddAi(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AiOptions>(configuration.GetSection(AiOptions.SectionName));
-        services.AddSingleton<IAiGate, AiGate>();
+        services.AddScoped<IAiGate, AiGate>();
         services.AddSingleton<IChatClient>(provider =>
         {
             var options = provider.GetRequiredService<IOptions<AiOptions>>().Value;

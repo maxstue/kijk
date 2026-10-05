@@ -6,6 +6,7 @@ using Kijk.Application.Accounts.Create;
 using Kijk.Application.Budgets.Create;
 using Kijk.Application.Budgets.Shared;
 using Kijk.Application.Categories.Create;
+using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Create;
 using Kijk.Application.Transactions.Shared;
 using Kijk.Application.Transactions.Update;
@@ -143,6 +144,37 @@ public class FinancePermissionHttpTests
 
         await Assert.That(updated!.CategoryId).IsEqualTo(leisureId);
         await Assert.That(updated.CategorySource).IsEqualTo(CategorySource.Manual);
+    }
+
+    [Test]
+    public async Task SeveralTransactionsCanBeCategorizedAtOnceWithinTheHouseholdOnly()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Household).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            dbContext.AddRange(
+                Transaction.Create(new TransactionDetails(new DateTime(2024, 3, 1, 0, 0, 0, DateTimeKind.Utc), -5m, "Old shop", null, TransactionStatus.Booked, false), account, user, account.Household),
+                Transaction.Create(new TransactionDetails(new DateTime(2026, 10, 9, 0, 0, 0, DateTimeKind.Utc), -7m, "New shop", null, TransactionStatus.Booked, false), account, user, account.Household));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        // Without a period the list holds uncategorized transactions of all months.
+        var open = (await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions?uncategorized=true", Json))!;
+        await Assert.That(open.Count).IsEqualTo(2);
+
+        using var assigned = await host.Client.PutAsJsonAsync("/api/transactions/category", new CategorizeTransactionsRequest([.. open.Select(item => item.Id)], GroceriesId), Json);
+        var result = await assigned.Content.ReadFromJsonAsync<CategorizeTransactionsResponse>(Json);
+        await Assert.That(result!.Updated).IsEqualTo(2);
+        var remaining = (await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions?uncategorized=true", Json))!;
+        await Assert.That(remaining).IsEmpty();
+
+        var outsider = await CreateOutsiderAsync();
+        await using var outsiderHost = await HouseholdApiHost.StartAsync(outsider.AuthId);
+        using var foreign = await outsiderHost.Client.PutAsJsonAsync("/api/transactions/category", new CategorizeTransactionsRequest([fixture.Transaction.Id], null), Json);
+        await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
     [Test]

@@ -13,6 +13,15 @@ public sealed class Household : BaseEntity
     /// <summary>Gets how much of the purpose text is kept when imported transactions are stored.</summary>
     public PurposeRetention PurposeRetention { get; private set; }
 
+    /// <summary>Gets which transaction data the AI categorization may see.</summary>
+    public AiDataSharing AiDataSharing { get; private set; }
+
+    /// <summary>
+    /// Gets whether imports store as little as possible: names of private persons are replaced before saving and no
+    /// key of the counterparty IBAN is kept, so remembered categories only match merchants and keywords.
+    /// </summary>
+    public bool MinimizeData { get; private set; }
+
     /// <summary>Gets the memberships of this household.</summary>
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
     /// <summary>Gets the consumptions recorded for this household.</summary>
@@ -54,6 +63,14 @@ public sealed class Household : BaseEntity
     /// <summary>Sets how much of the purpose text is kept when imported transactions are stored.</summary>
     /// <param name="retention">The retention.</param>
     public void SetPurposeRetention(PurposeRetention retention) => PurposeRetention = retention;
+
+    /// <summary>Sets which transaction data the AI categorization may see.</summary>
+    /// <param name="sharing">The level.</param>
+    public void SetAiDataSharing(AiDataSharing sharing) => AiDataSharing = sharing;
+
+    /// <summary>Turns the data-minimizing import mode on or off. Transactions imported earlier stay as stored.</summary>
+    /// <param name="minimize">Whether imports store as little as possible.</param>
+    public void SetMinimizeData(bool minimize) => MinimizeData = minimize;
 
     /// <summary>Renames the household.</summary>
     /// <param name="name">The new name.</param>

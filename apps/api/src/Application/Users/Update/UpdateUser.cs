@@ -58,6 +58,11 @@ public class UpdateUserHandler(
             userEntity.UpdateAnalyticsConsent(request.AnalyticsConsent.Value, timeProvider.GetUtcNow().UtcDateTime);
         }
 
+        if (request.AiEnabled is not null)
+        {
+            userEntity.SetAiEnabled(request.AiEnabled.Value);
+        }
+
         if (request.UseExternalProfile is not null)
         {
             await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile.Value, cancellationToken);

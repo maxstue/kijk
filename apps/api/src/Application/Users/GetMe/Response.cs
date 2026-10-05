@@ -53,6 +53,7 @@ public record GetMeUserResponse(
     AnalyticsConsent? AnalyticsConsent,
     DateTime? AnalyticsConsentUpdatedAt,
     DateTime? OnboardingCompletedAt,
+    bool AiEnabled,
     IEnumerable<UserHouseholdResponse>? Households,
     IEnumerable<UserResourceResponse>? Resources)
 {

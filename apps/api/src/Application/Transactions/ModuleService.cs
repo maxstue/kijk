@@ -1,3 +1,4 @@
+using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Create;
 using Kijk.Application.Transactions.Update;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ public sealed class ModuleService : IModule
     {
         services.AddScoped<IValidator<CreateTransactionRequest>, CreateTransactionValidator>();
         services.AddScoped<IValidator<UpdateTransactionRequest>, UpdateTransactionValidator>();
+        services.AddScoped<IValidator<CategorizeTransactionsRequest>, CategorizeTransactionsValidator>();
         return services;
     }
 }

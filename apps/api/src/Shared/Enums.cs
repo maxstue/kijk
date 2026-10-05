@@ -113,7 +113,9 @@ public enum ImportJobStatus
     /// <summary>The import failed or expired.</summary>
     Failed,
     /// <summary>The user cancelled the import.</summary>
-    Cancelled
+    Cancelled,
+    /// <summary>The AI proposes categories for the candidates that have none.</summary>
+    Categorizing
 }
 
 /// <summary>
@@ -168,4 +170,16 @@ public enum PurposeRetention
     Truncate,
     /// <summary>Does not store the purpose.</summary>
     Remove
+}
+
+/// <summary>
+/// Represents which transaction data a household lets the AI categorization see.
+/// </summary>
+[EnumExtensions]
+public enum AiDataSharing
+{
+    /// <summary>No transaction leaves the server.</summary>
+    Off,
+    /// <summary>Counterparty and purpose are sent after removing identifiers and the names of private persons.</summary>
+    Strict
 }

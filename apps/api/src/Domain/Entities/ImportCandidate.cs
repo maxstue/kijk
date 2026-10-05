@@ -35,6 +35,18 @@ public sealed class ImportCandidate : BaseEntity
     /// <summary>Gets the pseudonymous key of the counterparty IBAN.</summary>
     public string? CounterpartyKey { get; init; }
 
+    /// <summary>Gets whether the row looks like a credit card statement that settles single purchases.</summary>
+    public bool IsCardSettlement { get; init; }
+
+    /// <summary>
+    /// Gets whether the user confirmed that the single purchases of this card statement are imported separately, so
+    /// the statement only offsets them and does not count against a budget.
+    /// </summary>
+    public bool CountsAsOffset { get; private set; }
+
+    /// <summary>Gets whether the user chose not to send this row to the AI.</summary>
+    public bool AiExcluded { get; private set; }
+
     /// <summary>Gets the proposed or chosen category.</summary>
     public Guid? CategoryId { get; private set; }
 
@@ -73,7 +85,8 @@ public sealed class ImportCandidate : BaseEntity
             Status = values.Status,
             IsMerchantPayment = values.IsMerchantPayment,
             BookingKey = values.BookingKey,
-            CounterpartyKey = values.CounterpartyKey
+            CounterpartyKey = values.CounterpartyKey,
+            IsCardSettlement = values.IsCardSettlement
         };
 
     /// <summary>Creates a candidate for a row that could not be parsed. It is excluded and shown in the review.</summary>
@@ -107,6 +120,14 @@ public sealed class ImportCandidate : BaseEntity
         CategorySource = categoryId is null ? null : Shared.CategorySource.Manual;
     }
 
+    /// <summary>Lets a card statement offset its separately imported purchases, or count as an expense again.</summary>
+    /// <param name="countsAsOffset">Whether the statement only offsets other bookings.</param>
+    public void SetCountsAsOffset(bool countsAsOffset) => CountsAsOffset = countsAsOffset && IsCardSettlement;
+
+    /// <summary>Keeps the row from being sent to the AI, or allows it again.</summary>
+    /// <param name="excluded">Whether the row stays on the server.</param>
+    public void SetAiExcluded(bool excluded) => AiExcluded = excluded;
+
     /// <summary>Includes or excludes the row. Rows with errors stay excluded.</summary>
     /// <param name="excluded">Whether the row is excluded.</param>
     public void SetExcluded(bool excluded) => Excluded = excluded || !IsValid;
@@ -123,4 +144,5 @@ public sealed record ImportCandidateValues(
     TransactionStatus Status,
     bool IsMerchantPayment,
     string BookingKey,
-    string? CounterpartyKey);
+    string? CounterpartyKey,
+    bool IsCardSettlement = false);

@@ -117,7 +117,7 @@ public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser cur
                     candidate.Counterparty,
                     PurposeScrubber.ApplyRetention(candidate.Purpose, job.Household.PurposeRetention),
                     candidate.Status,
-                    IsTransfer: false),
+                    IsTransfer: candidate.CountsAsOffset),
                 new TransactionKeys(candidate.BookingKey!, candidate.CounterpartyKey, job.KeyVersion, candidate.IsMerchantPayment),
                 job.Account,
                 job,

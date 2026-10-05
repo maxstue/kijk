@@ -41,6 +41,15 @@ public sealed class ImportJob : BaseEntity
     /// <summary>Gets whether the AI format detection was allowed but could not be reached, so a weaker proposal is shown.</summary>
     public bool AiUnavailable { get; private set; }
 
+    /// <summary>Gets which data the AI categorization of this import may see.</summary>
+    public AiDataSharing AiDataSharing { get; private set; }
+
+    /// <summary>Gets the number of candidates the AI categorized in the last run.</summary>
+    public int AiCategorizedCount { get; private set; }
+
+    /// <summary>Gets whether the last AI categorization could not be completed, so some rows stay uncategorized.</summary>
+    public bool AiCategorizationUnavailable { get; private set; }
+
     /// <summary>Gets the confirmed column mapping as JSON.</summary>
     public string? Mapping { get; private set; }
 
@@ -184,6 +193,33 @@ public sealed class ImportJob : BaseEntity
         FullMonths = [.. fullMonths];
         EdgeMonths = [.. edgeMonths];
         ProcessedRows = RowCount;
+        Status = ImportJobStatus.NeedsReview;
+    }
+
+    /// <summary>Starts the AI categorization of the candidates, after reading or on request during the review.</summary>
+    /// <param name="sharing">Which data the AI may see.</param>
+    /// <returns><see langword="true" /> if the import was waiting for categorization or review.</returns>
+    public bool StartCategorizing(AiDataSharing sharing)
+    {
+        if (Status is not (ImportJobStatus.NeedsReview or ImportJobStatus.Categorizing))
+        {
+            return false;
+        }
+
+        AiDataSharing = sharing;
+        AiCategorizedCount = 0;
+        AiCategorizationUnavailable = false;
+        Status = ImportJobStatus.Categorizing;
+        return true;
+    }
+
+    /// <summary>Finishes the AI categorization and waits for the user's review.</summary>
+    /// <param name="categorizedCount">The number of candidates that received a category.</param>
+    /// <param name="unavailable">Whether the AI could not be reached for some of them.</param>
+    public void FinishCategorizing(int categorizedCount, bool unavailable)
+    {
+        AiCategorizedCount = categorizedCount;
+        AiCategorizationUnavailable = unavailable;
         Status = ImportJobStatus.NeedsReview;
     }
 

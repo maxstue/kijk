@@ -34,6 +34,9 @@ public sealed class User : BaseEntity
     /// </summary>
     public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
 
+    /// <summary>Gets whether the user allows AI features. When off, no AI call is made for this user.</summary>
+    public bool AiEnabled { get; private set; } = true;
+
     /// <summary>Gets the user's household memberships.</summary>
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
 
@@ -111,6 +114,10 @@ public sealed class User : BaseEntity
     /// Resets onboarding when the user no longer belongs to a household.
     /// </summary>
     public void ResetOnboarding() => OnboardingCompletedAt = null;
+
+    /// <summary>Turns the AI features on or off for this user.</summary>
+    /// <param name="enabled">Whether AI features are allowed.</param>
+    public void SetAiEnabled(bool enabled) => AiEnabled = enabled;
 
     /// <summary>Changes the analytics preference.</summary>
     /// <param name="analyticsConsent">The new preference.</param>

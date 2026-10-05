@@ -23,4 +23,12 @@ public static class ImportMessageHandler
     /// <returns>A task that completes when the step is done.</returns>
     public static Task Handle(ReadImport message, ImportJobProcessor processor, CancellationToken cancellationToken) =>
         processor.ReadAsync(message.ImportJobId, cancellationToken);
+
+    /// <summary>Proposes categories for the rows of an import.</summary>
+    /// <param name="message">The message.</param>
+    /// <param name="processor">The import processor.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task that completes when the step is done.</returns>
+    public static Task Handle(CategorizeImport message, ImportJobProcessor processor, CancellationToken cancellationToken) =>
+        processor.CategorizeAsync(message.ImportJobId, cancellationToken);
 }

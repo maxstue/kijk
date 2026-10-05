@@ -29,6 +29,7 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         group.MapGet("/{id:guid}", GetById).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithName("GetTransactionById").WithSummary("Gets a transaction by id");
         group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CreateTransactionRequest>().WithSummary("Records a transaction manually");
         group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<UpdateTransactionRequest>().WithSummary("Updates a transaction");
+        group.MapPut("/category", CategorizeMany).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CategorizeTransactionsRequest>().WithSummary("Assigns one category to several transactions");
         group.MapPut("/{id:guid}/category", Categorize).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Corrects the category of a transaction, optionally remembering it for the merchant or counterparty");
         group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes a transaction");
 
@@ -83,6 +84,15 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         CancellationToken cancellationToken)
     {
         var result = await handler.CategorizeAsync(id, request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<CategorizeTransactionsResponse>, ProblemHttpResult>> CategorizeMany(
+        CategorizeTransactionsRequest request,
+        CategorizeTransactionsHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.CategorizeAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

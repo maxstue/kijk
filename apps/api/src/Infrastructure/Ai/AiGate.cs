@@ -1,16 +1,23 @@
 using Kijk.Application.Shared.Ai;
+using Kijk.Application.Shared.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Kijk.Infrastructure.Ai;
 
 /// <summary>
-/// Allows AI calls only when the kill switch is on and an API key is configured. Phase 4 adds the user's AI switch and
-/// Phase 8 the paywall to this single check.
+/// Allows AI calls only when the kill switch is on, an API key is configured and the member has not turned AI off.
+/// Phase 8 adds the paywall to this single check.
 /// </summary>
 /// <param name="ai">The AI settings.</param>
-internal sealed class AiGate(IOptionsMonitor<AiOptions> ai) : IAiGate
+/// <param name="dbContext">The database context.</param>
+internal sealed class AiGate(IOptionsMonitor<AiOptions> ai, IAppDbContext dbContext) : IAiGate
 {
     /// <inheritdoc />
-    public Task<bool> CanUseAiAsync(Guid householdId, CancellationToken cancellationToken) =>
-        Task.FromResult(ai.CurrentValue.Enabled && !string.IsNullOrWhiteSpace(ai.CurrentValue.ApiKey));
+    public async Task<bool> CanUseAiAsync(Guid householdId, Guid userId, CancellationToken cancellationToken) =>
+        ai.CurrentValue.Enabled
+        && !string.IsNullOrWhiteSpace(ai.CurrentValue.ApiKey)
+        && await dbContext.UserHouseholds.AnyAsync(
+            link => link.UserId == userId && link.HouseholdId == householdId && link.User.AiEnabled,
+            cancellationToken);
 }

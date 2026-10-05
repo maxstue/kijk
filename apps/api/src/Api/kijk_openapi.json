@@ -2360,6 +2360,205 @@
         ]
       }
     },
+    "/api/imports/{id}/ai-preview": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Gets exactly the texts the AI categorization would send",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/ai-preview/{key}": {
+      "put": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Deselects or selects a text of the AI preview",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAiPreviewItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiPreviewItemResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/categorize": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Proposes categories with the AI for the rows that have none",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorizeImportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/imports/{id}/commit": {
       "post": {
         "tags": [
@@ -3135,6 +3334,62 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/transactions/category": {
+      "put": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Assigns one category to several transactions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorizeTransactionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategorizeTransactionsResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -4022,6 +4277,88 @@
         },
         "description": "A bank account of the household."
       },
+      "AiDataSharing": {
+        "enum": [
+          "Off",
+          "Strict"
+        ],
+        "description": "Represents which transaction data a household lets the AI categorization see."
+      },
+      "AiPreviewItemResponse": {
+        "required": [
+          "key",
+          "counterparty",
+          "purpose",
+          "incoming",
+          "rowCount",
+          "excluded"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The id of the text within the import."
+          },
+          "counterparty": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The counterparty as sent."
+          },
+          "purpose": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The purpose as sent."
+          },
+          "incoming": {
+            "type": "boolean",
+            "description": "Whether money came in; the amount itself is never sent."
+          },
+          "rowCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows that share the text.",
+            "format": "int32"
+          },
+          "excluded": {
+            "type": "boolean",
+            "description": "Whether the user deselected the text."
+          }
+        },
+        "description": "A distinct text the AI categorization would send."
+      },
+      "AiPreviewResponse": {
+        "required": [
+          "items",
+          "withheldRows"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AiPreviewItemResponse"
+            },
+            "description": "The distinct texts."
+          },
+          "withheldRows": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Rows without a category that are not sent because nothing useful remains after cleaning.",
+            "format": "int32"
+          }
+        },
+        "description": "What the AI categorization of an import would send."
+      },
       "AnalyticsConsent": {
         "enum": [
           "Accepted",
@@ -4267,6 +4604,23 @@
         },
         "description": "A budget version: a monthly amount for a category from a month on."
       },
+      "CategorizeImportRequest": {
+        "type": "object",
+        "properties": {
+          "aiDataSharing": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Which data the AI may see for this import; the household's level when omitted.",
+                "$ref": "#/components/schemas/AiDataSharing"
+              }
+            ]
+          }
+        },
+        "description": "Request for categorizing the rows of an import with the AI."
+      },
       "CategorizeTransactionRequest": {
         "required": [
           "categoryId",
@@ -4318,6 +4672,50 @@
           }
         },
         "description": "The corrected transaction."
+      },
+      "CategorizeTransactionsRequest": {
+        "required": [
+          "ids",
+          "categoryId"
+        ],
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The transactions."
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category, or `null` to mark them as uncategorized.",
+            "format": "uuid"
+          }
+        },
+        "description": "Request for assigning one category to several transactions, e.g. from the list of uncategorized transactions."
+      },
+      "CategorizeTransactionsResponse": {
+        "required": [
+          "updated"
+        ],
+        "type": "object",
+        "properties": {
+          "updated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of changed transactions.",
+            "format": "int32"
+          }
+        },
+        "description": "The result of assigning a category to several transactions."
       },
       "CategoryKind": {
         "enum": [
@@ -5399,6 +5797,7 @@
           "analyticsConsent",
           "analyticsConsentUpdatedAt",
           "onboardingCompletedAt",
+          "aiEnabled",
           "households",
           "resources"
         ],
@@ -5449,6 +5848,9 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "aiEnabled": {
+            "type": "boolean"
           },
           "households": {
             "type": [
@@ -5649,7 +6051,9 @@
           "categoryId",
           "categorySource",
           "errors",
-          "excluded"
+          "excluded",
+          "isCardSettlement",
+          "countsAsOffset"
         ],
         "type": "object",
         "properties": {
@@ -5732,6 +6136,14 @@
           "excluded": {
             "type": "boolean",
             "description": "Whether the row will not be imported."
+          },
+          "isCardSettlement": {
+            "type": "boolean",
+            "description": "Whether the row looks like a credit card statement."
+          },
+          "countsAsOffset": {
+            "type": "boolean",
+            "description": "Whether the card statement only offsets separately imported purchases."
           }
         },
         "description": "A row of an import waiting for review."
@@ -5752,6 +6164,9 @@
           "proposedMapping",
           "proposedMappingSource",
           "aiUnavailable",
+          "aiDataSharing",
+          "aiCategorizedCount",
+          "aiCategorizationUnavailable",
           "mapping",
           "fullMonths",
           "edgeMonths",
@@ -5857,6 +6272,23 @@
             "type": "boolean",
             "description": "Whether the AI format detection could not be reached, so a weaker proposal is shown."
           },
+          "aiDataSharing": {
+            "description": "Which data the AI categorization of this import may see.",
+            "$ref": "#/components/schemas/AiDataSharing"
+          },
+          "aiCategorizedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows the AI categorized in the last run.",
+            "format": "int32"
+          },
+          "aiCategorizationUnavailable": {
+            "type": "boolean",
+            "description": "Whether the AI could not be reached, so some rows stay uncategorized."
+          },
           "mapping": {
             "oneOf": [
               {
@@ -5925,7 +6357,8 @@
           "NeedsReview",
           "Done",
           "Failed",
-          "Cancelled"
+          "Cancelled",
+          "Categorizing"
         ],
         "description": "Represents the processing state of a CSV import."
       },
@@ -5988,13 +6421,23 @@
       },
       "ImportSettingsResponse": {
         "required": [
-          "purposeRetention"
+          "purposeRetention",
+          "aiDataSharing",
+          "minimizeData"
         ],
         "type": "object",
         "properties": {
           "purposeRetention": {
             "description": "How much of the purpose text imported transactions keep.",
             "$ref": "#/components/schemas/PurposeRetention"
+          },
+          "aiDataSharing": {
+            "description": "Which transaction data the AI categorization may see.",
+            "$ref": "#/components/schemas/AiDataSharing"
+          },
+          "minimizeData": {
+            "type": "boolean",
+            "description": "Whether imports store neither names of private persons nor counterparty keys."
           }
         },
         "description": "The import settings of the active household."
@@ -6480,6 +6923,19 @@
         },
         "description": "Request for replacing the editable properties of an account."
       },
+      "UpdateAiPreviewItemRequest": {
+        "required": [
+          "excluded"
+        ],
+        "type": "object",
+        "properties": {
+          "excluded": {
+            "type": "boolean",
+            "description": "Whether the rows sharing the text stay on the server."
+          }
+        },
+        "description": "Request for deselecting or selecting a text in the AI preview."
+      },
       "UpdateBudgetRequest": {
         "required": [
           "amount",
@@ -6664,6 +7120,13 @@
           "excluded": {
             "type": "boolean",
             "description": "Whether the row is not imported."
+          },
+          "countsAsOffset": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "For a card statement: whether its single purchases are imported separately, so it only offsets them. Unchanged\nwhen omitted."
           }
         },
         "description": "Request for changing a row during the review."
@@ -6677,6 +7140,24 @@
           "purposeRetention": {
             "description": "How much of the purpose text imported transactions keep.",
             "$ref": "#/components/schemas/PurposeRetention"
+          },
+          "aiDataSharing": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Which transaction data the AI categorization may see; unchanged when omitted.",
+                "$ref": "#/components/schemas/AiDataSharing"
+              }
+            ]
+          },
+          "minimizeData": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Whether imports store neither names of private persons nor counterparty keys; unchanged when omitted."
           }
         },
         "description": "Request for changing the import settings of the active household."
@@ -6868,6 +7349,13 @@
                 "$ref": "#/components/schemas/AnalyticsConsent"
               }
             ]
+          },
+          "aiEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Whether AI features are allowed for the user."
           }
         },
         "description": "Changes to the current user; `null` values are left unchanged."
@@ -6979,7 +7467,8 @@
           "useDefaultResources",
           "analyticsConsent",
           "analyticsConsentUpdatedAt",
-          "onboardingCompletedAt"
+          "onboardingCompletedAt",
+          "aiEnabled"
         ],
         "type": "object",
         "properties": {
@@ -7042,6 +7531,10 @@
             ],
             "description": "When onboarding was completed.",
             "format": "date-time"
+          },
+          "aiEnabled": {
+            "type": "boolean",
+            "description": "Whether AI features are allowed for the user."
           },
           "onboardingCompleted": {
             "type": "boolean",

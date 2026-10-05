@@ -1,7 +1,9 @@
 using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
+using Kijk.Application.Imports.AiPreview;
 using Kijk.Application.Imports.Cancel;
+using Kijk.Application.Imports.Categorize;
 using Kijk.Application.Imports.Commit;
 using Kijk.Application.Imports.ConfirmMapping;
 using Kijk.Application.Imports.Create;
@@ -46,6 +48,9 @@ public sealed class ImportsEndpoints : IEndpointGroup
             .WithSummary("Uploads a bank export and starts its import");
         group.MapPost("/{id:guid}/mapping", ConfirmMapping).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Confirms the column mapping and starts reading the file");
         group.MapPut("/{id:guid}/candidates/{candidateId:guid}", UpdateCandidate).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Changes the category or exclusion of a row during the review");
+        group.MapGet("/{id:guid}/ai-preview", GetAiPreview).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Gets exactly the texts the AI categorization would send");
+        group.MapPut("/{id:guid}/ai-preview/{key}", UpdateAiPreviewItem).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Deselects or selects a text of the AI preview");
+        group.MapPost("/{id:guid}/categorize", Categorize).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithRequestValidation<CategorizeImportRequest>().WithSummary("Proposes categories with the AI for the rows that have none");
         group.MapPost("/{id:guid}/commit", Commit).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Replaces the account's transactions in the covered months with the reviewed rows");
         group.MapPost("/{id:guid}/cancel", Cancel).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Cancels an open import and deletes its file");
         group.MapGet("/settings", GetSettings).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the import settings of the active household");
@@ -132,6 +137,33 @@ public sealed class ImportsEndpoints : IEndpointGroup
     {
         var result = await handler.CancelAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<AiPreviewResponse>, ProblemHttpResult>> GetAiPreview(Guid id, ImportAiPreviewHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.GetAsync(id, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<AiPreviewItemResponse>, ProblemHttpResult>> UpdateAiPreviewItem(
+        Guid id,
+        string key,
+        UpdateAiPreviewItemRequest request,
+        ImportAiPreviewHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.UpdateAsync(id, key, request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Accepted<ImportJobResponse>, ProblemHttpResult>> Categorize(
+        Guid id,
+        CategorizeImportRequest request,
+        CategorizeImportHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.CategorizeAsync(id, request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Accepted((string?)null, result.Value);
     }
 
     private static async Task<Results<Ok<ImportSettingsResponse>, ProblemHttpResult>> GetSettings(ImportSettingsHandler handler, CancellationToken cancellationToken)

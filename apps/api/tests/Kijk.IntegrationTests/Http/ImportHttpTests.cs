@@ -3,8 +3,12 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Kijk.Application.Imports.AiPreview;
+using Kijk.Application.Imports.Categorize;
 using Kijk.Application.Imports.Cleanup;
 using Kijk.Application.Imports.Commit;
+using Kijk.Application.Imports.Review;
+using Kijk.Application.Imports.Settings;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Transactions.Categorize;
 using Kijk.Domain.Catalogs;
@@ -187,6 +191,189 @@ public class ImportHttpTests
         await Assert.That(job.ProposedMappingSource).IsEqualTo(MappingSource.Suggestion);
         await Assert.That(job.AiUnavailable).IsTrue();
     }
+
+    [Test]
+    public async Task TheAiOnlySeesWhatThePreviewShowsAndNeverOverridesManualCategories()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        var chat = new CategorizingChatClient("Groceries");
+        await using var host = await StartWithAiAsync(fixture, chat);
+        using var settings = await host.Client.PutAsJsonAsync("/api/imports/settings", new UpdateImportSettingsRequest(PurposeRetention.Keep, AiDataSharing.Strict), Json);
+        await Assert.That(settings.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+
+        // Nothing is sent before the user starts it from the preview.
+        await Assert.That(chat.Requests).IsEmpty();
+        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
+        await Assert.That(preview.Items.Count).IsEqualTo(5);
+        var bakery = preview.Items.Single(item => item.Counterparty == "Bäckerei Schön");
+        using var deselected = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/ai-preview/{bakery.Key}", new UpdateAiPreviewItemRequest(true), Json);
+        await Assert.That(deselected.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(), Json);
+        await Assert.That(started.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
+        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+
+        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        var salary = rows.Single(row => row.Amount > 0);
+        var bakeryRow = rows.Single(row => row.Counterparty == "Bäckerei Schön");
+        var others = rows.Where(row => row.Amount < 0 && row.Id != bakeryRow.Id).ToList();
+        await Assert.That(others.Select(row => (row.CategorySource, row.CategoryId))).IsEquivalentTo(others.Select(_ => ((CategorySource?)CategorySource.Ai, (Guid?)GroceriesId)));
+        await Assert.That(bakeryRow.CategoryId).IsNull();
+        await Assert.That(salary.CategoryId).IsNull();
+        await Assert.That(job.AiCategorizedCount).IsEqualTo(others.Count);
+        // The request holds exactly the selected preview texts and no amounts, dates, IBANs or the customer's name.
+        var sent = string.Join('\n', chat.Requests);
+        foreach (var item in preview.Items.Where(item => item.Key != bakery.Key))
+        {
+            await Assert.That(sent).Contains(item.Counterparty!);
+        }
+
+        foreach (var secret in new[] { "Bäckerei", "Erika", "Beispiel", "DE00", "REF-0001", "-6,80", "30.11.2026" })
+        {
+            await Assert.That(sent.Contains(secret, StringComparison.Ordinal)).IsFalse();
+        }
+
+        // A manual category survives categorizing again.
+        using var chosen = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/candidates/{salary.Id}", new UpdateImportCandidateRequest(HousingId, false), Json);
+        using var again = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(), Json);
+        await Assert.That(again.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
+        await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+        var after = await GetCandidatesAsync(host.Client, job.Id);
+        await Assert.That(after.Single(row => row.Id == salary.Id).CategorySource).IsEqualTo(CategorySource.Manual);
+        await Assert.That(after.Single(row => row.Id == salary.Id).CategoryId).IsEqualTo(HousingId);
+    }
+
+    [Test]
+    public async Task NothingIsSentWhileSharingIsOffOrTheUserTurnedAiOff()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        var chat = new CategorizingChatClient("Groceries");
+        await using var host = await StartWithAiAsync(fixture, chat);
+
+        var off = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        using var refused = await host.Client.PostAsJsonAsync($"/api/imports/{off.Id}/categorize", new CategorizeImportRequest(), Json);
+        await Assert.That(refused.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        using var cancelled = await host.Client.PostAsync($"/api/imports/{off.Id}/cancel", null);
+
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            (await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id)).SetAiEnabled(false);
+            await dbContext.SaveChangesAsync();
+        }
+
+        var switchedOff = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        // Even an explicit choice for this import is refused while the user turned AI off.
+        using var rejected = await host.Client.PostAsJsonAsync($"/api/imports/{switchedOff.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict), Json);
+
+        await Assert.That(rejected.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        await Assert.That(chat.Requests).IsEmpty();
+    }
+
+    [Test]
+    public async Task AnUnreachableAiKeepsAllRowsUncategorized()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        var chat = new CategorizingChatClient(null);
+        await using var host = await StartWithAiAsync(fixture, chat);
+
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict), Json);
+        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+
+        await Assert.That(job.AiCategorizationUnavailable).IsTrue();
+        await Assert.That(job.AiDataSharing).IsEqualTo(AiDataSharing.Strict);
+        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        await Assert.That(rows.Count(row => row.Errors is null)).IsEqualTo(5);
+        await Assert.That(rows.Any(row => row.CategoryId is not null)).IsFalse();
+    }
+
+    [Test]
+    public async Task CardStatementsCountAsOffsetOnlyAfterConfirmation()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        var file = """
+            Datum;Empfänger;Verwendungszweck;Betrag
+            01.10.2026;Musterbank;Kreditkartenabrechnung 09/2026;-420,00
+            15.10.2026;Musterbank;VISA Abrechnung Oktober;-80,00
+            20.10.2026;Bäckerei;Brötchen;-3,20
+            """u8.ToArray();
+
+        var job = await UploadBytesAsync(host.Client, fixture.Account.Id, file);
+        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
+        using var confirmed = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/mapping", job.ProposedMapping, Json);
+        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        var statements = rows.Where(row => row.IsCardSettlement).ToList();
+        await Assert.That(statements.Count).IsEqualTo(2);
+        await Assert.That(rows.Single(row => row.Counterparty == "Bäckerei").IsCardSettlement).IsFalse();
+
+        var offset = statements.Single(row => row.Amount == -420m);
+        using var updated = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/candidates/{offset.Id}", new UpdateImportCandidateRequest(null, false, true), Json);
+        await Assert.That(updated.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        // The file covers only part of October, which is therefore an edge month to include explicitly.
+        await CommitAsync(host.Client, job.Id, [October]);
+
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var transactions = await verification.Transactions.Where(item => item.AccountId == fixture.Account.Id).ToListAsync();
+        await Assert.That(transactions.Single(item => item.Amount == -420m).IsTransfer).IsTrue();
+        await Assert.That(transactions.Single(item => item.Amount == -80m).IsTransfer).IsFalse();
+    }
+
+    [Test]
+    public async Task DataMinimizingHouseholdsStoreNeitherPersonsNorCounterpartyKeys()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        using var settings = await host.Client.PutAsJsonAsync("/api/imports/settings", new UpdateImportSettingsRequest(PurposeRetention.Keep, MinimizeData: true), Json);
+        var saved = await settings.Content.ReadFromJsonAsync<ImportSettingsResponse>(Json);
+        await Assert.That(saved!.MinimizeData).IsTrue();
+
+        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
+
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var transactions = await verification.Transactions.Where(item => item.AccountId == fixture.Account.Id).ToListAsync();
+        await Assert.That(transactions.Count).IsEqualTo(7);
+        await Assert.That(transactions.All(item => item.CounterpartyKey == null && item.BookingKey != null)).IsTrue();
+        await Assert.That(transactions.Where(item => item.Amount == -750m).All(item => item.Counterparty == "[PERSON]")).IsTrue();
+        await Assert.That(transactions.Any(item => item.Counterparty!.Contains("Mustermann", StringComparison.Ordinal))).IsFalse();
+        await Assert.That(transactions.Single(item => item.Amount == -85m).Counterparty).IsEqualTo("Stadtwerke Beispielstadt");
+
+        // Without a counterparty key a transfer can only be remembered by a keyword.
+        var rent = transactions.First(item => item.Amount == -750m);
+        using var byPerson = await host.Client.PutAsJsonAsync($"/api/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, true), Json);
+        await Assert.That(byPerson.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    private static Task<HouseholdApiHost> StartWithAiAsync(Fixture fixture, IChatClient chat) =>
+        HouseholdApiHost.StartAsync(
+            fixture.User.AuthId,
+            jobsEnabled: true,
+            services => services.AddSingleton(chat),
+            new Dictionary<string, string?> { ["Ai:Enabled"] = "true", ["Ai:ApiKey"] = "test-key" });
+
+    private static async Task<ImportJobResponse> UploadAndReadAsync(HttpClient client, Guid accountId)
+    {
+        var job = await UploadAsync(client, accountId, "ing-synthetic.csv");
+        // A confirmed profile of an earlier import skips the mapping step.
+        while (job.Status is ImportJobStatus.Pending or ImportJobStatus.Analyzing)
+        {
+            await Task.Delay(100);
+            job = (await client.GetFromJsonAsync<ImportJobResponse>($"/api/imports/{job.Id}", Json))!;
+        }
+
+        if (job.Status == ImportJobStatus.NeedsMapping)
+        {
+            using var confirmed = await client.PostAsJsonAsync($"/api/imports/{job.Id}/mapping", job.ProposedMapping, Json);
+        }
+
+        return await WaitForAsync(client, job.Id, ImportJobStatus.NeedsReview);
+    }
+
+    private static async Task<List<ImportCandidateResponse>> GetCandidatesAsync(HttpClient client, Guid id) =>
+        (await client.GetFromJsonAsync<List<ImportCandidateResponse>>($"/api/imports/{id}/candidates", Json))!;
 
     [Test]
     public async Task CancellingDeletesTheFileRightAway()
@@ -400,4 +587,59 @@ public class ImportHttpTests
         }
     }
 
+    /// <summary>
+    /// Plays the AI: refuses format detection, assigns every outgoing item to one category and records every request.
+    /// A null category name makes the provider unavailable.
+    /// </summary>
+    private sealed class CategorizingChatClient(string? categoryName) : IChatClient
+    {
+        private readonly List<string> _requests = [];
+
+        public IReadOnlyList<string> Requests
+        {
+            get
+            {
+                lock (_requests)
+                {
+                    return [.. _requests];
+                }
+            }
+        }
+
+        public Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var text = string.Join('\n', messages.Select(message => message.Text));
+            if (!text.Contains("\"items\"", StringComparison.Ordinal))
+            {
+                // Format detection: answer with something the mapping check rejects.
+                return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, "{}")));
+            }
+
+            lock (_requests)
+            {
+                _requests.Add(text);
+            }
+
+            if (categoryName is null)
+            {
+                throw new HttpRequestException("unavailable");
+            }
+
+            using var data = JsonDocument.Parse(text[(text.LastIndexOf("<data>", StringComparison.Ordinal) + 6)..text.LastIndexOf("</data>", StringComparison.Ordinal)]);
+            var category = data.RootElement.GetProperty("categories").EnumerateArray()
+                .Single(item => item.GetProperty("name").GetString() == categoryName).GetProperty("index").GetInt32();
+            var results = data.RootElement.GetProperty("items").EnumerateArray()
+                .Select(item => new { id = item.GetProperty("id").GetInt32(), category = item.GetProperty("incoming").GetBoolean() ? -1 : category });
+            return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, JsonSerializer.Serialize(new { results }))));
+        }
+
+        public IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public object? GetService(Type serviceType, object? serviceKey = null) => null;
+
+        public void Dispose()
+        {
+        }
+    }
 }
