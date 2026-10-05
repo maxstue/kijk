@@ -32,15 +32,13 @@ export function ConsumptionLimitsSection() {
       <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
         <div>
           <h2 className='text-2xl font-bold tracking-tight'>Consumption limits</h2>
-          <p className='text-muted-foreground'>
-            Set targets for each resource and see when your household reaches them.
-          </p>
+          <p className='text-muted-foreground'>Set targets for each resource and see when your space reaches them.</p>
         </div>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
             <Button
               disabled={!canPlan}
-              title={canPlan ? undefined : 'Your household role does not allow planning limits'}
+              title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
               variant='outline'
             >
               <Plus /> Add limit
@@ -61,7 +59,7 @@ export function ConsumptionLimitsSection() {
           <CardContent className='flex flex-col items-center gap-2 py-12 text-center'>
             <Gauge className='text-muted-foreground size-8' />
             <p className='font-medium'>No consumption limits yet</p>
-            <p className='text-muted-foreground text-sm'>Create a limit to start monitoring household usage.</p>
+            <p className='text-muted-foreground text-sm'>Create a limit to start monitoring usage in this space.</p>
           </CardContent>
         </Card>
       ) : (
@@ -116,7 +114,7 @@ function LimitCard({ limit, canPlan }: { limit: ConsumptionLimit; canPlan: boole
           <DialogTrigger asChild>
             <Button
               disabled={!canPlan}
-              title={canPlan ? undefined : 'Your household role does not allow planning limits'}
+              title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
               size='sm'
               variant='ghost'
             >

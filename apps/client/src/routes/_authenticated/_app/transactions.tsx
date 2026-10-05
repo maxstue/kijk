@@ -103,7 +103,7 @@ function TransactionsPage() {
             <DialogTrigger asChild>
               <Button
                 disabled={!canRecord}
-                title={canRecord ? undefined : 'Your household role does not allow recording transactions'}
+                title={canRecord ? undefined : 'Your role in this space does not allow recording transactions'}
               >
                 <Plus /> Add transaction
               </Button>

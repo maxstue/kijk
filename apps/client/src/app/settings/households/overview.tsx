@@ -7,7 +7,7 @@ import { useHouseholdSettings } from './context';
 
 const sections = [
   {
-    description: 'Name, description, and household details',
+    description: 'Name, description, and space details',
     icon: Settings2,
     label: 'General',
     section: 'general',
@@ -19,7 +19,7 @@ const sections = [
     section: 'members',
   },
   {
-    description: 'Units available to this household',
+    description: 'Units available to this space',
     icon: Ruler,
     label: 'Units',
     section: 'units',
@@ -34,27 +34,30 @@ export function HouseholdOverview() {
     <div className='mx-auto w-full max-w-4xl space-y-8'>
       <div className='space-y-1'>
         <h2 className='text-2xl font-semibold tracking-tight'>{household.name}</h2>
-        <p className='text-muted-foreground'>{household.description || 'Settings for this household.'}</p>
+        <p className='text-muted-foreground'>{household.description || 'Settings for this space.'}</p>
       </div>
 
       <Card className='gap-0 overflow-hidden py-0'>
-        {sections.map(({ description, icon: Icon, label, section }) => (
-          <Link
-            key={section}
-            className='hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring flex min-w-0 items-center gap-4 border-b px-5 py-5 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset'
-            params={{ householdId: household.id }}
-            to={`/settings/households/$householdId/${section}`}
-          >
-            <span className='bg-muted text-muted-foreground flex size-11 shrink-0 items-center justify-center rounded-lg'>
-              <Icon className='size-5' />
-            </span>
-            <span className='min-w-0 flex-1'>
-              <span className='block font-medium'>{label}</span>
-              <span className='text-muted-foreground block text-sm'>{description}</span>
-            </span>
-            <ChevronRight className='text-muted-foreground size-4 shrink-0' />
-          </Link>
-        ))}
+        {/* A personal space never has other members. */}
+        {sections
+          .filter(({ section }) => !household.isPersonal || section !== 'members')
+          .map(({ description, icon: Icon, label, section }) => (
+            <Link
+              key={section}
+              className='hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring flex min-w-0 items-center gap-4 border-b px-5 py-5 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset'
+              params={{ householdId: household.id }}
+              to={`/settings/households/$householdId/${section}`}
+            >
+              <span className='bg-muted text-muted-foreground flex size-11 shrink-0 items-center justify-center rounded-lg'>
+                <Icon className='size-5' />
+              </span>
+              <span className='min-w-0 flex-1'>
+                <span className='block font-medium'>{label}</span>
+                <span className='text-muted-foreground block text-sm'>{description}</span>
+              </span>
+              <ChevronRight className='text-muted-foreground size-4 shrink-0' />
+            </Link>
+          ))}
       </Card>
     </div>
   );

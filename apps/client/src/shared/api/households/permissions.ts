@@ -56,15 +56,15 @@ export const householdPermissionLabels: Record<HouseholdPermission, string> = {
   'finances:import': 'Import transactions from bank exports',
   'finances:record': 'Record, categorize and correct transactions',
   'finances:view': 'View transactions and the budget overview',
-  'household:configure': 'Change household details',
-  'household:delete': 'Delete the household',
+  'household:configure': 'Change space details',
+  'household:delete': 'Delete the space',
   'limits:plan': 'Create and change consumption limits',
   'limits:view': 'View consumption limits',
   'members:assign-role': 'Change the roles of other members',
   'members:view': 'View members and their roles',
   'resources:configure': 'Create, change and delete resources',
   'resources:view': 'View resources',
-  'units:share': 'Share units with the household',
+  'units:share': 'Share units with the space',
 };
 
 interface HouseholdWithRole {

@@ -104,7 +104,7 @@ export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Pr
         <Button
           className='mt-6'
           disabled={!canRecord || isPending}
-          title={canRecord ? undefined : 'Your household role does not allow recording consumptions'}
+          title={canRecord ? undefined : 'Your role in this space does not allow recording consumptions'}
           type='submit'
         >
           {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Update'}

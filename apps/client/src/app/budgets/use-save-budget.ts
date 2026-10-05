@@ -22,7 +22,7 @@ export function useSaveBudget() {
 
   return useMutation({
     mutationFn: ({ budgets, month, values, year }: SaveBudgetData) => {
-      const existing = findBudgetStartingIn(budgets, values.categoryId, year, month);
+      const existing = findBudgetStartingIn(budgets, values.categoryId, year, month, values.visibility);
       return existing
         ? updateBudget({ budget: { active: values.active, amount: values.amount }, id: existing.id })
         : createBudget({ ...values, validFrom: toMonthStart(year, month) });

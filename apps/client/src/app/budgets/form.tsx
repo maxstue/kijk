@@ -12,6 +12,7 @@ import type { BudgetFormValues } from '@/app/budgets/schemas';
 import { useSaveBudget } from '@/app/budgets/use-save-budget';
 import { budgetsQueryOptions } from '@/shared/api/budgets/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import {
   Form,
   FormControl,
@@ -22,12 +23,17 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 import { FormSwitchItem } from '@/shared/components/form-switch-item';
+import { type Visibility, VisibilitySelect } from '@/shared/components/visibility-select';
+import { useActiveSpace } from '@/shared/hooks/use-active-space';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { formatMonthYear } from '@/shared/utils/months';
 
 interface Props {
   /** Preselects and locks the category when editing an existing budget. */
   categoryId?: string;
   initialAmount?: number;
+  /** Preselects shared or private when editing an existing budget. */
+  initialVisibility?: Visibility;
   /** The month (1-12) from which the budget applies. */
   month: number;
   onClose: () => void;
@@ -35,14 +41,21 @@ interface Props {
 }
 
 /** Form that sets the monthly budget of an expense category from the selected month on. */
-export function BudgetForm({ categoryId, initialAmount, month, onClose, year }: Props) {
+export function BudgetForm({ categoryId, initialAmount, initialVisibility, month, onClose, year }: Props) {
+  const canPlan = useHouseholdPermission(HouseholdPermissions.budgets.plan);
+  const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
   const { data: budgets } = useSuspenseQuery(budgetsQueryOptions());
   const saveMutation = useSaveBudget();
   const expenseCategories = categories.filter((category) => category.kind === 'Expense');
   const monthLabel = formatMonthYear(year, month);
   const form = useForm<BudgetFormValues>({
-    defaultValues: { active: true, amount: initialAmount ?? 0, categoryId: categoryId ?? '' },
+    defaultValues: {
+      active: true,
+      amount: initialAmount ?? 0,
+      categoryId: categoryId ?? '',
+      visibility: initialVisibility ?? (canPlan ? 'Shared' : 'Private'),
+    },
     resolver: zodResolver(budgetSchema),
   });
 
@@ -106,6 +119,22 @@ export function BudgetForm({ categoryId, initialAmount, month, onClose, year }: 
             </FormItem>
           )}
         />
+        {!isPersonalSpace && (
+          <FormField
+            control={form.control}
+            name='visibility'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Who uses this budget</FormLabel>
+                <VisibilitySelect canShare={canPlan} value={field.value} onChange={field.onChange} />
+                <FormDescription>
+                  A private budget replaces the shared one of this category for you only.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name='active'

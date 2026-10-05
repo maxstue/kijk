@@ -53,12 +53,12 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
     <div className='space-y-6'>
       <div>
         <h3 className='text-lg font-medium'>
-          {scope === 'personal' ? 'Units' : `${selectedHousehold?.name ?? 'Household'} units`}
+          {scope === 'personal' ? 'Units' : `${selectedHousehold?.name ?? 'Space'} units`}
         </h3>
         <p className='text-muted-foreground text-sm'>
           {scope === 'personal'
             ? 'Browse system units and manage the custom units you can use across households.'
-            : 'Browse system units and units shared with this household.'}
+            : 'Browse system units and units shared with this space.'}
         </p>
       </div>
       <Separator />
@@ -84,7 +84,7 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
           <DialogTrigger asChild>
             <Button
               disabled={!canCreate}
-              title={canCreate ? undefined : 'Your household role does not allow sharing units'}
+              title={canCreate ? undefined : 'Your role in this space does not allow sharing units'}
               variant='outline'
             >
               Create

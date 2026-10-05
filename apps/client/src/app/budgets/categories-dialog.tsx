@@ -50,9 +50,7 @@ export function CategoriesDialog() {
       <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
         <DialogHeader>
           <DialogTitle>Categories</DialogTitle>
-          <DialogDescription>
-            Default categories are available to every household; add your own on top.
-          </DialogDescription>
+          <DialogDescription>Default categories are available to every space; add your own on top.</DialogDescription>
         </DialogHeader>
         <ul className='divide-y'>
           {categories.map((category) => (

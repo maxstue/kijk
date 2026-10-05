@@ -58,8 +58,8 @@ export function ImportAiCategorization({ job }: { job: ImportJob }) {
               <Sparkles className='size-4' /> Suggest categories with the AI
             </CardTitle>
             <CardDescription>
-              AI categorization is off for this household. You can still use it for this import and check first what
-              would be sent.
+              AI categorization is off for this space. You can still use it for this import and check first what would
+              be sent.
             </CardDescription>
           </CardHeader>
           <CardFooter>

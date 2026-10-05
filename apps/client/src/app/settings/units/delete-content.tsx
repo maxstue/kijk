@@ -36,7 +36,7 @@ export function UnitDeleteContent({ onClose, unit }: { onClose: () => void; unit
       <AlertDialogHeader>
         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
         <AlertDialogDescription>
-          Only units that are not shared with a household or used by resources can be deleted.
+          Only units that are not shared with a space or used by resources can be deleted.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

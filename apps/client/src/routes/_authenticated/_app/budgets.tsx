@@ -61,7 +61,10 @@ function BudgetsPage() {
   useSetSiteHeader('Budgets');
   const { month, year } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const canPlan = useHouseholdPermission(HouseholdPermissions.budgets.plan);
+  const canPlanShared = useHouseholdPermission(HouseholdPermissions.budgets.plan);
+  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  // Members without budgets:plan may still keep private budgets.
+  const canPlan = canPlanShared || canRecord;
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   return (
@@ -78,7 +81,7 @@ function BudgetsPage() {
             <DialogTrigger asChild>
               <Button
                 disabled={!canPlan}
-                title={canPlan ? undefined : 'Your household role does not allow planning budgets'}
+                title={canPlan ? undefined : 'Your role in this space does not allow planning budgets'}
               >
                 <Plus /> Set budget
               </Button>

@@ -49,7 +49,7 @@ export function ResourceTypesSection() {
             <DialogTrigger asChild>
               <Button
                 disabled={!canManage}
-                title={canManage ? undefined : 'Your household role does not allow managing resources'}
+                title={canManage ? undefined : 'Your role in this space does not allow managing resources'}
                 variant='outline'
               >
                 Create

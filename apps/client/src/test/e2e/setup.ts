@@ -56,6 +56,7 @@ const currentUser = {
           permissions: adminPermissions,
         },
         isActive: true,
+        isPersonal: false,
       },
     ],
     resources: [],

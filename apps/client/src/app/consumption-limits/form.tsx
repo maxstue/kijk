@@ -250,7 +250,7 @@ function SubmitButton({ form, isEditing, isPending }: FormComponentProps & { isE
     <Button
       className='mt-2'
       disabled={!canPlan || isPending || (isEditing && !form.formState.isDirty)}
-      title={canPlan ? undefined : 'Your household role does not allow planning limits'}
+      title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
       type='submit'
     >
       {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : label}

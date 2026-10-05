@@ -51,8 +51,8 @@ export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
       <AlertDialogHeader>
         <AlertDialogTitle>Delete {household.name}?</AlertDialogTitle>
         <AlertDialogDescription>
-          This permanently deletes the household, its resources, consumption history, limits, shared unit access, and
-          member links. Members with no other household will need to set up a new one. This cannot be undone.
+          This permanently deletes the space, its resources, consumption history, limits, shared unit access, and member
+          links. Members with no other household will need to set up a new one. This cannot be undone.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <div className='space-y-2'>
@@ -76,7 +76,7 @@ export function HouseholdDeleteContent({ onClose }: { onClose: () => void }) {
             handleDelete();
           }}
         >
-          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Delete household'}
+          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Delete space'}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

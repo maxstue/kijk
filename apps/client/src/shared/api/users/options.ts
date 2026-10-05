@@ -2,7 +2,7 @@ import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/api/query-keys';
 
-import { getCurrentUser, updateUser, welcomeUser } from './requests';
+import { getCurrentUser, switchHousehold, updateUser, welcomeUser } from './requests';
 
 /** Query for the current account state. */
 export const currentUserQueryOptions = () =>
@@ -21,4 +21,10 @@ export const updateUserMutationOptions = () =>
 export const welcomeUserMutationOptions = () =>
   mutationOptions({
     mutationFn: welcomeUser,
+  });
+
+/** Mutation that switches the active space. */
+export const switchHouseholdMutationOptions = () =>
+  mutationOptions({
+    mutationFn: switchHousehold,
   });

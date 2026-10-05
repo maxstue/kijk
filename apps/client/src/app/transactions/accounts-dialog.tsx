@@ -21,11 +21,18 @@ import { useCreateAccount, useDeleteAccount } from '@/app/transactions/use-accou
 import { accountsQueryOptions } from '@/shared/api/accounts/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { PrivateBadge, VisibilitySelect } from '@/shared/components/visibility-select';
+import { useActiveSpace } from '@/shared/hooks/use-active-space';
 import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 
-/** Dialog listing the household's bank accounts, with creating and deleting accounts. */
+/**
+ * Dialog listing the space's bank accounts, with creating and deleting accounts. Members may keep private accounts;
+ * shared accounts need finances:configure.
+ */
 export function AccountsDialog() {
   const canConfigure = useHouseholdPermission(HouseholdPermissions.finances.configure);
+  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
   const { data: accounts } = useSuspenseQuery(accountsQueryOptions());
   const deleteMutation = useDeleteAccount();
 
@@ -57,13 +64,20 @@ export function AccountsDialog() {
                 <span>
                   {account.name}
                   {account.ibanLast4 && <span className='text-muted-foreground'> …{account.ibanLast4}</span>}
+                  {account.visibility === 'Private' && !isPersonalSpace && (
+                    <span className='ml-2'>
+                      <PrivateBadge />
+                    </span>
+                  )}
                 </span>
                 {account.kind === 'Cash' ? (
                   <span className='text-muted-foreground text-xs'>For manual transactions; never imported</span>
                 ) : (
                   <Button
                     aria-label={`Delete ${account.name}`}
-                    disabled={!canConfigure || deleteMutation.isPending}
+                    disabled={
+                      !(account.visibility === 'Private' ? canRecord : canConfigure) || deleteMutation.isPending
+                    }
                     size='icon-sm'
                     variant='ghost'
                     onClick={() => onDelete(account.id)}
@@ -75,10 +89,10 @@ export function AccountsDialog() {
             ))}
           </ul>
         )}
-        {canConfigure && (
+        {(canConfigure || canRecord) && (
           <>
             <Separator />
-            <CreateAccountForm />
+            <CreateAccountForm canShare={canConfigure} showVisibility={!isPersonalSpace} />
           </>
         )}
       </DialogContent>
@@ -86,16 +100,16 @@ export function AccountsDialog() {
   );
 }
 
-function CreateAccountForm() {
+function CreateAccountForm({ canShare, showVisibility }: { canShare: boolean; showVisibility: boolean }) {
   const createMutation = useCreateAccount();
   const form = useForm<AccountFormValues>({
-    defaultValues: { ibanLast4: '', name: '' },
+    defaultValues: { ibanLast4: '', name: '', visibility: canShare ? 'Shared' : 'Private' },
     resolver: zodResolver(accountSchema),
   });
 
   function onSubmit(values: AccountFormValues) {
     createMutation.mutate(
-      { ibanLast4: values.ibanLast4 || null, name: values.name },
+      { ibanLast4: values.ibanLast4 || null, name: values.name, visibility: values.visibility },
       {
         onError: (error) => toast.error(error.name, { description: error.message }),
         onSuccess: () => {
@@ -142,6 +156,19 @@ function CreateAccountForm() {
         <Button disabled={createMutation.isPending} type='submit'>
           Add
         </Button>
+        {showVisibility && (
+          <FormField
+            control={form.control}
+            name='visibility'
+            render={({ field }) => (
+              <FormItem className='sm:col-span-3'>
+                <FormLabel>Who sees the account and its transactions</FormLabel>
+                <VisibilitySelect canShare={canShare} value={field.value} onChange={field.onChange} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </form>
     </Form>
   );

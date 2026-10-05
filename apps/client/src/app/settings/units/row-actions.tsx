@@ -66,7 +66,7 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
           void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
-          toast.success('Unit shared with household');
+          toast.success('Unit shared with space');
         },
       },
     );
@@ -82,7 +82,7 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
           void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
-          toast.success('Unit removed from household');
+          toast.success('Unit removed from space');
         },
       },
     );
@@ -138,7 +138,7 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
             )}
             {scope === 'household' && (
               <DropdownMenuItem disabled={!canUnshare || unshareMutation.isPending} onSelect={unshare}>
-                Remove from household
+                Remove from space
               </DropdownMenuItem>
             )}
             <DropdownMenuItem

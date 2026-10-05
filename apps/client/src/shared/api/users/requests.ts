@@ -38,3 +38,8 @@ export async function welcomeUser(data: WelcomeUserData) {
     }),
   );
 }
+
+/** Switches the active space; every other request works on the active space. */
+export async function switchHousehold(householdId: string) {
+  return unwrapApiResponse(await apiClient.PUT('/api/users/active-household', { body: { householdId } }));
+}

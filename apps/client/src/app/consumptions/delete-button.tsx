@@ -56,7 +56,7 @@ export function ConsumptionDeleteButton({ id, date }: Props) {
       <AlertDialogTrigger asChild>
         <Button
           disabled={!canRecord}
-          title={canRecord ? undefined : 'Your household role does not allow deleting consumptions'}
+          title={canRecord ? undefined : 'Your role in this space does not allow deleting consumptions'}
           size='icon'
           variant='destructive'
         >

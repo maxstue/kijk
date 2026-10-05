@@ -35,7 +35,8 @@ import { HouseholdDeleteContent } from './delete-content';
 export function HouseholdGeneral() {
   const { household } = useHouseholdSettings();
   const canConfigure = hasHouseholdPermission(household, HouseholdPermissions.household.configure);
-  const canDelete = hasHouseholdPermission(household, HouseholdPermissions.household.delete);
+  // A personal space is created automatically and stays as long as the account exists.
+  const canDelete = !household.isPersonal && hasHouseholdPermission(household, HouseholdPermissions.household.delete);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -68,9 +69,9 @@ export function HouseholdGeneral() {
           void (async () => {
             await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
             await router.invalidate();
-            toast.success('Household updated');
+            toast.success('Space updated');
           })().catch((error: unknown) =>
-            toast.error(error instanceof Error ? error.message : 'Could not refresh household settings'),
+            toast.error(error instanceof Error ? error.message : 'Could not refresh space settings'),
           );
         },
       },
@@ -94,11 +95,11 @@ export function HouseholdGeneral() {
               name='name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Household name</FormLabel>
+                  <FormLabel>Space name</FormLabel>
                   <FormControl>
                     <Input maxLength={100} {...field} />
                   </FormControl>
-                  <FormDescription>This name is visible to everyone in the household.</FormDescription>
+                  <FormDescription>This name is visible to everyone in the space.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -112,7 +113,7 @@ export function HouseholdGeneral() {
                   <FormControl>
                     <Textarea maxLength={250} rows={4} {...field} />
                   </FormControl>
-                  <FormDescription>Optional details about this household. Maximum 250 characters.</FormDescription>
+                  <FormDescription>Optional details about this space. Maximum 250 characters.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -134,7 +135,9 @@ export function HouseholdGeneral() {
               <div className='text-muted-foreground text-sm'>Description</div>
               <div>{household.description || 'No description added.'}</div>
             </div>
-            <p className='text-muted-foreground text-sm'>Your household role does not allow editing these details.</p>
+            <p className='text-muted-foreground text-sm'>
+              Your role in this space does not allow editing these details.
+            </p>
           </CardContent>
         </Card>
       )}
@@ -144,13 +147,13 @@ export function HouseholdGeneral() {
           <Separator />
           <section className='border-destructive/50 space-y-4 rounded-lg border p-5'>
             <div className='space-y-1'>
-              <h3 className='text-destructive font-medium'>Delete household</h3>
+              <h3 className='text-destructive font-medium'>Delete space</h3>
               <p className='text-muted-foreground text-sm'>
-                Permanently remove this household and its data. This cannot be undone.
+                Permanently remove this space and its data. This cannot be undone.
               </p>
             </div>
             <Button variant='destructive' onClick={() => setShowDeleteDialog(true)}>
-              Delete household
+              Delete space
             </Button>
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
               <HouseholdDeleteContent onClose={() => setShowDeleteDialog(false)} />

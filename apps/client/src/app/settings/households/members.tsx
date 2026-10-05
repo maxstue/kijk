@@ -58,7 +58,7 @@ export function HouseholdMembers() {
       <section className='space-y-3'>
         <div>
           <h3 className='font-medium'>Your role: {household.role.name}</h3>
-          <p className='text-muted-foreground text-sm'>What your role allows in this household.</p>
+          <p className='text-muted-foreground text-sm'>What your role allows in this space.</p>
         </div>
         <PermissionList permissions={household.role.permissions} />
       </section>
@@ -66,7 +66,7 @@ export function HouseholdMembers() {
       <section className='space-y-3'>
         <div>
           <h3 className='font-medium'>Roles</h3>
-          <p className='text-muted-foreground text-sm'>Every household uses the same roles.</p>
+          <p className='text-muted-foreground text-sm'>Every space uses the same roles.</p>
         </div>
         <div className='grid gap-4 md:grid-cols-3'>
           {roles.map((role) => (

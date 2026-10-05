@@ -8,7 +8,7 @@ import {
 } from '@kijk/ui/components/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ArrowLeftIcon, HouseIcon } from 'lucide-react';
+import { ArrowLeftIcon, LockIcon, UsersIcon } from 'lucide-react';
 
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { settingsNavGroups } from '@/shared/navigation/settings';
@@ -36,7 +36,7 @@ export function SettingsNav() {
 
       {settingsNavGroups.map((group) => (
         <SidebarGroup key={group.label}>
-          <SidebarGroupLabel>{group.label === 'Household' ? 'Households' : group.label}</SidebarGroupLabel>
+          <SidebarGroupLabel>{group.label === 'Household' ? 'Spaces' : group.label}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {group.label === 'Household'
@@ -48,7 +48,7 @@ export function SettingsNav() {
                           params={{ householdId: household.id }}
                           to='/settings/households/$householdId'
                         >
-                          <HouseIcon />
+                          {household.isPersonal ? <LockIcon /> : <UsersIcon />}
                           <span>{household.name}</span>
                         </Link>
                       </SidebarMenuButton>

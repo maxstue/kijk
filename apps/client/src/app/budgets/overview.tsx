@@ -21,6 +21,7 @@ import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
 import type { BudgetCategory } from '@/shared/api/budgets/types';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { ResourceIcon } from '@/shared/components/resource-icon';
+import { PrivateBadge } from '@/shared/components/visibility-select';
 import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
@@ -110,8 +111,6 @@ function SummaryCard({ description, title, value }: { description: string; title
 }
 
 function CategoryCard({ category, month, year }: { category: BudgetCategory; month: number; year: number }) {
-  const canPlan = useHouseholdPermission(HouseholdPermissions.budgets.plan);
-  const [showDialog, setShowDialog] = useState(false);
   const hasBudget = category.budget !== null && category.budget !== undefined;
   const utilization = toAmount(category.utilizationPercentage);
   const pending = toAmount(category.pending);
@@ -124,6 +123,7 @@ function CategoryCard({ category, month, year }: { category: BudgetCategory; mon
             <ResourceIcon className='size-5' color={category.color} name={category.icon} />
             <CardTitle>{category.name}</CardTitle>
           </div>
+          {category.budgetVisibility === 'Private' && <PrivateBadge />}
           {category.isExceeded && <Badge variant='destructive'>Over budget</Badge>}
           {!hasBudget && <Badge variant='secondary'>No budget</Badge>}
         </div>
@@ -151,33 +151,47 @@ function CategoryCard({ category, month, year }: { category: BudgetCategory; mon
           <p className='text-muted-foreground text-xs'>{formatStringToCurrency(pending)} pending, not counted yet</p>
         )}
         <div className='flex justify-end'>
-          <Dialog open={showDialog} onOpenChange={setShowDialog}>
-            <DialogTrigger asChild>
-              <Button
-                disabled={!canPlan}
-                size='sm'
-                title={canPlan ? undefined : 'Your household role does not allow planning budgets'}
-                variant='ghost'
-              >
-                <Pencil /> {hasBudget ? 'Change budget' : 'Set budget'}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className='sm:max-w-lg'>
-              <DialogHeader>
-                <DialogTitle>Budget for {category.name}</DialogTitle>
-                <DialogDescription>Earlier months keep their previous budget.</DialogDescription>
-              </DialogHeader>
-              <BudgetForm
-                categoryId={category.categoryId}
-                initialAmount={hasBudget ? toAmount(category.budget) : undefined}
-                month={month}
-                year={year}
-                onClose={() => setShowDialog(false)}
-              />
-            </DialogContent>
-          </Dialog>
+          <EditBudgetButton category={category} month={month} year={year} />
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+/** Opens the budget form of a category; members without budgets:plan may still set private budgets. */
+function EditBudgetButton({ category, month, year }: { category: BudgetCategory; month: number; year: number }) {
+  const canPlan = useHouseholdPermission(HouseholdPermissions.budgets.plan);
+  const canRecord = useHouseholdPermission(HouseholdPermissions.finances.record);
+  const canEdit = canPlan || canRecord;
+  const [showDialog, setShowDialog] = useState(false);
+  const hasBudget = category.budget !== null && category.budget !== undefined;
+
+  return (
+    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <DialogTrigger asChild>
+        <Button
+          disabled={!canEdit}
+          size='sm'
+          title={canEdit ? undefined : 'Your role in this space does not allow setting budgets'}
+          variant='ghost'
+        >
+          <Pencil /> {hasBudget ? 'Change budget' : 'Set budget'}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className='sm:max-w-lg'>
+        <DialogHeader>
+          <DialogTitle>Budget for {category.name}</DialogTitle>
+          <DialogDescription>Earlier months keep their previous budget.</DialogDescription>
+        </DialogHeader>
+        <BudgetForm
+          categoryId={category.categoryId}
+          initialAmount={hasBudget ? toAmount(category.budget) : undefined}
+          initialVisibility={category.budgetVisibility ?? undefined}
+          month={month}
+          year={year}
+          onClose={() => setShowDialog(false)}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }

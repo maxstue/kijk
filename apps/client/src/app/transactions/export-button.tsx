@@ -21,7 +21,7 @@ export function TransactionExportButton({ filters }: { filters: TransactionFilte
   return (
     <Button
       disabled={!canExport || exportMutation.isPending}
-      title={canExport ? undefined : 'Your household role does not allow exporting transactions'}
+      title={canExport ? undefined : 'Your role in this space does not allow exporting transactions'}
       variant='outline'
       onClick={() => exportMutation.mutate()}
     >

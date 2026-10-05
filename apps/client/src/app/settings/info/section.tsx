@@ -102,8 +102,7 @@ export function InfoSection() {
                     <FormLabel className='text-base'>AI features</FormLabel>
                     <FormDescription>
                       Lets Kijk suggest categories for imported transactions. When this is off, the AI buttons disappear
-                      and Kijk never sends anything to an AI provider on your behalf, whatever the household setting
-                      says.
+                      and Kijk never sends anything to an AI provider on your behalf, whatever the space setting says.
                     </FormDescription>
                   </div>
                   <FormControl>

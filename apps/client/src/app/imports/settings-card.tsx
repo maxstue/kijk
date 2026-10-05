@@ -47,7 +47,7 @@ export function ImportSettingsCard() {
     <Card>
       <CardHeader>
         <CardTitle>Import settings</CardTitle>
-        <CardDescription>Apply to this household and to all new imports.</CardDescription>
+        <CardDescription>Apply to this space and to all new imports.</CardDescription>
       </CardHeader>
       <CardContent className='space-y-6'>
         <div className='space-y-2'>

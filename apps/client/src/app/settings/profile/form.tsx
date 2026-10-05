@@ -100,14 +100,14 @@ export function ProfileForm() {
           name='householdName'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Household name</FormLabel>
+              <FormLabel>Space name</FormLabel>
               <FormControl>
-                <Input disabled={!canRenameHousehold} placeholder='My household' {...field} />
+                <Input disabled={!canRenameHousehold} placeholder='My space' {...field} />
               </FormControl>
               <FormDescription>
                 {canRenameHousehold
-                  ? 'The name of your active household.'
-                  : 'Your household role does not allow renaming the household.'}
+                  ? 'The name of your active space.'
+                  : 'Your role in this space does not allow renaming the space.'}
               </FormDescription>
               <FormMessage />
             </FormItem>

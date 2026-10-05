@@ -103,7 +103,7 @@ function UsagePage() {
                   <DialogTrigger asChild>
                     <Button
                       disabled={!canRecord}
-                      title={canRecord ? undefined : 'Your household role does not allow recording consumptions'}
+                      title={canRecord ? undefined : 'Your role in this space does not allow recording consumptions'}
                       variant='outline'
                     >
                       Add <Plus />

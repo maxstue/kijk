@@ -41,7 +41,7 @@ export function ConsumptionExportButton(props: Props) {
     <Button
       aria-label={label}
       disabled={!canExport || isExporting || props.disabled}
-      title={canExport ? undefined : 'Your household role does not allow exporting consumptions'}
+      title={canExport ? undefined : 'Your role in this space does not allow exporting consumptions'}
       onClick={handleExport}
       size={isSingleExport ? 'icon' : 'default'}
       variant='outline'

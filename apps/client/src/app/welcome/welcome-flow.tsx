@@ -39,7 +39,7 @@ import { ApiError } from '@/shared/types/errors/api-error';
 
 const steps = [
   { label: 'Profile', value: 'profile' },
-  { label: 'Household', value: 'household' },
+  { label: 'Space', value: 'household' },
   { label: 'Privacy', value: 'privacy' },
   { label: 'Review', value: 'review' },
 ] as const;
@@ -280,9 +280,9 @@ function HouseholdStep({ control }: { control: ReturnType<typeof useForm<UserSte
         name='householdName'
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Household name</FormLabel>
+            <FormLabel>Space name</FormLabel>
             <FormControl>
-              <Input placeholder='My household' {...field} />
+              <Input placeholder='My space' {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -386,7 +386,7 @@ function ReviewStep() {
     <dl className='divide-y rounded-lg border'>
       <ReviewItem label='Username' value={displayName} />
       <ReviewItem label='Sign-in profile' value={useExternalProfile ? 'Name and image used' : 'Not used'} />
-      <ReviewItem label='Household' value={householdName} />
+      <ReviewItem label='Space' value={householdName} />
       <ReviewItem label='Default resources' value={useDefaultResources ? 'All defaults' : 'None'} />
       <ReviewItem label='Analytics and tracing' value={analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
     </dl>
@@ -403,7 +403,7 @@ function ReviewItem({ label, value }: { label: string; value: string }) {
 }
 
 function stepTitle(step: number) {
-  return ['Welcome to Kijk', 'Set up your household', 'Choose your privacy settings', 'Review your setup'][step];
+  return ['Welcome to Kijk', 'Set up your space', 'Choose your privacy settings', 'Review your setup'][step];
 }
 
 function stepDescription(step: number) {

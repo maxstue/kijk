@@ -37,7 +37,7 @@ export interface paths {
       };
     };
     put?: never;
-    /** Creates an account */
+    /** Creates an account; shared accounts additionally require finances:configure */
     post: {
       parameters: {
         query?: never;
@@ -83,7 +83,7 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Updates an account */
+    /** Updates an account; shared accounts additionally require finances:configure */
     put: {
       parameters: {
         query?: never;
@@ -118,7 +118,7 @@ export interface paths {
       };
     };
     post?: never;
-    /** Deletes an account without transactions */
+    /** Deletes an account without transactions; shared accounts additionally require finances:configure */
     delete: {
       parameters: {
         query?: never;
@@ -187,7 +187,7 @@ export interface paths {
       };
     };
     put?: never;
-    /** Creates a budget for a category from a month on */
+    /** Creates a budget for a category from a month on; shared budgets additionally require budgets:plan */
     post: {
       parameters: {
         query?: never;
@@ -326,7 +326,7 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Updates a budget version */
+    /** Updates a budget version; shared budgets additionally require budgets:plan */
     put: {
       parameters: {
         query?: never;
@@ -361,7 +361,7 @@ export interface paths {
       };
     };
     post?: never;
-    /** Deletes a budget version */
+    /** Deletes a budget version; shared budgets additionally require budgets:plan */
     delete: {
       parameters: {
         query?: never;
@@ -2840,6 +2840,53 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/users/active-household': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Switches the active space of the current user */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['SwitchHouseholdRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CurrentUserResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/users/onboarding': {
     parameters: {
       query?: never;
@@ -2911,6 +2958,7 @@ export interface components {
       ibanLast4: null | string;
       /** Whether it is a bank account or the cash account. */
       kind: components['schemas']['AccountKind'];
+      visibility: components['schemas']['Visibility'];
     };
     /**
      * Represents which transaction data a household lets the AI categorization see.
@@ -3002,6 +3050,7 @@ export interface components {
       utilizationPercentage: null | number | string;
       /** Whether the spending is over the budget. */
       isExceeded: boolean;
+      budgetVisibility: null | components['schemas']['Visibility'];
     };
     /** The budget evaluation of a month. */
     BudgetOverviewResponse: {
@@ -3086,6 +3135,8 @@ export interface components {
       validFrom: string;
       /** Whether the budget is evaluated. */
       active: boolean;
+      /** Whether the budget belongs to the whole space or only to the current member. */
+      visibility: components['schemas']['Visibility'];
     };
     /** Spending per expense category over several months. */
     BudgetStatisticsResponse: {
@@ -3426,6 +3477,7 @@ export interface components {
     CreateAccountRequest: {
       name: string;
       ibanLast4: null | string;
+      visibility?: components['schemas']['Visibility'];
     };
     /** Request for creating a budget for a category from a month on. */
     CreateBudgetRequest: {
@@ -3449,6 +3501,8 @@ export interface components {
       validFrom: string;
       /** Whether the budget is evaluated. */
       active: boolean;
+      /** A private budget is seen and used only by its creator and replaces the shared budget of the category for them. */
+      visibility?: components['schemas']['Visibility'];
     };
     /** Request for creating a custom category. */
     CreateCategoryRequest: {
@@ -4009,6 +4063,15 @@ export interface components {
       /** Whether it is a system or a custom resource. */
       creatorType: components['schemas']['CreatorType'];
     };
+    /** Request for switching the active space of the current user. */
+    SwitchHouseholdRequest: {
+      /**
+       * Format: uuid
+       *
+       * The space to switch to; the user must be a member.
+       */
+      householdId: string;
+    };
     /** A transaction of the household. */
     TransactionResponse: {
       /**
@@ -4111,6 +4174,7 @@ export interface components {
     UpdateAccountRequest: {
       name: string;
       ibanLast4: null | string;
+      visibility?: null | components['schemas']['Visibility'];
     };
     /** Request for deselecting or selecting a text in the AI preview. */
     UpdateAiPreviewItemRequest: {
@@ -4301,6 +4365,8 @@ export interface components {
       role: components['schemas']['UserHouseholdRoleResponse'];
       /** Whether this is the user's active household. */
       isActive: boolean;
+      /** Whether this is the user's personal space, which is never shared. */
+      isPersonal: boolean;
     };
     /** The user's role in a household. */
     UserHouseholdRoleResponse: {
@@ -4366,6 +4432,12 @@ export interface components {
       /** Gets whether the user has completed onboarding. */
       onboardingCompleted?: boolean;
     };
+    /**
+     * Represents who can see an account or a budget within a shared space.
+     *
+     * @enum {unknown}
+     */
+    Visibility: 'Shared' | 'Private';
     /** Completes the setup of a newly registered user. */
     WelcomeUserRequest: {
       /** The display name used by Kijk. */
