@@ -1,13 +1,11 @@
 import { apiClient } from '@/shared/lib/api-client';
+import { type CsvDownload, toCsvDownload } from '@/shared/utils/download';
 import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { ConsumptionData } from './types';
 
 /** A downloaded CSV file. */
-export interface CsvDownload {
-  blob: Blob;
-  fileName: string;
-}
+export type { CsvDownload } from '@/shared/utils/download';
 
 /** Loads the years that have consumptions. */
 export async function getYears(signal?: AbortSignal) {
@@ -141,18 +139,4 @@ export async function exportConsumptionMonth(year: number, month: string, signal
   });
 
   return toCsvDownload(result, `consumptions-${year}-${month}.csv`);
-}
-
-function toCsvDownload<TError>(
-  result: { data: Blob; error?: never; response: Response } | { data?: never; error: TError; response: Response },
-  fallbackFileName: string,
-): CsvDownload {
-  const blob = unwrapApiResponse(result);
-  const disposition = result.response.headers.get('Content-Disposition');
-  const encodedFileName = disposition?.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
-  const fileName = encodedFileName
-    ? decodeURIComponent(encodedFileName)
-    : (disposition?.match(/filename="?([^";]+)"?/i)?.[1] ?? fallbackFileName);
-
-  return { blob, fileName };
 }

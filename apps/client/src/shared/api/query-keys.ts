@@ -46,6 +46,8 @@ const budgets = {
   all: ['budgets'] as const,
   list: () => [...budgets.all, 'list'] as const,
   overview: (year: number, month: number) => [...budgets.all, 'overview', year, month] as const,
+  statistics: (year: number, month: number, months: number) =>
+    [...budgets.all, 'statistics', year, month, months] as const,
 };
 
 const transactions = {

@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/lib/api-client';
+import { type CsvDownload, toCsvDownload } from '@/shared/utils/download';
 import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type {
@@ -48,4 +49,15 @@ export async function categorizeTransaction(data: CategorizeTransactionData) {
 /** Assigns one category to several transactions; it counts as set by hand. */
 export async function categorizeTransactions(data: CategorizeTransactionsRequest) {
   return unwrapApiResponse(await apiClient.PUT('/api/transactions/category', { body: data }));
+}
+
+/** Exports the transactions matching the filters as CSV. */
+export async function exportTransactions(filters: TransactionFilters, signal?: AbortSignal): Promise<CsvDownload> {
+  const result = await apiClient.GET('/api/transactions/export', {
+    params: { query: filters },
+    parseAs: 'blob',
+    signal,
+  });
+
+  return toCsvDownload(result, 'transactions.csv');
 }

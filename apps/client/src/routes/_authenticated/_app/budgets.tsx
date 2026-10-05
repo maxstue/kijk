@@ -17,6 +17,7 @@ import { z } from 'zod';
 import { CategoriesDialog } from '@/app/budgets/categories-dialog';
 import { BudgetForm } from '@/app/budgets/form';
 import { BudgetOverview } from '@/app/budgets/overview';
+import { BudgetStatistics } from '@/app/budgets/statistics';
 import { budgetOverviewQueryOptions, budgetsQueryOptions } from '@/shared/api/budgets/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
@@ -90,6 +91,7 @@ function BudgetsPage() {
       </div>
       <Separator />
       <BudgetOverview month={month} year={year} />
+      <BudgetStatistics month={month} year={year} />
     </div>
   );
 }

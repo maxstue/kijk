@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { exportConsumption, exportConsumptionMonth } from '@/shared/api/consumptions/requests';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { saveDownload } from '@/shared/utils/download';
 import type { Months } from '@/shared/utils/months';
 
 type Props =
@@ -28,12 +29,7 @@ export function ConsumptionExportButton(props: Props) {
       const download = isSingleExport
         ? await exportConsumption(props.consumptionId)
         : await exportConsumptionMonth(props.year, props.month);
-      const url = URL.createObjectURL(download.blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = download.fileName;
-      anchor.click();
-      URL.revokeObjectURL(url);
+      saveDownload(download);
     } catch (error) {
       toast.error('Export failed', { description: error instanceof Error ? error.message : undefined });
     } finally {

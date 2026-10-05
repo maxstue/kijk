@@ -15,11 +15,14 @@ import { Plus, Upload } from 'lucide-react';
 import { useId, useState } from 'react';
 import { z } from 'zod';
 
+import { BudgetWarnings } from '@/app/budgets/warnings';
 import { AccountsDialog } from '@/app/transactions/accounts-dialog';
+import { TransactionExportButton } from '@/app/transactions/export-button';
 import { TransactionForm } from '@/app/transactions/form';
 import { TransactionList } from '@/app/transactions/list';
 import { RulesDialog } from '@/app/transactions/rules-dialog';
 import { accountsQueryOptions } from '@/shared/api/accounts/options';
+import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { transactionsQueryOptions } from '@/shared/api/transactions/options';
@@ -40,6 +43,9 @@ const searchSchema = z.object({
   year: z.number().int().min(2000).max(9999).default(new Date().getFullYear()),
 });
 
+const currentYear = () => new Date().getFullYear();
+const currentMonth = () => new Date().getMonth() + 1;
+
 /** The list's filters: the month of the search params, or all months when only uncategorized ones are shown. */
 function toFilters({ month, uncategorized, year }: z.infer<typeof searchSchema>) {
   return uncategorized ? { uncategorized: true } : { month, year };
@@ -56,6 +62,7 @@ export const Route = createFileRoute('/_authenticated/_app/transactions')({
       queryClient.ensureQueryData(transactionsQueryOptions(deps)),
       queryClient.ensureQueryData(categoriesQueryOptions()),
       queryClient.ensureQueryData(accountsQueryOptions()),
+      queryClient.ensureQueryData(budgetOverviewQueryOptions(currentYear(), currentMonth())),
     ]);
   },
   pendingComponent: () => <Loader className='h-6 w-6' />,
@@ -84,6 +91,7 @@ function TransactionsPage() {
               onChange={(value) => navigate({ search: (previous) => ({ ...previous, ...value }) })}
             />
           )}
+          <TransactionExportButton filters={toFilters(search)} />
           <AccountsDialog />
           <RulesDialog />
           <Button asChild variant='outline'>
@@ -110,6 +118,7 @@ function TransactionsPage() {
           </Dialog>
         </div>
       </div>
+      <BudgetWarnings month={currentMonth()} year={currentYear()} />
       <Separator />
       <label className='flex w-fit items-center gap-2 text-sm' htmlFor={uncategorizedId}>
         <Switch

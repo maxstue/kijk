@@ -15,6 +15,13 @@ export async function getBudgetOverview(year: number, month: number, signal?: Ab
   );
 }
 
+/** Loads the spending per category for `months` months that end with the given month (`month` is 1-12). */
+export async function getBudgetStatistics(year: number, month: number, months: number, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient.GET('/api/budgets/statistics', { params: { query: { month, months, year } }, signal }),
+  );
+}
+
 /** Creates a budget for a category from a month on. */
 export async function createBudget(data: CreateBudgetRequest, signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.POST('/api/budgets', { body: data, signal }));

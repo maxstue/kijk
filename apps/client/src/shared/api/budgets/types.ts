@@ -6,6 +6,10 @@ export type Budget = components['schemas']['BudgetResponse'];
 export type BudgetOverview = components['schemas']['BudgetOverviewResponse'];
 /** The spending of an expense category in the evaluated month. */
 export type BudgetCategory = components['schemas']['BudgetCategoryResponse'];
+/** The spending per expense category over several months. */
+export type BudgetStatistics = components['schemas']['BudgetStatisticsResponse'];
+/** The spending of an expense category per month. */
+export type CategoryTrend = components['schemas']['CategoryTrendResponse'];
 /** Payload for creating a budget. */
 export type CreateBudgetRequest = components['schemas']['CreateBudgetRequest'];
 /** Payload for updating a budget. */

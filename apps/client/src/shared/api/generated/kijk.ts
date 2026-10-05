@@ -225,6 +225,53 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/budgets/statistics': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the spending per category over several months */
+    get: {
+      parameters: {
+        query: {
+          year: number | string;
+          month: number | string;
+          months?: number | string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['BudgetStatisticsResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/budgets/overview': {
     parameters: {
       query?: never;
@@ -2083,6 +2130,51 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/transactions/export': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Exports transactions as CSV, optionally by year, month or without category */
+    get: {
+      parameters: {
+        query?: {
+          year?: number | string;
+          month?: number | string;
+          uncategorized?: boolean;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/transactions/{id}': {
     parameters: {
       query?: never;
@@ -2995,6 +3087,19 @@ export interface components {
       /** Whether the budget is evaluated. */
       active: boolean;
     };
+    /** Spending per expense category over several months. */
+    BudgetStatisticsResponse: {
+      /** The first day of each month, oldest first. */
+      months: string[];
+      /** The expense categories with spending or a budget in at least one month. */
+      categories: components['schemas']['CategoryTrendResponse'][];
+      /** Booked expenses without a category per month. */
+      uncategorized: (number | string)[];
+      /** All booked expenses minus refunds per month, including uncategorized ones. */
+      totalSpent: (number | string)[];
+      /** The sum of all active budgets per month. */
+      totalBudget: (number | string)[];
+    };
     /** Request for categorizing the rows of an import with the AI. */
     CategorizeImportRequest: {
       aiDataSharing?: null | components['schemas']['AiDataSharing'];
@@ -3109,6 +3214,23 @@ export interface components {
     CategoryRuleScope: 'Merchant' | 'Counterparty' | 'Keyword';
     /** @enum {unknown} */
     CategorySource: 'Rule' | 'Similarity' | 'Ai' | 'Manual' | null;
+    /** The spending of an expense category per month. */
+    CategoryTrendResponse: {
+      /**
+       * Format: uuid
+       *
+       * The category id.
+       */
+      categoryId: string;
+      /** The category name. */
+      name: string;
+      /** The category color. */
+      color: string;
+      /** Booked expenses minus refunds per month, aligned with the months of the response. */
+      spent: (number | string)[];
+      /** The active budget per month, or `null` where none applies. */
+      budget: (null | number | string)[];
+    };
     /** Contains the new role of a household member. */
     ChangeMemberRoleRequest: {
       /**

@@ -13,6 +13,7 @@ export const HouseholdPermissions = {
   },
   finances: {
     configure: 'finances:configure',
+    export: 'finances:export',
     import: 'finances:import',
     record: 'finances:record',
     view: 'finances:view',
@@ -51,6 +52,7 @@ export const householdPermissionLabels: Record<HouseholdPermission, string> = {
   'consumptions:record': 'Record and correct consumptions',
   'consumptions:view': 'View consumptions and statistics',
   'finances:configure': 'Create, change and delete accounts and categories',
+  'finances:export': 'Export transactions as CSV',
   'finances:import': 'Import transactions from bank exports',
   'finances:record': 'Record, categorize and correct transactions',
   'finances:view': 'View transactions and the budget overview',

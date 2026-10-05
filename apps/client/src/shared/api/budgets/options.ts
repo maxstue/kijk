@@ -2,7 +2,14 @@ import { keepPreviousData, mutationOptions, queryOptions } from '@tanstack/react
 
 import { queryKeys } from '@/shared/api/query-keys';
 
-import { createBudget, deleteBudget, getBudgetOverview, getBudgets, updateBudget } from './requests';
+import {
+  createBudget,
+  deleteBudget,
+  getBudgetOverview,
+  getBudgetStatistics,
+  getBudgets,
+  updateBudget,
+} from './requests';
 import type { CreateBudgetRequest, UpdateBudgetData } from './types';
 
 /** Query for all budget versions of the active household. */
@@ -18,6 +25,14 @@ export const budgetOverviewQueryOptions = (year: number, month: number) =>
     placeholderData: keepPreviousData,
     queryFn: ({ signal }) => getBudgetOverview(year, month, signal),
     queryKey: queryKeys.budgets.overview(year, month),
+  });
+
+/** Query for the spending per category over `months` months that end with the given month. */
+export const budgetStatisticsQueryOptions = (year: number, month: number, months: number) =>
+  queryOptions({
+    placeholderData: keepPreviousData,
+    queryFn: ({ signal }) => getBudgetStatistics(year, month, months, signal),
+    queryKey: queryKeys.budgets.statistics(year, month, months),
   });
 
 /** Mutation that creates a budget. */
