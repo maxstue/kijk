@@ -47,7 +47,8 @@ public static class HouseholdRoles
             Members.View,
             Finances.View,
             Finances.Record,
-            Finances.Import
+            Finances.Import,
+            Finances.Export
         ]);
 
     /// <summary>

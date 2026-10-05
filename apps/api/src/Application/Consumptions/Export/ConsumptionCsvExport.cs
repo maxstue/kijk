@@ -1,6 +1,6 @@
 using System.Globalization;
-using System.Text;
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Shared.Csv;
 using nietras.SeparatedValues;
 
 namespace Kijk.Application.Consumptions.Export;
@@ -17,8 +17,6 @@ public sealed record ConsumptionCsvExport(byte[] Content, string FileName);
 /// </summary>
 public static class ConsumptionCsvWriter
 {
-    private static readonly UTF8Encoding Utf8WithBom = new(encoderShouldEmitUTF8Identifier: true);
-
     /// <summary>
     /// Serializes the supplied consumptions to UTF-8 CSV.
     /// </summary>
@@ -51,22 +49,8 @@ public static class ConsumptionCsvWriter
         }
 
         writer.Dispose();
-        var csv = Utf8WithBom.GetBytes(writer.ToString().ReplaceLineEndings("\r\n"));
-        var preamble = Utf8WithBom.GetPreamble();
-        var content = new byte[preamble.Length + csv.Length];
-        preamble.CopyTo(content, 0);
-        csv.CopyTo(content, preamble.Length);
-        return content;
+        return CsvFiles.Encode(writer.ToString());
     }
 
-    private static string SanitizeText(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
-
-        var trimmed = value.AsSpan().TrimStart();
-        return !trimmed.IsEmpty && trimmed[0] is '=' or '+' or '-' or '@' ? $"'{value}" : value;
-    }
+    private static string SanitizeText(string? value) => CsvFiles.SanitizeText(value);
 }

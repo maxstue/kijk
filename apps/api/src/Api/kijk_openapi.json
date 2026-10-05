@@ -327,6 +327,92 @@
         ]
       }
     },
+    "/api/budgets/statistics": {
+      "get": {
+        "tags": [
+          "Budgets"
+        ],
+        "summary": "Gets the spending per category over several months",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "months",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetStatisticsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/budgets/overview": {
       "get": {
         "tags": [
@@ -3193,6 +3279,78 @@
         ]
       }
     },
+    "/api/transactions/export": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Exports transactions as CSV, optionally by year, month or without category",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "uncategorized",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/transactions/{id}": {
       "get": {
         "tags": [
@@ -4604,6 +4762,70 @@
         },
         "description": "A budget version: a monthly amount for a category from a month on."
       },
+      "BudgetStatisticsResponse": {
+        "required": [
+          "months",
+          "categories",
+          "uncategorized",
+          "totalSpent",
+          "totalBudget"
+        ],
+        "type": "object",
+        "properties": {
+          "months": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "The first day of each month, oldest first."
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryTrendResponse"
+            },
+            "description": "The expense categories with spending or a budget in at least one month."
+          },
+          "uncategorized": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+              "type": [
+                "number",
+                "string"
+              ],
+              "format": "double"
+            },
+            "description": "Booked expenses without a category per month."
+          },
+          "totalSpent": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+              "type": [
+                "number",
+                "string"
+              ],
+              "format": "double"
+            },
+            "description": "All booked expenses minus refunds per month, including uncategorized ones."
+          },
+          "totalBudget": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+              "type": [
+                "number",
+                "string"
+              ],
+              "format": "double"
+            },
+            "description": "The sum of all active budgets per month."
+          }
+        },
+        "description": "Spending per expense category over several months."
+      },
       "CategorizeImportRequest": {
         "type": "object",
         "properties": {
@@ -4820,6 +5042,57 @@
           "Manual",
           null
         ]
+      },
+      "CategoryTrendResponse": {
+        "required": [
+          "categoryId",
+          "name",
+          "color",
+          "spent",
+          "budget"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "description": "The category id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The category name."
+          },
+          "color": {
+            "type": "string",
+            "description": "The category color."
+          },
+          "spent": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+              "type": [
+                "number",
+                "string"
+              ],
+              "format": "double"
+            },
+            "description": "Booked expenses minus refunds per month, aligned with the months of the response."
+          },
+          "budget": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+              "type": [
+                "null",
+                "number",
+                "string"
+              ],
+              "format": "double"
+            },
+            "description": "The active budget per month, or `null` where none applies."
+          }
+        },
+        "description": "The spending of an expense category per month."
       },
       "ChangeMemberRoleRequest": {
         "required": [

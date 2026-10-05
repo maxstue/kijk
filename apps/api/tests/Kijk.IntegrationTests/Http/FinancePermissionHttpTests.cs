@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Kijk.Application.Accounts.Create;
 using Kijk.Application.Budgets.Create;
 using Kijk.Application.Budgets.Shared;
+using Kijk.Application.Budgets.Statistics;
 using Kijk.Application.Categories.Create;
 using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Create;
@@ -25,6 +26,7 @@ public class FinancePermissionHttpTests
 {
     private static readonly Guid GroceriesId = SystemCategories.All.Single(category => category.Name == "Groceries").Id;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+    private static readonly decimal[] OctoberSpending = [0m, 0m, 42.5m, 0m];
     private static readonly Guid IncomeId = SystemCategories.All.Single(category => category.Name == "Income").Id;
 
     [Before(Class)]
@@ -175,6 +177,65 @@ public class FinancePermissionHttpTests
         await using var outsiderHost = await HouseholdApiHost.StartAsync(outsider.AuthId);
         using var foreign = await outsiderHost.Client.PutAsJsonAsync("/api/transactions/category", new CategorizeTransactionsRequest([fixture.Transaction.Id], null), Json);
         await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    [Arguments("Admin", HttpStatusCode.OK)]
+    [Arguments("Member", HttpStatusCode.OK)]
+    [Arguments("Viewer", HttpStatusCode.Forbidden)]
+    public async Task ExportingTransactionsRequiresExportPermission(string role, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+
+        using var response = await host.Client.GetAsync("/api/transactions/export?year=2026&month=10");
+
+        await Assert.That(response.StatusCode).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task ExportedTransactionsAreReadableAndCannotInjectFormulas()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Household).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            dbContext.Add(Transaction.Create(
+                new TransactionDetails(new DateTime(2026, 10, 7, 0, 0, 0, DateTimeKind.Utc), 19.99m, "=HYPERLINK(\"x\")", "Erstattung, Bäckerei", TransactionStatus.Booked, false),
+                account, user, account.Household));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.GetAsync("/api/transactions/export?year=2026&month=10");
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        var csv = System.Text.Encoding.UTF8.GetString(bytes);
+
+        await Assert.That(response.Content.Headers.ContentDisposition!.FileName).Contains("transactions-2026-10.csv");
+        await Assert.That(bytes.Take(3)).IsEquivalentTo(new byte[] { 0xEF, 0xBB, 0xBF });
+        var lines = csv.TrimStart('\uFEFF').Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+        await Assert.That(lines[0]).IsEqualTo("Date,Account,Counterparty,Purpose,Amount,Currency,Category,CategorySource,Status,IsTransfer");
+        await Assert.That(lines[1]).IsEqualTo("2026-10-05,Checking,Supermarket,,-42.50,EUR,Groceries,Manual,Booked,false");
+        await Assert.That(lines[2]).StartsWith("2026-10-07,Checking,\"'=HYPERLINK(\"\"x\"\")\",\"Erstattung, Bäckerei\",19.99,EUR,,");
+    }
+
+    [Test]
+    public async Task StatisticsShowTheSpendingPerCategoryOverMonths()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+
+        var statistics = (await host.Client.GetFromJsonAsync<BudgetStatisticsResponse>("/api/budgets/statistics?year=2026&month=11&months=4", Json))!;
+        using var invalid = await host.Client.GetAsync("/api/budgets/statistics?year=2026&month=11&months=25");
+
+        await Assert.That(statistics.Months).IsEquivalentTo(new[] { new DateOnly(2026, 8, 1), new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1), new DateOnly(2026, 11, 1) });
+        var groceries = statistics.Categories.Single(item => item.CategoryId == GroceriesId);
+        await Assert.That(groceries.Spent).IsEquivalentTo(OctoberSpending);
+        // The budget applies from September on.
+        await Assert.That(groceries.Budget).IsEquivalentTo(new decimal?[] { null, 300m, 300m, 300m });
+        await Assert.That(statistics.TotalSpent).IsEquivalentTo(OctoberSpending);
+        await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
 
     [Test]

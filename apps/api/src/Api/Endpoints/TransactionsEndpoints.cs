@@ -4,6 +4,7 @@ using Kijk.Api.Models;
 using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Create;
 using Kijk.Application.Transactions.Delete;
+using Kijk.Application.Transactions.Export;
 using Kijk.Application.Transactions.Get;
 using Kijk.Application.Transactions.Shared;
 using Kijk.Application.Transactions.Update;
@@ -26,6 +27,7 @@ public sealed class TransactionsEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets transactions of the active household, optionally by year, month or without category");
+        group.MapGet("/export", Export).RequireHouseholdPermission(HouseholdPermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month or without category");
         group.MapGet("/{id:guid}", GetById).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithName("GetTransactionById").WithSummary("Gets a transaction by id");
         group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CreateTransactionRequest>().WithSummary("Records a transaction manually");
         group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<UpdateTransactionRequest>().WithSummary("Updates a transaction");
@@ -100,5 +102,18 @@ public sealed class TransactionsEndpoints : IEndpointGroup
     {
         var result = await handler.DeleteAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
+    }
+
+    private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> Export(
+        int? year,
+        int? month,
+        bool? uncategorized,
+        ExportTransactionsHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.ExportAsync(year, month, uncategorized, cancellationToken);
+        return result.IsError
+            ? TypedResults.Problem(result.Error.ToProblemDetails())
+            : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
     }
 }

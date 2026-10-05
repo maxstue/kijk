@@ -56,6 +56,9 @@ public static class HouseholdPermissions
 
         /// <summary>Create, change and delete accounts and custom categories.</summary>
         public const string Configure = "finances:configure";
+
+        /// <summary>Export transactions as files.</summary>
+        public const string Export = "finances:export";
     }
 
     /// <summary>
@@ -133,6 +136,7 @@ public static class HouseholdPermissions
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a12"), Finances.Record),
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a13"), Finances.Import),
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a14"), Finances.Configure),
-        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a15"), Budgets.Plan)
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a15"), Budgets.Plan),
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"), Finances.Export)
     ];
 }
