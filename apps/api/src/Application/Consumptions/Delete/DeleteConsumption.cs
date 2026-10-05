@@ -15,14 +15,14 @@ public class DeleteConsumptionHandler(
     TimeProvider timeProvider,
     ILogger<DeleteConsumptionHandler> logger) : IHandler
 {
-    /// <summary>Deletes a consumption of the active household and recalculates later meter readings.</summary>
+    /// <summary>Deletes a consumption of the active space and recalculates later meter readings.</summary>
     /// <param name="id">The consumption id.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns><see langword="true" />, or a not-found error.</returns>
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var foundEntity = await dbContext.Consumptions
-            .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && x.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (foundEntity == null)
         {
             logger.LogWarning("Consumption with id '{Id}' not found", id);
@@ -30,7 +30,7 @@ public class DeleteConsumptionHandler(
         }
 
         var remainingTimeline = await dbContext.Consumptions
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId
                            && item.ResourceId == foundEntity.ResourceId
                            && item.Id != foundEntity.Id)
             .ToListAsync(cancellationToken);
@@ -49,7 +49,7 @@ public class DeleteConsumptionHandler(
         dbContext.Consumptions.Remove(foundEntity);
         await LimitOccurrence.RecordAsync(
             dbContext,
-            foundEntity.HouseholdId,
+            foundEntity.SpaceId,
             before,
             remainingTimeline,
             timeProvider.GetUtcNow().UtcDateTime,

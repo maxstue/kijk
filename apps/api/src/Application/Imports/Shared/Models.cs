@@ -100,7 +100,7 @@ public sealed record ImportCandidateResponse(
     bool IsCardSettlement,
     bool CountsAsOffset);
 
-/// <summary>The import settings of the active household.</summary>
+/// <summary>The import settings of the active space.</summary>
 /// <param name="PurposeRetention">How much of the purpose text imported transactions keep.</param>
 /// <param name="AiDataSharing">Which transaction data the AI categorization may see.</param>
 /// <param name="MinimizeData">Whether imports store neither names of private persons nor counterparty keys.</param>

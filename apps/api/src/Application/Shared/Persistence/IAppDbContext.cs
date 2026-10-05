@@ -7,10 +7,10 @@ namespace Kijk.Application.Shared.Persistence;
 /// </summary>
 public interface IAppDbContext
 {
-    /// <summary>Gets the households.</summary>
-    DbSet<Household> Households { get; }
-    /// <summary>Gets the household memberships.</summary>
-    DbSet<UserHousehold> UserHouseholds { get; }
+    /// <summary>Gets the spaces.</summary>
+    DbSet<Space> Spaces { get; }
+    /// <summary>Gets the space memberships.</summary>
+    DbSet<UserSpace> UserSpaces { get; }
     /// <summary>Gets the consumptions.</summary>
     DbSet<Consumption> Consumptions { get; }
     /// <summary>Gets the consumption limits.</summary>
@@ -19,8 +19,8 @@ public interface IAppDbContext
     DbSet<Resource> Resources { get; }
     /// <summary>Gets the units.</summary>
     DbSet<Unit> Units { get; }
-    /// <summary>Gets the units shared with households.</summary>
-    DbSet<UnitHousehold> UnitHouseholds { get; }
+    /// <summary>Gets the units shared with spaces.</summary>
+    DbSet<UnitSpace> UnitSpaces { get; }
     /// <summary>Gets the users.</summary>
     DbSet<User> Users { get; }
     /// <summary>Gets the transaction categories.</summary>
@@ -41,9 +41,9 @@ public interface IAppDbContext
     DbSet<ImportCandidate> ImportCandidates { get; }
     /// <summary>Gets the confirmed import mappings.</summary>
     DbSet<ImportProfile> ImportProfiles { get; }
-    /// <summary>Gets the household roles.</summary>
+    /// <summary>Gets the space roles.</summary>
     DbSet<Role> Roles { get; }
-    /// <summary>Gets the household permissions.</summary>
+    /// <summary>Gets the space permissions.</summary>
     DbSet<Permission> Permissions { get; }
 
     /// <summary>Saves all tracked changes.</summary>

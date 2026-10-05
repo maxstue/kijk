@@ -14,22 +14,22 @@ public static class AppConstants
         /// <summary>Requires a user who completed onboarding.</summary>
         public const string OnboardingCompleted = "OnboardingCompleted";
 
-        private const string HouseholdPermissionPrefix = "HouseholdPermission:";
+        private const string SpacePermissionPrefix = "SpacePermission:";
 
         /// <summary>
-        /// Gets the name of the policy that requires a permission in the user's active household.
+        /// Gets the name of the policy that requires a permission in the user's active space.
         /// </summary>
         /// <param name="permission">The permission name.</param>
         /// <returns>The policy name.</returns>
-        public static string HouseholdPermission(string permission) => HouseholdPermissionPrefix + permission;
+        public static string SpacePermission(string permission) => SpacePermissionPrefix + permission;
 
         /// <summary>
-        /// Determines whether a policy name requires a household permission.
+        /// Determines whether a policy name requires a space permission.
         /// </summary>
         /// <param name="policy">The policy name.</param>
-        /// <returns><see langword="true"/> for household-permission policies.</returns>
-        public static bool IsHouseholdPermission(string? policy) =>
-            policy?.StartsWith(HouseholdPermissionPrefix, StringComparison.Ordinal) is true;
+        /// <returns><see langword="true"/> for space-permission policies.</returns>
+        public static bool IsSpacePermission(string? policy) =>
+            policy?.StartsWith(SpacePermissionPrefix, StringComparison.Ordinal) is true;
     }
 
     /// <summary>The response header carrying the request correlation id.</summary>

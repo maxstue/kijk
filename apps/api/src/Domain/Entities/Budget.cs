@@ -30,8 +30,8 @@ public sealed class Budget : BaseEntity
     /// <summary>Gets or sets the user that created the budget.</summary>
     public required User CreatedBy { get; set; }
 
-    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
-    public Guid HouseholdId { get; set; }
+    /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
+    public Guid SpaceId { get; set; }
 
     /// <summary>
     /// Gets the member who alone sees and uses this budget, or <see langword="null" /> for a budget of the whole space.
@@ -45,8 +45,8 @@ public sealed class Budget : BaseEntity
     /// <summary>Gets who can see the budget.</summary>
     public Visibility Visibility => OwnerId is null ? Visibility.Shared : Visibility.Private;
 
-    /// <summary>Gets or sets the household the budget belongs to.</summary>
-    public required Household Household { get; set; }
+    /// <summary>Gets or sets the space the budget belongs to.</summary>
+    public required Space Space { get; set; }
 
     /// <summary>Creates a budget for a category starting in the given month.</summary>
     /// <param name="amount">The monthly amount.</param>
@@ -54,7 +54,7 @@ public sealed class Budget : BaseEntity
     /// <param name="active">Whether the budget is evaluated.</param>
     /// <param name="category">The expense category.</param>
     /// <param name="createdBy">The creating user.</param>
-    /// <param name="household">The owning household.</param>
+    /// <param name="space">The owning space.</param>
     /// <returns>The new budget.</returns>
     public static Budget Create(
         decimal amount,
@@ -62,7 +62,7 @@ public sealed class Budget : BaseEntity
         bool active,
         Category category,
         User createdBy,
-        Household household,
+        Space space,
         Visibility visibility = Visibility.Shared) =>
         new()
         {
@@ -71,7 +71,7 @@ public sealed class Budget : BaseEntity
             Active = active,
             Category = category,
             CreatedBy = createdBy,
-            Household = household,
+            Space = space,
             Owner = visibility == Visibility.Private ? createdBy : null
         };
 

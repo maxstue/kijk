@@ -16,7 +16,7 @@ namespace Kijk.Application.Transactions.Export;
 public sealed record TransactionCsvExport(byte[] Content, string FileName);
 
 /// <summary>
-/// Exports the transactions of the active household as CSV, with the same filters as the transaction list.
+/// Exports the transactions of the active space as CSV, with the same filters as the transaction list.
 /// </summary>
 public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
@@ -36,7 +36,7 @@ public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUs
         var query = dbContext.GetVisibleTransactions(currentUser)
             .Include(transaction => transaction.Account)
             .Include(transaction => transaction.Category)
-            .Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId);
+            .Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId);
 
         if (year is { } selectedYear)
         {

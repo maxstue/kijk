@@ -54,7 +54,7 @@ public record GetMeUserResponse(
     DateTime? AnalyticsConsentUpdatedAt,
     DateTime? OnboardingCompletedAt,
     bool AiEnabled,
-    IEnumerable<UserHouseholdResponse>? Households,
+    IEnumerable<UserSpaceResponse>? Spaces,
     IEnumerable<UserResourceResponse>? Resources)
 {
     /// <summary>
@@ -81,20 +81,20 @@ public record GetMeUserResponse(
 /// <param name="ImageUrl">The profile image URL, or null when its use is disabled.</param>
 public record ExternalIdentityResponse(string? FullName, string? Email, string? ImageUrl);
 
-/// <summary>A household membership of the current user.</summary>
-/// <param name="Id">The household id.</param>
-/// <param name="Name">The household name.</param>
+/// <summary>A space membership of the current user.</summary>
+/// <param name="Id">The space id.</param>
+/// <param name="Name">The space name.</param>
 /// <param name="Description">An optional description.</param>
-/// <param name="Role">The user's role in the household.</param>
-/// <param name="IsActive">Whether this is the user's active household.</param>
+/// <param name="Role">The user's role in the space.</param>
+/// <param name="IsActive">Whether this is the user's active space.</param>
 /// <param name="IsPersonal">Whether this is the user's personal space, which is never shared.</param>
-public record UserHouseholdResponse(Guid Id, string Name, string? Description, UserHouseholdRoleResponse Role, bool IsActive, bool IsPersonal);
+public record UserSpaceResponse(Guid Id, string Name, string? Description, UserSpaceRoleResponse Role, bool IsActive, bool IsPersonal);
 
-/// <summary>The user's role in a household.</summary>
+/// <summary>The user's role in a space.</summary>
 /// <param name="Id">The role id.</param>
 /// <param name="Name">The role name.</param>
 /// <param name="Permissions">The permissions the role grants.</param>
-public record UserHouseholdRoleResponse(Guid Id, string Name, IList<string> Permissions);
+public record UserSpaceRoleResponse(Guid Id, string Name, IList<string> Permissions);
 
 /// <summary>A resource the user has enabled.</summary>
 /// <param name="Id">The resource id.</param>

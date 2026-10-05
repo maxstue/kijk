@@ -26,14 +26,14 @@ public sealed class TransactionsEndpoints : IEndpointGroup
             .WithTags("Transactions")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets transactions of the active household, optionally by year, month or without category");
-        group.MapGet("/export", Export).RequireHouseholdPermission(HouseholdPermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month or without category");
-        group.MapGet("/{id:guid}", GetById).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithName("GetTransactionById").WithSummary("Gets a transaction by id");
-        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CreateTransactionRequest>().WithSummary("Records a transaction manually");
-        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<UpdateTransactionRequest>().WithSummary("Updates a transaction");
-        group.MapPut("/category", CategorizeMany).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CategorizeTransactionsRequest>().WithSummary("Assigns one category to several transactions");
-        group.MapPut("/{id:guid}/category", Categorize).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Corrects the category of a transaction, optionally remembering it for the merchant or counterparty");
-        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes a transaction");
+        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets transactions of the active space, optionally by year, month or without category");
+        group.MapGet("/export", Export).RequireSpacePermission(SpacePermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month or without category");
+        group.MapGet("/{id:guid}", GetById).RequireSpacePermission(SpacePermissions.Finances.View).WithName("GetTransactionById").WithSummary("Gets a transaction by id");
+        group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateTransactionRequest>().WithSummary("Records a transaction manually");
+        group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<UpdateTransactionRequest>().WithSummary("Updates a transaction");
+        group.MapPut("/category", CategorizeMany).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CategorizeTransactionsRequest>().WithSummary("Assigns one category to several transactions");
+        group.MapPut("/{id:guid}/category", Categorize).RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Corrects the category of a transaction, optionally remembering it for the merchant or counterparty");
+        group.MapDelete("/{id:guid}", Delete).RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Deletes a transaction");
 
         return builder;
     }

@@ -7,7 +7,7 @@ using Kijk.Shared;
 namespace Kijk.Application.Budgets.Delete;
 
 /// <summary>
-/// Deletes budget versions of the active household.
+/// Deletes budget versions of the active space.
 /// </summary>
 public sealed class DeleteBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
@@ -18,13 +18,13 @@ public sealed class DeleteBudgetHandler(IAppDbContext dbContext, CurrentUser cur
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var budget = await dbContext.GetVisibleBudgets(currentUser)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (budget is null)
         {
             return Error.NotFound("Budget could not be found");
         }
 
-        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, budget.Visibility == Visibility.Shared, HouseholdPermissions.Budgets.Plan, cancellationToken) is { } error)
+        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, budget.Visibility == Visibility.Shared, SpacePermissions.Budgets.Plan, cancellationToken) is { } error)
         {
             return error;
         }

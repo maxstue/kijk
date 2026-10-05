@@ -18,10 +18,10 @@ public sealed record UnitResponse(
     decimal? ConversionFactor,
     Guid? OwnerUserId,
     bool IsOwner,
-    bool IsAvailableInActiveHousehold,
+    bool IsAvailableInActiveSpace,
     bool IsArchived,
     int ResourceCount,
-    IReadOnlyList<Guid> HouseholdIds);
+    IReadOnlyList<Guid> SpaceIds);
 
 /// <summary>
 /// Unit information embedded in resource responses.

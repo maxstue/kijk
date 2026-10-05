@@ -6,22 +6,22 @@ namespace Kijk.UnitTests.Application;
 public class GetMeUserResponseMapperTests
 {
     [Test]
-    public async Task HouseholdResponseUsesHouseholdIdInsteadOfJoinEntityId()
+    public async Task SpaceResponseUsesSpaceIdInsteadOfJoinEntityId()
     {
-        var householdId = Guid.NewGuid();
+        var spaceId = Guid.NewGuid();
         var user = User.Init("test-user", "Test User", "test@example.invalid");
-        var membership = new UserHousehold
+        var membership = new UserSpace
         {
             User = user,
-            HouseholdId = householdId,
-            Household = Household.Create("Home"),
+            SpaceId = spaceId,
+            Space = Space.Create("Home"),
             Role = new Role { Name = "Admin", Permissions = [] }
         };
         membership.SetActive(true);
-        user.UserHouseholds.Add(membership);
+        user.UserSpaces.Add(membership);
 
         var response = new[] { user }.AsQueryable().ToResponse().Single();
 
-        await Assert.That(response.Households!.Single().Id).IsEqualTo(householdId);
+        await Assert.That(response.Spaces!.Single().Id).IsEqualTo(spaceId);
     }
 }

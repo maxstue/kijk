@@ -11,7 +11,7 @@ public class ImportProfileConfig : IEntityTypeConfiguration<ImportProfile>
     public void Configure(EntityTypeBuilder<ImportProfile> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.HouseholdId, x.HeaderFingerprint, x.Version }).IsUnique();
+        builder.HasIndex(x => new { x.SpaceId, x.HeaderFingerprint, x.Version }).IsUnique();
         builder.Property(x => x.HeaderFingerprint).HasMaxLength(64);
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Mapping).HasColumnType("jsonb");
@@ -21,9 +21,9 @@ public class ImportProfileConfig : IEntityTypeConfiguration<ImportProfile>
             .HasDefaultValueSql("now()")
             .ValueGeneratedOnAdd();
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany()
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -15,14 +15,14 @@ namespace Kijk.Application.Imports.Categorization;
 public interface ITransactionCategorizer
 {
     /// <summary>Proposes categories.</summary>
-    /// <param name="householdId">The household the transactions belong to.</param>
+    /// <param name="spaceId">The space the transactions belong to.</param>
     /// <param name="userId">The user the call is made for.</param>
     /// <param name="items">The distinct sanitized contexts.</param>
     /// <param name="categories">The categories the AI may choose from.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The proposals by item id; items without a clear category are missing.</returns>
     Task<CategorizationResult> CategorizeAsync(
-        Guid householdId,
+        Guid spaceId,
         Guid userId,
         IReadOnlyList<CategorizationItem> items,
         IReadOnlyList<CategoryOption> categories,
@@ -95,7 +95,7 @@ public sealed class AiTransactionCategorizer(IChatClient chatClient, IAiGate aiG
 
     /// <inheritdoc />
     public async Task<CategorizationResult> CategorizeAsync(
-        Guid householdId,
+        Guid spaceId,
         Guid userId,
         IReadOnlyList<CategorizationItem> items,
         IReadOnlyList<CategoryOption> categories,
@@ -111,7 +111,7 @@ public sealed class AiTransactionCategorizer(IChatClient chatClient, IAiGate aiG
         foreach (var batch in items.Chunk(BatchSize))
         {
             // The check runs before every request, so a switch turned off meanwhile stops the remaining ones.
-            if (!await aiGate.CanUseAiAsync(householdId, userId, cancellationToken))
+            if (!await aiGate.CanUseAiAsync(spaceId, userId, cancellationToken))
             {
                 unavailable = true;
                 break;

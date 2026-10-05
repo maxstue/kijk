@@ -45,7 +45,7 @@ public class ImportHttpTests
     public async Task ImportReplacesCoveredMonthsAndKeepsFilesOnlyUntilCommitted()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
 
         var job = await UploadAsync(host.Client, fixture.Account.Id, "dkb-synthetic.csv");
         job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
@@ -89,7 +89,7 @@ public class ImportHttpTests
     public async Task ReimportingAMonthKeepsCorrectionsAndAppliesRememberedMerchants()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
 
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
@@ -123,7 +123,7 @@ public class ImportHttpTests
     public async Task KeywordRulesRememberAPurposeWordWithoutTheCounterparty()
     {
         var fixture = await CreateFixtureAsync("Member");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var rent = await dbContext.Transactions.Where(item => item.Amount == -750m).OrderBy(item => item.BookingKey).FirstAsync();
@@ -151,7 +151,7 @@ public class ImportHttpTests
              "counterpartyColumn":1,"payerColumn":-1,"purposeColumn":2,"counterpartyIbanColumn":-1,"creditorIdColumn":-1,
              "statusColumn":-1,"bookingTypeColumn":-1}
             """);
-        await using var host = await HouseholdApiHost.StartAsync(
+        await using var host = await SpaceApiHost.StartAsync(
             fixture.User.AuthId,
             jobsEnabled: true,
             services => services.AddSingleton<IChatClient>(chat),
@@ -179,7 +179,7 @@ public class ImportHttpTests
     public async Task UnreachableAiFallsBackToTheColumnNameSuggestion()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(
+        await using var host = await SpaceApiHost.StartAsync(
             fixture.User.AuthId,
             jobsEnabled: true,
             services => services.AddSingleton<IChatClient>(new CountingChatClient(null)),
@@ -293,7 +293,7 @@ public class ImportHttpTests
     public async Task CardStatementsCountAsOffsetOnlyAfterConfirmation()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         var file = """
             Datum;Empfänger;Verwendungszweck;Betrag
             01.10.2026;Musterbank;Kreditkartenabrechnung 09/2026;-420,00
@@ -323,10 +323,10 @@ public class ImportHttpTests
     }
 
     [Test]
-    public async Task DataMinimizingHouseholdsStoreNeitherPersonsNorCounterpartyKeys()
+    public async Task DataMinimizingSpacesStoreNeitherPersonsNorCounterpartyKeys()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         using var settings = await host.Client.PutAsJsonAsync("/api/imports/settings", new UpdateImportSettingsRequest(PurposeRetention.Keep, MinimizeData: true), Json);
         var saved = await settings.Content.ReadFromJsonAsync<ImportSettingsResponse>(Json);
         await Assert.That(saved!.MinimizeData).IsTrue();
@@ -347,8 +347,8 @@ public class ImportHttpTests
         await Assert.That(byPerson.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
 
-    private static Task<HouseholdApiHost> StartWithAiAsync(Fixture fixture, IChatClient chat) =>
-        HouseholdApiHost.StartAsync(
+    private static Task<SpaceApiHost> StartWithAiAsync(Fixture fixture, IChatClient chat) =>
+        SpaceApiHost.StartAsync(
             fixture.User.AuthId,
             jobsEnabled: true,
             services => services.AddSingleton(chat),
@@ -379,7 +379,7 @@ public class ImportHttpTests
     public async Task CancellingDeletesTheFileRightAway()
     {
         var fixture = await CreateFixtureAsync("Member");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         var job = await UploadAsync(host.Client, fixture.Account.Id, "ing-synthetic.csv");
         job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
 
@@ -400,7 +400,7 @@ public class ImportHttpTests
     public async Task UploadingRequiresImportPermission(string role, HttpStatusCode expected)
     {
         var fixture = await CreateFixtureAsync(role);
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
         using var response = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
 
@@ -411,9 +411,9 @@ public class ImportHttpTests
     public async Task CashAccountsCannotBeImportedInto()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var cash = await dbContext.Accounts.SingleAsync(item => item.HouseholdId == fixture.Account.HouseholdId && item.Kind == AccountKind.Cash);
+        var cash = await dbContext.Accounts.SingleAsync(item => item.SpaceId == fixture.Account.SpaceId && item.Kind == AccountKind.Cash);
 
         using var response = await UploadResponseAsync(host.Client, cash.Id, "generic-comma.csv");
 
@@ -427,9 +427,9 @@ public class ImportHttpTests
         Guid jobId;
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
-            var account = await dbContext.Accounts.Include(item => item.Household).SingleAsync(item => item.Id == fixture.Account.Id);
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
             var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
-            var job = ImportJob.Create("old.csv", account, user, account.Household);
+            var job = ImportJob.Create("old.csv", account, user, account.Space);
             dbContext.ImportJobs.Add(job);
             dbContext.ImportFiles.Add(ImportFile.Create([1, 2, 3], job, DateTime.UtcNow.AddDays(-2)));
             await dbContext.SaveChangesAsync();
@@ -449,9 +449,9 @@ public class ImportHttpTests
     }
 
     [Test]
-    public async Task PseudonymousKeysAreStablePerHouseholdAndDifferBetweenHouseholds()
+    public async Task PseudonymousKeysAreStablePerSpaceAndDifferBetweenSpaces()
     {
-        var pseudonymizer = new HmacPseudonymizer(Options.Create(new FingerprintOptions { MasterKey = HouseholdApiHost.TestFingerprintKey }));
+        var pseudonymizer = new HmacPseudonymizer(Options.Create(new FingerprintOptions { MasterKey = SpaceApiHost.TestFingerprintKey }));
         var first = Guid.NewGuid();
         var second = Guid.NewGuid();
 
@@ -547,12 +547,12 @@ public class ImportHttpTests
     private static async Task<Fixture> CreateFixtureAsync(string roleName)
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var household = Household.Create("Import household");
+        var space = Space.Create("Import space");
         var role = await dbContext.Roles.SingleAsync(item => item.Name == roleName);
         var user = User.Init("importer-auth", "importer", "importer@example.test");
         user.CompleteOnboarding("importer", AnalyticsConsent.Declined, DateTime.UtcNow);
-        user.UserHouseholds.Add(UserHousehold.Create(user, household, role, isActive: true));
-        var account = Account.Create("Giro", "3000", household);
+        user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
+        var account = Account.Create("Giro", "3000", space);
         dbContext.AddRange(user, account);
         await dbContext.SaveChangesAsync();
         return new Fixture(user, account);

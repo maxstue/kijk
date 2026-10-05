@@ -5,7 +5,7 @@ using Kijk.Shared;
 namespace Kijk.Domain.Services;
 
 /// <summary>
-/// Evaluates the budgets of a household for a calendar month.
+/// Evaluates the budgets of a space for a calendar month.
 /// </summary>
 /// <remarks>
 /// Rules: expenses use up the budget of their category and refunds lower it in their booking month; income is
@@ -35,9 +35,9 @@ public static class BudgetCalculator
 
     /// <summary>Evaluates the budgets for a month.</summary>
     /// <param name="month">The evaluated month.</param>
-    /// <param name="categories">All categories available to the household.</param>
-    /// <param name="budgets">All budget versions of the household.</param>
-    /// <param name="transactions">The household's transactions; transactions outside the month are ignored.</param>
+    /// <param name="categories">All categories available to the space.</param>
+    /// <param name="budgets">All budget versions of the space.</param>
+    /// <param name="transactions">The space's transactions; transactions outside the month are ignored.</param>
     /// <returns>The evaluation of the month.</returns>
     public static BudgetMonthSummary Calculate(
         MonthYear month,

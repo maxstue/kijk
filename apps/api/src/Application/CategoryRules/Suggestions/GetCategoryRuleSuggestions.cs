@@ -57,7 +57,7 @@ public sealed class GetCategoryRuleSuggestionsHandler(IAppDbContext dbContext, C
             .AsNoTracking()
             .ToListAsync(cancellationToken);
         var existingRules = (await dbContext.CategoryRules
-                .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId)
+                .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
                 .Select(item => new { item.Scope, item.Key })
                 .ToListAsync(cancellationToken))
             .Select(item => (item.Scope, item.Key))

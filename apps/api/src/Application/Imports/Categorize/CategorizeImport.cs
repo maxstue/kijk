@@ -9,7 +9,7 @@ namespace Kijk.Application.Imports.Categorize;
 /// <summary>
 /// Request for categorizing the rows of an import with the AI.
 /// </summary>
-/// <param name="AiDataSharing">Which data the AI may see for this import; the household's level when omitted.</param>
+/// <param name="AiDataSharing">Which data the AI may see for this import; the space's level when omitted.</param>
 public sealed record CategorizeImportRequest(AiDataSharing? AiDataSharing = null);
 
 /// <summary>
@@ -24,7 +24,7 @@ public sealed class CategorizeImportValidator : AbstractValidator<CategorizeImpo
 
 /// <summary>
 /// Starts the AI categorization of an import waiting for review, e.g. to catch up after the AI was unavailable or to
-/// share more than the household default for a single import. Rows with a category are never changed.
+/// share more than the space default for a single import. Rows with a category are never changed.
 /// </summary>
 public sealed class CategorizeImportHandler(IAppDbContext dbContext, CurrentUser currentUser, IAiGate aiGate, IImportJobQueue queue) : IHandler
 {
@@ -37,8 +37,8 @@ public sealed class CategorizeImportHandler(IAppDbContext dbContext, CurrentUser
     {
         var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
-            .Include(item => item.Household)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .Include(item => item.Space)
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (job is null)
         {
             return Error.NotFound("Import could not be found");
@@ -49,13 +49,13 @@ public sealed class CategorizeImportHandler(IAppDbContext dbContext, CurrentUser
             return Error.Conflict("The import does not wait for a review");
         }
 
-        var sharing = request.AiDataSharing ?? job.Household.AiDataSharing;
+        var sharing = request.AiDataSharing ?? job.Space.AiDataSharing;
         if (sharing == AiDataSharing.Off)
         {
             return Error.Validation("AI categorization is turned off for this import");
         }
 
-        if (!await aiGate.CanUseAiAsync(job.HouseholdId, currentUser.Id, cancellationToken))
+        if (!await aiGate.CanUseAiAsync(job.SpaceId, currentUser.Id, cancellationToken))
         {
             return Error.Conflict("AI categorization is not available");
         }

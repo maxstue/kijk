@@ -23,12 +23,12 @@ public sealed class ImportAiPreviewHandler(IAppDbContext dbContext, CurrentUser 
     /// <returns>The preview, or a not-found error.</returns>
     public async Task<Result<AiPreviewResponse>> GetAsync(Guid id, CancellationToken cancellationToken)
     {
-        if (await FindHouseholdAsync(id, cancellationToken) is not { } householdId)
+        if (await FindSpaceAsync(id, cancellationToken) is not { } spaceId)
         {
             return Error.NotFound("Import could not be found");
         }
 
-        var (contexts, withheld) = await BuildAsync(id, householdId, cancellationToken);
+        var (contexts, withheld) = await BuildAsync(id, spaceId, cancellationToken);
         return new AiPreviewResponse(
             [
                 .. contexts.Select(context => new AiPreviewItemResponse(
@@ -52,7 +52,7 @@ public sealed class ImportAiPreviewHandler(IAppDbContext dbContext, CurrentUser 
     {
         var job = await dbContext.GetVisibleImports(currentUser)
             .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (job is null)
         {
             return Error.NotFound("Import could not be found");
@@ -63,7 +63,7 @@ public sealed class ImportAiPreviewHandler(IAppDbContext dbContext, CurrentUser 
             return Error.Conflict("The import does not wait for a review");
         }
 
-        var (contexts, _) = await BuildAsync(id, job.HouseholdId, cancellationToken);
+        var (contexts, _) = await BuildAsync(id, job.SpaceId, cancellationToken);
         var context = contexts.Find(item => item.Key == key);
         if (context is null)
         {
@@ -79,16 +79,16 @@ public sealed class ImportAiPreviewHandler(IAppDbContext dbContext, CurrentUser 
         return new AiPreviewItemResponse(key, context.Item.Counterparty, context.Item.Purpose, context.Item.IsIncome, context.Rows.Count, request.Excluded);
     }
 
-    private async Task<(List<AiContext> Contexts, int Withheld)> BuildAsync(Guid id, Guid householdId, CancellationToken cancellationToken)
+    private async Task<(List<AiContext> Contexts, int Withheld)> BuildAsync(Guid id, Guid spaceId, CancellationToken cancellationToken)
     {
         var candidates = await AiContexts.Eligible(dbContext, id).ToListAsync(cancellationToken);
-        var memberNames = await AiContexts.LoadMemberNamesAsync(dbContext, householdId, cancellationToken);
+        var memberNames = await AiContexts.LoadMemberNamesAsync(dbContext, spaceId, cancellationToken);
         return AiContexts.Build(candidates, memberNames);
     }
 
-    private Task<Guid?> FindHouseholdAsync(Guid id, CancellationToken cancellationToken) =>
+    private Task<Guid?> FindSpaceAsync(Guid id, CancellationToken cancellationToken) =>
         dbContext.GetVisibleImports(currentUser)
-            .Where(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId)
-            .Select(item => (Guid?)item.HouseholdId)
+            .Where(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId)
+            .Select(item => (Guid?)item.SpaceId)
             .FirstOrDefaultAsync(cancellationToken);
 }

@@ -8,13 +8,13 @@ using Microsoft.Extensions.Options;
 namespace Kijk.Infrastructure.Imports;
 
 /// <summary>
-/// Computes HMAC-SHA256 keys with a per-household key derived by HKDF from the master key. The derived keys are never
+/// Computes HMAC-SHA256 keys with a per-space key derived by HKDF from the master key. The derived keys are never
 /// stored.
 /// </summary>
 internal sealed class HmacPseudonymizer : IPseudonymizer
 {
     private readonly byte[] _masterKey;
-    private readonly ConcurrentDictionary<Guid, byte[]> _householdKeys = new();
+    private readonly ConcurrentDictionary<Guid, byte[]> _spaceKeys = new();
 
     /// <summary>Creates the service from the configured master key.</summary>
     /// <param name="options">The fingerprint options.</param>
@@ -28,9 +28,9 @@ internal sealed class HmacPseudonymizer : IPseudonymizer
     public int KeyVersion { get; }
 
     /// <inheritdoc />
-    public string Compute(Guid householdId, string purpose, string value)
+    public string Compute(Guid spaceId, string purpose, string value)
     {
-        var key = _householdKeys.GetOrAdd(householdId, id => HKDF.DeriveKey(
+        var key = _spaceKeys.GetOrAdd(spaceId, id => HKDF.DeriveKey(
             HashAlgorithmName.SHA256,
             _masterKey,
             outputLength: 32,

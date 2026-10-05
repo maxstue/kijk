@@ -11,7 +11,7 @@ public class ImportJobConfig : IEntityTypeConfiguration<ImportJob>
     public void Configure(EntityTypeBuilder<ImportJob> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.HouseholdId, x.CreatedAt });
+        builder.HasIndex(x => new { x.SpaceId, x.CreatedAt });
         builder.HasIndex(x => new { x.AccountId, x.Status });
         builder.Property(x => x.FileName).HasMaxLength(200);
         builder.Property(x => x.Error).HasMaxLength(250);
@@ -37,9 +37,9 @@ public class ImportJobConfig : IEntityTypeConfiguration<ImportJob>
             .HasForeignKey(x => x.CreatedById)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany(x => x.ImportJobs)
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

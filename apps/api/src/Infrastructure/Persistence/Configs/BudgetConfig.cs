@@ -12,12 +12,12 @@ public class BudgetConfig : IEntityTypeConfiguration<Budget>
     {
         builder.HasKey(x => x.Id);
         // One version per month and category: once for the space and once per member's private budgets.
-        builder.HasIndex(x => new { x.HouseholdId, x.CategoryId, x.ValidFrom })
-            .HasDatabaseName("ix_budgets_household_id_category_id_valid_from")
+        builder.HasIndex(x => new { x.SpaceId, x.CategoryId, x.ValidFrom })
+            .HasDatabaseName("ix_budgets_space_id_category_id_valid_from")
             .HasFilter("owner_id IS NULL")
             .IsUnique();
-        builder.HasIndex(x => new { x.HouseholdId, x.OwnerId, x.CategoryId, x.ValidFrom })
-            .HasDatabaseName("ix_budgets_household_id_owner_id_category_id_valid_from")
+        builder.HasIndex(x => new { x.SpaceId, x.OwnerId, x.CategoryId, x.ValidFrom })
+            .HasDatabaseName("ix_budgets_space_id_owner_id_category_id_valid_from")
             .HasFilter("owner_id IS NOT NULL")
             .IsUnique();
         builder.Ignore(x => x.Visibility);
@@ -45,9 +45,9 @@ public class BudgetConfig : IEntityTypeConfiguration<Budget>
             .HasForeignKey(x => x.CreatedById)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany(x => x.Budgets)
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

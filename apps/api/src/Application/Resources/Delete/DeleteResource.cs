@@ -10,7 +10,7 @@ namespace Kijk.Application.Resources.Delete;
 /// </summary>
 public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger) : IHandler
 {
-    /// <summary>Deletes an unused custom resource of the active household.</summary>
+    /// <summary>Deletes an unused custom resource of the active space.</summary>
     /// <param name="id">The resource id.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns><see langword="true" />, or a not-found/conflict error.</returns>

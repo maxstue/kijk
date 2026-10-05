@@ -20,8 +20,8 @@ public class UpdateUserHandler(
     ILogger<UpdateUserHandler> logger) : IHandler
 {
     /// <summary>
-    /// Updates the current user's settings. Renaming the active household additionally requires the
-    /// household:configure permission there; sending the unchanged name is always allowed.
+    /// Updates the current user's settings. Renaming the active space additionally requires the
+    /// space:configure permission there; sending the unchanged name is always allowed.
     /// </summary>
     /// <param name="request">The changes.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -31,8 +31,8 @@ public class UpdateUserHandler(
         var userEntity = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
             .Include(x => x.Resources)
-            .Include(x => x.UserHouseholds)
-            .ThenInclude(x => x.Household)
+            .Include(x => x.UserSpaces)
+            .ThenInclude(x => x.Space)
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -47,8 +47,8 @@ public class UpdateUserHandler(
             userEntity.Name = request.UserName.Trim();
         }
 
-        if (request.HouseholdName is not null
-            && await RenameActiveHouseholdAsync(userEntity, request.HouseholdName.Trim(), cancellationToken) is { } renameError)
+        if (request.SpaceName is not null
+            && await RenameActiveSpaceAsync(userEntity, request.SpaceName.Trim(), cancellationToken) is { } renameError)
         {
             return renameError;
         }
@@ -75,27 +75,27 @@ public class UpdateUserHandler(
         return userEntity.ToResponse(userEntity.Resources.Any(resource => resource.CreatorType == CreatorType.System));
     }
 
-    /// <summary>Renames the user's active household; a changed name requires the household:configure permission.</summary>
-    private async Task<Error?> RenameActiveHouseholdAsync(User user, string householdName, CancellationToken cancellationToken)
+    /// <summary>Renames the user's active space; a changed name requires the space:configure permission.</summary>
+    private async Task<Error?> RenameActiveSpaceAsync(User user, string spaceName, CancellationToken cancellationToken)
     {
-        var activeHousehold = user.UserHouseholds.SingleOrDefault(x => x.IsActive)?.Household;
-        if (activeHousehold is null)
+        var activeSpace = user.UserSpaces.SingleOrDefault(x => x.IsActive)?.Space;
+        if (activeSpace is null)
         {
-            logger.LogWarning("Active household for user with id '{Id}' not found", currentUser.Id);
-            return Error.NotFound("Active household not found");
+            logger.LogWarning("Active space for user with id '{Id}' not found", currentUser.Id);
+            return Error.NotFound("Active space not found");
         }
 
-        if (string.Equals(householdName, activeHousehold.Name, StringComparison.Ordinal))
+        if (string.Equals(spaceName, activeSpace.Name, StringComparison.Ordinal))
         {
             return null;
         }
 
-        if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, activeHousehold.Id, HouseholdPermissions.Household.Configure, cancellationToken) is { } error)
+        if (await dbContext.AuthorizeSpaceAsync(currentUser.Id, activeSpace.Id, SpacePermissions.Space.Configure, cancellationToken) is { } error)
         {
             return error;
         }
 
-        activeHousehold.Rename(householdName);
+        activeSpace.Rename(spaceName);
         return null;
     }
 

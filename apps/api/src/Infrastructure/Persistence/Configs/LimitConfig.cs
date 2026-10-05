@@ -12,7 +12,7 @@ public class LimitConfig : IEntityTypeConfiguration<Limit>
     {
         builder.HasKey(x => x.Id);
         builder.HasIndex(x => x.Name);
-        builder.HasIndex(x => new { x.HouseholdId, x.ResourceId, x.Period }).IsUnique();
+        builder.HasIndex(x => new { x.SpaceId, x.ResourceId, x.Period }).IsUnique();
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.Description).HasMaxLength(250);
 

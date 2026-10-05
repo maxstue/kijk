@@ -81,14 +81,14 @@ public enum TransactionStatus
 }
 
 /// <summary>
-/// Represents the kind of a household account.
+/// Represents the kind of a space account.
 /// </summary>
 [EnumExtensions]
 public enum AccountKind
 {
     /// <summary>A bank account whose transactions are imported from bank exports.</summary>
     Bank,
-    /// <summary>The household's cash account for manually recorded transactions. Imports never change it.</summary>
+    /// <summary>The space's cash account for manually recorded transactions. Imports never change it.</summary>
     Cash
 }
 
@@ -159,7 +159,7 @@ public enum CategoryRuleOrigin
 }
 
 /// <summary>
-/// Represents how much of the purpose text a household keeps after an import.
+/// Represents how much of the purpose text a space keeps after an import.
 /// </summary>
 [EnumExtensions]
 public enum PurposeRetention
@@ -173,7 +173,7 @@ public enum PurposeRetention
 }
 
 /// <summary>
-/// Represents which transaction data a household lets the AI categorization see.
+/// Represents which transaction data a space lets the AI categorization see.
 /// </summary>
 [EnumExtensions]
 public enum AiDataSharing

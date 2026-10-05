@@ -34,7 +34,7 @@ public sealed class CategorizeTransactionsValidator : AbstractValidator<Categori
 public sealed record CategorizeTransactionsResponse(int Updated);
 
 /// <summary>
-/// Assigns one category to several transactions of the active household. The category counts as set by hand, so
+/// Assigns one category to several transactions of the active space. The category counts as set by hand, so
 /// automatic categorization never overrides it.
 /// </summary>
 public sealed class CategorizeTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
@@ -51,13 +51,13 @@ public sealed class CategorizeTransactionsHandler(IAppDbContext dbContext, Curre
             category = await dbContext.GetAvailableCategories(currentUser).FirstOrDefaultAsync(item => item.Id == categoryId, cancellationToken);
             if (category is null)
             {
-                return Error.NotFound("Category is not available in the active household");
+                return Error.NotFound("Category is not available in the active space");
             }
         }
 
         var ids = request.Ids.Distinct().ToList();
         var transactions = await dbContext.GetVisibleTransactions(currentUser)
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId && ids.Contains(item.Id))
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId && ids.Contains(item.Id))
             .ToListAsync(cancellationToken);
         if (transactions.Count != ids.Count)
         {

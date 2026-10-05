@@ -11,7 +11,7 @@ namespace Kijk.Application.Consumptions.GetByYearMonth;
 /// </summary>
 public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Gets the consumptions of the active household, newest first.</summary>
+    /// <summary>Gets the consumptions of the active space, newest first.</summary>
     /// <param name="year">The year, or <see langword="null" /> for all years.</param>
     /// <param name="month">The English month name, or <see langword="null" /> for all months.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -31,7 +31,7 @@ public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentU
 
         var consumptions = await dbContext.Consumptions
             .AsNoTracking()
-            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
             .Include(x => x.Resource.Unit)
             .ToListAsync(cancellationToken);
 

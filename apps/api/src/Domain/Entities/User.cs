@@ -37,8 +37,8 @@ public sealed class User : BaseEntity
     /// <summary>Gets whether the user allows AI features. When off, no AI call is made for this user.</summary>
     public bool AiEnabled { get; private set; } = true;
 
-    /// <summary>Gets the user's household memberships.</summary>
-    public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
+    /// <summary>Gets the user's space memberships.</summary>
+    public ICollection<UserSpace> UserSpaces { get; init; } = new List<UserSpace>();
 
     /// <summary>
     /// Units created by this user.
@@ -46,12 +46,12 @@ public sealed class User : BaseEntity
     public ICollection<Unit> Units { get; init; } = new List<Unit>();
 
     /// <summary>
-    /// Returns the active household id for the user.
+    /// Returns the active space id for the user.
     /// It should never be null as it is set when the user is created.
     /// </summary>
-    /// <returns>The active household id.</returns>
-    /// <exception cref="NullException">The user has no active household.</exception>
-    public Guid GetActiveHouseHoldId() => UserHouseholds.SingleOrDefault(x => x.IsActive)?.HouseholdId ?? throw new NullException("Active household not found");
+    /// <returns>The active space id.</returns>
+    /// <exception cref="NullException">The user has no active space.</exception>
+    public Guid GetActiveSpaceId() => UserSpaces.SingleOrDefault(x => x.IsActive)?.SpaceId ?? throw new NullException("Active space not found");
 
     private readonly List<Resource> _resources = [];
     /// <summary>Gets the resources the user has enabled.</summary>
@@ -111,7 +111,7 @@ public sealed class User : BaseEntity
     }
 
     /// <summary>
-    /// Resets onboarding when the user no longer belongs to a household.
+    /// Resets onboarding when the user no longer belongs to a space.
     /// </summary>
     public void ResetOnboarding() => OnboardingCompletedAt = null;
 

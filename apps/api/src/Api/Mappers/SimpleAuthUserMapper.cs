@@ -9,7 +9,7 @@ namespace Kijk.Api.Mappers;
 public static class SimpleAuthUserMapper
 {
     /// <summary>
-    /// Projects user entities to authenticated users, including the role and permissions of the active household.
+    /// Projects user entities to authenticated users, including the role and permissions of the active space.
     /// </summary>
     /// <param name="source">The user query.</param>
     /// <returns>The projected authenticated-user query.</returns>
@@ -17,13 +17,13 @@ public static class SimpleAuthUserMapper
         source.Select(user => new SimpleAuthUser(
             user.Id,
             user.AuthId,
-            user.UserHouseholds.Where(link => link.IsActive).Select(link => (Guid?)link.HouseholdId).SingleOrDefault(),
+            user.UserSpaces.Where(link => link.IsActive).Select(link => (Guid?)link.SpaceId).SingleOrDefault(),
             user.Name,
             user.Email,
             user.OnboardingCompletedAt != null)
         {
-            HouseholdRole = user.UserHouseholds.Where(link => link.IsActive).Select(link => link.Role.Name).SingleOrDefault(),
-            HouseholdPermissions = user.UserHouseholds
+            SpaceRole = user.UserSpaces.Where(link => link.IsActive).Select(link => link.Role.Name).SingleOrDefault(),
+            SpacePermissions = user.UserSpaces
                 .Where(link => link.IsActive)
                 .SelectMany(link => link.Role.Permissions.Select(permission => permission.Name))
                 .ToList()

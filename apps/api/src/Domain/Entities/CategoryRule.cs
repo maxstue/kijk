@@ -29,20 +29,20 @@ public sealed class CategoryRule : BaseEntity
     /// <summary>Gets the assigned category.</summary>
     public Category? Category { get; private set; }
 
-    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
-    public Guid HouseholdId { get; set; }
+    /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
+    public Guid SpaceId { get; set; }
 
-    /// <summary>Gets or sets the household the rule belongs to.</summary>
-    public Household? Household { get; set; }
+    /// <summary>Gets or sets the space the rule belongs to.</summary>
+    public Space? Space { get; set; }
 
     /// <summary>Creates a rule a user chose to remember.</summary>
     /// <param name="scope">What the rule matches on.</param>
     /// <param name="key">The normalized merchant name or counterparty key.</param>
     /// <param name="label">The counterparty name shown to users.</param>
     /// <param name="category">The category to assign.</param>
-    /// <param name="householdId">The owning household.</param>
+    /// <param name="spaceId">The owning space.</param>
     /// <returns>The new rule.</returns>
-    public static CategoryRule CreateFromCorrection(CategoryRuleScope scope, string key, string label, Category category, Guid householdId)
+    public static CategoryRule CreateFromCorrection(CategoryRuleScope scope, string key, string label, Category category, Guid spaceId)
     {
         var rule = new CategoryRule
         {
@@ -50,7 +50,7 @@ public sealed class CategoryRule : BaseEntity
             Key = key,
             Label = label,
             Origin = CategoryRuleOrigin.User,
-            HouseholdId = householdId
+            SpaceId = spaceId
         };
         rule.ChangeCategory(category);
         return rule;

@@ -6,11 +6,11 @@ using Kijk.Shared;
 namespace Kijk.Application.Categories.Get;
 
 /// <summary>
-/// Retrieves the categories available to the active household.
+/// Retrieves the categories available to the active space.
 /// </summary>
 public sealed class GetCategoriesHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Gets the system categories and the active household's own categories.</summary>
+    /// <summary>Gets the system categories and the active space's own categories.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The categories, expenses first and then by name.</returns>
     public async Task<Result<List<CategoryResponse>>> GetAllAsync(CancellationToken cancellationToken)

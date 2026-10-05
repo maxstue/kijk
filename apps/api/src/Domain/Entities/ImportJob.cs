@@ -87,13 +87,13 @@ public sealed class ImportJob : BaseEntity
     public required User CreatedBy { get; set; }
 
     /// <summary>
-    /// Gets or sets the id of <see cref="Household" />. The job stores it itself because background processing has no
+    /// Gets or sets the id of <see cref="Space" />. The job stores it itself because background processing has no
     /// current user.
     /// </summary>
-    public Guid HouseholdId { get; set; }
+    public Guid SpaceId { get; set; }
 
-    /// <summary>Gets or sets the household the import belongs to.</summary>
-    public required Household Household { get; set; }
+    /// <summary>Gets or sets the space the import belongs to.</summary>
+    public required Space Space { get; set; }
 
     /// <summary>Gets whether so many rows failed that committing needs an explicit confirmation.</summary>
     public bool HasHighErrorRate => RowCount > 0 && (decimal)ErrorCount / RowCount > MaximumErrorRate;
@@ -105,16 +105,16 @@ public sealed class ImportJob : BaseEntity
     /// <param name="fileName">The name of the uploaded file.</param>
     /// <param name="account">The bank account.</param>
     /// <param name="createdBy">The user that started the import.</param>
-    /// <param name="household">The owning household.</param>
+    /// <param name="space">The owning space.</param>
     /// <returns>The new import.</returns>
-    public static ImportJob Create(string fileName, Account account, User createdBy, Household household) =>
+    public static ImportJob Create(string fileName, Account account, User createdBy, Space space) =>
         new()
         {
             FileName = fileName,
             Status = ImportJobStatus.Pending,
             Account = account,
             CreatedBy = createdBy,
-            Household = household
+            Space = space
         };
 
     /// <summary>Marks the start of the analysis. A retried analysis starts again.</summary>

@@ -52,6 +52,6 @@ public sealed class Unit : BaseEntity
     public User? OwnerUser { get; set; }
     /// <summary>Gets or sets when the unit was archived; archived units cannot be used for new resources.</summary>
     public DateTime? ArchivedAt { get; set; }
-    /// <summary>Gets the households the unit is shared with.</summary>
-    public ICollection<UnitHousehold> Households { get; init; } = new List<UnitHousehold>();
+    /// <summary>Gets the spaces the unit is shared with.</summary>
+    public ICollection<UnitSpace> Spaces { get; init; } = new List<UnitSpace>();
 }

@@ -3,7 +3,7 @@ using Kijk.Shared;
 namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// A booking on a household account. Negative amounts are expenses, positive amounts are income or refunds.
+/// A booking on a space account. Negative amounts are expenses, positive amounts are income or refunds.
 /// </summary>
 public sealed class Transaction : BaseEntity
 {
@@ -34,7 +34,7 @@ public sealed class Transaction : BaseEntity
     /// </summary>
     public bool IsMerchantPayment { get; private set; }
 
-    /// <summary>Gets or sets whether this is a confirmed transfer between the household's own accounts.</summary>
+    /// <summary>Gets or sets whether this is a confirmed transfer between the space's own accounts.</summary>
     public required bool IsTransfer { get; set; }
 
     /// <summary>Gets the id of <see cref="Category" />, or <see langword="null" /> while uncategorized.</summary>
@@ -76,19 +76,19 @@ public sealed class Transaction : BaseEntity
     /// <summary>Gets or sets the user that recorded the transaction.</summary>
     public required User CreatedBy { get; set; }
 
-    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
-    public Guid HouseholdId { get; set; }
+    /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
+    public Guid SpaceId { get; set; }
 
-    /// <summary>Gets or sets the household the transaction belongs to.</summary>
-    public required Household Household { get; set; }
+    /// <summary>Gets or sets the space the transaction belongs to.</summary>
+    public required Space Space { get; set; }
 
     /// <summary>Creates a transaction recorded by a user.</summary>
     /// <param name="details">The booking details.</param>
     /// <param name="account">The account, if known.</param>
     /// <param name="createdBy">The recording user.</param>
-    /// <param name="household">The owning household.</param>
+    /// <param name="space">The owning space.</param>
     /// <returns>The new transaction.</returns>
-    public static Transaction Create(TransactionDetails details, Account? account, User createdBy, Household household) =>
+    public static Transaction Create(TransactionDetails details, Account? account, User createdBy, Space space) =>
         new()
         {
             BookingDate = details.BookingDate.Date,
@@ -100,7 +100,7 @@ public sealed class Transaction : BaseEntity
             IsTransfer = details.IsTransfer,
             Account = account,
             CreatedBy = createdBy,
-            Household = household
+            Space = space
         };
 
     /// <summary>Creates a transaction from an import.</summary>
@@ -109,7 +109,7 @@ public sealed class Transaction : BaseEntity
     /// <param name="account">The bank account the import belongs to.</param>
     /// <param name="importJob">The import.</param>
     /// <param name="createdBy">The user that started the import.</param>
-    /// <param name="household">The owning household.</param>
+    /// <param name="space">The owning space.</param>
     /// <returns>The new transaction.</returns>
     public static Transaction CreateImported(
         TransactionDetails details,
@@ -117,9 +117,9 @@ public sealed class Transaction : BaseEntity
         Account account,
         ImportJob importJob,
         User createdBy,
-        Household household)
+        Space space)
     {
-        var transaction = Create(details, account, createdBy, household);
+        var transaction = Create(details, account, createdBy, space);
         transaction.BookingKey = keys.BookingKey;
         transaction.CounterpartyKey = keys.CounterpartyKey;
         transaction.KeyVersion = keys.KeyVersion;

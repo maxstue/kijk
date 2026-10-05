@@ -20,26 +20,26 @@ public class UpdateConsumptionHandler(
     IUnitConversionService unitConversionService,
     ILogger<UpdateConsumptionHandler> logger) : IHandler
 {
-    /// <summary>Updates a consumption of the active household and recalculates affected meter readings.</summary>
+    /// <summary>Updates a consumption of the active space and recalculates affected meter readings.</summary>
     /// <param name="id">The consumption id.</param>
     /// <param name="request">The changes.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The updated consumption.</returns>
     public async Task<Result<ConsumptionResponse>> UpdateAsync(Guid id, UpdateConsumptionRequest request, CancellationToken cancellationToken)
     {
-        var household = await dbContext.Households
+        var space = await dbContext.Spaces
             .Include(x => x.Consumptions)
-            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveSpaceId, cancellationToken);
 
-        if (household is null)
+        if (space is null)
         {
-            logger.LogWarning("Household with id '{Id}' was not found", currentUser.ActiveHouseholdId);
-            return Error.NotFound("Household not found");
+            logger.LogWarning("Space with id '{Id}' was not found", currentUser.ActiveSpaceId);
+            return Error.NotFound("Space not found");
         }
 
         var existingResourceUsage = await dbContext.Consumptions
             .Include(resourceUsage => resourceUsage.Resource.Unit.ReferenceUnit)
-            .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == id && x.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (existingResourceUsage is null)
         {
             logger.LogWarning("Resource consumption with id '{Id}' was not found", id);
@@ -48,7 +48,7 @@ public class UpdateConsumptionHandler(
         var originalResourceId = existingResourceUsage.ResourceId;
         var resourceId = request.ResourceId ?? existingResourceUsage.ResourceId;
         var originalTimeline = await dbContext.Consumptions
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId
                            && item.ResourceId == originalResourceId)
             .ToListAsync(cancellationToken);
 
@@ -59,11 +59,11 @@ public class UpdateConsumptionHandler(
             destinationResource = await GetAvailableResourceAsync(resourceId, cancellationToken);
             if (destinationResource is null)
             {
-                return Error.NotFound("Resource is not available in the active household");
+                return Error.NotFound("Resource is not available in the active space");
             }
 
             destinationTimeline = await dbContext.Consumptions
-                .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+                .Where(item => item.SpaceId == currentUser.ActiveSpaceId
                                && item.ResourceId == resourceId)
                 .ToListAsync(cancellationToken);
         }
@@ -88,7 +88,7 @@ public class UpdateConsumptionHandler(
 
         await LimitOccurrence.RecordAsync(
             dbContext,
-            household.Id,
+            space.Id,
             before,
             originalTimeline.Concat(destinationTimeline ?? []).ToList(),
             timeProvider.GetUtcNow().UtcDateTime,

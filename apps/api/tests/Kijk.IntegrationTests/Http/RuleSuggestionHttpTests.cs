@@ -34,7 +34,7 @@ public class RuleSuggestionHttpTests
     public async Task RepeatedCorrectionsAreSuggestedAndRememberingCategorizesTheRest()
     {
         var user = await SeedAsync();
-        await using var host = await HouseholdApiHost.StartAsync(user.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
 
         var suggestions = (await host.Client.GetFromJsonAsync<List<CategoryRuleSuggestionResponse>>("/api/category-rules/suggestions", Json))!;
 
@@ -61,13 +61,13 @@ public class RuleSuggestionHttpTests
     private static async Task<User> SeedAsync()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var household = Household.Create("Suggestions");
+        var space = Space.Create("Suggestions");
         var role = await dbContext.Roles.SingleAsync(item => item.Name == "Member");
         var user = User.Init("suggestion-auth", "suggestion", "suggestion@example.test");
         user.CompleteOnboarding("suggestion", AnalyticsConsent.Declined, DateTime.UtcNow);
-        user.UserHouseholds.Add(UserHousehold.Create(user, household, role, isActive: true));
-        var account = Account.Create("Giro", "1234", household);
-        var job = ImportJob.Create("export.csv", account, user, household);
+        user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
+        var account = Account.Create("Giro", "1234", space);
+        var job = ImportJob.Create("export.csv", account, user, space);
         var categories = await dbContext.Categories.Where(item => item.CreatorType == CreatorType.System).ToDictionaryAsync(item => item.Id);
         var day = 0;
 
@@ -80,7 +80,7 @@ public class RuleSuggestionHttpTests
                 account,
                 job,
                 user,
-                household);
+                space);
             if (categoryId is { } id)
             {
                 transaction.AssignCategoryManually(categories[id]);
@@ -108,7 +108,7 @@ public class RuleSuggestionHttpTests
             Booking("Max Mustermann", null, false, HousingId),
             Booking("Max Mustermann", null, false, HousingId));
         var aldi = CategoryRuleKeys.For(null, "ALDI Süd", isMerchantPayment: true)!.Value;
-        dbContext.Add(CategoryRule.CreateFromCorrection(aldi.Scope, aldi.Key, "ALDI Süd", categories[GroceriesId], household.Id));
+        dbContext.Add(CategoryRule.CreateFromCorrection(aldi.Scope, aldi.Key, "ALDI Süd", categories[GroceriesId], space.Id));
         await dbContext.SaveChangesAsync();
         return user;
     }

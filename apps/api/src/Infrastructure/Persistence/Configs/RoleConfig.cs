@@ -19,18 +19,18 @@ public class RoleConfig : IEntityTypeConfiguration<Role>
         builder.HasMany(x => x.Permissions)
             .WithMany(c => c.Roles)
             .UsingEntity("roles_permissions", join => join.HasData(
-                HouseholdRoles.All.SelectMany(role => role.Permissions.Select(permission => new
+                SpaceRoles.All.SelectMany(role => role.Permissions.Select(permission => new
                 {
                     RolesId = role.Id,
-                    PermissionsId = HouseholdPermissions.All.Single(item => item.Name == permission).Id
+                    PermissionsId = SpacePermissions.All.Single(item => item.Name == permission).Id
                 }))));
 
-        builder.HasMany(x => x.UserHouseholds)
+        builder.HasMany(x => x.UserSpaces)
             .WithOne(x => x.Role)
             .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasData(HouseholdRoles.All.Select(role => new
+        builder.HasData(SpaceRoles.All.Select(role => new
         {
             role.Id,
             role.Name,

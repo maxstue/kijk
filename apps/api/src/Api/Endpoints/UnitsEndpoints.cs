@@ -26,16 +26,16 @@ public sealed class UnitsEndpoints : IEndpointGroup
             .WithTags("Units")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("", GetAll).WithoutHouseholdPermission(UserOwned).WithSummary("Gets units visible to the current user");
-        group.MapGet("/system", GetSystem).WithoutHouseholdPermission("System units are public reference data.").WithSummary("Gets supported system units");
-        group.MapGet("/page", GetPage).WithoutHouseholdPermission(UserOwned).WithSummary("Gets a page of units for settings");
-        group.MapPost("", Create).WithoutHouseholdPermission("Creates a unit owned by the current user; sharing it with households is checked in the handler (units:share).").WithRequestValidation<CreateUnitRequest>().WithSummary("Creates a user unit");
-        group.MapPut("/{id:guid}", Update).WithoutHouseholdPermission(UserOwned).WithRequestValidation<UpdateUnitRequest>().WithSummary("Updates a user unit");
-        group.MapPost("/{id:guid}/archive", Archive).WithoutHouseholdPermission(UserOwned).WithSummary("Archives a user unit");
-        group.MapPost("/{id:guid}/restore", Restore).WithoutHouseholdPermission(UserOwned).WithSummary("Restores a user unit");
-        group.MapPut("/{id:guid}/households/{householdId:guid}", Share).RequireRouteHouseholdPermission(HouseholdPermissions.Units.Share).WithSummary("Shares a unit with a household");
-        group.MapDelete("/{id:guid}/households/{householdId:guid}", Unshare).RequireRouteHouseholdPermission(HouseholdPermissions.Units.Share).WithSummary("Removes a unit from a household");
-        group.MapDelete("/{id:guid}", Delete).WithoutHouseholdPermission(UserOwned).WithSummary("Deletes an unused user unit");
+        group.MapGet("", GetAll).WithoutSpacePermission(UserOwned).WithSummary("Gets units visible to the current user");
+        group.MapGet("/system", GetSystem).WithoutSpacePermission("System units are public reference data.").WithSummary("Gets supported system units");
+        group.MapGet("/page", GetPage).WithoutSpacePermission(UserOwned).WithSummary("Gets a page of units for settings");
+        group.MapPost("", Create).WithoutSpacePermission("Creates a unit owned by the current user; sharing it with spaces is checked in the handler (units:share).").WithRequestValidation<CreateUnitRequest>().WithSummary("Creates a user unit");
+        group.MapPut("/{id:guid}", Update).WithoutSpacePermission(UserOwned).WithRequestValidation<UpdateUnitRequest>().WithSummary("Updates a user unit");
+        group.MapPost("/{id:guid}/archive", Archive).WithoutSpacePermission(UserOwned).WithSummary("Archives a user unit");
+        group.MapPost("/{id:guid}/restore", Restore).WithoutSpacePermission(UserOwned).WithSummary("Restores a user unit");
+        group.MapPut("/{id:guid}/spaces/{spaceId:guid}", Share).RequireRouteSpacePermission(SpacePermissions.Units.Share).WithSummary("Shares a unit with a space");
+        group.MapDelete("/{id:guid}/spaces/{spaceId:guid}", Unshare).RequireRouteSpacePermission(SpacePermissions.Units.Share).WithSummary("Removes a unit from a space");
+        group.MapDelete("/{id:guid}", Delete).WithoutSpacePermission(UserOwned).WithSummary("Deletes an unused user unit");
         return builder;
     }
 
@@ -56,10 +56,10 @@ public sealed class UnitsEndpoints : IEndpointGroup
     }
 
     private static async Task<Results<Ok<UnitPageResponse>, ProblemHttpResult>> GetPage(
-        bool household, Guid? householdId, int page, int pageSize, string? search,
+        bool space, Guid? spaceId, int page, int pageSize, string? search,
         GetAllUnitsHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.GetPageAsync(household, householdId, page, pageSize, search, cancellationToken);
+        var result = await handler.GetPageAsync(space, spaceId, page, pageSize, search, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -90,15 +90,15 @@ public sealed class UnitsEndpoints : IEndpointGroup
     private static Task<Results<NoContent, ProblemHttpResult>> Restore(Guid id, ManageUnitHandler handler, CancellationToken cancellationToken) =>
         Manage(id, handler, static (service, unitId, token) => service.ArchiveAsync(unitId, false, token), cancellationToken);
 
-    private static async Task<Results<NoContent, ProblemHttpResult>> Share(Guid id, Guid householdId, ManageUnitHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<NoContent, ProblemHttpResult>> Share(Guid id, Guid spaceId, ManageUnitHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.ShareAsync(id, householdId, cancellationToken);
+        var result = await handler.ShareAsync(id, spaceId, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 
-    private static async Task<Results<NoContent, ProblemHttpResult>> Unshare(Guid id, Guid householdId, ManageUnitHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<NoContent, ProblemHttpResult>> Unshare(Guid id, Guid spaceId, ManageUnitHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.UnshareAsync(id, householdId, cancellationToken);
+        var result = await handler.UnshareAsync(id, spaceId, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 

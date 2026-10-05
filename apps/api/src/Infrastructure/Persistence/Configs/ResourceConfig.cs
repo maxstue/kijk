@@ -25,19 +25,19 @@ public class ResourceConfig : IEntityTypeConfiguration<Resource>
             .HasComputedColumnSql("lower(btrim(name))", stored: true);
         builder.HasIndex("NormalizedName", "UnitId")
             .IsUnique()
-            .HasFilter("household_id IS NULL");
-        builder.HasIndex("HouseholdId", "NormalizedName", "UnitId")
+            .HasFilter("space_id IS NULL");
+        builder.HasIndex("SpaceId", "NormalizedName", "UnitId")
             .IsUnique()
-            .HasFilter("household_id IS NOT NULL");
+            .HasFilter("space_id IS NOT NULL");
 
         builder.HasOne(x => x.Unit)
             .WithMany()
             .HasForeignKey(x => x.UnitId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany(x => x.Resources)
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

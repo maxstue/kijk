@@ -22,7 +22,7 @@ public static partial class TransactionSanitizer
     /// <param name="counterparty">The counterparty from the bank export.</param>
     /// <param name="purpose">The cleaned purpose.</param>
     /// <param name="isMerchantPayment">Whether the booking is a card payment or direct debit.</param>
-    /// <param name="memberNames">The display names of the household members.</param>
+    /// <param name="memberNames">The display names of the space members.</param>
     /// <returns>The text to send, or <see langword="null" /> when nothing useful remains.</returns>
     public static SanitizedTransaction? Sanitize(
         string? counterparty,
@@ -49,13 +49,13 @@ public static partial class TransactionSanitizer
     }
 
     /// <summary>
-    /// Replaces the names of private persons and household members by <see cref="Person" />. The counterparty of a
+    /// Replaces the names of private persons and space members by <see cref="Person" />. The counterparty of a
     /// transfer counts as a private person unless it looks like a company; its name is replaced in the purpose too.
     /// </summary>
     /// <param name="counterparty">The counterparty.</param>
     /// <param name="purpose">The purpose.</param>
     /// <param name="isMerchantPayment">Whether the booking is a card payment or direct debit.</param>
-    /// <param name="memberNames">The display names of the household members.</param>
+    /// <param name="memberNames">The display names of the space members.</param>
     /// <returns>Counterparty and purpose without names; empty texts become <see langword="null" />.</returns>
     public static (string? Counterparty, string? Purpose) ReplacePersons(
         string? counterparty,

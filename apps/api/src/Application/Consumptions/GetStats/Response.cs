@@ -1,6 +1,6 @@
 namespace Kijk.Application.Consumptions.GetStats;
 
-/// <summary>Consumption statistics of the active household.</summary>
+/// <summary>Consumption statistics of the active space.</summary>
 /// <param name="Stats">One entry per resource.</param>
 public record GetStatsConsumptionsResponseWrapper(IList<ConsumptionStatsResponse> Stats);
 

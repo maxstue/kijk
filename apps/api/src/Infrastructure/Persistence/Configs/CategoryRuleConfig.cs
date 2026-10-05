@@ -11,7 +11,7 @@ public class CategoryRuleConfig : IEntityTypeConfiguration<CategoryRule>
     public void Configure(EntityTypeBuilder<CategoryRule> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.HouseholdId, x.Scope, x.Key }).IsUnique();
+        builder.HasIndex(x => new { x.SpaceId, x.Scope, x.Key }).IsUnique();
         builder.Property(x => x.Key).HasMaxLength(200);
         builder.Property(x => x.Label).HasMaxLength(200);
 
@@ -28,9 +28,9 @@ public class CategoryRuleConfig : IEntityTypeConfiguration<CategoryRule>
             .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany(x => x.CategoryRules)
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

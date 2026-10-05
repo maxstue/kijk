@@ -71,7 +71,7 @@ public sealed class ImportJobProcessor(
 
             var fingerprint = HeaderFingerprint.Compute(table.Records[headerIndex].Fields, delimiter.ToString(), encoding);
             var profile = await dbContext.ImportProfiles
-                .Where(item => item.HouseholdId == job.HouseholdId && item.HeaderFingerprint == fingerprint)
+                .Where(item => item.SpaceId == job.SpaceId && item.HeaderFingerprint == fingerprint)
                 .OrderByDescending(item => item.Version)
                 .FirstOrDefaultAsync(cancellationToken);
             var profileMapping = ImportMapper.Deserialize(profile?.Mapping);
@@ -85,7 +85,7 @@ public sealed class ImportJobProcessor(
             }
 
             // Only formats without a confirmed profile reach the AI, and it only sees masked patterns.
-            var detection = await formatDetector.DetectAsync(job.HouseholdId, job.CreatedById, table, delimiter, encoding, headerIndex, cancellationToken);
+            var detection = await formatDetector.DetectAsync(job.SpaceId, job.CreatedById, table, delimiter, encoding, headerIndex, cancellationToken);
             if (detection.Mapping is { } detected)
             {
                 job.ProposeMapping(ImportMapper.Serialize(detected), MappingSource.Ai);
@@ -154,13 +154,13 @@ public sealed class ImportJobProcessor(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var corrections = await LoadManualCorrectionsAsync(job, cancellationToken);
-        var rules = await LoadRulesAsync(job.HouseholdId, cancellationToken);
-        var minimizeData = await dbContext.Households
-            .Where(item => item.Id == job.HouseholdId)
+        var rules = await LoadRulesAsync(job.SpaceId, cancellationToken);
+        var minimizeData = await dbContext.Spaces
+            .Where(item => item.Id == job.SpaceId)
             .Select(item => item.MinimizeData)
             .FirstAsync(cancellationToken);
-        var memberNames = minimizeData ? await AiContexts.LoadMemberNamesAsync(dbContext, job.HouseholdId, cancellationToken) : [];
-        var keys = new ImportKeyBuilder(pseudonymizer, job.HouseholdId, job.AccountId);
+        var memberNames = minimizeData ? await AiContexts.LoadMemberNamesAsync(dbContext, job.SpaceId, cancellationToken) : [];
+        var keys = new ImportKeyBuilder(pseudonymizer, job.SpaceId, job.AccountId);
         var dates = new List<DateTime>();
         var errorCount = 0;
 
@@ -211,10 +211,10 @@ public sealed class ImportJobProcessor(
         {
             var count = 0;
             var unavailable = false;
-            // The worker checks everything again: permission, the household's level and the AI gate.
+            // The worker checks everything again: permission, the space's level and the AI gate.
             var allowed = job.AiDataSharing == AiDataSharing.Strict
-                          && await dbContext.AuthorizeHouseholdAsync(job.CreatedById, job.HouseholdId, HouseholdPermissions.Finances.Import, cancellationToken) is null
-                          && await aiGate.CanUseAiAsync(job.HouseholdId, job.CreatedById, cancellationToken);
+                          && await dbContext.AuthorizeSpaceAsync(job.CreatedById, job.SpaceId, SpacePermissions.Finances.Import, cancellationToken) is null
+                          && await aiGate.CanUseAiAsync(job.SpaceId, job.CreatedById, cancellationToken);
             if (allowed)
             {
                 (count, unavailable) = await CategorizeCandidatesAsync(job, cancellationToken);
@@ -248,9 +248,9 @@ public sealed class ImportJobProcessor(
             return (0, false);
         }
 
-        var memberNames = await AiContexts.LoadMemberNamesAsync(dbContext, job.HouseholdId, cancellationToken);
+        var memberNames = await AiContexts.LoadMemberNamesAsync(dbContext, job.SpaceId, cancellationToken);
         var categories = await dbContext.Categories
-            .Where(item => item.CreatorType == CreatorType.System || item.HouseholdId == job.HouseholdId)
+            .Where(item => item.CreatorType == CreatorType.System || item.SpaceId == job.SpaceId)
             .OrderBy(item => item.Name)
             .Select(item => new CategoryOption(item.Id, item.Name, item.Kind))
             .ToListAsync(cancellationToken);
@@ -258,7 +258,7 @@ public sealed class ImportJobProcessor(
         // Identical sanitized contexts are asked only once; the answer applies to every matching row.
         var (contexts, _) = AiContexts.Build(candidates, memberNames);
         var result = await categorizer.CategorizeAsync(
-            job.HouseholdId,
+            job.SpaceId,
             job.CreatedById,
             [.. contexts.Select(context => context.Item)],
             categories,
@@ -298,7 +298,7 @@ public sealed class ImportJobProcessor(
         var isCardSettlement = CardSettlementDetector.IsSettlement(row.Amount!.Value, counterparty, purpose);
         if (minimizeWithMemberNames is not null)
         {
-            // Data-minimizing households keep neither names of private persons nor the key of the counterparty IBAN.
+            // Data-minimizing spaces keep neither names of private persons nor the key of the counterparty IBAN.
             (counterparty, purpose) = TransactionSanitizer.ReplacePersons(counterparty, purpose, row.IsMerchantPayment, minimizeWithMemberNames);
             counterpartyKey = null;
         }
@@ -329,7 +329,7 @@ public sealed class ImportJobProcessor(
     private async Task<Dictionary<string, Guid>> LoadManualCorrectionsAsync(ImportJob job, CancellationToken cancellationToken)
     {
         var corrections = await dbContext.Transactions
-            .Where(item => item.HouseholdId == job.HouseholdId
+            .Where(item => item.SpaceId == job.SpaceId
                            && item.AccountId == job.AccountId
                            && item.CategorySource == CategorySource.Manual
                            && item.BookingKey != null
@@ -340,10 +340,10 @@ public sealed class ImportJobProcessor(
         return corrections.GroupBy(item => item.BookingKey).ToDictionary(group => group.Key, group => group.First().CategoryId);
     }
 
-    private async Task<RuleSet> LoadRulesAsync(Guid householdId, CancellationToken cancellationToken)
+    private async Task<RuleSet> LoadRulesAsync(Guid spaceId, CancellationToken cancellationToken)
     {
         var rules = await dbContext.CategoryRules
-            .Where(item => item.HouseholdId == householdId)
+            .Where(item => item.SpaceId == spaceId)
             .OrderBy(item => item.Priority)
             .ThenBy(item => item.CreatedAt)
             .Select(item => new { item.Scope, item.Key, item.CategoryId })

@@ -7,7 +7,7 @@ using Kijk.Shared;
 namespace Kijk.Application.Accounts.Delete;
 
 /// <summary>
-/// Deletes unused accounts of the active household.
+/// Deletes unused accounts of the active space.
 /// </summary>
 public sealed class DeleteAccountHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
@@ -17,14 +17,14 @@ public sealed class DeleteAccountHandler(IAppDbContext dbContext, CurrentUser cu
     /// <returns><see langword="true" />, or a not-found or conflict error.</returns>
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var account = await dbContext.GetHouseholdAccounts(currentUser)
+        var account = await dbContext.GetSpaceAccounts(currentUser)
             .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
         if (account is null)
         {
             return Error.NotFound("Account could not be found");
         }
 
-        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, account.Visibility == Visibility.Shared, HouseholdPermissions.Finances.Configure, cancellationToken) is { } error)
+        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, account.Visibility == Visibility.Shared, SpacePermissions.Finances.Configure, cancellationToken) is { } error)
         {
             return error;
         }

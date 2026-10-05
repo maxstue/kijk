@@ -116,7 +116,7 @@ public class CsvFormatDetectionTests
 
     private sealed class Gate(bool allowed) : IAiGate
     {
-        public Task<bool> CanUseAiAsync(Guid householdId, Guid userId, CancellationToken cancellationToken) => Task.FromResult(allowed);
+        public Task<bool> CanUseAiAsync(Guid spaceId, Guid userId, CancellationToken cancellationToken) => Task.FromResult(allowed);
     }
 
     /// <summary>Answers with a fixed text, or throws when the text is null.</summary>

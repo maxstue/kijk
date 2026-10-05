@@ -21,9 +21,9 @@ public sealed class ImportProfile : BaseEntity
     /// <summary>Gets when the mapping was confirmed (UTC).</summary>
     public required DateTime ConfirmedAt { get; init; }
 
-    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
-    public Guid HouseholdId { get; set; }
+    /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
+    public Guid SpaceId { get; set; }
 
-    /// <summary>Gets or sets the household the profile belongs to.</summary>
-    public Household? Household { get; set; }
+    /// <summary>Gets or sets the space the profile belongs to.</summary>
+    public Space? Space { get; set; }
 }

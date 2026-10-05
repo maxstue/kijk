@@ -12,12 +12,12 @@ public class AccountConfig : IEntityTypeConfiguration<Account>
     public void Configure(EntityTypeBuilder<Account> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => x.HouseholdId);
+        builder.HasIndex(x => x.SpaceId);
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.IbanLast4).HasMaxLength(4);
-        // Every household has exactly one cash account.
-        builder.HasIndex(x => x.HouseholdId, "ix_accounts_household_id_cash")
-            .HasDatabaseName("ix_accounts_household_id_cash")
+        // Every space has exactly one cash account.
+        builder.HasIndex(x => x.SpaceId, "ix_accounts_space_id_cash")
+            .HasDatabaseName("ix_accounts_space_id_cash")
             .HasFilter($"kind = {(int)AccountKind.Cash}")
             .IsUnique();
 
@@ -35,9 +35,9 @@ public class AccountConfig : IEntityTypeConfiguration<Account>
             .HasForeignKey(x => x.OwnerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany(x => x.Accounts)
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

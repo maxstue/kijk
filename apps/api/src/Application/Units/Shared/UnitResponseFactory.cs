@@ -9,12 +9,12 @@ namespace Kijk.Application.Units.Shared;
 public static class UnitResponseFactory
 {
     /// <summary>Creates the response for a unit as seen by the current user.</summary>
-    /// <param name="unit">The unit with its household shares loaded.</param>
+    /// <param name="unit">The unit with its space shares loaded.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="resourceCount">The number of resources using the unit.</param>
-    /// <param name="householdId">The household context; defaults to the active household.</param>
+    /// <param name="spaceId">The space context; defaults to the active space.</param>
     /// <returns>The response.</returns>
-    public static UnitResponse Create(Unit unit, CurrentUser currentUser, int resourceCount, Guid? householdId = null) => new(
+    public static UnitResponse Create(Unit unit, CurrentUser currentUser, int resourceCount, Guid? spaceId = null) => new(
         unit.Id,
         unit.Name,
         unit.Symbol,
@@ -26,8 +26,8 @@ public static class UnitResponseFactory
         unit.ConversionFactor,
         unit.OwnerUserId,
         unit.OwnerUserId == currentUser.Id,
-        unit.CreatorType == CreatorType.System || unit.Households.Any(link => link.HouseholdId == (householdId ?? currentUser.ActiveHouseholdId)),
+        unit.CreatorType == CreatorType.System || unit.Spaces.Any(link => link.SpaceId == (spaceId ?? currentUser.ActiveSpaceId)),
         unit.ArchivedAt.HasValue,
         resourceCount,
-        unit.Households.Select(link => link.HouseholdId).ToList());
+        unit.Spaces.Select(link => link.SpaceId).ToList());
 }

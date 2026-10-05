@@ -33,20 +33,20 @@ public static class AiContexts
                            && item.CategoryId == null)
             .OrderBy(item => item.RowNumber);
 
-    /// <summary>Loads the display names of the household members, which are never sent.</summary>
+    /// <summary>Loads the display names of the space members, which are never sent.</summary>
     /// <param name="dbContext">The database context.</param>
-    /// <param name="householdId">The household.</param>
+    /// <param name="spaceId">The space.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The names.</returns>
-    public static Task<List<string>> LoadMemberNamesAsync(IAppDbContext dbContext, Guid householdId, CancellationToken cancellationToken) =>
-        dbContext.UserHouseholds
-            .Where(link => link.HouseholdId == householdId)
+    public static Task<List<string>> LoadMemberNamesAsync(IAppDbContext dbContext, Guid spaceId, CancellationToken cancellationToken) =>
+        dbContext.UserSpaces
+            .Where(link => link.SpaceId == spaceId)
             .Select(link => link.User.Name)
             .ToListAsync(cancellationToken);
 
     /// <summary>Groups rows by their sanitized text. Rows with nothing left to send are returned as withheld.</summary>
     /// <param name="candidates">The eligible rows.</param>
-    /// <param name="memberNames">The household members' names.</param>
+    /// <param name="memberNames">The space members' names.</param>
     /// <returns>The distinct texts and the number of withheld rows.</returns>
     public static (List<AiContext> Contexts, int Withheld) Build(IEnumerable<ImportCandidate> candidates, IReadOnlyCollection<string> memberNames)
     {

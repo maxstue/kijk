@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Kijk.Application.Limits.Create;
 
 /// <summary>
-/// Creates consumption limits for the active household.
+/// Creates consumption limits for the active space.
 /// </summary>
 public sealed class CreateLimitHandler(
     IAppDbContext dbContext,
@@ -16,19 +16,19 @@ public sealed class CreateLimitHandler(
     TimeProvider timeProvider,
     ILogger<CreateLimitHandler> logger) : IHandler
 {
-    /// <summary>Creates a consumption limit for the active household.</summary>
+    /// <summary>Creates a consumption limit for the active space.</summary>
     /// <param name="request">The limit data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The created limit with its current evaluation.</returns>
     public async Task<Result<LimitResponse>> CreateAsync(CreateLimitRequest request, CancellationToken cancellationToken)
     {
-        var household = await dbContext.Households
-            .FirstOrDefaultAsync(item => item.Id == currentUser.ActiveHouseholdId, cancellationToken);
+        var space = await dbContext.Spaces
+            .FirstOrDefaultAsync(item => item.Id == currentUser.ActiveSpaceId, cancellationToken);
         var user = await dbContext.Users.FirstOrDefaultAsync(item => item.Id == currentUser.Id, cancellationToken);
-        if (household is null || user is null)
+        if (space is null || user is null)
         {
-            logger.LogWarning("Active household or user could not be resolved for user {UserId}", currentUser.Id);
-            return Error.NotFound("Active household could not be found");
+            logger.LogWarning("Active space or user could not be resolved for user {UserId}", currentUser.Id);
+            return Error.NotFound("Active space could not be found");
         }
 
         var resource = await dbContext.GetUserAvailableResources(currentUser)
@@ -36,11 +36,11 @@ public sealed class CreateLimitHandler(
             .FirstOrDefaultAsync(item => item.Id == request.ResourceId, cancellationToken);
         if (resource is null)
         {
-            return Error.NotFound("Resource is not available in the active household");
+            return Error.NotFound("Resource is not available in the active space");
         }
 
         var exists = await dbContext.Limits.AnyAsync(
-            item => item.HouseholdId == household.Id && item.ResourceId == resource.Id && item.Period == request.Period,
+            item => item.SpaceId == space.Id && item.ResourceId == resource.Id && item.Period == request.Period,
             cancellationToken);
         if (exists)
         {
@@ -55,11 +55,11 @@ public sealed class CreateLimitHandler(
                 request.Limit,
                 request.Period,
                 request.Active),
-            resource, user, household);
+            resource, user, space);
 
         var (start, end) = LimitEvaluation.GetPeriodRange(limit.Period, utcNow);
         var consumptions = await dbContext.Consumptions
-            .Where(item => item.HouseholdId == household.Id
+            .Where(item => item.SpaceId == space.Id
                            && item.ResourceId == resource.Id
                            && item.Date >= start
                            && item.Date < end)
@@ -78,7 +78,7 @@ public sealed class CreateLimitHandler(
             var duplicateExists = await dbContext.Limits
                 .AsNoTracking()
                 .AnyAsync(
-                    item => item.HouseholdId == household.Id
+                    item => item.SpaceId == space.Id
                             && item.ResourceId == resource.Id
                             && item.Period == request.Period,
                     cancellationToken);

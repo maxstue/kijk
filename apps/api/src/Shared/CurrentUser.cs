@@ -32,26 +32,26 @@ public class CurrentUser
     /// <summary>Gets the email address from the token, if present.</summary>
     public string? Email => Principal?.FindFirstValue(ClaimTypes.Email);
 
-    /// <summary>Gets the active household id, or <see langword="null" /> without an active household.</summary>
-    public Guid? ActiveHouseholdId => User?.HouseholdId;
+    /// <summary>Gets the active space id, or <see langword="null" /> without an active space.</summary>
+    public Guid? ActiveSpaceId => User?.SpaceId;
 
     /// <summary>
-    /// Gets the user's role in the active household, or <see langword="null"/> when there is no active household.
+    /// Gets the user's role in the active space, or <see langword="null"/> when there is no active space.
     /// </summary>
-    public string? HouseholdRole => User?.HouseholdRole;
+    public string? SpaceRole => User?.SpaceRole;
 
     /// <summary>
-    /// Gets the permissions the user's role grants in the active household.
+    /// Gets the permissions the user's role grants in the active space.
     /// </summary>
-    public IReadOnlyCollection<string> HouseholdPermissions => User?.HouseholdPermissions ?? [];
+    public IReadOnlyCollection<string> SpacePermissions => User?.SpacePermissions ?? [];
 
     /// <summary>
-    /// Determines whether the user's role grants the given permission in the active household.
+    /// Determines whether the user's role grants the given permission in the active space.
     /// </summary>
     /// <param name="permission">The permission name.</param>
     /// <returns><see langword="true"/> when the permission is granted.</returns>
-    public bool HasHouseholdPermission(string permission) =>
-        HouseholdPermissions.Contains(permission, StringComparer.Ordinal);
+    public bool HasSpacePermission(string permission) =>
+        SpacePermissions.Contains(permission, StringComparer.Ordinal);
 }
 
 /// <summary>
@@ -59,19 +59,19 @@ public class CurrentUser
 /// </summary>
 /// <param name="Id">The Kijk user id.</param>
 /// <param name="AuthId">The authentication provider's user id.</param>
-/// <param name="HouseholdId">The active household id.</param>
+/// <param name="SpaceId">The active space id.</param>
 /// <param name="Name">The display name.</param>
 /// <param name="Email">The email address.</param>
 /// <param name="OnboardingCompleted">Whether onboarding is completed.</param>
-public record SimpleAuthUser(Guid Id, string AuthId, Guid? HouseholdId, string Name, string? Email, bool OnboardingCompleted)
+public record SimpleAuthUser(Guid Id, string AuthId, Guid? SpaceId, string Name, string? Email, bool OnboardingCompleted)
 {
     /// <summary>
-    /// Gets the user's role name in the active household.
+    /// Gets the user's role name in the active space.
     /// </summary>
-    public string? HouseholdRole { get; init; }
+    public string? SpaceRole { get; init; }
 
     /// <summary>
-    /// Gets the permissions the user's role grants in the active household.
+    /// Gets the permissions the user's role grants in the active space.
     /// </summary>
-    public IReadOnlyCollection<string> HouseholdPermissions { get; init; } = [];
+    public IReadOnlyCollection<string> SpacePermissions { get; init; } = [];
 }

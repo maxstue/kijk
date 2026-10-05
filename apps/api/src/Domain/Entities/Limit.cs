@@ -3,7 +3,7 @@ using Kijk.Shared;
 namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// Represents a limit that should not be exceeded per household for a specific resource and period.
+/// Represents a limit that should not be exceeded per space for a specific resource and period.
 /// </summary>
 public sealed class Limit : BaseEntity
 {
@@ -58,21 +58,21 @@ public sealed class Limit : BaseEntity
     /// </summary>
     public required User CreatedBy { get; set; }
 
-    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
-    public Guid HouseholdId { get; set; }
+    /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
+    public Guid SpaceId { get; set; }
     /// <summary>
-    /// The household that the limit is for.
+    /// The space that the limit is for.
     /// </summary>
-    public required Household Household { get; set; }
+    public required Space Space { get; set; }
 
     /// <summary>
-    /// Creates a consumption limit for a household resource.
+    /// Creates a consumption limit for a space resource.
     /// </summary>
     public static Limit Create(
         LimitSettings settings,
         Resource resource,
         User createdBy,
-        Household household) =>
+        Space space) =>
         new()
         {
             Name = settings.Name,
@@ -82,7 +82,7 @@ public sealed class Limit : BaseEntity
             Active = settings.Active,
             Resource = resource,
             CreatedBy = createdBy,
-            Household = household
+            Space = space
         };
 
     /// <summary>

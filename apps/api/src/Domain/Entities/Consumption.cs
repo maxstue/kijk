@@ -60,17 +60,17 @@ public sealed class Consumption : BaseEntity
     /// </summary>
     public required DateTime Date { get; set; }
 
-    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
-    public Guid HouseholdId { get; set; }
+    /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
+    public Guid SpaceId { get; set; }
     /// <summary>
-    /// The household that the consumption is for.
+    /// The space that the consumption is for.
     /// </summary>
-    public required Household Household { get; set; }
+    public required Space Space { get; set; }
 
     /// <summary>Creates a consumption; the date is normalized to the UTC calendar day.</summary>
     /// <param name="name">The display name.</param>
     /// <param name="type">The consumed resource.</param>
-    /// <param name="household">The owning household.</param>
+    /// <param name="space">The owning space.</param>
     /// <param name="date">The consumption date.</param>
     /// <param name="reading">The entered value and how it is interpreted.</param>
     /// <param name="description">An optional description.</param>
@@ -78,7 +78,7 @@ public sealed class Consumption : BaseEntity
     public static Consumption Create(
         string name,
         Resource type,
-        Household household,
+        Space space,
         DateTime date,
         ConsumptionReading reading,
         string? description = null) =>
@@ -92,6 +92,6 @@ public sealed class Consumption : BaseEntity
             StartsNewMeterSegment = reading.StartsNewMeterSegment,
             CalculatedConsumption = reading.CalculatedConsumption,
             Date = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc),
-            Household = household
+            Space = space
         };
 }

@@ -8,13 +8,13 @@ using Kijk.Shared;
 namespace Kijk.Application.Units.Create;
 
 /// <summary>
-/// Creates user-owned units and optional household shares.
+/// Creates user-owned units and optional space shares.
 /// </summary>
 public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
     /// <summary>
-    /// Creates a unit owned by the current user and optionally shares it with households; sharing requires the
-    /// units:share permission in each household.
+    /// Creates a unit owned by the current user and optionally shares it with spaces; sharing requires the
+    /// units:share permission in each space.
     /// </summary>
     /// <param name="request">The unit data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -42,10 +42,10 @@ public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser curre
         }
 
         // Sharing while creating needs the same permission as the dedicated share endpoint.
-        var householdIds = (request.ShareWithHouseholdIds ?? []).Distinct().ToList();
-        foreach (var householdId in householdIds)
+        var spaceIds = (request.ShareWithSpaceIds ?? []).Distinct().ToList();
+        foreach (var spaceId in spaceIds)
         {
-            if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, householdId, HouseholdPermissions.Units.Share, cancellationToken) is { } error)
+            if (await dbContext.AuthorizeSpaceAsync(currentUser.Id, spaceId, SpacePermissions.Units.Share, cancellationToken) is { } error)
             {
                 return error;
             }
@@ -63,13 +63,13 @@ public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser curre
             OwnerUserId = currentUser.Id
         };
         var now = timeProvider.GetUtcNow().UtcDateTime;
-        foreach (var householdId in householdIds)
+        foreach (var spaceId in spaceIds)
         {
-            unit.Households.Add(new UnitHousehold
+            unit.Spaces.Add(new UnitSpace
             {
                 Unit = unit,
-                HouseholdId = householdId,
-                Household = null!,
+                SpaceId = spaceId,
+                Space = null!,
                 SharedByUserId = currentUser.Id,
                 SharedByUser = null!,
                 SharedAt = now

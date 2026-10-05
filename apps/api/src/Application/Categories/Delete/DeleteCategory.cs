@@ -5,7 +5,7 @@ using Kijk.Shared;
 namespace Kijk.Application.Categories.Delete;
 
 /// <summary>
-/// Deletes unused custom categories of the active household.
+/// Deletes unused custom categories of the active space.
 /// </summary>
 public sealed class DeleteCategoryHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {

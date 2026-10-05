@@ -8,7 +8,7 @@ namespace Kijk.Domain.Services;
 /// </summary>
 public static partial class PurposeScrubber
 {
-    /// <summary>The number of characters kept when a household truncates purposes.</summary>
+    /// <summary>The number of characters kept when a space truncates purposes.</summary>
     public const int TruncatedLength = 40;
 
     /// <summary>Removes identifiers from a purpose text.</summary>
@@ -29,9 +29,9 @@ public static partial class PurposeScrubber
         return result.Length == 0 ? null : result;
     }
 
-    /// <summary>Applies a household's retention to a cleaned purpose.</summary>
+    /// <summary>Applies a space's retention to a cleaned purpose.</summary>
     /// <param name="purpose">The cleaned purpose.</param>
-    /// <param name="retention">The household's retention.</param>
+    /// <param name="retention">The space's retention.</param>
     /// <returns>The purpose to store.</returns>
     public static string? ApplyRetention(string? purpose, Shared.PurposeRetention retention) => retention switch
     {

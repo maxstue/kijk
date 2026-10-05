@@ -3,7 +3,7 @@ using Kijk.Shared;
 namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// Groups transactions for budgets and statistics. System categories are global, custom categories belong to a household.
+/// Groups transactions for budgets and statistics. System categories are global, custom categories belong to a space.
 /// </summary>
 public sealed class Category : BaseEntity
 {
@@ -25,20 +25,20 @@ public sealed class Category : BaseEntity
     /// <summary>Gets or sets who created the category.</summary>
     public required CreatorType CreatorType { get; set; }
 
-    /// <summary>Gets or sets the household that owns a custom category. System categories have no household.</summary>
-    public Guid? HouseholdId { get; set; }
+    /// <summary>Gets or sets the space that owns a custom category. System categories have no space.</summary>
+    public Guid? SpaceId { get; set; }
 
-    /// <summary>Gets or sets the household that owns a custom category.</summary>
-    public Household? Household { get; set; }
+    /// <summary>Gets or sets the space that owns a custom category.</summary>
+    public Space? Space { get; set; }
 
-    /// <summary>Creates a custom category for a household.</summary>
+    /// <summary>Creates a custom category for a space.</summary>
     /// <param name="name">The display name.</param>
     /// <param name="icon">The Lucide icon name.</param>
     /// <param name="color">The hex color.</param>
     /// <param name="kind">Whether the category groups expenses or income.</param>
-    /// <param name="household">The owning household.</param>
+    /// <param name="space">The owning space.</param>
     /// <returns>The new category.</returns>
-    public static Category Create(string name, string icon, string color, CategoryKind kind, Household household) =>
+    public static Category Create(string name, string icon, string color, CategoryKind kind, Space space) =>
         new()
         {
             Name = name,
@@ -46,7 +46,7 @@ public sealed class Category : BaseEntity
             Color = color,
             Kind = kind,
             CreatorType = CreatorType.User,
-            Household = household
+            Space = space
         };
 
     /// <summary>Updates the editable properties of the category.</summary>

@@ -15,7 +15,7 @@ namespace Kijk.Application.Imports.Detection;
 public interface ICsvFormatDetector
 {
     /// <summary>Detects the column mapping of a file.</summary>
-    /// <param name="householdId">The household the file belongs to.</param>
+    /// <param name="spaceId">The space the file belongs to.</param>
     /// <param name="userId">The user that uploaded the file.</param>
     /// <param name="table">All records of the file.</param>
     /// <param name="delimiter">The detected delimiter.</param>
@@ -24,7 +24,7 @@ public interface ICsvFormatDetector
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The outcome with a validated mapping, if any.</returns>
     Task<CsvFormatDetectionResult> DetectAsync(
-        Guid householdId,
+        Guid spaceId,
         Guid userId,
         CsvTable table,
         char delimiter,
@@ -38,7 +38,7 @@ public enum CsvFormatDetectionOutcome
 {
     /// <summary>The AI returned a mapping that parses the first rows.</summary>
     Detected,
-    /// <summary>AI is not allowed for the household or not configured.</summary>
+    /// <summary>AI is not allowed for the space or not configured.</summary>
     NotAllowed,
     /// <summary>The AI could not be reached in time.</summary>
     Unavailable,
@@ -112,7 +112,7 @@ public sealed class AiCsvFormatDetector(IChatClient chatClient, IAiGate aiGate, 
 
     /// <inheritdoc />
     public async Task<CsvFormatDetectionResult> DetectAsync(
-        Guid householdId,
+        Guid spaceId,
         Guid userId,
         CsvTable table,
         char delimiter,
@@ -120,7 +120,7 @@ public sealed class AiCsvFormatDetector(IChatClient chatClient, IAiGate aiGate, 
         int headerRowIndex,
         CancellationToken cancellationToken)
     {
-        if (!await aiGate.CanUseAiAsync(householdId, userId, cancellationToken))
+        if (!await aiGate.CanUseAiAsync(spaceId, userId, cancellationToken))
         {
             return new CsvFormatDetectionResult(CsvFormatDetectionOutcome.NotAllowed);
         }

@@ -31,7 +31,7 @@ internal static class PostgreSqlTestDatabase
         await using var connection = new NpgsqlConnection(Container.GetConnectionString());
         await connection.OpenAsync();
 
-        // Respawn truncates with CASCADE, which also empties system rows referenced by user or household data. Keep a
+        // Respawn truncates with CASCADE, which also empties system rows referenced by user or space data. Keep a
         // copy of the seeded system units and categories outside the reset schema and restore them after every reset.
         await ExecuteAsync(connection, "CREATE SCHEMA test_seed");
         _restoreSystemRowsSql = string.Join(
@@ -43,7 +43,7 @@ internal static class PostgreSqlTestDatabase
         {
             DbAdapter = DbAdapter.Postgres,
             SchemasToInclude = ["public"],
-            // Household roles and permissions are reference data seeded by migrations.
+            // Space roles and permissions are reference data seeded by migrations.
             TablesToIgnore = ["__EFMigrationsHistory", "roles", "permissions", "roles_permissions", "data_protection_keys"]
         });
         _started = true;

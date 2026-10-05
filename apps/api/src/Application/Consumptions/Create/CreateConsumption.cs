@@ -15,20 +15,20 @@ namespace Kijk.Application.Consumptions.Create;
 /// </summary>
 public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<CreateConsumptionHandler> logger) : IHandler
 {
-    /// <summary>Records a consumption in the active household and recalculates later meter readings.</summary>
+    /// <summary>Records a consumption in the active space and recalculates later meter readings.</summary>
     /// <param name="request">The consumption data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The created consumption.</returns>
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest request, CancellationToken cancellationToken)
     {
-        // Load household without including the Consumptions navigation to avoid materializing it as a fixed-size array during fixup
-        var household = await dbContext.Households
-            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
+        // Load space without including the Consumptions navigation to avoid materializing it as a fixed-size array during fixup
+        var space = await dbContext.Spaces
+            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveSpaceId, cancellationToken);
 
-        if (household is null)
+        if (space is null)
         {
-            logger.LogWarning("Household with id {HouseholdId} not found", currentUser.ActiveHouseholdId);
-            return Error.NotFound("Household not found");
+            logger.LogWarning("Space with id {SpaceId} not found", currentUser.ActiveSpaceId);
+            return Error.NotFound("Space not found");
         }
 
         var resource = await dbContext
@@ -39,13 +39,13 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         {
             logger.LogWarning("Resource with id '{ResourceId}' is not available to user '{UserId}'", request.ResourceId,
                 currentUser.Id);
-            return Error.NotFound("Resource is not available in the active household");
+            return Error.NotFound("Resource is not available in the active space");
         }
 
         var consumption = Consumption.Create(
             request.Name,
             resource,
-            household,
+            space,
             request.Date,
             new ConsumptionReading(
                 request.Value,
@@ -54,7 +54,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
                 request.StartsNewMeterSegment));
 
         var existingConsumptions = await dbContext.Consumptions
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId
                            && item.ResourceId == request.ResourceId)
             .ToListAsync(cancellationToken);
         var before = LimitOccurrence.Capture(existingConsumptions);
@@ -73,7 +73,7 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         dbContext.Consumptions.Add(consumption);
         await LimitOccurrence.RecordAsync(
             dbContext,
-            household.Id,
+            space.Id,
             before,
             existingConsumptions.Append(consumption).ToList(),
             timeProvider.GetUtcNow().UtcDateTime,

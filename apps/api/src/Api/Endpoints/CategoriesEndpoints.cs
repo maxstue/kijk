@@ -24,10 +24,10 @@ public sealed class CategoriesEndpoints : IEndpointGroup
             .WithTags("Categories")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the categories available to the active household");
-        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Configure).WithRequestValidation<CreateCategoryRequest>().WithSummary("Creates a custom category");
-        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Configure).WithRequestValidation<UpdateCategoryRequest>().WithSummary("Updates a custom category");
-        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Configure).WithSummary("Deletes an unused custom category");
+        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the categories available to the active space");
+        group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Finances.Configure).WithRequestValidation<CreateCategoryRequest>().WithSummary("Creates a custom category");
+        group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Finances.Configure).WithRequestValidation<UpdateCategoryRequest>().WithSummary("Updates a custom category");
+        group.MapDelete("/{id:guid}", Delete).RequireSpacePermission(SpacePermissions.Finances.Configure).WithSummary("Deletes an unused custom category");
 
         return builder;
     }

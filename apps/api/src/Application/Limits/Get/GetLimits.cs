@@ -5,11 +5,11 @@ using Kijk.Shared;
 namespace Kijk.Application.Limits.Get;
 
 /// <summary>
-/// Retrieves and evaluates consumption limits for the active household.
+/// Retrieves and evaluates consumption limits for the active space.
 /// </summary>
 public sealed class GetLimitsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
-    /// <summary>Gets all limits of the active household with their current evaluation.</summary>
+    /// <summary>Gets all limits of the active space with their current evaluation.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The limits.</returns>
     public async Task<Result<List<LimitResponse>>> GetAllAsync(CancellationToken cancellationToken)
@@ -17,7 +17,7 @@ public sealed class GetLimitsHandler(IAppDbContext dbContext, CurrentUser curren
         var limits = await dbContext.Limits
             .Include(item => item.Resource)
             .ThenInclude(resource => resource.Unit)
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
             .OrderBy(item => item.Resource.Name)
             .ThenBy(item => item.Period)
             .AsNoTracking()
@@ -28,7 +28,7 @@ public sealed class GetLimitsHandler(IAppDbContext dbContext, CurrentUser curren
         return limits.Select(limit => LimitEvaluation.ToResponse(limit, consumptions, utcNow)).ToList();
     }
 
-    /// <summary>Gets a limit of the active household with its current evaluation.</summary>
+    /// <summary>Gets a limit of the active space with its current evaluation.</summary>
     /// <param name="id">The limit id.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The limit, or a not-found error.</returns>
@@ -38,7 +38,7 @@ public sealed class GetLimitsHandler(IAppDbContext dbContext, CurrentUser curren
             .Include(item => item.Resource)
             .ThenInclude(resource => resource.Unit)
             .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (limit is null)
         {
             return Error.NotFound("Consumption limit could not be found");
@@ -60,7 +60,7 @@ public sealed class GetLimitsHandler(IAppDbContext dbContext, CurrentUser curren
 
         var yearStart = new DateTime(timeProvider.GetUtcNow().Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         return await dbContext.Consumptions
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId
                            && ids.Contains(item.ResourceId)
                            && item.Date >= yearStart)
             .AsNoTracking()

@@ -23,10 +23,10 @@ public sealed class LimitsEndpoints : IEndpointGroup
             .WithTags("Consumption Limits")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Limits.View).WithSummary("Gets consumption limits for the active household");
-        group.MapGet("/{id:guid}", GetById).RequireHouseholdPermission(HouseholdPermissions.Limits.View).WithName("GetLimitById").WithSummary("Gets a consumption limit by id");
-        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Limits.Plan).WithRequestValidation<CreateLimitRequest>().WithSummary("Creates a consumption limit");
-        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Limits.Plan).WithRequestValidation<UpdateLimitRequest>().WithSummary("Updates a consumption limit");
+        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Limits.View).WithSummary("Gets consumption limits for the active space");
+        group.MapGet("/{id:guid}", GetById).RequireSpacePermission(SpacePermissions.Limits.View).WithName("GetLimitById").WithSummary("Gets a consumption limit by id");
+        group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<CreateLimitRequest>().WithSummary("Creates a consumption limit");
+        group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<UpdateLimitRequest>().WithSummary("Updates a consumption limit");
 
         return builder;
     }

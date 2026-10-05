@@ -5,7 +5,7 @@ using Kijk.Shared;
 namespace Kijk.Application.Imports.Settings;
 
 /// <summary>
-/// Request for changing the import settings of the active household.
+/// Request for changing the import settings of the active space.
 /// </summary>
 /// <param name="PurposeRetention">How much of the purpose text imported transactions keep.</param>
 /// <param name="AiDataSharing">Which transaction data the AI categorization may see; unchanged when omitted.</param>
@@ -26,7 +26,7 @@ public sealed class UpdateImportSettingsValidator : AbstractValidator<UpdateImpo
 }
 
 /// <summary>
-/// Reads and changes the import settings of the active household.
+/// Reads and changes the import settings of the active space.
 /// </summary>
 public sealed class ImportSettingsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
@@ -35,12 +35,12 @@ public sealed class ImportSettingsHandler(IAppDbContext dbContext, CurrentUser c
     /// <returns>The settings, or a not-found error.</returns>
     public async Task<Result<ImportSettingsResponse>> GetAsync(CancellationToken cancellationToken)
     {
-        var settings = await dbContext.Households
-            .Where(item => item.Id == currentUser.ActiveHouseholdId)
+        var settings = await dbContext.Spaces
+            .Where(item => item.Id == currentUser.ActiveSpaceId)
             .Select(item => new ImportSettingsResponse(item.PurposeRetention, item.AiDataSharing, item.MinimizeData))
             .FirstOrDefaultAsync(cancellationToken);
 
-        return settings is null ? Error.NotFound("Active household could not be found") : settings;
+        return settings is null ? Error.NotFound("Active space could not be found") : settings;
     }
 
     /// <summary>Changes the import settings. Transactions imported earlier keep their purpose as stored.</summary>
@@ -49,24 +49,24 @@ public sealed class ImportSettingsHandler(IAppDbContext dbContext, CurrentUser c
     /// <returns>The settings, or a not-found error.</returns>
     public async Task<Result<ImportSettingsResponse>> UpdateAsync(UpdateImportSettingsRequest request, CancellationToken cancellationToken)
     {
-        var household = await dbContext.Households.FirstOrDefaultAsync(item => item.Id == currentUser.ActiveHouseholdId, cancellationToken);
-        if (household is null)
+        var space = await dbContext.Spaces.FirstOrDefaultAsync(item => item.Id == currentUser.ActiveSpaceId, cancellationToken);
+        if (space is null)
         {
-            return Error.NotFound("Active household could not be found");
+            return Error.NotFound("Active space could not be found");
         }
 
-        household.SetPurposeRetention(request.PurposeRetention);
+        space.SetPurposeRetention(request.PurposeRetention);
         if (request.AiDataSharing is { } sharing)
         {
-            household.SetAiDataSharing(sharing);
+            space.SetAiDataSharing(sharing);
         }
 
         if (request.MinimizeData is { } minimize)
         {
-            household.SetMinimizeData(minimize);
+            space.SetMinimizeData(minimize);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        return new ImportSettingsResponse(household.PurposeRetention, household.AiDataSharing, household.MinimizeData);
+        return new ImportSettingsResponse(space.PurposeRetention, space.AiDataSharing, space.MinimizeData);
     }
 }

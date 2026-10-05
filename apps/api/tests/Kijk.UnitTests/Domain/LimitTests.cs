@@ -40,7 +40,7 @@ public class LimitTests
 
     private static Limit CreateLimit(bool active)
     {
-        var household = Household.Create("Test household");
+        var space = Space.Create("Test space");
         var resource = new Resource
         {
             Name = "Electricity",
@@ -63,6 +63,6 @@ public class LimitTests
             new LimitSettings("Monthly electricity", null, 100, Period.Month, active),
             resource,
             user,
-            household);
+            space);
     }
 }

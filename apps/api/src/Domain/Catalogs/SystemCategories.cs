@@ -13,7 +13,7 @@ namespace Kijk.Domain.Catalogs;
 public sealed record CategoryDefinition(Guid Id, string Name, string Icon, string Color, CategoryKind Kind);
 
 /// <summary>
-/// The default categories every household can use. Households can add their own categories on top.
+/// The default categories every space can use. Spaces can add their own categories on top.
 /// </summary>
 public static class SystemCategories
 {

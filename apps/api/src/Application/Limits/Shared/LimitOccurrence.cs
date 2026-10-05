@@ -15,7 +15,7 @@ internal static class LimitOccurrence
 
     internal static async Task RecordAsync(
         IAppDbContext dbContext,
-        Guid householdId,
+        Guid spaceId,
         IReadOnlyCollection<ConsumptionSnapshot> before,
         IReadOnlyCollection<Consumption> after,
         DateTime utcNow,
@@ -27,7 +27,7 @@ internal static class LimitOccurrence
             .ToList();
 
         var limits = await dbContext.Limits
-            .Where(limit => limit.HouseholdId == householdId
+            .Where(limit => limit.SpaceId == spaceId
                             && resourceIds.Contains(limit.ResourceId)
                             && limit.Active)
             .ToListAsync(cancellationToken);

@@ -5,7 +5,7 @@ using Kijk.Shared;
 
 namespace Kijk.Application.Transactions.Shared;
 
-/// <summary>A transaction of the household.</summary>
+/// <summary>A transaction of the space.</summary>
 /// <param name="Id">The transaction id.</param>
 /// <param name="BookingDate">The booking date.</param>
 /// <param name="Amount">The signed amount; negative values are expenses.</param>
@@ -13,7 +13,7 @@ namespace Kijk.Application.Transactions.Shared;
 /// <param name="Counterparty">The counterparty, if known.</param>
 /// <param name="Purpose">The cleaned purpose, if known.</param>
 /// <param name="Status">Whether the transaction is booked or pending.</param>
-/// <param name="IsTransfer">Whether it is a transfer between the household's own accounts.</param>
+/// <param name="IsTransfer">Whether it is a transfer between the space's own accounts.</param>
 /// <param name="AccountId">The account id, if assigned.</param>
 /// <param name="AccountName">The account name, if assigned.</param>
 /// <param name="CategoryId">The category id, if categorized.</param>

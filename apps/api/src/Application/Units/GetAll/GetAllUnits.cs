@@ -6,7 +6,7 @@ using Kijk.Shared;
 namespace Kijk.Application.Units.GetAll;
 
 /// <summary>
-/// Lists system, personal, and active-household units visible to the current user.
+/// Lists system, personal, and active-space units visible to the current user.
 /// </summary>
 public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
@@ -23,31 +23,31 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
         return units.Select(unit => UnitResponseFactory.Create(unit, currentUser, 0)).ToList();
     }
 
-    /// <summary>Gets a page of the user's personal units or of the units available in a household.</summary>
-    /// <param name="household">Whether to list household units instead of personal units.</param>
-    /// <param name="householdId">The household; defaults to the active household.</param>
+    /// <summary>Gets a page of the user's personal units or of the units available in a space.</summary>
+    /// <param name="space">Whether to list space units instead of personal units.</param>
+    /// <param name="spaceId">The space; defaults to the active space.</param>
     /// <param name="page">The 1-based page number.</param>
     /// <param name="pageSize">The page size (1-100).</param>
     /// <param name="search">An optional name or symbol filter.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The page.</returns>
     public async Task<Result<UnitPageResponse>> GetPageAsync(
-        bool household, Guid? householdId, int page, int pageSize, string? search, CancellationToken cancellationToken)
+        bool space, Guid? spaceId, int page, int pageSize, string? search, CancellationToken cancellationToken)
     {
         pageSize = Math.Clamp(pageSize, 1, 100);
         page = Math.Clamp(page, 1, int.MaxValue / pageSize);
-        var selectedHouseholdId = householdId ?? currentUser.ActiveHouseholdId;
-        if (household && (selectedHouseholdId is null || !await dbContext.UserHouseholds.AnyAsync(
-                link => link.UserId == currentUser.Id && link.HouseholdId == selectedHouseholdId,
+        var selectedSpaceId = spaceId ?? currentUser.ActiveSpaceId;
+        if (space && (selectedSpaceId is null || !await dbContext.UserSpaces.AnyAsync(
+                link => link.UserId == currentUser.Id && link.SpaceId == selectedSpaceId,
                 cancellationToken)))
         {
-            return Error.Authorization("The selected household is not available to the current user");
+            return Error.Authorization("The selected space is not available to the current user");
         }
 
         var query = dbContext.Units
             .Where(unit => unit.CreatorType == CreatorType.System
-                           || (household
-                               ? unit.Households.Any(link => link.HouseholdId == selectedHouseholdId)
+                           || (space
+                               ? unit.Spaces.Any(link => link.SpaceId == selectedSpaceId)
                                : unit.OwnerUserId == currentUser.Id));
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -57,7 +57,7 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
 
         var totalCount = await query.CountAsync(cancellationToken);
         var customCount = await query.CountAsync(unit => unit.CreatorType == CreatorType.User, cancellationToken);
-        var units = await query.Include(unit => unit.Households)
+        var units = await query.Include(unit => unit.Spaces)
             .OrderBy(unit => unit.Name)
             .ThenBy(unit => unit.Id)
             .Skip((page - 1) * pageSize)
@@ -69,7 +69,7 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
             .GroupBy(resource => resource.UnitId)
             .Select(group => new { UnitId = group.Key, Count = group.Count() })
             .ToDictionaryAsync(item => item.UnitId, item => item.Count, cancellationToken);
-        var items = units.Select(unit => UnitResponseFactory.Create(unit, currentUser, counts.GetValueOrDefault(unit.Id), selectedHouseholdId)).ToList();
+        var items = units.Select(unit => UnitResponseFactory.Create(unit, currentUser, counts.GetValueOrDefault(unit.Id), selectedSpaceId)).ToList();
         return new UnitPageResponse(items, totalCount, customCount, page, pageSize);
     }
 
@@ -80,7 +80,7 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
     public async Task<Result<List<UnitResponse>>> GetAllAsync(bool includeArchived, CancellationToken cancellationToken)
     {
         var units = await dbContext.GetVisibleUnits(currentUser)
-            .Include(unit => unit.Households)
+            .Include(unit => unit.Spaces)
             .Where(unit => includeArchived || unit.ArchivedAt == null)
             .OrderBy(unit => unit.CreatorType)
             .ThenBy(unit => unit.Name)

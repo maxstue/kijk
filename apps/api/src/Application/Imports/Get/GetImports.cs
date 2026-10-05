@@ -8,20 +8,20 @@ using Kijk.Shared;
 namespace Kijk.Application.Imports.Get;
 
 /// <summary>
-/// Retrieves imports of the active household, the preview of an uploaded file and the rows waiting for review.
+/// Retrieves imports of the active space, the preview of an uploaded file and the rows waiting for review.
 /// </summary>
 public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser currentUser, ImportFileReader fileReader) : IHandler
 {
     private const int ListSize = 20;
 
-    /// <summary>Gets the latest imports of the active household.</summary>
+    /// <summary>Gets the latest imports of the active space.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The imports, newest first.</returns>
     public async Task<Result<List<ImportJobResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var jobs = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
             .OrderByDescending(item => item.CreatedAt)
             .Take(ListSize)
             .AsNoTracking()
@@ -30,7 +30,7 @@ public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser curre
         return jobs.Select(job => job.ToResponse()).ToList();
     }
 
-    /// <summary>Gets an import of the active household.</summary>
+    /// <summary>Gets an import of the active space.</summary>
     /// <param name="id">The import id.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The import, or a not-found error.</returns>
@@ -124,5 +124,5 @@ public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser curre
         dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
 }

@@ -5,11 +5,11 @@ using Kijk.Shared;
 namespace Kijk.Application.Limits.Update;
 
 /// <summary>
-/// Updates consumption limits owned by the active household.
+/// Updates consumption limits owned by the active space.
 /// </summary>
 public sealed class UpdateLimitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
-    /// <summary>Updates a limit of the active household.</summary>
+    /// <summary>Updates a limit of the active space.</summary>
     /// <param name="id">The limit id.</param>
     /// <param name="request">The new limit data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -22,7 +22,7 @@ public sealed class UpdateLimitHandler(IAppDbContext dbContext, CurrentUser curr
         var limit = await dbContext.Limits
             .Include(item => item.Resource)
             .ThenInclude(resource => resource.Unit)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (limit is null)
         {
             return Error.NotFound("Consumption limit could not be found");
@@ -30,7 +30,7 @@ public sealed class UpdateLimitHandler(IAppDbContext dbContext, CurrentUser curr
 
         var conflict = await dbContext.Limits.AnyAsync(
             item => item.Id != id
-                    && item.HouseholdId == currentUser.ActiveHouseholdId
+                    && item.SpaceId == currentUser.ActiveSpaceId
                     && item.ResourceId == limit.ResourceId
                     && item.Period == request.Period,
             cancellationToken);
@@ -43,7 +43,7 @@ public sealed class UpdateLimitHandler(IAppDbContext dbContext, CurrentUser curr
         var yearStart = new DateTime(utcNow.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var yearEnd = yearStart.AddYears(1);
         var consumptions = await dbContext.Consumptions
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId
                            && item.ResourceId == limit.ResourceId
                            && item.Date >= yearStart && item.Date < yearEnd)
             .AsNoTracking()
@@ -63,7 +63,7 @@ public sealed class UpdateLimitHandler(IAppDbContext dbContext, CurrentUser curr
                 .AsNoTracking()
                 .AnyAsync(
                     item => item.Id != id
-                            && item.HouseholdId == currentUser.ActiveHouseholdId
+                            && item.SpaceId == currentUser.ActiveSpaceId
                             && item.ResourceId == limit.ResourceId
                             && item.Period == request.Period,
                     cancellationToken);

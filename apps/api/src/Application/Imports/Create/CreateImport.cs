@@ -26,20 +26,20 @@ public sealed class CreateImportHandler(
     /// <returns>The pending import, or a not-found, validation or conflict error.</returns>
     public async Task<Result<ImportJobResponse>> CreateAsync(Guid accountId, string fileName, Stream content, CancellationToken cancellationToken)
     {
-        var household = await dbContext.Households
-            .FirstOrDefaultAsync(item => item.Id == currentUser.ActiveHouseholdId, cancellationToken);
+        var space = await dbContext.Spaces
+            .FirstOrDefaultAsync(item => item.Id == currentUser.ActiveSpaceId, cancellationToken);
         var user = await dbContext.Users.FirstOrDefaultAsync(item => item.Id == currentUser.Id, cancellationToken);
-        if (household is null || user is null)
+        if (space is null || user is null)
         {
-            logger.LogWarning("Active household or user could not be resolved for user {UserId}", currentUser.Id);
-            return Error.NotFound("Active household could not be found");
+            logger.LogWarning("Active space or user could not be resolved for user {UserId}", currentUser.Id);
+            return Error.NotFound("Active space could not be found");
         }
 
-        var account = await dbContext.GetHouseholdAccounts(currentUser)
+        var account = await dbContext.GetSpaceAccounts(currentUser)
             .FirstOrDefaultAsync(item => item.Id == accountId, cancellationToken);
         if (account is null)
         {
-            return Error.NotFound("Account is not available in the active household");
+            return Error.NotFound("Account is not available in the active space");
         }
 
         if (account.Kind != AccountKind.Bank)
@@ -74,7 +74,7 @@ public sealed class CreateImportHandler(
             name.Length > ImportLimits.FileNameMaximumLength ? name[..ImportLimits.FileNameMaximumLength] : name,
             account,
             user,
-            household);
+            space);
         dbContext.ImportJobs.Add(job);
         dbContext.ImportFiles.Add(ImportFile.Create(protector.Protect(bytes), job, timeProvider.GetUtcNow().UtcDateTime));
         await queue.SaveChangesAndEnqueueAsync(new AnalyzeImport(job.Id), cancellationToken);

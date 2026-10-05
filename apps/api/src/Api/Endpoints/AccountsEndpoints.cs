@@ -24,10 +24,10 @@ public sealed class AccountsEndpoints : IEndpointGroup
             .WithTags("Accounts")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the accounts of the active household");
-        group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account; shared accounts additionally require finances:configure");
-        group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<UpdateAccountRequest>().WithSummary("Updates an account; shared accounts additionally require finances:configure");
-        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes an account without transactions; shared accounts additionally require finances:configure");
+        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the accounts of the active space");
+        group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account; shared accounts additionally require finances:configure");
+        group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<UpdateAccountRequest>().WithSummary("Updates an account; shared accounts additionally require finances:configure");
+        group.MapDelete("/{id:guid}", Delete).RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Deletes an account without transactions; shared accounts additionally require finances:configure");
 
         return builder;
     }

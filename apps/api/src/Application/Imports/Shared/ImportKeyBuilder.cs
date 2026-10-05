@@ -10,9 +10,9 @@ namespace Kijk.Application.Imports.Shared;
 /// payments keep distinct keys.
 /// </summary>
 /// <param name="pseudonymizer">The key service.</param>
-/// <param name="householdId">The household.</param>
+/// <param name="spaceId">The space.</param>
 /// <param name="accountId">The bank account.</param>
-public sealed class ImportKeyBuilder(IPseudonymizer pseudonymizer, Guid householdId, Guid accountId)
+public sealed class ImportKeyBuilder(IPseudonymizer pseudonymizer, Guid spaceId, Guid accountId)
 {
     private readonly Dictionary<string, int> _occurrences = new(StringComparer.Ordinal);
 
@@ -25,7 +25,7 @@ public sealed class ImportKeyBuilder(IPseudonymizer pseudonymizer, Guid househol
     public (string BookingKey, string? CounterpartyKey) Build(ParsedRow row)
     {
         var iban = NormalizeIban(row.CounterpartyIban);
-        var counterpartyKey = iban is null ? null : pseudonymizer.Compute(householdId, "iban", iban);
+        var counterpartyKey = iban is null ? null : pseudonymizer.Compute(spaceId, "iban", iban);
 
         string identity;
         if (row.BankReference is { } reference)
@@ -45,7 +45,7 @@ public sealed class ImportKeyBuilder(IPseudonymizer pseudonymizer, Guid househol
             identity = $"{identity}|{occurrence}";
         }
 
-        return (pseudonymizer.Compute(householdId, "booking", identity), counterpartyKey);
+        return (pseudonymizer.Compute(spaceId, "booking", identity), counterpartyKey);
     }
 
     private static string? NormalizeIban(string? iban)

@@ -40,7 +40,7 @@ public class TransactionSanitizerTests
     }
 
     [Test]
-    public async Task HouseholdMembersAreReplacedEverywhere()
+    public async Task SpaceMembersAreReplacedEverywhere()
     {
         var result = TransactionSanitizer.Sanitize("Muster AG", "Beitrag für erika beispiel und Max", isMerchantPayment: true, Members);
 

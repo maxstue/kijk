@@ -6,7 +6,7 @@ namespace Kijk.Infrastructure.Persistence;
 internal static class SeedData
 {
     /// <summary>
-    /// The fixed creation timestamp of seeded household roles and permissions.
+    /// The fixed creation timestamp of seeded space roles and permissions.
     /// </summary>
     internal static readonly DateTime CreatedAt = new(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc);
 }

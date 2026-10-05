@@ -3,7 +3,7 @@ using Kijk.Shared;
 namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// A bank account of a household. Transactions are assigned to accounts so duplicates can be checked per account.
+/// A bank account of a space. Transactions are assigned to accounts so duplicates can be checked per account.
 /// </summary>
 public sealed class Account : BaseEntity
 {
@@ -13,11 +13,11 @@ public sealed class Account : BaseEntity
     /// <summary>Gets or sets the last four characters of the IBAN. The full IBAN is never stored.</summary>
     public string? IbanLast4 { get; set; }
 
-    /// <summary>Gets or sets whether this is a bank account or the household's cash account.</summary>
+    /// <summary>Gets or sets whether this is a bank account or the space's cash account.</summary>
     public AccountKind Kind { get; set; }
 
-    /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
-    public Guid HouseholdId { get; set; }
+    /// <summary>Gets or sets the id of <see cref="Space" />.</summary>
+    public Guid SpaceId { get; set; }
 
     /// <summary>
     /// Gets the member who alone can see the account and its transactions, or <see langword="null" /> when every member
@@ -31,32 +31,32 @@ public sealed class Account : BaseEntity
     /// <summary>Gets who can see the account.</summary>
     public Visibility Visibility => OwnerId is null ? Visibility.Shared : Visibility.Private;
 
-    /// <summary>Gets or sets the household the account belongs to.</summary>
-    public required Household Household { get; set; }
+    /// <summary>Gets or sets the space the account belongs to.</summary>
+    public required Space Space { get; set; }
 
-    /// <summary>Creates an account for a household.</summary>
+    /// <summary>Creates an account for a space.</summary>
     /// <param name="name">The display name.</param>
     /// <param name="ibanLast4">The last four characters of the IBAN, if known.</param>
-    /// <param name="household">The owning household.</param>
+    /// <param name="space">The owning space.</param>
     /// <returns>The new account.</returns>
-    public static Account Create(string name, string? ibanLast4, Household household) =>
+    public static Account Create(string name, string? ibanLast4, Space space) =>
         new()
         {
             Name = name,
             IbanLast4 = ibanLast4,
             Kind = AccountKind.Bank,
-            Household = household
+            Space = space
         };
 
-    /// <summary>Creates the cash account of a household. Imports never replace its transactions.</summary>
-    /// <param name="household">The owning household.</param>
+    /// <summary>Creates the cash account of a space. Imports never replace its transactions.</summary>
+    /// <param name="space">The owning space.</param>
     /// <returns>The new cash account.</returns>
-    public static Account CreateCash(Household household) =>
+    public static Account CreateCash(Space space) =>
         new()
         {
             Name = "Cash",
             Kind = AccountKind.Cash,
-            Household = household
+            Space = space
         };
 
     /// <summary>Updates the editable properties of the account.</summary>

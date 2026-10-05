@@ -17,7 +17,7 @@ public sealed class UpdateUnitHandler(IAppDbContext dbContext, CurrentUser curre
     /// <returns>The updated unit.</returns>
     public async Task<Result<UnitResponse>> UpdateAsync(Guid id, UpdateUnitRequest request, CancellationToken cancellationToken)
     {
-        var unit = await dbContext.Units.Include(item => item.Households)
+        var unit = await dbContext.Units.Include(item => item.Spaces)
             .FirstOrDefaultAsync(item => item.Id == id && item.OwnerUserId == currentUser.Id, cancellationToken);
         if (unit is null)
         {

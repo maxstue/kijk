@@ -8,18 +8,18 @@ using Kijk.Shared;
 namespace Kijk.Application.Budgets.Get;
 
 /// <summary>
-/// Retrieves budgets and the monthly budget evaluation of the active household.
+/// Retrieves budgets and the monthly budget evaluation of the active space.
 /// </summary>
 public sealed class GetBudgetsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Gets all budget versions of the active household.</summary>
+    /// <summary>Gets all budget versions of the active space.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The budgets, ordered by category and newest version first.</returns>
     public async Task<Result<List<BudgetResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var budgets = await dbContext.GetVisibleBudgets(currentUser)
             .Include(budget => budget.Category)
-            .Where(budget => budget.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(budget => budget.SpaceId == currentUser.ActiveSpaceId)
             .OrderBy(budget => budget.Category.Name)
             .ThenByDescending(budget => budget.ValidFrom)
             .AsNoTracking()
@@ -28,7 +28,7 @@ public sealed class GetBudgetsHandler(IAppDbContext dbContext, CurrentUser curre
         return budgets.Select(budget => budget.ToResponse()).ToList();
     }
 
-    /// <summary>Evaluates the budgets of the active household for a calendar month.</summary>
+    /// <summary>Evaluates the budgets of the active space for a calendar month.</summary>
     /// <param name="year">The year.</param>
     /// <param name="month">The month (1-12).</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -46,11 +46,11 @@ public sealed class GetBudgetsHandler(IAppDbContext dbContext, CurrentUser curre
 
         var categories = await dbContext.GetAvailableCategories(currentUser).AsNoTracking().ToListAsync(cancellationToken);
         var budgets = await dbContext.GetVisibleBudgets(currentUser)
-            .Where(budget => budget.HouseholdId == currentUser.ActiveHouseholdId && budget.ValidFrom <= start)
+            .Where(budget => budget.SpaceId == currentUser.ActiveSpaceId && budget.ValidFrom <= start)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
         var transactions = await dbContext.GetVisibleTransactions(currentUser)
-            .Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId
+            .Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId
                                   && transaction.BookingDate >= start
                                   && transaction.BookingDate < end)
             .AsNoTracking()

@@ -45,9 +45,9 @@ public static class CategoryHelpers
         new(source.Id, source.Name, source.Icon, source.Color, source.Kind, source.CreatorType);
 
     /// <summary>
-    /// Determines whether a category with the same normalized name exists in the active household or the system catalog.
+    /// Determines whether a category with the same normalized name exists in the active space or the system catalog.
     /// </summary>
-    /// <param name="categories">The categories available to the active household.</param>
+    /// <param name="categories">The categories available to the active space.</param>
     /// <param name="name">The category name.</param>
     /// <param name="excludedCategoryId">An optional category id to exclude.</param>
     /// <param name="cancellationToken">A token used to cancel the operation.</param>

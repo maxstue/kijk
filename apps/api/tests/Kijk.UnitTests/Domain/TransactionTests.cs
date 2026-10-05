@@ -5,7 +5,7 @@ namespace Kijk.UnitTests.Domain;
 
 public class TransactionTests
 {
-    private readonly Household _household = Household.Create("Test household");
+    private readonly Space _space = Space.Create("Test space");
 
     [Test]
     public async Task AutomaticCategorizationNeverOverwritesAManualCategory()
@@ -52,11 +52,11 @@ public class TransactionTests
             new TransactionDetails(new DateTime(2026, 10, 15, 13, 45, 0, DateTimeKind.Utc), -12.5m, "Shop", null, TransactionStatus.Booked, false),
             null,
             User.Init("auth", "Test", "test@example.test"),
-            _household);
+            _space);
 
     private Category CreateCategory(string name)
     {
-        var category = Category.Create(name, "circle", "#000000", CategoryKind.Expense, _household);
+        var category = Category.Create(name, "circle", "#000000", CategoryKind.Expense, _space);
         category.Id = Guid.NewGuid();
         return category;
     }

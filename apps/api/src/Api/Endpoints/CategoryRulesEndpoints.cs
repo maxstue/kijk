@@ -23,9 +23,9 @@ public sealed class CategoryRulesEndpoints : IEndpointGroup
             .WithTags("Category Rules")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the remembered category corrections of the active household");
-        group.MapGet("/suggestions", GetSuggestions).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule");
-        group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes a remembered category correction");
+        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the remembered category corrections of the active space");
+        group.MapGet("/suggestions", GetSuggestions).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule");
+        group.MapDelete("/{id:guid}", Delete).RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Deletes a remembered category correction");
 
         return builder;
     }

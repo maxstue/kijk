@@ -7,7 +7,7 @@ namespace Kijk.UnitTests.Domain;
 
 public class ConsumptionTimelineCalculatorTests
 {
-    private readonly Household household = Household.Create("Test household");
+    private readonly Space space = Space.Create("Test space");
     private readonly Resource resource = new()
     {
         Name = "Electricity",
@@ -167,7 +167,7 @@ public class ConsumptionTimelineCalculatorTests
         var consumption = Consumption.Create(
             "Reading",
             resource,
-            household,
+            space,
             new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc),
             new ConsumptionReading(value, valueType, CalculatedConsumption: 0m));
 

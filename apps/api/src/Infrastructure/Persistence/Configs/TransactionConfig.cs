@@ -11,7 +11,7 @@ public class TransactionConfig : IEntityTypeConfiguration<Transaction>
     public void Configure(EntityTypeBuilder<Transaction> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.HouseholdId, x.BookingDate });
+        builder.HasIndex(x => new { x.SpaceId, x.BookingDate });
         builder.HasIndex(x => x.CategoryId);
         builder.HasIndex(x => new { x.AccountId, x.BookingDate });
         builder.HasIndex(x => x.CounterpartyKey);
@@ -50,9 +50,9 @@ public class TransactionConfig : IEntityTypeConfiguration<Transaction>
             .HasForeignKey(x => x.CreatedById)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany(x => x.Transactions)
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

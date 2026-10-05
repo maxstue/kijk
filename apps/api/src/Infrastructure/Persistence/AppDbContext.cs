@@ -21,9 +21,9 @@ public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
     }
 
     /// <inheritdoc />
-    public DbSet<Household> Households { get; set; }
+    public DbSet<Space> Spaces { get; set; }
     /// <inheritdoc />
-    public DbSet<UserHousehold> UserHouseholds { get; set; }
+    public DbSet<UserSpace> UserSpaces { get; set; }
     /// <inheritdoc />
     public DbSet<Consumption> Consumptions { get; set; }
     /// <inheritdoc />
@@ -33,7 +33,7 @@ public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
     /// <inheritdoc />
     public DbSet<Unit> Units { get; set; }
     /// <inheritdoc />
-    public DbSet<UnitHousehold> UnitHouseholds { get; set; }
+    public DbSet<UnitSpace> UnitSpaces { get; set; }
     /// <inheritdoc />
     public DbSet<User> Users { get; set; }
     /// <inheritdoc />

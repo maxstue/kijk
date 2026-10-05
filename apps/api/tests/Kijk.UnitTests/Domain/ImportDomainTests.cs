@@ -61,18 +61,18 @@ public class ImportDomainTests
     }
 
     [Test]
-    public async Task NewHouseholdsGetACashAccount()
+    public async Task NewSpacesGetACashAccount()
     {
-        var household = Household.Create("Test");
+        var space = Space.Create("Test");
 
-        await Assert.That(household.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);
+        await Assert.That(space.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);
     }
 
     [Test]
     public async Task ImportJobWalksThroughItsStatesAndCannotBeCancelledWhenDone()
     {
-        var household = Household.Create("Test");
-        var job = ImportJob.Create("export.csv", Account.Create("Giro", null, household), User.Init("auth", "Test", null), household);
+        var space = Space.Create("Test");
+        var job = ImportJob.Create("export.csv", Account.Create("Giro", null, space), User.Init("auth", "Test", null), space);
 
         await Assert.That(job.StartAnalysis()).IsTrue();
         job.ProposeMapping("{}", MappingSource.Suggestion);

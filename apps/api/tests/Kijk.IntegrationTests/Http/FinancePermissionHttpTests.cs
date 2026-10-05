@@ -42,7 +42,7 @@ public class FinancePermissionHttpTests
     public async Task EveryRoleCanReadFinanceData(string role)
     {
         var fixture = await CreateFixtureAsync(role);
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
         foreach (var path in new[] { "/api/categories", "/api/accounts", "/api/budgets", "/api/budgets/overview?year=2026&month=10", "/api/transactions?year=2026&month=10", $"/api/transactions/{fixture.Transaction.Id}" })
         {
@@ -62,7 +62,7 @@ public class FinancePermissionHttpTests
     public async Task RecordingTransactionsRequiresRecordPermission(string role, HttpStatusCode expected)
     {
         var fixture = await CreateFixtureAsync(role);
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         using var response = await host.Client.PostAsJsonAsync("/api/transactions",
             new CreateTransactionRequest(new DateOnly(2026, 10, 2), -9.99m, "Bakery", null, TransactionStatus.Booked, false, fixture.Account.Id, GroceriesId));
 
@@ -78,7 +78,7 @@ public class FinancePermissionHttpTests
     public async Task PlanningBudgetsRequiresPlanPermission(string role, HttpStatusCode expected)
     {
         var fixture = await CreateFixtureAsync(role);
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         using var response = await host.Client.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 11, 15), true));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
@@ -91,7 +91,7 @@ public class FinancePermissionHttpTests
     public async Task ConfiguringCategoriesAndAccountsRequiresConfigurePermission(string role, HttpStatusCode expected)
     {
         var fixture = await CreateFixtureAsync(role);
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         using var category = await host.Client.PostAsJsonAsync("/api/categories", new CreateCategoryRequest("Gifts", "gift", "#aa7744", CategoryKind.Expense));
         using var account = await host.Client.PostAsJsonAsync("/api/accounts", new CreateAccountRequest("Savings", "9876"));
 
@@ -103,7 +103,7 @@ public class FinancePermissionHttpTests
     public async Task SystemCategoriesCannotBeChanged()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         using var response = await host.Client.DeleteAsync($"/api/categories/{GroceriesId}");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
@@ -113,7 +113,7 @@ public class FinancePermissionHttpTests
     public async Task BudgetsCanOnlyBeSetForExpenseCategories()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         using var response = await host.Client.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(IncomeId, 100m, new DateOnly(2026, 10, 1), true));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
@@ -123,7 +123,7 @@ public class FinancePermissionHttpTests
     public async Task OverviewEvaluatesTheBudgetOfTheMonth()
     {
         var fixture = await CreateFixtureAsync("Viewer");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
         var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json);
 
@@ -137,7 +137,7 @@ public class FinancePermissionHttpTests
     public async Task ChangingTheCategoryMarksItAsManual()
     {
         var fixture = await CreateFixtureAsync("Member");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         var leisureId = SystemCategories.All.Single(category => category.Name == "Leisure").Id;
 
         using var response = await host.Client.PutAsJsonAsync($"/api/transactions/{fixture.Transaction.Id}",
@@ -149,20 +149,20 @@ public class FinancePermissionHttpTests
     }
 
     [Test]
-    public async Task SeveralTransactionsCanBeCategorizedAtOnceWithinTheHouseholdOnly()
+    public async Task SeveralTransactionsCanBeCategorizedAtOnceWithinTheSpaceOnly()
     {
         var fixture = await CreateFixtureAsync("Member");
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
-            var account = await dbContext.Accounts.Include(item => item.Household).SingleAsync(item => item.Id == fixture.Account.Id);
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
             var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
             dbContext.AddRange(
-                Transaction.Create(new TransactionDetails(new DateTime(2024, 3, 1, 0, 0, 0, DateTimeKind.Utc), -5m, "Old shop", null, TransactionStatus.Booked, false), account, user, account.Household),
-                Transaction.Create(new TransactionDetails(new DateTime(2026, 10, 9, 0, 0, 0, DateTimeKind.Utc), -7m, "New shop", null, TransactionStatus.Booked, false), account, user, account.Household));
+                Transaction.Create(new TransactionDetails(new DateTime(2024, 3, 1, 0, 0, 0, DateTimeKind.Utc), -5m, "Old shop", null, TransactionStatus.Booked, false), account, user, account.Space),
+                Transaction.Create(new TransactionDetails(new DateTime(2026, 10, 9, 0, 0, 0, DateTimeKind.Utc), -7m, "New shop", null, TransactionStatus.Booked, false), account, user, account.Space));
             await dbContext.SaveChangesAsync();
         }
 
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         // Without a period the list holds uncategorized transactions of all months.
         var open = (await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions?uncategorized=true", Json))!;
         await Assert.That(open.Count).IsEqualTo(2);
@@ -174,7 +174,7 @@ public class FinancePermissionHttpTests
         await Assert.That(remaining).IsEmpty();
 
         var outsider = await CreateOutsiderAsync();
-        await using var outsiderHost = await HouseholdApiHost.StartAsync(outsider.AuthId);
+        await using var outsiderHost = await SpaceApiHost.StartAsync(outsider.AuthId);
         using var foreign = await outsiderHost.Client.PutAsJsonAsync("/api/transactions/category", new CategorizeTransactionsRequest([fixture.Transaction.Id], null), Json);
         await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
@@ -186,7 +186,7 @@ public class FinancePermissionHttpTests
     public async Task ExportingTransactionsRequiresExportPermission(string role, HttpStatusCode expected)
     {
         var fixture = await CreateFixtureAsync(role);
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
         using var response = await host.Client.GetAsync("/api/transactions/export?year=2026&month=10");
 
@@ -199,15 +199,15 @@ public class FinancePermissionHttpTests
         var fixture = await CreateFixtureAsync("Admin");
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
-            var account = await dbContext.Accounts.Include(item => item.Household).SingleAsync(item => item.Id == fixture.Account.Id);
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
             var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
             dbContext.Add(Transaction.Create(
                 new TransactionDetails(new DateTime(2026, 10, 7, 0, 0, 0, DateTimeKind.Utc), 19.99m, "=HYPERLINK(\"x\")", "Erstattung, Bäckerei", TransactionStatus.Booked, false),
-                account, user, account.Household));
+                account, user, account.Space));
             await dbContext.SaveChangesAsync();
         }
 
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         using var response = await host.Client.GetAsync("/api/transactions/export?year=2026&month=10");
         var bytes = await response.Content.ReadAsByteArrayAsync();
         var csv = System.Text.Encoding.UTF8.GetString(bytes);
@@ -224,7 +224,7 @@ public class FinancePermissionHttpTests
     public async Task StatisticsShowTheSpendingPerCategoryOverMonths()
     {
         var fixture = await CreateFixtureAsync("Viewer");
-        await using var host = await HouseholdApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
         var statistics = (await host.Client.GetFromJsonAsync<BudgetStatisticsResponse>("/api/budgets/statistics?year=2026&month=11&months=4", Json))!;
         using var invalid = await host.Client.GetAsync("/api/budgets/statistics?year=2026&month=11&months=25");
@@ -239,11 +239,11 @@ public class FinancePermissionHttpTests
     }
 
     [Test]
-    public async Task HouseholdsCannotSeeOrUseEachOthersFinanceData()
+    public async Task SpacesCannotSeeOrUseEachOthersFinanceData()
     {
         var fixture = await CreateFixtureAsync("Admin");
         var outsider = await CreateOutsiderAsync();
-        await using var host = await HouseholdApiHost.StartAsync(outsider.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(outsider.AuthId);
 
         using var transaction = await host.Client.GetAsync($"/api/transactions/{fixture.Transaction.Id}");
         var transactions = await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions", Json);
@@ -267,17 +267,17 @@ public class FinancePermissionHttpTests
     private static async Task<Fixture> CreateFixtureAsync(string roleName)
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var household = Household.Create("Shared household");
+        var space = Space.Create("Shared space");
         var role = await dbContext.Roles.SingleAsync(item => item.Name == roleName);
         var user = CreateUser("actor");
-        user.UserHouseholds.Add(UserHousehold.Create(user, household, role, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
         var groceries = await dbContext.Categories.SingleAsync(item => item.Id == GroceriesId);
-        var customCategory = Category.Create("Pets", "paw-print", "#aa7744", CategoryKind.Expense, household);
-        var account = Account.Create("Checking", "1234", household);
-        var budget = Budget.Create(300m, new MonthYear(new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc)), true, groceries, user, household);
+        var customCategory = Category.Create("Pets", "paw-print", "#aa7744", CategoryKind.Expense, space);
+        var account = Account.Create("Checking", "1234", space);
+        var budget = Budget.Create(300m, new MonthYear(new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc)), true, groceries, user, space);
         var transaction = Transaction.Create(
             new TransactionDetails(new DateTime(2026, 10, 5, 0, 0, 0, DateTimeKind.Utc), -42.5m, "Supermarket", null, TransactionStatus.Booked, false),
-            account, user, household);
+            account, user, space);
         transaction.AssignCategoryManually(groceries);
         dbContext.AddRange(user, customCategory, account, budget, transaction);
         await dbContext.SaveChangesAsync();
@@ -287,10 +287,10 @@ public class FinancePermissionHttpTests
     private static async Task<User> CreateOutsiderAsync()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var household = Household.Create("Other household");
-        var admin = await dbContext.Roles.SingleAsync(item => item.Id == HouseholdRoles.Admin.Id);
+        var space = Space.Create("Other space");
+        var admin = await dbContext.Roles.SingleAsync(item => item.Id == SpaceRoles.Admin.Id);
         var user = CreateUser("outsider");
-        user.UserHouseholds.Add(UserHousehold.Create(user, household, admin, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, admin, isActive: true));
         dbContext.Add(user);
         await dbContext.SaveChangesAsync();
         return user;

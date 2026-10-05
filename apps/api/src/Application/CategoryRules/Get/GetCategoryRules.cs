@@ -5,7 +5,7 @@ using Kijk.Shared;
 namespace Kijk.Application.CategoryRules.Get;
 
 /// <summary>
-/// Retrieves the remembered category corrections of the active household.
+/// Retrieves the remembered category corrections of the active space.
 /// </summary>
 public sealed class GetCategoryRulesHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
@@ -16,7 +16,7 @@ public sealed class GetCategoryRulesHandler(IAppDbContext dbContext, CurrentUser
     {
         var rules = await dbContext.CategoryRules
             .Include(item => item.Category)
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
             .OrderBy(item => item.Label)
             .AsNoTracking()
             .ToListAsync(cancellationToken);

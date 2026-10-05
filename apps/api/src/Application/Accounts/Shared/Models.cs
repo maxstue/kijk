@@ -3,7 +3,7 @@ using Kijk.Shared;
 
 namespace Kijk.Application.Accounts.Shared;
 
-/// <summary>A bank account of the household.</summary>
+/// <summary>A bank account of the space.</summary>
 /// <param name="Id">The account id.</param>
 /// <param name="Name">The display name.</param>
 /// <param name="IbanLast4">The last four characters of the IBAN, if known.</param>

@@ -7,11 +7,11 @@ using Kijk.Shared;
 namespace Kijk.Application.Transactions.Update;
 
 /// <summary>
-/// Updates transactions of the active household.
+/// Updates transactions of the active space.
 /// </summary>
 public sealed class UpdateTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Updates a transaction of the active household.</summary>
+    /// <summary>Updates a transaction of the active space.</summary>
     /// <param name="id">The transaction id.</param>
     /// <param name="request">The new transaction data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -21,7 +21,7 @@ public sealed class UpdateTransactionHandler(IAppDbContext dbContext, CurrentUse
         var transaction = await dbContext.GetVisibleTransactions(currentUser)
             .Include(item => item.Account)
             .Include(item => item.Category)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (transaction is null)
         {
             return Error.NotFound("Transaction could not be found");

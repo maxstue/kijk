@@ -10,7 +10,7 @@ using Kijk.Application.Budgets.Update;
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Transactions.Create;
 using Kijk.Application.Transactions.Shared;
-using Kijk.Application.Users.SwitchHousehold;
+using Kijk.Application.Users.SwitchSpace;
 using Kijk.Application.Users.Welcome;
 using Kijk.Domain.Catalogs;
 using Kijk.Domain.Entities;
@@ -39,7 +39,7 @@ public class SpaceHttpTests
     [Test]
     public async Task OnboardingCreatesAPersonalSpaceThatCanBeSwitchedToButNotDeleted()
     {
-        await using var host = await HouseholdApiHost.StartAsync(
+        await using var host = await SpaceApiHost.StartAsync(
             "newcomer-auth",
             configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider, FakeIdentityProvider>()));
 
@@ -49,33 +49,33 @@ public class SpaceHttpTests
         Guid personalId;
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
-            var memberships = await dbContext.UserHouseholds.Include(link => link.Household).ThenInclude(household => household.Accounts)
+            var memberships = await dbContext.UserSpaces.Include(link => link.Space).ThenInclude(space => space.Accounts)
                 .Where(link => link.User.AuthId == "newcomer-auth").ToListAsync();
             await Assert.That(memberships.Count).IsEqualTo(2);
-            var personal = memberships.Single(link => link.Household.IsPersonal);
+            var personal = memberships.Single(link => link.Space.IsPersonal);
             await Assert.That(personal.IsActive).IsFalse();
-            await Assert.That(personal.Household.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);
-            await Assert.That(memberships.Single(link => !link.Household.IsPersonal).Household.Name).IsEqualTo("Family");
-            personalId = personal.HouseholdId;
+            await Assert.That(personal.Space.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);
+            await Assert.That(memberships.Single(link => !link.Space.IsPersonal).Space.Name).IsEqualTo("Family");
+            personalId = personal.SpaceId;
         }
 
-        using var switched = await host.Client.PutAsJsonAsync("/api/users/active-household", new SwitchHouseholdRequest(personalId), Json);
-        using var foreign = await host.Client.PutAsJsonAsync("/api/users/active-household", new SwitchHouseholdRequest(Guid.NewGuid()), Json);
-        using var deleted = await host.Client.DeleteAsync($"/api/households/{personalId}");
+        using var switched = await host.Client.PutAsJsonAsync("/api/users/active-space", new SwitchSpaceRequest(personalId), Json);
+        using var foreign = await host.Client.PutAsJsonAsync("/api/users/active-space", new SwitchSpaceRequest(Guid.NewGuid()), Json);
+        using var deleted = await host.Client.DeleteAsync($"/api/spaces/{personalId}");
 
         await Assert.That(switched.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
         await Assert.That(deleted.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
-        var active = await verification.UserHouseholds.SingleAsync(link => link.User.AuthId == "newcomer-auth" && link.IsActive);
-        await Assert.That(active.HouseholdId).IsEqualTo(personalId);
+        var active = await verification.UserSpaces.SingleAsync(link => link.User.AuthId == "newcomer-auth" && link.IsActive);
+        await Assert.That(active.SpaceId).IsEqualTo(personalId);
     }
 
     [Test]
     public async Task PrivateAccountsAndTheirTransactionsAreOnlyVisibleToTheirOwner()
     {
         var (admin, member) = await CreateSharedSpaceAsync();
-        await using var host = await HouseholdApiHost.StartAsync(member.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(member.AuthId);
         using var adminClient = host.CreateClient(admin.AuthId);
 
         // A member may keep a private account without finances:configure, but cannot add a shared one.
@@ -116,7 +116,7 @@ public class SpaceHttpTests
     public async Task PrivateBudgetsReplaceTheSharedBudgetForTheirOwnerOnly()
     {
         var (admin, member) = await CreateSharedSpaceAsync();
-        await using var host = await HouseholdApiHost.StartAsync(member.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(member.AuthId);
         using var adminClient = host.CreateClient(admin.AuthId);
 
         using var sharedBudget = await adminClient.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(GroceriesId, 300m, October, true), Json);
@@ -143,13 +143,13 @@ public class SpaceHttpTests
     private static async Task<(User Admin, User Member)> CreateSharedSpaceAsync()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var household = Household.Create("Shared space");
+        var space = Space.Create("Shared space");
         var adminRole = await dbContext.Roles.SingleAsync(item => item.Name == "Admin");
         var memberRole = await dbContext.Roles.SingleAsync(item => item.Name == "Member");
         var admin = CreateUser("space-admin");
         var member = CreateUser("space-member");
-        admin.UserHouseholds.Add(UserHousehold.Create(admin, household, adminRole, isActive: true));
-        member.UserHouseholds.Add(UserHousehold.Create(member, household, memberRole, isActive: true));
+        admin.UserSpaces.Add(UserSpace.Create(admin, space, adminRole, isActive: true));
+        member.UserSpaces.Add(UserSpace.Create(member, space, memberRole, isActive: true));
         dbContext.AddRange(admin, member);
         await dbContext.SaveChangesAsync();
         return (admin, member);

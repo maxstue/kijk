@@ -29,8 +29,8 @@ public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser cur
     {
         var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
-            .Include(item => item.Household)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .Include(item => item.Space)
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (job is null)
         {
             return Error.NotFound("Import could not be found");
@@ -97,7 +97,7 @@ public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser cur
         var from = months.Min();
         var to = months.Max().AddMonths(1);
         var existing = await dbContext.Transactions
-            .Where(item => item.HouseholdId == job.HouseholdId
+            .Where(item => item.SpaceId == job.SpaceId
                            && item.AccountId == job.AccountId
                            && item.BookingDate >= from
                            && item.BookingDate < to)
@@ -115,14 +115,14 @@ public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser cur
                     candidate.BookingDate!.Value,
                     candidate.Amount!.Value,
                     candidate.Counterparty,
-                    PurposeScrubber.ApplyRetention(candidate.Purpose, job.Household.PurposeRetention),
+                    PurposeScrubber.ApplyRetention(candidate.Purpose, job.Space.PurposeRetention),
                     candidate.Status,
                     IsTransfer: candidate.CountsAsOffset),
                 new TransactionKeys(candidate.BookingKey!, candidate.CounterpartyKey, job.KeyVersion, candidate.IsMerchantPayment),
                 job.Account,
                 job,
                 user,
-                job.Household);
+                job.Space);
 
             if (candidate.CategoryId is { } categoryId && categories.TryGetValue(categoryId, out var category))
             {

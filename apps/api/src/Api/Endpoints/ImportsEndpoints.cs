@@ -34,27 +34,27 @@ public sealed class ImportsEndpoints : IEndpointGroup
             .WithTags("Imports")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the latest imports of the active household");
-        group.MapGet("/{id:guid}", GetById).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithName("GetImportById").WithSummary("Gets an import by id");
-        group.MapGet("/{id:guid}/preview", GetPreview).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Gets the first rows of an uploaded file for the column mapping");
-        group.MapGet("/{id:guid}/candidates", GetCandidates).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Gets the rows of an import waiting for review");
+        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the latest imports of the active space");
+        group.MapGet("/{id:guid}", GetById).RequireSpacePermission(SpacePermissions.Finances.View).WithName("GetImportById").WithSummary("Gets an import by id");
+        group.MapGet("/{id:guid}/preview", GetPreview).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Gets the first rows of an uploaded file for the column mapping");
+        group.MapGet("/{id:guid}/candidates", GetCandidates).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Gets the rows of an import waiting for review");
         group.MapPost("/", Create)
-            .RequireHouseholdPermission(HouseholdPermissions.Finances.Import)
+            .RequireSpacePermission(SpacePermissions.Finances.Import)
             .RequireRateLimiting(AppConstants.UploadRateLimit)
             .DisableAntiforgery()
             // Keeps the whole upload in memory, so ASP.NET never writes it to a temporary file.
             .WithMetadata(new RequestSizeLimitAttribute(RequestLimitBytes))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = RequestLimitBytes, MemoryBufferThreshold = RequestLimitBytes, ValueCountLimit = 10 })
             .WithSummary("Uploads a bank export and starts its import");
-        group.MapPost("/{id:guid}/mapping", ConfirmMapping).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Confirms the column mapping and starts reading the file");
-        group.MapPut("/{id:guid}/candidates/{candidateId:guid}", UpdateCandidate).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Changes the category or exclusion of a row during the review");
-        group.MapGet("/{id:guid}/ai-preview", GetAiPreview).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Gets exactly the texts the AI categorization would send");
-        group.MapPut("/{id:guid}/ai-preview/{key}", UpdateAiPreviewItem).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Deselects or selects a text of the AI preview");
-        group.MapPost("/{id:guid}/categorize", Categorize).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithRequestValidation<CategorizeImportRequest>().WithSummary("Proposes categories with the AI for the rows that have none");
-        group.MapPost("/{id:guid}/commit", Commit).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Replaces the account's transactions in the covered months with the reviewed rows");
-        group.MapPost("/{id:guid}/cancel", Cancel).RequireHouseholdPermission(HouseholdPermissions.Finances.Import).WithSummary("Cancels an open import and deletes its file");
-        group.MapGet("/settings", GetSettings).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithSummary("Gets the import settings of the active household");
-        group.MapPut("/settings", UpdateSettings).RequireHouseholdPermission(HouseholdPermissions.Finances.Configure).WithRequestValidation<UpdateImportSettingsRequest>().WithSummary("Changes the import settings of the active household");
+        group.MapPost("/{id:guid}/mapping", ConfirmMapping).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Confirms the column mapping and starts reading the file");
+        group.MapPut("/{id:guid}/candidates/{candidateId:guid}", UpdateCandidate).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Changes the category or exclusion of a row during the review");
+        group.MapGet("/{id:guid}/ai-preview", GetAiPreview).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Gets exactly the texts the AI categorization would send");
+        group.MapPut("/{id:guid}/ai-preview/{key}", UpdateAiPreviewItem).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Deselects or selects a text of the AI preview");
+        group.MapPost("/{id:guid}/categorize", Categorize).RequireSpacePermission(SpacePermissions.Finances.Import).WithRequestValidation<CategorizeImportRequest>().WithSummary("Proposes categories with the AI for the rows that have none");
+        group.MapPost("/{id:guid}/commit", Commit).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Replaces the account's transactions in the covered months with the reviewed rows");
+        group.MapPost("/{id:guid}/cancel", Cancel).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Cancels an open import and deletes its file");
+        group.MapGet("/settings", GetSettings).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the import settings of the active space");
+        group.MapPut("/settings", UpdateSettings).RequireSpacePermission(SpacePermissions.Finances.Configure).WithRequestValidation<UpdateImportSettingsRequest>().WithSummary("Changes the import settings of the active space");
 
         return builder;
     }

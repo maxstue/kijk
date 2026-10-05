@@ -8,11 +8,11 @@ using Kijk.Shared;
 namespace Kijk.Application.Budgets.Update;
 
 /// <summary>
-/// Updates budget versions of the active household.
+/// Updates budget versions of the active space.
 /// </summary>
 public sealed class UpdateBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Updates a budget version of the active household.</summary>
+    /// <summary>Updates a budget version of the active space.</summary>
     /// <param name="id">The budget id.</param>
     /// <param name="request">The new budget data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -21,13 +21,13 @@ public sealed class UpdateBudgetHandler(IAppDbContext dbContext, CurrentUser cur
     {
         var budget = await dbContext.GetVisibleBudgets(currentUser)
             .Include(item => item.Category)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (budget is null)
         {
             return Error.NotFound("Budget could not be found");
         }
 
-        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, budget.Visibility == Visibility.Shared, HouseholdPermissions.Budgets.Plan, cancellationToken) is { } error)
+        if (await dbContext.AuthorizeSharedChangeAsync(currentUser, budget.Visibility == Visibility.Shared, SpacePermissions.Budgets.Plan, cancellationToken) is { } error)
         {
             return error;
         }

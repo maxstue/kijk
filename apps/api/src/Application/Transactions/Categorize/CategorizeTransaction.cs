@@ -45,7 +45,7 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
         var transaction = await dbContext.GetVisibleTransactions(currentUser)
             .Include(item => item.Account)
             .Include(item => item.Category)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (transaction is null)
         {
             return Error.NotFound("Transaction could not be found");
@@ -57,7 +57,7 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
             category = await dbContext.GetAvailableCategories(currentUser).FirstOrDefaultAsync(item => item.Id == categoryId, cancellationToken);
             if (category is null)
             {
-                return Error.NotFound("Category is not available in the active household");
+                return Error.NotFound("Category is not available in the active space");
             }
         }
 
@@ -102,13 +102,13 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
 
     private async Task RememberAsync(CategoryRuleScope scope, string key, string label, Category category, CancellationToken cancellationToken)
     {
-        var householdId = currentUser.ActiveHouseholdId!.Value;
+        var spaceId = currentUser.ActiveSpaceId!.Value;
         var existing = await dbContext.CategoryRules.FirstOrDefaultAsync(
-            item => item.HouseholdId == householdId && item.Scope == scope && item.Key == key,
+            item => item.SpaceId == spaceId && item.Scope == scope && item.Key == key,
             cancellationToken);
         if (existing is null)
         {
-            dbContext.CategoryRules.Add(CategoryRule.CreateFromCorrection(scope, key, label, category, householdId));
+            dbContext.CategoryRules.Add(CategoryRule.CreateFromCorrection(scope, key, label, category, spaceId));
             return;
         }
 
@@ -121,15 +121,15 @@ public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, Curren
         var others = scope switch
         {
             CategoryRuleScope.Counterparty => await dbContext.GetVisibleTransactions(currentUser)
-                .Where(item => item.HouseholdId == corrected.HouseholdId && item.Id != corrected.Id && item.CounterpartyKey == key)
+                .Where(item => item.SpaceId == corrected.SpaceId && item.Id != corrected.Id && item.CounterpartyKey == key)
                 .ToListAsync(cancellationToken),
             CategoryRuleScope.Merchant => (await dbContext.GetVisibleTransactions(currentUser)
-                    .Where(item => item.HouseholdId == corrected.HouseholdId && item.Id != corrected.Id && item.CounterpartyKey == null && item.IsMerchantPayment && item.Counterparty != null)
+                    .Where(item => item.SpaceId == corrected.SpaceId && item.Id != corrected.Id && item.CounterpartyKey == null && item.IsMerchantPayment && item.Counterparty != null)
                     .ToListAsync(cancellationToken))
                 .Where(item => CategoryRuleKeys.For(null, item.Counterparty, isMerchantPayment: true)?.Key == key)
                 .ToList(),
             _ => (await dbContext.GetVisibleTransactions(currentUser)
-                    .Where(item => item.HouseholdId == corrected.HouseholdId && item.Id != corrected.Id && item.Purpose != null)
+                    .Where(item => item.SpaceId == corrected.SpaceId && item.Id != corrected.Id && item.Purpose != null)
                     .ToListAsync(cancellationToken))
                 .Where(item => PurposeKeywords.Contains(item.Purpose, key))
                 .ToList()

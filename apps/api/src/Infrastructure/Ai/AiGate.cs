@@ -14,10 +14,10 @@ namespace Kijk.Infrastructure.Ai;
 internal sealed class AiGate(IOptionsMonitor<AiOptions> ai, IAppDbContext dbContext) : IAiGate
 {
     /// <inheritdoc />
-    public async Task<bool> CanUseAiAsync(Guid householdId, Guid userId, CancellationToken cancellationToken) =>
+    public async Task<bool> CanUseAiAsync(Guid spaceId, Guid userId, CancellationToken cancellationToken) =>
         ai.CurrentValue.Enabled
         && !string.IsNullOrWhiteSpace(ai.CurrentValue.ApiKey)
-        && await dbContext.UserHouseholds.AnyAsync(
-            link => link.UserId == userId && link.HouseholdId == householdId && link.User.AiEnabled,
+        && await dbContext.UserSpaces.AnyAsync(
+            link => link.UserId == userId && link.SpaceId == spaceId && link.User.AiEnabled,
             cancellationToken);
 }

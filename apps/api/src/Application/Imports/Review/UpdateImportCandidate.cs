@@ -35,7 +35,7 @@ public sealed class UpdateImportCandidateHandler(IAppDbContext dbContext, Curren
     {
         var job = await dbContext.GetVisibleImports(currentUser)
             .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (job is null)
         {
             return Error.NotFound("Import could not be found");
@@ -56,7 +56,7 @@ public sealed class UpdateImportCandidateHandler(IAppDbContext dbContext, Curren
         if (request.CategoryId is { } categoryId
             && !await dbContext.GetAvailableCategories(currentUser).AnyAsync(item => item.Id == categoryId, cancellationToken))
         {
-            return Error.NotFound("Category is not available in the active household");
+            return Error.NotFound("Category is not available in the active space");
         }
 
         if (candidate.CategoryId != request.CategoryId)

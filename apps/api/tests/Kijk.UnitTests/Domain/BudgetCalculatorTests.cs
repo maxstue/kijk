@@ -8,7 +8,7 @@ namespace Kijk.UnitTests.Domain;
 public class BudgetCalculatorTests
 {
     private static readonly MonthYear October = new(new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc));
-    private readonly Household _household = Household.Create("Test household");
+    private readonly Space _space = Space.Create("Test space");
     private readonly User _user = User.Init("auth", "Test", "test@example.test");
     private readonly Category _groceries;
     private readonly Category _leisure;
@@ -144,14 +144,14 @@ public class BudgetCalculatorTests
 
     private Category CreateCategory(string name, CategoryKind kind)
     {
-        var category = Category.Create(name, "circle", "#000000", kind, _household);
+        var category = Category.Create(name, "circle", "#000000", kind, _space);
         category.Id = Guid.NewGuid();
         return category;
     }
 
     private Budget CreateBudget(Category category, decimal amount, MonthYear validFrom)
     {
-        var budget = Budget.Create(amount, validFrom, true, category, _user, _household);
+        var budget = Budget.Create(amount, validFrom, true, category, _user, _space);
         budget.Id = Guid.NewGuid();
         budget.CategoryId = category.Id;
         return budget;
@@ -163,7 +163,7 @@ public class BudgetCalculatorTests
             new TransactionDetails(new DateTime(2026, 10, 15, 0, 0, 0, DateTimeKind.Utc), amount, "Shop", null, TransactionStatus.Booked, false),
             null,
             _user,
-            _household);
+            _space);
         transaction.AssignCategoryManually(category);
         return transaction;
     }

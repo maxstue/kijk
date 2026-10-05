@@ -13,54 +13,54 @@ public static class FinanceQueryExtensions
     extension(IAppDbContext dbContext)
     {
         /// <summary>
-        /// Returns the categories available to the active household: all system categories and its own categories.
+        /// Returns the categories available to the active space: all system categories and its own categories.
         /// </summary>
         /// <param name="currentUser">The current authenticated user.</param>
         /// <returns>A query containing the available categories.</returns>
         public IQueryable<Category> GetAvailableCategories(CurrentUser currentUser) =>
             dbContext.Categories.Where(category =>
-                category.CreatorType == CreatorType.System || category.HouseholdId == currentUser.ActiveHouseholdId);
+                category.CreatorType == CreatorType.System || category.SpaceId == currentUser.ActiveSpaceId);
 
         /// <summary>
-        /// Returns the accounts of the active household the current member may see: shared ones and their own private
+        /// Returns the accounts of the active space the current member may see: shared ones and their own private
         /// ones.
         /// </summary>
         /// <param name="currentUser">The current authenticated user.</param>
         /// <returns>A query containing the visible accounts.</returns>
-        public IQueryable<Account> GetHouseholdAccounts(CurrentUser currentUser) =>
-            dbContext.Accounts.Where(account => account.HouseholdId == currentUser.ActiveHouseholdId
+        public IQueryable<Account> GetSpaceAccounts(CurrentUser currentUser) =>
+            dbContext.Accounts.Where(account => account.SpaceId == currentUser.ActiveSpaceId
                                                 && (account.OwnerId == null || account.OwnerId == currentUser.Id));
 
         /// <summary>
-        /// Returns the transactions of the active household the current member may see. Transactions inherit the
+        /// Returns the transactions of the active space the current member may see. Transactions inherit the
         /// visibility of their account.
         /// </summary>
         /// <param name="currentUser">The current authenticated user.</param>
         /// <returns>A query containing the visible transactions.</returns>
         public IQueryable<Transaction> GetVisibleTransactions(CurrentUser currentUser) =>
-            dbContext.Transactions.Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId
+            dbContext.Transactions.Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId
                                                         && (transaction.Account == null
                                                             || transaction.Account.OwnerId == null
                                                             || transaction.Account.OwnerId == currentUser.Id));
 
         /// <summary>
-        /// Returns the budget versions of the active household the current member may see: shared ones and their own
+        /// Returns the budget versions of the active space the current member may see: shared ones and their own
         /// private ones.
         /// </summary>
         /// <param name="currentUser">The current authenticated user.</param>
         /// <returns>A query containing the visible budgets.</returns>
         public IQueryable<Budget> GetVisibleBudgets(CurrentUser currentUser) =>
-            dbContext.Budgets.Where(budget => budget.HouseholdId == currentUser.ActiveHouseholdId
+            dbContext.Budgets.Where(budget => budget.SpaceId == currentUser.ActiveSpaceId
                                               && (budget.OwnerId == null || budget.OwnerId == currentUser.Id));
 
         /// <summary>
-        /// Returns the imports of the active household the current member may see; imports inherit the visibility of
+        /// Returns the imports of the active space the current member may see; imports inherit the visibility of
         /// their account.
         /// </summary>
         /// <param name="currentUser">The current authenticated user.</param>
         /// <returns>A query containing the visible imports.</returns>
         public IQueryable<ImportJob> GetVisibleImports(CurrentUser currentUser) =>
-            dbContext.ImportJobs.Where(job => job.HouseholdId == currentUser.ActiveHouseholdId
+            dbContext.ImportJobs.Where(job => job.SpaceId == currentUser.ActiveSpaceId
                                               && (job.Account.OwnerId == null || job.Account.OwnerId == currentUser.Id));
     }
 }

@@ -27,30 +27,30 @@ public class ResourcesEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
         group.MapGet("", GetAll)
-            .RequireHouseholdPermission(HouseholdPermissions.Resources.View)
+            .RequireSpacePermission(SpacePermissions.Resources.View)
             .WithSummary("Gets all resources");
 
         group.MapGet("/{id:guid}", GetById)
-            .RequireHouseholdPermission(HouseholdPermissions.Resources.View)
+            .RequireSpacePermission(SpacePermissions.Resources.View)
             .WithName("GetResourceById")
             .WithSummary("Gets a resource type");
 
         group.MapPost("", Create)
-            .RequireHouseholdPermission(HouseholdPermissions.Resources.Configure)
+            .RequireSpacePermission(SpacePermissions.Resources.Configure)
             .WithRequestValidation<CreateResourceRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Creates a new resource type");
 
         group.MapPut("/{id:guid}", Update)
-            .RequireHouseholdPermission(HouseholdPermissions.Resources.Configure)
+            .RequireSpacePermission(SpacePermissions.Resources.Configure)
             .WithRequestValidation<UpdateResourceRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Updates a custom resource type");
 
         group.MapDelete("/{id:guid}", Delete)
-            .RequireHouseholdPermission(HouseholdPermissions.Resources.Configure)
+            .RequireSpacePermission(SpacePermissions.Resources.Configure)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .WithSummary("Deletes an unused custom resource type");

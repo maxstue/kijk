@@ -29,7 +29,7 @@ public sealed class ConfirmImportMappingHandler(
     {
         var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (job is null)
         {
             return Error.NotFound("Import could not be found");
@@ -71,7 +71,7 @@ public sealed class ConfirmImportMappingHandler(
     {
         var fingerprint = HeaderFingerprint.Compute(table.Records[mapping.HeaderRowIndex].Fields, mapping.Delimiter, mapping.Encoding);
         var latest = await dbContext.ImportProfiles
-            .Where(item => item.HouseholdId == job.HouseholdId && item.HeaderFingerprint == fingerprint)
+            .Where(item => item.SpaceId == job.SpaceId && item.HeaderFingerprint == fingerprint)
             .OrderByDescending(item => item.Version)
             .FirstOrDefaultAsync(cancellationToken);
         if (latest?.Mapping == json)
@@ -86,7 +86,7 @@ public sealed class ConfirmImportMappingHandler(
             Mapping = json,
             Version = (latest?.Version ?? 0) + 1,
             ConfirmedAt = timeProvider.GetUtcNow().UtcDateTime,
-            HouseholdId = job.HouseholdId
+            SpaceId = job.SpaceId
         });
     }
 }

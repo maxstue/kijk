@@ -30,14 +30,14 @@ public class CategoryConfig : IEntityTypeConfiguration<Category>
             .HasComputedColumnSql("lower(btrim(name))", stored: true);
         builder.HasIndex("NormalizedName")
             .IsUnique()
-            .HasFilter("household_id IS NULL");
-        builder.HasIndex("HouseholdId", "NormalizedName")
+            .HasFilter("space_id IS NULL");
+        builder.HasIndex("SpaceId", "NormalizedName")
             .IsUnique()
-            .HasFilter("household_id IS NOT NULL");
+            .HasFilter("space_id IS NOT NULL");
 
-        builder.HasOne(x => x.Household)
+        builder.HasOne(x => x.Space)
             .WithMany(x => x.Categories)
-            .HasForeignKey(x => x.HouseholdId)
+            .HasForeignKey(x => x.SpaceId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasData(SystemCategories.All.Select(category => new

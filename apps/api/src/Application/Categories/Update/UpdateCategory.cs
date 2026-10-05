@@ -6,11 +6,11 @@ using Kijk.Shared;
 namespace Kijk.Application.Categories.Update;
 
 /// <summary>
-/// Updates custom categories of the active household.
+/// Updates custom categories of the active space.
 /// </summary>
 public sealed class UpdateCategoryHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Updates a custom category of the active household.</summary>
+    /// <summary>Updates a custom category of the active space.</summary>
     /// <param name="id">The category id.</param>
     /// <param name="request">The new category data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>

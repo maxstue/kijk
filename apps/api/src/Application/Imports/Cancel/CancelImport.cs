@@ -18,7 +18,7 @@ public sealed class CancelImportHandler(IAppDbContext dbContext, CurrentUser cur
     {
         var job = await dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (job is null)
         {
             return Error.NotFound("Import could not be found");

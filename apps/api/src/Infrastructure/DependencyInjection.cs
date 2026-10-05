@@ -152,7 +152,7 @@ public static class DependencyInjection
 
             services.AddScoped<CurrentUser>();
             services.AddScoped<IAuthorizationHandler, OnboardingCompletedAuthorizationHandler>();
-            services.AddScoped<IAuthorizationHandler, HouseholdPermissionAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, SpacePermissionAuthorizationHandler>();
 
             var authorization = services.AddAuthorizationBuilder()
                 .AddPolicy(AppConstants.Policies.Authenticated, policy => policy.RequireAuthenticatedUser())
@@ -162,13 +162,13 @@ public static class DependencyInjection
                         .RequireAuthenticatedUser()
                         .AddRequirements(new OnboardingCompletedRequirement()));
 
-            foreach (var permission in HouseholdPermissions.All.Select(permission => permission.Name))
+            foreach (var permission in SpacePermissions.All.Select(permission => permission.Name))
             {
                 authorization.AddPolicy(
-                    AppConstants.Policies.HouseholdPermission(permission),
+                    AppConstants.Policies.SpacePermission(permission),
                     policy => policy
                         .RequireAuthenticatedUser()
-                        .AddRequirements(new HouseholdPermissionRequirement(permission)));
+                        .AddRequirements(new SpacePermissionRequirement(permission)));
             }
 
             return services;

@@ -10,7 +10,7 @@ namespace Kijk.Application.Transactions.Shared;
 /// </summary>
 internal static class TransactionReferences
 {
-    /// <summary>Loads the referenced account and category from the active household.</summary>
+    /// <summary>Loads the referenced account and category from the active space.</summary>
     /// <param name="dbContext">The application database context.</param>
     /// <param name="currentUser">The current authenticated user.</param>
     /// <param name="accountId">The account id, if any.</param>
@@ -27,11 +27,11 @@ internal static class TransactionReferences
         Account? account = null;
         if (accountId is { } requestedAccountId)
         {
-            account = await dbContext.GetHouseholdAccounts(currentUser)
+            account = await dbContext.GetSpaceAccounts(currentUser)
                 .FirstOrDefaultAsync(item => item.Id == requestedAccountId, cancellationToken);
             if (account is null)
             {
-                return Error.NotFound("Account is not available in the active household");
+                return Error.NotFound("Account is not available in the active space");
             }
         }
 
@@ -42,7 +42,7 @@ internal static class TransactionReferences
                 .FirstOrDefaultAsync(item => item.Id == requestedCategoryId, cancellationToken);
             if (category is null)
             {
-                return Error.NotFound("Category is not available in the active household");
+                return Error.NotFound("Category is not available in the active space");
             }
         }
 

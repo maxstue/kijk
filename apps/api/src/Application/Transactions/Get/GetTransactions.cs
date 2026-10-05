@@ -6,11 +6,11 @@ using Kijk.Shared;
 namespace Kijk.Application.Transactions.Get;
 
 /// <summary>
-/// Retrieves transactions of the active household.
+/// Retrieves transactions of the active space.
 /// </summary>
 public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Gets the transactions of the active household, newest first.</summary>
+    /// <summary>Gets the transactions of the active space, newest first.</summary>
     /// <param name="year">The year, or <see langword="null" /> for all years.</param>
     /// <param name="month">The month (1-12), or <see langword="null" /> for the whole year. Requires a year.</param>
     /// <param name="uncategorized">When <see langword="true" />, only transactions without a category.</param>
@@ -30,7 +30,7 @@ public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser 
         var query = dbContext.GetVisibleTransactions(currentUser)
             .Include(transaction => transaction.Account)
             .Include(transaction => transaction.Category)
-            .Where(transaction => transaction.HouseholdId == currentUser.ActiveHouseholdId);
+            .Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId);
 
         if (year is { } selectedYear)
         {
@@ -53,7 +53,7 @@ public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser 
         return transactions.Select(transaction => transaction.ToResponse()).ToList();
     }
 
-    /// <summary>Gets a transaction of the active household.</summary>
+    /// <summary>Gets a transaction of the active space.</summary>
     /// <param name="id">The transaction id.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The transaction, or a not-found error.</returns>
@@ -63,7 +63,7 @@ public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser 
             .Include(item => item.Account)
             .Include(item => item.Category)
             .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
 
         return transaction is null ? Error.NotFound("Transaction could not be found") : transaction.ToResponse();
     }

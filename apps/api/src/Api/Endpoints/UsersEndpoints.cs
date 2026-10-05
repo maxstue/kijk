@@ -3,7 +3,7 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
-using Kijk.Application.Users.SwitchHousehold;
+using Kijk.Application.Users.SwitchSpace;
 using Kijk.Application.Users.Update;
 using Kijk.Application.Users.Welcome;
 using Kijk.Domain.Authorization;
@@ -27,22 +27,22 @@ public class UsersEndpoints : IEndpointGroup
             .WithTags("Users");
 
         group.MapGet("/me", GetMe)
-            .WithoutHouseholdPermission(CurrentUserOnly)
+            .WithoutSpacePermission(CurrentUserOnly)
             .WithSummary("Gets me");
 
         group.MapPut("", Update)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
-            .WithoutHouseholdPermission("Changes the current user's account; renaming the active household is checked in the handler (household:configure).")
+            .WithoutSpacePermission("Changes the current user's account; renaming the active space is checked in the handler (space:configure).")
             .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
 
-        group.MapPut("/active-household", SwitchHousehold)
+        group.MapPut("/active-space", SwitchSpace)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
-            .WithoutHouseholdPermission("Any member may switch to a space they belong to; the handler checks the membership.")
+            .WithoutSpacePermission("Any member may switch to a space they belong to; the handler checks the membership.")
             .WithSummary("Switches the active space of the current user");
 
         group.MapPut("/onboarding", Onboarding)
-            .WithoutHouseholdPermission("Onboarding creates the user's first household.")
+            .WithoutSpacePermission("Onboarding creates the user's first space.")
             .WithRequestValidation<WelcomeUserRequest>()
             .WithSummary("Completes onboarding and creates the Kijk account when needed");
 
@@ -88,9 +88,9 @@ public class UsersEndpoints : IEndpointGroup
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
-    private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> SwitchHousehold(
-        SwitchHouseholdRequest request,
-        SwitchHouseholdHandler handler,
+    private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> SwitchSpace(
+        SwitchSpaceRequest request,
+        SwitchSpaceHandler handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.SwitchAsync(request, cancellationToken);

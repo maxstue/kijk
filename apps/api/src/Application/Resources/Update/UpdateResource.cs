@@ -17,7 +17,7 @@ public class UpdateResourceHandler(
     IUnitConversionService unitConversionService,
     ILogger<UpdateResourceHandler> logger) : IHandler
 {
-    /// <summary>Updates a custom resource of the active household.</summary>
+    /// <summary>Updates a custom resource of the active space.</summary>
     /// <param name="id">The resource id.</param>
     /// <param name="request">The new resource data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -80,7 +80,7 @@ public class UpdateResourceHandler(
             .FirstOrDefaultAsync(item => item.Id == unitId.Value, cancellationToken);
         if (unit is null)
         {
-            return Error.NotFound("Unit is not available in the active household");
+            return Error.NotFound("Unit is not available in the active space");
         }
 
         return string.Equals(resource.Unit.QuantityKey, unit.QuantityKey, StringComparison.Ordinal)

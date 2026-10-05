@@ -11,7 +11,7 @@
         "tags": [
           "Accounts"
         ],
-        "summary": "Gets the accounts of the active household",
+        "summary": "Gets the accounts of the active space",
         "responses": {
           "200": {
             "description": "OK",
@@ -229,7 +229,7 @@
         "tags": [
           "Budgets"
         ],
-        "summary": "Gets all budget versions of the active household",
+        "summary": "Gets all budget versions of the active space",
         "responses": {
           "200": {
             "description": "OK",
@@ -607,7 +607,7 @@
         "tags": [
           "Categories"
         ],
-        "summary": "Gets the categories available to the active household",
+        "summary": "Gets the categories available to the active space",
         "responses": {
           "200": {
             "description": "OK",
@@ -825,7 +825,7 @@
         "tags": [
           "Category Rules"
         ],
-        "summary": "Gets the remembered category corrections of the active household",
+        "summary": "Gets the remembered category corrections of the active space",
         "responses": {
           "200": {
             "description": "OK",
@@ -1506,305 +1506,12 @@
         ]
       }
     },
-    "/api/households/roles": {
-      "get": {
-        "tags": [
-          "Households"
-        ],
-        "summary": "Gets the household roles and their permissions",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/HouseholdRoleResponse"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/households/{id}": {
-      "put": {
-        "tags": [
-          "Households"
-        ],
-        "summary": "Updates household details",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateHouseholdRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Households"
-        ],
-        "summary": "Deletes a household and its data",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/households/{id}/members": {
-      "get": {
-        "tags": [
-          "Households"
-        ],
-        "summary": "Gets the members of a household with their roles",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/HouseholdMemberResponse"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/households/{id}/members/{userId}/role": {
-      "put": {
-        "tags": [
-          "Households"
-        ],
-        "summary": "Changes the role of another household member",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangeMemberRoleRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HouseholdMemberResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
     "/api/imports": {
       "get": {
         "tags": [
           "Imports"
         ],
-        "summary": "Gets the latest imports of the active household",
+        "summary": "Gets the latest imports of the active space",
         "responses": {
           "200": {
             "description": "OK",
@@ -2597,7 +2304,7 @@
         "tags": [
           "Imports"
         ],
-        "summary": "Gets the import settings of the active household",
+        "summary": "Gets the import settings of the active space",
         "responses": {
           "200": {
             "description": "OK",
@@ -2641,7 +2348,7 @@
         "tags": [
           "Imports"
         ],
-        "summary": "Changes the import settings of the active household",
+        "summary": "Changes the import settings of the active space",
         "requestBody": {
           "content": {
             "application/json": {
@@ -2697,7 +2404,7 @@
         "tags": [
           "Consumption Limits"
         ],
-        "summary": "Gets consumption limits for the active household",
+        "summary": "Gets consumption limits for the active space",
         "responses": {
           "200": {
             "description": "OK",
@@ -3192,12 +2899,305 @@
         ]
       }
     },
+    "/api/spaces/roles": {
+      "get": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Gets the space roles and their permissions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SpaceRoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/spaces/{id}": {
+      "put": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Updates space details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSpaceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Deletes a space and its data",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/spaces/{id}/members": {
+      "get": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Gets the members of a space with their roles",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SpaceMemberResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/spaces/{id}/members/{userId}/role": {
+      "put": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Changes the role of another space member",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeMemberRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpaceMemberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/transactions": {
       "get": {
         "tags": [
           "Transactions"
         ],
-        "summary": "Gets transactions of the active household, optionally by year, month or without category",
+        "summary": "Gets transactions of the active space, optionally by year, month or without category",
         "parameters": [
           {
             "name": "year",
@@ -3864,7 +3864,7 @@
         "summary": "Gets a page of units for settings",
         "parameters": [
           {
-            "name": "household",
+            "name": "space",
             "in": "query",
             "required": true,
             "schema": {
@@ -3872,7 +3872,7 @@
             }
           },
           {
-            "name": "householdId",
+            "name": "spaceId",
             "in": "query",
             "schema": {
               "type": "string",
@@ -4168,12 +4168,12 @@
         ]
       }
     },
-    "/api/units/{id}/households/{householdId}": {
+    "/api/units/{id}/spaces/{spaceId}": {
       "put": {
         "tags": [
           "Units"
         ],
-        "summary": "Shares a unit with a household",
+        "summary": "Shares a unit with a space",
         "parameters": [
           {
             "name": "id",
@@ -4185,7 +4185,7 @@
             }
           },
           {
-            "name": "householdId",
+            "name": "spaceId",
             "in": "path",
             "required": true,
             "schema": {
@@ -4230,7 +4230,7 @@
         "tags": [
           "Units"
         ],
-        "summary": "Removes a unit from a household",
+        "summary": "Removes a unit from a space",
         "parameters": [
           {
             "name": "id",
@@ -4242,7 +4242,7 @@
             }
           },
           {
-            "name": "householdId",
+            "name": "spaceId",
             "in": "path",
             "required": true,
             "schema": {
@@ -4386,7 +4386,7 @@
         ]
       }
     },
-    "/api/users/active-household": {
+    "/api/users/active-space": {
       "put": {
         "tags": [
           "Users"
@@ -4396,7 +4396,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SwitchHouseholdRequest"
+                "$ref": "#/components/schemas/SwitchSpaceRequest"
               }
             }
           },
@@ -4506,7 +4506,7 @@
           "Bank",
           "Cash"
         ],
-        "description": "Represents the kind of a household account."
+        "description": "Represents the kind of a space account."
       },
       "AccountResponse": {
         "required": [
@@ -4542,14 +4542,14 @@
             "$ref": "#/components/schemas/Visibility"
           }
         },
-        "description": "A bank account of the household."
+        "description": "A bank account of the space."
       },
       "AiDataSharing": {
         "enum": [
           "Off",
           "Strict"
         ],
-        "description": "Represents which transaction data a household lets the AI categorization see."
+        "description": "Represents which transaction data a space lets the AI categorization see."
       },
       "AiPreviewItemResponse": {
         "required": [
@@ -4961,7 +4961,7 @@
                 "type": "null"
               },
               {
-                "description": "Which data the AI may see for this import; the household's level when omitted.",
+                "description": "Which data the AI may see for this import; the space's level when omitted.",
                 "$ref": "#/components/schemas/AiDataSharing"
               }
             ]
@@ -5292,7 +5292,7 @@
             "format": "uuid"
           }
         },
-        "description": "Contains the new role of a household member."
+        "description": "Contains the new role of a space member."
       },
       "CommitImportRequest": {
         "required": [
@@ -5826,7 +5826,7 @@
           },
           "isTransfer": {
             "type": "boolean",
-            "description": "Whether it is a transfer between the household's own accounts."
+            "description": "Whether it is a transfer between the space's own accounts."
           },
           "accountId": {
             "type": [
@@ -5853,7 +5853,7 @@
           "symbol",
           "referenceUnitId",
           "conversionFactor",
-          "shareWithHouseholdIds"
+          "shareWithSpaceIds"
         ],
         "type": "object",
         "properties": {
@@ -5875,7 +5875,7 @@
             ],
             "format": "double"
           },
-          "shareWithHouseholdIds": {
+          "shareWithSpaceIds": {
             "type": [
               "null",
               "array"
@@ -6145,7 +6145,7 @@
           "analyticsConsentUpdatedAt",
           "onboardingCompletedAt",
           "aiEnabled",
-          "households",
+          "spaces",
           "resources"
         ],
         "type": "object",
@@ -6199,13 +6199,13 @@
           "aiEnabled": {
             "type": "boolean"
           },
-          "households": {
+          "spaces": {
             "type": [
               "null",
               "array"
             ],
             "items": {
-              "$ref": "#/components/schemas/UserHouseholdResponse"
+              "$ref": "#/components/schemas/UserSpaceResponse"
             }
           },
           "resources": {
@@ -6256,7 +6256,7 @@
             "description": "One entry per resource."
           }
         },
-        "description": "Consumption statistics of the active household."
+        "description": "Consumption statistics of the active space."
       },
       "GetYearsConsumptionQueryResponse": {
         "required": [
@@ -6277,63 +6277,7 @@
             "description": "The years."
           }
         },
-        "description": "The years with consumptions in the active household."
-      },
-      "HouseholdMemberResponse": {
-        "required": [
-          "userId",
-          "name",
-          "role",
-          "isCurrentUser"
-        ],
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "string",
-            "description": "The member's user identifier.",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "description": "The member's display name."
-          },
-          "role": {
-            "description": "The member's role in the household.",
-            "$ref": "#/components/schemas/HouseholdRoleResponse"
-          },
-          "isCurrentUser": {
-            "type": "boolean",
-            "description": "Whether the member is the current user."
-          }
-        },
-        "description": "A member of a household."
-      },
-      "HouseholdRoleResponse": {
-        "required": [
-          "id",
-          "name",
-          "permissions"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The role identifier.",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "description": "The role name."
-          },
-          "permissions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "The permission names granted by the role."
-          }
-        },
-        "description": "A household role and the permissions it grants."
+        "description": "The years with consumptions in the active space."
       },
       "HttpValidationProblemDetails": {
         "type": "object",
@@ -6787,7 +6731,7 @@
             "description": "Whether imports store neither names of private persons nor counterparty keys."
           }
         },
-        "description": "The import settings of the active household."
+        "description": "The import settings of the active space."
       },
       "LimitResourceResponse": {
         "required": [
@@ -7025,7 +6969,7 @@
           "Truncate",
           "Remove"
         ],
-        "description": "Represents how much of the purpose text a household keeps after an import."
+        "description": "Represents how much of the purpose text a space keeps after an import."
       },
       "ResourceResponse": {
         "required": [
@@ -7082,13 +7026,69 @@
         },
         "description": "A resource that consumptions can be recorded for."
       },
-      "SwitchHouseholdRequest": {
+      "SpaceMemberResponse": {
         "required": [
-          "householdId"
+          "userId",
+          "name",
+          "role",
+          "isCurrentUser"
         ],
         "type": "object",
         "properties": {
-          "householdId": {
+          "userId": {
+            "type": "string",
+            "description": "The member's user identifier.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The member's display name."
+          },
+          "role": {
+            "description": "The member's role in the space.",
+            "$ref": "#/components/schemas/SpaceRoleResponse"
+          },
+          "isCurrentUser": {
+            "type": "boolean",
+            "description": "Whether the member is the current user."
+          }
+        },
+        "description": "A member of a space."
+      },
+      "SpaceRoleResponse": {
+        "required": [
+          "id",
+          "name",
+          "permissions"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The role identifier.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The role name."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The permission names granted by the role."
+          }
+        },
+        "description": "A space role and the permissions it grants."
+      },
+      "SwitchSpaceRequest": {
+        "required": [
+          "spaceId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
             "type": "string",
             "description": "The space to switch to; the user must be a member.",
             "format": "uuid"
@@ -7159,7 +7159,7 @@
           },
           "isTransfer": {
             "type": "boolean",
-            "description": "Whether it is a transfer between the household's own accounts."
+            "description": "Whether it is a transfer between the space's own accounts."
           },
           "accountId": {
             "type": [
@@ -7221,7 +7221,7 @@
             "description": "Words of the purpose that a correction can be remembered for instead."
           }
         },
-        "description": "A transaction of the household."
+        "description": "A transaction of the space."
       },
       "TransactionStatus": {
         "enum": [
@@ -7302,10 +7302,10 @@
           "conversionFactor",
           "ownerUserId",
           "isOwner",
-          "isAvailableInActiveHousehold",
+          "isAvailableInActiveSpace",
           "isArchived",
           "resourceCount",
-          "householdIds"
+          "spaceIds"
         ],
         "type": "object",
         "properties": {
@@ -7360,7 +7360,7 @@
           "isOwner": {
             "type": "boolean"
           },
-          "isAvailableInActiveHousehold": {
+          "isAvailableInActiveSpace": {
             "type": "boolean"
           },
           "isArchived": {
@@ -7374,7 +7374,7 @@
             ],
             "format": "int32"
           },
-          "householdIds": {
+          "spaceIds": {
             "type": "array",
             "items": {
               "type": "string",
@@ -7535,27 +7535,6 @@
         ],
         "description": "How the entered value of a consumption is interpreted."
       },
-      "UpdateHouseholdRequest": {
-        "required": [
-          "name",
-          "description"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "The household name."
-          },
-          "description": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "An optional household description."
-          }
-        },
-        "description": "Contains the editable details for a household."
-      },
       "UpdateImportCandidateRequest": {
         "required": [
           "categoryId",
@@ -7614,7 +7593,7 @@
             "description": "Whether imports store neither names of private persons nor counterparty keys; unchanged when omitted."
           }
         },
-        "description": "Request for changing the import settings of the active household."
+        "description": "Request for changing the import settings of the active space."
       },
       "UpdateLimitRequest": {
         "required": [
@@ -7693,6 +7672,27 @@
         },
         "description": "Request to update one or more properties of a custom resource."
       },
+      "UpdateSpaceRequest": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The space name."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "An optional space description."
+          }
+        },
+        "description": "Contains the editable details for a space."
+      },
       "UpdateTransactionRequest": {
         "required": [
           "bookingDate",
@@ -7740,7 +7740,7 @@
           },
           "isTransfer": {
             "type": "boolean",
-            "description": "Whether it is a transfer between the household's own accounts."
+            "description": "Whether it is a transfer between the space's own accounts."
           },
           "accountId": {
             "type": [
@@ -7796,7 +7796,7 @@
           "userName",
           "useDefaultResources",
           "useExternalProfile",
-          "householdName",
+          "spaceName",
           "analyticsConsent"
         ],
         "type": "object",
@@ -7822,12 +7822,12 @@
             ],
             "description": "Whether Kijk may use the name and image from the authentication provider."
           },
-          "householdName": {
+          "spaceName": {
             "type": [
               "null",
               "string"
             ],
-            "description": "The new name of the active household."
+            "description": "The new name of the active space."
           },
           "analyticsConsent": {
             "oneOf": [
@@ -7849,75 +7849,6 @@
           }
         },
         "description": "Changes to the current user; `null` values are left unchanged."
-      },
-      "UserHouseholdResponse": {
-        "required": [
-          "id",
-          "name",
-          "description",
-          "role",
-          "isActive",
-          "isPersonal"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The household id.",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "description": "The household name."
-          },
-          "description": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "An optional description."
-          },
-          "role": {
-            "description": "The user's role in the household.",
-            "$ref": "#/components/schemas/UserHouseholdRoleResponse"
-          },
-          "isActive": {
-            "type": "boolean",
-            "description": "Whether this is the user's active household."
-          },
-          "isPersonal": {
-            "type": "boolean",
-            "description": "Whether this is the user's personal space, which is never shared."
-          }
-        },
-        "description": "A household membership of the current user."
-      },
-      "UserHouseholdRoleResponse": {
-        "required": [
-          "id",
-          "name",
-          "permissions"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The role id.",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "description": "The role name."
-          },
-          "permissions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "The permissions the role grants."
-          }
-        },
-        "description": "The user's role in a household."
       },
       "UserResourceResponse": {
         "required": [
@@ -8038,6 +7969,75 @@
         },
         "description": "The current user's account settings."
       },
+      "UserSpaceResponse": {
+        "required": [
+          "id",
+          "name",
+          "description",
+          "role",
+          "isActive",
+          "isPersonal"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The space id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The space name."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "An optional description."
+          },
+          "role": {
+            "description": "The user's role in the space.",
+            "$ref": "#/components/schemas/UserSpaceRoleResponse"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether this is the user's active space."
+          },
+          "isPersonal": {
+            "type": "boolean",
+            "description": "Whether this is the user's personal space, which is never shared."
+          }
+        },
+        "description": "A space membership of the current user."
+      },
+      "UserSpaceRoleResponse": {
+        "required": [
+          "id",
+          "name",
+          "permissions"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The role id.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The role name."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The permissions the role grants."
+          }
+        },
+        "description": "The user's role in a space."
+      },
       "Visibility": {
         "enum": [
           "Shared",
@@ -8048,7 +8048,7 @@
       "WelcomeUserRequest": {
         "required": [
           "displayName",
-          "householdName",
+          "spaceName",
           "useDefaultResources",
           "useExternalProfile",
           "analyticsConsent"
@@ -8059,9 +8059,9 @@
             "type": "string",
             "description": "The display name used by Kijk."
           },
-          "householdName": {
+          "spaceName": {
             "type": "string",
-            "description": "The name of the user's active household."
+            "description": "The name of the user's active space."
           },
           "useDefaultResources": {
             "type": "boolean",
@@ -8176,9 +8176,6 @@
       "name": "Consumptions"
     },
     {
-      "name": "Households"
-    },
-    {
       "name": "Imports"
     },
     {
@@ -8186,6 +8183,9 @@
     },
     {
       "name": "Resources"
+    },
+    {
+      "name": "Spaces"
     },
     {
       "name": "Transactions"

@@ -18,16 +18,16 @@ public static class UnitQueryExtensions
             dbContext.Units.Where(unit =>
                 unit.CreatorType == CreatorType.System
                 || unit.OwnerUserId == currentUser.Id
-                || unit.Households.Any(link => link.HouseholdId == currentUser.ActiveHouseholdId));
+                || unit.Spaces.Any(link => link.SpaceId == currentUser.ActiveSpaceId));
 
         /// <summary>
-        /// Returns units selectable in the active household.
+        /// Returns units selectable in the active space.
         /// </summary>
         public IQueryable<Unit> GetAvailableUnits(CurrentUser currentUser) =>
             dbContext.Units.Where(unit =>
                 unit.ArchivedAt == null
                 && unit.ConversionType != UnitConversionType.None
                 && (unit.CreatorType == CreatorType.System
-                    || unit.Households.Any(link => link.HouseholdId == currentUser.ActiveHouseholdId)));
+                    || unit.Spaces.Any(link => link.SpaceId == currentUser.ActiveSpaceId)));
     }
 }

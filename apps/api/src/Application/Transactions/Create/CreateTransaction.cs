@@ -7,23 +7,23 @@ using Microsoft.Extensions.Logging;
 namespace Kijk.Application.Transactions.Create;
 
 /// <summary>
-/// Records transactions manually for the active household.
+/// Records transactions manually for the active space.
 /// </summary>
 public sealed class CreateTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateTransactionHandler> logger) : IHandler
 {
-    /// <summary>Records a transaction in the active household.</summary>
+    /// <summary>Records a transaction in the active space.</summary>
     /// <param name="request">The transaction data.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The created transaction, or a not-found error.</returns>
     public async Task<Result<TransactionResponse>> CreateAsync(CreateTransactionRequest request, CancellationToken cancellationToken)
     {
-        var household = await dbContext.Households
-            .FirstOrDefaultAsync(item => item.Id == currentUser.ActiveHouseholdId, cancellationToken);
+        var space = await dbContext.Spaces
+            .FirstOrDefaultAsync(item => item.Id == currentUser.ActiveSpaceId, cancellationToken);
         var user = await dbContext.Users.FirstOrDefaultAsync(item => item.Id == currentUser.Id, cancellationToken);
-        if (household is null || user is null)
+        if (space is null || user is null)
         {
-            logger.LogWarning("Active household or user could not be resolved for user {UserId}", currentUser.Id);
-            return Error.NotFound("Active household could not be found");
+            logger.LogWarning("Active space or user could not be resolved for user {UserId}", currentUser.Id);
+            return Error.NotFound("Active space could not be found");
         }
 
         var references = await TransactionReferences.ResolveAsync(dbContext, currentUser, request.AccountId, request.CategoryId, cancellationToken);
@@ -43,7 +43,7 @@ public sealed class CreateTransactionHandler(IAppDbContext dbContext, CurrentUse
                 request.IsTransfer),
             account,
             user,
-            household);
+            space);
         transaction.AssignCategoryManually(category);
 
         dbContext.Transactions.Add(transaction);

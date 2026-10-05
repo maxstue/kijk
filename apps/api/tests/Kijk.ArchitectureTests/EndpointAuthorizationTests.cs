@@ -11,7 +11,7 @@ namespace Kijk.ArchitectureTests;
 public class EndpointAuthorizationTests
 {
     [Test]
-    public async Task EveryAuthenticatedEndpointDeclaresItsHouseholdAuthorization()
+    public async Task EveryAuthenticatedEndpointDeclaresItsSpaceAuthorization()
     {
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddApplication();
@@ -27,9 +27,9 @@ public class EndpointAuthorizationTests
             .Where(endpoint => endpoint.Metadata.GetMetadata<IAllowAnonymous>() is null
                 && endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>().Count > 0)
             .Where(endpoint => !endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>()
-                    .Any(data => AppConstants.Policies.IsHouseholdPermission(data.Policy))
-                && endpoint.Metadata.GetMetadata<RouteHouseholdPermissionMetadata>() is null
-                && endpoint.Metadata.GetMetadata<NoHouseholdPermissionMetadata>() is null)
+                    .Any(data => AppConstants.Policies.IsSpacePermission(data.Policy))
+                && endpoint.Metadata.GetMetadata<RouteSpacePermissionMetadata>() is null
+                && endpoint.Metadata.GetMetadata<NoSpacePermissionMetadata>() is null)
             .Select(endpoint => $"{string.Join(',', endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? [])} {endpoint.RoutePattern.RawText}")
             .ToList();
 
