@@ -15,6 +15,8 @@ function useInvalidateFinances() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.budgets.all }),
+      // Corrections change remembered rules and the rule suggestions.
+      queryClient.invalidateQueries({ queryKey: queryKeys.categoryRules.all }),
     ]);
   };
 }

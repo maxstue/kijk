@@ -10,3 +10,8 @@ export async function getCategoryRules(signal?: AbortSignal) {
 export async function deleteCategoryRule(id: string) {
   return ensureApiSuccess(await apiClient.DELETE('/api/category-rules/{id}', { params: { path: { id } } }));
 }
+
+/** Loads rules suggested from repeated manual corrections. */
+export async function getCategoryRuleSuggestions(signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient.GET('/api/category-rules/suggestions', { signal }));
+}

@@ -587,6 +587,52 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/category-rules/suggestions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the
+     * rule
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['CategoryRuleSuggestionResponse'][];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/category-rules/{id}': {
     parameters: {
       query?: never;
@@ -3263,6 +3309,41 @@ export interface components {
      * @enum {unknown}
      */
     CategoryRuleScope: 'Merchant' | 'Counterparty' | 'Keyword';
+    /** A rule Kijk suggests because a member set the same category for a merchant or counterparty by hand. */
+    CategoryRuleSuggestionResponse: {
+      /** A stable id of the suggestion, e.g. for hiding it. */
+      id: string;
+      /** What the rule would match on. */
+      scope: components['schemas']['CategoryRuleScope'];
+      /** The merchant or counterparty as shown in the transactions. */
+      label: string;
+      /**
+       * Format: uuid
+       *
+       * The category set by hand.
+       */
+      categoryId: string;
+      /** The category name. */
+      categoryName: string;
+      /**
+       * Format: int32
+       *
+       * How often the category was set by hand.
+       */
+      manualCount: number | string;
+      /**
+       * Format: int32
+       *
+       * How many transactions without category the rule would categorize right away.
+       */
+      uncategorizedCount: number | string;
+      /**
+       * Format: uuid
+       *
+       * The latest transaction categorized by hand; remembering its category creates the rule.
+       */
+      transactionId: string;
+    };
     /** @enum {unknown} */
     CategorySource: 'Rule' | 'Similarity' | 'Ai' | 'Manual' | null;
     /** The spending of an expense category per month. */

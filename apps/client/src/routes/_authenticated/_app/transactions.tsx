@@ -20,6 +20,7 @@ import { AccountsDialog } from '@/app/transactions/accounts-dialog';
 import { TransactionExportButton } from '@/app/transactions/export-button';
 import { TransactionForm } from '@/app/transactions/form';
 import { TransactionList } from '@/app/transactions/list';
+import { RuleSuggestions } from '@/app/transactions/rule-suggestions';
 import { RulesDialog } from '@/app/transactions/rules-dialog';
 import { accountsQueryOptions } from '@/shared/api/accounts/options';
 import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
@@ -130,6 +131,7 @@ function TransactionsPage() {
         />
         Only uncategorized, from all months
       </label>
+      {search.uncategorized && <RuleSuggestions canRecord={canRecord} />}
       <TransactionList filters={toFilters(search)} selectable={(search.uncategorized ?? false) && canRecord} />
     </div>
   );

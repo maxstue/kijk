@@ -68,6 +68,7 @@ const imports = {
 const categoryRules = {
   all: ['category-rules'] as const,
   list: () => [...categoryRules.all, 'list'] as const,
+  suggestions: () => [...categoryRules.all, 'suggestions'] as const,
 };
 
 const units = {
