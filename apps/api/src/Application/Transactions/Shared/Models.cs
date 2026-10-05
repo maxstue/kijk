@@ -1,4 +1,6 @@
+using Kijk.Application.Shared.Finances;
 using Kijk.Domain.Entities;
+using Kijk.Domain.Services;
 using Kijk.Shared;
 
 namespace Kijk.Application.Transactions.Shared;
@@ -17,6 +19,8 @@ namespace Kijk.Application.Transactions.Shared;
 /// <param name="CategoryId">The category id, if categorized.</param>
 /// <param name="CategoryName">The category name, if categorized.</param>
 /// <param name="CategorySource">How the category was assigned, if categorized.</param>
+/// <param name="RememberScope">What a remembered correction of this transaction would match on, or <see langword="null" /> when it cannot be remembered.</param>
+/// <param name="RememberKeywords">Words of the purpose that a correction can be remembered for instead.</param>
 public sealed record TransactionResponse(
     Guid Id,
     DateOnly BookingDate,
@@ -30,7 +34,9 @@ public sealed record TransactionResponse(
     string? AccountName,
     Guid? CategoryId,
     string? CategoryName,
-    CategorySource? CategorySource);
+    CategorySource? CategorySource,
+    CategoryRuleScope? RememberScope,
+    IReadOnlyList<string> RememberKeywords);
 
 /// <summary>
 /// Maps transaction entities to API responses.
@@ -54,7 +60,9 @@ public static class TransactionResponseMapper
             source.Account?.Name,
             source.CategoryId,
             source.Category?.Name,
-            source.CategorySource);
+            source.CategorySource,
+            CategoryRuleKeys.For(source.CounterpartyKey, source.Counterparty, source.IsMerchantPayment)?.Scope,
+            PurposeKeywords.Words(source.Purpose));
 }
 
 /// <summary>

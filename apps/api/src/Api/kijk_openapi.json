@@ -734,6 +734,105 @@
         ]
       }
     },
+    "/api/category-rules": {
+      "get": {
+        "tags": [
+          "Category Rules"
+        ],
+        "summary": "Gets the remembered category corrections of the active household",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryRuleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/category-rules/{id}": {
+      "delete": {
+        "tags": [
+          "Category Rules"
+        ],
+        "summary": "Deletes a remembered category correction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/consumption-limits": {
       "get": {
         "tags": [
@@ -1791,6 +1890,700 @@
         ]
       }
     },
+    "/api/imports": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Gets the latest imports of the active household",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ImportJobResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Uploads a bank export and starts its import",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "accountId",
+                  "file"
+                ],
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "accountId": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "$ref": "#/components/schemas/IFormFile"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Gets an import by id",
+        "operationId": "GetImportById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/preview": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Gets the first rows of an uploaded file for the column mapping",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "delimiter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "encoding",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "headerRowIndex",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/candidates": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Gets the rows of an import waiting for review",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ImportCandidateResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/mapping": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Confirms the column mapping and starts reading the file",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CsvImportMapping"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/candidates/{candidateId}": {
+      "put": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Changes the category or exclusion of a row during the review",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "candidateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateImportCandidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCandidateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/commit": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Replaces the account's transactions in the covered months with the reviewed rows",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitImportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Cancels an open import and deletes its file",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/imports/settings": {
+      "get": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Gets the import settings of the active household",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Changes the import settings of the active household",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateImportSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/resources": {
       "get": {
         "tags": [
@@ -2342,6 +3135,73 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/transactions/{id}/category": {
+      "put": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Corrects the category of a transaction, optionally remembering it for the merchant or counterparty",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorizeTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategorizeTransactionResponse"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -3123,11 +3983,19 @@
   },
   "components": {
     "schemas": {
+      "AccountKind": {
+        "enum": [
+          "Bank",
+          "Cash"
+        ],
+        "description": "Represents the kind of a household account."
+      },
       "AccountResponse": {
         "required": [
           "id",
           "name",
-          "ibanLast4"
+          "ibanLast4",
+          "kind"
         ],
         "type": "object",
         "properties": {
@@ -3146,6 +4014,10 @@
               "string"
             ],
             "description": "The last four characters of the IBAN, if known."
+          },
+          "kind": {
+            "description": "Whether it is a bank account or the cash account.",
+            "$ref": "#/components/schemas/AccountKind"
           }
         },
         "description": "A bank account of the household."
@@ -3395,6 +4267,58 @@
         },
         "description": "A budget version: a monthly amount for a category from a month on."
       },
+      "CategorizeTransactionRequest": {
+        "required": [
+          "categoryId",
+          "remember"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category, or `null` to mark the transaction as uncategorized.",
+            "format": "uuid"
+          },
+          "remember": {
+            "type": "boolean",
+            "description": "`false` corrects only this transaction. `true` also remembers the category for this\n        merchant or counterparty, applies it to its other automatically categorized transactions and to future imports."
+          },
+          "keyword": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "With Remember: remembers the category for all bookings whose purpose contains this word\n(one of IReadOnlyList&lt;string&gt; TransactionResponse.RememberKeywords) instead of for the merchant or counterparty."
+          }
+        },
+        "description": "Request for correcting the category of a transaction."
+      },
+      "CategorizeTransactionResponse": {
+        "required": [
+          "transaction",
+          "appliedToOthers"
+        ],
+        "type": "object",
+        "properties": {
+          "transaction": {
+            "description": "The transaction.",
+            "$ref": "#/components/schemas/TransactionResponse"
+          },
+          "appliedToOthers": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of other transactions that got the remembered category.",
+            "format": "int32"
+          }
+        },
+        "description": "The corrected transaction."
+      },
       "CategoryKind": {
         "enum": [
           "Expense",
@@ -3441,6 +4365,55 @@
         },
         "description": "A category that transactions and budgets can be assigned to."
       },
+      "CategoryRuleResponse": {
+        "required": [
+          "id",
+          "scope",
+          "label",
+          "categoryId",
+          "categoryName",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The rule id.",
+            "format": "uuid"
+          },
+          "scope": {
+            "description": "What the rule matches on.",
+            "$ref": "#/components/schemas/CategoryRuleScope"
+          },
+          "label": {
+            "type": "string",
+            "description": "The counterparty name shown when the rule was created."
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "The assigned category.",
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "The assigned category's name."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the rule was created.",
+            "format": "date-time"
+          }
+        },
+        "description": "A remembered category correction."
+      },
+      "CategoryRuleScope": {
+        "enum": [
+          "Merchant",
+          "Counterparty",
+          "Keyword"
+        ],
+        "description": "Represents what a category rule matches on."
+      },
       "CategorySource": {
         "enum": [
           "Rule",
@@ -3463,6 +4436,28 @@
           }
         },
         "description": "Contains the new role of a household member."
+      },
+      "CommitImportRequest": {
+        "required": [
+          "includedEdgeMonths",
+          "acceptErrors"
+        ],
+        "type": "object",
+        "properties": {
+          "includedEdgeMonths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Edge months the file covers completely and that should be replaced too."
+          },
+          "acceptErrors": {
+            "type": "boolean",
+            "description": "Confirms committing although many rows could not be parsed."
+          }
+        },
+        "description": "Request for committing an import."
       },
       "ConsumptionLimitResourceResponse": {
         "required": [
@@ -4155,6 +5150,189 @@
         ],
         "description": "Represents who was the creator of the object."
       },
+      "CsvImportMapping": {
+        "required": [
+          "delimiter",
+          "encoding",
+          "headerRowIndex",
+          "dateColumn",
+          "dateFormat",
+          "amountColumn",
+          "debitColumn",
+          "creditColumn",
+          "decimalSeparator",
+          "counterpartyColumn",
+          "payerColumn",
+          "purposeColumn",
+          "counterpartyIbanColumn",
+          "creditorIdColumn",
+          "bankReferenceColumn",
+          "statusColumn"
+        ],
+        "type": "object",
+        "properties": {
+          "delimiter": {
+            "type": "string",
+            "description": "The field delimiter, one character."
+          },
+          "encoding": {
+            "type": "string",
+            "description": "The text encoding: `utf-8` or `windows-1252`."
+          },
+          "headerRowIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 0-based index of the header among the non-empty records; records above it are metadata and ignored.",
+            "format": "int32"
+          },
+          "dateColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The booking date column.",
+            "format": "int32"
+          },
+          "dateFormat": {
+            "type": "string",
+            "description": "The date format, one of IReadOnlyList&lt;string&gt; CsvImportMapping.DateFormats."
+          },
+          "amountColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The signed amount column; alternatively use debit and credit columns.",
+            "format": "int32"
+          },
+          "debitColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The column with outgoing amounts, if the export splits them.",
+            "format": "int32"
+          },
+          "creditColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The column with incoming amounts, if the export splits them.",
+            "format": "int32"
+          },
+          "decimalSeparator": {
+            "type": "string",
+            "description": "The decimal separator: `,` or `.`."
+          },
+          "counterpartyColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The payee, or the counterparty of all bookings.",
+            "format": "int32"
+          },
+          "payerColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The payer, used for incoming payments when the export has separate columns.",
+            "format": "int32"
+          },
+          "purposeColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The purpose column.",
+            "format": "int32"
+          },
+          "counterpartyIbanColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The counterparty IBAN column.",
+            "format": "int32"
+          },
+          "creditorIdColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The SEPA creditor id column.",
+            "format": "int32"
+          },
+          "bankReferenceColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "A unique booking id of the bank, if the export has one.",
+            "format": "int32"
+          },
+          "statusColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "A column that marks pending bookings.",
+            "format": "int32"
+          },
+          "bookingTypeColumn": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The booking type, e.g. \"Lastschrift\" or \"Überweisung\"; marks card payments and direct debits.",
+            "format": "int32"
+          },
+          "mappedColumns": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            },
+            "description": "Gets all mapped column indexes."
+          }
+        },
+        "description": "Describes how the columns of a bank export map to transaction fields. Only declarative options, never code.\nColumn indexes are 0-based."
+      },
       "CurrentUserResponse": {
         "type": "object",
         "properties": {
@@ -4455,6 +5633,380 @@
           }
         }
       },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      },
+      "ImportCandidateResponse": {
+        "required": [
+          "id",
+          "rowNumber",
+          "bookingDate",
+          "amount",
+          "counterparty",
+          "purpose",
+          "status",
+          "categoryId",
+          "categorySource",
+          "errors",
+          "excluded"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The candidate id.",
+            "format": "uuid"
+          },
+          "rowNumber": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The record number in the file.",
+            "format": "int32"
+          },
+          "bookingDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The booking date, if valid.",
+            "format": "date"
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "The signed amount, if valid.",
+            "format": "double"
+          },
+          "counterparty": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The counterparty."
+          },
+          "purpose": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The cleaned purpose."
+          },
+          "status": {
+            "description": "Whether the booking is booked or pending.",
+            "$ref": "#/components/schemas/TransactionStatus"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The proposed or chosen category.",
+            "format": "uuid"
+          },
+          "categorySource": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "How the category was found.",
+                "$ref": "#/components/schemas/CategorySource"
+              }
+            ]
+          },
+          "errors": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Why the row could not be parsed."
+          },
+          "excluded": {
+            "type": "boolean",
+            "description": "Whether the row will not be imported."
+          }
+        },
+        "description": "A row of an import waiting for review."
+      },
+      "ImportJobResponse": {
+        "required": [
+          "id",
+          "status",
+          "fileName",
+          "accountId",
+          "accountName",
+          "rowCount",
+          "processedRows",
+          "errorCount",
+          "importedCount",
+          "hasHighErrorRate",
+          "error",
+          "proposedMapping",
+          "proposedMappingSource",
+          "aiUnavailable",
+          "mapping",
+          "fullMonths",
+          "edgeMonths",
+          "replacedMonths",
+          "skippedMonths",
+          "createdAt",
+          "completedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The import id.",
+            "format": "uuid"
+          },
+          "status": {
+            "description": "The processing state.",
+            "$ref": "#/components/schemas/ImportJobStatus"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "The uploaded file name."
+          },
+          "accountId": {
+            "type": "string",
+            "description": "The bank account.",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "The bank account name."
+          },
+          "rowCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of data rows.",
+            "format": "int32"
+          },
+          "processedRows": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows read so far.",
+            "format": "int32"
+          },
+          "errorCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows that could not be parsed.",
+            "format": "int32"
+          },
+          "importedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of transactions created by the commit.",
+            "format": "int32"
+          },
+          "hasHighErrorRate": {
+            "type": "boolean",
+            "description": "Whether committing needs an explicit confirmation because too many rows failed."
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Why the import failed, without file content."
+          },
+          "proposedMapping": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The proposed mapping, while the import waits for one.",
+                "$ref": "#/components/schemas/CsvImportMapping"
+              }
+            ]
+          },
+          "proposedMappingSource": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Where the proposal came from.",
+                "$ref": "#/components/schemas/MappingSource"
+              }
+            ]
+          },
+          "aiUnavailable": {
+            "type": "boolean",
+            "description": "Whether the AI format detection could not be reached, so a weaker proposal is shown."
+          },
+          "mapping": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The confirmed mapping.",
+                "$ref": "#/components/schemas/CsvImportMapping"
+              }
+            ]
+          },
+          "fullMonths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Months the file covers completely; committing replaces them."
+          },
+          "edgeMonths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "The first and last month, which the file may cover only partly."
+          },
+          "replacedMonths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Months replaced by the commit."
+          },
+          "skippedMonths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Edge months the user did not import."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the file was uploaded.",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the import was committed, cancelled or failed.",
+            "format": "date-time"
+          }
+        },
+        "description": "The state of an import."
+      },
+      "ImportJobStatus": {
+        "enum": [
+          "Pending",
+          "Analyzing",
+          "NeedsMapping",
+          "Reading",
+          "NeedsReview",
+          "Done",
+          "Failed",
+          "Cancelled"
+        ],
+        "description": "Represents the processing state of a CSV import."
+      },
+      "ImportPreviewResponse": {
+        "required": [
+          "encoding",
+          "delimiter",
+          "headerRowIndex",
+          "headers",
+          "rows",
+          "recordCount"
+        ],
+        "type": "object",
+        "properties": {
+          "encoding": {
+            "type": "string",
+            "description": "The encoding used to decode the file."
+          },
+          "delimiter": {
+            "type": "string",
+            "description": "The delimiter used to split it."
+          },
+          "headerRowIndex": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The index of the header among the non-empty records.",
+            "format": "int32"
+          },
+          "headers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The header fields."
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "The first data rows."
+          },
+          "recordCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of non-empty records in the file.",
+            "format": "int32"
+          }
+        },
+        "description": "The first rows of an uploaded file, for choosing the column mapping."
+      },
+      "ImportSettingsResponse": {
+        "required": [
+          "purposeRetention"
+        ],
+        "type": "object",
+        "properties": {
+          "purposeRetention": {
+            "description": "How much of the purpose text imported transactions keep.",
+            "$ref": "#/components/schemas/PurposeRetention"
+          }
+        },
+        "description": "The import settings of the active household."
+      },
+      "MappingSource": {
+        "enum": [
+          "Profile",
+          "Suggestion",
+          "Ai",
+          null
+        ]
+      },
       "Period": {
         "enum": [
           "Month",
@@ -4558,6 +6110,14 @@
           }
         }
       },
+      "PurposeRetention": {
+        "enum": [
+          "Keep",
+          "Truncate",
+          "Remove"
+        ],
+        "description": "Represents how much of the purpose text a household keeps after an import."
+      },
       "ResourceResponse": {
         "required": [
           "id",
@@ -4627,7 +6187,9 @@
           "accountName",
           "categoryId",
           "categoryName",
-          "categorySource"
+          "categorySource",
+          "rememberScope",
+          "rememberKeywords"
         ],
         "type": "object",
         "properties": {
@@ -4716,6 +6278,24 @@
                 "$ref": "#/components/schemas/CategorySource"
               }
             ]
+          },
+          "rememberScope": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "What a remembered correction of this transaction would match on, or `null` when it cannot be remembered.",
+                "$ref": "#/components/schemas/CategoryRuleScope"
+              }
+            ]
+          },
+          "rememberKeywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Words of the purpose that a correction can be remembered for instead."
           }
         },
         "description": "A transaction of the household."
@@ -5065,6 +6645,41 @@
           }
         },
         "description": "Contains the editable details for a household."
+      },
+      "UpdateImportCandidateRequest": {
+        "required": [
+          "categoryId",
+          "excluded"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The category, or `null` to leave the row uncategorized.",
+            "format": "uuid"
+          },
+          "excluded": {
+            "type": "boolean",
+            "description": "Whether the row is not imported."
+          }
+        },
+        "description": "Request for changing a row during the review."
+      },
+      "UpdateImportSettingsRequest": {
+        "required": [
+          "purposeRetention"
+        ],
+        "type": "object",
+        "properties": {
+          "purposeRetention": {
+            "description": "How much of the purpose text imported transactions keep.",
+            "$ref": "#/components/schemas/PurposeRetention"
+          }
+        },
+        "description": "Request for changing the import settings of the active household."
       },
       "UpdateResourceRequest": {
         "required": [
@@ -5560,6 +7175,9 @@
       "name": "Categories"
     },
     {
+      "name": "Category Rules"
+    },
+    {
       "name": "Consumption Limits"
     },
     {
@@ -5567,6 +7185,9 @@
     },
     {
       "name": "Households"
+    },
+    {
+      "name": "Imports"
     },
     {
       "name": "Resources"

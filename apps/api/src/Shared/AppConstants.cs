@@ -37,6 +37,9 @@ public static class AppConstants
 
     /// <summary>The name of the per-user rate limit policy.</summary>
     public const string RateLimit = "PerUserRatelimit";
+
+    /// <summary>The name of the per-user rate limit for file uploads.</summary>
+    public const string UploadRateLimit = "PerUserUploadRatelimit";
     /// <summary>The name of the CORS policy.</summary>
     public const string Cors = "CorsPolicy";
 

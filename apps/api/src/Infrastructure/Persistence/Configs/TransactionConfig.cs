@@ -13,7 +13,10 @@ public class TransactionConfig : IEntityTypeConfiguration<Transaction>
         builder.HasKey(x => x.Id);
         builder.HasIndex(x => new { x.HouseholdId, x.BookingDate });
         builder.HasIndex(x => x.CategoryId);
-        builder.HasIndex(x => x.AccountId);
+        builder.HasIndex(x => new { x.AccountId, x.BookingDate });
+        builder.HasIndex(x => x.CounterpartyKey);
+        builder.Property(x => x.BookingKey).HasMaxLength(64);
+        builder.Property(x => x.CounterpartyKey).HasMaxLength(64);
         builder.Property(x => x.Amount).HasPrecision(18, 2);
         builder.Property(x => x.Currency).HasMaxLength(3);
         builder.Property(x => x.Counterparty).HasMaxLength(200);
@@ -36,6 +39,11 @@ public class TransactionConfig : IEntityTypeConfiguration<Transaction>
             .WithMany()
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.ImportJob)
+            .WithMany()
+            .HasForeignKey(x => x.ImportJobId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(x => x.CreatedBy)
             .WithMany()

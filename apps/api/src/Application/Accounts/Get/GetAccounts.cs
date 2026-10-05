@@ -10,13 +10,14 @@ namespace Kijk.Application.Accounts.Get;
 /// </summary>
 public sealed class GetAccountsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Gets all accounts of the active household ordered by name.</summary>
+    /// <summary>Gets all accounts of the active household, bank accounts first, then by name.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The accounts.</returns>
     public async Task<Result<List<AccountResponse>>> GetAllAsync(CancellationToken cancellationToken)
     {
         var accounts = await dbContext.GetHouseholdAccounts(currentUser)
-            .OrderBy(account => account.Name)
+            .OrderBy(account => account.Kind)
+            .ThenBy(account => account.Name)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 

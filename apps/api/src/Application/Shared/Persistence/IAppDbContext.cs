@@ -31,6 +31,16 @@ public interface IAppDbContext
     DbSet<Account> Accounts { get; }
     /// <summary>Gets the transactions.</summary>
     DbSet<Transaction> Transactions { get; }
+    /// <summary>Gets the category rules.</summary>
+    DbSet<CategoryRule> CategoryRules { get; }
+    /// <summary>Gets the imports.</summary>
+    DbSet<ImportJob> ImportJobs { get; }
+    /// <summary>Gets the encrypted files of open imports.</summary>
+    DbSet<ImportFile> ImportFiles { get; }
+    /// <summary>Gets the rows of imports waiting for review.</summary>
+    DbSet<ImportCandidate> ImportCandidates { get; }
+    /// <summary>Gets the confirmed import mappings.</summary>
+    DbSet<ImportProfile> ImportProfiles { get; }
     /// <summary>Gets the household roles.</summary>
     DbSet<Role> Roles { get; }
     /// <summary>Gets the household permissions.</summary>

@@ -15,6 +15,8 @@ internal static class PostgreSqlTestDatabase
     private static string _restoreSystemRowsSql = null!;
     private static bool _started;
 
+    internal static string ConnectionString => Container.GetConnectionString();
+
     internal static async Task StartAsync()
     {
         if (_started)
@@ -42,7 +44,7 @@ internal static class PostgreSqlTestDatabase
             DbAdapter = DbAdapter.Postgres,
             SchemasToInclude = ["public"],
             // Household roles and permissions are reference data seeded by migrations.
-            TablesToIgnore = ["__EFMigrationsHistory", "roles", "permissions", "roles_permissions"]
+            TablesToIgnore = ["__EFMigrationsHistory", "roles", "permissions", "roles_permissions", "data_protection_keys"]
         });
         _started = true;
     }

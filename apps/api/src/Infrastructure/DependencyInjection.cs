@@ -4,7 +4,9 @@ using EntityFramework.Exceptions.PostgreSQL;
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Authorization;
+using Kijk.Infrastructure.Ai;
 using Kijk.Infrastructure.Auth;
+using Kijk.Infrastructure.Imports;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;
 using Kijk.Infrastructure.Telemetry;
@@ -38,7 +40,9 @@ public static class DependencyInjection
                 .AddTelemetry()
                 .AddLogging(configuration)
                 .AddClerkBackendApi()
-                .AddAuth(configuration);
+                .AddAuth(configuration)
+                .AddImports(configuration)
+                .AddAi(configuration);
 
         private IServiceCollection AddTelemetry()
         {

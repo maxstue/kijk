@@ -1,4 +1,5 @@
 using Kijk.Domain.Entities;
+using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,6 +15,11 @@ public class AccountConfig : IEntityTypeConfiguration<Account>
         builder.HasIndex(x => x.HouseholdId);
         builder.Property(x => x.Name).HasMaxLength(100);
         builder.Property(x => x.IbanLast4).HasMaxLength(4);
+        // Every household has exactly one cash account.
+        builder.HasIndex(x => x.HouseholdId, "ix_accounts_household_id_cash")
+            .HasDatabaseName("ix_accounts_household_id_cash")
+            .HasFilter($"kind = {(int)AccountKind.Cash}")
+            .IsUnique();
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()

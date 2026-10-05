@@ -1,3 +1,5 @@
+using Kijk.Shared;
+
 namespace Kijk.Domain.Entities;
 
 /// <summary>
@@ -10,6 +12,9 @@ public sealed class Account : BaseEntity
 
     /// <summary>Gets or sets the last four characters of the IBAN. The full IBAN is never stored.</summary>
     public string? IbanLast4 { get; set; }
+
+    /// <summary>Gets or sets whether this is a bank account or the household's cash account.</summary>
+    public AccountKind Kind { get; set; }
 
     /// <summary>Gets or sets the id of <see cref="Household" />.</summary>
     public Guid HouseholdId { get; set; }
@@ -27,6 +32,18 @@ public sealed class Account : BaseEntity
         {
             Name = name,
             IbanLast4 = ibanLast4,
+            Kind = AccountKind.Bank,
+            Household = household
+        };
+
+    /// <summary>Creates the cash account of a household. Imports never replace its transactions.</summary>
+    /// <param name="household">The owning household.</param>
+    /// <returns>The new cash account.</returns>
+    public static Account CreateCash(Household household) =>
+        new()
+        {
+            Name = "Cash",
+            Kind = AccountKind.Cash,
             Household = household
         };
 

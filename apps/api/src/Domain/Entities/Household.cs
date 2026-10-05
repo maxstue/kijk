@@ -1,4 +1,6 @@
-﻿namespace Kijk.Domain.Entities;
+﻿using Kijk.Shared;
+
+namespace Kijk.Domain.Entities;
 
 /// <summary>A household: the unit that owns consumptions, limits, resources and finances and that users are members of.</summary>
 public sealed class Household : BaseEntity
@@ -7,6 +9,9 @@ public sealed class Household : BaseEntity
     public required string Name { get; set; }
     /// <summary>Gets or sets an optional description.</summary>
     public string? Description { get; set; }
+
+    /// <summary>Gets how much of the purpose text is kept when imported transactions are stored.</summary>
+    public PurposeRetention PurposeRetention { get; private set; }
 
     /// <summary>Gets the memberships of this household.</summary>
     public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
@@ -26,17 +31,29 @@ public sealed class Household : BaseEntity
     public ICollection<Account> Accounts { get; init; } = new List<Account>();
     /// <summary>Gets the transactions of this household.</summary>
     public ICollection<Transaction> Transactions { get; init; } = new List<Transaction>();
+    /// <summary>Gets the category rules of this household.</summary>
+    public ICollection<CategoryRule> CategoryRules { get; init; } = new List<CategoryRule>();
+    /// <summary>Gets the imports of this household.</summary>
+    public ICollection<ImportJob> ImportJobs { get; init; } = new List<ImportJob>();
 
-    /// <summary>Creates a household.</summary>
+    /// <summary>Creates a household with its cash account.</summary>
     /// <param name="name">The household name.</param>
     /// <param name="description">An optional description.</param>
     /// <returns>The new household.</returns>
-    public static Household Create(string name, string? description = null) =>
-        new()
+    public static Household Create(string name, string? description = null)
+    {
+        var household = new Household
         {
             Name = name,
             Description = description,
         };
+        household.Accounts.Add(Account.CreateCash(household));
+        return household;
+    }
+
+    /// <summary>Sets how much of the purpose text is kept when imported transactions are stored.</summary>
+    /// <param name="retention">The retention.</param>
+    public void SetPurposeRetention(PurposeRetention retention) => PurposeRetention = retention;
 
     /// <summary>Renames the household.</summary>
     /// <param name="name">The new name.</param>

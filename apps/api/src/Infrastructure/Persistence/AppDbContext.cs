@@ -1,12 +1,13 @@
 ﻿using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Kijk.Infrastructure.Persistence;
 
 /// <summary>The EF Core database context of Kijk (PostgreSQL).</summary>
-public class AppDbContext : DbContext, IAppDbContext
+public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
 {
     /// <summary>Creates a context for tooling such as the EF migration bundle.</summary>
     public AppDbContext()
@@ -43,6 +44,19 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Account> Accounts { get; set; }
     /// <inheritdoc />
     public DbSet<Transaction> Transactions { get; set; }
+    /// <inheritdoc />
+    public DbSet<CategoryRule> CategoryRules { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportJob> ImportJobs { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportFile> ImportFiles { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportCandidate> ImportCandidates { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportProfile> ImportProfiles { get; set; }
+
+    /// <inheritdoc />
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     /// <inheritdoc />
     public DbSet<Role> Roles { get; set; }

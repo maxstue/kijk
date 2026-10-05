@@ -1,4 +1,5 @@
 using Kijk.Domain.Entities;
+using Kijk.Shared;
 
 namespace Kijk.Application.Accounts.Shared;
 
@@ -6,7 +7,8 @@ namespace Kijk.Application.Accounts.Shared;
 /// <param name="Id">The account id.</param>
 /// <param name="Name">The display name.</param>
 /// <param name="IbanLast4">The last four characters of the IBAN, if known.</param>
-public sealed record AccountResponse(Guid Id, string Name, string? IbanLast4);
+/// <param name="Kind">Whether it is a bank account or the cash account.</param>
+public sealed record AccountResponse(Guid Id, string Name, string? IbanLast4, AccountKind Kind);
 
 /// <summary>
 /// Maps account entities to API responses.
@@ -16,7 +18,7 @@ public static class AccountResponseMapper
     /// <summary>Maps an account to a response.</summary>
     /// <param name="source">The account.</param>
     /// <returns>The response.</returns>
-    public static AccountResponse ToResponse(this Account source) => new(source.Id, source.Name, source.IbanLast4);
+    public static AccountResponse ToResponse(this Account source) => new(source.Id, source.Name, source.IbanLast4, source.Kind);
 }
 
 /// <summary>

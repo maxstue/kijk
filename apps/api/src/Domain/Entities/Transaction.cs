@@ -28,6 +28,12 @@ public sealed class Transaction : BaseEntity
     /// <summary>Gets or sets whether the bank has booked the transaction or only reserved it.</summary>
     public required TransactionStatus Status { get; set; }
 
+    /// <summary>
+    /// Gets whether the bank export marks the booking as card payment or direct debit. Only such bookings can be
+    /// remembered by merchant name, because transfers may go to people.
+    /// </summary>
+    public bool IsMerchantPayment { get; private set; }
+
     /// <summary>Gets or sets whether this is a confirmed transfer between the household's own accounts.</summary>
     public required bool IsTransfer { get; set; }
 
@@ -39,6 +45,24 @@ public sealed class Transaction : BaseEntity
 
     /// <summary>Gets how the category was assigned, or <see langword="null" /> while uncategorized.</summary>
     public CategorySource? CategorySource { get; private set; }
+
+    /// <summary>
+    /// Gets the pseudonymous key that recognizes this booking when its month is imported again, or
+    /// <see langword="null" /> for manually recorded transactions.
+    /// </summary>
+    public string? BookingKey { get; private set; }
+
+    /// <summary>Gets the pseudonymous key of the counterparty IBAN, if the bank export contained one.</summary>
+    public string? CounterpartyKey { get; private set; }
+
+    /// <summary>Gets the version of the key used for <see cref="BookingKey" /> and <see cref="CounterpartyKey" />.</summary>
+    public int? KeyVersion { get; private set; }
+
+    /// <summary>Gets the id of the import that created the transaction, if any.</summary>
+    public Guid? ImportJobId { get; init; }
+
+    /// <summary>Gets the import that created the transaction, if any.</summary>
+    public ImportJob? ImportJob { get; private set; }
 
     /// <summary>Gets or sets the id of <see cref="Account" />.</summary>
     public Guid? AccountId { get; set; }
@@ -78,6 +102,31 @@ public sealed class Transaction : BaseEntity
             CreatedBy = createdBy,
             Household = household
         };
+
+    /// <summary>Creates a transaction from an import.</summary>
+    /// <param name="details">The booking details.</param>
+    /// <param name="keys">The pseudonymous keys of the booking.</param>
+    /// <param name="account">The bank account the import belongs to.</param>
+    /// <param name="importJob">The import.</param>
+    /// <param name="createdBy">The user that started the import.</param>
+    /// <param name="household">The owning household.</param>
+    /// <returns>The new transaction.</returns>
+    public static Transaction CreateImported(
+        TransactionDetails details,
+        TransactionKeys keys,
+        Account account,
+        ImportJob importJob,
+        User createdBy,
+        Household household)
+    {
+        var transaction = Create(details, account, createdBy, household);
+        transaction.BookingKey = keys.BookingKey;
+        transaction.CounterpartyKey = keys.CounterpartyKey;
+        transaction.KeyVersion = keys.KeyVersion;
+        transaction.IsMerchantPayment = keys.IsMerchantPayment;
+        transaction.ImportJob = importJob;
+        return transaction;
+    }
 
     /// <summary>Updates the booking details.</summary>
     /// <param name="details">The booking details.</param>
@@ -139,3 +188,12 @@ public sealed record TransactionDetails(
     string? Purpose,
     TransactionStatus Status,
     bool IsTransfer);
+
+/// <summary>
+/// Defines the pseudonymous keys of an imported booking.
+/// </summary>
+/// <param name="BookingKey">Recognizes the booking when its month is imported again.</param>
+/// <param name="CounterpartyKey">Identifies the counterparty IBAN, if known.</param>
+/// <param name="KeyVersion">The version of the key used to compute both values.</param>
+/// <param name="IsMerchantPayment">Whether the export marks the booking as card payment or direct debit.</param>
+public sealed record TransactionKeys(string BookingKey, string? CounterpartyKey, int KeyVersion, bool IsMerchantPayment);

@@ -9,6 +9,10 @@
     <PackageReference Include="TUnit" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Synthetic bank exports; never put real exports into the repository. -->
+    <None Include="Imports/Samples/*.csv" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../src/Application/Application.csproj" />
     <ProjectReference Include="../../src/Domain/Domain.csproj" />
   </ItemGroup>

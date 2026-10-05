@@ -32,7 +32,14 @@ internal sealed class HouseholdApiHost(WebApplication application, HttpClient cl
         return result;
     }
 
-    internal static async Task<HouseholdApiHost> StartAsync(string authId)
+    /// <summary>Test-only 32-byte keys; production keys come from Infisical.</summary>
+    internal const string TestFingerprintKey = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=";
+
+    internal static async Task<HouseholdApiHost> StartAsync(
+        string authId,
+        bool jobsEnabled = false,
+        Action<IServiceCollection>? configureServices = null,
+        IDictionary<string, string?>? configuration = null)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
@@ -43,11 +50,20 @@ internal sealed class HouseholdApiHost(WebApplication application, HttpClient cl
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Auth:Authority"] = "https://identity.example.test",
-            ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=unused",
+            ["ConnectionStrings:DefaultConnection"] = PostgreSqlTestDatabase.ConnectionString,
+            ["Fingerprint:MasterKey"] = TestFingerprintKey,
+            ["DataProtection:KeyEncryptionKey"] = "ZmVkY2JhOTg3NjU0MzIxMGZlZGNiYTk4NzY1NDMyMTA=",
+            ["Jobs:Enabled"] = jobsEnabled.ToString(),
+            ["Jobs:DurabilityMode"] = "Solo",
             ["Cors:0"] = "http://localhost",
             ["Serilog:WriteTo:0:Name"] = "Console",
             ["Serilog:MinimumLevel:Default"] = "Warning"
         });
+        if (configuration is not null)
+        {
+            builder.Configuration.AddInMemoryCollection(configuration);
+        }
+
         builder.WebHost.UseKestrel(options => options.Listen(System.Net.IPAddress.Loopback, 0));
         builder.Services.AddApplication().AddApi(builder.Configuration).AddInfrastructure(builder.Configuration);
         builder.Services.RemoveAll<AppDbContext>();
@@ -55,6 +71,7 @@ internal sealed class HouseholdApiHost(WebApplication application, HttpClient cl
         builder.Services.RemoveAll<IAppDbContext>();
         builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         builder.Services.AddSingleton<Sentry.IHub>(Sentry.Extensibility.HubAdapter.Instance);
+        configureServices?.Invoke(builder.Services);
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = TestAuthenticationHandler.SchemeName;

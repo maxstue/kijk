@@ -1,6 +1,7 @@
 using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
+using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Create;
 using Kijk.Application.Transactions.Delete;
 using Kijk.Application.Transactions.Get;
@@ -28,6 +29,7 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         group.MapGet("/{id:guid}", GetById).RequireHouseholdPermission(HouseholdPermissions.Finances.View).WithName("GetTransactionById").WithSummary("Gets a transaction by id");
         group.MapPost("/", Create).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<CreateTransactionRequest>().WithSummary("Records a transaction manually");
         group.MapPut("/{id:guid}", Update).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithRequestValidation<UpdateTransactionRequest>().WithSummary("Updates a transaction");
+        group.MapPut("/{id:guid}/category", Categorize).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Corrects the category of a transaction, optionally remembering it for the merchant or counterparty");
         group.MapDelete("/{id:guid}", Delete).RequireHouseholdPermission(HouseholdPermissions.Finances.Record).WithSummary("Deletes a transaction");
 
         return builder;
@@ -71,6 +73,16 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         CancellationToken cancellationToken)
     {
         var result = await handler.UpdateAsync(id, request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<CategorizeTransactionResponse>, ProblemHttpResult>> Categorize(
+        Guid id,
+        CategorizeTransactionRequest request,
+        CategorizeTransactionHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.CategorizeAsync(id, request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
