@@ -2933,6 +2933,47 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/users/me/deletion': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Deletes the current user's account and all their data in the background */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** Accepted */
+        202: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/users/onboarding': {
     parameters: {
       query?: never;
@@ -3004,6 +3045,7 @@ export interface components {
       ibanLast4: null | string;
       /** Whether it is a bank account or the cash account. */
       kind: components['schemas']['AccountKind'];
+      /** Whether every member of the space sees the account or only its owner. */
       visibility: components['schemas']['Visibility'];
     };
     /**

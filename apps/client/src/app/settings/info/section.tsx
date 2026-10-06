@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kijk/ui/components/accordion';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { Separator } from '@kijk/ui/components/separator';
 import { Switch } from '@kijk/ui/components/switch';
@@ -10,11 +9,11 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { DeleteAccount } from '@/app/settings/info/delete-account';
 import { useUpdateUser } from '@/app/settings/profile/use-update-user';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AppVersion } from '@/shared/components/app-version';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/form';
-import { siteConfig } from '@/shared/config/site';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 const privacyFormSchema = z.object({
@@ -136,19 +135,7 @@ export function InfoSection() {
             <ExternalLink className='h-4 w-4' />
           </a>
         </div>
-        <Accordion collapsible type='single' className='w-full'>
-          <AccordionItem value='data-deletion'>
-            <AccordionTrigger>How can I request the deletion of my personal data?</AccordionTrigger>
-            <AccordionContent>
-              If you wish to have your personal data deleted from our systems in accordance with the &rsquo;Right to be
-              Forgotten&rsquo; under GDPR or similar regulations, you can submit a request by contacting us through{' '}
-              {siteConfig.email}. Once we verify your identity, we will proceed to remove your personal data from our
-              active databases and stop further processing. You will receive a confirmation once the deletion is
-              complete. Please note that certain data may be retained as required by law or for legitimate business
-              purposes.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <DeleteAccount />
       </div>
     </div>
   );

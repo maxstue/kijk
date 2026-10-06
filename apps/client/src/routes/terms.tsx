@@ -36,8 +36,8 @@ function TermsOfService() {
           You retain responsibility for the information you add to Kijk. Do not upload unlawful content or data that you
           are not permitted to share. Bank exports can contain information about other people, such as joint account
           holders or the people you pay; only upload them if you are allowed to use that information. You can edit or
-          remove the information in your spaces at any time; account and data-deletion instructions are available in
-          Settings.
+          remove the information in your spaces at any time, and delete your account and all your data in Settings →
+          Info.
         </p>
       </section>
 

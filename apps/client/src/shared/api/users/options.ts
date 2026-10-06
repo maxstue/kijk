@@ -2,7 +2,7 @@ import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/api/query-keys';
 
-import { getCurrentUser, switchSpace, updateUser, welcomeUser } from './requests';
+import { getCurrentUser, requestAccountDeletion, switchSpace, updateUser, welcomeUser } from './requests';
 
 /** Query for the current account state. */
 export const currentUserQueryOptions = () =>
@@ -27,4 +27,10 @@ export const welcomeUserMutationOptions = () =>
 export const switchSpaceMutationOptions = () =>
   mutationOptions({
     mutationFn: switchSpace,
+  });
+
+/** Mutation that starts deleting the current user's account and all their data. */
+export const requestAccountDeletionMutationOptions = () =>
+  mutationOptions({
+    mutationFn: requestAccountDeletion,
   });

@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/lib/api-client';
-import { unwrapApiResponse } from '@/shared/utils/http';
+import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { UpdateUserData, WelcomeUserData } from './types';
 
@@ -42,4 +42,9 @@ export async function welcomeUser(data: WelcomeUserData) {
 /** Switches the active space; every other request works on the active space. */
 export async function switchSpace(spaceId: string) {
   return unwrapApiResponse(await apiClient.PUT('/api/users/active-space', { body: { spaceId } }));
+}
+
+/** Starts deleting the current user's account and all their data in the background. */
+export async function requestAccountDeletion() {
+  return ensureApiSuccess(await apiClient.POST('/api/users/me/deletion'));
 }

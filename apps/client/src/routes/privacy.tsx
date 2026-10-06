@@ -98,10 +98,9 @@ function PrivacyPolicy() {
           do not provide Google passwords or Google API access tokens to PostHog.
         </p>
         <p>
-          The Google identity connection is kept while your Kijk account is active. To request deletion, use the contact
-          details in Settings → Info. After verifying your identity, we remove personal data from our active systems and
-          stop further processing, except where retention is required by law or for legitimate business purposes. Google
-          and Clerk handle their own account records under their respective privacy terms.
+          The Google identity connection is kept while your Kijk account is active. When you delete your account in
+          Settings → Info, Kijk also deletes your sign-in at Clerk, which ends the connection to your Google identity.
+          Google handles its own account records under its privacy terms.
         </p>
         <p>
           The production Google sign-in flow uses HTTPS. Google passwords remain with Google; Kijk does not receive
@@ -178,17 +177,15 @@ function PrivacyPolicy() {
         <h2 className='text-xl font-semibold'>Retention</h2>
         <ul className='list-disc space-y-2 pl-6'>
           <li>
-            Your account, spaces and the data in them are kept until you delete them or request the deletion of your
-            account.
+            Your account, spaces and the data in them are kept until you delete them or your account. Deleting your
+            account in Settings → Info removes your personal space, spaces you are the only member of, your private
+            accounts, transactions, budgets and rules, and your sign-in. Data you added to spaces shared with others
+            stays there for the other members.
           </li>
           <li>
             Uploaded bank files and rows waiting for review are deleted after the import, at the latest after 24 hours.
           </li>
           <li>Technical error events are retained for no longer than 30 days.</li>
-          <li>
-            Database backups are kept for a limited period. A backup taken before a deletion can contain the deleted
-            data until the backup itself expires.
-          </li>
         </ul>
       </section>
 
@@ -197,8 +194,8 @@ function PrivacyPolicy() {
         <p>
           You may request access, correction, deletion or restriction, object to processing, receive your data in a
           portable format, withdraw consent at any time, and lodge a complaint with your competent data-protection
-          authority. You can export your transactions and consumptions as CSV in the app. Contact details and account
-          deletion instructions are available in Settings → Info.
+          authority. You can export your transactions and consumptions as CSV in the app and delete your account and all
+          your data yourself in Settings → Info. For other requests, use the contact details shown there.
         </p>
       </section>
     </main>
