@@ -230,5 +230,8 @@ public class SpaceRoleTests
 
         public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken) =>
             throw new NotSupportedException();
+
+        public Task DeleteAsync(string authId, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
     }
 }

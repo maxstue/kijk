@@ -1,4 +1,5 @@
 using Kijk.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Kijk.Application.Shared.Persistence;
 
@@ -7,6 +8,9 @@ namespace Kijk.Application.Shared.Persistence;
 /// </summary>
 public interface IAppDbContext
 {
+    /// <summary>Gets database-level operations such as transactions.</summary>
+    DatabaseFacade Database { get; }
+
     /// <summary>Gets the spaces.</summary>
     DbSet<Space> Spaces { get; }
     /// <summary>Gets the space memberships.</summary>

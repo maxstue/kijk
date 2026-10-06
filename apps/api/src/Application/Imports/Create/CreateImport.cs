@@ -1,5 +1,6 @@
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Finances;
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -14,7 +15,7 @@ public sealed class CreateImportHandler(
     IAppDbContext dbContext,
     CurrentUser currentUser,
     IImportFileProtector protector,
-    IImportJobQueue queue,
+    IJobQueue queue,
     TimeProvider timeProvider,
     ILogger<CreateImportHandler> logger) : IHandler
 {

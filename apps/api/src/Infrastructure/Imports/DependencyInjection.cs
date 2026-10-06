@@ -1,6 +1,7 @@
 using System.Reflection;
 using JasperFx.CodeGeneration.Model;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Security;
 using Kijk.Infrastructure.Persistence;
 using Microsoft.AspNetCore.DataProtection;
@@ -54,14 +55,14 @@ internal static class ImportsDependencyInjection
         var jobs = configuration.GetSection(JobsOptions.SectionName).Get<JobsOptions>() ?? new JobsOptions();
         if (IsGeneratingOpenApiDocument)
         {
-            services.AddScoped<IImportJobQueue, DisabledImportJobQueue>();
+            services.AddScoped<IJobQueue, DisabledJobQueue>();
             return services;
         }
 
         services.AddHostedService<ImportCleanupService>();
         if (!jobs.Enabled)
         {
-            services.AddScoped<IImportJobQueue, DisabledImportJobQueue>();
+            services.AddScoped<IJobQueue, DisabledJobQueue>();
             return services;
         }
 
@@ -73,7 +74,9 @@ internal static class ImportsDependencyInjection
             // Handler dependencies such as IAppDbContext are registered with factories, so Wolverine resolves them
             // from the message's service scope instead of constructing them inline.
             options.ServiceLocationPolicy = ServiceLocationPolicy.AlwaysAllowed;
-            options.Discovery.DisableConventionalDiscovery().IncludeType(typeof(ImportMessageHandler));
+            options.Discovery.DisableConventionalDiscovery()
+                .IncludeType(typeof(ImportMessageHandler))
+                .IncludeType(typeof(AccountMessageHandler));
             options.Durability.Mode = jobs.DurabilityMode;
             options.PersistMessagesWithPostgresql(connectionString, WolverineSchema);
             options.UseEntityFrameworkCoreTransactions();
@@ -82,8 +85,13 @@ internal static class ImportsDependencyInjection
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(10),
                 TimeSpan.FromSeconds(60));
+            // Calls to the authentication provider when deleting an account can fail temporarily.
+            options.OnException<HttpRequestException>().RetryWithCooldown(
+                TimeSpan.FromSeconds(5),
+                TimeSpan.FromSeconds(30),
+                TimeSpan.FromMinutes(2));
         });
-        services.AddScoped<IImportJobQueue, WolverineImportJobQueue>();
+        services.AddScoped<IJobQueue, WolverineJobQueue>();
 
         return services;
     }

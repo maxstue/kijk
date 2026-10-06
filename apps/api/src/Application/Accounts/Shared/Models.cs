@@ -8,6 +8,7 @@ namespace Kijk.Application.Accounts.Shared;
 /// <param name="Name">The display name.</param>
 /// <param name="IbanLast4">The last four characters of the IBAN, if known.</param>
 /// <param name="Kind">Whether it is a bank account or the cash account.</param>
+/// <param name="Visibility">Whether every member of the space sees the account or only its owner.</param>
 public sealed record AccountResponse(Guid Id, string Name, string? IbanLast4, AccountKind Kind, Visibility Visibility);
 
 /// <summary>

@@ -219,5 +219,7 @@ public class SpaceHttpTests
             Task.FromResult(new ExternalIdentity("Newcomer", "newcomer@example.test", null, false));
 
         public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken) => Task.CompletedTask;
+
+        public Task DeleteAsync(string authId, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

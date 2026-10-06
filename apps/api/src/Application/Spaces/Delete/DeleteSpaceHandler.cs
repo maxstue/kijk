@@ -1,4 +1,5 @@
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 
@@ -66,18 +67,11 @@ public sealed class DeleteSpaceHandler(IAppDbContext dbContext, CurrentUser curr
             }
         }
 
-        // Remove dependents that restrict resource deletion before space-owned resources cascade away.
-        var consumptions = await dbContext.Consumptions
-            .Where(item => item.SpaceId == id)
-            .ToListAsync(cancellationToken);
-        var limits = await dbContext.Limits
-            .Where(item => item.SpaceId == id)
-            .ToListAsync(cancellationToken);
-        dbContext.Consumptions.RemoveRange(consumptions);
-        dbContext.Limits.RemoveRange(limits);
-        dbContext.Spaces.Remove(space);
-
+        // The members' new active spaces are saved first; then the space and all its data go in one transaction.
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
+        await SpaceDataEraser.EraseAsync(dbContext, id, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return true;
     }
 }

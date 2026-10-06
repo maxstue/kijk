@@ -1,4 +1,5 @@
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Infrastructure.Persistence;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ namespace Kijk.Infrastructure.Imports;
 /// pending changes and delivered by the durable local queue, also after a restart.
 /// </summary>
 /// <param name="outbox">The outbox bound to the request's <see cref="AppDbContext" />.</param>
-internal sealed class WolverineImportJobQueue(IDbContextOutbox<AppDbContext> outbox) : IImportJobQueue
+internal sealed class WolverineJobQueue(IDbContextOutbox<AppDbContext> outbox) : IJobQueue
 {
     /// <inheritdoc />
     public async Task SaveChangesAndEnqueueAsync<TMessage>(TMessage message, CancellationToken cancellationToken)
@@ -28,7 +29,7 @@ internal sealed class WolverineImportJobQueue(IDbContextOutbox<AppDbContext> out
 /// </summary>
 /// <param name="dbContext">The database context.</param>
 /// <param name="logger">The logger.</param>
-internal sealed class DisabledImportJobQueue(IAppDbContext dbContext, ILogger<DisabledImportJobQueue> logger) : IImportJobQueue
+internal sealed class DisabledJobQueue(IAppDbContext dbContext, ILogger<DisabledJobQueue> logger) : IJobQueue
 {
     /// <inheritdoc />
     public async Task SaveChangesAndEnqueueAsync<TMessage>(TMessage message, CancellationToken cancellationToken)

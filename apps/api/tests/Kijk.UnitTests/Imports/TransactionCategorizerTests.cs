@@ -25,7 +25,7 @@ public class TransactionCategorizerTests
 
         var result = await Create(chat, allowed: true).CategorizeAsync(Guid.NewGuid(), Guid.NewGuid(), items, [Food, Salary], CancellationToken.None);
 
-        await Assert.That(result.Assignments).HasCount(1);
+        await Assert.That(result.Assignments.Count).IsEqualTo(1);
         await Assert.That(result.Assignments[0]).IsEqualTo(Food.Id);
         await Assert.That(result.Unavailable).IsFalse();
     }

@@ -1,6 +1,7 @@
 ﻿using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
+using Kijk.Application.Users.Delete;
 using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
 using Kijk.Application.Users.SwitchSpace;
@@ -40,6 +41,10 @@ public class UsersEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .WithoutSpacePermission("Any member may switch to a space they belong to; the handler checks the membership.")
             .WithSummary("Switches the active space of the current user");
+
+        group.MapPost("/me/deletion", RequestDeletion)
+            .WithoutSpacePermission("Deletes only the current user's own account and data.")
+            .WithSummary("Deletes the current user's account and all their data in the background");
 
         group.MapPut("/onboarding", Onboarding)
             .WithoutSpacePermission("Onboarding creates the user's first space.")
@@ -95,5 +100,11 @@ public class UsersEndpoints : IEndpointGroup
     {
         var result = await handler.SwitchAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Accepted, ProblemHttpResult>> RequestDeletion(RequestAccountDeletionHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.RequestAsync(cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Accepted((string?)null);
     }
 }

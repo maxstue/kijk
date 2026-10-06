@@ -1,6 +1,7 @@
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Finances;
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -15,7 +16,7 @@ public sealed class ConfirmImportMappingHandler(
     IAppDbContext dbContext,
     CurrentUser currentUser,
     ImportFileReader fileReader,
-    IImportJobQueue queue,
+    IJobQueue queue,
     TimeProvider timeProvider) : IHandler
 {
     private const int ShownErrors = 10;

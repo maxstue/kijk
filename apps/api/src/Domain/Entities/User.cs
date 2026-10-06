@@ -37,6 +37,9 @@ public sealed class User : BaseEntity
     /// <summary>Gets whether the user allows AI features. When off, no AI call is made for this user.</summary>
     public bool AiEnabled { get; private set; } = true;
 
+    /// <summary>Gets when the user asked to delete their account and all their data (UTC), while it is in progress.</summary>
+    public DateTime? DeletionRequestedAt { get; private set; }
+
     /// <summary>Gets the user's space memberships.</summary>
     public ICollection<UserSpace> UserSpaces { get; init; } = new List<UserSpace>();
 
@@ -114,6 +117,10 @@ public sealed class User : BaseEntity
     /// Resets onboarding when the user no longer belongs to a space.
     /// </summary>
     public void ResetOnboarding() => OnboardingCompletedAt = null;
+
+    /// <summary>Records that the user asked to delete their account and all their data.</summary>
+    /// <param name="utcNow">The current time.</param>
+    public void RequestDeletion(DateTime utcNow) => DeletionRequestedAt ??= utcNow;
 
     /// <summary>Turns the AI features on or off for this user.</summary>
     /// <param name="enabled">Whether AI features are allowed.</param>

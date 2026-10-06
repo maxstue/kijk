@@ -4442,6 +4442,45 @@
         ]
       }
     },
+    "/api/users/me/deletion": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes the current user's account and all their data in the background",
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/users/onboarding": {
       "put": {
         "tags": [
@@ -4539,6 +4578,7 @@
             "$ref": "#/components/schemas/AccountKind"
           },
           "visibility": {
+            "description": "Whether every member of the space sees the account or only its owner.",
             "$ref": "#/components/schemas/Visibility"
           }
         },
