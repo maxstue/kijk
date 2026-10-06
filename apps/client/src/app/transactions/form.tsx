@@ -33,6 +33,7 @@ export function TransactionForm({ initialData, onClose }: Props) {
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const submitLabel = initialData ? 'Update transaction' : 'Record transaction';
   const form = useForm<TransactionFormValues>({
     defaultValues: initialData ? toFormValues(initialData) : getCreateDefaultValues(),
     resolver: zodResolver(transactionSchema),
@@ -137,13 +138,7 @@ export function TransactionForm({ initialData, onClose }: Props) {
           disabled={isPending || (Boolean(initialData) && !form.formState.isDirty)}
           type='submit'
         >
-          {isPending ? (
-            <SpinnerIcon className='size-5 animate-spin' />
-          ) : initialData ? (
-            'Update transaction'
-          ) : (
-            'Record transaction'
-          )}
+          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : submitLabel}
         </Button>
       </form>
     </Form>

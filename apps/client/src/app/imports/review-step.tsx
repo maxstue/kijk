@@ -39,6 +39,10 @@ export function ImportReviewStep({ job }: { job: ImportJob }) {
   const invalid = candidates.filter((candidate) => candidate.errors !== null);
   const importedCount = valid.filter((candidate) => !candidate.excluded && months.has(monthOf(candidate))).length;
 
+  function toggleEdgeMonth(month: string, checked: boolean) {
+    setIncludedEdgeMonths((previous) => (checked ? [...previous, month] : previous.filter((item) => item !== month)));
+  }
+
   function onCommit() {
     commitMutation.mutate(
       { acceptErrors, includedEdgeMonths },
@@ -71,11 +75,7 @@ export function ImportReviewStep({ job }: { job: ImportJob }) {
               key={month}
               checked={included.has(month)}
               month={month}
-              onCheckedChange={(checked) =>
-                setIncludedEdgeMonths((previous) =>
-                  checked ? [...previous, month] : previous.filter((item) => item !== month),
-                )
-              }
+              onCheckedChange={(checked) => toggleEdgeMonth(month, checked)}
             />
           ))}
         </CardContent>
