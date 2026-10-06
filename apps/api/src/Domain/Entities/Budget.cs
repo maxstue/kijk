@@ -55,6 +55,7 @@ public sealed class Budget : BaseEntity
     /// <param name="category">The expense category.</param>
     /// <param name="createdBy">The creating user.</param>
     /// <param name="space">The owning space.</param>
+    /// <param name="visibility">A private budget belongs to its creator and replaces the shared one for them.</param>
     /// <returns>The new budget.</returns>
     public static Budget Create(
         decimal amount,

@@ -29,6 +29,6 @@ public static class ImportMessageHandler
     /// <param name="processor">The import processor.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A task that completes when the step is done.</returns>
-    public static Task Handle(CategorizeImport message, ImportJobProcessor processor, CancellationToken cancellationToken) =>
+    public static Task Handle(CategorizeImport message, ImportCategorizationProcessor processor, CancellationToken cancellationToken) =>
         processor.CategorizeAsync(message.ImportJobId, cancellationToken);
 }

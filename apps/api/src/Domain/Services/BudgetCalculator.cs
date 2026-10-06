@@ -50,45 +50,22 @@ public static class BudgetCalculator
         var categoriesById = categories.ToDictionary(category => category.Id);
         var effectiveBudgets = GetEffectiveBudgets(budgets, month);
 
-        var spent = new Dictionary<Guid, decimal>();
-        var pending = new Dictionary<Guid, decimal>();
-        decimal income = 0, uncategorizedExpenses = 0, uncategorizedIncome = 0, pendingExpenses = 0;
-
+        var totals = new MonthTotals();
         foreach (var transaction in transactions.Where(item => !item.IsTransfer && item.BookingDate >= start && item.BookingDate < end))
         {
             var category = transaction.CategoryId is { } categoryId ? categoriesById.GetValueOrDefault(categoryId) : null;
             if (transaction.Status == TransactionStatus.Pending)
             {
-                if (transaction.Amount < 0)
-                {
-                    pendingExpenses -= transaction.Amount;
-                }
-
-                if (category?.Kind == CategoryKind.Expense)
-                {
-                    pending[category.Id] = pending.GetValueOrDefault(category.Id) - transaction.Amount;
-                }
-
-                continue;
+                totals.AddPending(transaction.Amount, category);
             }
-
-            switch (category?.Kind)
+            else
             {
-                case CategoryKind.Expense:
-                    // Refunds are positive and therefore lower the spending of their category.
-                    spent[category.Id] = spent.GetValueOrDefault(category.Id) - transaction.Amount;
-                    break;
-                case CategoryKind.Income:
-                    income += transaction.Amount;
-                    break;
-                case null when transaction.Amount < 0:
-                    uncategorizedExpenses -= transaction.Amount;
-                    break;
-                case null:
-                    uncategorizedIncome += transaction.Amount;
-                    break;
+                totals.AddBooked(transaction.Amount, category);
             }
         }
+
+        var spent = totals.Spent;
+        var pending = totals.Pending;
 
         var categorySpendings = categoriesById.Values
             .Where(category => category.Kind == CategoryKind.Expense)
@@ -110,11 +87,61 @@ public static class BudgetCalculator
             month,
             categorySpendings,
             categorySpendings.Sum(item => item.Budget?.Amount ?? 0),
-            spent.Values.Sum() + uncategorizedExpenses,
-            income,
-            uncategorizedExpenses,
-            uncategorizedIncome,
-            pendingExpenses);
+            spent.Values.Sum() + totals.UncategorizedExpenses,
+            totals.Income,
+            totals.UncategorizedExpenses,
+            totals.UncategorizedIncome,
+            totals.PendingExpenses);
+    }
+
+    /// <summary>Sums the transactions of a month by the rules of the budget evaluation.</summary>
+    private sealed class MonthTotals
+    {
+        public Dictionary<Guid, decimal> Spent { get; } = [];
+
+        public Dictionary<Guid, decimal> Pending { get; } = [];
+
+        public decimal Income { get; private set; }
+
+        public decimal UncategorizedExpenses { get; private set; }
+
+        public decimal UncategorizedIncome { get; private set; }
+
+        public decimal PendingExpenses { get; private set; }
+
+        // Pending transactions are reported separately and only count against a budget once booked.
+        public void AddPending(decimal amount, Category? category)
+        {
+            if (amount < 0)
+            {
+                PendingExpenses -= amount;
+            }
+
+            if (category?.Kind == CategoryKind.Expense)
+            {
+                Pending[category.Id] = Pending.GetValueOrDefault(category.Id) - amount;
+            }
+        }
+
+        public void AddBooked(decimal amount, Category? category)
+        {
+            switch (category?.Kind)
+            {
+                case CategoryKind.Expense:
+                    // Refunds are positive and therefore lower the spending of their category.
+                    Spent[category.Id] = Spent.GetValueOrDefault(category.Id) - amount;
+                    break;
+                case CategoryKind.Income:
+                    Income += amount;
+                    break;
+                case null when amount < 0:
+                    UncategorizedExpenses -= amount;
+                    break;
+                case null:
+                    UncategorizedIncome += amount;
+                    break;
+            }
+        }
     }
 }
 
