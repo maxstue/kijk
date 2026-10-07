@@ -11,6 +11,7 @@ import {
   updateImportSettingsMutationOptions,
 } from '@/shared/api/imports/options';
 import { queryKeys } from '@/shared/api/query-keys';
+import { updateUserMutationOptions } from '@/shared/api/users/options';
 
 /** Uploads a bank export and refreshes the import list. */
 export function useCreateImport() {
@@ -19,6 +20,17 @@ export function useCreateImport() {
     ...createImportMutationOptions(),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.imports.list() });
+    },
+  });
+}
+
+/** Records the user's consent to processing sensitive data in bank exports and refreshes the current user. */
+export function useGiveSensitiveDataConsent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...updateUserMutationOptions(),
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
     },
   });
 }

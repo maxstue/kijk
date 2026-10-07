@@ -39,6 +39,9 @@ function PublicHomePage() {
           <Link className='underline-offset-4 hover:underline' to='/terms'>
             Terms of Service
           </Link>
+          <Link className='underline-offset-4 hover:underline' to='/imprint'>
+            Imprint
+          </Link>
         </nav>
       </footer>
     </div>

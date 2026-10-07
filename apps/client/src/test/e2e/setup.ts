@@ -45,6 +45,7 @@ const currentUser = {
     analyticsConsent: 'Declined',
     analyticsConsentUpdatedAt: null,
     onboardingCompletedAt: '2026-01-01T00:00:00Z',
+    sensitiveDataConsentAt: '2026-01-01T00:00:00Z',
     spaces: [
       {
         id: '00000000-0000-4000-8000-000000000003',

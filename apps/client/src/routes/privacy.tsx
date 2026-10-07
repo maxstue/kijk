@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { LegalContact } from '@/shared/components/legal-contact';
+
 /** `/privacy`: privacy policy. */
 export const Route = createFileRoute('/privacy')({ component: PrivacyPolicy });
 
@@ -8,8 +10,15 @@ function PrivacyPolicy() {
     <main className='mx-auto max-w-3xl space-y-8 px-4 py-12'>
       <header className='space-y-2'>
         <h1 className='text-3xl font-semibold'>Privacy Policy</h1>
-        <p className='text-muted-foreground'>Last updated: 5 October 2026</p>
+        <p className='text-muted-foreground'>Last updated: 7 October 2026</p>
       </header>
+
+      <section className='space-y-3'>
+        <h2 className='text-xl font-semibold'>Controller</h2>
+        <p>The controller responsible for processing your personal data in Kijk is:</p>
+        <LegalContact />
+        <p>Contact us at this address for any question about your data or to exercise your rights.</p>
+      </section>
 
       <section className='space-y-3'>
         <h2 className='text-xl font-semibold'>Spaces and who can see your data</h2>
@@ -36,8 +45,11 @@ function PrivacyPolicy() {
           and at most the last four characters of its IBAN.
         </p>
         <p>
-          Transactions can reveal sensitive information, for example about health, religion or memberships. We process
-          them only to show your budgets and statistics and do not analyze them for other purposes.
+          Transactions can reveal special categories of personal data, for example about health, religion, political
+          opinions or union membership. Before your first bank import, we therefore ask for your explicit consent. We
+          process transactions only to show your budgets and statistics and do not analyze them for other purposes. You
+          can withdraw the consent in Settings → Info; Kijk then no longer imports bank exports for you. Transactions
+          you already imported stay until you delete them or your account.
         </p>
       </section>
 
@@ -144,14 +156,19 @@ function PrivacyPolicy() {
             6(1)(b)).
           </li>
           <li>
+            Bank transactions that may reveal special categories of personal data are processed based on your explicit
+            consent (Article 9(2)(a)), which you give before your first bank import and can withdraw at any time in
+            Settings with effect for the future.
+          </li>
+          <li>
             Optional analytics, performance tracing and the AI features are based on your consent (Article 6(1)(a)),
             which you can withdraw at any time in Settings with effect for the future.
           </li>
           <li>
             Technical error reporting is based on our legitimate interest in operating a secure, stable service (Article
             6(1)(f)). We limit the data and disable behavioral breadcrumbs and profiling to reduce the impact on you.
-            You may object by contacting the address shown in the app settings; we will assess your request as required
-            by law.
+            You may object by contacting us at the address under Controller; we will assess your request as required by
+            law.
           </li>
         </ul>
       </section>
@@ -195,7 +212,7 @@ function PrivacyPolicy() {
           You may request access, correction, deletion or restriction, object to processing, receive your data in a
           portable format, withdraw consent at any time, and lodge a complaint with your competent data-protection
           authority. You can export your transactions and consumptions as CSV in the app and delete your account and all
-          your data yourself in Settings → Info. For other requests, use the contact details shown there.
+          your data yourself in Settings → Info. For other requests, contact us at the address under Controller.
         </p>
       </section>
     </main>

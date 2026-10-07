@@ -3848,6 +3848,8 @@ export interface components {
       /** Format: date-time */
       onboardingCompletedAt: null | string;
       aiEnabled: boolean;
+      /** Format: date-time */
+      sensitiveDataConsentAt: null | string;
       spaces: null | components['schemas']['UserSpaceResponse'][];
       resources: null | components['schemas']['UserResourceResponse'][];
       /** Gets whether the user has completed onboarding. */
@@ -4473,6 +4475,8 @@ export interface components {
       analyticsConsent: null | components['schemas']['AnalyticsConsent'];
       /** Whether AI features are allowed for the user. */
       aiEnabled?: null | boolean;
+      /** Whether the user consents to processing bank transactions that may reveal sensitive data. */
+      sensitiveDataConsent?: null | boolean;
     };
     /** A resource the user has enabled. */
     UserResourceResponse: {
@@ -4522,6 +4526,12 @@ export interface components {
       onboardingCompletedAt: null | string;
       /** Whether AI features are allowed for the user. */
       aiEnabled: boolean;
+      /**
+       * Format: date-time
+       *
+       * When the user consented to processing sensitive bank data.
+       */
+      sensitiveDataConsentAt: null | string;
       /** Gets whether the user has completed onboarding. */
       onboardingCompleted?: boolean;
     };

@@ -15,6 +15,7 @@ export async function updateUser(data: UpdateUserData) {
       body: {
         aiEnabled: data.aiEnabled ?? null,
         analyticsConsent: data.analyticsConsent ?? null,
+        sensitiveDataConsent: data.sensitiveDataConsent ?? null,
         spaceName: data.spaceName ?? null,
         useDefaultResources: data.useDefaultResources ?? null,
         useExternalProfile: data.useExternalProfile ?? null,

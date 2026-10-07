@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { LegalContact } from '@/shared/components/legal-contact';
+
 /** `/terms`: terms of service. */
 export const Route = createFileRoute('/terms')({ component: TermsOfService });
 
@@ -73,10 +75,8 @@ function TermsOfService() {
 
       <section className='space-y-3'>
         <h2 className='text-xl font-semibold'>Contact</h2>
-        <p>
-          For questions about these terms, account access, or data deletion, use the contact details shown in Settings →
-          Info.
-        </p>
+        <p>For questions about these terms, account access, or data deletion, contact:</p>
+        <LegalContact />
       </section>
     </main>
   );

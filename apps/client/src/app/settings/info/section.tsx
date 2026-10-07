@@ -19,6 +19,7 @@ import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 const privacyFormSchema = z.object({
   enableAi: z.boolean(),
   enableAnalytics: z.boolean(),
+  sensitiveDataConsent: z.boolean(),
 });
 type PrivacyFormValues = z.infer<typeof privacyFormSchema>;
 
@@ -31,13 +32,14 @@ export function InfoSection() {
     values: {
       enableAi: currentAccount?.user?.aiEnabled ?? true,
       enableAnalytics: currentAccount?.user?.analyticsConsent === 'Accepted',
+      sensitiveDataConsent: Boolean(currentAccount?.user?.sensitiveDataConsentAt),
     },
   });
 
   function onSubmit(data: PrivacyFormValues) {
     const analyticsConsent = data.enableAnalytics ? 'Accepted' : 'Declined';
     mutate(
-      { aiEnabled: data.enableAi, analyticsConsent },
+      { aiEnabled: data.enableAi, analyticsConsent, sensitiveDataConsent: data.sensitiveDataConsent },
       {
         onSuccess(updatedUser) {
           AnalyticsService.setCookieConsent(updatedUser.analyticsConsent === 'Accepted' ? 'accepted' : 'declined');
@@ -110,6 +112,26 @@ export function InfoSection() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name='sensitiveDataConsent'
+              render={({ field }) => (
+                <FormItem className='flex flex-row items-center justify-between rounded border p-4'>
+                  <div className='space-y-0.5'>
+                    <FormLabel className='text-base'>Sensitive data in bank exports</FormLabel>
+                    <FormDescription>
+                      Your explicit consent (GDPR Article 9(2)(a)) to store and process bank transactions, which can
+                      reveal sensitive information such as health, religion, political opinions or union membership.
+                      Kijk only imports bank exports for you while this is on. Withdrawing it does not delete
+                      transactions you already imported; delete them or your account if you want them gone.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <Button disabled={!form.formState.isDirty || isPending} type='submit'>
               Save
             </Button>
@@ -132,6 +154,15 @@ export function InfoSection() {
             target='_blank'
           >
             Privacy Policy
+            <ExternalLink className='h-4 w-4' />
+          </a>
+          <a
+            className={cn(buttonVariants({ variant: 'ghost' }), 'group gap-2')}
+            href='/imprint'
+            rel='noopener noreferrer'
+            target='_blank'
+          >
+            Imprint
             <ExternalLink className='h-4 w-4' />
           </a>
         </div>
