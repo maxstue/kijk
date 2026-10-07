@@ -1,5 +1,6 @@
+/** Static site metadata and external links. */
 export const siteConfig = {
-  description: 'Beautifully designed household app built with shadcn/ui and nextjs',
+  description: 'Track any resource and plan your budgets – on your own or together.',
   email: 'mail:kijk@justmax.xyz',
   links: {
     github: 'https://github.com/maxstue/kijk',

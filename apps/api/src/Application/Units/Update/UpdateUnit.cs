@@ -10,9 +10,14 @@ namespace Kijk.Application.Units.Update;
 /// </summary>
 public sealed class UpdateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
+    /// <summary>Updates a unit owned by the current user.</summary>
+    /// <param name="id">The unit id.</param>
+    /// <param name="request">The new unit data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The updated unit.</returns>
     public async Task<Result<UnitResponse>> UpdateAsync(Guid id, UpdateUnitRequest request, CancellationToken cancellationToken)
     {
-        var unit = await dbContext.Units.Include(item => item.Households)
+        var unit = await dbContext.Units.Include(item => item.Spaces)
             .FirstOrDefaultAsync(item => item.Id == id && item.OwnerUserId == currentUser.Id, cancellationToken);
         if (unit is null)
         {

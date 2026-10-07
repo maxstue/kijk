@@ -21,8 +21,8 @@ public class ResourcePersistenceTests
     public async Task SaveChangesWithBogusResourcesPersistsGeneratedData()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var household = Household.Create("Integration household");
-        dbContext.Households.Add(household);
+        var space = Space.Create("Integration space");
+        dbContext.Spaces.Add(space);
         var units = new[]
         {
             CreateUnit("Kilowatt hour", "kWh", "Energy", "KilowattHour"),
@@ -37,7 +37,7 @@ public class ResourcePersistenceTests
             .RuleFor(resource => resource.Color, fake => fake.Internet.Color())
             .RuleFor(resource => resource.Icon, _ => "circle")
             .RuleFor(resource => resource.CreatorType, _ => CreatorType.User)
-            .RuleFor(resource => resource.Household, _ => household);
+            .RuleFor(resource => resource.Space, _ => space);
         var resources = faker.Generate(3);
         dbContext.Resources.AddRange(resources);
 
@@ -45,18 +45,18 @@ public class ResourcePersistenceTests
 
         var persistedResources = await dbContext.Resources.AsNoTracking().OrderBy(resource => resource.Name).ToListAsync();
         await Assert.That(persistedResources).Count().IsEqualTo(3);
-        await Assert.That(persistedResources.All(resource => resource.HouseholdId == household.Id)).IsTrue();
+        await Assert.That(persistedResources.All(resource => resource.SpaceId == space.Id)).IsTrue();
     }
 
     [Test]
     public async Task SaveChangesWithEquivalentResourceNamesEnforcesNormalizedUniqueConstraint()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var household = Household.Create("Integration household");
+        var space = Space.Create("Integration space");
         var unit = CreateUnit("Kilowatt hour", "kWh", "Energy", "KilowattHour");
         dbContext.Resources.AddRange(
-            CreateResource("Electricity", unit, household),
-            CreateResource(" electricity ", unit, household));
+            CreateResource("Electricity", unit, space),
+            CreateResource(" electricity ", unit, space));
 
         var constraintWasEnforced = false;
         try
@@ -76,24 +76,24 @@ public class ResourcePersistenceTests
     {
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
-            dbContext.Households.Add(Household.Create("Disposable household"));
+            dbContext.Spaces.Add(Space.Create("Disposable space"));
             await dbContext.SaveChangesAsync();
         }
 
         await PostgreSqlTestDatabase.ResetAsync();
 
         await using var verificationContext = PostgreSqlTestDatabase.CreateDbContext();
-        await Assert.That(await verificationContext.Households.CountAsync()).IsEqualTo(0);
+        await Assert.That(await verificationContext.Spaces.CountAsync()).IsEqualTo(0);
     }
 
-    private static Resource CreateResource(string name, Unit unit, Household household) => new()
+    private static Resource CreateResource(string name, Unit unit, Space space) => new()
     {
         Name = name,
         Unit = unit,
         Color = "#112233",
         Icon = "circle",
         CreatorType = CreatorType.User,
-        Household = household
+        Space = space
     };
 
     private static Unit CreateUnit(string name, string symbol, string quantityKey, string unitsNetUnitName) => new()
@@ -102,7 +102,7 @@ public class ResourcePersistenceTests
         Symbol = symbol,
         QuantityKey = quantityKey,
         UnitsNetUnitName = unitsNetUnitName,
-        CreatorType = CreatorType.System,
+        CreatorType = CreatorType.User,
         ConversionType = UnitConversionType.UnitsNet
     };
 }

@@ -1,9 +1,10 @@
-using Kijk.Application.ConsumptionLimits.Shared;
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Limits.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
+using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -14,16 +15,20 @@ namespace Kijk.Application.Consumptions.Create;
 /// </summary>
 public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<CreateConsumptionHandler> logger) : IHandler
 {
+    /// <summary>Records a consumption in the active space and recalculates later meter readings.</summary>
+    /// <param name="request">The consumption data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created consumption.</returns>
     public async Task<Result<ConsumptionResponse>> CreateAsync(CreateConsumptionRequest request, CancellationToken cancellationToken)
     {
-        // Load household without including the Consumptions navigation to avoid materializing it as a fixed-size array during fixup
-        var household = await dbContext.Households
-            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveHouseholdId, cancellationToken);
+        // Load space without including the Consumptions navigation to avoid materializing it as a fixed-size array during fixup
+        var space = await dbContext.Spaces
+            .FirstOrDefaultAsync(x => x.Id == currentUser.ActiveSpaceId, cancellationToken);
 
-        if (household is null)
+        if (space is null)
         {
-            logger.LogWarning("Household with id {HouseholdId} not found", currentUser.ActiveHouseholdId);
-            return Error.NotFound("Household not found");
+            logger.LogWarning("Space with id {SpaceId} not found", currentUser.ActiveSpaceId);
+            return Error.NotFound("Space not found");
         }
 
         var resource = await dbContext
@@ -34,24 +39,25 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         {
             logger.LogWarning("Resource with id '{ResourceId}' is not available to user '{UserId}'", request.ResourceId,
                 currentUser.Id);
-            return Error.NotFound("Resource is not available in the active household");
+            return Error.NotFound("Resource is not available in the active space");
         }
 
         var consumption = Consumption.Create(
             request.Name,
             resource,
-            request.Value,
-            household,
+            space,
             request.Date,
-            (ConsumptionValueType)request.ValueType,
-            calculatedConsumption: 0m,
-            request.StartsNewMeterSegment);
+            new ConsumptionReading(
+                request.Value,
+                (ConsumptionValueType)request.ValueType,
+                CalculatedConsumption: 0m,
+                request.StartsNewMeterSegment));
 
         var existingConsumptions = await dbContext.Consumptions
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId
                            && item.ResourceId == request.ResourceId)
             .ToListAsync(cancellationToken);
-        var before = ConsumptionLimitOccurrence.Capture(existingConsumptions);
+        var before = LimitOccurrence.Capture(existingConsumptions);
 
         var calculation = ConsumptionTimelineCalculator.CalculateInsertion(consumption, existingConsumptions);
         if (calculation.IsError)
@@ -65,9 +71,9 @@ public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser curre
         }
 
         dbContext.Consumptions.Add(consumption);
-        await ConsumptionLimitOccurrence.RecordAsync(
+        await LimitOccurrence.RecordAsync(
             dbContext,
-            household.Id,
+            space.Id,
             before,
             existingConsumptions.Append(consumption).ToList(),
             timeProvider.GetUtcNow().UtcDateTime,

@@ -7,6 +7,7 @@ namespace Kijk.Application.Units.Update;
 /// </summary>
 public sealed class UpdateUnitRequestValidator : AbstractValidator<UpdateUnitRequest>
 {
+    /// <summary>Creates the validator rules for unit updates.</summary>
     public UpdateUnitRequestValidator()
     {
         RuleFor(request => request.Name).NotEmpty().MaximumLength(50).WithErrorCode(ErrorCodes.ValidationError);

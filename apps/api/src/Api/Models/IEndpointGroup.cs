@@ -9,7 +9,7 @@ public interface IEndpointGroup
     /// <summary>
     /// Maps the endpoints to the endpoint route builder.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
+    /// <param name="builder">The route builder to map the endpoints on.</param>
+    /// <returns>The route builder.</returns>
     IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder);
 }

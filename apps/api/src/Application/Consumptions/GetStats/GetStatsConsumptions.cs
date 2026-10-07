@@ -15,6 +15,11 @@ namespace Kijk.Application.Consumptions.GetStats;
 /// </summary>
 public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
+    /// <summary>Calculates the statistics of every resource for the selected year and month.</summary>
+    /// <param name="year">The selected year.</param>
+    /// <param name="month">The selected month as English month name.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The statistics, or a validation error for an invalid month.</returns>
     public async Task<Result<GetStatsConsumptionsResponseWrapper>> GetStatsAsync(int year, string month, CancellationToken cancellationToken)
     {
         if (!DateTime.TryParseExact(month, "MMMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedMonth))
@@ -23,8 +28,8 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
         }
 
         var selectedYearUsages = await dbContext.Consumptions
-            .Include(x => x.Resource).ThenInclude(resource => resource.Unit)
-            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
+            .Include(x => x.Resource.Unit)
+            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
             .Where(x => x.Date.Year == year)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
@@ -32,16 +37,16 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
         var selectedMonth = parsedMonth.Month;
         var comparisonYear = GetComparisonYear(year);
         var comparisonYearUsages = await dbContext.Consumptions
-            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
             .Where(x => x.Date.Year == comparisonYear)
-            .Include(x => x.Resource).ThenInclude(resource => resource.Unit)
+            .Include(x => x.Resource.Unit)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
         var comparisonMonth = GetComparisonMonthPeriod(year, selectedMonth);
         var comparisonMonthUsages = await dbContext.Consumptions
-            .Include(x => x.Resource).ThenInclude(resource => resource.Unit)
-            .Where(x => x.HouseholdId == currentUser.ActiveHouseholdId)
+            .Include(x => x.Resource.Unit)
+            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
             .Where(x => x.Date.Year == comparisonMonth.Year)
             .Where(x => x.Date.Month == comparisonMonth.Month)
             .AsNoTracking()
@@ -69,8 +74,8 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
     /// If the selected year is the current year, the comparison year is the previous year
     /// If the selected year is in the past, the comparison year is the current year
     /// </summary>
-    /// <param name="selectedYear"></param>
-    /// <returns></returns>
+    /// <param name="selectedYear">The selected year.</param>
+    /// <returns>The year to compare with.</returns>
     private static int GetComparisonYear(int selectedYear)
     {
         var currentYear = DateTime.UtcNow.Year;

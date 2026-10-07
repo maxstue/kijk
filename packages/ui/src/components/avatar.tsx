@@ -3,6 +3,7 @@ import { Avatar as AvatarPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Round user image with fallback. */
 function Avatar({
   className,
   size = 'default',
@@ -23,6 +24,7 @@ function Avatar({
   );
 }
 
+/** Image of an avatar; hidden until loaded. */
 function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
   return (
     <AvatarPrimitive.Image
@@ -33,6 +35,7 @@ function AvatarImage({ className, ...props }: React.ComponentProps<typeof Avatar
   );
 }
 
+/** Shown while the avatar image is missing or loading, e.g. initials. */
 function AvatarFallback({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
   return (
     <AvatarPrimitive.Fallback
@@ -46,6 +49,7 @@ function AvatarFallback({ className, ...props }: React.ComponentProps<typeof Ava
   );
 }
 
+/** Small status badge on an avatar. */
 function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
@@ -62,6 +66,7 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>) {
   );
 }
 
+/** Overlapping row of avatars. */
 function AvatarGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -75,6 +80,7 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Counter for additional avatars in a group, e.g. "+3". */
 function AvatarGroupCount({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

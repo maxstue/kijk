@@ -7,6 +7,7 @@ namespace Kijk.Application.Users.Welcome;
 /// </summary>
 public sealed class WelcomeUserRequestValidator : AbstractValidator<WelcomeUserRequest>
 {
+    /// <summary>Creates the validator rules for onboarding requests.</summary>
     public WelcomeUserRequestValidator()
     {
         RuleFor(request => request.DisplayName)
@@ -14,7 +15,7 @@ public sealed class WelcomeUserRequestValidator : AbstractValidator<WelcomeUserR
             .Must(name => !string.IsNullOrWhiteSpace(name.Trim())).WithErrorCode(ErrorCodes.ValidationError)
             .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError);
 
-        RuleFor(request => request.HouseholdName)
+        RuleFor(request => request.SpaceName)
             .NotEmpty().WithErrorCode(ErrorCodes.ValidationError)
             .Must(name => !string.IsNullOrWhiteSpace(name.Trim())).WithErrorCode(ErrorCodes.ValidationError)
             .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError);

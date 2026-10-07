@@ -7,5 +7,6 @@ namespace Kijk.Application.App;
 /// </summary>
 public class ModuleService : IModule
 {
+    /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services) => services;
 }

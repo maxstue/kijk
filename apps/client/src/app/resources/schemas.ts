@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/** Validation of the resource forms. */
 export const resourceSchema = z.object({
   color: z.string().regex(/^#[\da-f]{6}$/i, {
     message: 'Color must be a valid six-digit hex color',
@@ -11,7 +12,8 @@ export const resourceSchema = z.object({
   name: z.string().trim().min(2, { message: 'Name must be at least 2 characters' }).max(30, {
     message: 'Name must be at most 30 characters',
   }),
-  unitId: z.string().uuid({ message: 'Unit must be selected' }),
+  unitId: z.uuid({ error: 'Unit must be selected' }),
 });
 
+/** Values of the resource forms. */
 export type ResourceFormValues = z.infer<typeof resourceSchema>;

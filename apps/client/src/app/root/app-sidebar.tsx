@@ -8,6 +8,7 @@ import { SettingsNav } from '@/app/root/settings-nav';
 
 interface Props extends React.ComponentProps<typeof Sidebar> {}
 
+/** Main sidebar with navigation and the account menu. */
 export function AppSidebar({ ...props }: Props) {
   const isSettingsRoute = useRouterState({
     select: (state) => state.location.pathname.startsWith('/settings'),

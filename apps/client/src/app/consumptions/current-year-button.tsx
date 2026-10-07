@@ -3,6 +3,7 @@ import { getRouteApi } from '@tanstack/react-router';
 
 const Route = getRouteApi('/_authenticated/_app/consumptions');
 
+/** Sets the selected year to the current year. */
 export function ConsumptionCurrentYearButton() {
   const navigate = Route.useNavigate();
 

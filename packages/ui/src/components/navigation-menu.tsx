@@ -5,6 +5,7 @@ import { NavigationMenu as NavigationMenuPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { ChevronDownIcon } from 'lucide-react';
 
+/** Website navigation with dropdown panels. */
 function NavigationMenu({
   className,
   children,
@@ -26,6 +27,7 @@ function NavigationMenu({
   );
 }
 
+/** List of top-level navigation items. */
 function NavigationMenuList({ className, ...props }: React.ComponentProps<typeof NavigationMenuPrimitive.List>) {
   return (
     <NavigationMenuPrimitive.List
@@ -36,16 +38,19 @@ function NavigationMenuList({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
+/** A top-level navigation item. */
 function NavigationMenuItem({ className, ...props }: React.ComponentProps<typeof NavigationMenuPrimitive.Item>) {
   return (
     <NavigationMenuPrimitive.Item data-slot='navigation-menu-item' className={cn('relative', className)} {...props} />
   );
 }
 
+/** Class names of a navigation trigger, for styling links like triggers. */
 const navigationMenuTriggerStyle = cva(
   'group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted',
 );
 
+/** Opens the panel of a navigation item. */
 function NavigationMenuTrigger({
   className,
   children,
@@ -66,6 +71,7 @@ function NavigationMenuTrigger({
   );
 }
 
+/** Panel of a navigation item. */
 function NavigationMenuContent({ className, ...props }: React.ComponentProps<typeof NavigationMenuPrimitive.Content>) {
   return (
     <NavigationMenuPrimitive.Content
@@ -79,6 +85,7 @@ function NavigationMenuContent({ className, ...props }: React.ComponentProps<typ
   );
 }
 
+/** Shared container the open panel is rendered into. */
 function NavigationMenuViewport({
   className,
   ...props
@@ -97,6 +104,7 @@ function NavigationMenuViewport({
   );
 }
 
+/** A navigation link. */
 function NavigationMenuLink({ className, ...props }: React.ComponentProps<typeof NavigationMenuPrimitive.Link>) {
   return (
     <NavigationMenuPrimitive.Link
@@ -110,6 +118,7 @@ function NavigationMenuLink({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
+/** Arrow pointing to the active trigger. */
 function NavigationMenuIndicator({
   className,
   ...props

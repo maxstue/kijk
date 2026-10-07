@@ -2,10 +2,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
-import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
+import { LimitWarning } from '@/app/consumptions/limit-warning';
 import { ConsumptionUpdateForm } from '@/app/consumptions/update-form';
 import { consumptionQueryOptions, consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 
+/** `/consumptions/$consumptionId`: edit dialog of a consumption. */
 export const Route = createFileRoute('/_authenticated/_app/consumptions/$consumptionId')({
   loader: ({ context: { queryClient }, params: { consumptionId } }) =>
     queryClient.ensureQueryData(consumptionQueryOptions(consumptionId)),
@@ -30,7 +31,7 @@ function ConsumptionEditDialog() {
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             Update Consumption
-            <ConsumptionLimitWarning resourceId={consumption.resource.id} />
+            <LimitWarning resourceId={consumption.resource.id} />
           </DialogTitle>
           <DialogDescription>Update this consumption.</DialogDescription>
         </DialogHeader>

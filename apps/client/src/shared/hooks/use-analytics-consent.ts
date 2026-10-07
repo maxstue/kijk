@@ -7,6 +7,7 @@ import { currentUserQueryOptions, updateUserMutationOptions } from '@/shared/api
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 import type { CookieConsent } from '@/shared/types/analytics';
 
+/** Reads and updates the analytics consent: stored on the account for signed-in users, otherwise in the browser. */
 export function useAnalyticsConsent() {
   const { isLoaded, isSignedIn } = useAuth();
   const queryClient = useQueryClient();

@@ -12,20 +12,20 @@ public class GetYearsConsumptionHandler(IAppDbContext dbContext, CurrentUser cur
     /// <summary>
     /// Retrieves all years that have consumption usages and all years in between.
     /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The years with consumptions.</returns>
     public async Task<Result<GetYearsConsumptionQueryResponse>> GetYearsAsync(CancellationToken cancellationToken)
     {
-        var houseHoldId = currentUser.ActiveHouseholdId;
-        if (houseHoldId is null)
+        var spaceId = currentUser.ActiveSpaceId;
+        if (spaceId is null)
         {
-            logger.LogWarning("No active household found for user '{Id}'", currentUser.Id);
-            return Error.NotFound("No active household found");
+            logger.LogWarning("No active space found for user '{Id}'", currentUser.Id);
+            return Error.NotFound("No active space found");
         }
 
-        var yearsWithEnergy = await dbContext.Households
+        var yearsWithEnergy = await dbContext.Spaces
             .AsNoTracking()
-            .Where(x => x.Id == houseHoldId)
+            .Where(x => x.Id == spaceId)
             .SelectMany(x => x.Consumptions)
             .Select(x => x.Date.Year)
             .Distinct()

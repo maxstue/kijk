@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/** Validation of the onboarding form. */
 export const userStepSchema = z.object({
   analyticsConsent: z
     .enum(['Accepted', 'Declined'])
@@ -16,7 +17,7 @@ export const userStepSchema = z.object({
       return value;
     }),
   displayName: z.string().trim().min(2).max(100),
-  householdName: z.string().trim().min(2).max(100),
+  spaceName: z.string().trim().min(2).max(100),
   useDefaultResources: z.boolean(),
   useExternalProfile: z
     .boolean()
@@ -34,5 +35,7 @@ export const userStepSchema = z.object({
     }),
 });
 
+/** Onboarding form values while editing. */
 export type UserStepFormDraft = z.input<typeof userStepSchema>;
+/** Validated onboarding form values. */
 export type UserStepFormValues = z.output<typeof userStepSchema>;

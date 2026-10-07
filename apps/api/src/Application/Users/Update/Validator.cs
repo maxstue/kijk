@@ -7,6 +7,7 @@ namespace Kijk.Application.Users.Update;
 /// </summary>
 public sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
 {
+    /// <summary>Creates the validator rules for user updates.</summary>
     public UpdateUserRequestValidator()
     {
         RuleFor(request => request.UserName)
@@ -14,10 +15,10 @@ public sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserReq
             .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
             .When(request => request.UserName is not null);
 
-        RuleFor(request => request.HouseholdName)
+        RuleFor(request => request.SpaceName)
             .Must(name => !string.IsNullOrWhiteSpace(name)).WithErrorCode(ErrorCodes.ValidationError)
             .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
-            .When(request => request.HouseholdName is not null);
+            .When(request => request.SpaceName is not null);
 
         RuleFor(request => request.AnalyticsConsent)
             .IsInEnum().WithErrorCode(ErrorCodes.ValidationError)

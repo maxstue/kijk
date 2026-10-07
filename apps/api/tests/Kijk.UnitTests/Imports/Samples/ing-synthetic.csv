@@ -1,0 +1,20 @@
+Umsatzanzeige;Datei erstellt am: 01.12.2026 10:00
+;Letztes Update: aktuell
+
+IBAN;DE00 5001 0517 0000 0000 00
+Kontoname;Girokonto
+Bank;Musterbank
+Kunde;Erika Beispiel
+Zeitraum;01.09.2026 - 30.11.2026
+Saldo;1.234,56;EUR
+
+Sortierung;Datum absteigend
+
+In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+
+Buchung;Wertstellungsdatum;Auftraggeber/Empfänger;Buchungstext;Verwendungszweck;Referenz;Saldo;Währung;Betrag;Währung
+30.11.2026;30.11.2026;Bäckerei Schön;Lastschrift;Brötchen und Kaffee;;1.234,56;EUR;-6,80;EUR
+14.11.2026;14.11.2026;Drogerie Müller GmbH & Co. KG;Lastschrift;Einkauf Filiale 77;;1.241,36;EUR;-1.023,45;EUR
+01.11.2026;01.11.2026;Muster Versicherung AG;Lastschrift;Beitrag November;REF-0001;2.264,81;EUR;-46;EUR
+10.10.2026;10.10.2026;Muster Arbeitgeber GmbH;Gehalt/Rente;Gehalt Oktober;;2.310,71;EUR;2.500,00;EUR
+02.09.2026;02.09.2026;Tankstelle Süd;Lastschrift;Tanken € 1,89/l;;-189,29;EUR;-64,30;EUR

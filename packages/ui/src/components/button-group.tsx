@@ -4,6 +4,7 @@ import { Slot } from 'radix-ui';
 import { cn } from 'cn';
 import { Separator } from '@kijk/ui/components/separator';
 
+/** Class names of the button group orientations. */
 const buttonGroupVariants = cva(
   "group/button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
   {
@@ -21,6 +22,7 @@ const buttonGroupVariants = cva(
   },
 );
 
+/** Groups buttons visually; `orientation` sets the direction. */
 function ButtonGroup({
   className,
   orientation,
@@ -37,6 +39,7 @@ function ButtonGroup({
   );
 }
 
+/** Static text segment inside a button group. */
 function ButtonGroupText({
   className,
   asChild = false,
@@ -57,6 +60,7 @@ function ButtonGroupText({
   );
 }
 
+/** Divider between grouped buttons. */
 function ButtonGroupSeparator({
   className,
   orientation = 'vertical',

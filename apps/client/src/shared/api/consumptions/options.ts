@@ -13,12 +13,14 @@ import {
 } from './requests';
 import type { ConsumptionData, DeleteConsumptionData, UpdateConsumptionData } from './types';
 
+/** Query for the years that have consumptions. */
 export const consumptionYearsQueryOptions = () =>
   queryOptions({
     queryFn: ({ signal }) => getYears(signal),
     queryKey: queryKeys.consumptions.years(),
   });
 
+/** Query for the consumptions of a year/month; omitted values mean all. */
 export const consumptionsByQueryOptions = (year?: number | string, month?: string) => {
   const y = year ? year.toString() : undefined;
   const m = month ?? undefined;
@@ -30,12 +32,14 @@ export const consumptionsByQueryOptions = (year?: number | string, month?: strin
   });
 };
 
+/** Query for a single consumption. */
 export const consumptionQueryOptions = (id: string) =>
   queryOptions({
     queryFn: ({ signal }) => getConsumption(id, signal),
     queryKey: queryKeys.consumptions.detail(id),
   });
 
+/** Query for the statistics of a year and month. */
 export const consumptionsStatsQueryOptions = (year?: number | string, month?: string) => {
   const y = year ? year.toString() : undefined;
   const m = month ?? undefined;
@@ -47,16 +51,19 @@ export const consumptionsStatsQueryOptions = (year?: number | string, month?: st
   });
 };
 
+/** Mutation that records a consumption. */
 export const createConsumptionMutationOptions = () =>
   mutationOptions({
     mutationFn: (data: ConsumptionData) => createConsumption(data),
   });
 
+/** Mutation that updates a consumption. */
 export const updateConsumptionMutationOptions = () =>
   mutationOptions({
     mutationFn: (data: UpdateConsumptionData) => updateConsumption(data.id, data.consumption),
   });
 
+/** Mutation that deletes a consumption. */
 export const deleteConsumptionMutationOptions = () =>
   mutationOptions({
     mutationFn: (data: DeleteConsumptionData) => deleteConsumption(data.id),

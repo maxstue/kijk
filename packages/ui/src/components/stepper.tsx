@@ -8,28 +8,36 @@ import * as React from 'react';
 // Types
 // ----------------------------------------------------------------------------
 
+/** Layout direction of a stepper. */
 type StepperOrientation = 'horizontal' | 'vertical';
+/** Position of a step relative to the current step. */
 type StepperStepPosition = 'previous' | 'current' | 'next';
+/** Visual state of a step. */
 type StepperStepState = 'inactive' | 'active' | 'completed' | 'disabled' | 'error';
 
+/** Step definition passed to `Stepper` via `steps`. */
 type StepperStepInput<TValue extends string = string> = {
   value: TValue;
   disabled?: boolean;
 };
 
+/** A registered step. */
 type StepperStep<TValue extends string = string> = {
   value: TValue;
   disabled: boolean;
 };
 
+/** Union of the step values of a `steps` array. */
 type StepperStepsValue<TSteps extends readonly StepperStepInput[]> = TSteps[number]['value'];
 
 type RegisteredStep<TValue extends string = string> = StepperStep<TValue> & {
   id: string;
 };
 
+/** Runs before navigating; returning `false` cancels the navigation. */
 type StepperNavigationGuard = () => boolean | Promise<boolean>;
 
+/** State and navigation of a stepper, returned by {@link useStepper}. */
 type StepperApi<TValue extends string = string> = {
   value: TValue | undefined;
   orientation: StepperOrientation;
@@ -44,6 +52,7 @@ type StepperApi<TValue extends string = string> = {
   goNext: () => void;
 };
 
+/** State of a single step, returned by {@link useStepperItem}. */
 type StepperItemApi<TValue extends string = string> = {
   value: TValue;
   index: number;
@@ -70,6 +79,7 @@ type StepperContextValue<TValue extends string = string> = StepperApi<TValue> & 
 
 type StepperItemContextValue<TValue extends string = string> = StepperItemApi<TValue>;
 
+/** Props of {@link Stepper}. */
 type StepperProps<TValue extends string = string> = React.ComponentPropsWithoutRef<'div'> & {
   value?: TValue;
   defaultValue?: TValue;
@@ -89,8 +99,10 @@ type StepperPropsWithoutSteps<TValue extends string = string> = Omit<StepperProp
   steps?: undefined;
 };
 
+/** Props of {@link StepperList}. */
 type StepperListProps = React.ComponentPropsWithoutRef<'ol'>;
 
+/** Props of {@link StepperItem}. */
 type StepperItemProps<TValue extends string = string> = Omit<React.ComponentPropsWithoutRef<'li'>, 'value'> & {
   value: TValue;
   completed?: boolean;
@@ -100,18 +112,24 @@ type StepperItemProps<TValue extends string = string> = Omit<React.ComponentProp
   separator?: boolean;
 };
 
+/** Props of {@link StepperTrigger}. */
 type StepperTriggerProps = React.ComponentPropsWithoutRef<'button'> & {
   asChild?: boolean;
 };
 
+/** Props of {@link StepperIndicator}. */
 type StepperIndicatorProps = React.ComponentPropsWithoutRef<'span'>;
 
+/** Props of {@link StepperLabel}. */
 type StepperLabelProps = React.ComponentPropsWithoutRef<'span'>;
 
+/** Props of {@link StepperDescription}. */
 type StepperDescriptionProps = React.ComponentPropsWithoutRef<'span'>;
 
+/** Props of {@link StepperSeparator}. */
 type StepperSeparatorProps = React.ComponentPropsWithoutRef<'span'>;
 
+/** Props of {@link StepperContent}. */
 type StepperContentProps<TValue extends string = string> = React.ComponentPropsWithoutRef<'div'> & {
   value: TValue;
   forceMount?: boolean;
@@ -120,14 +138,17 @@ type StepperContentProps<TValue extends string = string> = React.ComponentPropsW
   asChild?: boolean;
 };
 
+/** Props shared by the navigation buttons. */
 type StepperButtonProps = React.ComponentPropsWithoutRef<'button'> & {
   asChild?: boolean;
 };
 
+/** Props of {@link StepperPrevious}. */
 type StepperPreviousProps = StepperButtonProps & {
   onBeforePrevious?: StepperNavigationGuard;
 };
 
+/** Props of {@link StepperNext}. */
 type StepperNextProps = StepperButtonProps & {
   onBeforeNext?: StepperNavigationGuard;
 };
@@ -576,6 +597,7 @@ function useNavigationButton({
   };
 }
 
+/** Returns the state and navigation of the surrounding `Stepper`. */
 function useStepper<TValue extends string = string>(): StepperApi<TValue> {
   const context = useStepperContext('useStepper') as unknown as StepperContextValue<TValue>;
 
@@ -594,6 +616,7 @@ function useStepper<TValue extends string = string>(): StepperApi<TValue> {
   };
 }
 
+/** Returns the state of the surrounding `StepperItem`. */
 function useStepperItem<TValue extends string = string>(): StepperItemApi<TValue> {
   return useStepperItemContext('useStepperItem') as unknown as StepperItemContextValue<TValue>;
 }
@@ -602,6 +625,10 @@ function useStepperItem<TValue extends string = string>(): StepperItemApi<TValue
 // Root
 // ----------------------------------------------------------------------------
 
+/**
+ * Multi-step flow, controlled (`value`) or uncontrolled (`defaultValue`).
+ * Steps come from `steps` or from the rendered `StepperItem`s.
+ */
 function Stepper<const TSteps extends readonly StepperStepInput[]>(
   props: StepperPropsWithSteps<TSteps>,
 ): React.ReactElement;
@@ -696,6 +723,7 @@ function Stepper({
 // List
 // ----------------------------------------------------------------------------
 
+/** Ordered list of the steps. */
 function StepperList({ className, 'aria-label': ariaLabel = 'Progress steps', children, ...props }: StepperListProps) {
   const { orientation } = useStepperContext('StepperList');
 
@@ -724,6 +752,7 @@ function StepperList({ className, 'aria-label': ariaLabel = 'Progress steps', ch
 // Item
 // ----------------------------------------------------------------------------
 
+/** A step; `completed`, `disabled` and `error` override its state. */
 function StepperItem<TValue extends string = string>({
   value,
   completed = false,
@@ -884,6 +913,7 @@ function StepperItem<TValue extends string = string>({
 // Trigger
 // ----------------------------------------------------------------------------
 
+/** Button that jumps to its step. */
 function StepperTrigger({
   asChild = false,
   className,
@@ -977,6 +1007,7 @@ function StepperTrigger({
   );
 }
 
+/** Number or check mark of a step. */
 function StepperIndicator({ className, children, ...props }: StepperIndicatorProps) {
   const { index, stepState } = useStepperItemContext('StepperIndicator');
   const stepNumber = index >= 0 ? index + 1 : undefined;
@@ -1018,6 +1049,7 @@ function StepperIndicator({ className, children, ...props }: StepperIndicatorPro
   );
 }
 
+/** Label of a step. */
 function StepperLabel({ className, ...props }: StepperLabelProps) {
   const { orientation } = useStepperItemContext('StepperLabel');
 
@@ -1034,6 +1066,7 @@ function StepperLabel({ className, ...props }: StepperLabelProps) {
   );
 }
 
+/** Description of a step. */
 function StepperDescription({ className, ...props }: StepperDescriptionProps) {
   const { orientation } = useStepperItemContext('StepperDescription');
 
@@ -1050,6 +1083,7 @@ function StepperDescription({ className, ...props }: StepperDescriptionProps) {
   );
 }
 
+/** Connector line between steps. */
 function StepperSeparator({ className, ...props }: StepperSeparatorProps) {
   const { orientation } = useStepperItemContext('StepperSeparator');
 
@@ -1075,6 +1109,7 @@ function StepperSeparator({ className, ...props }: StepperSeparatorProps) {
 // Content
 // ----------------------------------------------------------------------------
 
+/** Content of a step, shown while the step is active. */
 function StepperContent<TValue extends string = string>({
   value,
   forceMount = false,
@@ -1132,6 +1167,7 @@ function StepperContent<TValue extends string = string>({
 // Navigation
 // ----------------------------------------------------------------------------
 
+/** Goes to the previous step after `onBeforePrevious` allows it. */
 function StepperPrevious({
   asChild = false,
   className,
@@ -1180,6 +1216,7 @@ function StepperPrevious({
   );
 }
 
+/** Goes to the next step after `onBeforeNext` allows it. */
 function StepperNext({
   asChild = false,
   className,

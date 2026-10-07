@@ -32,12 +32,16 @@ public readonly record struct Result<TValue>
         private init;
     }
 
+    /// <summary>Creates a failed result.</summary>
+    /// <param name="error">The error.</param>
     public Result(Error error)
     {
         Error = error;
         IsSuccess = false;
     }
 
+    /// <summary>Creates a successful result.</summary>
+    /// <param name="value">The value.</param>
     public Result(TValue value)
     {
         Value = value;
@@ -49,6 +53,7 @@ public readonly record struct Result<TValue>
     /// </summary>
     public static implicit operator Result<TValue>(TValue value) => new(value);
 
+    /// <summary>Creates a successful <see cref="Result{TValue}" /> from the first item of a tuple; the message is ignored.</summary>
     public static implicit operator Result<TValue>(Tuple<TValue, string> tuple) => new(tuple.Item1);
 
     /// <summary>

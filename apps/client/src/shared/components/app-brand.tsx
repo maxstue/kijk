@@ -9,6 +9,7 @@ interface AppBrandProps extends React.ComponentProps<'div'> {
   showName?: boolean;
 }
 
+/** Kijk logo with optional name. */
 export function AppBrand({ className, logoClassName, nameClassName, showName = true, ...props }: AppBrandProps) {
   return (
     <div className={cn('flex items-center gap-2', className)} {...props}>

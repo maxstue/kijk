@@ -5,6 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import type { Consumption } from '@/shared/types/domain';
 import { getMonthFromDate } from '@/shared/utils/months';
 
+/** Updates a consumption, caches the result and refreshes consumption lists and limits. */
 export const useUpdateConsumption = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -14,7 +15,7 @@ export const useUpdateConsumption = () => {
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.byAll() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.limits.all }),
       ]);
 
       const consumptionDate = variables.consumption.date;

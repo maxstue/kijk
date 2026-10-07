@@ -1,4 +1,11 @@
-import { ChartAreaIcon, HousePlugIcon, LayoutDashboardIcon, TriangleAlertIcon } from 'lucide-react';
+import {
+  ChartAreaIcon,
+  HousePlugIcon,
+  LayoutDashboardIcon,
+  PiggyBankIcon,
+  ReceiptTextIcon,
+  TriangleAlertIcon,
+} from 'lucide-react';
 
 interface MainNavItem {
   title: string;
@@ -7,6 +14,7 @@ interface MainNavItem {
   isActive: boolean;
 }
 
+/** Entries of the main navigation. */
 export const mainNav = [
   {
     icon: LayoutDashboardIcon,
@@ -30,7 +38,19 @@ export const mainNav = [
     icon: TriangleAlertIcon,
     isActive: true,
     title: 'Limits',
-    url: '/consumptions-limits',
+    url: '/limits',
+  },
+  {
+    icon: PiggyBankIcon,
+    isActive: true,
+    title: 'Budgets',
+    url: '/budgets',
+  },
+  {
+    icon: ReceiptTextIcon,
+    isActive: true,
+    title: 'Transactions',
+    url: '/transactions',
   },
   {
     icon: HousePlugIcon,

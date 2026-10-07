@@ -11,7 +11,7 @@ namespace Kijk.Application.Consumptions.Export;
 public sealed class ExportConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
     /// <summary>
-    /// Exports a single consumption owned by the active household.
+    /// Exports a single consumption owned by the active space.
     /// </summary>
     /// <param name="id">The consumption identifier.</param>
     /// <param name="cancellationToken">A token used to cancel the operation.</param>
@@ -20,7 +20,7 @@ public sealed class ExportConsumptionHandler(IAppDbContext dbContext, CurrentUse
     {
         var consumption = await dbContext.Consumptions
             .AsNoTracking()
-            .Where(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId)
             .ToResponse()
             .SingleOrDefaultAsync(cancellationToken);
 
@@ -34,7 +34,7 @@ public sealed class ExportConsumptionHandler(IAppDbContext dbContext, CurrentUse
     }
 
     /// <summary>
-    /// Exports all consumptions for a month owned by the active household.
+    /// Exports all consumptions for a month owned by the active space.
     /// </summary>
     /// <param name="year">The four-digit year.</param>
     /// <param name="month">The invariant English month name.</param>
@@ -54,7 +54,7 @@ public sealed class ExportConsumptionHandler(IAppDbContext dbContext, CurrentUse
 
         var consumptions = await dbContext.Consumptions
             .AsNoTracking()
-            .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
             .Where(item => item.Date.Year == year && item.Date.Month == parsedMonth.Month)
             .OrderByDescending(item => item.Date)
             .ThenBy(item => item.Id)

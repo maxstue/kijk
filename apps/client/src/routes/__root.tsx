@@ -14,6 +14,10 @@ interface RootRouteContext {
   // TODO add posthog and sentry clients here
 }
 
+/**
+ * Root route: favicon handling, page tracking, devtools and the loading fallback; provides the query and auth clients
+ * as context.
+ */
 export const Route = createRootRouteWithContext<RootRouteContext>()({
   component: RootPage,
   pendingComponent: InitLoader,

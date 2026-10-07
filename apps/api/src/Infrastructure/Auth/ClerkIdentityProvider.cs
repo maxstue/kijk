@@ -1,5 +1,7 @@
+using System.Net;
 using System.Text.Json;
 using Clerk.BackendAPI;
+using Clerk.BackendAPI.Models.Errors;
 using Clerk.BackendAPI.Models.Operations;
 using Kijk.Application.Shared.Identity;
 
@@ -45,6 +47,19 @@ public sealed class ClerkIdentityProvider(ClerkBackendApi clerkBackendApi) : IId
         };
 
         await clerkBackendApi.Users.UpdateMetadataAsync(authId, request).WaitAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteAsync(string authId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await clerkBackendApi.Users.DeleteAsync(authId).WaitAsync(cancellationToken);
+        }
+        catch (SDKBaseError error) when (error.Response.StatusCode == HttpStatusCode.NotFound)
+        {
+            // Already deleted, e.g. by a previous attempt of the same job.
+        }
     }
 
     private static string? JoinName(string? firstName, string? lastName)

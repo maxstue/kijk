@@ -5,6 +5,7 @@ import { Slot } from 'radix-ui';
 import { cn } from 'cn';
 import { Separator } from '@kijk/ui/components/separator';
 
+/** List of items. */
 function ItemGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -19,6 +20,7 @@ function ItemGroup({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Divider between items. */
 function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Separator>) {
   return <Separator data-slot='item-separator' orientation='horizontal' className={cn('my-2', className)} {...props} />;
 }
@@ -45,6 +47,7 @@ const itemVariants = cva(
   },
 );
 
+/** List row with media, content and actions; `variant` and `size` set the style. */
 function Item({
   className,
   variant = 'default',
@@ -81,6 +84,7 @@ const itemMediaVariants = cva(
   },
 );
 
+/** Icon or image of an item. */
 function ItemMedia({
   className,
   variant = 'default',
@@ -96,6 +100,7 @@ function ItemMedia({
   );
 }
 
+/** Main content of an item. */
 function ItemContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -109,6 +114,7 @@ function ItemContent({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Title of an item. */
 function ItemTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -122,6 +128,7 @@ function ItemTitle({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Description of an item. */
 function ItemDescription({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p
@@ -135,10 +142,12 @@ function ItemDescription({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
+/** Actions of an item. */
 function ItemActions({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='item-actions' className={cn('flex items-center gap-2', className)} {...props} />;
 }
 
+/** Full-width area above the item content. */
 function ItemHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -149,6 +158,7 @@ function ItemHeader({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Full-width area below the item content. */
 function ItemFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

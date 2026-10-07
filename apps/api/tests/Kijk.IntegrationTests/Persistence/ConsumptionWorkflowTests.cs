@@ -5,6 +5,7 @@ using Kijk.Application.Consumptions.GetByYearMonth;
 using Kijk.Application.Consumptions.GetStats;
 using Kijk.Application.Consumptions.Update;
 using Kijk.Domain.Entities;
+using Kijk.Domain.ValueObjects;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ public class ConsumptionWorkflowTests
     public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
 
     [Test]
-    public async Task ExportMonthIncludesOnlyActiveHouseholdAndRequestedMonth()
+    public async Task ExportMonthIncludesOnlyActiveSpaceAndRequestedMonth()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var fixture = await CreateFixtureAsync(dbContext);
@@ -67,11 +68,11 @@ public class ConsumptionWorkflowTests
     }
 
     [Test]
-    public async Task ExportByIdRejectsConsumptionFromAnotherHousehold()
+    public async Task ExportByIdRejectsConsumptionFromAnotherSpace()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var fixture = await CreateFixtureAsync(dbContext);
-        var otherHousehold = Household.Create("Other household");
+        var otherSpace = Space.Create("Other space");
         var cubicMeter = await dbContext.Units.SingleAsync(unit => unit.Id == new Guid("11111111-1111-4111-8111-111111111113"));
         var otherResource = new Resource
         {
@@ -80,17 +81,15 @@ public class ConsumptionWorkflowTests
             Color = "#334455",
             Icon = "flame",
             CreatorType = CreatorType.User,
-            Household = otherHousehold
+            Space = otherSpace
         };
         var foreignConsumption = Consumption.Create(
             "Foreign",
             otherResource,
-            42m,
-            otherHousehold,
+            otherSpace,
             UtcDate(2026, 9, 2),
-            ConsumptionValueType.Relative,
-            42m);
-        dbContext.AddRange(otherHousehold, otherResource, foreignConsumption);
+            new ConsumptionReading(42m, ConsumptionValueType.Relative, 42m));
+        dbContext.AddRange(otherSpace, otherResource, foreignConsumption);
         await dbContext.SaveChangesAsync();
 
         var result = await new ExportConsumptionHandler(dbContext, fixture.CurrentUser)
@@ -130,12 +129,12 @@ public class ConsumptionWorkflowTests
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var fixture = await CreateFixtureAsync(dbContext);
-        var limit = ConsumptionLimit.Create(
-            new ConsumptionLimitSettings("Monthly electricity", null, 50m, Period.Month, true),
+        var limit = Limit.Create(
+            new LimitSettings("Monthly electricity", null, 50m, Period.Month, true),
             fixture.Resource,
             fixture.User,
-            fixture.Household);
-        dbContext.ConsumptionsLimits.Add(limit);
+            fixture.Space);
+        dbContext.Limits.Add(limit);
         await dbContext.SaveChangesAsync();
 
         var firstOccurrence = new DateTimeOffset(2026, 9, 8, 12, 0, 0, TimeSpan.Zero);
@@ -219,7 +218,7 @@ public class ConsumptionWorkflowTests
 
     private static async Task<TestFixture> CreateFixtureAsync(AppDbContext dbContext)
     {
-        var household = Household.Create("Integration household");
+        var space = Space.Create("Integration space");
         var kilowattHour = await dbContext.Units.SingleAsync(unit => unit.Id == new Guid("22222222-2222-4222-8222-222222222222"));
         var resource = new Resource
         {
@@ -228,20 +227,20 @@ public class ConsumptionWorkflowTests
             Color = "#112233",
             Icon = "zap",
             CreatorType = CreatorType.User,
-            Household = household
+            Space = space
         };
         var user = User.Init("integration-auth", "Integration user", "integration@example.test");
-        dbContext.AddRange(household, resource, user);
+        dbContext.AddRange(space, resource, user);
         await dbContext.SaveChangesAsync();
 
         return new TestFixture(
-            household,
+            space,
             resource,
             user,
-            new CurrentUser { User = new SimpleAuthUser(user.Id, user.AuthId, household.Id, user.Name, user.Email, true) });
+            new CurrentUser { User = new SimpleAuthUser(user.Id, user.AuthId, space.Id, user.Name, user.Email, true) });
     }
 
-    private sealed record TestFixture(Household Household, Resource Resource, User User, CurrentUser CurrentUser);
+    private sealed record TestFixture(Space Space, Resource Resource, User User, CurrentUser CurrentUser);
 
     private sealed class MutableTimeProvider(DateTimeOffset utcNow) : TimeProvider
     {

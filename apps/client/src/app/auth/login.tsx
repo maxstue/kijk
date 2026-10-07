@@ -13,6 +13,7 @@ interface Props {
   redirectTo: string;
 }
 
+/** Sign-in view (email, Google or GitHub); navigates to `redirectTo` on success. */
 export function Login({ goto, redirectTo }: Props) {
   const { isLoaded, signIn, setActive } = useSignIn();
   const navigate = useNavigate();

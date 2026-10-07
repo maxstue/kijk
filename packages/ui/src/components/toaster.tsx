@@ -2,6 +2,7 @@ import { useThemeStore } from '@kijk/core/stores/theme-store';
 import { Toaster as Sonner } from 'sonner';
 import type { ToasterProps } from 'sonner';
 
+/** Renders the toast notifications (Sonner) in the current theme. */
 export const Toaster = ({ ...props }: ToasterProps) => {
   const { mode } = useThemeStore();
 

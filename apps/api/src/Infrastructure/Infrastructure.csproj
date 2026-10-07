@@ -13,6 +13,7 @@
         <PackageReference Include="EFCore.NamingConventions" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
         <PackageReference Include="EntityFrameworkCore.Exceptions.PostgreSQL"/>
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
@@ -30,7 +31,13 @@
         <!-- Logging -->
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Expressions"/>
-        <!-- Telemetry -->
+        <!-- AI -->
+        <PackageReference Include="Microsoft.Extensions.AI.OpenAI"/>
+        <!-- Background jobs -->
+        <PackageReference Include="WolverineFx"/>
+        <PackageReference Include="WolverineFx.EntityFrameworkCore"/>
+        <PackageReference Include="WolverineFx.Postgresql"/>
+        <PackageReference Include="WolverineFx.RuntimeCompilation"/>
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Application\Application.csproj" />
@@ -38,5 +45,8 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Persistence\Migrations\" />
+    </ItemGroup>
+    <ItemGroup>
+      <InternalsVisibleTo Include="Kijk.IntegrationTests" />
     </ItemGroup>
 </Project>

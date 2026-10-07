@@ -5,10 +5,10 @@ import type { PropsWithChildren } from 'react';
 import { expect, test } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import type { ConsumptionLimit } from '@/shared/api/consumption-limits/types';
+import type { Limit } from '@/shared/api/limits/types';
 import { worker } from '@/test/mocks/browser';
 
-import { ConsumptionLimitWarning } from './limit-warning';
+import { LimitWarning } from './limit-warning';
 
 const resourceId = '72f1314f-af24-4b88-83a5-94fcaed7e4a7';
 
@@ -20,8 +20,8 @@ test('does not render a warning when no active limit is exceeded', async () => {
 
 test('renders exceeded limits returned by the API', async () => {
   worker.use(
-    http.get('http://localhost:5000/api/consumption-limits', () =>
-      HttpResponse.json<ConsumptionLimit[]>([
+    http.get('http://localhost:5000/api/limits', () =>
+      HttpResponse.json<Limit[]>([
         {
           active: true,
           actualValue: 125,
@@ -60,5 +60,5 @@ function renderWarning() {
     );
   }
 
-  return render(<ConsumptionLimitWarning resourceId={resourceId} />, { wrapper: TestProviders });
+  return render(<LimitWarning resourceId={resourceId} />, { wrapper: TestProviders });
 }

@@ -22,6 +22,7 @@ interface Props {
   redirectTo: string;
 }
 
+/** Email and password form used by sign-in and sign-up; calls `onSubmit` with the credentials. */
 export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Props) {
   const form = useForm({
     defaultValues: {

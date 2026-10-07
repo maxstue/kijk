@@ -1,0 +1,14 @@
+{
+  "name": "@kijk/openapi-codegen",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Generates the client API types from the API's OpenAPI document. Pins TypeScript 5 because openapi-typescript needs the JavaScript compiler API that TypeScript 7 removed.",
+  "type": "module",
+  "scripts": {
+    "generate": "openapi-typescript ../../apps/api/src/Api/kijk_openapi.json -o ../../apps/client/src/shared/api/generated/kijk.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "catalog:",
+    "typescript": "5.9.3"
+  }
+}

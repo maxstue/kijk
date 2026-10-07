@@ -20,4 +20,10 @@ public interface IIdentityProvider
     /// <param name="useProfileInKijk">Whether the optional profile data may be used.</param>
     /// <param name="cancellationToken">A token that cancels waiting for the provider response.</param>
     Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken);
+
+    /// <summary>Deletes the identity at the authentication provider. An identity that no longer exists counts as deleted.</summary>
+    /// <param name="authId">The authentication provider's user id.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task that completes when the identity is gone.</returns>
+    Task DeleteAsync(string authId, CancellationToken cancellationToken);
 }

@@ -5,6 +5,7 @@ import { Separator as SeparatorPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Horizontal or vertical divider. */
 function Separator({
   className,
   orientation = 'horizontal',

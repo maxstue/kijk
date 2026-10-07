@@ -31,6 +31,41 @@ export default defineConfig({
       },
       {
         extends: true,
+        // Pre-bundle the runtime dependencies up front. Otherwise Vite discovers some of them while the first test
+        // files run, re-optimizes and reloads the page, which fails in-flight test imports on slow CI runners
+        // ("Failed to fetch dynamically imported module").
+        optimizeDeps: {
+          include: [
+            '@clerk/react',
+            '@hookform/resolvers/zod',
+            '@posthog/react',
+            '@sentry/react',
+            '@tanstack/react-query',
+            '@tanstack/react-router',
+            '@tanstack/react-table',
+            '@tanstack/react-virtual',
+            '@tanstack/zod-adapter',
+            'date-fns',
+            'framer-motion',
+            'lucide-react',
+            'lucide-react/dynamic',
+            'msw',
+            'msw/browser',
+            'openapi-fetch',
+            'posthog-js',
+            'radix-ui',
+            'react',
+            'react-dom/client',
+            'react-error-boundary',
+            'react-hook-form',
+            'recharts',
+            'sonner',
+            'zod',
+            'zustand',
+            'zustand/middleware',
+            'zustand/middleware/immer',
+          ],
+        },
         test: {
           browser: {
             enabled: true,
@@ -38,6 +73,8 @@ export default defineConfig({
             instances: [{ browser: 'chromium' }],
             provider: playwright(),
           },
+          // Shared CI runners time out while starting many browser iframes in parallel; run files one by one there.
+          fileParallelism: !process.env.CI,
           include: ['src/**/*.browser.test.tsx'],
           name: 'component',
           setupFiles: ['./src/test/browser-setup.ts'],

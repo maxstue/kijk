@@ -33,8 +33,10 @@ export {
   X as CloseIcon,
 } from 'lucide-react';
 
+/** Type of an icon component. */
 export type Icon = LucideIcon;
 
+/** GitHub logo. */
 export function GitHubIcon(props: LucideProps) {
   return (
     <svg
@@ -55,6 +57,7 @@ export function GitHubIcon(props: LucideProps) {
   );
 }
 
+/** Google logo. */
 export function GoogleIcon(props: LucideProps) {
   return (
     <svg

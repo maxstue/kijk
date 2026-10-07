@@ -1,6 +1,9 @@
-﻿using Kijk.Application.Shared.Identity;
+﻿using Kijk.Application.Shared.Authorization;
+using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Shared;
+using Kijk.Domain.Authorization;
+using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
 
@@ -16,13 +19,20 @@ public class UpdateUserHandler(
     TimeProvider timeProvider,
     ILogger<UpdateUserHandler> logger) : IHandler
 {
+    /// <summary>
+    /// Updates the current user's settings. Renaming the active space additionally requires the
+    /// space:configure permission there; sending the unchanged name is always allowed.
+    /// </summary>
+    /// <param name="request">The changes.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The updated settings.</returns>
     public async Task<Result<UserResponse>> UpdateAsync(UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var userEntity = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
             .Include(x => x.Resources)
-            .Include(x => x.UserHouseholds)
-            .ThenInclude(x => x.Household)
+            .Include(x => x.UserSpaces)
+            .ThenInclude(x => x.Space)
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -37,16 +47,10 @@ public class UpdateUserHandler(
             userEntity.Name = request.UserName.Trim();
         }
 
-        if (request.HouseholdName is not null)
+        if (request.SpaceName is not null
+            && await RenameActiveSpaceAsync(userEntity, request.SpaceName.Trim(), cancellationToken) is { } renameError)
         {
-            var activeHousehold = userEntity.UserHouseholds.SingleOrDefault(x => x.IsActive)?.Household;
-            if (activeHousehold is null)
-            {
-                logger.LogWarning("Active household for user with id '{Id}' not found", currentUser.Id);
-                return Error.NotFound("Active household not found");
-            }
-
-            activeHousehold.Rename(request.HouseholdName.Trim());
+            return renameError;
         }
 
         if (request.AnalyticsConsent is not null)
@@ -54,30 +58,64 @@ public class UpdateUserHandler(
             userEntity.UpdateAnalyticsConsent(request.AnalyticsConsent.Value, timeProvider.GetUtcNow().UtcDateTime);
         }
 
+        if (request.AiEnabled is not null)
+        {
+            userEntity.SetAiEnabled(request.AiEnabled.Value);
+        }
+
+        if (request.SensitiveDataConsent is not null)
+        {
+            userEntity.SetSensitiveDataConsent(request.SensitiveDataConsent.Value, timeProvider.GetUtcNow().UtcDateTime);
+        }
+
         if (request.UseExternalProfile is not null)
         {
             await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile.Value, cancellationToken);
         }
 
-        var hasDefaultResources = userEntity.Resources.Any(x => x.CreatorType == CreatorType.System);
-
-        if (request.UseDefaultResources is true && !hasDefaultResources)
-        {
-            var defaultTypes = await dbContext.Resources
-                .Where(x => x.CreatorType == CreatorType.System)
-                .ToListAsync(cancellationToken);
-            userEntity.SetDefaultResources(true, defaultTypes);
-        }
-        else if (request.UseDefaultResources is false && hasDefaultResources)
-        {
-            var defaultTypes = await dbContext.Resources
-                .Where(x => x.CreatorType == CreatorType.System)
-                .ToListAsync(cancellationToken);
-            userEntity.SetDefaultResources(false, defaultTypes);
-        }
+        await SetDefaultResourcesAsync(userEntity, request.UseDefaultResources, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return userEntity.ToResponse(userEntity.Resources.Any(resource => resource.CreatorType == CreatorType.System));
+    }
+
+    /// <summary>Renames the user's active space; a changed name requires the space:configure permission.</summary>
+    private async Task<Error?> RenameActiveSpaceAsync(User user, string spaceName, CancellationToken cancellationToken)
+    {
+        var activeSpace = user.UserSpaces.SingleOrDefault(x => x.IsActive)?.Space;
+        if (activeSpace is null)
+        {
+            logger.LogWarning("Active space for user with id '{Id}' not found", currentUser.Id);
+            return Error.NotFound("Active space not found");
+        }
+
+        if (string.Equals(spaceName, activeSpace.Name, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        if (await dbContext.AuthorizeSpaceAsync(currentUser.Id, activeSpace.Id, SpacePermissions.Space.Configure, cancellationToken) is { } error)
+        {
+            return error;
+        }
+
+        activeSpace.Rename(spaceName);
+        return null;
+    }
+
+    /// <summary>Enables or disables the system default resources when the requested state differs.</summary>
+    private async Task SetDefaultResourcesAsync(User user, bool? useDefaultResources, CancellationToken cancellationToken)
+    {
+        var hasDefaultResources = user.Resources.Any(x => x.CreatorType == CreatorType.System);
+        if (useDefaultResources is null || useDefaultResources == hasDefaultResources)
+        {
+            return;
+        }
+
+        var defaultTypes = await dbContext.Resources
+            .Where(x => x.CreatorType == CreatorType.System)
+            .ToListAsync(cancellationToken);
+        user.SetDefaultResources(useDefaultResources.Value, defaultTypes);
     }
 }

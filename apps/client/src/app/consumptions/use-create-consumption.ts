@@ -5,6 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import type { Consumption } from '@/shared/types/domain';
 import { getMonthFromDate } from '@/shared/utils/months';
 
+/** Creates a consumption and refreshes consumption lists, stats and limits. */
 export const useCreateConsumption = () => {
   const queryClient = useQueryClient();
 
@@ -25,7 +26,7 @@ export const useCreateConsumption = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.byAll() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.limits.all }),
       ]);
     },
   });

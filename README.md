@@ -15,7 +15,7 @@
 
 ---
 
-<p align="center"> Meet <strong>Kijk</strong>: the open-source household app for effortless energy/resource monitoring. It's your all-in-one solution, simplifying expense tracking, income management, and energy consumption monitoring.
+<p align="center"> Meet <strong>Kijk</strong>: the open-source app that helps you understand and plan what you use – any resource you measure, such as electricity, water or fuel, with limits, and your money with budgets – privately for yourself and together in shared spaces with your household, flatmates or partner.
 <br>
 
 </p>
@@ -34,8 +34,8 @@
 
 ## 🧐 Motivation <a name = "motivation"></a>
 
-At the core of Kijk is my motivation to explore new technologies while crafting an app that caters to every user, including myself. I embarked on this journey to create a household app that simplifies energy/resource monitoring, driven by my own need for such a tool.
-I invite you, as new users, to join this project. Let's collaborate on this open-source project, combining our skills to make Kijk an even more valuable asset for household management. Your participation and contributions will not only enhance the app's features but also ensure that it addresses a wider array of needs and preferences. Together, we can shape a tool that empowers us all to manage our homes efficiently and effortlessly.
+At the core of Kijk is my motivation to explore new technologies while crafting an app that caters to every user, including myself. I embarked on this journey to create an app that makes it easy to understand and plan the resources and money a home uses, driven by my own need for such a tool.
+I invite you, as new users, to join this project. Let's collaborate on this open-source project, combining our skills to make Kijk an even more valuable tool for planning resources and budgets. Your participation and contributions will not only enhance the app's features but also ensure that it addresses a wider array of needs and preferences. Together, we can shape a tool that empowers us all to manage our homes efficiently and effortlessly.
 
 Feel free to explore the codebase to get inspiration or help with this project 🫶
 

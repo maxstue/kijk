@@ -7,6 +7,7 @@ const providerLabels: Record<string, string> = {
   google: 'Google',
 };
 
+/** Lists the external sign-in methods connected to the account. */
 export function ConnectedSignInMethods() {
   const { isLoaded, user } = useUser();
 

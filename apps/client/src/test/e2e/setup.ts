@@ -2,11 +2,15 @@ import { HttpResponse, http } from 'msw';
 import { setupWorker } from 'msw/browser';
 
 import type { ResourceData } from '@/shared/api/resources/types';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import type { Unit } from '@/shared/api/units/types';
 import type { CurrentUser } from '@/shared/api/users/types';
 import type { Resource } from '@/shared/types/domain';
 
 const unitId = '00000000-0000-4000-8000-000000000002';
+
+/** The E2E user administrates its space, so it gets every space permission. */
+const adminPermissions = Object.values(SpacePermissions).flatMap((group) => Object.values(group));
 
 const units: Unit[] = [
   {
@@ -21,10 +25,10 @@ const units: Unit[] = [
     conversionFactor: null,
     ownerUserId: null,
     isOwner: false,
-    isAvailableInActiveHousehold: true,
+    isAvailableInActiveSpace: true,
     isArchived: false,
     resourceCount: 0,
-    householdIds: [],
+    spaceIds: [],
   },
 ];
 
@@ -37,20 +41,23 @@ const currentUser = {
     authId: 'e2e-mock-user',
     name: 'E2E User',
     email: 'e2e@example.test',
+    aiEnabled: true,
     analyticsConsent: 'Declined',
     analyticsConsentUpdatedAt: null,
     onboardingCompletedAt: '2026-01-01T00:00:00Z',
-    households: [
+    sensitiveDataConsentAt: '2026-01-01T00:00:00Z',
+    spaces: [
       {
         id: '00000000-0000-4000-8000-000000000003',
-        name: 'E2E Household',
+        name: 'E2E Space',
         description: null,
         role: {
           id: '00000000-0000-4000-8000-000000000004',
           name: 'Admin',
-          permissions: [],
+          permissions: adminPermissions,
         },
         isActive: true,
+        isPersonal: false,
       },
     ],
     resources: [],

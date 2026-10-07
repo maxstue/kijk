@@ -2,9 +2,12 @@
   "name": "kijk",
   "version": "2026.9.2",
   "private": true,
-  "description": "A simple household app made by different technologies.",
+  "description": "Track any resource and plan your budgets – on your own or together.",
   "keywords": [
-    "household app"
+    "resource tracking",
+    "budgeting",
+    "consumption",
+    "household"
   ],
   "license": "MIT",
   "author": {
@@ -64,7 +67,7 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "^11",
+      "version": "^12",
       "onFail": "download"
     },
     "runtime": {
@@ -75,6 +78,6 @@
   },
   "engines": {
     "node": ">=26",
-    "pnpm": ">=11"
+    "pnpm": ">=12"
   }
 }

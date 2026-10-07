@@ -7,6 +7,7 @@ namespace Kijk.Infrastructure.Persistence;
 /// </summary>
 public class PersistenceOptions : IConfigOptions
 {
+    /// <inheritdoc />
     public static string SectionName => "Persistence";
 
     /// <summary>

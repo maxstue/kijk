@@ -1,0 +1,259 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@kijk/ui/components/button';
+import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { Input } from '@kijk/ui/components/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
+import { Switch } from '@kijk/ui/components/switch';
+import { Textarea } from '@kijk/ui/components/textarea';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import type { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import { limitSchema, periods } from '@/app/limits/schemas';
+import type { LimitFormValues } from '@/app/limits/schemas';
+import { useCreateLimit } from '@/app/limits/use-create-limit';
+import { useUpdateLimit } from '@/app/limits/use-update-limit';
+import type { Limit } from '@/shared/api/limits/types';
+import { resourcesQueryOptions } from '@/shared/api/resources/options';
+import { SpacePermissions } from '@/shared/api/spaces/permissions';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/shared/components/form';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import type { Resource } from '@/shared/types/domain';
+
+interface Props {
+  initialData?: Limit;
+  onClose: () => void;
+}
+
+const createDefaultValues: LimitFormValues = {
+  active: true,
+  description: '',
+  limit: 0,
+  name: '',
+  period: 'Month',
+  resourceId: '',
+};
+
+/** Form to create a limit, or to edit `initialData` when given. */
+export function LimitForm({ initialData, onClose }: Props) {
+  const canPlan = useSpacePermission(SpacePermissions.limits.plan);
+  const createMutation = useCreateLimit();
+  const updateMutation = useUpdateLimit();
+  const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
+  const isPending = createMutation.isPending || updateMutation.isPending;
+  const form = useForm<LimitFormValues>({
+    defaultValues: initialData ? getUpdateDefaultValues(initialData) : createDefaultValues,
+    resolver: zodResolver(limitSchema),
+  });
+
+  function onSubmit(values: LimitFormValues) {
+    if (!canPlan) {
+      return;
+    }
+    const onError = (error: Error) => toast.error(error.name, { description: error.message });
+    const onSuccess = () => {
+      toast.success(initialData ? 'Limit updated' : 'Limit created');
+      onClose();
+    };
+
+    if (initialData) {
+      const { resourceId: _, ...limit } = values;
+      updateMutation.mutate({ id: initialData.id, limit }, { onError, onSuccess });
+      return;
+    }
+
+    createMutation.mutate(values, { onError, onSuccess });
+  }
+
+  return (
+    <Form {...form}>
+      <form className='grid gap-4' onSubmit={form.handleSubmit(onSubmit)} noValidate>
+        <FormField control={form.control} name='name' render={({ field }) => <NameField field={field} />} />
+        <ResourceField disabled={Boolean(initialData)} form={form} resources={resources} />
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <LimitField form={form} />
+          <PeriodField form={form} />
+        </div>
+        <DescriptionField form={form} />
+        <ActiveField form={form} />
+        <SubmitButton form={form} isEditing={Boolean(initialData)} isPending={isPending} />
+      </form>
+    </Form>
+  );
+}
+
+function getUpdateDefaultValues(initialData: Limit): LimitFormValues {
+  return {
+    active: initialData.active,
+    description: initialData.description ?? '',
+    limit: Number(initialData.limit),
+    name: initialData.name,
+    period: initialData.period,
+    resourceId: initialData.resource.id,
+  };
+}
+
+interface FormComponentProps {
+  form: UseFormReturn<LimitFormValues>;
+}
+
+function NameField({ field }: { field: ControllerRenderProps<LimitFormValues, 'name'> }) {
+  return (
+    <FormItem>
+      <FormLabel>Name</FormLabel>
+      <FormControl>
+        <Input maxLength={100} placeholder='Monthly electricity target' {...field} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
+}
+
+function ResourceField({
+  disabled,
+  form,
+  resources,
+}: FormComponentProps & { disabled: boolean; resources: Resource[] }) {
+  return (
+    <FormField
+      control={form.control}
+      name='resourceId'
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Resource</FormLabel>
+          <Select disabled={disabled} value={field.value} onValueChange={field.onChange}>
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder='Select an energy type' />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {resources.map((resource) => (
+                <SelectItem key={resource.id} value={resource.id}>
+                  {resource.name} ({resource.unit})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function LimitField({ form }: FormComponentProps) {
+  return (
+    <FormField
+      control={form.control}
+      name='limit'
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Limit</FormLabel>
+          <FormControl>
+            <Input
+              min='0'
+              step='any'
+              type='number'
+              {...field}
+              onChange={(event) => field.onChange(event.target.valueAsNumber)}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function PeriodField({ form }: FormComponentProps) {
+  return (
+    <FormField
+      control={form.control}
+      name='period'
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Period</FormLabel>
+          <Select value={field.value} onValueChange={field.onChange}>
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {periods.map((period) => (
+                <SelectItem key={period} value={period}>
+                  {period}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function DescriptionField({ form }: FormComponentProps) {
+  return (
+    <FormField
+      control={form.control}
+      name='description'
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Description</FormLabel>
+          <FormControl>
+            <Textarea maxLength={250} placeholder='Optional note about this limit' {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function ActiveField({ form }: FormComponentProps) {
+  return (
+    <FormField
+      control={form.control}
+      name='active'
+      render={({ field }) => (
+        <FormItem className='flex items-center justify-between rounded-md border p-3'>
+          <div>
+            <FormLabel>Active</FormLabel>
+            <FormDescription>Include this limit in consumption warnings.</FormDescription>
+          </div>
+          <FormControl>
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function SubmitButton({ form, isEditing, isPending }: FormComponentProps & { isEditing: boolean; isPending: boolean }) {
+  const canPlan = useSpacePermission(SpacePermissions.limits.plan);
+  const label = isEditing ? 'Update limit' : 'Create limit';
+
+  return (
+    <Button
+      className='mt-2'
+      disabled={!canPlan || isPending || (isEditing && !form.formState.isDirty)}
+      title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
+      type='submit'
+    >
+      {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : label}
+    </Button>
+  );
+}

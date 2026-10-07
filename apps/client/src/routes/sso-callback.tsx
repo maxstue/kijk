@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { AppBrand } from '@/shared/components/app-brand';
 
+/** `/sso-callback`: completes an OAuth sign-in. */
 export const Route = createFileRoute('/sso-callback')({
   // Handle the redirect flow by rendering the
   // Prebuilt AuthenticateWithRedirectCallback component.

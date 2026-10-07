@@ -309,8 +309,6 @@ dotnet_diagnostic.CA1305.severity = none
 dotnet_diagnostic.CA1311.severity = none
 dotnet_diagnostic.CA1862.severity = suggestion
 
-# Disable documentation rules for public members
-dotnet_diagnostic.1591.severity = none
 
 # Simplify new expression
 dotnet_diagnostic.IDE0090.severity = none

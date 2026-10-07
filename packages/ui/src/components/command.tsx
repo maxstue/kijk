@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputGroup, InputGroupAddon } from '@kijk/ui/components/input-group';
 import { SearchIcon, CheckIcon } from 'lucide-react';
 
+/** Searchable command menu based on cmdk. */
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
@@ -21,6 +22,7 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
   );
 }
 
+/** Command menu inside a dialog, e.g. a ⌘K palette. */
 function CommandDialog({
   title = 'Command Palette',
   description = 'Search for a command to run...',
@@ -50,6 +52,7 @@ function CommandDialog({
   );
 }
 
+/** Search input of the command menu. */
 function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
     <div data-slot='command-input-wrapper' className='p-1 pb-0'>
@@ -67,6 +70,7 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
+/** Scrollable list of command results. */
 function CommandList({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
@@ -77,6 +81,7 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
   );
 }
 
+/** Shown when no command matches the search. */
 function CommandEmpty({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
@@ -87,6 +92,7 @@ function CommandEmpty({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
+/** Group of commands with an optional heading. */
 function CommandGroup({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Group>) {
   return (
     <CommandPrimitive.Group
@@ -100,6 +106,7 @@ function CommandGroup({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
+/** Divider between command groups. */
 function CommandSeparator({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Separator>) {
   return (
     <CommandPrimitive.Separator
@@ -110,6 +117,7 @@ function CommandSeparator({ className, ...props }: React.ComponentProps<typeof C
   );
 }
 
+/** A selectable command. */
 function CommandItem({ className, children, ...props }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
     <CommandPrimitive.Item
@@ -126,6 +134,7 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
   );
 }
 
+/** Keyboard shortcut hint of a command. */
 function CommandShortcut({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span

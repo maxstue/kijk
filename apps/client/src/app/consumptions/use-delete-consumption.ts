@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteConsumptionMutationOptions } from '@/shared/api/consumptions/options';
 import { queryKeys } from '@/shared/api/query-keys';
 
+/** Deletes a consumption and refreshes consumption lists, stats and limits. */
 export const useDeleteConsumption = () => {
   const queryClient = useQueryClient();
 
@@ -14,7 +15,7 @@ export const useDeleteConsumption = () => {
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.consumptions.statsAll() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.consumptionLimits.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.limits.all }),
       ]);
     },
   });

@@ -15,6 +15,7 @@ interface FieldProps<TName extends keyof ResourceFormValues> {
   field: ControllerRenderProps<ResourceFormValues, TName & FieldPath<ResourceFormValues>>;
 }
 
+/** Name input of the resource forms. */
 export function ResourceNameField({ className, field }: FieldProps<'name'>) {
   return (
     <FormItem className={className}>
@@ -27,9 +28,10 @@ export function ResourceNameField({ className, field }: FieldProps<'name'>) {
   );
 }
 
+/** Unit select of the resource forms. */
 export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
   const { data } = useSuspenseQuery(unitsQueryOptions());
-  const availableUnits = data.filter((unit) => unit.creatorType === 'System' || unit.isAvailableInActiveHousehold);
+  const availableUnits = data.filter((unit) => unit.creatorType === 'System' || unit.isAvailableInActiveSpace);
 
   return (
     <FormItem className={className}>
@@ -49,6 +51,7 @@ export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
   );
 }
 
+/** Color input of the resource forms. */
 export function ResourceColorField({ className, field }: FieldProps<'color'>) {
   return (
     <FormItem className={className}>
@@ -61,6 +64,7 @@ export function ResourceColorField({ className, field }: FieldProps<'color'>) {
   );
 }
 
+/** Icon picker field of the resource forms. */
 export function ResourceIconField({ className, field }: FieldProps<'icon'>) {
   return (
     <FormItem className={className}>

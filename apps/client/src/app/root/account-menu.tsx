@@ -14,16 +14,28 @@ import { LogoIcon } from '@kijk/ui/components/icons';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@kijk/ui/components/sidebar';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouter } from '@tanstack/react-router';
-import { ChevronsUpDown, ExternalLinkIcon, LogOut, SendIcon, SettingsIcon } from 'lucide-react';
+import {
+  Check,
+  ChevronsUpDown,
+  ExternalLinkIcon,
+  LockIcon,
+  LogOut,
+  SendIcon,
+  SettingsIcon,
+  UsersIcon,
+} from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { getInitialChars } from '@/app/root/helpers';
+import { useSwitchSpace } from '@/app/root/use-switch-space';
 import type { components } from '@/shared/api/generated/kijk';
 import { queryKeys } from '@/shared/api/query-keys';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { siteConfig } from '@/shared/config/site';
 
+/** Sidebar account menu: settings, feedback and sign-out. */
 export function AccountMenu() {
   const { signOut } = useAuth();
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
@@ -53,6 +65,7 @@ export function AccountMenu() {
         onNavigateToSettings={() => navigate({ to: '/settings' })}
         onOpenFeedback={() => setShowFeedback(true)}
         onSignOut={handleSignOut}
+        spaces={currentAccount?.user?.spaces ?? []}
       />
       <FeedbackDialog onClose={() => setShowFeedback(false)} />
     </Dialog>
@@ -64,7 +77,7 @@ type CurrentUser = components['schemas']['GetMeUserResponse'];
 interface AccountMenuData {
   displayName?: string | null;
   email?: string | null;
-  householdName: string;
+  spaceName: string;
   imageUrl?: string | null;
   initials: string;
 }
@@ -76,7 +89,7 @@ function getAccountMenuData(user?: CurrentUser): AccountMenuData {
   return {
     displayName,
     email,
-    householdName: getActiveHouseholdName(user),
+    spaceName: getActiveSpaceName(user),
     imageUrl: getImageUrl(user),
     initials: getInitialChars(getIdentityLabel(displayName, email)),
   };
@@ -98,12 +111,15 @@ function getIdentityLabel(displayName?: string | null, email?: string | null) {
   return displayName ?? email ?? undefined;
 }
 
-function getActiveHouseholdName(user?: CurrentUser) {
-  return user?.households?.find((household) => household.isActive)?.name ?? siteConfig.name;
+function getActiveSpaceName(user?: CurrentUser) {
+  return user?.spaces?.find((space) => space.isActive)?.name ?? siteConfig.name;
 }
+
+type Space = NonNullable<CurrentUser['spaces']>[number];
 
 interface AccountMenuDropdownProps {
   account: AccountMenuData;
+  spaces: Space[];
   isMobile: boolean;
   onNavigateToSettings: () => void;
   onOpenFeedback: () => void;
@@ -116,6 +132,7 @@ function AccountMenuDropdown({
   onNavigateToSettings,
   onOpenFeedback,
   onSignOut,
+  spaces,
 }: AccountMenuDropdownProps) {
   return (
     <SidebarMenu>
@@ -124,10 +141,10 @@ function AccountMenuDropdown({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
-              tooltip={account.householdName}
+              tooltip={account.spaceName}
             >
               <LogoIcon className='text-sidebar-foreground size-5 shrink-0' />
-              <span className='truncate font-medium'>{account.householdName}</span>
+              <span className='truncate font-medium'>{account.spaceName}</span>
               <ChevronsUpDown className='ml-auto size-3.5' />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -147,6 +164,8 @@ function AccountMenuDropdown({
                 />
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <SpaceSwitcher spaces={spaces} />
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onSelect={onNavigateToSettings}>
@@ -195,5 +214,35 @@ function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProp
         <span className='text-muted-foreground truncate text-xs'>{email}</span>
       </div>
     </>
+  );
+}
+
+/** Lists the user's spaces, personal first, and switches the active one. */
+function SpaceSwitcher({ spaces }: { spaces: Space[] }) {
+  const switchMutation = useSwitchSpace();
+  const sorted = spaces.toSorted((a, b) => Number(b.isPersonal) - Number(a.isPersonal) || a.name.localeCompare(b.name));
+
+  function onSwitch(space: Space) {
+    if (space.isActive) {
+      return;
+    }
+    switchMutation.mutate(space.id, {
+      onError: (error) => toast.error(error.name, { description: error.message }),
+      onSuccess: () => toast.success(`Switched to ${space.name}`),
+    });
+  }
+
+  return (
+    <DropdownMenuGroup>
+      <DropdownMenuLabel className='text-muted-foreground text-xs'>Spaces</DropdownMenuLabel>
+      {sorted.map((space) => (
+        <DropdownMenuItem key={space.id} disabled={switchMutation.isPending} onSelect={() => onSwitch(space)}>
+          {space.isPersonal ? <LockIcon /> : <UsersIcon />}
+          <span className='min-w-0 flex-1 truncate'>{space.name}</span>
+          <span className='text-muted-foreground text-xs'>{space.isPersonal ? 'Private' : 'Shared'}</span>
+          {space.isActive && <Check aria-label='Active space' className='size-4' />}
+        </DropdownMenuItem>
+      ))}
+    </DropdownMenuGroup>
   );
 }

@@ -6,18 +6,22 @@ import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react';
 
+/** Menu opened by a button. */
 function DropdownMenu({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot='dropdown-menu' {...props} />;
 }
 
+/** Renders the dropdown menu into a portal. */
 function DropdownMenuPortal({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) {
   return <DropdownMenuPrimitive.Portal data-slot='dropdown-menu-portal' {...props} />;
 }
 
+/** Opens the dropdown menu. */
 function DropdownMenuTrigger({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
   return <DropdownMenuPrimitive.Trigger data-slot='dropdown-menu-trigger' {...props} />;
 }
 
+/** Panel of the dropdown menu. */
 function DropdownMenuContent({
   className,
   align = 'start',
@@ -40,10 +44,12 @@ function DropdownMenuContent({
   );
 }
 
+/** Groups related menu items. */
 function DropdownMenuGroup({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Group>) {
   return <DropdownMenuPrimitive.Group data-slot='dropdown-menu-group' {...props} />;
 }
 
+/** A menu action; `variant="destructive"` highlights dangerous actions. */
 function DropdownMenuItem({
   className,
   inset,
@@ -67,6 +73,7 @@ function DropdownMenuItem({
   );
 }
 
+/** A menu item that toggles a value. */
 function DropdownMenuCheckboxItem({
   className,
   children,
@@ -100,10 +107,12 @@ function DropdownMenuCheckboxItem({
   );
 }
 
+/** Group of mutually exclusive radio items. */
 function DropdownMenuRadioGroup({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) {
   return <DropdownMenuPrimitive.RadioGroup data-slot='dropdown-menu-radio-group' {...props} />;
 }
 
+/** A menu item that selects one value of a radio group. */
 function DropdownMenuRadioItem({
   className,
   children,
@@ -135,6 +144,7 @@ function DropdownMenuRadioItem({
   );
 }
 
+/** Non-interactive label in the menu. */
 function DropdownMenuLabel({
   className,
   inset,
@@ -152,6 +162,7 @@ function DropdownMenuLabel({
   );
 }
 
+/** Divider between menu items. */
 function DropdownMenuSeparator({ className, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
   return (
     <DropdownMenuPrimitive.Separator
@@ -162,6 +173,7 @@ function DropdownMenuSeparator({ className, ...props }: React.ComponentProps<typ
   );
 }
 
+/** Keyboard shortcut hint of a menu item. */
 function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
@@ -175,10 +187,12 @@ function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<'spa
   );
 }
 
+/** Nested submenu. */
 function DropdownMenuSub({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
   return <DropdownMenuPrimitive.Sub data-slot='dropdown-menu-sub' {...props} />;
 }
 
+/** Item that opens a submenu. */
 function DropdownMenuSubTrigger({
   className,
   inset,
@@ -203,6 +217,7 @@ function DropdownMenuSubTrigger({
   );
 }
 
+/** Panel of a submenu. */
 function DropdownMenuSubContent({
   className,
   ...props

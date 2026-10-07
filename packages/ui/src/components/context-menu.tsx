@@ -4,10 +4,12 @@ import { ContextMenu as ContextMenuPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { ChevronRightIcon, CheckIcon } from 'lucide-react';
 
+/** Menu opened by right-click or long-press. */
 function ContextMenu({ ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {
   return <ContextMenuPrimitive.Root data-slot='context-menu' {...props} />;
 }
 
+/** Area that opens the context menu. */
 function ContextMenuTrigger({ className, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) {
   return (
     <ContextMenuPrimitive.Trigger
@@ -18,22 +20,27 @@ function ContextMenuTrigger({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
+/** Groups related menu items. */
 function ContextMenuGroup({ ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Group>) {
   return <ContextMenuPrimitive.Group data-slot='context-menu-group' {...props} />;
 }
 
+/** Renders the context menu into a portal. */
 function ContextMenuPortal({ ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Portal>) {
   return <ContextMenuPrimitive.Portal data-slot='context-menu-portal' {...props} />;
 }
 
+/** Nested submenu. */
 function ContextMenuSub({ ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Sub>) {
   return <ContextMenuPrimitive.Sub data-slot='context-menu-sub' {...props} />;
 }
 
+/** Group of mutually exclusive radio items. */
 function ContextMenuRadioGroup({ ...props }: React.ComponentProps<typeof ContextMenuPrimitive.RadioGroup>) {
   return <ContextMenuPrimitive.RadioGroup data-slot='context-menu-radio-group' {...props} />;
 }
 
+/** Panel of the context menu. */
 function ContextMenuContent({
   className,
   ...props
@@ -54,6 +61,7 @@ function ContextMenuContent({
   );
 }
 
+/** A menu action; `variant="destructive"` highlights dangerous actions. */
 function ContextMenuItem({
   className,
   inset,
@@ -77,6 +85,7 @@ function ContextMenuItem({
   );
 }
 
+/** Item that opens a submenu. */
 function ContextMenuSubTrigger({
   className,
   inset,
@@ -101,6 +110,7 @@ function ContextMenuSubTrigger({
   );
 }
 
+/** Panel of a submenu. */
 function ContextMenuSubContent({ className, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.SubContent>) {
   return (
     <ContextMenuPrimitive.SubContent
@@ -114,6 +124,7 @@ function ContextMenuSubContent({ className, ...props }: React.ComponentProps<typ
   );
 }
 
+/** A menu item that toggles a value. */
 function ContextMenuCheckboxItem({
   className,
   children,
@@ -144,6 +155,7 @@ function ContextMenuCheckboxItem({
   );
 }
 
+/** A menu item that selects one value of a radio group. */
 function ContextMenuRadioItem({
   className,
   children,
@@ -172,6 +184,7 @@ function ContextMenuRadioItem({
   );
 }
 
+/** Non-interactive label in the menu. */
 function ContextMenuLabel({
   className,
   inset,
@@ -189,6 +202,7 @@ function ContextMenuLabel({
   );
 }
 
+/** Divider between menu items. */
 function ContextMenuSeparator({ className, ...props }: React.ComponentProps<typeof ContextMenuPrimitive.Separator>) {
   return (
     <ContextMenuPrimitive.Separator
@@ -199,6 +213,7 @@ function ContextMenuSeparator({ className, ...props }: React.ComponentProps<type
   );
 }
 
+/** Keyboard shortcut hint of a menu item. */
 function ContextMenuShortcut({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span

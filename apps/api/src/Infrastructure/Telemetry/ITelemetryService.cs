@@ -8,11 +8,13 @@ namespace Kijk.Infrastructure.Telemetry;
 /// </summary>
 public interface ITelemetryService
 {
+    /// <summary>Attaches the correlation id of the current request to reported events.</summary>
+    /// <param name="correlationId">The correlation id.</param>
     void SetCorrelationId(string correlationId);
 
     /// <summary>
     /// Sends the problem details to the error reporting service.
     /// </summary>
-    /// <param name="problemDetails"></param>
+    /// <param name="problemDetails">The problem details to report.</param>
     void SendProblemDetails(ProblemDetails problemDetails);
 }

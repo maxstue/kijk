@@ -1,12 +1,13 @@
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
+using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
 
 namespace Kijk.UnitTests.Domain;
 
 public class ConsumptionTimelineCalculatorTests
 {
-    private readonly Household household = Household.Create("Test household");
+    private readonly Space space = Space.Create("Test space");
     private readonly Resource resource = new()
     {
         Name = "Electricity",
@@ -166,11 +167,9 @@ public class ConsumptionTimelineCalculatorTests
         var consumption = Consumption.Create(
             "Reading",
             resource,
-            value,
-            household,
+            space,
             new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc),
-            valueType,
-            calculatedConsumption: 0m);
+            new ConsumptionReading(value, valueType, CalculatedConsumption: 0m));
 
         consumption.Id = Guid.NewGuid();
         return consumption;

@@ -1,9 +1,13 @@
-﻿using Kijk.Api.Extensions;
+﻿using Kijk.Api.Authorization;
+using Kijk.Api.Extensions;
 using Kijk.Api.Models;
+using Kijk.Application.Users.Delete;
 using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
+using Kijk.Application.Users.SwitchSpace;
 using Kijk.Application.Users.Update;
 using Kijk.Application.Users.Welcome;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +19,35 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public class UsersEndpoints : IEndpointGroup
 {
+    private const string CurrentUserOnly = "Only reads or changes the current user's own account.";
+
+    /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/users")
             .WithTags("Users");
 
         group.MapGet("/me", GetMe)
+            .WithoutSpacePermission(CurrentUserOnly)
             .WithSummary("Gets me");
 
         group.MapPut("", Update)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission("Changes the current user's account; renaming the active space is checked in the handler (space:configure).")
             .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
 
+        group.MapPut("/active-space", SwitchSpace)
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission("Any member may switch to a space they belong to; the handler checks the membership.")
+            .WithSummary("Switches the active space of the current user");
+
+        group.MapPost("/me/deletion", RequestDeletion)
+            .WithoutSpacePermission("Deletes only the current user's own account and data.")
+            .WithSummary("Deletes the current user's account and all their data in the background");
+
         group.MapPut("/onboarding", Onboarding)
+            .WithoutSpacePermission("Onboarding creates the user's first space.")
             .WithRequestValidation<WelcomeUserRequest>()
             .WithSummary("Completes onboarding and creates the Kijk account when needed");
 
@@ -38,9 +57,9 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Gets the current user.
     /// </summary>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> GetMe(GetMeUserHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.GetMeAsync(cancellationToken);
@@ -50,10 +69,10 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Updates the current user.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="request">The request body.</param>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<UserResponse>, ProblemHttpResult>> Update(UpdateUserRequest request, UpdateUserHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.UpdateAsync(request, cancellationToken);
@@ -63,14 +82,29 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Registers a new user and sets some default values.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="request">The request body.</param>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> Onboarding([FromBody] WelcomeUserRequest request, WelcomeUserHandler handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.WelcomeAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> SwitchSpace(
+        SwitchSpaceRequest request,
+        SwitchSpaceHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.SwitchAsync(request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Accepted, ProblemHttpResult>> RequestDeletion(RequestAccountDeletionHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.RequestAsync(cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Accepted((string?)null);
     }
 }

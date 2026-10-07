@@ -3,6 +3,7 @@ import { useLayoutEffect } from 'react';
 import { AppBrand } from '@/shared/components/app-brand';
 import { isBootstrapLoaderPresent, registerBootstrapLoader } from '@/shared/lib/bootstrap-loader';
 
+/** Full-screen loader for app start; hands over to the bootstrap loader from index.html when present. */
 export function InitLoader() {
   const bootstrapLoaderIsPresent = isBootstrapLoaderPresent();
 
@@ -20,7 +21,7 @@ export function InitLoader() {
     <div className='bg-background text-foreground flex h-screen w-screen items-center justify-center'>
       <div className='flex flex-col items-center justify-center gap-3 text-center'>
         <AppBrand className='flex-col gap-4' logoClassName='animate-logo-spin size-24' nameClassName='text-2xl' />
-        <output className='text-muted-foreground text-sm'>Getting your household in order…</output>
+        <output className='text-muted-foreground text-sm'>Getting your space in order…</output>
       </div>
     </div>
   );

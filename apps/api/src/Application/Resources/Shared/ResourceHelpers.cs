@@ -22,8 +22,7 @@ internal static class ResourceHelpers
     {
         var resource = await dbContext
             .GetUserAvailableResources(currentUser)
-            .Include(resource => resource.Unit)
-            .ThenInclude(unit => unit.ReferenceUnit)
+            .Include(resource => resource.Unit.ReferenceUnit)
             .FirstOrDefaultAsync(resource => resource.Id == resourceId, cancellationToken);
         if (resource is null)
         {
@@ -36,7 +35,7 @@ internal static class ResourceHelpers
     }
 
     /// <summary>
-    /// Determines whether a resource with the same normalized name and unit exists in the active household or in the
+    /// Determines whether a resource with the same normalized name and unit exists in the active space or in the
     /// global system resource catalog.
     /// </summary>
     /// <param name="dbContext">The application database context.</param>
@@ -50,7 +49,7 @@ internal static class ResourceHelpers
     {
         var normalizedName = name.Trim().ToLowerInvariant();
         var resources = dbContext.Resources.Where(resource =>
-            (resource.CreatorType == CreatorType.System || resource.HouseholdId == currentUser.ActiveHouseholdId)
+            (resource.CreatorType == CreatorType.System || resource.SpaceId == currentUser.ActiveSpaceId)
             && resource.Name.Trim().ToLower() == normalizedName
             && resource.UnitId == unitId);
 

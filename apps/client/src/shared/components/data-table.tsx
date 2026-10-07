@@ -3,36 +3,34 @@
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
-import type { ColumnDef, ColumnFiltersState, ColumnSort, SortingState } from '@tanstack/react-table';
+import { flexRender, useTable } from '@tanstack/react-table';
+import type { ColumnDef, ColumnFiltersState, ColumnSort, RowData, SortingState } from '@tanstack/react-table';
 import { cn } from 'cn';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
-interface Props<TData, TValue> {
-  columns: Array<ColumnDef<TData, TValue>>;
+import { dataTableFeatures } from '@/shared/lib/table-features';
+import type { DataTableFeatures } from '@/shared/lib/table-features';
+
+interface Props<TData extends RowData> {
+  columns: Array<ColumnDef<DataTableFeatures, TData>>;
   data: TData[];
   actions?: ReactNode;
   defaultSort?: ColumnSort;
 }
 
-export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }: Props<TData, TValue>) {
+/**
+ * Client-side table with name filter, sortable columns and pagination (10 rows per page).
+ *
+ * The filter input targets the column with id `name`.
+ */
+export function DataTable<TData extends RowData>({ columns, data, actions, defaultSort }: Props<TData>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const table = useReactTable({
+  const table = useTable({
     columns,
     data,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    features: dataTableFeatures,
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
     state: {
@@ -68,8 +66,8 @@ export function DataTable<TData, TValue>({ columns, data, actions, defaultSort }
           <TableBody>
             {table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map((cell) => (
+                <TableRow key={row.id}>
+                  {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id} className='px-8'>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

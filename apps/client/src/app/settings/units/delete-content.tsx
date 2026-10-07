@@ -15,6 +15,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { deleteUnitMutationOptions } from '@/shared/api/units/options';
 import type { Unit } from '@/shared/api/units/types';
 
+/** Confirmation dialog content for deleting a unit. */
 export function UnitDeleteContent({ onClose, unit }: { onClose: () => void; unit: Unit }) {
   const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation(deleteUnitMutationOptions());
@@ -35,7 +36,7 @@ export function UnitDeleteContent({ onClose, unit }: { onClose: () => void; unit
       <AlertDialogHeader>
         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
         <AlertDialogDescription>
-          Only units that are not shared with a household or used by resources can be deleted.
+          Only units that are not shared with a space or used by resources can be deleted.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

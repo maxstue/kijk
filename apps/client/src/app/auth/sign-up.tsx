@@ -20,6 +20,7 @@ interface Props {
   redirectTo: string;
 }
 
+/** Sign-up view (email, Google or GitHub); email sign-ups confirm a code. Navigates to `redirectTo` on success. */
 export function SignUp({ goto, redirectTo }: Props) {
   const [verify, setVerify] = useState<boolean>(false);
   const { isLoaded, signUp } = useSignUp();

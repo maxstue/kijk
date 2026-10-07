@@ -9,6 +9,7 @@ namespace Kijk.Infrastructure.Persistence;
 /// </summary>
 public sealed class DesignTimeAppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
+    /// <inheritdoc />
     public AppDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()

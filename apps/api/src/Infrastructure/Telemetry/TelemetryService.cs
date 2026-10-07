@@ -7,6 +7,7 @@ public class TelemetryService(IHub client) : ITelemetryService
 {
     private const string UnknownValue = "unknown";
 
+    /// <inheritdoc />
     public void SetCorrelationId(string correlationId) => client.ConfigureScope(s => s.SetTag("correlation_id", correlationId));
 
     ///  <inheritdoc cref="ITelemetryService.SendProblemDetails"/>

@@ -15,12 +15,13 @@ import { createUnitSchema } from './schemas';
 import type { CreateUnitFormValues } from './schemas';
 
 interface Props {
-  householdId?: string;
+  spaceId?: string;
   onClose: () => void;
   systemUnits: Unit[];
 }
 
-export function UnitCreateForm({ householdId, onClose, systemUnits }: Props) {
+/** Form to create a unit; it is shared with `spaceId` when given. */
+export function UnitCreateForm({ spaceId, onClose, systemUnits }: Props) {
   const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation(createUnitMutationOptions());
   const form = useForm<CreateUnitFormValues>({
@@ -33,7 +34,7 @@ export function UnitCreateForm({ householdId, onClose, systemUnits }: Props) {
       {
         ...values,
         conversionFactor: Number(values.conversionFactor),
-        shareWithHouseholdIds: householdId ? [householdId] : [],
+        shareWithSpaceIds: spaceId ? [spaceId] : [],
       },
       {
         onError: (error) => toast.error(error.message),

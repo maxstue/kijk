@@ -6,6 +6,7 @@ import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
+/** `/welcome`: onboarding flow. */
 export const Route = createFileRoute('/_authenticated/_onboarding/welcome')({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(currentUserQueryOptions()),
   component: WelcomePage,
@@ -22,7 +23,7 @@ function WelcomePage() {
     <WelcomeFlow
       email={identity.email}
       fullName={identity.fullName}
-      householdName={undefined}
+      spaceName={undefined}
       imageUrl={identity.imageUrl}
       initialDisplayName={identity.fullName ?? ''}
       onComplete={() => navigate({ replace: true, to: '/home' })}

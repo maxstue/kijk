@@ -1,3 +1,3 @@
 import { http, HttpResponse } from 'msw';
 
-export const handlers = [http.get('http://localhost:5000/api/consumption-limits', () => HttpResponse.json([]))];
+export const handlers = [http.get('http://localhost:5000/api/limits', () => HttpResponse.json([]))];

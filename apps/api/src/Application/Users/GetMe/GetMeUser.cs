@@ -14,6 +14,9 @@ public class GetMeUserHandler(
   IIdentityProvider identityProvider,
   CurrentUser currentUser) : IHandler
 {
+    /// <summary>Gets the current account state; users without a completed onboarding get only their identity data.</summary>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The account state.</returns>
     public async Task<Result<CurrentUserResponse>> GetMeAsync(CancellationToken cancellationToken)
     {
         var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);

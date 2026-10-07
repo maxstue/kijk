@@ -3,6 +3,7 @@ import { SidebarTrigger } from '@kijk/ui/components/sidebar';
 
 import { useSiteHeaderStore } from '@/shared/stores/site-header-store';
 
+/** Page header showing the current title; also sets the document title. */
 export function SiteHeader() {
   const { title } = useSiteHeaderStore();
 

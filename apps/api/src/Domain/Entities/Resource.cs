@@ -3,7 +3,7 @@ using Kijk.Shared;
 namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// Represents a resource that can be consumed by a household.
+/// Represents a resource that can be consumed by a space.
 /// </summary>
 public class Resource : BaseEntity
 {
@@ -40,12 +40,12 @@ public class Resource : BaseEntity
     public required CreatorType CreatorType { get; set; }
 
     /// <summary>
-    /// Gets the household that owns a custom resource. System resources are global and therefore have no household.
+    /// Gets the space that owns a custom resource. System resources are global and therefore have no space.
     /// </summary>
-    public Guid? HouseholdId { get; set; }
+    public Guid? SpaceId { get; set; }
 
     /// <summary>
-    /// Gets the household that owns a custom resource.
+    /// Gets the space that owns a custom resource.
     /// </summary>
-    public Household? Household { get; set; }
+    public Space? Space { get; set; }
 }

@@ -9,11 +9,17 @@ namespace Kijk.Shared;
 [EnumExtensions]
 public enum ErrorType
 {
+    /// <summary>The request is invalid (HTTP 400).</summary>
     Validation,
+    /// <summary>The request conflicts with the current state (HTTP 409).</summary>
     Conflict,
+    /// <summary>The entity was not found (HTTP 404).</summary>
     NotFound,
+    /// <summary>The caller is not authenticated (HTTP 401).</summary>
     Authentication,
+    /// <summary>The caller is not allowed to perform the action (HTTP 403).</summary>
     Authorization,
+    /// <summary>An unexpected error occurred (HTTP 500).</summary>
     Unexpected
 }
 
@@ -93,6 +99,9 @@ public readonly record struct Error
     public static Error Custom(ErrorType type, string code, string description) => new(code, description, type);
 
 
+    /// <summary>Creates an <see cref="Error" /> for an HTTP status code produced outside of a handler.</summary>
+    /// <param name="statusCode">The HTTP status code.</param>
+    /// <returns>An authentication or authorization error for 401/403, otherwise an unexpected error.</returns>
     public static Error FromStatusCode(int statusCode) =>
         statusCode switch
         {

@@ -12,14 +12,18 @@ namespace Kijk.Application.Resources.Create;
 /// </summary>
 public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
 {
+    /// <summary>Creates a custom resource in the active space.</summary>
+    /// <param name="request">The resource data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created resource, or a conflict if it already exists.</returns>
     public async Task<Result<ResourceResponse>> CreateAsync(CreateResourceRequest request, CancellationToken cancellationToken)
     {
-        var household = await dbContext.Households
-            .FirstOrDefaultAsync(household => household.Id == currentUser.ActiveHouseholdId, cancellationToken);
-        if (household is null)
+        var space = await dbContext.Spaces
+            .FirstOrDefaultAsync(space => space.Id == currentUser.ActiveSpaceId, cancellationToken);
+        if (space is null)
         {
-            logger.LogWarning("Active household with id '{HouseholdId}' was not found", currentUser.ActiveHouseholdId);
-            return Error.NotFound("Active household was not found");
+            logger.LogWarning("Active space with id '{SpaceId}' was not found", currentUser.ActiveSpaceId);
+            return Error.NotFound("Active space was not found");
         }
 
         var name = request.Name.Trim();
@@ -27,7 +31,7 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
             .FirstOrDefaultAsync(item => item.Id == request.UnitId, cancellationToken);
         if (unit is null)
         {
-            return Error.NotFound("Unit is not available in the active household");
+            return Error.NotFound("Unit is not available in the active space");
         }
 
         if (await ResourceHelpers.HasConflictAsync(dbContext, currentUser, name, unit.Id, null, cancellationToken))
@@ -43,7 +47,7 @@ public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentU
             Color = request.Color,
             Icon = request.Icon,
             CreatorType = CreatorType.User,
-            Household = household
+            Space = space
         };
 
         var resEntity = await dbContext.Resources.AddAsync(newResource, cancellationToken);

@@ -12,6 +12,7 @@ import { settingsTo } from '@/shared/navigation/settings';
 
 const sectionSchema = z.enum(settingsTo);
 
+/** `/settings/$section`: a personal settings section. */
 export const Route = createFileRoute('/_authenticated/_app/settings/$section')({
   component: SettingsSectionPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
@@ -28,7 +29,7 @@ function SettingsSectionPage() {
         {parameters.section === 'profile' && <ProfileSection />}
         {parameters.section === 'appearance' && <AppearanceSection />}
         {parameters.section === 'units' && <UnitsSection scope='personal' />}
-        {parameters.section === 'household-units' && <UnitsSection scope='household' />}
+        {parameters.section === 'space-units' && <UnitsSection scope='space' />}
         {parameters.section === 'info' && <InfoSection />}
       </div>
     </>

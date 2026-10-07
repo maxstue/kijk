@@ -20,6 +20,7 @@ interface Props {
   unit: Unit;
 }
 
+/** Form to edit a unit owned by the user. */
 export function UnitUpdateForm({ onClose, systemUnits, unit }: Props) {
   const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation(updateUnitMutationOptions());
@@ -49,6 +50,8 @@ export function UnitUpdateForm({ onClose, systemUnits, unit }: Props) {
     );
   }
 
+  const submitLabel = unit.conversionType === 'None' ? 'Convert' : 'Update';
+
   return (
     <Form {...form}>
       <form className='flex flex-col gap-4' onSubmit={form.handleSubmit(onSubmit)} noValidate>
@@ -65,13 +68,7 @@ export function UnitUpdateForm({ onClose, systemUnits, unit }: Props) {
         )}
         <UnitFormFields control={form.control} systemUnits={systemUnits} />
         <Button className='mt-6' disabled={isPending || !form.formState.isDirty} type='submit'>
-          {isPending ? (
-            <SpinnerIcon className='size-5 animate-spin' />
-          ) : unit.conversionType === 'None' ? (
-            'Convert'
-          ) : (
-            'Update'
-          )}
+          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : submitLabel}
         </Button>
       </form>
     </Form>

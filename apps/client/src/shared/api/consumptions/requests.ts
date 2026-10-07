@@ -1,13 +1,13 @@
 import { apiClient } from '@/shared/lib/api-client';
+import { type CsvDownload, toCsvDownload } from '@/shared/utils/download';
 import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { ConsumptionData } from './types';
 
-export interface CsvDownload {
-  blob: Blob;
-  fileName: string;
-}
+/** A downloaded CSV file. */
+export type { CsvDownload } from '@/shared/utils/download';
 
+/** Loads the years that have consumptions. */
 export async function getYears(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient.GET('/api/consumptions/years', { signal }));
 }
@@ -33,6 +33,7 @@ export async function getConsumptionsBy(year?: string, month?: string, signal?: 
   );
 }
 
+/** Loads a single consumption. */
 export async function getConsumption(id: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient.GET('/api/consumptions/{id}', {
@@ -63,6 +64,7 @@ export async function getConsumptionsStats(year?: string, month?: string, signal
   );
 }
 
+/** Records a consumption; the value type defaults to an absolute meter reading. */
 export async function createConsumption(data: ConsumptionData, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient.POST('/api/consumptions', {
@@ -79,6 +81,7 @@ export async function createConsumption(data: ConsumptionData, signal?: AbortSig
   );
 }
 
+/** Updates a consumption; omitted fields keep their current value. */
 export async function updateConsumption(id: string, data: Partial<ConsumptionData>, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient.PUT('/api/consumptions/{id}', {
@@ -98,6 +101,7 @@ export async function updateConsumption(id: string, data: Partial<ConsumptionDat
   );
 }
 
+/** Deletes a consumption. */
 export async function deleteConsumption(id: string, signal?: AbortSignal) {
   return ensureApiSuccess(
     await apiClient.DELETE('/api/consumptions/{id}', {
@@ -109,6 +113,7 @@ export async function deleteConsumption(id: string, signal?: AbortSignal) {
   );
 }
 
+/** Exports a single consumption as CSV. */
 export async function exportConsumption(id: string, signal?: AbortSignal): Promise<CsvDownload> {
   const result = await apiClient.GET('/api/consumptions/{id}/export', {
     params: { path: { id } },
@@ -119,6 +124,13 @@ export async function exportConsumption(id: string, signal?: AbortSignal): Promi
   return toCsvDownload(result, `consumption-${id}.csv`);
 }
 
+/**
+ * Exports all consumptions of a month as CSV.
+ *
+ * @param year The year.
+ * @param month The English month name.
+ * @param signal Aborts the request.
+ */
 export async function exportConsumptionMonth(year: number, month: string, signal?: AbortSignal): Promise<CsvDownload> {
   const result = await apiClient.GET('/api/consumptions/export', {
     params: { query: { month, year } },
@@ -127,18 +139,4 @@ export async function exportConsumptionMonth(year: number, month: string, signal
   });
 
   return toCsvDownload(result, `consumptions-${year}-${month}.csv`);
-}
-
-function toCsvDownload<TError>(
-  result: { data: Blob; error?: never; response: Response } | { data?: never; error: TError; response: Response },
-  fallbackFileName: string,
-): CsvDownload {
-  const blob = unwrapApiResponse(result);
-  const disposition = result.response.headers.get('Content-Disposition');
-  const encodedFileName = disposition?.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
-  const fileName = encodedFileName
-    ? decodeURIComponent(encodedFileName)
-    : (disposition?.match(/filename="?([^";]+)"?/i)?.[1] ?? fallbackFileName);
-
-  return { blob, fileName };
 }

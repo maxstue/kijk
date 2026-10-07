@@ -20,7 +20,16 @@
         <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
         <AnalysisLevel>latest</AnalysisLevel>
         <AnalysisMode>Recommended</AnalysisMode>
-        <NoWarn>$(NoWarn);1591;NU1103,AD0001</NoWarn>
+        <NoWarn>$(NoWarn);NU1103,AD0001</NoWarn>
+    </PropertyGroup>
+
+    <!-- Every public member of the production projects must be documented (CS1591); tests are exempt. -->
+    <PropertyGroup Condition="'$(IsTestProject)' != 'true' And !$(MSBuildProjectName.EndsWith('Tests'))">
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(IsTestProject)' == 'true' Or $(MSBuildProjectName.EndsWith('Tests'))">
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">

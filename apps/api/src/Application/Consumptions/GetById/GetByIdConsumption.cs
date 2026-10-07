@@ -10,11 +10,15 @@ namespace Kijk.Application.Consumptions.GetById;
 /// </summary>
 public class GetByIdConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger) : IHandler
 {
+    /// <summary>Gets a consumption of the active space.</summary>
+    /// <param name="id">The consumption id.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The consumption, or a not-found error.</returns>
     public async Task<Result<ConsumptionResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var entity = await dbContext.Consumptions
             .AsNoTracking()
-            .Where(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId)
+            .Where(x => x.Id == id && x.SpaceId == currentUser.ActiveSpaceId)
             .ToResponse()
             .FirstOrDefaultAsync(cancellationToken);
 

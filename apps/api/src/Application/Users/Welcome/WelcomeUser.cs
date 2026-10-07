@@ -1,6 +1,7 @@
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.GetMe;
+using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -30,8 +31,8 @@ public class WelcomeUserHandler(
         var user = await dbContext.Users
             .Where(x => x.AuthId == currentUser.AuthId)
             .Include(x => x.Resources)
-            .Include(x => x.UserHouseholds)
-            .ThenInclude(x => x.Household)
+            .Include(x => x.UserSpaces)
+            .ThenInclude(x => x.Space)
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -46,21 +47,27 @@ public class WelcomeUserHandler(
             dbContext.Users.Add(user);
         }
 
-        var activeHousehold = user.UserHouseholds
-            .SingleOrDefault(userHousehold => userHousehold.IsActive)
-            ?.Household;
+        var activeSpace = user.UserSpaces
+            .SingleOrDefault(userSpace => userSpace.IsActive)
+            ?.Space;
 
-        if (activeHousehold is null)
+        if (activeSpace is null)
         {
-            var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Name == "Admin", cancellationToken);
+            // The user who creates a space becomes its administrator.
+            var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Id == SpaceRoles.Admin.Id, cancellationToken);
             if (adminRole is null)
             {
                 logger.LogError("Admin role was not found");
                 return Error.Unexpected("Role was not found");
             }
 
-            activeHousehold = Household.Create(request.HouseholdName.Trim());
-            user.UserHouseholds.Add(UserHousehold.Create(user, activeHousehold, adminRole, true));
+            activeSpace = Space.Create(request.SpaceName.Trim());
+            user.UserSpaces.Add(UserSpace.Create(user, activeSpace, adminRole, true));
+            if (!user.UserSpaces.Any(link => link.Space.IsPersonal))
+            {
+                // Every user also gets a personal space that is never shared.
+                user.UserSpaces.Add(UserSpace.Create(user, Space.CreatePersonal(), adminRole));
+            }
         }
 
         var defaultResources = await dbContext.Resources
@@ -68,7 +75,7 @@ public class WelcomeUserHandler(
             .ToListAsync(cancellationToken);
 
         var completedAt = timeProvider.GetUtcNow().UtcDateTime;
-        activeHousehold.Rename(request.HouseholdName.Trim());
+        activeSpace.Rename(request.SpaceName.Trim());
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 

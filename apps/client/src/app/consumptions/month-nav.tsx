@@ -20,6 +20,7 @@ const Route = getRouteApi('/_authenticated/_app/consumptions');
 
 type Props = React.HTMLAttributes<HTMLElement>;
 
+/** Month select that updates the `month` search param. */
 export function ConsumptionMonthNav({ className }: Props) {
   const [open, setOpen] = useState(false);
   const searchParameters = Route.useSearch();
