@@ -9,10 +9,12 @@ namespace Kijk.Application.Users.Update;
 /// <param name="SpaceName">The new name of the active space.</param>
 /// <param name="AnalyticsConsent">The new analytics preference.</param>
 /// <param name="AiEnabled">Whether AI features are allowed for the user.</param>
+/// <param name="SensitiveDataConsent">Whether the user consents to processing bank transactions that may reveal sensitive data.</param>
 public record UpdateUserRequest(
     string? UserName,
     bool? UseDefaultResources,
     bool? UseExternalProfile,
     string? SpaceName,
     AnalyticsConsent? AnalyticsConsent,
-    bool? AiEnabled = null);
+    bool? AiEnabled = null,
+    bool? SensitiveDataConsent = null);

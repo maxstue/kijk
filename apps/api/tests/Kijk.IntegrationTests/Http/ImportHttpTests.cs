@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -11,6 +11,7 @@ using Kijk.Application.Imports.Review;
 using Kijk.Application.Imports.Settings;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Transactions.Categorize;
+using Kijk.Application.Users.Update;
 using Kijk.Domain.Catalogs;
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Imports;
@@ -408,6 +409,25 @@ public class ImportHttpTests
     }
 
     [Test]
+    public async Task UploadingRequiresConsentToProcessSensitiveData()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var withdrawn = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: false), Json);
+
+        using var refused = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
+        using var given = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: true), Json);
+        using var accepted = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
+
+        await Assert.That(withdrawn.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(refused.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        await Assert.That(given.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(accepted.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.ImportJobs.CountAsync()).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task CashAccountsCannotBeImportedInto()
     {
         var fixture = await CreateFixtureAsync("Admin");
@@ -551,6 +571,7 @@ public class ImportHttpTests
         var role = await dbContext.Roles.SingleAsync(item => item.Name == roleName);
         var user = User.Init("importer-auth", "importer", "importer@example.test");
         user.CompleteOnboarding("importer", AnalyticsConsent.Declined, DateTime.UtcNow);
+        user.SetSensitiveDataConsent(true, DateTime.UtcNow);
         user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
         var account = Account.Create("Giro", "3000", space);
         dbContext.AddRange(user, account);

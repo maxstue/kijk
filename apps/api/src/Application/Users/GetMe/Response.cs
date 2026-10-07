@@ -1,4 +1,4 @@
-using Kijk.Shared;
+﻿using Kijk.Shared;
 
 namespace Kijk.Application.Users.GetMe;
 
@@ -54,6 +54,7 @@ public record GetMeUserResponse(
     DateTime? AnalyticsConsentUpdatedAt,
     DateTime? OnboardingCompletedAt,
     bool AiEnabled,
+    DateTime? SensitiveDataConsentAt,
     IEnumerable<UserSpaceResponse>? Spaces,
     IEnumerable<UserResourceResponse>? Resources)
 {

@@ -6190,6 +6190,7 @@
           "analyticsConsentUpdatedAt",
           "onboardingCompletedAt",
           "aiEnabled",
+          "sensitiveDataConsentAt",
           "spaces",
           "resources"
         ],
@@ -6243,6 +6244,13 @@
           },
           "aiEnabled": {
             "type": "boolean"
+          },
+          "sensitiveDataConsentAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "spaces": {
             "type": [
@@ -7891,6 +7899,13 @@
               "boolean"
             ],
             "description": "Whether AI features are allowed for the user."
+          },
+          "sensitiveDataConsent": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Whether the user consents to processing bank transactions that may reveal sensitive data."
           }
         },
         "description": "Changes to the current user; `null` values are left unchanged."
@@ -7939,7 +7954,8 @@
           "analyticsConsent",
           "analyticsConsentUpdatedAt",
           "onboardingCompletedAt",
-          "aiEnabled"
+          "aiEnabled",
+          "sensitiveDataConsentAt"
         ],
         "type": "object",
         "properties": {
@@ -8006,6 +8022,14 @@
           "aiEnabled": {
             "type": "boolean",
             "description": "Whether AI features are allowed for the user."
+          },
+          "sensitiveDataConsentAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the user consented to processing sensitive bank data.",
+            "format": "date-time"
           },
           "onboardingCompleted": {
             "type": "boolean",

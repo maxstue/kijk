@@ -12,6 +12,7 @@ namespace Kijk.Application.Users.Shared;
 /// <param name="AnalyticsConsentUpdatedAt">When the analytics preference last changed.</param>
 /// <param name="OnboardingCompletedAt">When onboarding was completed.</param>
 /// <param name="AiEnabled">Whether AI features are allowed for the user.</param>
+/// <param name="SensitiveDataConsentAt">When the user consented to processing sensitive bank data.</param>
 public record UserResponse(
     Guid Id,
     string? AuthId,
@@ -21,7 +22,8 @@ public record UserResponse(
     AnalyticsConsent? AnalyticsConsent,
     DateTime? AnalyticsConsentUpdatedAt,
     DateTime? OnboardingCompletedAt,
-    bool AiEnabled)
+    bool AiEnabled,
+    DateTime? SensitiveDataConsentAt)
 {
     /// <summary>
     /// Gets whether the user has completed onboarding.

@@ -1,4 +1,4 @@
-using Kijk.Application.Imports.Shared;
+﻿using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
@@ -34,6 +34,11 @@ public sealed class CreateImportHandler(
         {
             logger.LogWarning("Active space or user could not be resolved for user {UserId}", currentUser.Id);
             return Error.NotFound("Active space could not be found");
+        }
+
+        if (user.SensitiveDataConsentAt is null)
+        {
+            return Error.Validation("Consent to processing sensitive data in bank exports is required before importing");
         }
 
         var account = await dbContext.GetSpaceAccounts(currentUser)

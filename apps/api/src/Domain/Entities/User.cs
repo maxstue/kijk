@@ -37,6 +37,12 @@ public sealed class User : BaseEntity
     /// <summary>Gets whether the user allows AI features. When off, no AI call is made for this user.</summary>
     public bool AiEnabled { get; private set; } = true;
 
+    /// <summary>
+    /// Gets when the user explicitly consented (GDPR Article 9(2)(a)) to Kijk processing bank transactions that may
+    /// reveal special categories of personal data (UTC), or <see langword="null" /> without that consent.
+    /// </summary>
+    public DateTime? SensitiveDataConsentAt { get; private set; }
+
     /// <summary>Gets when the user asked to delete their account and all their data (UTC), while it is in progress.</summary>
     public DateTime? DeletionRequestedAt { get; private set; }
 
@@ -125,6 +131,12 @@ public sealed class User : BaseEntity
     /// <summary>Turns the AI features on or off for this user.</summary>
     /// <param name="enabled">Whether AI features are allowed.</param>
     public void SetAiEnabled(bool enabled) => AiEnabled = enabled;
+
+    /// <summary>Gives or withdraws the consent to process bank transactions that may reveal sensitive data.</summary>
+    /// <param name="consented">Whether the user consents.</param>
+    /// <param name="utcNow">The current time.</param>
+    public void SetSensitiveDataConsent(bool consented, DateTime utcNow) =>
+        SensitiveDataConsentAt = consented ? SensitiveDataConsentAt ?? utcNow : null;
 
     /// <summary>Changes the analytics preference.</summary>
     /// <param name="analyticsConsent">The new preference.</param>

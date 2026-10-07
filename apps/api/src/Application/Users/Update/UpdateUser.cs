@@ -63,6 +63,11 @@ public class UpdateUserHandler(
             userEntity.SetAiEnabled(request.AiEnabled.Value);
         }
 
+        if (request.SensitiveDataConsent is not null)
+        {
+            userEntity.SetSensitiveDataConsent(request.SensitiveDataConsent.Value, timeProvider.GetUtcNow().UtcDateTime);
+        }
+
         if (request.UseExternalProfile is not null)
         {
             await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile.Value, cancellationToken);
