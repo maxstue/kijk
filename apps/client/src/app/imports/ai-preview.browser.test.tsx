@@ -30,7 +30,7 @@ function createClient(aiEnabled: boolean, aiDataSharing: 'Off' | 'Strict') {
   return client;
 }
 
-test('shows nothing when the user turned AI off', async () => {
+test('only hints at the setting while the user has not turned AI on', async () => {
   const client = createClient(false, 'Strict');
   const screen = await render(
     <QueryClientProvider client={client}>
@@ -40,6 +40,7 @@ test('shows nothing when the user turned AI off', async () => {
 
   await expect.element(screen.getByText('What the AI would see')).not.toBeInTheDocument();
   await expect.element(screen.getByText('Suggest categories with the AI')).not.toBeInTheDocument();
+  await expect.element(screen.getByText(/AI category suggestions are off/)).toBeInTheDocument();
   await screen.unmount();
 });
 

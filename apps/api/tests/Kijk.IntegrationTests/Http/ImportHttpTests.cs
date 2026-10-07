@@ -572,6 +572,7 @@ public class ImportHttpTests
         var user = User.Init("importer-auth", "importer", "importer@example.test");
         user.CompleteOnboarding("importer", AnalyticsConsent.Declined, DateTime.UtcNow);
         user.SetSensitiveDataConsent(true, DateTime.UtcNow);
+        user.SetAiEnabled(true);
         user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
         var account = Account.Create("Giro", "3000", space);
         dbContext.AddRange(user, account);

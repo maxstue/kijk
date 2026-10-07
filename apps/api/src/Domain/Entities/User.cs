@@ -34,8 +34,11 @@ public sealed class User : BaseEntity
     /// </summary>
     public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
 
-    /// <summary>Gets whether the user allows AI features. When off, no AI call is made for this user.</summary>
-    public bool AiEnabled { get; private set; } = true;
+    /// <summary>
+    /// Gets whether the user turned the AI features on. Off by default, because they rely on the user's consent; when
+    /// off, no AI call is made for this user.
+    /// </summary>
+    public bool AiEnabled { get; private set; }
 
     /// <summary>
     /// Gets when the user explicitly consented (GDPR Article 9(2)(a)) to Kijk processing bank transactions that may

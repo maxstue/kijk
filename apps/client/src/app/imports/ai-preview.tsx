@@ -17,15 +17,22 @@ import type { AiPreviewItem, ImportJob } from '@/shared/api/imports/types';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 
 /**
- * AI categorization of an import: shows exactly what would be sent, lets the user deselect texts and starts it. Hidden
- * when the user turned AI off; collapsed when the space's default is Off.
+ * AI categorization of an import: shows exactly what would be sent, lets the user deselect texts and starts it. Only a
+ * hint while the user has not turned AI on; collapsed when the space's default is Off.
  */
 export function ImportAiCategorization({ job }: { job: ImportJob }) {
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const { data: settings } = useQuery(importSettingsQueryOptions());
   const [opened, setOpened] = useState(false);
-  if (currentUser?.user?.aiEnabled === false) {
+  if (!currentUser?.user) {
     return null;
+  }
+  if (!currentUser.user.aiEnabled) {
+    return (
+      <p className='text-muted-foreground text-sm'>
+        AI category suggestions are off. You can turn them on in Settings → Info.
+      </p>
+    );
   }
 
   const categorizedCount = Number(job.aiCategorizedCount);

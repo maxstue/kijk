@@ -30,7 +30,7 @@ export function InfoSection() {
   const form = useForm<PrivacyFormValues>({
     resolver: zodResolver(privacyFormSchema),
     values: {
-      enableAi: currentAccount?.user?.aiEnabled ?? true,
+      enableAi: currentAccount?.user?.aiEnabled ?? false,
       enableAnalytics: currentAccount?.user?.analyticsConsent === 'Accepted',
       sensitiveDataConsent: Boolean(currentAccount?.user?.sensitiveDataConsentAt),
     },
@@ -102,8 +102,9 @@ export function InfoSection() {
                   <div className='space-y-0.5'>
                     <FormLabel className='text-base'>AI features</FormLabel>
                     <FormDescription>
-                      Lets Kijk suggest categories for imported transactions. When this is off, the AI buttons disappear
-                      and Kijk never sends anything to an AI provider on your behalf, whatever the space setting says.
+                      Off by default. Turning it on is your consent to let Kijk suggest categories for imported
+                      transactions with an AI provider; you still see and start every request yourself. When this is
+                      off, Kijk never sends anything to an AI provider on your behalf, whatever the space setting says.
                     </FormDescription>
                   </div>
                   <FormControl>

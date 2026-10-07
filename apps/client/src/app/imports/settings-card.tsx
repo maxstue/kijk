@@ -26,7 +26,7 @@ export function ImportSettingsCard() {
   const retentionId = useId();
   const sharingId = useId();
   const minimizeId = useId();
-  const aiEnabled = currentUser?.user?.aiEnabled ?? true;
+  const aiEnabled = currentUser?.user?.aiEnabled ?? false;
 
   function save(change: Partial<Pick<ImportSettings, 'aiDataSharing' | 'minimizeData' | 'purposeRetention'>>) {
     updateMutation.mutate(
