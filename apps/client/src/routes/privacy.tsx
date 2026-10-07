@@ -178,7 +178,7 @@ function PrivacyPolicy() {
         <p>We use the following processors:</p>
         <ul className='list-disc space-y-2 pl-6'>
           <li>Clerk for authentication.</li>
-          <li>Railway for hosting the application and its database.</li>
+          <li>Railway for hosting the application, its database and its backups.</li>
           <li>Sentry for technical error reports and, with your consent, performance tracing.</li>
           <li>PostHog for product analytics, only with your consent.</li>
           <li>Mistral AI for the optional AI features, in the European Union.</li>
@@ -203,6 +203,11 @@ function PrivacyPolicy() {
             Uploaded bank files and rows waiting for review are deleted after the import, at the latest after 24 hours.
           </li>
           <li>Technical error events are retained for no longer than 30 days.</li>
+          <li>
+            Kijk backs up its database once a month. Backups are stored encrypted with our hosting provider Railway in
+            the European Union and deleted after at most 12 months. Data you delete stays in existing backups until they
+            are deleted; we only use backups to restore the service after a failure.
+          </li>
         </ul>
       </section>
 
