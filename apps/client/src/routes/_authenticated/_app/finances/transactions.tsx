@@ -88,10 +88,10 @@ export const Route = createFileRoute('/_authenticated/_app/finances/transactions
   loaderDeps: ({ search }) => toPageQuery(search),
   loader: async ({ context: { queryClient }, deps }) => {
     await Promise.all([
-      queryClient.ensureQueryData(transactionsQueryOptions(deps)),
-      queryClient.ensureQueryData(categoriesQueryOptions()),
-      queryClient.ensureQueryData(accountsQueryOptions()),
-      queryClient.ensureQueryData(budgetOverviewQueryOptions(currentYear(), currentMonth())),
+      queryClient.query({ ...transactionsQueryOptions(deps), staleTime: 'static' }),
+      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...accountsQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...budgetOverviewQueryOptions(currentYear(), currentMonth()), staleTime: 'static' }),
     ]);
   },
   pendingComponent: () => <Loader className='h-6 w-6' />,

@@ -10,6 +10,6 @@ export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spac
   component: SpaceImportSettings,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loader: ({ context: { queryClient }, params: { spaceId } }) =>
-    queryClient.ensureQueryData(importSettingsQueryOptions(spaceId)),
+    queryClient.query({ ...importSettingsQueryOptions(spaceId), staleTime: 'static' }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });

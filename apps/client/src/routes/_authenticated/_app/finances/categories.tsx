@@ -12,14 +12,14 @@ import { PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
-/** `/finances/categories`: categories and the rules that assign them to imported transactions. */
+/** The finances categories route, which shows the categories and categorization rules of the active space. */
 export const Route = createFileRoute('/_authenticated/_app/finances/categories')({
   component: CategoriesPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loader: async ({ context: { queryClient } }) => {
     await Promise.all([
-      queryClient.ensureQueryData(categoriesQueryOptions()),
-      queryClient.ensureQueryData(categoryRulesQueryOptions()),
+      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...categoryRulesQueryOptions(), staleTime: 'static' }),
     ]);
   },
   pendingComponent: () => <Loader className='h-6 w-6' />,

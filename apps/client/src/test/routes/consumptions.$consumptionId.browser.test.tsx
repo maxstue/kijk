@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vite-plus/test';
 
-import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/consumptions';
+import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/consumptions/route';
 import { queryKeys } from '@/shared/api/query-keys';
 import { renderRoute } from '@/test/render-route';
 

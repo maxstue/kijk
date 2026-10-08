@@ -13,8 +13,8 @@ export const Route = createFileRoute('/_authenticated/_app/finances/imports/$imp
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loader: async ({ context: { queryClient }, params }) => {
     await Promise.all([
-      queryClient.ensureQueryData(importQueryOptions(params.importId)),
-      queryClient.ensureQueryData(categoriesQueryOptions()),
+      queryClient.query({ ...importQueryOptions(params.importId), staleTime: 'static' }),
+      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
     ]);
   },
   pendingComponent: () => <Loader className='h-6 w-6' />,

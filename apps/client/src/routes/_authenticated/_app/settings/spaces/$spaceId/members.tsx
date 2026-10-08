@@ -11,8 +11,8 @@ export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spac
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
   loader: ({ context: { queryClient }, params: { spaceId } }) =>
     Promise.all([
-      queryClient.ensureQueryData(spaceMembersQueryOptions(spaceId)),
-      queryClient.ensureQueryData(spaceRolesQueryOptions()),
+      queryClient.query({ ...spaceMembersQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...spaceRolesQueryOptions(), staleTime: 'static' }),
     ]),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });

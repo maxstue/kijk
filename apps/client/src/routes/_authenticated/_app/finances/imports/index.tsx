@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_authenticated/_app/finances/imports/')({
   component: ImportsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(importsQueryOptions());
+    await queryClient.query({ ...importsQueryOptions(), staleTime: 'static' });
   },
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });

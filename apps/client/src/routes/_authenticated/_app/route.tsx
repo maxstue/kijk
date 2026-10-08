@@ -15,7 +15,7 @@ import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 /** App layout with sidebar and header for onboarded users; redirects to `/welcome` while onboarding is pending. */
 export const Route = createFileRoute('/_authenticated/_app')({
   beforeLoad: async ({ context: { queryClient } }) => {
-    const currentUser = await queryClient.ensureQueryData(currentUserQueryOptions());
+    const currentUser = await queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' });
     if (!isReadyCurrentUser(currentUser)) {
       throw redirect({ replace: true, to: '/welcome' });
     }

@@ -8,7 +8,7 @@ import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
 /** `/welcome`: onboarding flow. */
 export const Route = createFileRoute('/_authenticated/_onboarding/welcome')({
-  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(currentUserQueryOptions()),
+  loader: ({ context: { queryClient } }) => queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' }),
   component: WelcomePage,
   pendingComponent: InitLoader,
 });

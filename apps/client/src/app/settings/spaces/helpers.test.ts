@@ -25,7 +25,7 @@ test('loads the remaining space instead of fresh cached data from the deleted sp
 
   for (const queryKey of keys) {
     const queryFn = vi.fn<() => Promise<string[]>>(async () => ['remaining-space']);
-    expect(await client.ensureQueryData({ queryKey, queryFn })).toEqual(['remaining-space']);
+    expect(await client.query({ queryKey, queryFn, staleTime: 'static' })).toEqual(['remaining-space']);
     expect(queryFn).toHaveBeenCalledOnce();
   }
   expect(client.getQueryData(queryKeys.users.me)).toEqual({ user: 'current-user' });
@@ -36,7 +36,7 @@ test('cancels an in-flight space request before removing it', async () => {
   const client = new QueryClient();
   let requestSignal: AbortSignal | undefined;
   const request = client
-    .fetchQuery({
+    .query({
       queryKey: queryKeys.resources.list(),
       queryFn: ({ signal }) => {
         requestSignal = signal;

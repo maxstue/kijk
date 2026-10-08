@@ -45,11 +45,12 @@ export const Route = createFileRoute('/_authenticated/_app/consumptions')({
   pendingComponent: () => <Loader className='h-6 w-6' />,
   loader: async ({ context: { queryClient }, deps }) => {
     await Promise.all([
-      queryClient.ensureQueryData(
-        consumptionsByQueryOptions(deps.year, deps.view === 'month' ? deps.month : undefined),
-      ),
-      queryClient.ensureQueryData(consumptionsByQueryOptions(deps.year)),
-      queryClient.ensureQueryData(limitsQueryOptions()),
+      queryClient.query({
+        ...consumptionsByQueryOptions(deps.year, deps.view === 'month' ? deps.month : undefined),
+        staleTime: 'static',
+      }),
+      queryClient.query({ ...consumptionsByQueryOptions(deps.year), staleTime: 'static' }),
+      queryClient.query({ ...limitsQueryOptions(), staleTime: 'static' }),
     ]);
   },
 });

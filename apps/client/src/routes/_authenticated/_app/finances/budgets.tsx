@@ -40,7 +40,7 @@ const searchSchema = z.object({
   year: z.number().int().min(2000).max(9999).default(new Date().getFullYear()),
 });
 
-/** `/finances/budgets`: budget evaluation of the month in the search params. */
+/** Budget evaluation of the month in the search params. */
 export const Route = createFileRoute('/_authenticated/_app/finances/budgets')({
   component: BudgetsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
@@ -48,9 +48,12 @@ export const Route = createFileRoute('/_authenticated/_app/finances/budgets')({
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   loader: async ({ context: { queryClient }, deps }) => {
     await Promise.all([
-      queryClient.ensureQueryData(budgetOverviewQueryOptions(deps.year, deps.month)),
-      queryClient.ensureQueryData(budgetsQueryOptions()),
-      queryClient.ensureQueryData(categoriesQueryOptions()),
+      queryClient.query({
+        ...budgetOverviewQueryOptions(deps.year, deps.month),
+        staleTime: 'static',
+      }),
+      queryClient.query({ ...budgetsQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
     ]);
   },
   pendingComponent: () => <Loader className='h-6 w-6' />,
@@ -70,25 +73,23 @@ function BudgetsPage() {
     <div className='space-y-6 pt-6'>
       <PageToolbar
         actions={
-          <>
-            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <DialogTrigger asChild>
-                <PageAddButton
-                  disabled={!canPlan}
-                  title={canPlan ? undefined : 'Your role in this space does not allow planning budgets'}
-                >
-                  Set budget
-                </PageAddButton>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Set budget</DialogTitle>
-                  <DialogDescription>Choose an expense category and its monthly amount.</DialogDescription>
-                </DialogHeader>
-                <BudgetForm month={month} year={year} onClose={() => setShowCreateDialog(false)} />
-              </DialogContent>
-            </Dialog>
-          </>
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <PageAddButton
+                disabled={!canPlan}
+                title={canPlan ? undefined : 'Your role in this space does not allow planning budgets'}
+              >
+                Set budget
+              </PageAddButton>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Set budget</DialogTitle>
+                <DialogDescription>Choose an expense category and its monthly amount.</DialogDescription>
+              </DialogHeader>
+              <BudgetForm month={month} year={year} onClose={() => setShowCreateDialog(false)} />
+            </DialogContent>
+          </Dialog>
         }
       >
         <MonthSwitcher

@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vite-plus/test';
 
-import { Route as resourcesRoute } from '@/routes/_authenticated/_app/resources';
+import { Route as resourcesRoute } from '@/routes/_authenticated/_app/resources/route';
 import { queryKeys } from '@/shared/api/query-keys';
 import { renderRoute } from '@/test/render-route';
 

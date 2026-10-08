@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_authenticated/_app/resources')({
   component: ResourcesPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   pendingComponent: () => <Loader className='h-6 w-6' />,
-  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(resourcesQueryOptions()),
+  loader: ({ context: { queryClient } }) => queryClient.query({ ...resourcesQueryOptions(), staleTime: 'static' }),
 });
 
 function ResourcesPage() {

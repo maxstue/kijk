@@ -7,7 +7,7 @@ import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 /** Layout for onboarding; redirects to `/home` once onboarding is completed. */
 export const Route = createFileRoute('/_authenticated/_onboarding')({
   beforeLoad: async ({ context: { queryClient } }) => {
-    const currentUser = await queryClient.ensureQueryData(currentUserQueryOptions());
+    const currentUser = await queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' });
     if (isReadyCurrentUser(currentUser)) {
       throw redirect({ replace: true, to: '/home' });
     }

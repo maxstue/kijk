@@ -10,7 +10,7 @@ import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 export const Route = createFileRoute('/_authenticated/_app/finances/accounts')({
   component: AccountsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
-  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(accountsQueryOptions()),
+  loader: ({ context: { queryClient } }) => queryClient.query({ ...accountsQueryOptions(), staleTime: 'static' }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });
 

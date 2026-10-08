@@ -13,8 +13,8 @@ export const Route = createFileRoute('/_authenticated/_app/limits')({
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loader: async ({ context: { queryClient } }) => {
     await Promise.all([
-      queryClient.ensureQueryData(limitsQueryOptions()),
-      queryClient.ensureQueryData(resourcesQueryOptions()),
+      queryClient.query({ ...limitsQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...resourcesQueryOptions(), staleTime: 'static' }),
     ]);
   },
   pendingComponent: () => <Loader className='h-6 w-6' />,
