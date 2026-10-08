@@ -74,10 +74,10 @@ export const importAiPreviewQueryOptions = (id: string) =>
   });
 
 /** Query for the import settings of the active space. */
-export const importSettingsQueryOptions = () =>
+export const importSettingsQueryOptions = (spaceId?: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getImportSettings(signal),
-    queryKey: queryKeys.imports.settings(),
+    queryFn: ({ signal }) => getImportSettings(signal, spaceId),
+    queryKey: queryKeys.imports.settings(spaceId),
   });
 
 /** Mutation that uploads a bank export. */
@@ -100,8 +100,8 @@ export const commitImportMutationOptions = (id: string) =>
 export const cancelImportMutationOptions = (id: string) => mutationOptions({ mutationFn: () => cancelImport(id) });
 
 /** Mutation that changes the import settings. */
-export const updateImportSettingsMutationOptions = () =>
-  mutationOptions({ mutationFn: (data: UpdateImportSettingsRequest) => updateImportSettings(data) });
+export const updateImportSettingsMutationOptions = (spaceId?: string) =>
+  mutationOptions({ mutationFn: (data: UpdateImportSettingsRequest) => updateImportSettings(data, spaceId) });
 
 /** Mutation that lets the AI propose categories for the rows without one. */
 export const categorizeImportMutationOptions = (id: string) =>

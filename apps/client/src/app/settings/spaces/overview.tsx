@@ -1,6 +1,6 @@
 import { Card } from '@kijk/ui/components/card';
 import { Link } from '@tanstack/react-router';
-import { ChevronRight, Ruler, Settings2, Users } from 'lucide-react';
+import { ChevronRight, FileInput, Ruler, Settings2, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { PageHeader } from '@/shared/components/page-header';
@@ -25,6 +25,12 @@ const sections = [
     icon: Ruler,
     label: 'Units',
     section: 'units',
+  },
+  {
+    description: 'Bank import defaults, privacy, and AI categorization',
+    icon: FileInput,
+    label: 'Imports',
+    section: 'imports',
   },
 ] as const satisfies ReadonlyArray<{ description: string; icon: LucideIcon; label: string; section: string }>;
 

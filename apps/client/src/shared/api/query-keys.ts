@@ -62,7 +62,8 @@ const imports = {
   aiPreview: (id: string) => [...imports.all, 'ai-preview', id] as const,
   list: () => [...imports.all, 'list'] as const,
   preview: (id: string, params: ImportPreviewParams) => [...imports.all, 'preview', id, params] as const,
-  settings: () => [...imports.all, 'settings'] as const,
+  settings: (spaceId?: string) =>
+    spaceId ? ([...imports.all, 'settings', spaceId] as const) : ([...imports.all, 'settings'] as const),
 };
 
 const categoryRules = {

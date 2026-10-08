@@ -75,13 +75,21 @@ export async function cancelImport(id: string) {
 }
 
 /** Loads the import settings of the active space. */
-export async function getImportSettings(signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient.GET('/api/imports/settings', { signal }));
+export async function getImportSettings(signal?: AbortSignal, spaceId?: string) {
+  return unwrapApiResponse(
+    spaceId
+      ? await apiClient.GET('/api/spaces/{id}/imports/settings', { params: { path: { id: spaceId } }, signal })
+      : await apiClient.GET('/api/imports/settings', { signal }),
+  );
 }
 
 /** Changes the import settings of the active space. */
-export async function updateImportSettings(data: UpdateImportSettingsRequest) {
-  return unwrapApiResponse(await apiClient.PUT('/api/imports/settings', { body: data }));
+export async function updateImportSettings(data: UpdateImportSettingsRequest, spaceId?: string) {
+  return unwrapApiResponse(
+    spaceId
+      ? await apiClient.PUT('/api/spaces/{id}/imports/settings', { body: data, params: { path: { id: spaceId } } })
+      : await apiClient.PUT('/api/imports/settings', { body: data }),
+  );
 }
 
 /** Starts the AI categorization of the rows without a category. */
