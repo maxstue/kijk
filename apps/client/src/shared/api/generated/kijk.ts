@@ -2125,6 +2125,84 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/spaces/{id}/imports/settings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the import settings of a specific space */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportSettingsResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    /** Changes the import settings of a specific space */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['UpdateImportSettingsRequest'];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ImportSettingsResponse'];
+          };
+        };
+        400: components['responses']['400'];
+        401: components['responses']['401'];
+        403: components['responses']['403'];
+        404: components['responses']['404'];
+        409: components['responses']['409'];
+        429: components['responses']['429'];
+        500: components['responses']['500'];
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/transactions': {
     parameters: {
       query?: never;

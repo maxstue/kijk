@@ -1,6 +1,8 @@
 using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
+using Kijk.Application.Imports.Settings;
+using Kijk.Application.Imports.Shared;
 using Kijk.Application.Spaces.ChangeMemberRole;
 using Kijk.Application.Spaces.Delete;
 using Kijk.Application.Spaces.GetMembers;
@@ -46,8 +48,31 @@ public sealed class SpacesEndpoints : IEndpointGroup
             .WithRequestValidation<ChangeMemberRoleRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .WithSummary("Changes the role of another space member");
+        group.MapGet("/{id:guid}/imports/settings", GetImportSettings)
+            .RequireRouteSpacePermission(SpacePermissions.Finances.View)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .WithSummary("Gets the import settings of a specific space");
+        group.MapPut("/{id:guid}/imports/settings", UpdateImportSettings)
+            .RequireRouteSpacePermission(SpacePermissions.Finances.Configure)
+            .WithRequestValidation<UpdateImportSettingsRequest>()
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .WithSummary("Changes the import settings of a specific space");
 
         return builder;
+    }
+
+    private static async Task<Results<Ok<ImportSettingsResponse>, ProblemHttpResult>> GetImportSettings(
+        Guid id, ImportSettingsHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.GetAsync(cancellationToken, id);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<ImportSettingsResponse>, ProblemHttpResult>> UpdateImportSettings(
+        Guid id, UpdateImportSettingsRequest request, ImportSettingsHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.UpdateAsync(request, cancellationToken, id);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
     private static async Task<Results<Ok<IReadOnlyList<SpaceRoleResponse>>, ProblemHttpResult>> GetRoles(

@@ -1,12 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
 using Kijk.Application.Consumptions.Update;
+using Kijk.Application.Imports.Settings;
 using Kijk.Application.Limits.Create;
 using Kijk.Application.Limits.Update;
 using Kijk.Application.Resources.Update;
 using Kijk.Application.Spaces.ChangeMemberRole;
 using Kijk.Application.Spaces.Update;
 using Kijk.Domain.Authorization;
+using Kijk.Domain.Catalogs;
 using Kijk.Domain.Entities;
 using Kijk.Domain.ValueObjects;
 using Kijk.IntegrationTests.Persistence;
@@ -254,6 +256,43 @@ public class SpacePermissionHttpTests
         await Assert.That(before.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(change.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(after.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+    }
+
+    [Test]
+    [Arguments("Admin", "Viewer", HttpStatusCode.Forbidden)]
+    [Arguments("Admin", "Member", HttpStatusCode.Forbidden)]
+    [Arguments("Viewer", "Admin", HttpStatusCode.OK)]
+    public async Task ImportSettingsUseTheSelectedSpacesPermissionsAndLeaveTheActiveSpaceUnchanged(
+        string activeRole, string routeRole, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(activeRole);
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var otherSpace = Space.Create("Other household");
+        var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+        var role = await dbContext.Roles.SingleAsync(item => item.Name == routeRole);
+        dbContext.UserSpaces.Add(UserSpace.Create(user, otherSpace, role));
+        await dbContext.SaveChangesAsync();
+        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
+
+        using var readable = await host.Client.GetAsync($"/api/spaces/{otherSpace.Id}/imports/settings");
+        using var changed = await host.Client.PutAsJsonAsync($"/api/spaces/{otherSpace.Id}/imports/settings",
+            new UpdateImportSettingsRequest(PurposeRetention.Remove, MinimizeData: true));
+        using var unknown = await host.Client.GetAsync($"/api/spaces/{Guid.NewGuid()}/imports/settings");
+        using var unknownUpdate = await host.Client.PutAsJsonAsync($"/api/spaces/{Guid.NewGuid()}/imports/settings",
+            new UpdateImportSettingsRequest(PurposeRetention.Remove));
+
+        await Assert.That(readable.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(changed.StatusCode).IsEqualTo(expected);
+        await Assert.That(unknown.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(unknownUpdate.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var active = await verification.Spaces.SingleAsync(item => item.Id == fixture.Space.Id);
+        var selected = await verification.Spaces.SingleAsync(item => item.Id == otherSpace.Id);
+        await Assert.That(active.PurposeRetention).IsEqualTo(fixture.Space.PurposeRetention);
+        await Assert.That(active.MinimizeData).IsEqualTo(fixture.Space.MinimizeData);
+        await Assert.That(selected.PurposeRetention).IsEqualTo(expected == HttpStatusCode.OK ? PurposeRetention.Remove : otherSpace.PurposeRetention);
+        await Assert.That(selected.MinimizeData).IsEqualTo(expected == HttpStatusCode.OK);
     }
 
     private static async Task<Fixture> CreateFixtureAsync(string roleName)
