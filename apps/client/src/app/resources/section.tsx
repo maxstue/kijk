@@ -1,4 +1,3 @@
-import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -8,7 +7,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
-import { Separator } from '@kijk/ui/components/separator';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useState } from 'react';
@@ -19,6 +17,7 @@ import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { DataTable } from '@/shared/components/data-table';
+import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { CreatorTypes } from '@/shared/types/domain';
 import type { Resource } from '@/shared/types/domain';
 
@@ -35,27 +34,18 @@ export function ResourceTypesSection() {
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h3 className='text-lg font-medium'>Resource types</h3>
-        <p className='text-muted-foreground text-sm'>Manage your Resource types. Create, update or delete them.</p>
-      </div>
-      <Separator />
-      <div className='grid gap-4 lg:grid-cols-2'>
-        <ResourceTypeStatistics resources={data} />
-      </div>
-      <div className='w-full'>
-        <div className='flex justify-end'>
+      <PageToolbar
+        actions={
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
-              <Button
+              <PageAddButton
                 disabled={!canManage}
                 title={canManage ? undefined : 'Your role in this space does not allow managing resources'}
-                variant='outline'
               >
-                Create
-              </Button>
+                Add resource
+              </PageAddButton>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-lg'>
+            <DialogContent>
               <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>
                 <DialogHeader>
                   <DialogTitle>Create Resource</DialogTitle>
@@ -65,7 +55,10 @@ export function ResourceTypesSection() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
+        }
+      />
+      <div className='grid gap-4 lg:grid-cols-2'>
+        <ResourceTypeStatistics resources={data} />
       </div>
       <div className='w-full'>
         <Card className='min-w-32'>

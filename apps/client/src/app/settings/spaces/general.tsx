@@ -26,6 +26,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
+import { PageHeader } from '@/shared/components/page-header';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
@@ -81,11 +82,7 @@ export function SpaceGeneral() {
   return (
     <div className='mx-auto w-full max-w-4xl space-y-6'>
       <SpaceBackLink />
-      <div>
-        <h2 className='text-lg font-medium'>General</h2>
-        <p className='text-muted-foreground text-sm'>Basic information about {space.name}.</p>
-      </div>
-      <Separator />
+      <PageHeader title='General' description={<> Basic information about {space.name}. </>} />
 
       {canConfigure ? (
         <Form {...form}>

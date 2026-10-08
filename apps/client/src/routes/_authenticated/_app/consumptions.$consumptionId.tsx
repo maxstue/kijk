@@ -8,15 +8,10 @@ import { consumptionQueryOptions, consumptionsByQueryOptions } from '@/shared/ap
 
 /** `/consumptions/$consumptionId`: edit dialog of a consumption. */
 export const Route = createFileRoute('/_authenticated/_app/consumptions/$consumptionId')({
-  loader: ({ context: { queryClient }, params: { consumptionId } }) =>
-    queryClient.ensureQueryData(consumptionQueryOptions(consumptionId)),
   component: ConsumptionEditDialog,
 });
 
 function ConsumptionEditDialog() {
-  const consumption = Route.useLoaderData();
-  const { year } = Route.useSearch();
-  const { data: consumptions } = useSuspenseQuery(consumptionsByQueryOptions(year));
   const navigate = Route.useNavigate();
   const closeDialog = () =>
     navigate({
@@ -27,16 +22,28 @@ function ConsumptionEditDialog() {
 
   return (
     <Dialog open onOpenChange={(open) => !open && closeDialog()}>
-      <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            Update Consumption
-            <LimitWarning resourceId={consumption.resource.id} />
-          </DialogTitle>
-          <DialogDescription>Update this consumption.</DialogDescription>
-        </DialogHeader>
-        <ConsumptionUpdateForm consumptions={consumptions} initialData={consumption} onClose={closeDialog} />
+      <DialogContent>
+        <ConsumptionEditContent onClose={closeDialog} />
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ConsumptionEditContent({ onClose }: { onClose: () => void }) {
+  const { consumptionId } = Route.useParams();
+  const { year } = Route.useSearch();
+  const { data: consumption } = useSuspenseQuery(consumptionQueryOptions(consumptionId));
+  const { data: consumptions } = useSuspenseQuery(consumptionsByQueryOptions(year));
+  return (
+    <>
+      <DialogHeader>
+        <DialogTitle className='flex items-center gap-2'>
+          Update Consumption
+          <LimitWarning resourceId={consumption.resource.id} />
+        </DialogTitle>
+        <DialogDescription>Update this consumption.</DialogDescription>
+      </DialogHeader>
+      <ConsumptionUpdateForm consumptions={consumptions} initialData={consumption} onClose={onClose} />
+    </>
   );
 }

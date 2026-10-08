@@ -18,7 +18,7 @@ function ResourcesPage() {
   useSetSiteHeader('Resources');
 
   return (
-    <div className='space-y-6 pt-10'>
+    <div className='space-y-6 pt-6'>
       <ResourceTypesSection />
       <Outlet />
     </div>

@@ -2,12 +2,15 @@ import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import type { ReactNode } from 'react';
 
 import type { Unit } from '@/shared/api/units/types';
+import { PageToolbar } from '@/shared/components/page-header';
 
 import { UnitRowActions } from './row-actions';
 
 interface Props {
+  actions?: ReactNode;
   spaceId?: string;
   /** Spaces in which the user's role allows sharing units. */
   shareableSpaces: Array<{ id: string; name: string }>;
@@ -25,6 +28,7 @@ interface Props {
 
 /** Paginated, searchable unit table. */
 export function UnitTable({
+  actions,
   spaceId,
   shareableSpaces,
   isPending,
@@ -43,15 +47,17 @@ export function UnitTable({
   return (
     <div className='min-w-0'>
       <div className='my-4'>
-        <Input
-          className='w-full sm:max-w-xs'
-          placeholder='Filter name or symbol...'
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
-        />
+        <PageToolbar actions={actions}>
+          <Input
+            className='w-full sm:w-72'
+            placeholder='Filter name or symbol...'
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+          />
+        </PageToolbar>
       </div>
       <div className='w-full overflow-x-auto rounded border'>
         <Table className='min-w-[600px]'>

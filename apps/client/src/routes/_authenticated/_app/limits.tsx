@@ -21,10 +21,10 @@ export const Route = createFileRoute('/_authenticated/_app/limits')({
 });
 
 function LimitsPage() {
-  useSetSiteHeader('Consumption limits');
+  useSetSiteHeader('Limits');
 
   return (
-    <div className='space-y-6 pt-10'>
+    <div className='space-y-6 pt-6'>
       <LimitsSection />
     </div>
   );

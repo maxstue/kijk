@@ -3,6 +3,8 @@ import { Link } from '@tanstack/react-router';
 import { ChevronRight, Ruler, Settings2, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { PageHeader } from '@/shared/components/page-header';
+
 import { useSpaceSettings } from './context';
 
 const sections = [
@@ -32,10 +34,7 @@ export function SpaceOverview() {
 
   return (
     <div className='mx-auto w-full max-w-4xl space-y-8'>
-      <div className='space-y-1'>
-        <h2 className='text-2xl font-semibold tracking-tight'>{space.name}</h2>
-        <p className='text-muted-foreground'>{space.description || 'Settings for this space.'}</p>
-      </div>
+      <PageHeader title={space.name} description={space.description || 'Settings for this space.'} />
 
       <Card className='gap-0 overflow-hidden py-0'>
         {/* A personal space never has other members. */}

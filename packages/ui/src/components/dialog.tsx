@@ -5,6 +5,7 @@ import { Dialog as DialogPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
+import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { XIcon } from 'lucide-react';
 
 /** Modal dialog. */
@@ -56,12 +57,12 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot='dialog-content'
         className={cn(
-          'bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl p-6 text-sm ring-1 duration-100 outline-none sm:max-w-md',
+          'bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 overflow-y-auto rounded-xl p-6 text-sm ring-1 duration-100 outline-none sm:max-w-2xl sm:p-8 [&>*]:min-w-0',
           className,
         )}
         {...props}
       >
-        {children}
+        <React.Suspense fallback={<DialogLoadingContent />}>{children}</React.Suspense>
         {showCloseButton && (
           <DialogPrimitive.Close data-slot='dialog-close' asChild>
             <Button variant='ghost' className='absolute top-4 right-4' size='icon-sm'>
@@ -72,6 +73,20 @@ function DialogContent({
         )}
       </DialogPrimitive.Content>
     </DialogPortal>
+  );
+}
+
+/** Loading state kept inside the modal while its content suspends. */
+function DialogLoadingContent() {
+  return (
+    <>
+      <DialogTitle className='sr-only'>Loading dialog</DialogTitle>
+      <DialogDescription className='sr-only'>Please wait while the dialog loads.</DialogDescription>
+      <div role='status' className='flex min-h-64 items-center justify-center gap-2'>
+        <SpinnerIcon className='size-5 animate-spin' />
+        <span className='sr-only'>Loading dialog content</span>
+      </div>
+    </>
   );
 }
 

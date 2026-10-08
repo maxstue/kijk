@@ -34,7 +34,7 @@ export function RememberDialog({ categoryId, categoryName, onClose, transaction 
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Remember {categoryName}</DialogTitle>
           <DialogDescription>

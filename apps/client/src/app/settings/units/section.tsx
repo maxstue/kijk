@@ -1,4 +1,3 @@
-import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -8,7 +7,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
-import { Separator } from '@kijk/ui/components/separator';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { BarChart3, Hash, List } from 'lucide-react';
@@ -17,6 +15,7 @@ import { useDeferredValue, useState } from 'react';
 import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
 import { systemUnitsQueryOptions, unitPageQueryOptions } from '@/shared/api/units/options';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
+import { PageAddButton, PageHeader } from '@/shared/components/page-header';
 
 import { UnitCreateForm } from './create-form';
 import { UnitTable } from './table';
@@ -48,17 +47,37 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h3 className='text-lg font-medium'>
-          {scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
-        </h3>
-        <p className='text-muted-foreground text-sm'>
-          {scope === 'personal'
+      <PageHeader
+        actions={
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogTrigger asChild>
+              <PageAddButton
+                disabled={!canCreate}
+                title={canCreate ? undefined : 'Your role in this space does not allow sharing units'}
+              >
+                Add unit
+              </PageAddButton>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Unit</DialogTitle>
+                <DialogDescription>Define a custom unit relative to a supported system unit.</DialogDescription>
+              </DialogHeader>
+              <UnitCreateForm
+                spaceId={scope === 'space' ? spaceId : undefined}
+                onClose={() => setShowDialog(false)}
+                systemUnits={systemUnits}
+              />
+            </DialogContent>
+          </Dialog>
+        }
+        title={scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
+        description={
+          scope === 'personal'
             ? 'Browse system units and manage the custom units you can use across spaces.'
-            : 'Browse system units and units shared with this space.'}
-        </p>
-      </div>
-      <Separator />
+            : 'Browse system units and units shared with this space.'
+        }
+      />
       {scope === 'space' && (
         <p className='text-muted-foreground text-sm'>
           Have a personal unit to use here?{' '}
@@ -75,30 +94,6 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
       <div className='grid gap-4 lg:grid-cols-2'>
         <UnitStatistic label='Overall' value={Number(pageData?.totalCount ?? 0)} icon='overall' />
         <UnitStatistic label='Custom' value={Number(pageData?.customCount ?? 0)} icon='custom' />
-      </div>
-      <div className='flex justify-end'>
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogTrigger asChild>
-            <Button
-              disabled={!canCreate}
-              title={canCreate ? undefined : 'Your role in this space does not allow sharing units'}
-              variant='outline'
-            >
-              Create
-            </Button>
-          </DialogTrigger>
-          <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-            <DialogHeader>
-              <DialogTitle>Create Unit</DialogTitle>
-              <DialogDescription>Define a custom unit relative to a supported system unit.</DialogDescription>
-            </DialogHeader>
-            <UnitCreateForm
-              spaceId={scope === 'space' ? spaceId : undefined}
-              onClose={() => setShowDialog(false)}
-              systemUnits={systemUnits}
-            />
-          </DialogContent>
-        </Dialog>
       </div>
       <Card className='min-w-0'>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>

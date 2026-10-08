@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
-import { Separator } from '@kijk/ui/components/separator';
 import { Switch } from '@kijk/ui/components/switch';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
@@ -14,6 +13,7 @@ import { useUpdateUser } from '@/app/settings/profile/use-update-user';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AppVersion } from '@/shared/components/app-version';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/form';
+import { PageHeader } from '@/shared/components/page-header';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 const privacyFormSchema = z.object({
@@ -51,11 +51,7 @@ export function InfoSection() {
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h3 className='text-lg font-medium'>Info</h3>
-        <p className='text-muted-foreground text-sm'>App information and privacy settings.</p>
-      </div>
-      <Separator />
+      <PageHeader title='Info' description='App information and privacy settings.' />
       <div className='flex flex-col gap-12'>
         <div className='flex items-center gap-4'>
           <div>Version: </div>

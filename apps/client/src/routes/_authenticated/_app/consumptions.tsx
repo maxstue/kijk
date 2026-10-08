@@ -1,4 +1,3 @@
-import { Button } from '@kijk/ui/components/button';
 import {
   Dialog,
   DialogContent,
@@ -7,12 +6,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
-import { Separator } from '@kijk/ui/components/separator';
 import { Tabs, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Outlet, createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
-import { Plus } from 'lucide-react';
 import { Suspense, useState } from 'react';
 import { z } from 'zod';
 
@@ -27,6 +24,7 @@ import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { limitsQueryOptions } from '@/shared/api/limits/options';
 import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { NotFound } from '@/shared/components/not-found';
+import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
@@ -68,67 +66,51 @@ function UsagePage() {
   const handleClose = () => setShowDialog(false);
 
   return (
-    <div className='space-y-6 pt-10'>
+    <div className='space-y-6 pt-6'>
+      <PageToolbar
+        actions={
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogTrigger asChild>
+              <PageAddButton
+                disabled={!canRecord}
+                title={canRecord ? undefined : 'Your role in this space does not allow recording consumptions'}
+              >
+                Add consumption
+              </PageAddButton>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Consumption</DialogTitle>
+                <DialogDescription>Add a new consumption.</DialogDescription>
+              </DialogHeader>
+              <ConsumptionCreateForm consumptions={yearlyConsumptions} onClose={handleClose} />
+            </DialogContent>
+          </Dialog>
+        }
+      >
+        <Tabs
+          value={view}
+          onValueChange={(nextView) =>
+            navigate({ search: (previous) => ({ ...previous, view: nextView as 'month' | 'year' }) })
+          }
+        >
+          <TabsList>
+            <TabsTrigger value='month'>Monthly</TabsTrigger>
+            <TabsTrigger value='year'>Annual</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Suspense>
+          <ConsumptionCurrentPeriodButton view={view} />
+          <ConsumptionYearSwitcher className='w-auto min-w-28' />
+          {view === 'month' && <ConsumptionMonthNav className='w-auto min-w-36' />}
+        </Suspense>
+      </PageToolbar>
       <LimitWarnings />
-      <div className='space-y-0.5'>
-        <h2 className='text-2xl font-bold tracking-tight'>Resource usage</h2>
-        <p className='text-muted-foreground'>Manage your monthly usage or review a full year by resource type</p>
-      </div>
-      <Separator className='my-6' />
-      <div className='flex flex-col gap-8 lg:flex-row lg:space-y-0 lg:space-x-12'>
-        <div className='flex-1'>
-          <div className='flex flex-col gap-4'>
-            <Tabs
-              value={view}
-              onValueChange={(nextView) =>
-                navigate({ search: (previous) => ({ ...previous, view: nextView as 'month' | 'year' }) })
-              }
-            >
-              <TabsList>
-                <TabsTrigger value='month'>Monthly</TabsTrigger>
-                <TabsTrigger value='year'>Annual</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <div className='flex w-full justify-end'>
-              <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                <div className='flex w-full justify-between'>
-                  <div className='flex w-1/3 justify-start gap-4'>
-                    <Suspense>
-                      <ConsumptionCurrentPeriodButton view={view} />
-                      <ConsumptionYearSwitcher />
-                      {view === 'month' ? <ConsumptionMonthNav /> : undefined}
-                    </Suspense>
-                  </div>
-                  <DialogTrigger asChild>
-                    <Button
-                      disabled={!canRecord}
-                      title={canRecord ? undefined : 'Your role in this space does not allow recording consumptions'}
-                      variant='outline'
-                    >
-                      Add <Plus />
-                    </Button>
-                  </DialogTrigger>
-                </div>
-                <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-                  <DialogHeader>
-                    <DialogTitle>Add Consumption</DialogTitle>
-                    <DialogDescription>Add a new consumption.</DialogDescription>
-                  </DialogHeader>
-                  <Suspense>
-                    <ConsumptionCreateForm consumptions={yearlyConsumptions} onClose={handleClose} />
-                  </Suspense>
-                </DialogContent>
-              </Dialog>
-            </div>
-            {view === 'year' ? (
-              <ConsumptionAnnualView consumptions={data} />
-            ) : (
-              <ConsumptionMonthView consumptions={data} month={month} year={year} />
-            )}
-          </div>
-        </div>
-      </div>
+      {view === 'year' ? (
+        <ConsumptionAnnualView consumptions={data} />
+      ) : (
+        <ConsumptionMonthView consumptions={data} month={month} year={year} />
+      )}
       <Outlet />
     </div>
   );

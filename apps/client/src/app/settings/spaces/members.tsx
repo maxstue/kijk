@@ -1,11 +1,11 @@
 import { Card, CardContent } from '@kijk/ui/components/card';
-import { Separator } from '@kijk/ui/components/separator';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 
 import { spaceMembersQueryOptions, spaceRolesQueryOptions } from '@/shared/api/spaces/options';
 import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@/shared/api/spaces/permissions';
 import type { SpacePermission } from '@/shared/api/spaces/permissions';
+import { PageHeader } from '@/shared/components/page-header';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
@@ -21,11 +21,7 @@ export function SpaceMembers() {
   return (
     <div className='mx-auto w-full max-w-4xl space-y-6'>
       <SpaceBackLink />
-      <div>
-        <h2 className='text-lg font-medium'>Members</h2>
-        <p className='text-muted-foreground text-sm'>People in {space.name} and their roles.</p>
-      </div>
-      <Separator />
+      <PageHeader title='Members' description={<> People in {space.name} and their roles. </>} />
 
       <Card className='gap-0 py-0'>
         {members.map((member) => (
