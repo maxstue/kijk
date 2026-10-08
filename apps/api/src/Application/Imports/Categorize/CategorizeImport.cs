@@ -1,4 +1,5 @@
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Imports.Categorization;
 using Kijk.Application.Shared.Ai;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Jobs;
@@ -11,7 +12,8 @@ namespace Kijk.Application.Imports.Categorize;
 /// Request for categorizing the rows of an import with the AI.
 /// </summary>
 /// <param name="AiDataSharing">Which data the AI may see for this import; the space's level when omitted.</param>
-public sealed record CategorizeImportRequest(AiDataSharing? AiDataSharing = null);
+/// <param name="SelectedTextKeys">Preview texts selected in the form; existing exclusions are kept when omitted.</param>
+public sealed record CategorizeImportRequest(AiDataSharing? AiDataSharing = null, List<string>? SelectedTextKeys = null);
 
 /// <summary>
 /// Validates the request for categorizing an import.
@@ -19,8 +21,12 @@ public sealed record CategorizeImportRequest(AiDataSharing? AiDataSharing = null
 public sealed class CategorizeImportValidator : AbstractValidator<CategorizeImportRequest>
 {
     /// <summary>Creates the validator rules.</summary>
-    public CategorizeImportValidator() =>
+    public CategorizeImportValidator()
+    {
         RuleFor(request => request.AiDataSharing).IsInEnum().When(request => request.AiDataSharing is not null).WithErrorCode(ErrorCodes.ValidationError);
+        RuleFor(request => request.SelectedTextKeys).NotEmpty().When(request => request.SelectedTextKeys is not null).WithErrorCode(ErrorCodes.ValidationError);
+        RuleForEach(request => request.SelectedTextKeys).NotEmpty().Matches("^[a-f0-9]{16}$").WithErrorCode(ErrorCodes.ValidationError);
+    }
 }
 
 /// <summary>
@@ -59,6 +65,26 @@ public sealed class CategorizeImportHandler(IAppDbContext dbContext, CurrentUser
         if (!await aiGate.CanUseAiAsync(job.SpaceId, currentUser.Id, cancellationToken))
         {
             return Error.Conflict("AI categorization is not available");
+        }
+
+        if (request.SelectedTextKeys is not null)
+        {
+            var candidates = await AiContexts.Eligible(dbContext, job.Id).ToListAsync(cancellationToken);
+            var memberNames = await AiContexts.LoadMemberNamesAsync(dbContext, job.SpaceId, cancellationToken);
+            var (contexts, _) = AiContexts.Build(candidates, memberNames);
+            var selected = request.SelectedTextKeys.ToHashSet(StringComparer.Ordinal);
+            if (!selected.IsSubsetOf(contexts.Select(context => context.Key)))
+            {
+                return Error.Conflict("The preview changed. Reopen it and check your selection again");
+            }
+
+            foreach (var context in contexts)
+            {
+                foreach (var row in context.Rows)
+                {
+                    row.SetAiExcluded(!selected.Contains(context.Key));
+                }
+            }
         }
 
         job.StartCategorizing(sharing);

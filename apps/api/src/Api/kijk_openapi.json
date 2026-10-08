@@ -5175,6 +5175,16 @@
                 "$ref": "#/components/schemas/AiDataSharing"
               }
             ]
+          },
+          "selectedTextKeys": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Preview texts selected in the form; existing exclusions are kept when omitted."
           }
         },
         "description": "Request for categorizing the rows of an import with the AI."

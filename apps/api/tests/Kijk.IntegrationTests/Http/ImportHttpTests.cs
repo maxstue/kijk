@@ -209,10 +209,8 @@ public class ImportHttpTests
         var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
         await Assert.That(preview.Items.Count).IsEqualTo(5);
         var bakery = preview.Items.Single(item => item.Counterparty == "Bäckerei Schön");
-        using var deselected = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/ai-preview/{bakery.Key}", new UpdateAiPreviewItemRequest(true), Json);
-        await Assert.That(deselected.StatusCode).IsEqualTo(HttpStatusCode.OK);
-
-        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(), Json);
+        var selectedKeys = preview.Items.Where(item => item.Key != bakery.Key).Select(item => item.Key).ToList();
+        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(SelectedTextKeys: selectedKeys), Json);
         await Assert.That(started.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
         job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
 
@@ -244,6 +242,43 @@ public class ImportHttpTests
         var after = await GetCandidatesAsync(host.Client, job.Id);
         await Assert.That(after.Single(row => row.Id == salary.Id).CategorySource).IsEqualTo(CategorySource.Manual);
         await Assert.That(after.Single(row => row.Id == salary.Id).CategoryId).IsEqualTo(HousingId);
+    }
+
+    [Test]
+    public async Task InvalidAiSelectionsDoNotStartAJobOrChangeThePreview()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        var chat = new CategorizingChatClient("Groceries");
+        await using var host = await StartWithAiAsync(fixture, chat);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        using var empty = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, []), Json);
+        await Assert.That(empty.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        using var stale = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, ["0000000000000000"]), Json);
+        await Assert.That(stale.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        var unchanged = (await host.Client.GetFromJsonAsync<ImportJobResponse>($"/api/imports/{job.Id}", Json))!;
+        await Assert.That(unchanged.Status).IsEqualTo(ImportJobStatus.NeedsReview);
+        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
+        await Assert.That(preview.Items.All(item => !item.Excluded)).IsTrue();
+        await Assert.That(chat.Requests).IsEmpty();
+    }
+
+    [Test]
+    public async Task TheSubmittedAiSelectionCanIncludeAPreviouslyExcludedText()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        var chat = new CategorizingChatClient("Groceries");
+        await using var host = await StartWithAiAsync(fixture, chat);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
+        var bakery = preview.Items.Single(item => item.Counterparty == "Bäckerei Schön");
+        using var previouslyExcluded = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/ai-preview/{bakery.Key}", new UpdateAiPreviewItemRequest(true), Json);
+        await Assert.That(previouslyExcluded.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, [bakery.Key]), Json);
+        await Assert.That(started.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
+        await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        await Assert.That(rows.Single(row => row.Counterparty == "Bäckerei Schön").CategoryId).IsEqualTo(GroceriesId);
+        await Assert.That(rows.Where(row => row.Counterparty != "Bäckerei Schön").All(row => row.CategoryId is null)).IsTrue();
     }
 
     [Test]

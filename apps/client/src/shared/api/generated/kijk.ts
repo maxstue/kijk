@@ -3347,6 +3347,8 @@ export interface components {
     /** Request for categorizing the rows of an import with the AI. */
     CategorizeImportRequest: {
       aiDataSharing?: null | components['schemas']['AiDataSharing'];
+      /** Preview texts selected in the form; existing exclusions are kept when omitted. */
+      selectedTextKeys?: null | string[];
     };
     /** Request for correcting the category of a transaction. */
     CategorizeTransactionRequest: {
