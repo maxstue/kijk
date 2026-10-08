@@ -13,12 +13,12 @@ import {
 import { DialogDescription, DialogTitle } from '@kijk/ui/components/dialog';
 import { useNavigate } from '@tanstack/react-router';
 import { cn } from 'cn';
-import { HousePlug, Laptop, LayoutDashboard, Moon, SunMedium } from 'lucide-react';
+import { Laptop, Moon, SunMedium } from 'lucide-react';
 import type { Dialog } from 'radix-ui';
 import { useCallback, useEffect, useState } from 'react';
 
+import { mainNavGroups } from '@/app/root/constants';
 import { settingsNav } from '@/shared/navigation/settings';
-import { getMonthFromDate } from '@/shared/utils/months';
 
 interface Props extends Dialog.DialogProps {
   isCollapsed?: boolean;
@@ -91,28 +91,23 @@ export function CommandMenu({ ...props }: Props) {
           <CommandInput placeholder='Search...' />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading='Links'>
-              <CommandItem key='Home' onSelect={runCommand(() => navigate({ to: '/' }))}>
-                <LayoutDashboard />
-                Home
-              </CommandItem>
-              <CommandItem
-                key='resource'
-                onSelect={runCommand(() =>
-                  navigate({
-                    search: (previous) => ({
-                      ...previous,
-                      month: getMonthFromDate(new Date()),
-                      year: new Date().getFullYear(),
-                    }),
-                    to: '/consumptions',
-                  }),
-                )}
-              >
-                <HousePlug />
-                Consumption
-              </CommandItem>
-            </CommandGroup>
+            {mainNavGroups.map((group) => (
+              <CommandGroup key={group.label} heading={group.label}>
+                {group.items
+                  .filter((item) => item.isActive)
+                  .map((item) => (
+                    <CommandItem
+                      key={item.url}
+                      keywords={[group.label]}
+                      value={item.title}
+                      onSelect={runCommand(() => navigate({ to: item.url }))}
+                    >
+                      <item.icon />
+                      {item.title}
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            ))}
             <CommandSeparator />
             <CommandGroup heading='Settings'>
               {settingsNav.map((item) => {

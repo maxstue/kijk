@@ -2,8 +2,8 @@ import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { queryKeys } from '@/shared/api/query-keys';
 
-import { createCategory, deleteCategory, getCategories } from './requests';
-import type { CreateCategoryRequest } from './types';
+import { createCategory, deleteCategory, getCategories, updateCategory } from './requests';
+import type { CreateCategoryRequest, UpdateCategoryRequest } from './types';
 
 /** Query for the categories available to the active space. */
 export const categoriesQueryOptions = () =>
@@ -16,6 +16,12 @@ export const categoriesQueryOptions = () =>
 export const createCategoryMutationOptions = () =>
   mutationOptions({
     mutationFn: (data: CreateCategoryRequest) => createCategory(data),
+  });
+
+/** Mutation that updates a custom category. */
+export const updateCategoryMutationOptions = () =>
+  mutationOptions({
+    mutationFn: ({ data, id }: { data: UpdateCategoryRequest; id: string }) => updateCategory(id, data),
   });
 
 /** Mutation that deletes a custom category. */

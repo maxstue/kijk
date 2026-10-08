@@ -6,3 +6,5 @@ export type Category = components['schemas']['CategoryResponse'];
 export type CategoryKind = components['schemas']['CategoryKind'];
 /** Payload for creating a category. */
 export type CreateCategoryRequest = components['schemas']['CreateCategoryRequest'];
+/** Payload for updating a category. */
+export type UpdateCategoryRequest = components['schemas']['UpdateCategoryRequest'];

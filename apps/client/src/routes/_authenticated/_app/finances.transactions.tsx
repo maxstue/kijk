@@ -77,8 +77,11 @@ function toPageQuery(search: z.infer<typeof searchSchema>) {
   return { ...toFilters(search), page: search.page ?? 1, pageSize: search.pageSize ?? defaultTransactionPageSize };
 }
 
-/** `/transactions`: one page of the transactions of the month in the search params, optionally only uncategorized ones. */
-export const Route = createFileRoute('/_authenticated/_app/transactions')({
+/**
+ * `/finances/transactions`: one page of the transactions of the month in the search params, optionally only
+ * uncategorized ones.
+ */
+export const Route = createFileRoute('/_authenticated/_app/finances/transactions')({
   component: TransactionsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   validateSearch: zodValidator(searchSchema),

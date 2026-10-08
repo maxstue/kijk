@@ -85,10 +85,10 @@ function DoneCard({ job }: { job: ImportJob }) {
       </CardHeader>
       <CardContent className='flex gap-2'>
         <Button asChild>
-          <Link to='/transactions'>Show transactions</Link>
+          <Link to='/finances/transactions'>Show transactions</Link>
         </Button>
         <Button asChild variant='outline'>
-          <Link to='/budgets'>Show budgets</Link>
+          <Link to='/finances/budgets'>Show budgets</Link>
         </Button>
       </CardContent>
     </Card>

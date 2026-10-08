@@ -1,6 +1,7 @@
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -9,42 +10,51 @@ import { Link } from '@tanstack/react-router';
 import { cn } from 'cn';
 
 import { CommandMenu } from '@/app/root/command-menu';
-import { mainNav } from '@/app/root/constants';
+import { mainNavGroups } from '@/app/root/constants';
 
-/** Main navigation group of the sidebar, including the command menu. */
+/** Main navigation of the sidebar: the command menu followed by one group per area. */
 export function NavMain() {
   return (
-    <SidebarGroup>
-      <SidebarGroupContent className='flex flex-col gap-4'>
-        <SidebarMenu className='flex flex-row items-center justify-between gap-2'>
-          <SidebarMenuItem className='w-full'>
-            <SidebarMenuButton asChild size='sm'>
-              <CommandMenu />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenu>
-          {mainNav.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <Link
-                  key={item.url}
-                  activeOptions={{ exact: false }}
-                  className={cn(!item.isActive && 'cursor-not-allowed')}
-                  disabled={!item.isActive}
-                  to={item.url}
-                  activeProps={{
-                    className: 'bg-primary text-primary-foreground',
-                  }}
-                >
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
+    <>
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem className='w-full'>
+              <SidebarMenuButton asChild size='sm'>
+                <CommandMenu />
               </SidebarMenuButton>
             </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      {mainNavGroups.map((group) => (
+        <SidebarGroup key={group.label}>
+          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {group.items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link
+                      activeOptions={{ exact: false }}
+                      className={cn(!item.isActive && 'cursor-not-allowed')}
+                      disabled={!item.isActive}
+                      to={item.url}
+                      activeProps={{
+                        className: 'bg-primary text-primary-foreground',
+                      }}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      ))}
+    </>
   );
 }
