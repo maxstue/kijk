@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import { Card, CardContent } from '@kijk/ui/components/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
@@ -12,9 +12,6 @@ export function ImportList() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Recent imports</CardTitle>
-      </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <p className='text-muted-foreground text-sm'>No imports yet.</p>
@@ -36,7 +33,7 @@ export function ImportList() {
                     <Link
                       className='font-medium underline-offset-4 hover:underline'
                       params={{ importId: job.id }}
-                      to='/imports/$importId'
+                      to='/finances/imports/$importId'
                     >
                       {job.fileName}
                     </Link>

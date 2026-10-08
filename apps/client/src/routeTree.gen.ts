@@ -30,10 +30,11 @@ import { Route as AuthenticatedAppFinancesAccountsRouteImport } from './routes/_
 import { Route as AuthenticatedAppFinancesBudgetsRouteImport } from './routes/_authenticated/_app/finances.budgets'
 import { Route as AuthenticatedAppFinancesCategoriesRouteImport } from './routes/_authenticated/_app/finances.categories'
 import { Route as AuthenticatedAppFinancesTransactionsRouteImport } from './routes/_authenticated/_app/finances.transactions'
-import { Route as AuthenticatedAppImportsIndexRouteImport } from './routes/_authenticated/_app/imports.index'
-import { Route as AuthenticatedAppImportsImportIdRouteImport } from './routes/_authenticated/_app/imports.$importId'
 import { Route as AuthenticatedAppResourcesResourceIdRouteImport } from './routes/_authenticated/_app/resources.$resourceId'
 import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings.$section'
+import { Route as AuthenticatedAppFinancesImportsIndexRouteImport } from './routes/_authenticated/_app/finances.imports.index'
+import { Route as AuthenticatedAppFinancesImportsImportIdRouteImport } from './routes/_authenticated/_app/finances.imports.$importId'
+import { Route as AuthenticatedAppFinancesImportsNewRouteImport } from './routes/_authenticated/_app/finances.imports.new'
 import { Route as AuthenticatedAppSettingsSpacesSpaceIdRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId'
 import { Route as AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId.index'
 import { Route as AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport } from './routes/_authenticated/_app/settings.spaces.$spaceId.general'
@@ -154,18 +155,6 @@ const AuthenticatedAppFinancesTransactionsRoute =
     path: '/finances/transactions',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAppImportsIndexRoute =
-  AuthenticatedAppImportsIndexRouteImport.update({
-    id: '/imports/',
-    path: '/imports/',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
-const AuthenticatedAppImportsImportIdRoute =
-  AuthenticatedAppImportsImportIdRouteImport.update({
-    id: '/imports/$importId',
-    path: '/imports/$importId',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
 const AuthenticatedAppResourcesResourceIdRoute =
   AuthenticatedAppResourcesResourceIdRouteImport.update({
     id: '/$resourceId',
@@ -177,6 +166,24 @@ const AuthenticatedAppSettingsSectionRoute =
     id: '/$section',
     path: '/$section',
     getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppFinancesImportsIndexRoute =
+  AuthenticatedAppFinancesImportsIndexRouteImport.update({
+    id: '/finances/imports/',
+    path: '/finances/imports/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppFinancesImportsImportIdRoute =
+  AuthenticatedAppFinancesImportsImportIdRouteImport.update({
+    id: '/finances/imports/$importId',
+    path: '/finances/imports/$importId',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppFinancesImportsNewRoute =
+  AuthenticatedAppFinancesImportsNewRouteImport.update({
+    id: '/finances/imports/new',
+    path: '/finances/imports/new',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 const AuthenticatedAppSettingsSpacesSpaceIdRoute =
   AuthenticatedAppSettingsSpacesSpaceIdRouteImport.update({
@@ -233,12 +240,13 @@ export interface FileRoutesByFullPath {
   '/finances/budgets': typeof AuthenticatedAppFinancesBudgetsRoute
   '/finances/categories': typeof AuthenticatedAppFinancesCategoriesRoute
   '/finances/transactions': typeof AuthenticatedAppFinancesTransactionsRoute
-  '/imports/$importId': typeof AuthenticatedAppImportsImportIdRoute
   '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/finances/': typeof AuthenticatedAppFinancesIndexRoute
-  '/imports/': typeof AuthenticatedAppImportsIndexRoute
+  '/finances/imports/$importId': typeof AuthenticatedAppFinancesImportsImportIdRoute
+  '/finances/imports/new': typeof AuthenticatedAppFinancesImportsNewRoute
   '/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteWithChildren
+  '/finances/imports/': typeof AuthenticatedAppFinancesImportsIndexRoute
   '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
   '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
@@ -263,11 +271,12 @@ export interface FileRoutesByTo {
   '/finances/budgets': typeof AuthenticatedAppFinancesBudgetsRoute
   '/finances/categories': typeof AuthenticatedAppFinancesCategoriesRoute
   '/finances/transactions': typeof AuthenticatedAppFinancesTransactionsRoute
-  '/imports/$importId': typeof AuthenticatedAppImportsImportIdRoute
   '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/finances': typeof AuthenticatedAppFinancesIndexRoute
-  '/imports': typeof AuthenticatedAppImportsIndexRoute
+  '/finances/imports/$importId': typeof AuthenticatedAppFinancesImportsImportIdRoute
+  '/finances/imports/new': typeof AuthenticatedAppFinancesImportsNewRoute
+  '/finances/imports': typeof AuthenticatedAppFinancesImportsIndexRoute
   '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
   '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
@@ -296,12 +305,13 @@ export interface FileRoutesById {
   '/_authenticated/_app/finances/budgets': typeof AuthenticatedAppFinancesBudgetsRoute
   '/_authenticated/_app/finances/categories': typeof AuthenticatedAppFinancesCategoriesRoute
   '/_authenticated/_app/finances/transactions': typeof AuthenticatedAppFinancesTransactionsRoute
-  '/_authenticated/_app/imports/$importId': typeof AuthenticatedAppImportsImportIdRoute
   '/_authenticated/_app/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/_authenticated/_app/finances/': typeof AuthenticatedAppFinancesIndexRoute
-  '/_authenticated/_app/imports/': typeof AuthenticatedAppImportsIndexRoute
+  '/_authenticated/_app/finances/imports/$importId': typeof AuthenticatedAppFinancesImportsImportIdRoute
+  '/_authenticated/_app/finances/imports/new': typeof AuthenticatedAppFinancesImportsNewRoute
   '/_authenticated/_app/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteWithChildren
+  '/_authenticated/_app/finances/imports/': typeof AuthenticatedAppFinancesImportsIndexRoute
   '/_authenticated/_app/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/_authenticated/_app/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
   '/_authenticated/_app/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
@@ -328,12 +338,13 @@ export interface FileRouteTypes {
     | '/finances/budgets'
     | '/finances/categories'
     | '/finances/transactions'
-    | '/imports/$importId'
     | '/resources/$resourceId'
     | '/settings/$section'
     | '/finances/'
-    | '/imports/'
+    | '/finances/imports/$importId'
+    | '/finances/imports/new'
     | '/settings/spaces/$spaceId'
+    | '/finances/imports/'
     | '/settings/spaces/$spaceId/general'
     | '/settings/spaces/$spaceId/imports'
     | '/settings/spaces/$spaceId/members'
@@ -358,11 +369,12 @@ export interface FileRouteTypes {
     | '/finances/budgets'
     | '/finances/categories'
     | '/finances/transactions'
-    | '/imports/$importId'
     | '/resources/$resourceId'
     | '/settings/$section'
     | '/finances'
-    | '/imports'
+    | '/finances/imports/$importId'
+    | '/finances/imports/new'
+    | '/finances/imports'
     | '/settings/spaces/$spaceId/general'
     | '/settings/spaces/$spaceId/imports'
     | '/settings/spaces/$spaceId/members'
@@ -390,12 +402,13 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/finances/budgets'
     | '/_authenticated/_app/finances/categories'
     | '/_authenticated/_app/finances/transactions'
-    | '/_authenticated/_app/imports/$importId'
     | '/_authenticated/_app/resources/$resourceId'
     | '/_authenticated/_app/settings/$section'
     | '/_authenticated/_app/finances/'
-    | '/_authenticated/_app/imports/'
+    | '/_authenticated/_app/finances/imports/$importId'
+    | '/_authenticated/_app/finances/imports/new'
     | '/_authenticated/_app/settings/spaces/$spaceId'
+    | '/_authenticated/_app/finances/imports/'
     | '/_authenticated/_app/settings/spaces/$spaceId/general'
     | '/_authenticated/_app/settings/spaces/$spaceId/imports'
     | '/_authenticated/_app/settings/spaces/$spaceId/members'
@@ -562,20 +575,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppFinancesTransactionsRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/_app/imports/': {
-      id: '/_authenticated/_app/imports/'
-      path: '/imports'
-      fullPath: '/imports/'
-      preLoaderRoute: typeof AuthenticatedAppImportsIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/_app/imports/$importId': {
-      id: '/_authenticated/_app/imports/$importId'
-      path: '/imports/$importId'
-      fullPath: '/imports/$importId'
-      preLoaderRoute: typeof AuthenticatedAppImportsImportIdRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
     '/_authenticated/_app/resources/$resourceId': {
       id: '/_authenticated/_app/resources/$resourceId'
       path: '/$resourceId'
@@ -589,6 +588,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/$section'
       preLoaderRoute: typeof AuthenticatedAppSettingsSectionRouteImport
       parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/_app/finances/imports/': {
+      id: '/_authenticated/_app/finances/imports/'
+      path: '/finances/imports'
+      fullPath: '/finances/imports/'
+      preLoaderRoute: typeof AuthenticatedAppFinancesImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/finances/imports/$importId': {
+      id: '/_authenticated/_app/finances/imports/$importId'
+      path: '/finances/imports/$importId'
+      fullPath: '/finances/imports/$importId'
+      preLoaderRoute: typeof AuthenticatedAppFinancesImportsImportIdRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/finances/imports/new': {
+      id: '/_authenticated/_app/finances/imports/new'
+      path: '/finances/imports/new'
+      fullPath: '/finances/imports/new'
+      preLoaderRoute: typeof AuthenticatedAppFinancesImportsNewRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/settings/spaces/$spaceId': {
       id: '/_authenticated/_app/settings/spaces/$spaceId'
@@ -719,9 +739,10 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppFinancesBudgetsRoute: typeof AuthenticatedAppFinancesBudgetsRoute
   AuthenticatedAppFinancesCategoriesRoute: typeof AuthenticatedAppFinancesCategoriesRoute
   AuthenticatedAppFinancesTransactionsRoute: typeof AuthenticatedAppFinancesTransactionsRoute
-  AuthenticatedAppImportsImportIdRoute: typeof AuthenticatedAppImportsImportIdRoute
   AuthenticatedAppFinancesIndexRoute: typeof AuthenticatedAppFinancesIndexRoute
-  AuthenticatedAppImportsIndexRoute: typeof AuthenticatedAppImportsIndexRoute
+  AuthenticatedAppFinancesImportsImportIdRoute: typeof AuthenticatedAppFinancesImportsImportIdRoute
+  AuthenticatedAppFinancesImportsNewRoute: typeof AuthenticatedAppFinancesImportsNewRoute
+  AuthenticatedAppFinancesImportsIndexRoute: typeof AuthenticatedAppFinancesImportsIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
@@ -737,9 +758,13 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
     AuthenticatedAppFinancesCategoriesRoute,
   AuthenticatedAppFinancesTransactionsRoute:
     AuthenticatedAppFinancesTransactionsRoute,
-  AuthenticatedAppImportsImportIdRoute: AuthenticatedAppImportsImportIdRoute,
   AuthenticatedAppFinancesIndexRoute: AuthenticatedAppFinancesIndexRoute,
-  AuthenticatedAppImportsIndexRoute: AuthenticatedAppImportsIndexRoute,
+  AuthenticatedAppFinancesImportsImportIdRoute:
+    AuthenticatedAppFinancesImportsImportIdRoute,
+  AuthenticatedAppFinancesImportsNewRoute:
+    AuthenticatedAppFinancesImportsNewRoute,
+  AuthenticatedAppFinancesImportsIndexRoute:
+    AuthenticatedAppFinancesImportsIndexRoute,
 }
 
 const AuthenticatedAppRouteRouteWithChildren =

@@ -206,7 +206,7 @@ function TransactionsPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
                 <DropdownMenuItem asChild>
-                  <Link to='/imports'>
+                  <Link to='/finances/imports'>
                     <Upload /> Import CSV
                   </Link>
                 </DropdownMenuItem>

@@ -46,7 +46,7 @@ export const mainNavGroups = [
       { icon: ReceiptTextIcon, isActive: true, title: 'Transactions', url: '/finances/transactions' },
       { icon: LandmarkIcon, isActive: true, title: 'Accounts', url: '/finances/accounts' },
       { icon: TagsIcon, isActive: true, title: 'Categories', url: '/finances/categories' },
-      { icon: UploadIcon, isActive: true, title: 'Imports', url: '/imports' },
+      { icon: UploadIcon, isActive: true, title: 'Imports', url: '/finances/imports' },
     ],
   },
 ] satisfies MainNavGroup[];

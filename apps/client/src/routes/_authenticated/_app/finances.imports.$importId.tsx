@@ -7,8 +7,8 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
-/** `/imports/$importId`: the steps of one import, from column mapping to review. */
-export const Route = createFileRoute('/_authenticated/_app/imports/$importId')({
+/** `/finances/imports/$importId`: the steps of one import, from column mapping to review. */
+export const Route = createFileRoute('/_authenticated/_app/finances/imports/$importId')({
   component: ImportPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loader: async ({ context: { queryClient }, params }) => {
@@ -24,9 +24,5 @@ function ImportPage() {
   useSetSiteHeader('Import');
   const { importId } = Route.useParams();
 
-  return (
-    <div className='pt-10'>
-      <ImportDetail importId={importId} />
-    </div>
-  );
+  return <ImportDetail key={importId} importId={importId} />;
 }

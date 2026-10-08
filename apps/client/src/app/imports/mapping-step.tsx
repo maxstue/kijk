@@ -71,7 +71,7 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Check the columns</CardTitle>
+        <CardTitle>Column preview</CardTitle>
         <CardDescription>
           {proposalDescriptions[job.proposedMappingSource ?? 'None']} Confirmed mappings are remembered for the next
           export of this bank.
@@ -83,7 +83,12 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
         )}
       </CardHeader>
       <CardContent className='space-y-6'>
-        <FormatOptions mapping={mapping} recordCount={Number(preview.recordCount)} onChange={onChange} />
+        <details className='rounded-lg border p-4'>
+          <summary className='cursor-pointer text-sm font-medium'>Adjust file format</summary>
+          <div className='pt-4'>
+            <FormatOptions mapping={mapping} recordCount={Number(preview.recordCount)} onChange={onChange} />
+          </div>
+        </details>
         <div className={updating ? 'opacity-60' : undefined}>
           <Table>
             <TableHeader>
@@ -115,10 +120,10 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
           </Table>
         </div>
       </CardContent>
-      <CardFooter className='justify-end gap-2'>
+      <CardFooter className='flex-wrap justify-end gap-3 border-t pt-4'>
         {missing && <span className='text-muted-foreground text-sm'>{missing}</span>}
         <Button disabled={Boolean(missing) || confirmMutation.isPending || updating} onClick={onConfirm}>
-          {confirmMutation.isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Read the file'}
+          {confirmMutation.isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Continue to review'}
         </Button>
       </CardFooter>
     </Card>
@@ -162,7 +167,7 @@ function FormatOptions({ mapping, onChange, recordCount }: FormatOptionsProps) {
   const headerId = useId();
 
   return (
-    <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-5'>
+    <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
       <OptionSelect
         label='Delimiter'
         options={delimiters}

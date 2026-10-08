@@ -1,12 +1,12 @@
 import { Button } from '@kijk/ui/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import { Card, CardContent } from '@kijk/ui/components/card';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Label } from '@kijk/ui/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { Upload } from 'lucide-react';
 import { useId, useState } from 'react';
 import { toast } from 'sonner';
@@ -50,7 +50,7 @@ export function ImportUploadForm() {
         { accountId, file: selected },
         {
           onError: (error) => toast.error(error.name, { description: error.message }),
-          onSuccess: (job) => void navigate({ params: { importId: job.id }, to: '/imports/$importId' }),
+          onSuccess: (job) => void navigate({ params: { importId: job.id }, to: '/finances/imports/$importId' }),
         },
       );
     if (hasConsent) {
@@ -71,22 +71,20 @@ export function ImportUploadForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Import a bank export</CardTitle>
-        <CardDescription>
-          Upload the CSV export of a bank account. Each month the file covers completely replaces that account&apos;s
-          transactions of the month, so importing overlapping exports never counts anything twice.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className='pt-6'>
         {bankAccounts.length === 0 ? (
-          <p className='text-muted-foreground text-sm'>Add a bank account on the transactions page first.</p>
+          <p className='text-muted-foreground text-sm'>
+            <Link className='underline underline-offset-4' to='/finances/accounts'>
+              Add a bank account
+            </Link>{' '}
+            before starting an import.
+          </p>
         ) : (
-          <form className='grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end' onSubmit={onSubmit}>
+          <form className='grid gap-6' onSubmit={onSubmit}>
             <div className='grid gap-2'>
               <Label>Bank account</Label>
               <Select value={accountId} onValueChange={setAccountId}>
-                <SelectTrigger className='w-full'>
+                <SelectTrigger aria-label='Bank account' className='w-full'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -101,6 +99,9 @@ export function ImportUploadForm() {
             </div>
             <div className='grid gap-2'>
               <Label htmlFor={fileId}>CSV file</Label>
+              <p className='text-muted-foreground text-xs'>
+                Choose the CSV export downloaded from your bank. Maximum 5 MB.
+              </p>
               <Input
                 accept='.csv,text/csv'
                 id={fileId}
@@ -108,11 +109,8 @@ export function ImportUploadForm() {
                 onChange={(event) => setFile(event.target.files?.[0])}
               />
             </div>
-            <Button disabled={!canImport || !file || (!hasConsent && !consentChecked) || isPending} type='submit'>
-              {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : <Upload />} Upload
-            </Button>
             {hasConsent ? null : (
-              <div className='flex items-start gap-3 rounded border p-4 sm:col-span-3'>
+              <div className='flex items-start gap-3 rounded border p-4'>
                 <Checkbox
                   checked={consentChecked}
                   id={consentId}
@@ -134,6 +132,13 @@ export function ImportUploadForm() {
                 </Label>
               </div>
             )}
+            <div className='flex flex-wrap items-center justify-between gap-4 border-t pt-4'>
+              <p className='text-muted-foreground text-sm'>You review the transactions before saving.</p>
+              <Button disabled={!canImport || !file || (!hasConsent && !consentChecked) || isPending} type='submit'>
+                {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : <Upload />}
+                {isPending ? 'Uploading…' : 'Continue to columns'}
+              </Button>
+            </div>
           </form>
         )}
       </CardContent>

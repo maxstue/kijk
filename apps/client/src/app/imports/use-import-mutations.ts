@@ -8,7 +8,6 @@ import {
   createImportMutationOptions,
   updateImportAiPreviewItemMutationOptions,
   updateImportCandidateMutationOptions,
-  updateImportSettingsMutationOptions,
 } from '@/shared/api/imports/options';
 import { queryKeys } from '@/shared/api/query-keys';
 import { updateUserMutationOptions } from '@/shared/api/users/options';
@@ -86,28 +85,13 @@ export function useCancelImport(id: string) {
   });
 }
 
-/** Changes the import settings and refreshes them. */
-export function useUpdateImportSettings() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    ...updateImportSettingsMutationOptions(),
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.imports.settings() });
-    },
-  });
-}
-
 /** Starts the AI categorization of an import and refreshes it and its rows. */
 export function useCategorizeImport(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     ...categorizeImportMutationOptions(id),
     async onSuccess() {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.imports.detail(id) }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(id) }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(id) }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.imports.detail(id) });
     },
   });
 }

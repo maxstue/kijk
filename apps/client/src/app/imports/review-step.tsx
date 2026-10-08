@@ -1,16 +1,16 @@
 import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Checkbox } from '@kijk/ui/components/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Label } from '@kijk/ui/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { CreditCard, Sparkles, TriangleAlert } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ImportAiCategorization } from '@/app/imports/ai-preview';
@@ -19,16 +19,36 @@ import { useCancelImport, useCommitImport, useUpdateImportCandidate } from '@/ap
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { importCandidatesQueryOptions } from '@/shared/api/imports/options';
 import type { ImportCandidate, ImportJob } from '@/shared/api/imports/types';
+import { queryKeys } from '@/shared/api/query-keys';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 const shownRows = 300;
 const uncategorized = 'none';
 
 /** Step that shows what the import will change and commits it. */
-export function ImportReviewStep({ job }: { job: ImportJob }) {
+export function ImportReviewStep({
+  job,
+  stage,
+  onStageChange,
+}: {
+  job: ImportJob;
+  stage: 'months' | 'review';
+  onStageChange: (stage: 'months' | 'review') => void;
+}) {
   const { data: candidates } = useSuspenseQuery(importCandidatesQueryOptions(job.id));
+  const queryClient = useQueryClient();
+  const previousStatus = useRef(job.status);
+  useEffect(() => {
+    if (previousStatus.current === 'Categorizing' && job.status === 'NeedsReview') {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(job.id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(job.id) });
+    }
+    previousStatus.current = job.status;
+  }, [job.id, job.status, queryClient]);
+
   const [includedEdgeMonths, setIncludedEdgeMonths] = useState<string[]>([]);
   const [acceptErrors, setAcceptErrors] = useState(false);
+  const [showAiPreview, setShowAiPreview] = useState(false);
   const commitMutation = useCommitImport(job.id);
   const cancelMutation = useCancelImport(job.id);
   const acceptErrorsId = useId();
@@ -38,6 +58,8 @@ export function ImportReviewStep({ job }: { job: ImportJob }) {
   const valid = candidates.filter((candidate) => candidate.errors === null);
   const invalid = candidates.filter((candidate) => candidate.errors !== null);
   const importedCount = valid.filter((candidate) => !candidate.excluded && months.has(monthOf(candidate))).length;
+  const isPending = commitMutation.isPending || cancelMutation.isPending || job.status === 'Categorizing';
+  const cannotCommit = (job.hasHighErrorRate && !acceptErrors) || months.size === 0;
 
   function toggleEdgeMonth(month: string, checked: boolean) {
     setIncludedEdgeMonths((previous) => (checked ? [...previous, month] : previous.filter((item) => item !== month)));
@@ -53,21 +75,172 @@ export function ImportReviewStep({ job }: { job: ImportJob }) {
     );
   }
 
+  if (stage === 'months') {
+    return (
+      <MonthSelection
+        job={job}
+        included={included}
+        months={months}
+        isPending={isPending}
+        onToggle={toggleEdgeMonth}
+        onCancel={() => cancelMutation.mutate()}
+        onContinue={() => onStageChange('review')}
+      />
+    );
+  }
+
+  return (
+    <div className='space-y-4'>
+      <div aria-label='Import actions' className='bg-background @container sticky top-12 z-20 border-b py-3 shadow-sm'>
+        <div className='grid items-center gap-3 @lg:grid-cols-[minmax(0,1fr)_auto]'>
+          <div className='min-w-0 space-y-1' aria-live='polite'>
+            <p className='text-sm font-medium'>
+              <span className='inline-block min-w-[4ch] tabular-nums'>{importedCount}</span> transactions ready to
+              import
+            </p>
+            <p className='text-muted-foreground min-h-8 text-xs leading-4'>{getReviewHint(job, acceptErrors)}</p>
+          </div>
+          <div className='flex gap-2'>
+            <Button disabled={isPending} variant='outline' onClick={() => onStageChange('months')}>
+              Back
+            </Button>
+            <Button className='flex-1 @lg:flex-none' disabled={isPending || cannotCommit} onClick={onCommit}>
+              {commitMutation.isPending && <SpinnerIcon className='size-5 animate-spin' />}
+              {commitMutation.isPending ? 'Saving import…' : 'Save import'}
+            </Button>
+          </div>
+        </div>
+      </div>
+      <section className='rounded-lg border' aria-label='Transactions to import'>
+        <div className='flex flex-wrap items-center justify-between gap-3 p-4'>
+          <div className='space-y-1'>
+            <h3 className='text-sm font-medium'>{[...months].sort().map(formatImportMonth).join(', ')}</h3>
+            <p className='text-muted-foreground text-xs'>
+              Untick a transaction to leave it out. Choose a category if needed.
+            </p>
+          </div>
+          <Button size='sm' variant='outline' disabled={isPending} onClick={() => setShowAiPreview(true)}>
+            <Sparkles className='size-4' /> Suggest categories
+          </Button>
+        </div>
+        {invalid.length > 0 && (
+          <Alert className='mx-4 mb-4 w-auto' variant={job.hasHighErrorRate ? 'destructive' : 'default'}>
+            <TriangleAlert />
+            <AlertTitle>{invalid.length} rows could not be read and will not be imported</AlertTitle>
+            <AlertDescription>
+              <details className='mt-1'>
+                <summary className='cursor-pointer'>Show unreadable rows</summary>
+                <ul className='mt-2 list-disc pl-4'>
+                  {invalid.slice(0, 10).map((candidate) => (
+                    <li key={candidate.id}>
+                      Row {candidate.rowNumber}: {candidate.errors}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+              {job.hasHighErrorRate && (
+                <div className='mt-3 flex items-center gap-2'>
+                  <Checkbox
+                    checked={acceptErrors}
+                    id={acceptErrorsId}
+                    onCheckedChange={(checked) => setAcceptErrors(checked === true)}
+                  />
+                  <Label htmlFor={acceptErrorsId}>Import the readable rows anyway</Label>
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+        <div className='relative' aria-busy={job.status === 'Categorizing'}>
+          <div inert={job.status === 'Categorizing'}>
+            <CardSettlements
+              candidates={valid.filter((candidate) => months.has(monthOf(candidate)))}
+              importId={job.id}
+            />
+            <CandidateTable
+              candidates={valid.filter((candidate) => months.has(monthOf(candidate)))}
+              importId={job.id}
+              months={months}
+            />
+          </div>
+          {job.status === 'Categorizing' && (
+            <div
+              role='status'
+              aria-label='Suggesting categories'
+              className='bg-background/80 absolute inset-0 z-10 backdrop-blur-[1px]'
+            >
+              <div className='bg-popover sticky top-40 mx-auto flex w-fit max-w-[calc(100%-2rem)] flex-col items-center gap-2 rounded-lg border p-5 text-center shadow-sm'>
+                <SpinnerIcon className='size-6 animate-spin' />
+                <p className='text-sm font-medium'>Suggesting categories…</p>
+                <p className='text-muted-foreground text-xs'>
+                  Please wait. Your transactions will update automatically.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+      <Dialog open={showAiPreview} onOpenChange={setShowAiPreview}>
+        <DialogContent className='sm:max-w-3xl'>
+          <DialogHeader>
+            <DialogTitle>Suggest categories automatically</DialogTitle>
+            <DialogDescription>
+              Check the shared texts, then start. The suggestions will appear in your transaction list for you to
+              review.
+            </DialogDescription>
+          </DialogHeader>
+          <ImportAiCategorization job={job} onStarted={() => setShowAiPreview(false)} />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function getReviewHint(job: ImportJob, acceptErrors: boolean) {
+  if (job.status === 'Categorizing') {
+    return 'Suggesting categories. Your selection is kept while you wait.';
+  }
+  if (job.hasHighErrorRate && !acceptErrors) {
+    return 'Confirm below that you want to skip the unreadable rows.';
+  }
+  if (job.aiCategorizationUnavailable) {
+    return 'Some categories could not be suggested. Choose them or try again.';
+  }
+  if (Number(job.aiCategorizedCount) > 0) {
+    return `${Number(job.aiCategorizedCount)} category suggestions ready. Check the Category column.`;
+  }
+  return 'Check the transactions below, then save to finish.';
+}
+
+function MonthSelection({
+  job,
+  included,
+  months,
+  isPending,
+  onToggle,
+  onCancel,
+  onContinue,
+}: {
+  job: ImportJob;
+  included: Set<string>;
+  months: Set<string>;
+  isPending: boolean;
+  onToggle: (month: string, checked: boolean) => void;
+  onCancel: () => void;
+  onContinue: () => void;
+}) {
   return (
     <div className='space-y-6'>
-      <Card>
-        <CardHeader>
-          <CardTitle>Months</CardTitle>
-          <CardDescription>
-            The file replaces all transactions of <strong>{job.accountName}</strong> in the chosen months. Include the
-            first and last month only if the export covers them completely.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='space-y-2'>
+      <section aria-label='Months to import' className='space-y-4'>
+        <p className='text-muted-foreground text-sm'>
+          Saving replaces previously imported transactions in the selected months. Manually added transactions stay.
+        </p>
+        <div className='space-y-3'>
           {job.fullMonths.map((month) => (
-            <div key={month} className='flex items-center gap-2 text-sm'>
-              <Checkbox checked disabled /> {formatImportMonth(month)}{' '}
-              <span className='text-muted-foreground'>covered completely</span>
+            <div key={month} className='flex items-center gap-3 rounded-md border px-4 py-4 text-sm'>
+              <Checkbox checked disabled aria-label={`${formatImportMonth(month)} included`} />
+              <span className='flex-1 font-medium'>{formatImportMonth(month)}</span>
+              <span className='text-muted-foreground text-xs'>Complete month · included</span>
             </div>
           ))}
           {job.edgeMonths.map((month) => (
@@ -75,49 +248,22 @@ export function ImportReviewStep({ job }: { job: ImportJob }) {
               key={month}
               checked={included.has(month)}
               month={month}
-              onCheckedChange={(checked) => toggleEdgeMonth(month, checked)}
+              onCheckedChange={(checked) => onToggle(month, checked)}
             />
           ))}
-        </CardContent>
-      </Card>
-      {invalid.length > 0 && (
-        <Alert variant={job.hasHighErrorRate ? 'destructive' : 'default'}>
-          <TriangleAlert />
-          <AlertTitle>{invalid.length} rows could not be read and will not be imported</AlertTitle>
-          <AlertDescription>
-            <ul className='mt-1 list-disc pl-4'>
-              {invalid.slice(0, 10).map((candidate) => (
-                <li key={candidate.id}>
-                  Row {candidate.rowNumber}: {candidate.errors}
-                </li>
-              ))}
-            </ul>
-            {job.hasHighErrorRate && (
-              <div className='mt-3 flex items-center gap-2'>
-                <Checkbox
-                  checked={acceptErrors}
-                  id={acceptErrorsId}
-                  onCheckedChange={(checked) => setAcceptErrors(checked === true)}
-                />
-                <Label htmlFor={acceptErrorsId}>Import the readable rows anyway</Label>
-              </div>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-      <CardSettlements candidates={valid} importId={job.id} />
-      <ImportAiCategorization job={job} />
-      <CandidateTable candidates={valid} importId={job.id} months={months} />
-      <div className='flex flex-wrap items-center justify-end gap-2'>
-        <span className='text-muted-foreground text-sm'>{importedCount} transactions will be imported</span>
-        <Button disabled={cancelMutation.isPending} variant='outline' onClick={() => cancelMutation.mutate()}>
+        </div>
+        <p className='text-muted-foreground min-h-10 text-sm' aria-live='polite'>
+          {months.size === 0
+            ? 'Select at least one month to continue.'
+            : `${months.size} ${months.size === 1 ? 'month' : 'months'} selected. You can check the transactions next.`}
+        </p>
+      </section>
+      <div className='flex items-center justify-between gap-3 border-t pt-5'>
+        <Button disabled={isPending} variant='ghost' onClick={() => onCancel()}>
           Cancel import
         </Button>
-        <Button
-          disabled={commitMutation.isPending || (job.hasHighErrorRate && !acceptErrors) || months.size === 0}
-          onClick={onCommit}
-        >
-          {commitMutation.isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Import'}
+        <Button disabled={isPending || months.size === 0} onClick={() => onContinue()}>
+          Continue to review
         </Button>
       </div>
     </div>
@@ -132,15 +278,15 @@ function CardSettlements({ candidates, importId }: { candidates: ImportCandidate
   }
 
   return (
-    <Alert>
-      <CreditCard />
-      <AlertTitle>
+    <details className='border-t px-4 py-3'>
+      <summary className='cursor-pointer text-sm font-medium'>
+        <CreditCard className='mr-2 inline size-4' />
         {statements.length === 1
           ? 'A credit card statement was found'
           : `${statements.length} credit card statements were found`}
-      </AlertTitle>
-      <AlertDescription>
-        <p>
+      </summary>
+      <div className='space-y-3 pt-3 text-sm'>
+        <p className='text-muted-foreground'>
           If you import the single purchases of the card separately, tick the statement so it only offsets them and is
           not counted twice. Otherwise leave it unticked and it counts as an expense.
         </p>
@@ -149,8 +295,8 @@ function CardSettlements({ candidates, importId }: { candidates: ImportCandidate
             <CardSettlementOption key={statement.id} candidate={statement} importId={importId} />
           ))}
         </div>
-      </AlertDescription>
-    </Alert>
+      </div>
+    </details>
   );
 }
 
@@ -196,12 +342,28 @@ function EdgeMonth({
 }) {
   const id = useId();
   return (
-    <div className='flex items-center gap-2 text-sm'>
-      <Checkbox checked={checked} id={id} onCheckedChange={(value) => onCheckedChange(value === true)} />
-      <Label htmlFor={id}>
-        {formatImportMonth(month)} <span className='text-muted-foreground font-normal'>may be covered only partly</span>
-      </Label>
-    </div>
+    <Label
+      htmlFor={id}
+      className={cn(
+        'flex w-full cursor-pointer items-center gap-3 rounded-md border px-4 py-4 text-sm',
+        checked ? 'border-primary/40 bg-primary/5' : 'border-amber-500/50 bg-amber-500/5',
+      )}
+    >
+      <Checkbox
+        aria-label={`Confirm complete export for ${formatImportMonth(month)}`}
+        checked={checked}
+        id={id}
+        onCheckedChange={(value) => onCheckedChange(value === true)}
+      />
+      <span className='space-y-1'>
+        <span className='block'>
+          {formatImportMonth(month)} <span className='text-muted-foreground font-normal'>· needs confirmation</span>
+        </span>
+        <span className='text-muted-foreground block text-xs font-normal'>
+          I confirm the export covers the complete month
+        </span>
+      </span>
+    </Label>
   );
 }
 
@@ -215,42 +377,35 @@ function CandidateTable({
   months: Set<string>;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Transactions</CardTitle>
-        <CardDescription>
-          Categories come from your earlier corrections, remembered merchants and, if you allow it, the AI.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className='w-10'>Import</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Counterparty</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead className='text-right'>Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {candidates.slice(0, shownRows).map((candidate) => (
-              <CandidateRow
-                key={candidate.id}
-                candidate={candidate}
-                importId={importId}
-                inMonth={months.has(monthOf(candidate))}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
+    <div className='border-t'>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className='w-10'>Import</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Counterparty</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead className='text-right'>Amount</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {candidates.slice(0, shownRows).map((candidate) => (
+            <CandidateRow
+              key={candidate.id}
+              candidate={candidate}
+              importId={importId}
+              inMonth={months.has(monthOf(candidate))}
+            />
+          ))}
+        </TableBody>
+      </Table>
       {candidates.length > shownRows && (
-        <CardFooter className='text-muted-foreground text-sm'>
-          Showing the first {shownRows} of {candidates.length} rows; all of them are imported.
-        </CardFooter>
+        <p className='text-muted-foreground border-t px-4 py-3 text-xs'>
+          Showing the first {shownRows} of {candidates.length} rows. Saving includes all selected transactions in the
+          chosen months.
+        </p>
       )}
-    </Card>
+    </div>
   );
 }
 

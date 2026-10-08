@@ -3,28 +3,92 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk
 import { Progress } from '@kijk/ui/components/progress';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
 
 import { formatImportMonth } from '@/app/imports/helpers';
 import { ImportMappingStep } from '@/app/imports/mapping-step';
 import { ImportReviewStep } from '@/app/imports/review-step';
 import { ImportStatusBadge } from '@/app/imports/status-badge';
+import { ImportWizard } from '@/app/imports/wizard';
 import { importQueryOptions, isImportProcessing } from '@/shared/api/imports/options';
 import type { ImportJob } from '@/shared/api/imports/types';
+
+const stepTitles: Record<ImportJob['status'], string> = {
+  Pending: 'Preparing your file',
+  Analyzing: 'Detecting the columns',
+  NeedsMapping: 'Check your columns',
+  Reading: 'Preparing your transactions',
+  NeedsReview: 'Review and save your import',
+  Categorizing: 'Suggesting categories',
+  Done: 'Import complete',
+  Cancelled: 'Import cancelled',
+  Failed: 'Import failed',
+};
 
 /** An import with the step that matches its state. */
 export function ImportDetail({ importId }: { importId: string }) {
   const { data: job } = useSuspenseQuery(importQueryOptions(importId));
 
+  const [reviewStage, setReviewStage] = useState<'months' | 'review'>('months');
+  const isReview = job.status === 'NeedsReview' || job.status === 'Categorizing';
+
   return (
-    <div className='space-y-6'>
-      <div className='flex flex-wrap items-center gap-3'>
-        <h2 className='text-2xl font-bold tracking-tight'>{job.fileName}</h2>
-        <ImportStatusBadge status={job.status} />
-        <span className='text-muted-foreground'>into {job.accountName}</span>
-      </div>
-      <ImportStep job={job} />
-    </div>
+    <ImportWizard
+      {...getStepPresentation(job.status, reviewStage)}
+      context={
+        <>
+          <span className='font-medium'>{job.accountName}</span>
+          <span className='text-muted-foreground min-w-0 flex-1 break-all'>{job.fileName}</span>
+          <ImportStatusBadge status={job.status} />
+        </>
+      }
+    >
+      {isReview ? (
+        <ImportReviewStep key={job.id} job={job} stage={reviewStage} onStageChange={setReviewStage} />
+      ) : (
+        <ImportStep job={job} />
+      )}
+    </ImportWizard>
   );
+}
+
+function getStepPresentation(status: ImportJob['status'], stage: 'months' | 'review') {
+  switch (status) {
+    case 'NeedsReview':
+    case 'Categorizing':
+      return stage === 'months'
+        ? {
+            title: 'Which months do you want to import?',
+            description: 'Confirm that your bank export covers each selected month in full.',
+            currentStep: 2,
+          }
+        : {
+            title: 'Check and save your transactions',
+            description: 'This is the final step. Nothing is saved until you select Save import.',
+            currentStep: 3,
+          };
+    case 'NeedsMapping':
+      return {
+        title: stepTitles[status],
+        description: 'Match the columns to the sample rows. Continue when the date and amount are correct.',
+        currentStep: 1,
+      };
+    case 'Done':
+      return {
+        title: stepTitles[status],
+        description: 'Your transactions have been saved. You can now find them in your account.',
+        currentStep: 4,
+      };
+    case 'Cancelled':
+    case 'Failed':
+      return { title: stepTitles[status], description: 'You can start again with a new bank export.' };
+    default:
+      return {
+        title: stepTitles[status],
+        description: 'Follow the progress of your bank export here.',
+        currentStep: status === 'Reading' ? 2 : 1,
+      };
+  }
 }
 
 function ImportStep({ job }: { job: ImportJob }) {
@@ -34,8 +98,6 @@ function ImportStep({ job }: { job: ImportJob }) {
   switch (job.status) {
     case 'NeedsMapping':
       return <ImportMappingStep key={job.id} initialMapping={job.proposedMapping} job={job} />;
-    case 'NeedsReview':
-      return <ImportReviewStep job={job} />;
     case 'Done':
       return <DoneCard job={job} />;
     default:
@@ -106,7 +168,7 @@ function ClosedCard({ job }: { job: ImportJob }) {
       </CardHeader>
       <CardContent>
         <Button asChild variant='outline'>
-          <Link to='/imports'>Back to imports</Link>
+          <Link to='/finances/imports'>Back to imports</Link>
         </Button>
       </CardContent>
     </Card>

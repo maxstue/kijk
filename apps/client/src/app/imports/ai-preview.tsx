@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -7,23 +6,18 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { Sparkles, TriangleAlert } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { useCategorizeImport, useUpdateImportAiPreviewItem } from '@/app/imports/use-import-mutations';
-import { importAiPreviewQueryOptions, importSettingsQueryOptions } from '@/shared/api/imports/options';
+import { useCategorizeImport } from '@/app/imports/use-import-mutations';
+import { importAiPreviewQueryOptions } from '@/shared/api/imports/options';
 import type { AiPreviewItem, ImportJob } from '@/shared/api/imports/types';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 
-/**
- * AI categorization of an import: shows exactly what would be sent, lets the user deselect texts and starts it. Only a
- * hint while the user has not turned AI on; collapsed when the space's default is Off.
- */
-export function ImportAiCategorization({ job }: { job: ImportJob }) {
+/** Lets the user check and exclude shared texts before requesting category suggestions. */
+export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
   const { data: currentUser } = useQuery(currentUserQueryOptions());
-  const { data: settings } = useQuery(importSettingsQueryOptions());
-  const [opened, setOpened] = useState(false);
   if (!currentUser?.user) {
     return null;
   }
@@ -34,59 +28,17 @@ export function ImportAiCategorization({ job }: { job: ImportJob }) {
       </p>
     );
   }
-
-  const categorizedCount = Number(job.aiCategorizedCount);
-  return (
-    <div className='space-y-4'>
-      {job.aiCategorizationUnavailable && (
-        <Alert variant='destructive'>
-          <TriangleAlert />
-          <AlertTitle>The AI could not suggest all categories</AlertTitle>
-          <AlertDescription>
-            Nothing was lost. Import the rows as they are and add categories later, or send them again.
-          </AlertDescription>
-        </Alert>
-      )}
-      {!job.aiCategorizationUnavailable && categorizedCount > 0 && (
-        <Alert>
-          <Sparkles />
-          <AlertTitle>The AI suggested {categorizedCount} categories</AlertTitle>
-          <AlertDescription>
-            Suggestions are marked in the table and never replace a category you chose.
-          </AlertDescription>
-        </Alert>
-      )}
-      {opened || settings?.aiDataSharing === 'Strict' ? (
-        <AiPreviewCard job={job} />
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className='flex items-center gap-2'>
-              <Sparkles className='size-4' /> Suggest categories with the AI
-            </CardTitle>
-            <CardDescription>
-              AI categorization is off for this space. You can still use it for this import and check first what would
-              be sent.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Button size='sm' variant='outline' onClick={() => setOpened(true)}>
-              Show what would be sent
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-    </div>
-  );
+  return <AiPreviewCard job={job} onStarted={onStarted} />;
 }
 
-function AiPreviewCard({ job }: { job: ImportJob }) {
+function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
   const { data, isPending } = useQuery(importAiPreviewQueryOptions(job.id));
   const categorizeMutation = useCategorizeImport(job.id);
+  const [selection, setSelection] = useState<Record<string, boolean>>({});
 
   if (isPending || !data) {
     return (
-      <Card>
+      <Card className='min-w-0'>
         <CardContent className='flex justify-center py-8'>
           <SpinnerIcon className='size-5 animate-spin' />
         </CardContent>
@@ -94,37 +46,37 @@ function AiPreviewCard({ job }: { job: ImportJob }) {
     );
   }
 
-  const selected = data.items.filter((item) => !item.excluded);
+  const selected = data.items.filter((item) => selection[item.key] ?? !item.excluded);
   const selectedRows = selected.reduce((sum, item) => sum + Number(item.rowCount), 0);
   const withheld = Number(data.withheldRows);
 
   function onSend() {
     categorizeMutation.mutate(
-      { aiDataSharing: 'Strict' },
+      { aiDataSharing: 'Strict', selectedTextKeys: selected.map((item) => item.key) },
       {
         onError: (error) => toast.error(error.name, { description: error.message }),
-        onSuccess: () => toast.success('The AI is suggesting categories'),
+        onSuccess: () => onStarted?.(),
       },
     );
   }
 
   return (
-    <Card>
+    <Card className='min-w-0'>
       <CardHeader>
         <CardTitle className='flex items-center gap-2'>
           <Sparkles className='size-4' /> What the AI would see
         </CardTitle>
         <CardDescription>
-          Exactly these texts are sent for rows without a category, each text only once. IBANs, reference numbers,
-          e-mail addresses and names of private persons are replaced; amounts, dates and accounts stay here. Names
-          cannot be recognized with certainty, so deselect anything you want to keep private.
+          The AI suggests categories for uncategorized transactions. Check the texts below before sharing them. IBANs,
+          reference numbers, e-mail addresses and names of private persons are replaced; amounts, dates and accounts
+          stay here. Names cannot be recognized with certainty, so deselect anything you want to keep private.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {data.items.length === 0 ? (
           <p className='text-muted-foreground text-sm'>Every row already has a category; nothing would be sent.</p>
         ) : (
-          <div className='max-h-96 overflow-y-auto'>
+          <div className='max-h-96 min-w-0 overflow-auto'>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -136,7 +88,13 @@ function AiPreviewCard({ job }: { job: ImportJob }) {
               </TableHeader>
               <TableBody>
                 {data.items.map((item) => (
-                  <AiPreviewRow key={item.key} importId={job.id} item={item} />
+                  <AiPreviewRow
+                    key={item.key}
+                    item={item}
+                    checked={selection[item.key] ?? !item.excluded}
+                    disabled={categorizeMutation.isPending || job.status === 'Categorizing'}
+                    onCheckedChange={(checked) => setSelection((previous) => ({ ...previous, [item.key]: checked }))}
+                  />
                 ))}
               </TableBody>
             </Table>
@@ -148,35 +106,36 @@ function AiPreviewCard({ job }: { job: ImportJob }) {
           {selected.length} texts for {selectedRows} rows
           {withheld > 0 && ` · ${withheld} rows withheld because nothing useful remains after cleaning`}
         </span>
-        <Button disabled={categorizeMutation.isPending || selected.length === 0} size='sm' onClick={onSend}>
-          {categorizeMutation.isPending ? (
-            <SpinnerIcon className='size-4 animate-spin' />
-          ) : (
-            `Send ${selected.length} texts to the AI`
-          )}
+        <Button
+          disabled={categorizeMutation.isPending || job.status === 'Categorizing' || selected.length === 0}
+          size='sm'
+          onClick={onSend}
+        >
+          {categorizeMutation.isPending ? <SpinnerIcon className='size-4 animate-spin' /> : 'Suggest categories'}
         </Button>
       </CardFooter>
     </Card>
   );
 }
 
-function AiPreviewRow({ importId, item }: { importId: string; item: AiPreviewItem }) {
-  const updateMutation = useUpdateImportAiPreviewItem(importId);
-
-  function onCheckedChange(checked: boolean) {
-    updateMutation.mutate(
-      { excluded: !checked, key: item.key },
-      { onError: (error) => toast.error(error.name, { description: error.message }) },
-    );
-  }
-
+function AiPreviewRow({
+  item,
+  checked,
+  disabled,
+  onCheckedChange,
+}: {
+  item: AiPreviewItem;
+  checked: boolean;
+  disabled: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
   return (
-    <TableRow className={cn(item.excluded && 'opacity-50')}>
+    <TableRow className={cn(!checked && 'opacity-50')}>
       <TableCell>
         <Checkbox
           aria-label='Send this text to the AI'
-          checked={!item.excluded}
-          disabled={updateMutation.isPending}
+          checked={checked}
+          disabled={disabled}
           onCheckedChange={(checked) => onCheckedChange(checked === true)}
         />
       </TableCell>
