@@ -2,6 +2,7 @@ using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Limits.Create;
+using Kijk.Application.Limits.Delete;
 using Kijk.Application.Limits.Get;
 using Kijk.Application.Limits.Shared;
 using Kijk.Application.Limits.Update;
@@ -27,6 +28,7 @@ public sealed class LimitsEndpoints : IEndpointGroup
         group.MapGet("/{id:guid}", GetById).RequireSpacePermission(SpacePermissions.Limits.View).WithName("GetLimitById").WithSummary("Gets a consumption limit by id");
         group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<CreateLimitRequest>().WithSummary("Creates a consumption limit");
         group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<UpdateLimitRequest>().WithSummary("Updates a consumption limit");
+        group.MapDelete("/{id:guid}", Delete).RequireSpacePermission(SpacePermissions.Limits.Plan).WithSummary("Deletes a consumption limit");
 
         return builder;
     }
@@ -57,6 +59,15 @@ public sealed class LimitsEndpoints : IEndpointGroup
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
             : TypedResults.CreatedAtRoute(result.Value, "GetLimitById", new { id = result.Value.Id });
+    }
+
+    private static async Task<Results<NoContent, ProblemHttpResult>> Delete(
+        Guid id,
+        DeleteLimitHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.DeleteAsync(id, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 
     private static async Task<Results<Ok<LimitResponse>, ProblemHttpResult>> Update(

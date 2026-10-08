@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/lib/api-client';
-import { unwrapApiResponse } from '@/shared/utils/http';
+import { ensureApiSuccess, unwrapApiResponse } from '@/shared/utils/http';
 
 import type { CreateLimitRequest, UpdateLimitData } from './types';
 
@@ -24,6 +24,16 @@ export async function updateLimit(data: UpdateLimitData, signal?: AbortSignal) {
     await apiClient.PUT('/api/limits/{id}', {
       body: data.limit,
       params: { path: { id: data.id } },
+      signal,
+    }),
+  );
+}
+
+/** Deletes a limit of the active space. */
+export async function deleteLimit(id: string, signal?: AbortSignal) {
+  ensureApiSuccess(
+    await apiClient.DELETE('/api/limits/{id}', {
+      params: { path: { id } },
       signal,
     }),
   );

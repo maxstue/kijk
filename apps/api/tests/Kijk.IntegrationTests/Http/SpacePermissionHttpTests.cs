@@ -92,6 +92,46 @@ public class SpacePermissionHttpTests
     }
 
     [Test]
+    [Arguments("Admin", HttpStatusCode.NoContent)]
+    [Arguments("Member", HttpStatusCode.Forbidden)]
+    [Arguments("Viewer", HttpStatusCode.Forbidden)]
+    public async Task LimitDeletionRequiresPlanPermission(string role, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.DeleteAsync($"/api/limits/{fixture.Limit.Id}");
+
+        await Assert.That(response.StatusCode).IsEqualTo(expected);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.Limits.AnyAsync(item => item.Id == fixture.Limit.Id))
+            .IsEqualTo(expected == HttpStatusCode.Forbidden);
+        await Assert.That(await verification.Resources.AnyAsync(item => item.Id == fixture.Resource.Id)).IsTrue();
+        await Assert.That(await verification.Consumptions.AnyAsync(item => item.Id == fixture.Consumption.Id)).IsTrue();
+    }
+
+    [Test]
+    public async Task LimitDeletionReturnsNotFoundForMissingOrOtherSpaceLimits()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var otherSpace = Space.Create("Other space");
+        var resource = await dbContext.Resources.SingleAsync(item => item.Id == fixture.Resource.Id);
+        var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+        var otherLimit = Limit.Create(new("Other limit", null, 100m, Period.Month, true), resource, user, otherSpace);
+        dbContext.Add(otherLimit);
+        await dbContext.SaveChangesAsync();
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+
+        using var missing = await host.Client.DeleteAsync($"/api/limits/{Guid.NewGuid()}");
+        using var inaccessible = await host.Client.DeleteAsync($"/api/limits/{otherLimit.Id}");
+        await Assert.That(missing.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(inaccessible.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.Limits.AnyAsync(item => item.Id == otherLimit.Id)).IsTrue();
+        await Assert.That(await verification.Limits.AnyAsync(item => item.Id == fixture.Limit.Id)).IsTrue();
+    }
+
+    [Test]
     [Arguments("Admin", HttpStatusCode.OK)]
     [Arguments("Member", HttpStatusCode.Forbidden)]
     [Arguments("Viewer", HttpStatusCode.Forbidden)]
