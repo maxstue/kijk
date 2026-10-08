@@ -2,6 +2,7 @@ using System.Globalization;
 using Kijk.Application.Shared.Csv;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Transactions.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using nietras.SeparatedValues;
@@ -18,37 +19,23 @@ public sealed record TransactionCsvExport(byte[] Content, string FileName);
 /// <summary>
 /// Exports the transactions of the active space as CSV, with the same filters as the transaction list.
 /// </summary>
-public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
     /// <summary>Exports transactions, oldest first.</summary>
-    /// <param name="year">The year, or <see langword="null" /> for all years.</param>
-    /// <param name="month">The month (1-12), or <see langword="null" /> for the whole year. Requires a year.</param>
-    /// <param name="uncategorized">When <see langword="true" />, only transactions without a category.</param>
+    /// <param name="filter">The period and category filters.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The CSV file, or a validation error for an invalid period.</returns>
-    public async Task<Result<TransactionCsvExport>> ExportAsync(int? year, int? month, bool? uncategorized, CancellationToken cancellationToken)
+    /// <returns>The CSV file, or a validation error for an invalid filter.</returns>
+    public async Task<Result<TransactionCsvExport>> ExportAsync(TransactionFilter filter, CancellationToken cancellationToken)
     {
-        if (year is < 2000 or > 9999 || month is < 1 or > 12 || month is not null && year is null)
+        if (filter.Validate() is { } error)
         {
-            return Error.Validation("Year or month is invalid");
+            return error;
         }
 
-        var query = dbContext.GetVisibleTransactions(currentUser)
+        var query = filter.Apply(dbContext.GetVisibleTransactions(currentUser)
             .Include(transaction => transaction.Account)
             .Include(transaction => transaction.Category)
-            .Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId);
-
-        if (year is { } selectedYear)
-        {
-            var start = new DateTime(selectedYear, month ?? 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var end = month is null ? start.AddYears(1) : start.AddMonths(1);
-            query = query.Where(transaction => transaction.BookingDate >= start && transaction.BookingDate < end);
-        }
-
-        if (uncategorized is true)
-        {
-            query = query.Where(transaction => transaction.CategoryId == null);
-        }
+            .Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId));
 
         var transactions = await query
             .OrderBy(transaction => transaction.BookingDate)
@@ -56,14 +43,16 @@ public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUs
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        var period = year switch
+        var period = filter.Year switch
         {
             null => "all",
-            _ when month is null => $"{year:D4}",
-            _ => $"{year:D4}-{month:D2}"
+            { } year when filter.Month is null => $"{year:D4}",
+            { } year => $"{year:D4}-{filter.Month:D2}"
         };
-        var suffix = uncategorized is true ? "-uncategorized" : string.Empty;
-        return new TransactionCsvExport(TransactionCsvWriter.Write(transactions), $"transactions-{period}{suffix}.csv");
+        var suffix = filter.Uncategorized is true ? "-uncategorized" : string.Empty;
+        // The UTC creation time keeps repeated exports of the same filter apart.
+        var createdAt = timeProvider.GetUtcNow().ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
+        return new TransactionCsvExport(TransactionCsvWriter.Write(transactions), $"transactions-{period}{suffix}-{createdAt}.csv");
     }
 }
 

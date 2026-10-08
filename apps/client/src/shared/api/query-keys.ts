@@ -1,5 +1,5 @@
 import type { ImportPreviewParams } from '@/shared/api/imports/types';
-import type { TransactionFilters } from '@/shared/api/transactions/types';
+import type { TransactionPageQuery } from '@/shared/api/transactions/types';
 
 const users = {
   me: ['users', 'me'] as const,
@@ -52,7 +52,7 @@ const budgets = {
 
 const transactions = {
   all: ['transactions'] as const,
-  list: (filters: TransactionFilters) => [...transactions.all, 'list', filters] as const,
+  list: (query: TransactionPageQuery) => [...transactions.all, 'list', query] as const,
 };
 
 const imports = {

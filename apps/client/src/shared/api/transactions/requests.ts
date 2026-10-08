@@ -7,12 +7,13 @@ import type {
   CategorizeTransactionsRequest,
   CreateTransactionRequest,
   TransactionFilters,
+  TransactionPageQuery,
   UpdateTransactionData,
 } from './types';
 
-/** Loads the transactions of the active space, newest first. */
-export async function getTransactions(filters: TransactionFilters, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient.GET('/api/transactions', { params: { query: filters }, signal }));
+/** Loads a page of the transactions of the active space, newest first. */
+export async function getTransactions(query: TransactionPageQuery, signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient.GET('/api/transactions', { params: { query }, signal }));
 }
 
 /** Records a transaction manually. */

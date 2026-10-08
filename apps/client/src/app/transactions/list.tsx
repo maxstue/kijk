@@ -22,13 +22,15 @@ import {
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import { Separator } from '@kijk/ui/components/separator';
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { Pencil, ReceiptText, Trash2 } from 'lucide-react';
+import { Pencil, ReceiptText, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { transactionPageSizes } from '@/app/transactions/constants';
 import { TransactionForm } from '@/app/transactions/form';
 import { RememberDialog } from '@/app/transactions/remember-dialog';
 import { noneValue } from '@/app/transactions/schemas';
@@ -40,22 +42,27 @@ import {
 import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { transactionsQueryOptions } from '@/shared/api/transactions/options';
-import type { Transaction, TransactionFilters } from '@/shared/api/transactions/types';
+import type { Transaction, TransactionPageQuery } from '@/shared/api/transactions/types';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 /**
- * Table of the transactions matching `filters`, with inline categorizing, editing and deleting. `selectable` adds
- * checkboxes for assigning one category to several transactions at once.
+ * Table of one page of the transactions matching `query`, with inline categorizing, editing and deleting. `selectable`
+ * adds checkboxes for assigning one category to several transactions of the page at once.
  */
 export function TransactionList({
-  filters,
+  onPageChange,
+  onPageSizeChange,
+  query,
   selectable = false,
 }: {
-  filters: TransactionFilters;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  query: TransactionPageQuery;
   selectable?: boolean;
 }) {
-  const { data } = useSuspenseQuery(transactionsQueryOptions(filters));
+  const { data: page, isFetching } = useSuspenseQuery(transactionsQueryOptions(query));
+  const data = page.items;
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
   // Transactions that left the list, e.g. because they got a category, are no longer selected.
   const selected = data.filter((transaction) => selectedIds.has(transaction.id)).map((transaction) => transaction.id);
@@ -78,8 +85,14 @@ export function TransactionList({
       <Card className='border-dashed'>
         <CardContent className='flex flex-col items-center gap-2 py-12 text-center'>
           <ReceiptText className='text-muted-foreground size-8' />
-          <p className='font-medium'>No transactions</p>
-          <p className='text-muted-foreground text-sm'>Record a transaction to fill your budget overview.</p>
+          <p className='font-medium'>{query.uncategorized ? 'Everything is categorized' : 'No transactions'}</p>
+          <p className='text-muted-foreground text-sm'>
+            {query.uncategorized
+              ? 'All transactions of this month have a category.'
+              : query.categoryIds?.length
+                ? 'No transactions in the selected categories this month.'
+                : 'Record a transaction to fill your budget overview.'}
+          </p>
         </CardContent>
       </Card>
     );
@@ -87,14 +100,13 @@ export function TransactionList({
 
   return (
     <div className='space-y-3'>
-      {selectable && <BulkCategoryBar selectedIds={selected} onDone={() => setSelectedIds(new Set())} />}
       <Table>
         <TableHeader>
           <TableRow>
             {selectable && (
               <TableHead className='w-10'>
                 <Checkbox
-                  aria-label='Select all transactions'
+                  aria-label='Select all transactions on this page'
                   checked={allSelected}
                   onCheckedChange={(checked) =>
                     setSelectedIds(checked === true ? new Set(data.map((transaction) => transaction.id)) : new Set())
@@ -122,13 +134,134 @@ export function TransactionList({
             />
           ))}
         </TableBody>
+        <TotalsFooter
+          incoming={Number(page.incoming)}
+          labelColumns={selectable ? 4 : 3}
+          outgoing={Number(page.outgoing)}
+          totalCount={Number(page.totalCount)}
+        />
       </Table>
+      <Pagination
+        isPending={isFetching}
+        page={Number(page.page)}
+        pageSize={Number(page.pageSize)}
+        totalCount={Number(page.totalCount)}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
+      {selected.length > 0 && (
+        <BulkCategoryBar
+          selectedIds={selected}
+          selectedTransactions={data.filter((transaction) => selectedIds.has(transaction.id))}
+          onDone={() => setSelectedIds(new Set())}
+        />
+      )}
     </div>
   );
 }
 
-/** Assigns one category to the selected transactions; it counts as set by hand. */
-function BulkCategoryBar({ selectedIds, onDone }: { selectedIds: string[]; onDone: () => void }) {
+/** Sums of all transactions matching the filters, across every page. */
+function TotalsFooter({
+  incoming,
+  labelColumns,
+  outgoing,
+  totalCount,
+}: {
+  incoming: number;
+  /** Number of columns left of the amount column. */
+  labelColumns: number;
+  outgoing: number;
+  totalCount: number;
+}) {
+  const net = incoming + outgoing;
+
+  return (
+    <TableFooter>
+      <TableRow>
+        <TableCell colSpan={labelColumns}>
+          <div className='flex flex-wrap items-baseline gap-x-4 gap-y-1'>
+            <span className='font-medium'>
+              Total · {totalCount} {totalCount === 1 ? 'transaction' : 'transactions'}
+            </span>
+            <span className='text-muted-foreground text-xs font-normal'>
+              <span className='text-emerald-600'>{formatStringToCurrency(incoming)}</span> in ·{' '}
+              {formatStringToCurrency(outgoing)} out
+            </span>
+          </div>
+        </TableCell>
+        <TableCell className={cn('text-right font-semibold whitespace-nowrap', net > 0 && 'text-emerald-600')}>
+          {formatStringToCurrency(net)}
+        </TableCell>
+        <TableCell />
+      </TableRow>
+    </TableFooter>
+  );
+}
+
+function Pagination({
+  isPending,
+  onPageChange,
+  onPageSizeChange,
+  page,
+  pageSize,
+  totalCount,
+}: {
+  isPending: boolean;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+  return (
+    <div className='flex flex-wrap items-center justify-between gap-2 py-4 text-sm'>
+      <span className='text-muted-foreground'>
+        Page {page} of {totalPages} · {totalCount} transactions
+      </span>
+      <div className='flex flex-wrap items-center gap-2'>
+        <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
+          <SelectTrigger aria-label='Transactions per page' className='w-32' size='sm'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {transactionPageSizes.map((size) => (
+              <SelectItem key={size} value={String(size)}>
+                {size} per page
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button disabled={page <= 1 || isPending} size='sm' variant='outline' onClick={() => onPageChange(page - 1)}>
+          Previous
+        </Button>
+        <Button
+          disabled={page >= totalPages || isPending}
+          size='sm'
+          variant='outline'
+          onClick={() => onPageChange(page + 1)}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Floating bar for the selected transactions, shown only while some are selected: assigns one category to all of them,
+ * which counts as set by hand.
+ */
+function BulkCategoryBar({
+  onDone,
+  selectedIds,
+  selectedTransactions,
+}: {
+  onDone: () => void;
+  selectedIds: string[];
+  selectedTransactions: Transaction[];
+}) {
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
   const categorizeMutation = useCategorizeTransactions();
   const [categoryId, setCategoryId] = useState<string>();
@@ -150,11 +283,17 @@ function BulkCategoryBar({ selectedIds, onDone }: { selectedIds: string[]; onDon
   }
 
   return (
-    <div className='bg-muted/50 flex flex-wrap items-center gap-2 rounded-md border p-2'>
-      <span className='text-muted-foreground px-1 text-sm'>{selectedIds.length} selected</span>
+    <div
+      aria-label='Selected transactions'
+      className='bg-popover sticky bottom-4 z-10 mx-auto flex w-fit flex-wrap items-center gap-2 rounded-lg border p-2 shadow-lg'
+      role='toolbar'
+    >
+      <span className='px-2 text-sm font-medium'>{selectedIds.length} selected</span>
+      <SelectionTotals transactions={selectedTransactions} />
+      <Separator className='h-5' orientation='vertical' />
       <Select value={categoryId ?? ''} onValueChange={setCategoryId}>
         <SelectTrigger aria-label='Category for the selected transactions' className='w-48' size='sm'>
-          <SelectValue placeholder='Choose a category' />
+          <SelectValue placeholder='Set category…' />
         </SelectTrigger>
         <SelectContent>
           {categories.map((category) => (
@@ -169,9 +308,32 @@ function BulkCategoryBar({ selectedIds, onDone }: { selectedIds: string[]; onDon
         size='sm'
         onClick={onAssign}
       >
-        Assign to {selectedIds.length}
+        Assign
+      </Button>
+      <Button aria-label='Clear selection' size='icon-sm' variant='ghost' onClick={onDone}>
+        <X />
       </Button>
     </div>
+  );
+}
+
+/** Net sum of the selected transactions plus incoming and outgoing, always shown to keep the bar steady. */
+function SelectionTotals({ transactions }: { transactions: Transaction[] }) {
+  const amounts = transactions.map((transaction) => Number(transaction.amount));
+  const incoming = amounts.filter((amount) => amount > 0).reduce((sum, amount) => sum + amount, 0);
+  const outgoing = amounts.filter((amount) => amount < 0).reduce((sum, amount) => sum + amount, 0);
+  const net = incoming + outgoing;
+
+  return (
+    <span className='flex items-baseline gap-2 px-1 text-sm'>
+      <span className={cn('font-semibold whitespace-nowrap tabular-nums', net > 0 && 'text-emerald-600')}>
+        {formatStringToCurrency(net)}
+      </span>
+      <span className='text-muted-foreground text-xs whitespace-nowrap tabular-nums'>
+        <span className='text-emerald-600'>{formatStringToCurrency(incoming)}</span> in ·{' '}
+        {formatStringToCurrency(outgoing)} out
+      </span>
+    </span>
   );
 }
 
@@ -287,11 +449,17 @@ function EditButton({ disabled, transaction }: { disabled: boolean; transaction:
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button aria-label='Edit transaction' disabled={disabled} size='icon-sm' variant='ghost'>
+        <Button
+          aria-label='Edit transaction'
+          className='text-muted-foreground'
+          disabled={disabled}
+          size='icon-sm'
+          variant='ghost'
+        >
           <Pencil />
         </Button>
       </DialogTrigger>
-      <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit transaction</DialogTitle>
           <DialogDescription>Changing the category marks it as set by hand.</DialogDescription>
@@ -317,6 +485,7 @@ function DeleteButton({ disabled, transaction }: { disabled: boolean; transactio
       <AlertDialogTrigger asChild>
         <Button
           aria-label='Delete transaction'
+          className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:text-destructive dark:hover:bg-destructive/20'
           disabled={disabled || deleteMutation.isPending}
           size='icon-sm'
           variant='ghost'

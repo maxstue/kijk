@@ -3399,6 +3399,41 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "categoryIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -3407,10 +3442,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TransactionResponse"
-                  }
+                  "$ref": "#/components/schemas/TransactionPageResponse"
                 }
               }
             }
@@ -3503,7 +3535,7 @@
         "tags": [
           "Transactions"
         ],
-        "summary": "Exports transactions as CSV, optionally by year, month or without category",
+        "summary": "Exports transactions as CSV, optionally by year, month, categories or without category",
         "parameters": [
           {
             "name": "year",
@@ -3534,6 +3566,17 @@
             "in": "query",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "categoryIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
             }
           }
         ],
@@ -7328,6 +7371,72 @@
           }
         },
         "description": "Request for switching the active space of the current user."
+      },
+      "TransactionPageResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize",
+          "incoming",
+          "outgoing"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionResponse"
+            },
+            "description": "The transactions of the page."
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of transactions matching the filters.",
+            "format": "int32"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page number; clamped to the last page when the requested one is past the end.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size.",
+            "format": "int32"
+          },
+          "incoming": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The sum of all incoming amounts matching the filters, across all pages.",
+            "format": "double"
+          },
+          "outgoing": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The sum of all outgoing amounts matching the filters, across all pages; zero or negative.",
+            "format": "double"
+          }
+        },
+        "description": "A server-side page of transactions, newest first."
       },
       "TransactionResponse": {
         "required": [

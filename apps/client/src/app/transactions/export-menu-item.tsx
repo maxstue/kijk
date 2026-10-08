@@ -1,4 +1,4 @@
-import { Button } from '@kijk/ui/components/button';
+import { DropdownMenuItem } from '@kijk/ui/components/dropdown-menu';
 import { useMutation } from '@tanstack/react-query';
 import { DownloadIcon, LoaderCircleIcon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { saveDownload } from '@/shared/utils/download';
 
 /** Downloads the transactions matching `filters` as CSV. */
-export function TransactionExportButton({ filters }: { filters: TransactionFilters }) {
+export function TransactionExportMenuItem({ filters }: { filters: TransactionFilters }) {
   const canExport = useSpacePermission(SpacePermissions.finances.export);
   const exportMutation = useMutation({
     mutationFn: () => exportTransactions(filters),
@@ -19,18 +19,13 @@ export function TransactionExportButton({ filters }: { filters: TransactionFilte
   });
 
   return (
-    <Button
+    <DropdownMenuItem
       disabled={!canExport || exportMutation.isPending}
       title={canExport ? undefined : 'Your role in this space does not allow exporting transactions'}
-      variant='outline'
-      onClick={() => exportMutation.mutate()}
+      onSelect={() => exportMutation.mutate()}
     >
-      {exportMutation.isPending ? (
-        <LoaderCircleIcon className='size-4 animate-spin' />
-      ) : (
-        <DownloadIcon className='size-4' />
-      )}
+      {exportMutation.isPending ? <LoaderCircleIcon className='animate-spin' /> : <DownloadIcon />}
       Export CSV
-    </Button>
+    </DropdownMenuItem>
   );
 }

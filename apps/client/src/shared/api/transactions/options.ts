@@ -14,16 +14,16 @@ import type {
   CategorizeTransactionData,
   CategorizeTransactionsRequest,
   CreateTransactionRequest,
-  TransactionFilters,
+  TransactionPageQuery,
   UpdateTransactionData,
 } from './types';
 
-/** Query for the transactions matching the filters. */
-export const transactionsQueryOptions = (filters: TransactionFilters) =>
+/** Query for a page of the transactions matching the filters. */
+export const transactionsQueryOptions = (query: TransactionPageQuery) =>
   queryOptions({
     placeholderData: keepPreviousData,
-    queryFn: ({ signal }) => getTransactions(filters, signal),
-    queryKey: queryKeys.transactions.list(filters),
+    queryFn: ({ signal }) => getTransactions(query, signal),
+    queryKey: queryKeys.transactions.list(query),
   });
 
 /** Mutation that records a transaction. */

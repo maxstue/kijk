@@ -149,6 +149,65 @@ public class FinancePermissionHttpTests
     }
 
     [Test]
+    public async Task TransactionsOfAMonthArePagedNewestFirst()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            dbContext.AddRange(Enumerable.Range(1, 3).Select(day =>
+                Transaction.Create(new TransactionDetails(new DateTime(2025, 1, day, 0, 0, 0, DateTimeKind.Utc), -day, $"Shop {day}", null, TransactionStatus.Booked, false), account, user, account.Space)));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var first = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=1&pageSize=2", Json))!;
+        var second = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=1&page=2&pageSize=2", Json))!;
+        // A page past the end, e.g. after categorizing the last page empty, returns the last page.
+        var pastEnd = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=1&page=9&pageSize=2", Json))!;
+
+        await Assert.That(first.TotalCount).IsEqualTo(3);
+        // The totals cover all pages: -1 -2 -3.
+        await Assert.That(first.Outgoing).IsEqualTo(-6m);
+        await Assert.That(first.Incoming).IsEqualTo(0m);
+        await Assert.That(string.Join(", ", first.Items.Select(item => item.Counterparty))).IsEqualTo("Shop 3, Shop 2");
+        await Assert.That(second.Page).IsEqualTo(2);
+        await Assert.That(string.Join(", ", second.Items.Select(item => item.Counterparty))).IsEqualTo("Shop 1");
+        await Assert.That(pastEnd.Page).IsEqualTo(2);
+        await Assert.That(string.Join(", ", pastEnd.Items.Select(item => item.Counterparty))).IsEqualTo("Shop 1");
+    }
+
+    [Test]
+    public async Task TransactionsAndTheExportCanBeFilteredByCategories()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            var groceries = await dbContext.Categories.SingleAsync(item => item.Id == GroceriesId);
+            var bakery = Transaction.Create(new TransactionDetails(new DateTime(2025, 2, 3, 0, 0, 0, DateTimeKind.Utc), -4m, "Bakery", null, TransactionStatus.Booked, false), account, user, account.Space);
+            bakery.AssignCategoryManually(groceries);
+            dbContext.AddRange(
+                bakery,
+                Transaction.Create(new TransactionDetails(new DateTime(2025, 2, 4, 0, 0, 0, DateTimeKind.Utc), -6m, "Kiosk", null, TransactionStatus.Booked, false), account, user, account.Space));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var filtered = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/transactions?year=2025&month=2&categoryIds={GroceriesId}", Json))!;
+        var all = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=2", Json))!;
+        var export = await host.Client.GetStringAsync($"/api/transactions/export?year=2025&month=2&categoryIds={GroceriesId}");
+
+        await Assert.That(filtered.TotalCount).IsEqualTo(1);
+        await Assert.That(filtered.Items.Single().Counterparty).IsEqualTo("Bakery");
+        await Assert.That(all.TotalCount).IsEqualTo(2);
+        await Assert.That(export).Contains("Bakery");
+        await Assert.That(export).DoesNotContain("Kiosk");
+    }
+
+    [Test]
     public async Task SeveralTransactionsCanBeCategorizedAtOnceWithinTheSpaceOnly()
     {
         var fixture = await CreateFixtureAsync("Member");
@@ -164,13 +223,13 @@ public class FinancePermissionHttpTests
 
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         // Without a period the list holds uncategorized transactions of all months.
-        var open = (await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions?uncategorized=true", Json))!;
+        var open = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?uncategorized=true", Json))!.Items;
         await Assert.That(open.Count).IsEqualTo(2);
 
         using var assigned = await host.Client.PutAsJsonAsync("/api/transactions/category", new CategorizeTransactionsRequest([.. open.Select(item => item.Id)], GroceriesId), Json);
         var result = await assigned.Content.ReadFromJsonAsync<CategorizeTransactionsResponse>(Json);
         await Assert.That(result!.Updated).IsEqualTo(2);
-        var remaining = (await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions?uncategorized=true", Json))!;
+        var remaining = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?uncategorized=true", Json))!.Items;
         await Assert.That(remaining).IsEmpty();
 
         var outsider = await CreateOutsiderAsync();
@@ -212,7 +271,7 @@ public class FinancePermissionHttpTests
         var bytes = await response.Content.ReadAsByteArrayAsync();
         var csv = System.Text.Encoding.UTF8.GetString(bytes);
 
-        await Assert.That(response.Content.Headers.ContentDisposition!.FileName).Contains("transactions-2026-10.csv");
+        await Assert.That(response.Content.Headers.ContentDisposition!.FileName).Matches(@"transactions-2026-10-\d{8}-\d{6}\.csv");
         await Assert.That(bytes.Take(3)).IsEquivalentTo(new byte[] { 0xEF, 0xBB, 0xBF });
         var lines = csv.TrimStart('\uFEFF').Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
         await Assert.That(lines[0]).IsEqualTo("Date,Account,Counterparty,Purpose,Amount,Currency,Category,CategorySource,Status,IsTransfer");
@@ -246,7 +305,7 @@ public class FinancePermissionHttpTests
         await using var host = await SpaceApiHost.StartAsync(outsider.AuthId);
 
         using var transaction = await host.Client.GetAsync($"/api/transactions/{fixture.Transaction.Id}");
-        var transactions = await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions", Json);
+        var transactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions", Json))!.Items;
         var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json);
         var budgets = await host.Client.GetFromJsonAsync<List<BudgetResponse>>("/api/budgets", Json);
         using var foreignAccount = await host.Client.PostAsJsonAsync("/api/transactions",
@@ -256,7 +315,7 @@ public class FinancePermissionHttpTests
         using var foreignBudget = await host.Client.DeleteAsync($"/api/budgets/{fixture.Budget.Id}");
 
         await Assert.That(transaction.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
-        await Assert.That(transactions!).IsEmpty();
+        await Assert.That(transactions).IsEmpty();
         await Assert.That(overview!.TotalSpent).IsEqualTo(0m);
         await Assert.That(budgets!).IsEmpty();
         await Assert.That(foreignAccount.StatusCode).IsEqualTo(HttpStatusCode.NotFound);

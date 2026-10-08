@@ -2210,13 +2210,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Gets transactions of the active space, optionally by year, month or without category */
+    /** Gets a page of transactions of the active space, optionally by year, month, categories or without category */
     get: {
       parameters: {
         query?: {
           year?: number | string;
           month?: number | string;
           uncategorized?: boolean;
+          categoryIds?: string[];
+          page?: number | string;
+          pageSize?: number | string;
         };
         header?: never;
         path?: never;
@@ -2230,7 +2233,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['TransactionResponse'][];
+            'application/json': components['schemas']['TransactionPageResponse'];
           };
         };
         400: components['responses']['400'];
@@ -2288,13 +2291,14 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Exports transactions as CSV, optionally by year, month or without category */
+    /** Exports transactions as CSV, optionally by year, month, categories or without category */
     get: {
       parameters: {
         query?: {
           year?: number | string;
           month?: number | string;
           uncategorized?: boolean;
+          categoryIds?: string[];
         };
         header?: never;
         path?: never;
@@ -4305,6 +4309,41 @@ export interface components {
        * The space to switch to; the user must be a member.
        */
       spaceId: string;
+    };
+    /** A server-side page of transactions, newest first. */
+    TransactionPageResponse: {
+      /** The transactions of the page. */
+      items: components['schemas']['TransactionResponse'][];
+      /**
+       * Format: int32
+       *
+       * The number of transactions matching the filters.
+       */
+      totalCount: number | string;
+      /**
+       * Format: int32
+       *
+       * The 1-based page number; clamped to the last page when the requested one is past the end.
+       */
+      page: number | string;
+      /**
+       * Format: int32
+       *
+       * The page size.
+       */
+      pageSize: number | string;
+      /**
+       * Format: double
+       *
+       * The sum of all incoming amounts matching the filters, across all pages.
+       */
+      incoming: number | string;
+      /**
+       * Format: double
+       *
+       * The sum of all outgoing amounts matching the filters, across all pages; zero or negative.
+       */
+      outgoing: number | string;
     };
     /** A transaction of the space. */
     TransactionResponse: {

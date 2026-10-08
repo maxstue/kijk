@@ -10,47 +10,67 @@ namespace Kijk.Application.Transactions.Get;
 /// </summary>
 public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
-    /// <summary>Gets the transactions of the active space, newest first.</summary>
-    /// <param name="year">The year, or <see langword="null" /> for all years.</param>
-    /// <param name="month">The month (1-12), or <see langword="null" /> for the whole year. Requires a year.</param>
-    /// <param name="uncategorized">When <see langword="true" />, only transactions without a category.</param>
+    /// <summary>The page size when the request names none.</summary>
+    public const int DefaultPageSize = 25;
+
+    /// <summary>The largest page size a request may ask for.</summary>
+    public const int MaxPageSize = 200;
+
+    /// <summary>Gets a page of the transactions of the active space, newest first.</summary>
+    /// <param name="filter">The period and category filters.</param>
+    /// <param name="page">The 1-based page number; values past the last page return the last page.</param>
+    /// <param name="pageSize">The page size (1-<see cref="MaxPageSize" />).</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The transactions, or a validation error for an invalid period.</returns>
-    public async Task<Result<List<TransactionResponse>>> GetAllAsync(
-        int? year,
-        int? month,
-        bool? uncategorized,
+    /// <returns>The page, or a validation error for an invalid filter.</returns>
+    public async Task<Result<TransactionPageResponse>> GetPageAsync(
+        TransactionFilter filter,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken)
     {
-        if (year is < 2000 or > 9999 || month is < 1 or > 12 || month is not null && year is null)
+        if (filter.Validate() is { } error)
         {
-            return Error.Validation("Year or month is invalid");
+            return error;
         }
 
-        var query = dbContext.GetVisibleTransactions(currentUser)
-            .Include(transaction => transaction.Account)
-            .Include(transaction => transaction.Category)
-            .Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId);
+        var query = filter.Apply(dbContext.GetVisibleTransactions(currentUser)
+            .Where(transaction => transaction.SpaceId == currentUser.ActiveSpaceId));
 
-        if (year is { } selectedYear)
-        {
-            var start = new DateTime(selectedYear, month ?? 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var end = month is null ? start.AddYears(1) : start.AddMonths(1);
-            query = query.Where(transaction => transaction.BookingDate >= start && transaction.BookingDate < end);
-        }
+        // Count and totals cover every matching transaction, not only the page.
+        var summary = await query
+            .GroupBy(_ => 1)
+            .Select(group => new
+            {
+                Count = group.Count(),
+                Incoming = group.Sum(transaction => transaction.Amount > 0 ? transaction.Amount : 0m),
+                Outgoing = group.Sum(transaction => transaction.Amount < 0 ? transaction.Amount : 0m),
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+        var totalCount = summary?.Count ?? 0;
 
-        if (uncategorized is true)
-        {
-            query = query.Where(transaction => transaction.CategoryId == null);
-        }
+        pageSize = Math.Clamp(pageSize, 1, MaxPageSize);
+        // Categorizing or deleting on the last page can empty it; return the new last page instead of nothing.
+        var lastPage = Math.Max(1, (totalCount + pageSize - 1) / pageSize);
+        page = Math.Clamp(page, 1, lastPage);
 
         var transactions = await query
+            .Include(transaction => transaction.Account)
+            .Include(transaction => transaction.Category)
             .OrderByDescending(transaction => transaction.BookingDate)
             .ThenByDescending(transaction => transaction.CreatedAt)
+            .ThenByDescending(transaction => transaction.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        return transactions.Select(transaction => transaction.ToResponse()).ToList();
+        return new TransactionPageResponse(
+            transactions.Select(transaction => transaction.ToResponse()).ToList(),
+            totalCount,
+            page,
+            pageSize,
+            summary?.Incoming ?? 0m,
+            summary?.Outgoing ?? 0m);
     }
 
     /// <summary>Gets a transaction of the active space.</summary>

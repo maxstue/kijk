@@ -2,6 +2,8 @@ import type { components } from '@/shared/api/generated/kijk';
 
 /** A transaction of the space. */
 export type Transaction = components['schemas']['TransactionResponse'];
+/** A server-side page of transactions, newest first. */
+export type TransactionPage = components['schemas']['TransactionPageResponse'];
 /** Whether a transaction is booked or pending. */
 export type TransactionStatus = components['schemas']['TransactionStatus'];
 /** Payload for recording a transaction. */
@@ -17,9 +19,17 @@ export interface UpdateTransactionData {
 
 /** Filters of the transaction list; omitted values mean all. `month` is 1-12 and requires `year`. */
 export interface TransactionFilters {
+  /** Only transactions in one of these categories; empty or omitted means all. */
+  categoryIds?: string[];
   month?: number;
   uncategorized?: boolean;
   year?: number;
+}
+
+/** Filters plus the requested page (1-based); the API clamps a page past the end to the last page. */
+export interface TransactionPageQuery extends TransactionFilters {
+  page: number;
+  pageSize: number;
 }
 
 /** Payload for correcting the category of a transaction. */

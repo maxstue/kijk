@@ -11,6 +11,7 @@ using Kijk.Application.Transactions.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Api.Endpoints;
 
@@ -26,8 +27,8 @@ public sealed class TransactionsEndpoints : IEndpointGroup
             .WithTags("Transactions")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets transactions of the active space, optionally by year, month or without category");
-        group.MapGet("/export", Export).RequireSpacePermission(SpacePermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month or without category");
+        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets a page of transactions of the active space, optionally by year, month, categories or without category");
+        group.MapGet("/export", Export).RequireSpacePermission(SpacePermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month, categories or without category");
         group.MapGet("/{id:guid}", GetById).RequireSpacePermission(SpacePermissions.Finances.View).WithName("GetTransactionById").WithSummary("Gets a transaction by id");
         group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateTransactionRequest>().WithSummary("Records a transaction manually");
         group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<UpdateTransactionRequest>().WithSummary("Updates a transaction");
@@ -38,14 +39,21 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         return builder;
     }
 
-    private static async Task<Results<Ok<List<TransactionResponse>>, ProblemHttpResult>> GetAll(
+    private static async Task<Results<Ok<TransactionPageResponse>, ProblemHttpResult>> GetAll(
         int? year,
         int? month,
         bool? uncategorized,
+        [FromQuery] Guid[]? categoryIds,
+        int? page,
+        int? pageSize,
         GetTransactionsHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.GetAllAsync(year, month, uncategorized, cancellationToken);
+        var result = await handler.GetPageAsync(
+            new TransactionFilter(year, month, uncategorized, categoryIds),
+            page ?? 1,
+            pageSize ?? GetTransactionsHandler.DefaultPageSize,
+            cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -108,10 +116,11 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         int? year,
         int? month,
         bool? uncategorized,
+        [FromQuery] Guid[]? categoryIds,
         ExportTransactionsHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.ExportAsync(year, month, uncategorized, cancellationToken);
+        var result = await handler.ExportAsync(new TransactionFilter(year, month, uncategorized, categoryIds), cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
             : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);

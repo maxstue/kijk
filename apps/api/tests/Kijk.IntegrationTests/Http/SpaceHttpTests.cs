@@ -93,14 +93,14 @@ public class SpaceHttpTests
         var transaction = (await recorded.Content.ReadFromJsonAsync<TransactionResponse>(Json))!;
 
         var ownAccounts = (await host.Client.GetFromJsonAsync<List<AccountResponse>>("/api/accounts", Json))!;
-        var ownTransactions = (await host.Client.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions?year=2026&month=10", Json))!;
+        var ownTransactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2026&month=10", Json))!.Items;
         var ownOverview = (await host.Client.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json))!;
         await Assert.That(ownAccounts.Select(item => item.Name)).Contains("Mine");
         await Assert.That(ownTransactions.Single().Id).IsEqualTo(transaction.Id);
         await Assert.That(ownOverview.TotalSpent).IsEqualTo(20m);
 
         var accounts = (await adminClient.GetFromJsonAsync<List<AccountResponse>>("/api/accounts", Json))!;
-        var transactions = (await adminClient.GetFromJsonAsync<List<TransactionResponse>>("/api/transactions?year=2026&month=10", Json))!;
+        var transactions = (await adminClient.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2026&month=10", Json))!.Items;
         var overview = (await adminClient.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json))!;
         var export = await adminClient.GetStringAsync("/api/transactions/export");
         using var single = await adminClient.GetAsync($"/api/transactions/{transaction.Id}");
