@@ -1,11 +1,14 @@
 import { useIsMobile } from '@kijk/core/hooks/use-mobile';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import type { ChartConfig } from '@kijk/ui/components/chart';
-import { ChartContainer } from '@kijk/ui/components/chart';
+import { Chart } from '@kijk/ui/components/chart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
-import { useState } from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { chartTheme } from '@kijk/ui/lib/chart';
+import { areaY, d3Curve, defineChart } from '@tanstack/charts';
+import { scaleLinear } from '@tanstack/charts/scales/linear';
+import { tooltip } from '@tanstack/charts/tooltip';
+import { curveNatural } from 'd3-shape';
+import { useMemo, useState } from 'react';
 
 const chartData = [
   { date: '2024-04-01', desktop: 222, mobile: 150 },
@@ -101,27 +104,18 @@ const chartData = [
   { date: '2024-06-30', desktop: 446, mobile: 400 },
 ];
 
-const chartConfig = {
-  desktop: {
-    color: 'var(--primary)',
-    label: 'Desktop',
-  },
-  mobile: {
-    color: 'var(--primary)',
-    label: 'Mobile',
-  },
-  visitors: {
-    label: 'Visitors',
-  },
-} satisfies ChartConfig;
+const areaCurve = d3Curve(curveNatural);
+
+function formatDate(value: number) {
+  return new Date(value).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+}
 
 /** Dashboard area chart (static demo data). */
 export function HomeChartArea() {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = useState(isMobile ? '7d' : '90d');
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date);
+  const definition = useMemo(() => {
     const referenceDate = new Date('2024-06-30');
     let daysToSubtract = 90;
     if (timeRange === '30d') {
@@ -131,8 +125,73 @@ export function HomeChartArea() {
     }
     const startDate = new Date(referenceDate);
     startDate.setDate(startDate.getDate() - daysToSubtract);
-    return date >= startDate;
-  });
+    const data = chartData
+      .filter((item) => new Date(item.date) >= startDate)
+      .flatMap((item) => [
+        { id: `${item.date}-mobile`, date: new Date(item.date).getTime(), series: 'Mobile', value: item.mobile },
+        { id: `${item.date}-desktop`, date: new Date(item.date).getTime(), series: 'Desktop', value: item.desktop },
+      ]);
+
+    return defineChart({
+      marks: [
+        areaY(data, {
+          x: 'date',
+          y: 'value',
+          z: 'series',
+          color: 'series',
+          fill: (row) => (row.series === 'Mobile' ? 'url(#fill-mobile)' : 'url(#fill-desktop)'),
+          fillOpacity: 1,
+          stroke: 'var(--primary)',
+          curve: areaCurve,
+        }),
+      ],
+      scales: {
+        x: {
+          scale: scaleLinear,
+          axis: { line: false, ticks: { size: 0, padding: 8, spacing: 80, format: formatDate } },
+        },
+        y: { scale: scaleLinear, nice: true, grid: true, axis: false },
+      },
+      color: { domain: ['Mobile', 'Desktop'], range: ['var(--primary)', 'var(--primary)'] },
+      gradients: [
+        {
+          id: 'fill-mobile',
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 1,
+          stops: [
+            { offset: 0.05, color: 'var(--primary)', opacity: 0.8 },
+            { offset: 0.95, color: 'var(--primary)', opacity: 0.1 },
+          ],
+        },
+        {
+          id: 'fill-desktop',
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 1,
+          stops: [
+            { offset: 0.05, color: 'var(--primary)', opacity: 1 },
+            { offset: 0.95, color: 'var(--primary)', opacity: 0.1 },
+          ],
+        },
+      ],
+      theme: chartTheme,
+      focus: 'group-x',
+      tooltip: {
+        use: tooltip,
+        content: (points) => ({
+          title: points[0] ? formatDate(points[0].datum.date) : undefined,
+          rows: points.map((point) => ({
+            label: point.groupLabel,
+            value: point.datum.value.toLocaleString(),
+            color: point.color,
+          })),
+        }),
+      },
+    });
+  }, [timeRange]);
 
   return (
     <Card className='@container/card'>
@@ -177,52 +236,7 @@ export function HomeChartArea() {
         </CardAction>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-        <ChartContainer className='aspect-auto h-[250px] w-full' config={chartConfig}>
-          <AreaChart data={filteredData}>
-            <defs>
-              <linearGradient id='fillDesktop' x1='0' x2='0' y1='0' y2='1'>
-                <stop offset='5%' stopColor='var(--color-desktop)' stopOpacity={1} />
-                <stop offset='95%' stopColor='var(--color-desktop)' stopOpacity={0.1} />
-              </linearGradient>
-              <linearGradient id='fillMobile' x1='0' x2='0' y1='0' y2='1'>
-                <stop offset='5%' stopColor='var(--color-mobile)' stopOpacity={0.8} />
-                <stop offset='95%' stopColor='var(--color-mobile)' stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              axisLine={false}
-              dataKey='date'
-              minTickGap={32}
-              tickLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => {
-                const date = new Date(value as string);
-                return date.toLocaleDateString('en-US', {
-                  day: 'numeric',
-                  month: 'short',
-                });
-              }}
-            />
-            {/* <ChartTooltip
-              cursor={false}
-              defaultIndex={isMobile ? -1 : 10}
-              content={
-                <ChartTooltipContent
-                  indicator='dot'
-                  labelFormatter={(value) => {
-                    return new Date(value as string).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    });
-                  }}
-                />
-              }
-            /> */}
-            <Area dataKey='mobile' fill='url(#fillMobile)' stackId='a' stroke='var(--color-mobile)' type='natural' />
-            <Area dataKey='desktop' fill='url(#fillDesktop)' stackId='a' stroke='var(--color-desktop)' type='natural' />
-          </AreaChart>
-        </ChartContainer>
+        <Chart ariaLabel='Desktop and mobile usage over time' definition={definition} height={250} />
       </CardContent>
     </Card>
   );

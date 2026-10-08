@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     "./globals.css": "./src/styles/globals.css",
-    "./components/*": "./src/components/*.tsx"
+    "./components/*": "./src/components/*.tsx",
+    "./lib/*": "./src/lib/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -18,6 +19,7 @@
     "@fontsource-variable/inter": "catalog:",
     "@kijk/core": "workspace:*",
     "@radix-ui/react-slot": "catalog:",
+    "@tanstack/charts": "catalog:",
     "class-variance-authority": "catalog:",
     "cn": "catalog:",
     "cmdk": "catalog:",
@@ -30,7 +32,6 @@
     "react-day-picker": "catalog:",
     "react-dom": "catalog:",
     "react-resizable-panels": "catalog:",
-    "recharts": "catalog:",
     "shadcn": "catalog:",
     "sonner": "catalog:",
     "tw-animate-css": "catalog:",

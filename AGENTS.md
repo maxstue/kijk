@@ -111,5 +111,5 @@ build → format → lint → audit
 - **Style**: Tailwind v4 (client)
 - **Router**: TanStack Router (file-based, generates types)
 - **Forms**: React Hook Form + Zod
-- **Charts**: Recharts
+- **Charts**: TanStack Charts (`@tanstack/charts`, React adapter)
 - **UI Primitives**: base-ui/react + radix-ui

@@ -1,10 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import type { ChartConfig } from '@kijk/ui/components/chart';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@kijk/ui/components/chart';
+import { Chart } from '@kijk/ui/components/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
+import { chartTheme, getChartTooltipContent } from '@kijk/ui/lib/chart';
+import { barY, d3Curve, defineChart, lineY } from '@tanstack/charts';
+import { scaleBand } from '@tanstack/charts/scales/band';
+import { scaleLinear } from '@tanstack/charts/scales/linear';
+import { tooltip } from '@tanstack/charts/tooltip';
 import { useQuery } from '@tanstack/react-query';
-import { Bar, CartesianGrid, ComposedChart, Line, XAxis } from 'recharts';
+import { curveStep } from 'd3-shape';
+import { useMemo } from 'react';
 
 import { toAmount } from '@/app/budgets/helpers';
 import { budgetStatisticsQueryOptions } from '@/shared/api/budgets/options';
@@ -12,11 +17,7 @@ import { formatStringToCurrency } from '@/shared/utils/format';
 
 const monthsShown = 12;
 
-// One series per small chart, so identity never depends on color; the budget is a dashed reference line.
-const chartConfig = {
-  budget: { color: 'var(--muted-foreground)', label: 'Budget' },
-  spent: { color: 'var(--primary)', label: 'Spent' },
-} satisfies ChartConfig;
+const budgetCurve = d3Curve(curveStep);
 
 interface Trend {
   id: string;
@@ -113,11 +114,42 @@ export function BudgetStatistics({ month, year }: { month: number; year: number 
 }
 
 function TrendChart({ labels, trend }: { labels: string[]; trend: Trend }) {
-  const data = labels.map((label, index) => ({
-    budget: trend.budget[index],
-    month: label,
-    spent: Math.max(0, trend.spent[index] ?? 0),
-  }));
+  const definition = useMemo(() => {
+    const data = labels.map((label, index) => ({
+      budget: trend.budget[index],
+      month: label,
+      spent: Math.max(0, trend.spent[index] ?? 0),
+    }));
+
+    return defineChart({
+      marks: [
+        barY(data, { x: 'month', y: 'spent', z: () => 'Spent', fill: 'var(--primary)', radius: [4, 4, 0, 0] }),
+        lineY(data, {
+          x: 'month',
+          y: 'budget',
+          z: () => 'Budget',
+          stroke: 'var(--muted-foreground)',
+          strokeDasharray: '4 3',
+          strokeWidth: 2,
+          curve: budgetCurve,
+        }),
+      ],
+      scales: {
+        x: {
+          scale: () => scaleBand<string>().padding(0.2),
+          axis: { line: false, ticks: { size: 0, padding: 4 }, tickLabels: { thin: { priority: 'ends' } } },
+        },
+        y: { scale: scaleLinear, nice: true, grid: true, axis: false },
+      },
+      color: { domain: ['Spent', 'Budget'], range: ['var(--primary)', 'var(--muted-foreground)'] },
+      theme: chartTheme,
+      focus: 'group-x',
+      tooltip: {
+        use: tooltip,
+        content: (points, context) => getChartTooltipContent(points, context, formatStringToCurrency),
+      },
+    });
+  }, [labels, trend]);
 
   return (
     <div className='rounded-md border p-3'>
@@ -125,23 +157,7 @@ function TrendChart({ labels, trend }: { labels: string[]; trend: Trend }) {
         <span className='text-sm font-medium'>{trend.name}</span>
         <span className='text-muted-foreground text-xs'>{formatStringToCurrency(sum(trend.spent))} total</span>
       </div>
-      <ChartContainer className='aspect-auto h-28 w-full' config={chartConfig}>
-        <ComposedChart accessibilityLayer data={data}>
-          <CartesianGrid vertical={false} />
-          <XAxis axisLine={false} dataKey='month' interval='preserveStartEnd' tickLine={false} tickMargin={4} />
-          <ChartTooltip content={<ChartTooltipContent />} cursor={false} />
-          <Bar dataKey='spent' fill='var(--color-spent)' radius={[4, 4, 0, 0]} />
-          <Line
-            connectNulls={false}
-            dataKey='budget'
-            dot={false}
-            stroke='var(--color-budget)'
-            strokeDasharray='4 3'
-            strokeWidth={2}
-            type='step'
-          />
-        </ComposedChart>
-      </ChartContainer>
+      <Chart ariaLabel={`${trend.name}: spending and budget over time`} definition={definition} height={112} />
     </div>
   );
 }

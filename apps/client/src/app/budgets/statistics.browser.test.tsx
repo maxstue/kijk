@@ -47,9 +47,43 @@ test('shows a small chart per category, the uncategorized spending and a table v
   await expect.element(screen.getByText('All expenses')).toBeVisible();
   await expect.element(screen.getByText('Groceries')).toBeVisible();
   await expect.element(screen.getByText('Uncategorized')).toBeVisible();
+  const groceryChart = screen.getByRole('img', { name: 'Groceries: spending and budget over time' });
+  await expect.element(groceryChart).toBeVisible();
+  expect(groceryChart.element().querySelectorAll('.ts-chart__bar path')).toHaveLength(12);
+  expect(groceryChart.element().querySelector('.ts-chart__line path')?.getAttribute('stroke-dasharray')).toBe('4 3');
+  expect(
+    screen
+      .getByRole('img', { name: 'Leisure: spending and budget over time' })
+      .element()
+      .querySelector('.ts-chart__line path'),
+  ).toBeNull();
   await screen.getByRole('tab', { name: 'Table' }).click();
   await expect.element(screen.getByRole('row', { name: /Leisure/ })).toBeVisible();
   await expect.element(screen.getByText('Category', { exact: true })).toBeVisible();
+  await screen.unmount();
+  client.clear();
+});
+
+test('leaves gaps in the budget reference line for months without a budget', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  const budget = [300, 300, null, null, 300, 300, 300, 300, 300, 300, 300, 300];
+  client.setQueryData(queryKeys.budgets.statistics(2026, 10, 12), {
+    categories: [{ budget, categoryId: 'g', name: 'Groceries', spent: zeros }],
+    months,
+    totalBudget: budget.map((value) => value ?? 0),
+    totalSpent: zeros,
+    uncategorized: zeros,
+  });
+
+  const screen = await render(
+    <QueryClientProvider client={client}>
+      <BudgetStatistics month={10} year={2026} />
+    </QueryClientProvider>,
+  );
+  const chart = screen.getByRole('img', { name: 'Groceries: spending and budget over time' });
+  await expect.element(chart).toBeVisible();
+  const segments = chart.element().querySelectorAll('.ts-chart__line path');
+  expect(segments).toHaveLength(2);
   await screen.unmount();
   client.clear();
 });

@@ -1,33 +1,43 @@
-import type { ChartConfig } from '@kijk/ui/components/chart';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@kijk/ui/components/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Chart } from '@kijk/ui/components/chart';
+import { chartTheme, getChartTooltipContent } from '@kijk/ui/lib/chart';
+import { barY, defineChart, group } from '@tanstack/charts';
+import { scaleBand } from '@tanstack/charts/scales/band';
+import { scaleLinear } from '@tanstack/charts/scales/linear';
+import { tooltip } from '@tanstack/charts/tooltip';
+import { useMemo } from 'react';
 
 import { toAmount } from '@/app/budgets/helpers';
 import type { BudgetCategory } from '@/shared/api/budgets/types';
-
-const chartConfig = {
-  budget: { color: 'var(--muted-foreground)', label: 'Budget' },
-  spent: { color: 'var(--primary)', label: 'Spent' },
-} satisfies ChartConfig;
+import { formatStringToCurrency } from '@/shared/utils/format';
 
 /** Bar chart comparing budget and spending per category. */
 export function BudgetChart({ categories }: { categories: BudgetCategory[] }) {
-  const data = categories.map((category) => ({
-    budget: toAmount(category.budget),
-    name: category.name,
-    spent: Math.max(0, toAmount(category.spent)),
-  }));
+  const definition = useMemo(() => {
+    const data = categories.flatMap((category) => [
+      { id: `${category.categoryId}-budget`, name: category.name, series: 'Budget', value: toAmount(category.budget) },
+      {
+        id: `${category.categoryId}-spent`,
+        name: category.name,
+        series: 'Spent',
+        value: Math.max(0, toAmount(category.spent)),
+      },
+    ]);
 
-  return (
-    <ChartContainer className='aspect-auto h-72 w-full' config={chartConfig}>
-      <BarChart accessibilityLayer data={data}>
-        <CartesianGrid vertical={false} />
-        <XAxis axisLine={false} dataKey='name' tickLine={false} tickMargin={8} />
-        <YAxis axisLine={false} tickLine={false} width={48} />
-        <ChartTooltip content={<ChartTooltipContent />} cursor={false} />
-        <Bar dataKey='budget' fill='var(--color-budget)' radius={4} />
-        <Bar dataKey='spent' fill='var(--color-spent)' radius={4} />
-      </BarChart>
-    </ChartContainer>
-  );
+    return defineChart({
+      marks: [barY(data, { x: 'name', y: 'value', z: 'series', color: 'series', layout: group(), radius: 4 })],
+      scales: {
+        x: { scale: () => scaleBand<string>().padding(0.2), axis: { line: false, ticks: { size: 0, padding: 8 } } },
+        y: { scale: scaleLinear, nice: true, grid: true, axis: { line: false, ticks: { size: 0 } } },
+      },
+      color: { domain: ['Budget', 'Spent'], range: ['var(--muted-foreground)', 'var(--primary)'] },
+      theme: chartTheme,
+      focus: 'group-x',
+      tooltip: {
+        use: tooltip,
+        content: (points, context) => getChartTooltipContent(points, context, formatStringToCurrency),
+      },
+    });
+  }, [categories]);
+
+  return <Chart ariaLabel='Budget and spending per category' definition={definition} height={288} />;
 }
