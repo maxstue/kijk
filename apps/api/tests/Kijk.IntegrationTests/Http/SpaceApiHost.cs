@@ -1,21 +1,21 @@
+using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Kijk.Api;
 using Kijk.Api.Extensions;
 using Kijk.Api.Middleware;
 using Kijk.Application;
-using Kijk.Application.Shared.Persistence;
 using Kijk.Infrastructure;
-using Kijk.Infrastructure.Persistence;
 using Kijk.IntegrationTests.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Sentry.Extensibility;
+using DependencyInjection = Kijk.Api.DependencyInjection;
 
 namespace Kijk.IntegrationTests.Http;
 
@@ -44,7 +44,7 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
             EnvironmentName = "Testing",
-            ApplicationName = typeof(Kijk.Api.DependencyInjection).Assembly.FullName
+            ApplicationName = typeof(DependencyInjection).Assembly.FullName
         });
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
@@ -64,13 +64,11 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
             builder.Configuration.AddInMemoryCollection(configuration);
         }
 
-        builder.WebHost.UseKestrel(options => options.Listen(System.Net.IPAddress.Loopback, 0));
+        builder.WebHost.UseKestrel(options => options.Listen(IPAddress.Loopback, 0));
         builder.Services.AddApplication().AddApi(builder.Configuration).AddInfrastructure(builder.Configuration);
-        builder.Services.RemoveAll<AppDbContext>();
-        builder.Services.AddScoped(_ => PostgreSqlTestDatabase.CreateDbContext());
-        builder.Services.RemoveAll<IAppDbContext>();
-        builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
-        builder.Services.AddSingleton<Sentry.IHub>(Sentry.Extensibility.HubAdapter.Instance);
+        // Keep the production DbContext registration so HTTP tests also cover its provider options,
+        // execution strategy and interceptors. Only the connection string points to Testcontainers.
+        builder.Services.AddSingleton<IHub>(HubAdapter.Instance);
         configureServices?.Invoke(builder.Services);
         builder.Services.AddAuthentication(options =>
         {

@@ -71,7 +71,7 @@ public static class DependencyInjection
                     new SlowQueryInterceptor(persistenceOptions.SlowQueryLoggingEnabled, persistenceOptions.SlowQueryThreshold)
                 ];
 
-                optionsBuilder.UseNpgsql(connectionString, opt => opt.MapEnum<CreatorType>().EnableRetryOnFailure())
+                optionsBuilder.UseNpgsql(connectionString, opt => opt.MapEnum<CreatorType>())
                     .UseExceptionProcessor()
                     .UseSnakeCaseNamingConvention()
                     .AddInterceptors(interceptors);

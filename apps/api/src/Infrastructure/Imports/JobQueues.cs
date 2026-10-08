@@ -1,4 +1,3 @@
-using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Infrastructure.Persistence;
