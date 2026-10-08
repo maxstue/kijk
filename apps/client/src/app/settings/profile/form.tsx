@@ -10,6 +10,7 @@ import { ConnectedSignInMethods } from '@/app/settings/profile/providers';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
 import { useUpdateUser } from '@/app/settings/profile/use-update-user';
+import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
@@ -22,11 +23,13 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 
+/** Form for the display name, active household name, default resources and profile usage. */
 export function ProfileForm() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const currentUser = currentAccount?.user;
   const activeHousehold = currentUser?.households?.find((household) => household.isActive);
   const externalIdentity = currentUser?.externalIdentity;
+  const canRenameHousehold = hasHouseholdPermission(activeHousehold, HouseholdPermissions.household.configure);
 
   const { mutate } = useUpdateUser();
 
@@ -99,9 +102,13 @@ export function ProfileForm() {
             <FormItem>
               <FormLabel>Household name</FormLabel>
               <FormControl>
-                <Input placeholder='My household' {...field} />
+                <Input disabled={!canRenameHousehold} placeholder='My household' {...field} />
               </FormControl>
-              <FormDescription>The name of your active household.</FormDescription>
+              <FormDescription>
+                {canRenameHousehold
+                  ? 'The name of your active household.'
+                  : 'Your household role does not allow renaming the household.'}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

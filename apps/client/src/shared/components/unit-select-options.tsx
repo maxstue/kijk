@@ -7,6 +7,7 @@ interface Props {
   units: Unit[];
 }
 
+/** Select options for convertible, non-archived units, grouped by quantity. */
 export function UnitSelectOptions({ units }: Props) {
   const groups = Map.groupBy(
     units.filter((unit) => unit.conversionType !== 'None' && !unit.isArchived),

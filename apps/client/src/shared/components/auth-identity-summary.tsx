@@ -8,6 +8,7 @@ interface AuthIdentitySummaryProps {
   provider?: string;
 }
 
+/** Shows the identity from the sign-in provider (avatar, name, email, provider). */
 export function AuthIdentitySummary({
   email,
   fullName,

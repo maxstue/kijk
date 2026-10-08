@@ -3,8 +3,11 @@ using Kijk.Shared;
 
 namespace Kijk.Api.Middleware;
 
+/// <summary>Attaches the request's correlation id to telemetry events.</summary>
+/// <param name="telemetryService">The telemetry service.</param>
 public class TelemetryMiddleware(ITelemetryService telemetryService) : IMiddleware
 {
+    /// <inheritdoc />
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var correlationId = CorrelationIdProvider.Get(context);

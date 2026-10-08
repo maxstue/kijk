@@ -9,6 +9,7 @@ namespace Kijk.Application.Consumptions;
 /// </summary>
 public class ModuleService : IModule
 {
+    /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         // Validators

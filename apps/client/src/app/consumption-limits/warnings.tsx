@@ -4,6 +4,10 @@ import { toast } from 'sonner';
 
 import { consumptionLimitsQueryOptions } from '@/shared/api/consumption-limits/options';
 
+/**
+ * Shows a warning toast for every exceeded active limit and dismisses it once the limit is no longer exceeded. Renders
+ * nothing.
+ */
 export function ConsumptionLimitWarnings() {
   const { data } = useSuspenseQuery(consumptionLimitsQueryOptions());
 

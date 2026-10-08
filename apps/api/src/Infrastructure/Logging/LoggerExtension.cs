@@ -13,8 +13,8 @@ public static class LoggerExtension
     /// <summary>
     /// Creates a reloadable logger.
     /// </summary>
-    /// <param name="configuration"></param>
-    /// <returns></returns>
+    /// <param name="configuration">The logger configuration.</param>
+    /// <returns>The reloadable logger.</returns>
     public static ReloadableLogger CreateReloadableLogger(this LoggerConfiguration configuration) => configuration
         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
         .Enrich.FromLogContext()

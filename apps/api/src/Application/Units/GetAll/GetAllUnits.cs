@@ -10,6 +10,9 @@ namespace Kijk.Application.Units.GetAll;
 /// </summary>
 public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
+    /// <summary>Gets the system units.</summary>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The system units.</returns>
     public async Task<Result<List<UnitResponse>>> GetSystemAsync(CancellationToken cancellationToken)
     {
         var units = await dbContext.Units.Where(unit => unit.CreatorType == CreatorType.System
@@ -20,6 +23,14 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
         return units.Select(unit => UnitResponseFactory.Create(unit, currentUser, 0)).ToList();
     }
 
+    /// <summary>Gets a page of the user's personal units or of the units available in a household.</summary>
+    /// <param name="household">Whether to list household units instead of personal units.</param>
+    /// <param name="householdId">The household; defaults to the active household.</param>
+    /// <param name="page">The 1-based page number.</param>
+    /// <param name="pageSize">The page size (1-100).</param>
+    /// <param name="search">An optional name or symbol filter.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The page.</returns>
     public async Task<Result<UnitPageResponse>> GetPageAsync(
         bool household, Guid? householdId, int page, int pageSize, string? search, CancellationToken cancellationToken)
     {
@@ -62,6 +73,10 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
         return new UnitPageResponse(items, totalCount, customCount, page, pageSize);
     }
 
+    /// <summary>Gets all units visible to the current user.</summary>
+    /// <param name="includeArchived">Whether to include archived units.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The units.</returns>
     public async Task<Result<List<UnitResponse>>> GetAllAsync(bool includeArchived, CancellationToken cancellationToken)
     {
         var units = await dbContext.GetVisibleUnits(currentUser)

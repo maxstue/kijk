@@ -9,6 +9,11 @@ namespace Kijk.Application.ConsumptionLimits.Update;
 /// </summary>
 public sealed class UpdateConsumptionLimitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
+    /// <summary>Updates a limit of the active household.</summary>
+    /// <param name="id">The limit id.</param>
+    /// <param name="request">The new limit data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The updated limit with its current evaluation.</returns>
     public async Task<Result<ConsumptionLimitResponse>> UpdateAsync(
         Guid id,
         UpdateConsumptionLimitRequest request,
@@ -16,6 +21,7 @@ public sealed class UpdateConsumptionLimitHandler(IAppDbContext dbContext, Curre
     {
         var limit = await dbContext.ConsumptionsLimits
             .Include(item => item.Resource)
+            .ThenInclude(resource => resource.Unit)
             .FirstOrDefaultAsync(item => item.Id == id && item.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (limit is null)
         {

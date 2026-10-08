@@ -2,6 +2,6 @@ namespace Kijk.Application;
 
 /// <summary>
 /// Marker interface for handlers.
-/// This is used to register all handlers by reflection in <see cref="DependencyInjection.AddHandlers"/>.
+/// All implementations are registered automatically by the source-generated <c>AddHandlers</c> method.
 /// </summary>
 public interface IHandler;

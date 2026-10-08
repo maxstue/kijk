@@ -15,6 +15,7 @@ import type { ConsumptionLimitFormValues } from '@/app/consumption-limits/schema
 import { useCreateConsumptionLimit } from '@/app/consumption-limits/use-create-limit';
 import { useUpdateConsumptionLimit } from '@/app/consumption-limits/use-update-limit';
 import type { ConsumptionLimit } from '@/shared/api/consumption-limits/types';
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import {
   Form,
@@ -25,6 +26,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
+import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
 import type { Resource } from '@/shared/types/domain';
 
 interface Props {
@@ -41,7 +43,9 @@ const createDefaultValues: ConsumptionLimitFormValues = {
   resourceId: '',
 };
 
+/** Form to create a limit, or to edit `initialData` when given. */
 export function ConsumptionLimitForm({ initialData, onClose }: Props) {
+  const canPlan = useHouseholdPermission(HouseholdPermissions.limits.plan);
   const createMutation = useCreateConsumptionLimit();
   const updateMutation = useUpdateConsumptionLimit();
   const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
@@ -52,6 +56,9 @@ export function ConsumptionLimitForm({ initialData, onClose }: Props) {
   });
 
   function onSubmit(values: ConsumptionLimitFormValues) {
+    if (!canPlan) {
+      return;
+    }
     const onError = (error: Error) => toast.error(error.name, { description: error.message });
     const onSuccess = () => {
       toast.success(initialData ? 'Limit updated' : 'Limit created');
@@ -236,10 +243,16 @@ function ActiveField({ form }: FormComponentProps) {
 }
 
 function SubmitButton({ form, isEditing, isPending }: FormComponentProps & { isEditing: boolean; isPending: boolean }) {
+  const canPlan = useHouseholdPermission(HouseholdPermissions.limits.plan);
   const label = isEditing ? 'Update limit' : 'Create limit';
 
   return (
-    <Button className='mt-2' disabled={isPending || (isEditing && !form.formState.isDirty)} type='submit'>
+    <Button
+      className='mt-2'
+      disabled={!canPlan || isPending || (isEditing && !form.formState.isDirty)}
+      title={canPlan ? undefined : 'Your household role does not allow planning limits'}
+      type='submit'
+    >
       {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : label}
     </Button>
   );

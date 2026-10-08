@@ -62,10 +62,12 @@ function scheduleDismissal() {
   }
 }
 
+/** Returns whether the static loader from index.html is still in the DOM. */
 export function isBootstrapLoaderPresent() {
   return getBootstrapLoader() !== null;
 }
 
+/** Keeps the bootstrap loader visible while a React loader is mounted; returns the cleanup that releases it. */
 export function registerBootstrapLoader() {
   activeLoaderCount += 1;
   cancelDismissal();
@@ -76,6 +78,7 @@ export function registerBootstrapLoader() {
   };
 }
 
+/** Signals that React rendered so the bootstrap loader can fade out once no loader holds it. */
 export function markReactReady() {
   reactIsReady = true;
   scheduleDismissal();

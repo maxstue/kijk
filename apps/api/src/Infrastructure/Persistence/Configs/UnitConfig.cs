@@ -10,6 +10,7 @@ namespace Kijk.Infrastructure.Persistence.Configs;
 /// </summary>
 public sealed class UnitConfig : IEntityTypeConfiguration<Unit>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Unit> builder)
     {
         builder.HasKey(unit => unit.Id);

@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 import type { Consumption } from '@/shared/types/domain';
 
+/** Filter value that shows all resources. */
 export const allResourceTypes = 'all';
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   value: string;
 }
 
+/** Select to filter consumptions by resource. */
 export function ConsumptionTypeFilter({ onSelect, resources, value }: Props) {
   const [open, setOpen] = useState(false);
   const selectedName =

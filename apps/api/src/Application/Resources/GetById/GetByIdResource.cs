@@ -9,17 +9,17 @@ namespace Kijk.Application.Resources.GetById;
 /// <summary>
 /// Handler for getting a resource by id.
 /// </summary>
-/// <param name="dbContext"></param>
-/// <param name="currentUser"></param>
-/// <param name="logger"></param>
+/// <param name="dbContext">The database context.</param>
+/// <param name="currentUser">The current user.</param>
+/// <param name="logger">The logger.</param>
 public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdResourceHandler> logger) : IHandler
 {
     /// <summary>
     /// Handle to get a resource type by id.
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="id">The resource id.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The resource, or a not-found error.</returns>
     public async Task<Result<ResourceResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var resource = await dbContext

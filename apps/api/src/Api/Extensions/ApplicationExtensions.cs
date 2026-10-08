@@ -6,8 +6,12 @@ using Serilog.Events;
 
 namespace Kijk.Api.Extensions;
 
+/// <summary>Request pipeline extensions.</summary>
 public static class ApplicationExtensions
 {
+    /// <summary>Logs every request; client errors are logged as information, server errors as errors.</summary>
+    /// <param name="applicationBuilder">The application builder.</param>
+    /// <returns>The application builder.</returns>
     public static IApplicationBuilder UseRequestLogging(this IApplicationBuilder applicationBuilder)
     {
         applicationBuilder.UseSerilogRequestLogging(options => options.GetLevel = (ctx, _, ex) =>
@@ -32,6 +36,9 @@ public static class ApplicationExtensions
         return applicationBuilder;
     }
 
+    /// <summary>Serves the OpenAPI documents and the Scalar API reference.</summary>
+    /// <param name="applicationBuilder">The application builder.</param>
+    /// <returns>The application builder.</returns>
     public static IApplicationBuilder MapOpenApi(this IApplicationBuilder applicationBuilder)
     {
         var app = (WebApplication)applicationBuilder;
@@ -57,8 +64,8 @@ public static class ApplicationExtensions
     /// <summary>
     /// Maps the health check endpoint to the application.
     /// </summary>
-    /// <param name="app"></param>
-    /// <returns></returns>
+    /// <param name="app">The web application.</param>
+    /// <returns>The web application.</returns>
     public static WebApplication MapHealthCheck(this WebApplication app)
     {
         app.MapHealthChecks("/health", new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });

@@ -16,6 +16,7 @@ function getComparisonLabel(selectedYear: number, selectedMonth: Months) {
   return isCurrentMonth ? 'from last month' : 'compared to current month';
 }
 
+/** Monthly overview cards with totals and comparisons for every resource. */
 export default function ConsumptionStats() {
   const searchParameters = Route.useSearch();
 

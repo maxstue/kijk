@@ -11,6 +11,7 @@ import { cn } from 'cn';
 import { CommandMenu } from '@/app/root/command-menu';
 import { mainNav } from '@/app/root/constants';
 
+/** Main navigation group of the sidebar, including the command menu. */
 export function NavMain() {
   return (
     <SidebarGroup>

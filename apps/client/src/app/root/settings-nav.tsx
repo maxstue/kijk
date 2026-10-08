@@ -13,6 +13,7 @@ import { ArrowLeftIcon, HouseIcon } from 'lucide-react';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { settingsNavGroups } from '@/shared/navigation/settings';
 
+/** Sidebar navigation of the settings pages, including one entry per household. */
 export function SettingsNav() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const households = currentAccount?.user?.households ?? [];

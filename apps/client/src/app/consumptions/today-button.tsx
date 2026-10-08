@@ -5,6 +5,7 @@ import { getMonthFromDate } from '@/shared/utils/months';
 
 const Route = getRouteApi('/_authenticated/_app/consumptions');
 
+/** Sets the selected year and month to today. */
 export function ConsumptionTodayButton() {
   const navigate = Route.useNavigate();
 

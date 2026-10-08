@@ -15,6 +15,10 @@ public class DeleteConsumptionHandler(
     TimeProvider timeProvider,
     ILogger<DeleteConsumptionHandler> logger) : IHandler
 {
+    /// <summary>Deletes a consumption of the active household and recalculates later meter readings.</summary>
+    /// <param name="id">The consumption id.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns><see langword="true" />, or a not-found error.</returns>
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var foundEntity = await dbContext.Consumptions

@@ -253,9 +253,84 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasName("pk_permissions");
 
                     b.HasIndex("Name")
+                        .IsUnique()
                         .HasDatabaseName("ix_permissions_name");
 
                     b.ToTable("permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("51af63b7-f581-48a5-8987-937939b56dec"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "consumptions:view"
+                        },
+                        new
+                        {
+                            Id = new Guid("80abd19c-7609-40a6-a296-d4310d3771f0"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "consumptions:record"
+                        },
+                        new
+                        {
+                            Id = new Guid("4c18ae0c-f592-4398-8226-b89f6150c314"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "consumptions:export"
+                        },
+                        new
+                        {
+                            Id = new Guid("6a994db4-6fce-4538-bb38-1c8a2edca792"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "limits:view"
+                        },
+                        new
+                        {
+                            Id = new Guid("5ca7bb07-cf8b-4930-8047-e4c857c4fc65"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "limits:plan"
+                        },
+                        new
+                        {
+                            Id = new Guid("c2d383b8-545f-43d1-b5bb-44a2f184934a"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "resources:view"
+                        },
+                        new
+                        {
+                            Id = new Guid("af500b09-178e-4fd2-8e20-387b84c91fac"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "resources:configure"
+                        },
+                        new
+                        {
+                            Id = new Guid("57820fa1-c443-458d-b8d3-40ef527720d4"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "units:share"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e065002-1522-4138-a96b-52e657b7cbcc"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "household:configure"
+                        },
+                        new
+                        {
+                            Id = new Guid("4ab7acac-5b5f-41b4-a3f7-7174694781b1"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "household:delete"
+                        },
+                        new
+                        {
+                            Id = new Guid("55d9913b-dcb6-43bc-b9b8-0b840508c795"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "members:view"
+                        },
+                        new
+                        {
+                            Id = new Guid("39e9c646-8685-4fb5-a0d9-68233d3d605c"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "members:assign-role"
+                        });
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Resource", b =>
@@ -369,9 +444,30 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasName("pk_roles");
 
                     b.HasIndex("Name")
+                        .IsUnique()
                         .HasDatabaseName("ix_roles_name");
 
                     b.ToTable("roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Member"
+                        },
+                        new
+                        {
+                            Id = new Guid("3e42fa02-77ac-4bb9-a9a8-d031a3b8ea75"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Viewer"
+                        });
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
@@ -735,29 +831,118 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_roles_permissions_roles_id");
 
                     b.ToTable("roles_permissions", (string)null);
-                });
 
-            modelBuilder.Entity("user_households_permissions", b =>
-                {
-                    b.Property<Guid>("UserHouseHoldExtraPermissionsId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_house_hold_extra_permissions_id");
-
-                    b.Property<Guid>("UserHouseholdsUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_households_user_id");
-
-                    b.Property<Guid>("UserHouseholdsHouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_households_household_id");
-
-                    b.HasKey("UserHouseHoldExtraPermissionsId", "UserHouseholdsUserId", "UserHouseholdsHouseholdId")
-                        .HasName("pk_user_households_permissions");
-
-                    b.HasIndex("UserHouseholdsUserId", "UserHouseholdsHouseholdId")
-                        .HasDatabaseName("ix_user_households_permissions_user_households_user_id_user_ho");
-
-                    b.ToTable("user_households_permissions", (string)null);
+                    b.HasData(
+                        new
+                        {
+                            PermissionsId = new Guid("51af63b7-f581-48a5-8987-937939b56dec"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("80abd19c-7609-40a6-a296-d4310d3771f0"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("4c18ae0c-f592-4398-8226-b89f6150c314"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("6a994db4-6fce-4538-bb38-1c8a2edca792"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("5ca7bb07-cf8b-4930-8047-e4c857c4fc65"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("c2d383b8-545f-43d1-b5bb-44a2f184934a"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("af500b09-178e-4fd2-8e20-387b84c91fac"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("57820fa1-c443-458d-b8d3-40ef527720d4"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("0e065002-1522-4138-a96b-52e657b7cbcc"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("4ab7acac-5b5f-41b4-a3f7-7174694781b1"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("55d9913b-dcb6-43bc-b9b8-0b840508c795"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("39e9c646-8685-4fb5-a0d9-68233d3d605c"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("51af63b7-f581-48a5-8987-937939b56dec"),
+                            RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("80abd19c-7609-40a6-a296-d4310d3771f0"),
+                            RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("4c18ae0c-f592-4398-8226-b89f6150c314"),
+                            RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("6a994db4-6fce-4538-bb38-1c8a2edca792"),
+                            RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("c2d383b8-545f-43d1-b5bb-44a2f184934a"),
+                            RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("55d9913b-dcb6-43bc-b9b8-0b840508c795"),
+                            RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("51af63b7-f581-48a5-8987-937939b56dec"),
+                            RolesId = new Guid("3e42fa02-77ac-4bb9-a9a8-d031a3b8ea75")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("6a994db4-6fce-4538-bb38-1c8a2edca792"),
+                            RolesId = new Guid("3e42fa02-77ac-4bb9-a9a8-d031a3b8ea75")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("c2d383b8-545f-43d1-b5bb-44a2f184934a"),
+                            RolesId = new Guid("3e42fa02-77ac-4bb9-a9a8-d031a3b8ea75")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("55d9913b-dcb6-43bc-b9b8-0b840508c795"),
+                            RolesId = new Guid("3e42fa02-77ac-4bb9-a9a8-d031a3b8ea75")
+                        });
                 });
 
             modelBuilder.Entity("users_resources", b =>
@@ -944,23 +1129,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_roles_permissions_roles_roles_id");
-                });
-
-            modelBuilder.Entity("user_households_permissions", b =>
-                {
-                    b.HasOne("Kijk.Domain.Entities.Permission", null)
-                        .WithMany()
-                        .HasForeignKey("UserHouseHoldExtraPermissionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_households_permissions_permissions_user_house_hold_ext");
-
-                    b.HasOne("Kijk.Domain.Entities.UserHousehold", null)
-                        .WithMany()
-                        .HasForeignKey("UserHouseholdsUserId", "UserHouseholdsHouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_households_permissions_user_households_user_households");
                 });
 
             modelBuilder.Entity("users_resources", b =>

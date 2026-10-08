@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { householdUpdateSchema } from '@/app/settings/households/schemas';
 import type { HouseholdUpdateFormValues } from '@/app/settings/households/schemas';
 import { updateHouseholdMutationOptions } from '@/shared/api/households/options';
+import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
 import { queryKeys } from '@/shared/api/query-keys';
 import {
   Form,
@@ -30,9 +31,11 @@ import { HouseholdBackLink } from './back-link';
 import { useHouseholdSettings } from './context';
 import { HouseholdDeleteContent } from './delete-content';
 
+/** General household settings: editable details and deletion, depending on the user's permissions. */
 export function HouseholdGeneral() {
   const { household } = useHouseholdSettings();
-  const isAdministrator = household.role.name === 'Admin';
+  const canConfigure = hasHouseholdPermission(household, HouseholdPermissions.household.configure);
+  const canDelete = hasHouseholdPermission(household, HouseholdPermissions.household.delete);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -83,7 +86,7 @@ export function HouseholdGeneral() {
       </div>
       <Separator />
 
-      {isAdministrator ? (
+      {canConfigure ? (
         <Form {...form}>
           <form className='space-y-6' noValidate onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
@@ -131,12 +134,12 @@ export function HouseholdGeneral() {
               <div className='text-muted-foreground text-sm'>Description</div>
               <div>{household.description || 'No description added.'}</div>
             </div>
-            <p className='text-muted-foreground text-sm'>Only household administrators can edit these details.</p>
+            <p className='text-muted-foreground text-sm'>Your household role does not allow editing these details.</p>
           </CardContent>
         </Card>
       )}
 
-      {isAdministrator && (
+      {canDelete && (
         <>
           <Separator />
           <section className='border-destructive/50 space-y-4 rounded-lg border p-5'>

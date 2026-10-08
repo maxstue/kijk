@@ -5,6 +5,7 @@ import { queryKeys } from '@/shared/api/query-keys';
 import type { Consumption } from '@/shared/types/domain';
 import { getMonthFromDate } from '@/shared/utils/months';
 
+/** Creates a consumption and refreshes consumption lists, stats and limits. */
 export const useCreateConsumption = () => {
   const queryClient = useQueryClient();
 

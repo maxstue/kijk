@@ -1,5 +1,7 @@
+using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Units.Shared;
+using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 
@@ -10,6 +12,13 @@ namespace Kijk.Application.Units.Create;
 /// </summary>
 public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
 {
+    /// <summary>
+    /// Creates a unit owned by the current user and optionally shares it with households; sharing requires the
+    /// units:share permission in each household.
+    /// </summary>
+    /// <param name="request">The unit data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created unit.</returns>
     public async Task<Result<UnitResponse>> CreateAsync(CreateUnitRequest request, CancellationToken cancellationToken)
     {
         var reference = await dbContext.Units
@@ -32,14 +41,14 @@ public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser curre
             return Error.Conflict("A unit with this name already exists");
         }
 
+        // Sharing while creating needs the same permission as the dedicated share endpoint.
         var householdIds = (request.ShareWithHouseholdIds ?? []).Distinct().ToList();
-        var allowedHouseholdIds = await dbContext.UserHouseholds
-            .Where(link => link.UserId == currentUser.Id && householdIds.Contains(link.HouseholdId))
-            .Select(link => link.HouseholdId)
-            .ToListAsync(cancellationToken);
-        if (allowedHouseholdIds.Count != householdIds.Count)
+        foreach (var householdId in householdIds)
         {
-            return Error.Authorization("A unit can only be shared with households of the current user");
+            if (await dbContext.AuthorizeHouseholdAsync(currentUser.Id, householdId, HouseholdPermissions.Units.Share, cancellationToken) is { } error)
+            {
+                return error;
+            }
         }
 
         var unit = new Unit

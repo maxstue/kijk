@@ -75,6 +75,7 @@ function error(message?: string, ...optionalParameters: unknown[]) {
   );
 }
 
+/** Console logger that prefixes messages with a timestamp and a colored level. */
 const logger = {
   log,
   info,

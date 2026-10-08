@@ -3,6 +3,7 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { stringIsNotEmptyOrWhitespace } from '@/shared/utils/string';
 
+/** Layout route for signed-in users; redirects to `/auth` (remembering the target) when signed out. */
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location, context: { authClient } }) => {
     const session = authClient?.session;

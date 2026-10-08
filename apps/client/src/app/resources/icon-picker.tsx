@@ -16,6 +16,7 @@ interface Props {
   value: string;
 }
 
+/** Searchable popover to pick a resource icon. */
 export function ResourceIconPicker({ onChange, value }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');

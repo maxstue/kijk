@@ -32,6 +32,7 @@ interface RunningTotalProps {
   excludeId?: string;
 }
 
+/** Shows the meter total the entered value results in, based on the previous reading of the resource. */
 export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTotalProps) {
   const { control } = useFormContext<ConsumptionFormValues>();
   const date = useWatch({ control, name: 'date' });
@@ -49,12 +50,13 @@ export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTota
       item.calculatedMeterReading != null,
   );
   const numericValue = Number(value);
-  const total =
-    valueType === ValueTypes.ABSOLUTE
-      ? numericValue
-      : previousEntry?.calculatedMeterReading == null
-        ? undefined
-        : Number(previousEntry.calculatedMeterReading) + numericValue;
+  // A meter reading is the total itself; a relative value adds to the previous reading, if there is one.
+  let total: number | undefined;
+  if (valueType === ValueTypes.ABSOLUTE) {
+    total = numericValue;
+  } else if (previousEntry?.calculatedMeterReading != null) {
+    total = Number(previousEntry.calculatedMeterReading) + numericValue;
+  }
 
   return (
     <div className='bg-muted/40 grid grid-cols-[minmax(0,1fr)_auto_auto] items-baseline gap-2 rounded-md px-3 py-2 text-sm'>
@@ -65,6 +67,7 @@ export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTota
   );
 }
 
+/** Name input of the consumption forms. */
 export function ConsumptionNameField<TFormValues extends ConsumptionFormValues>({
   className,
   field,
@@ -80,6 +83,7 @@ export function ConsumptionNameField<TFormValues extends ConsumptionFormValues>(
   );
 }
 
+/** Value input of the consumption forms. */
 export function ConsumptionValueField<TFormValues extends ConsumptionFormValues>({
   className,
   field,
@@ -111,6 +115,7 @@ export function ConsumptionValueField<TFormValues extends ConsumptionFormValues>
   );
 }
 
+/** Choice between a meter reading and a direct consumption amount. */
 export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormValues>({
   className,
   field,
@@ -150,6 +155,7 @@ export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormVal
   );
 }
 
+/** Resource select of the consumption forms. */
 export function ConsumptionResourceField<TFormValues extends ConsumptionFormValues>({
   className,
   field,
@@ -181,6 +187,7 @@ export function ConsumptionResourceField<TFormValues extends ConsumptionFormValu
   );
 }
 
+/** Date picker of the consumption forms. */
 export function ConsumptionDateField<TFormValues extends ConsumptionFormValues>({
   className,
   field,
@@ -196,6 +203,7 @@ export function ConsumptionDateField<TFormValues extends ConsumptionFormValues>(
   );
 }
 
+/** Checkbox to start a new meter segment; only shown for meter readings. */
 export function ConsumptionResetField<TFormValues extends ConsumptionFormValues>({
   className,
   field,

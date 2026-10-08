@@ -4,6 +4,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ResourceTypeUpdateForm } from '@/app/resources/update-form';
 import { resourceQueryOptions } from '@/shared/api/resources/options';
 
+/** `/resources/$resourceId`: edit dialog of a resource. */
 export const Route = createFileRoute('/_authenticated/_app/resources/$resourceId')({
   loader: ({ context: { queryClient }, params: { resourceId } }) =>
     queryClient.ensureQueryData(resourceQueryOptions(resourceId)),

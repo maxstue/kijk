@@ -11,12 +11,13 @@ namespace Kijk.Api.Middleware;
 /// <summary>
 /// Middleware to set the current user.
 /// </summary>
-/// <param name="problemDetailsService"></param>
-/// <param name="telemetryService"></param>
-/// <param name="dbContext"></param>
-/// <param name="currentUser"></param>
+/// <param name="problemDetailsService">Writes problem-details responses.</param>
+/// <param name="telemetryService">Reports errors to the telemetry service.</param>
+/// <param name="dbContext">The database context.</param>
+/// <param name="currentUser">The current user.</param>
 public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService, ITelemetryService telemetryService, AppDbContext dbContext, CurrentUser currentUser) : IMiddleware
 {
+    /// <inheritdoc />
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var endpoint = context.GetEndpoint();

@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { cn } from 'cn';
 
+/** Container that groups related content. */
 function Card({ className, size = 'default', ...props }: React.ComponentProps<'div'> & { size?: 'default' | 'sm' }) {
   return (
     <div
@@ -16,6 +17,7 @@ function Card({ className, size = 'default', ...props }: React.ComponentProps<'d
   );
 }
 
+/** Top area of a card with title, description and action. */
 function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -29,6 +31,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Title of a card. */
 function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -39,10 +42,12 @@ function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Supporting text below the card title. */
 function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='card-description' className={cn('text-muted-foreground text-sm', className)} {...props} />;
 }
 
+/** Action placed in the top right of the card header. */
 function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -53,10 +58,12 @@ function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Main content of a card. */
 function CardContent({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='card-content' className={cn('px-(--card-spacing)', className)} {...props} />;
 }
 
+/** Bottom area of a card, e.g. for actions. */
 function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

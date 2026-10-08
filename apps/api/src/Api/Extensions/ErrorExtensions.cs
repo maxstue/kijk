@@ -11,8 +11,8 @@ public static class ErrorExtensions
     /// <summary>
     /// Converts the <see cref="Error"/> to a <see cref="ProblemDetails"/>.
     /// </summary>
-    /// <param name="error"></param>
-    /// <returns></returns>
+    /// <param name="error">The error.</param>
+    /// <returns>The problem details with the matching status code.</returns>
     public static ProblemDetails ToProblemDetails(this Error error) => new()
     {
         Status = GetStatusCode(error.Type),

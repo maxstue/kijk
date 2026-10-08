@@ -8,6 +8,7 @@ namespace Kijk.Api.Middleware;
 /// </summary>
 public class ExtendRequestLoggingMiddleware : IMiddleware
 {
+    /// <inheritdoc />
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var correlationId = CorrelationIdProvider.Get(context);

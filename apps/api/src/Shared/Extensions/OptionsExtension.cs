@@ -14,11 +14,11 @@ public static class OptionsExtensions
     /// This method also registers a scoped service for the option class.
     /// This allows us to inject the option class directly, instead of IOptions, which is more convenient.
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration"></param>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
     /// <param name="lifetime">The lifetime of the registered options service. Default is Scoped.</param>
-    /// <typeparam name="TOptions"></typeparam>
-    /// <returns></returns>
+    /// <typeparam name="TOptions">The options type.</typeparam>
+    /// <returns>The service collection.</returns>
     public static IServiceCollection ConfigureOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, ServiceLifetime lifetime = ServiceLifetime.Scoped)
         where TOptions : class, IConfigOptions
     {

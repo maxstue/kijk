@@ -4,16 +4,19 @@ import { Accordion as AccordionPrimitive } from 'radix-ui';
 import { cn } from 'cn';
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 
+/** Vertically stacked sections that expand and collapse. */
 function Accordion({ className, ...props }: React.ComponentProps<typeof AccordionPrimitive.Root>) {
   return <AccordionPrimitive.Root data-slot='accordion' className={cn('flex w-full flex-col', className)} {...props} />;
 }
 
+/** A single section of an accordion. */
 function AccordionItem({ className, ...props }: React.ComponentProps<typeof AccordionPrimitive.Item>) {
   return (
     <AccordionPrimitive.Item data-slot='accordion-item' className={cn('not-last:border-b', className)} {...props} />
   );
 }
 
+/** Header button that toggles its accordion item. */
 function AccordionTrigger({ className, children, ...props }: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
   return (
     <AccordionPrimitive.Header className='flex'>
@@ -39,6 +42,7 @@ function AccordionTrigger({ className, children, ...props }: React.ComponentProp
   );
 }
 
+/** Collapsible content of an accordion item. */
 function AccordionContent({ className, children, ...props }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
   return (
     <AccordionPrimitive.Content

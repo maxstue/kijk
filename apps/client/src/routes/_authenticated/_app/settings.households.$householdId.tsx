@@ -7,6 +7,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
+/** `/settings/households/$householdId`: loads the household and provides it to its settings pages. */
 export const Route = createFileRoute('/_authenticated/_app/settings/households/$householdId')({
   component: HouseholdSettingsPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
@@ -20,7 +21,7 @@ export const Route = createFileRoute('/_authenticated/_app/settings/households/$
     return { household, user };
   },
   notFoundComponent: () => <p className='text-muted-foreground'>This household is not available to your account.</p>,
-  parseParams: (parameters) => ({ householdId: z.string().uuid().parse(parameters.householdId) }),
+  parseParams: (parameters) => ({ householdId: z.uuid().parse(parameters.householdId) }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });
 

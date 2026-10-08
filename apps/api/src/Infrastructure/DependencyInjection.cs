@@ -3,6 +3,7 @@ using Clerk.BackendAPI;
 using EntityFramework.Exceptions.PostgreSQL;
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Infrastructure.Auth;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;
@@ -21,10 +22,14 @@ using Serilog;
 
 namespace Kijk.Infrastructure;
 
+/// <summary>Registers the infrastructure services: persistence, authentication, authorization, telemetry and logging.</summary>
 public static class DependencyInjection
 {
     extension(IServiceCollection services)
     {
+        /// <summary>Registers all infrastructure services.</summary>
+        /// <param name="configuration">The application configuration.</param>
+        /// <returns>The service collection.</returns>
         public IServiceCollection AddInfrastructure(IConfiguration configuration) =>
             services.AddOptions(configuration)
                 .AddDatabase(configuration)
@@ -143,25 +148,24 @@ public static class DependencyInjection
 
             services.AddScoped<CurrentUser>();
             services.AddScoped<IAuthorizationHandler, OnboardingCompletedAuthorizationHandler>();
-            services.AddScoped<IAuthorizationHandler, ActiveHouseholdRoleAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, HouseholdPermissionAuthorizationHandler>();
 
-            services.AddAuthorizationBuilder()
-                .AddPolicy(AppConstants.Roles.All, policy => policy.RequireClaim("id").RequireAuthenticatedUser().Build())
+            var authorization = services.AddAuthorizationBuilder()
+                .AddPolicy(AppConstants.Policies.Authenticated, policy => policy.RequireAuthenticatedUser())
                 .AddPolicy(
                     AppConstants.Policies.OnboardingCompleted,
                     policy => policy
                         .RequireAuthenticatedUser()
-                        .AddRequirements(new OnboardingCompletedRequirement()))
-                .AddPolicy(
-                    AppConstants.Roles.Admin,
+                        .AddRequirements(new OnboardingCompletedRequirement()));
+
+            foreach (var permission in HouseholdPermissions.All.Select(permission => permission.Name))
+            {
+                authorization.AddPolicy(
+                    AppConstants.Policies.HouseholdPermission(permission),
                     policy => policy
                         .RequireAuthenticatedUser()
-                        .AddRequirements(new ActiveHouseholdRoleRequirement(AppConstants.Roles.Admin)))
-                .AddPolicy(
-                    AppConstants.Roles.User,
-                    policy => policy
-                        .RequireAuthenticatedUser()
-                        .AddRequirements(new ActiveHouseholdRoleRequirement(AppConstants.Roles.User, AppConstants.Roles.Admin)));
+                        .AddRequirements(new HouseholdPermissionRequirement(permission)));
+            }
 
             return services;
         }
@@ -182,7 +186,7 @@ public static class DependencyInjection
         /// Adds logging integration to the WebApplicationBuilder.
         /// This includes Serilog.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The service collection.</returns>
         private IServiceCollection AddLogging(IConfiguration configuration)
         {
             services.AddSerilog((sp, lc) =>

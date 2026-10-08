@@ -10,6 +10,7 @@ import { UnitSelectOptions } from '@/shared/components/unit-select-options';
 
 import type { CreateUnitFormValues } from './schemas';
 
+/** Shared fields of the unit forms: name, symbol, reference unit and factor. */
 export function UnitFormFields({
   control,
   systemUnits,

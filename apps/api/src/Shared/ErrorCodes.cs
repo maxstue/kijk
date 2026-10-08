@@ -15,13 +15,20 @@
 /// </remarks>
 public readonly record struct ErrorCodes
 {
+    /// <summary>Generic error without a more specific code.</summary>
     public const string DefaultError = "E0001";
+    /// <summary>Unexpected error, typically an unhandled exception.</summary>
     public const string UnexpectedError = "E0002";
+    /// <summary>The requested entity does not exist or is not visible to the user.</summary>
     public const string NotFoundError = "E0003";
 
+    /// <summary>The request failed validation.</summary>
     public const string ValidationError = "E0004";
 
+    /// <summary>The caller is not authenticated.</summary>
     public const string AuthenticationError = "E0005";
+    /// <summary>The caller is authenticated but not allowed to perform the action.</summary>
     public const string AuthorizationError = "E0006";
+    /// <summary>The request conflicts with the current state, e.g. a duplicate.</summary>
     public const string ConflictError = "E0007";
 }

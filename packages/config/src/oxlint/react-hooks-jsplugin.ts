@@ -1,8 +1,10 @@
+/** Oxlint JS plugin entry for `eslint-plugin-react-hooks`. */
 export const reactHooksJsPlugin = {
   name: 'react-hooks-js',
   specifier: 'eslint-plugin-react-hooks',
 } as const;
 
+/** React Hooks and React Compiler rules with their severities. */
 export const reactHooksRules = {
   'react-hooks-js/component-hook-factories': 'error',
   'react-hooks-js/config': 'error',

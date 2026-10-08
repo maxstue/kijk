@@ -7,6 +7,7 @@ import { cn } from 'cn';
 import { Label } from '@kijk/ui/components/label';
 import { Separator } from '@kijk/ui/components/separator';
 
+/** Groups related fields semantically (`fieldset`). */
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (
     <fieldset
@@ -20,6 +21,7 @@ function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   );
 }
 
+/** Title of a field set. */
 function FieldLegend({
   className,
   variant = 'legend',
@@ -35,6 +37,7 @@ function FieldLegend({
   );
 }
 
+/** Stacks several fields. */
 function FieldGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -63,6 +66,7 @@ const fieldVariants = cva('group/field flex w-full gap-3 data-[invalid=true]:tex
   },
 });
 
+/** Form field layout for a control with label, description and error. */
 function Field({
   className,
   orientation = 'vertical',
@@ -79,6 +83,7 @@ function Field({
   );
 }
 
+/** Groups label, description and error next to a control. */
 function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -89,6 +94,7 @@ function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Label of a field. */
 function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
   return (
     <Label
@@ -103,6 +109,7 @@ function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>)
   );
 }
 
+/** Title of a field when it is not a label, e.g. for checkbox cards. */
 function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -116,6 +123,7 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Help text of a field. */
 function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p
@@ -131,6 +139,7 @@ function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
+/** Divider between fields, with optional text. */
 function FieldSeparator({
   children,
   className,
@@ -158,6 +167,7 @@ function FieldSeparator({
   );
 }
 
+/** Validation errors of a field; renders nothing without errors. */
 function FieldError({
   className,
   children,

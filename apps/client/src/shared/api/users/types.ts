@@ -1,6 +1,8 @@
 import type { components } from '@/shared/api/generated/kijk';
 
+/** The current account state. */
 export type CurrentUser = components['schemas']['CurrentUserResponse'];
+/** A user who completed onboarding. */
 export type ReadyCurrentUser = components['schemas']['GetMeUserResponse'];
 
 /** Returns whether a current-account response contains a fully initialized Kijk user. */
@@ -10,6 +12,7 @@ export function isReadyCurrentUser(
   return response.status === 'Ready' && response.user !== undefined;
 }
 
+/** Changes to the user's settings. */
 export interface UpdateUserData {
   analyticsConsent?: 'Accepted' | 'Declined' | null;
   householdName?: string | null;
@@ -18,6 +21,7 @@ export interface UpdateUserData {
   userName?: string | null;
 }
 
+/** Onboarding form data. */
 export interface WelcomeUserData {
   analyticsConsent: 'Accepted' | 'Declined';
   displayName: string;

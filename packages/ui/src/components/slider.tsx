@@ -3,6 +3,7 @@ import { Slider as SliderPrimitive } from 'radix-ui';
 
 import { cn } from 'cn';
 
+/** Slider to select a value or range. */
 function Slider({
   className,
   defaultValue,

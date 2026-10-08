@@ -1,4 +1,5 @@
 using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 
 namespace Kijk.Application.Households.Delete;
@@ -9,7 +10,7 @@ namespace Kijk.Application.Households.Delete;
 public sealed class DeleteHouseholdHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
 {
     /// <summary>
-    /// Deletes a household when the current user is an administrator.
+    /// Deletes a household when the current user's role allows deleting it.
     /// Users who lose their last household are returned to onboarding.
     /// </summary>
     /// <param name="id">The household identifier.</param>
@@ -21,7 +22,7 @@ public sealed class DeleteHouseholdHandler(IAppDbContext dbContext, CurrentUser 
             .Include(item => item.UserHouseholds)
                 .ThenInclude(link => link.User)
             .Include(item => item.UserHouseholds)
-                .ThenInclude(link => link.Role)
+                .ThenInclude(link => link.Role.Permissions)
             .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
         var currentMembership = household?.UserHouseholds.SingleOrDefault(link => link.UserId == currentUser.Id);
@@ -30,9 +31,9 @@ public sealed class DeleteHouseholdHandler(IAppDbContext dbContext, CurrentUser 
             return Error.NotFound("Household could not be found");
         }
 
-        if (currentMembership.Role.Name != "Admin")
+        if (!currentMembership.Role.HasPermission(HouseholdPermissions.Household.Delete))
         {
-            return Error.Authorization("Only household administrators can delete a household");
+            return Error.Authorization("Your household role does not allow deleting the household");
         }
 
         var memberUserIds = household.UserHouseholds.Select(link => link.UserId).ToArray();

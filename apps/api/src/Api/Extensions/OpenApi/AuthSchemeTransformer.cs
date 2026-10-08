@@ -7,9 +7,10 @@ namespace Kijk.Api.Extensions.OpenApi;
 /// <summary>
 /// Schema transformer for the OpenApi document to add the Oauth2 (Bearer) authentication.
 /// </summary>
-/// <param name="authenticationSchemeProvider"></param>
+/// <param name="authenticationSchemeProvider">Provides the registered authentication schemes.</param>
 public sealed class AuthSchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
 {
+    /// <inheritdoc />
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();

@@ -1,6 +1,7 @@
 import { useThemeStore } from '@kijk/core/stores/theme-store';
 import { useEffect } from 'react';
 
+/** Applies the stored theme mode (light, dark or system) to the document. Renders nothing. */
 export function ThemeModeSwitcher() {
   const { mode } = useThemeStore();
 

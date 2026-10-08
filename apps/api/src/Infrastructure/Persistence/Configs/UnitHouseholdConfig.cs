@@ -9,6 +9,7 @@ namespace Kijk.Infrastructure.Persistence.Configs;
 /// </summary>
 public sealed class UnitHouseholdConfig : IEntityTypeConfiguration<UnitHousehold>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<UnitHousehold> builder)
     {
         builder.HasKey(link => new { link.UnitId, link.HouseholdId });

@@ -3,8 +3,10 @@ using Kijk.Shared;
 
 namespace Kijk.Application.Resources.Create;
 
+/// <summary>Validates new resources.</summary>
 public class CreateResourceRequestValidator : AbstractValidator<CreateResourceRequest>
 {
+    /// <summary>Creates the validator rules for new resources.</summary>
     public CreateResourceRequestValidator()
     {
         RuleFor(x => x.Name)

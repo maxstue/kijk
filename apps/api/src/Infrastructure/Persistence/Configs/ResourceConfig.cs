@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Infrastructure.Persistence.Configs;
 
+/// <summary>EF Core mapping of <see cref="Resource" />.</summary>
 public class ResourceConfig : IEntityTypeConfiguration<Resource>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Resource> builder)
     {
         builder.HasKey(x => x.Id);

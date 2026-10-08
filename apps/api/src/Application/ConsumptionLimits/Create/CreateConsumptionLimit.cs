@@ -16,6 +16,10 @@ public sealed class CreateConsumptionLimitHandler(
     TimeProvider timeProvider,
     ILogger<CreateConsumptionLimitHandler> logger) : IHandler
 {
+    /// <summary>Creates a consumption limit for the active household.</summary>
+    /// <param name="request">The limit data.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The created limit with its current evaluation.</returns>
     public async Task<Result<ConsumptionLimitResponse>> CreateAsync(CreateConsumptionLimitRequest request, CancellationToken cancellationToken)
     {
         var household = await dbContext.Households
@@ -28,6 +32,7 @@ public sealed class CreateConsumptionLimitHandler(
         }
 
         var resource = await dbContext.GetUserAvailableResources(currentUser)
+            .Include(item => item.Unit)
             .FirstOrDefaultAsync(item => item.Id == request.ResourceId, cancellationToken);
         if (resource is null)
         {

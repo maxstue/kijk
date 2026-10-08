@@ -7,6 +7,7 @@ namespace Kijk.Application.Users.Welcome;
 /// </summary>
 public sealed class WelcomeUserRequestValidator : AbstractValidator<WelcomeUserRequest>
 {
+    /// <summary>Creates the validator rules for onboarding requests.</summary>
     public WelcomeUserRequestValidator()
     {
         RuleFor(request => request.DisplayName)

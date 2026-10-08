@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kijk.Infrastructure.Persistence.Configs;
 
+/// <summary>EF Core mapping of <see cref="ConsumptionLimit" />.</summary>
 public class ConsumptionLimitConfig : IEntityTypeConfiguration<ConsumptionLimit>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<ConsumptionLimit> builder)
     {
         builder.HasKey(x => x.Id);

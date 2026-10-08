@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useInterval } from '@/shared/hooks/use-interval';
 
+/** Animated progress value for a top loading bar with `start`, `done` and `reset` controls. */
 export default function useProgress() {
   const [state, setState] = useState<'initial' | 'in-progress' | 'completing' | 'complete'>('initial');
 

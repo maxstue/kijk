@@ -1,12 +1,16 @@
 import { HttpResponse, http } from 'msw';
 import { setupWorker } from 'msw/browser';
 
+import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import type { ResourceData } from '@/shared/api/resources/types';
 import type { Unit } from '@/shared/api/units/types';
 import type { CurrentUser } from '@/shared/api/users/types';
 import type { Resource } from '@/shared/types/domain';
 
 const unitId = '00000000-0000-4000-8000-000000000002';
+
+/** The E2E user administrates its household, so it gets every household permission. */
+const adminPermissions = Object.values(HouseholdPermissions).flatMap((group) => Object.values(group));
 
 const units: Unit[] = [
   {
@@ -48,7 +52,7 @@ const currentUser = {
         role: {
           id: '00000000-0000-4000-8000-000000000004',
           name: 'Admin',
-          permissions: [],
+          permissions: adminPermissions,
         },
         isActive: true,
       },

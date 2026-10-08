@@ -1,9 +1,11 @@
-﻿using Kijk.Api.Extensions;
+﻿using Kijk.Api.Authorization;
+using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
 using Kijk.Application.Users.Update;
 using Kijk.Application.Users.Welcome;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +17,26 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public class UsersEndpoints : IEndpointGroup
 {
+    private const string CurrentUserOnly = "Only reads or changes the current user's own account.";
+
+    /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/users")
             .WithTags("Users");
 
         group.MapGet("/me", GetMe)
+            .WithoutHouseholdPermission(CurrentUserOnly)
             .WithSummary("Gets me");
 
         group.MapPut("", Update)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutHouseholdPermission("Changes the current user's account; renaming the active household is checked in the handler (household:configure).")
             .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
 
         group.MapPut("/onboarding", Onboarding)
+            .WithoutHouseholdPermission("Onboarding creates the user's first household.")
             .WithRequestValidation<WelcomeUserRequest>()
             .WithSummary("Completes onboarding and creates the Kijk account when needed");
 
@@ -38,9 +46,9 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Gets the current user.
     /// </summary>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> GetMe(GetMeUserHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.GetMeAsync(cancellationToken);
@@ -50,10 +58,10 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Updates the current user.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="request">The request body.</param>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<UserResponse>, ProblemHttpResult>> Update(UpdateUserRequest request, UpdateUserHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.UpdateAsync(request, cancellationToken);
@@ -63,10 +71,10 @@ public class UsersEndpoints : IEndpointGroup
     /// <summary>
     /// Registers a new user and sets some default values.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="handler"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="request">The request body.</param>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> Onboarding([FromBody] WelcomeUserRequest request, WelcomeUserHandler handler,
         CancellationToken cancellationToken)
     {

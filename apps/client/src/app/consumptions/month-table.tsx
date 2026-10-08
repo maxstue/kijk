@@ -10,10 +10,12 @@ import { ArrowUpDown } from 'lucide-react';
 import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { DataTable } from '@/shared/components/data-table';
 import { ResourceUnit } from '@/shared/components/resources-unit';
+import type { DataTableFeatures } from '@/shared/lib/table-features';
 import type { Consumption, Resource } from '@/shared/types/domain';
 
 const Route = getRouteApi('/_authenticated/_app/consumptions');
 
+/** Sortable table of the consumptions of the selected year and month. */
 export function ConsumptionMonthTable() {
   const { month, year } = Route.useSearch();
 
@@ -24,7 +26,7 @@ export function ConsumptionMonthTable() {
 
 const defaultSort: ColumnSort = { desc: true, id: 'date' };
 
-const columns: Array<ColumnDef<Consumption>> = [
+const columns: Array<ColumnDef<DataTableFeatures, Consumption>> = [
   {
     accessorKey: 'name',
     header: ({ column }) => (

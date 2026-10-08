@@ -1,3 +1,4 @@
+using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Units.Create;
@@ -5,6 +6,7 @@ using Kijk.Application.Units.GetAll;
 using Kijk.Application.Units.Manage;
 using Kijk.Application.Units.Shared;
 using Kijk.Application.Units.Update;
+using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -15,23 +17,25 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public sealed class UnitsEndpoints : IEndpointGroup
 {
+    private const string UserOwned = "Units are owned by the current user; the handler scopes all queries to the user.";
+
+    /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/units")
             .WithTags("Units")
-            .RequireAuthorization(AppConstants.Roles.User)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("", GetAll).WithSummary("Gets units visible to the current user");
-        group.MapGet("/system", GetSystem).WithSummary("Gets supported system units");
-        group.MapGet("/page", GetPage).WithSummary("Gets a page of units for settings");
-        group.MapPost("", Create).WithRequestValidation<CreateUnitRequest>().WithSummary("Creates a user unit");
-        group.MapPut("/{id:guid}", Update).WithRequestValidation<UpdateUnitRequest>().WithSummary("Updates a user unit");
-        group.MapPost("/{id:guid}/archive", Archive).WithSummary("Archives a user unit");
-        group.MapPost("/{id:guid}/restore", Restore).WithSummary("Restores a user unit");
-        group.MapPut("/{id:guid}/households/{householdId:guid}", Share).WithSummary("Shares a unit with a household");
-        group.MapDelete("/{id:guid}/households/{householdId:guid}", Unshare).WithSummary("Removes a unit from a household");
-        group.MapDelete("/{id:guid}", Delete).WithSummary("Deletes an unused user unit");
+        group.MapGet("", GetAll).WithoutHouseholdPermission(UserOwned).WithSummary("Gets units visible to the current user");
+        group.MapGet("/system", GetSystem).WithoutHouseholdPermission("System units are public reference data.").WithSummary("Gets supported system units");
+        group.MapGet("/page", GetPage).WithoutHouseholdPermission(UserOwned).WithSummary("Gets a page of units for settings");
+        group.MapPost("", Create).WithoutHouseholdPermission("Creates a unit owned by the current user; sharing it with households is checked in the handler (units:share).").WithRequestValidation<CreateUnitRequest>().WithSummary("Creates a user unit");
+        group.MapPut("/{id:guid}", Update).WithoutHouseholdPermission(UserOwned).WithRequestValidation<UpdateUnitRequest>().WithSummary("Updates a user unit");
+        group.MapPost("/{id:guid}/archive", Archive).WithoutHouseholdPermission(UserOwned).WithSummary("Archives a user unit");
+        group.MapPost("/{id:guid}/restore", Restore).WithoutHouseholdPermission(UserOwned).WithSummary("Restores a user unit");
+        group.MapPut("/{id:guid}/households/{householdId:guid}", Share).RequireRouteHouseholdPermission(HouseholdPermissions.Units.Share).WithSummary("Shares a unit with a household");
+        group.MapDelete("/{id:guid}/households/{householdId:guid}", Unshare).RequireRouteHouseholdPermission(HouseholdPermissions.Units.Share).WithSummary("Removes a unit from a household");
+        group.MapDelete("/{id:guid}", Delete).WithoutHouseholdPermission(UserOwned).WithSummary("Deletes an unused user unit");
         return builder;
     }
 

@@ -7,22 +7,27 @@ import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
 import { XIcon } from 'lucide-react';
 
+/** Modal dialog. */
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot='dialog' {...props} />;
 }
 
+/** Opens the dialog. */
 function DialogTrigger({ ...props }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return <DialogPrimitive.Trigger data-slot='dialog-trigger' {...props} />;
 }
 
+/** Renders the dialog into a portal. */
 function DialogPortal({ ...props }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
   return <DialogPrimitive.Portal data-slot='dialog-portal' {...props} />;
 }
 
+/** Closes the dialog. */
 function DialogClose({ ...props }: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return <DialogPrimitive.Close data-slot='dialog-close' {...props} />;
 }
 
+/** Backdrop behind the dialog. */
 function DialogOverlay({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
@@ -36,6 +41,7 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
   );
 }
 
+/** Panel of the dialog, including portal, overlay and an optional close button. */
 function DialogContent({
   className,
   children,
@@ -69,10 +75,12 @@ function DialogContent({
   );
 }
 
+/** Layout container for title and description. */
 function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='dialog-header' className={cn('flex flex-col gap-2', className)} {...props} />;
 }
 
+/** Layout container for the actions. */
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -97,6 +105,7 @@ function DialogFooter({
   );
 }
 
+/** Accessible title of the dialog. */
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
@@ -107,6 +116,7 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
   );
 }
 
+/** Accessible description of the dialog. */
 function DialogDescription({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description

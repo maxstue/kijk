@@ -4,10 +4,12 @@ import { Slot } from 'radix-ui';
 import { cn } from 'cn';
 import { ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
 
+/** Navigation trail to the current page. */
 function Breadcrumb({ className, ...props }: React.ComponentProps<'nav'>) {
   return <nav aria-label='breadcrumb' data-slot='breadcrumb' className={cn(className)} {...props} />;
 }
 
+/** Ordered list of breadcrumb items. */
 function BreadcrumbList({ className, ...props }: React.ComponentProps<'ol'>) {
   return (
     <ol
@@ -21,10 +23,12 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<'ol'>) {
   );
 }
 
+/** A single breadcrumb entry. */
 function BreadcrumbItem({ className, ...props }: React.ComponentProps<'li'>) {
   return <li data-slot='breadcrumb-item' className={cn('inline-flex items-center gap-1.5', className)} {...props} />;
 }
 
+/** Link to a parent page; `asChild` renders the child element instead, e.g. a router link. */
 function BreadcrumbLink({
   asChild,
   className,
@@ -39,6 +43,7 @@ function BreadcrumbLink({
   );
 }
 
+/** The current page (not a link). */
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
@@ -52,6 +57,7 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<'span'>) {
   );
 }
 
+/** Separator between breadcrumb items. */
 function BreadcrumbSeparator({ children, className, ...props }: React.ComponentProps<'li'>) {
   return (
     <li
@@ -66,6 +72,7 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
   );
 }
 
+/** Placeholder for collapsed breadcrumb items. */
 function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span

@@ -14,6 +14,7 @@ import { Link } from '@tanstack/react-router';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 
+import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
 import { systemUnitsQueryOptions, unitPageQueryOptions } from '@/shared/api/units/options';
 import { currentUserQueryOptions } from '@/shared/api/users/options';
 
@@ -25,6 +26,7 @@ interface Props {
   scope: 'household' | 'personal';
 }
 
+/** Units page for personal units or the units of a household, with statistics, table and create dialog. */
 export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props) {
   const [showDialog, setShowDialog] = useState(false);
   const [page, setPage] = useState(1);
@@ -39,6 +41,13 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
   const activeHousehold = households.find((household) => household.isActive);
   const householdId = selectedHouseholdId ?? activeHousehold?.id;
   const selectedHousehold = households.find((household) => household.id === householdId);
+  // In the household scope a new unit is shared with that household right away, which needs units:share.
+  const canCreate =
+    scope === 'personal' ||
+    (householdId !== undefined && hasHouseholdPermission(selectedHousehold, HouseholdPermissions.units.share));
+  const shareableHouseholds = households.filter((household) =>
+    hasHouseholdPermission(household, HouseholdPermissions.units.share),
+  );
 
   return (
     <div className='space-y-6'>
@@ -73,7 +82,11 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
       <div className='flex justify-end'>
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
-            <Button disabled={scope === 'household' && !householdId} variant='outline'>
+            <Button
+              disabled={!canCreate}
+              title={canCreate ? undefined : 'Your household role does not allow sharing units'}
+              variant='outline'
+            >
               Create
             </Button>
           </DialogTrigger>
@@ -98,7 +111,7 @@ export function UnitsSection({ householdId: selectedHouseholdId, scope }: Props)
         <CardContent>
           <UnitTable
             householdId={householdId}
-            households={households}
+            shareableHouseholds={shareableHouseholds}
             isPending={isPending}
             items={pageData?.items ?? []}
             page={page}

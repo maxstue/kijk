@@ -20,6 +20,7 @@ interface Props {
   systemUnits: Unit[];
 }
 
+/** Form to create a unit; it is shared with `householdId` when given. */
 export function UnitCreateForm({ householdId, onClose, systemUnits }: Props) {
   const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation(createUnitMutationOptions());

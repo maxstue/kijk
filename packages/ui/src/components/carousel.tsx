@@ -5,6 +5,7 @@ import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
+/** Embla API of a carousel, received through `setApi`. */
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
 type CarouselOptions = NonNullable<UseCarouselParameters[0]>;
@@ -28,6 +29,7 @@ type CarouselContextProps = {
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
+/** Returns the carousel API and state; use inside a `Carousel`. */
 function useCarousel() {
   const context = React.useContext(CarouselContext);
 
@@ -38,6 +40,7 @@ function useCarousel() {
   return context;
 }
 
+/** Slideshow based on Embla; supports keyboard navigation and both orientations. */
 function Carousel({
   orientation = 'horizontal',
   opts,
@@ -58,7 +61,9 @@ function Carousel({
   const [canScrollNext, setCanScrollNext] = React.useState(false);
 
   const onSelect = React.useCallback((api: CarouselApi) => {
-    if (!api) return;
+    if (!api) {
+      return;
+    }
     setCanScrollPrev(api.canScrollPrev());
     setCanScrollNext(api.canScrollNext());
   }, []);
@@ -85,12 +90,16 @@ function Carousel({
   );
 
   React.useEffect(() => {
-    if (!api || !setApi) return;
+    if (!api || !setApi) {
+      return;
+    }
     setApi(api);
   }, [api, setApi]);
 
   React.useEffect(() => {
-    if (!api) return;
+    if (!api) {
+      return;
+    }
     onSelect(api);
     api.on('reInit', onSelect);
     api.on('select', onSelect);
@@ -127,6 +136,7 @@ function Carousel({
   );
 }
 
+/** Viewport and track of the carousel slides. */
 function CarouselContent({ className, ...props }: React.ComponentProps<'div'>) {
   const { carouselRef, orientation } = useCarousel();
 
@@ -137,6 +147,7 @@ function CarouselContent({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** A single slide. */
 function CarouselItem({ className, ...props }: React.ComponentProps<'div'>) {
   const { orientation } = useCarousel();
 
@@ -151,6 +162,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/** Button that scrolls to the previous slide. */
 function CarouselPrevious({
   className,
   variant = 'outline',
@@ -179,6 +191,7 @@ function CarouselPrevious({
   );
 }
 
+/** Button that scrolls to the next slide. */
 function CarouselNext({
   className,
   variant = 'outline',

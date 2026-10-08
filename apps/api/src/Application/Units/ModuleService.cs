@@ -9,6 +9,7 @@ namespace Kijk.Application.Units;
 /// </summary>
 public sealed class ModuleService : IModule
 {
+    /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         services.AddScoped<IValidator<CreateUnitRequest>, CreateUnitRequestValidator>();

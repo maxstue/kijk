@@ -15,15 +15,18 @@ import {
 } from './requests';
 import type { CreateUnitData, UpdateUnitData } from './types';
 
+/** Query for all units visible to the user. */
 export const unitsQueryOptions = (includeArchived = false) =>
   queryOptions({
     queryFn: ({ signal }) => getUnits(includeArchived, signal),
     queryKey: queryKeys.units.list(includeArchived),
   });
 
+/** Query for the system units. */
 export const systemUnitsQueryOptions = () =>
   queryOptions({ queryFn: ({ signal }) => getSystemUnits(signal), queryKey: queryKeys.units.system() });
 
+/** Query for a page of personal or household units. */
 export const unitPageQueryOptions = (
   scope: 'household' | 'personal',
   householdId: string | undefined,
@@ -36,22 +39,28 @@ export const unitPageQueryOptions = (
     queryKey: queryKeys.units.page(scope, householdId, page, pageSize, search),
   });
 
+/** Mutation that creates a unit. */
 export const createUnitMutationOptions = () =>
   mutationOptions({ mutationFn: (data: CreateUnitData) => createUnit(data) });
 
+/** Mutation that updates a unit. */
 export const updateUnitMutationOptions = () =>
   mutationOptions({ mutationFn: ({ data, id }: { data: UpdateUnitData; id: string }) => updateUnit(id, data) });
 
+/** Mutation that archives or restores a unit. */
 export const archiveUnitMutationOptions = () =>
   mutationOptions({ mutationFn: ({ id, restore }: { id: string; restore?: boolean }) => archiveUnit(id, restore) });
 
+/** Mutation that deletes a unit. */
 export const deleteUnitMutationOptions = () => mutationOptions({ mutationFn: (id: string) => deleteUnit(id) });
 
+/** Mutation that shares a unit with a household. */
 export const shareUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: ({ householdId, id }: { householdId: string; id: string }) => shareUnit(id, householdId),
   });
 
+/** Mutation that removes a unit from a household. */
 export const unshareUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: ({ householdId, id }: { householdId: string; id: string }) => unshareUnit(id, householdId),

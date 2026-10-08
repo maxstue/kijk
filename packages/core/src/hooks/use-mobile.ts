@@ -2,6 +2,7 @@ import * as React from 'react';
 
 const MOBILE_BREAKPOINT = 768;
 
+/** Returns whether the viewport is narrower than 768 px; updates on resize. */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
 

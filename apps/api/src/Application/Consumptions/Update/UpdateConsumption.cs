@@ -1,4 +1,4 @@
-using Kijk.Application.ConsumptionLimits.Shared;
+﻿using Kijk.Application.ConsumptionLimits.Shared;
 using Kijk.Application.Consumptions.Shared;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Resources;
@@ -20,6 +20,11 @@ public class UpdateConsumptionHandler(
     IUnitConversionService unitConversionService,
     ILogger<UpdateConsumptionHandler> logger) : IHandler
 {
+    /// <summary>Updates a consumption of the active household and recalculates affected meter readings.</summary>
+    /// <param name="id">The consumption id.</param>
+    /// <param name="request">The changes.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The updated consumption.</returns>
     public async Task<Result<ConsumptionResponse>> UpdateAsync(Guid id, UpdateConsumptionRequest request, CancellationToken cancellationToken)
     {
         var household = await dbContext.Households
@@ -33,9 +38,7 @@ public class UpdateConsumptionHandler(
         }
 
         var existingResourceUsage = await dbContext.Consumptions
-            .Include(resourceUsage => resourceUsage.Resource)
-            .ThenInclude(resource => resource.Unit)
-            .ThenInclude(unit => unit.ReferenceUnit)
+            .Include(resourceUsage => resourceUsage.Resource.Unit.ReferenceUnit)
             .FirstOrDefaultAsync(x => x.Id == id && x.HouseholdId == currentUser.ActiveHouseholdId, cancellationToken);
         if (existingResourceUsage is null)
         {
@@ -51,22 +54,13 @@ public class UpdateConsumptionHandler(
 
         List<Consumption>? destinationTimeline = null;
         Resource? destinationResource = null;
-
         if (resourceId != originalResourceId)
         {
-            var resource = await dbContext
-                .GetUserAvailableResources(currentUser)
-                .Include(item => item.Unit)
-                .ThenInclude(unit => unit.ReferenceUnit)
-                .FirstOrDefaultAsync(resource => resource.Id == resourceId, cancellationToken);
-            if (resource is null)
+            destinationResource = await GetAvailableResourceAsync(resourceId, cancellationToken);
+            if (destinationResource is null)
             {
-                logger.LogWarning("Resource with id '{ResourceId}' is not available to user '{UserId}'", resourceId,
-                    currentUser.Id);
                 return Error.NotFound("Resource is not available in the active household");
             }
-
-            destinationResource = resource;
 
             destinationTimeline = await dbContext.Consumptions
                 .Where(item => item.HouseholdId == currentUser.ActiveHouseholdId
@@ -77,62 +71,12 @@ public class UpdateConsumptionHandler(
         var before = ConsumptionLimitOccurrence.Capture(
             originalTimeline.Concat(destinationTimeline ?? []));
 
-        var requestedDate = request.Date ?? existingResourceUsage.Date;
-        existingResourceUsage.Name = request.Name ?? existingResourceUsage.Name;
-        if (request.Value.HasValue)
+        if (ApplyChanges(existingResourceUsage, request, destinationResource) is { } changeError)
         {
-            existingResourceUsage.Value = request.Value.Value;
-        }
-        else if (destinationResource is not null)
-        {
-            var converted = unitConversionService.Convert(
-                existingResourceUsage.Value,
-                existingResourceUsage.Resource.Unit,
-                destinationResource.Unit);
-            if (converted.IsError)
-            {
-                return converted.Error;
-            }
-
-            existingResourceUsage.Value = converted.Value;
-        }
-        existingResourceUsage.ValueType = (ConsumptionValueType)request.ValueType;
-        if (request.StartsNewMeterSegment && existingResourceUsage.ValueType != ConsumptionValueType.Absolute)
-        {
-            return Error.Validation("A new meter segment must start with an absolute meter reading");
-        }
-        existingResourceUsage.StartsNewMeterSegment = request.StartsNewMeterSegment;
-        if (destinationResource is not null)
-        {
-            existingResourceUsage.ResourceId = destinationResource.Id;
-            existingResourceUsage.Resource = destinationResource;
-        }
-        existingResourceUsage.Date = new DateTime(
-            requestedDate.Year,
-            requestedDate.Month,
-            requestedDate.Day,
-            0,
-            0,
-            0,
-            DateTimeKind.Utc);
-
-        Result<bool> calculation;
-        if (destinationTimeline is null)
-        {
-            calculation = ConsumptionTimelineCalculator.Recalculate(originalTimeline);
-        }
-        else
-        {
-            originalTimeline.Remove(existingResourceUsage);
-            destinationTimeline.Add(existingResourceUsage);
-
-            calculation = ConsumptionTimelineCalculator.Recalculate(originalTimeline);
-            if (calculation.IsSuccess)
-            {
-                calculation = ConsumptionTimelineCalculator.Recalculate(destinationTimeline);
-            }
+            return changeError;
         }
 
+        var calculation = Recalculate(existingResourceUsage, originalTimeline, destinationTimeline);
         if (calculation.IsError)
         {
             logger.LogWarning(
@@ -152,5 +96,75 @@ public class UpdateConsumptionHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return existingResourceUsage.ToResponse();
+    }
+
+    /// <summary>Loads a resource the current user may record consumptions for, including its unit.</summary>
+    private async Task<Resource?> GetAvailableResourceAsync(Guid resourceId, CancellationToken cancellationToken)
+    {
+        var resource = await dbContext
+            .GetUserAvailableResources(currentUser)
+            .Include(item => item.Unit.ReferenceUnit)
+            .FirstOrDefaultAsync(item => item.Id == resourceId, cancellationToken);
+        if (resource is null)
+        {
+            logger.LogWarning("Resource with id '{ResourceId}' is not available to user '{UserId}'", resourceId, currentUser.Id);
+        }
+
+        return resource;
+    }
+
+    /// <summary>
+    /// Applies the requested changes; when the resource changes without a new value, the value is converted into the
+    /// unit of the new resource.
+    /// </summary>
+    private Error? ApplyChanges(Consumption consumption, UpdateConsumptionRequest request, Resource? destinationResource)
+    {
+        var requestedDate = request.Date ?? consumption.Date;
+        consumption.Name = request.Name ?? consumption.Name;
+        if (request.Value.HasValue)
+        {
+            consumption.Value = request.Value.Value;
+        }
+        else if (destinationResource is not null)
+        {
+            var converted = unitConversionService.Convert(consumption.Value, consumption.Resource.Unit, destinationResource.Unit);
+            if (converted.IsError)
+            {
+                return converted.Error;
+            }
+
+            consumption.Value = converted.Value;
+        }
+
+        consumption.ValueType = (ConsumptionValueType)request.ValueType;
+        if (request.StartsNewMeterSegment && consumption.ValueType != ConsumptionValueType.Absolute)
+        {
+            return Error.Validation("A new meter segment must start with an absolute meter reading");
+        }
+
+        consumption.StartsNewMeterSegment = request.StartsNewMeterSegment;
+        if (destinationResource is not null)
+        {
+            consumption.ResourceId = destinationResource.Id;
+            consumption.Resource = destinationResource;
+        }
+
+        consumption.Date = new DateTime(requestedDate.Year, requestedDate.Month, requestedDate.Day, 0, 0, 0, DateTimeKind.Utc);
+        return null;
+    }
+
+    /// <summary>Recalculates the meter readings of the original and, after a resource change, the new timeline.</summary>
+    private static Result<bool> Recalculate(Consumption consumption, List<Consumption> originalTimeline, List<Consumption>? destinationTimeline)
+    {
+        if (destinationTimeline is null)
+        {
+            return ConsumptionTimelineCalculator.Recalculate(originalTimeline);
+        }
+
+        originalTimeline.Remove(consumption);
+        destinationTimeline.Add(consumption);
+
+        var calculation = ConsumptionTimelineCalculator.Recalculate(originalTimeline);
+        return calculation.IsSuccess ? ConsumptionTimelineCalculator.Recalculate(destinationTimeline) : calculation;
     }
 }

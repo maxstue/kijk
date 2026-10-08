@@ -5,6 +5,7 @@ import { Separator } from '@kijk/ui/components/separator';
 import { cn } from 'cn';
 import { MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
 
+/** Settings section to choose the theme mode. */
 export function AppearanceSection() {
   const { mode } = useThemeStore();
   const { setMode } = useThemeStoreActions();

@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { cn } from 'cn';
 
+/** Table inside a horizontally scrollable container. */
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
     <div data-slot='table-container' className='relative w-full overflow-x-auto'>
@@ -10,14 +11,17 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
   );
 }
 
+/** Header rows of a table. */
 function TableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
   return <thead data-slot='table-header' className={cn('[&_tr]:border-b', className)} {...props} />;
 }
 
+/** Body rows of a table. */
 function TableBody({ className, ...props }: React.ComponentProps<'tbody'>) {
   return <tbody data-slot='table-body' className={cn('[&_tr:last-child]:border-0', className)} {...props} />;
 }
 
+/** Footer rows of a table. */
 function TableFooter({ className, ...props }: React.ComponentProps<'tfoot'>) {
   return (
     <tfoot
@@ -28,6 +32,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<'tfoot'>) {
   );
 }
 
+/** A table row. */
 function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
   return (
     <tr
@@ -41,6 +46,7 @@ function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
   );
 }
 
+/** A header cell. */
 function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
   return (
     <th
@@ -54,6 +60,7 @@ function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
   );
 }
 
+/** A data cell. */
 function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
   return (
     <td
@@ -64,6 +71,7 @@ function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
   );
 }
 
+/** Caption of a table. */
 function TableCaption({ className, ...props }: React.ComponentProps<'caption'>) {
   return (
     <caption data-slot='table-caption' className={cn('text-muted-foreground mt-4 text-sm', className)} {...props} />

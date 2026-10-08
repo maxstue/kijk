@@ -11,8 +11,13 @@ using Microsoft.AspNetCore.ResponseCompression;
 
 namespace Kijk.Api;
 
+/// <summary>Registers the API layer services.</summary>
 public static class DependencyInjection
 {
+    /// <summary>Registers problem details, JSON options, validation, compression, middlewares, rate limiting and OpenAPI.</summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
     public static IServiceCollection AddApi(this IServiceCollection services, IConfiguration configuration) =>
         services
             .AddProblemDetail()

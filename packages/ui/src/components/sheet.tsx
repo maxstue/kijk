@@ -5,14 +5,17 @@ import { cn } from 'cn';
 import { Button } from '@kijk/ui/components/button';
 import { XIcon } from 'lucide-react';
 
+/** Dialog that slides in from a screen side. */
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot='sheet' {...props} />;
 }
 
+/** Opens the sheet. */
 function SheetTrigger({ ...props }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
   return <SheetPrimitive.Trigger data-slot='sheet-trigger' {...props} />;
 }
 
+/** Closes the sheet. */
 function SheetClose({ ...props }: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return <SheetPrimitive.Close data-slot='sheet-close' {...props} />;
 }
@@ -34,6 +37,7 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
   );
 }
 
+/** Panel of the sheet; `side` sets the edge. */
 function SheetContent({
   className,
   children,
@@ -70,14 +74,17 @@ function SheetContent({
   );
 }
 
+/** Layout container for title and description. */
 function SheetHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='sheet-header' className={cn('flex flex-col gap-1.5 p-4', className)} {...props} />;
 }
 
+/** Layout container for the actions. */
 function SheetFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='sheet-footer' className={cn('mt-auto flex flex-col gap-2 p-4', className)} {...props} />;
 }
 
+/** Accessible title of the sheet. */
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
@@ -88,6 +95,7 @@ function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPr
   );
 }
 
+/** Accessible description of the sheet. */
 function SheetDescription({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Description>) {
   return (
     <SheetPrimitive.Description

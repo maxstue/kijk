@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 
 import { useHouseholdSettings } from './context';
 
+/** Link back to the household settings overview. */
 export function HouseholdBackLink() {
   const { household } = useHouseholdSettings();
   return (

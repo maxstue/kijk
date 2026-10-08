@@ -80,8 +80,24 @@ public record GetMeUserResponse(
 /// <param name="ImageUrl">The profile image URL, or null when its use is disabled.</param>
 public record ExternalIdentityResponse(string? FullName, string? Email, string? ImageUrl);
 
+/// <summary>A household membership of the current user.</summary>
+/// <param name="Id">The household id.</param>
+/// <param name="Name">The household name.</param>
+/// <param name="Description">An optional description.</param>
+/// <param name="Role">The user's role in the household.</param>
+/// <param name="IsActive">Whether this is the user's active household.</param>
 public record UserHouseholdResponse(Guid Id, string Name, string? Description, UserHouseholdRoleResponse Role, bool IsActive);
 
+/// <summary>The user's role in a household.</summary>
+/// <param name="Id">The role id.</param>
+/// <param name="Name">The role name.</param>
+/// <param name="Permissions">The permissions the role grants.</param>
 public record UserHouseholdRoleResponse(Guid Id, string Name, IList<string> Permissions);
 
+/// <summary>A resource the user has enabled.</summary>
+/// <param name="Id">The resource id.</param>
+/// <param name="Name">The resource name.</param>
+/// <param name="Unit">The unit symbol.</param>
+/// <param name="Color">The display color.</param>
+/// <param name="CreatorType">Whether it is a system or a custom resource.</param>
 public record UserResourceResponse(Guid Id, string Name, string Unit, string Color, CreatorType CreatorType);
