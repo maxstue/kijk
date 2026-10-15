@@ -1,7 +1,6 @@
+import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
-
-import { queryKeys } from '@/shared/api/query-keys';
 
 import { clearSpaceData } from './helpers';
 
@@ -13,7 +12,7 @@ test('loads the remaining space instead of fresh cached data from the deleted sp
     queryKeys.consumptions.stats('2026'),
     queryKeys.consumptions.years(),
     queryKeys.limits.list(),
-    queryKeys.units.list(),
+    queryKeys.units.list({ scope: 'Space' }),
     queryKeys.spaces.members('deleted-space'),
   ];
   for (const queryKey of keys) {

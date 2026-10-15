@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import { router } from '@/router';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { setupApiClient } from '@/shared/lib/api-client';
 import { ErrorService } from '@/shared/lib/error-tracking';
 import { welcome } from '@/shared/utils/string';
 
@@ -15,6 +16,7 @@ if (import.meta.env.MODE === 'test' && import.meta.env.VITE_E2E_MOCK_API === 'tr
 }
 
 welcome();
+setupApiClient();
 ErrorService.init(router);
 AnalyticsService.init();
 

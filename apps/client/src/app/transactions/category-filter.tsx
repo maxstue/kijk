@@ -1,3 +1,4 @@
+import { categoriesQueryOptions } from '@kijk/api/categories/options';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import {
@@ -15,7 +16,6 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { Check, PlusCircle, Tags } from 'lucide-react';
 
-import { categoriesQueryOptions } from '@/shared/api/categories/options';
 import { ResourceIcon } from '@/shared/components/resource-icon';
 
 interface Props {
@@ -42,37 +42,39 @@ export function TransactionCategoryFilter({ compact = false, onChange, value }: 
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={compact ? 'Category' : undefined}
-          title='Filter categories'
-          className='border-dashed'
-          variant='outline'
-        >
-          {compact ? <Tags /> : <PlusCircle />}
-          <span className={compact ? 'hidden @min-[48rem]/toolbar:inline' : undefined}>Category</span>
-          {compact && selectedCategories.length > 0 && (
-            <Badge className='rounded-sm px-1 font-normal' variant='secondary'>
-              {selectedCategories.length}
-            </Badge>
-          )}
-          {!compact && selectedCategories.length > 0 && (
-            <>
-              <Separator className='mx-1 h-4' orientation='vertical' />
-              {selectedCategories.length > 2 ? (
-                <Badge className='rounded-sm px-1 font-normal' variant='secondary'>
-                  {selectedCategories.length} selected
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label={compact ? 'Category' : undefined}
+            title='Filter categories'
+            className='border-dashed'
+            variant='outline'
+          />
+        }
+      >
+        {compact ? <Tags /> : <PlusCircle />}
+        <span className={compact ? 'hidden @min-[48rem]/toolbar:inline' : undefined}>Category</span>
+        {compact && selectedCategories.length > 0 && (
+          <Badge className='rounded-sm px-1 font-normal' variant='secondary'>
+            {selectedCategories.length}
+          </Badge>
+        )}
+        {!compact && selectedCategories.length > 0 && (
+          <>
+            <Separator className='mx-1 h-4' orientation='vertical' />
+            {selectedCategories.length > 2 ? (
+              <Badge className='rounded-sm px-1 font-normal' variant='secondary'>
+                {selectedCategories.length} selected
+              </Badge>
+            ) : (
+              selectedCategories.map((category) => (
+                <Badge key={category.id} className='rounded-sm px-1 font-normal' variant='secondary'>
+                  {category.name}
                 </Badge>
-              ) : (
-                selectedCategories.map((category) => (
-                  <Badge key={category.id} className='rounded-sm px-1 font-normal' variant='secondary'>
-                    {category.name}
-                  </Badge>
-                ))
-              )}
-            </>
-          )}
-        </Button>
+              ))
+            )}
+          </>
+        )}
       </PopoverTrigger>
       <PopoverContent align='start' className='w-60 p-0'>
         <Command>

@@ -1,6 +1,7 @@
+import type { CreateTransactionRequest, Transaction } from '@kijk/api/transactions/types';
+
 import { noneValue } from '@/app/transactions/schemas';
 import type { TransactionFormValues } from '@/app/transactions/schemas';
-import type { CreateTransactionRequest, Transaction } from '@/shared/api/transactions/types';
 
 /** Returns today's date as `YYYY-MM-DD` in local time. */
 export function today() {

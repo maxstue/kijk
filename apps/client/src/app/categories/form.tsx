@@ -1,16 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { createCategoryMutationOptions, updateCategoryMutationOptions } from '@kijk/api/categories/options';
+import type { Category } from '@kijk/api/categories/types';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { customCategoryIcon } from '@/app/categories/constants';
 import { categorySchema } from '@/app/categories/schemas';
 import type { CategoryFormValues } from '@/app/categories/schemas';
-import { useCreateCategory, useUpdateCategory } from '@/app/categories/use-mutations';
-import type { Category } from '@/shared/api/categories/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 
 interface Props {
@@ -20,8 +21,8 @@ interface Props {
 
 /** Form to create a custom category, or to edit `initialData` when given. */
 export function CategoryForm({ initialData, onClose }: Props) {
-  const createMutation = useCreateCategory();
-  const updateMutation = useUpdateCategory();
+  const createMutation = useMutation(createCategoryMutationOptions());
+  const updateMutation = useMutation(updateCategoryMutationOptions());
   const isPending = createMutation.isPending || updateMutation.isPending;
   const form = useForm<CategoryFormValues>({
     defaultValues: {

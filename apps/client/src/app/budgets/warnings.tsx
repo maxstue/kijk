@@ -1,7 +1,7 @@
+import { budgetOverviewQueryOptions } from '@kijk/api/budgets/options';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
 import { useWarningToasts } from '@/shared/hooks/use-warning-toasts';
 import { formatStringToCurrency } from '@/shared/utils/format';
 

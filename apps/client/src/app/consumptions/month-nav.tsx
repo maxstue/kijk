@@ -14,9 +14,9 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 
 import type { Months } from '@/shared/utils/months';
-import { formatMonth, monthSchema } from '@/shared/utils/months';
+import { formatMonth } from '@/shared/utils/months';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions');
+const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
 
 type Props = React.HTMLAttributes<HTMLElement>;
 
@@ -35,18 +35,20 @@ export function ConsumptionMonthNav({ className }: Props) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-expanded={open}
-          aria-label='Select a month'
-          className={cn('w-full justify-between', className)}
-          role='combobox'
-          aria-controls='consumptions-month-nav'
-          variant='outline'
-        >
-          {formatMonth(month)}
-          <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-expanded={open}
+            aria-label='Select a month'
+            className={cn('w-full justify-between', className)}
+            role='combobox'
+            aria-controls='consumptions-month-nav'
+            variant='outline'
+          />
+        }
+      >
+        {formatMonth(month)}
+        <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
       </PopoverTrigger>
       <PopoverContent className='w-50 p-0'>
         <Command>
@@ -54,7 +56,7 @@ export function ConsumptionMonthNav({ className }: Props) {
             <CommandInput placeholder='Search Months...' />
             <CommandEmpty>No Month found.</CommandEmpty>
             <CommandGroup key='Months' heading='Months'>
-              {monthSchema.options.map((m) => {
+              {MONTHS.map((m) => {
                 const label = formatMonth(m);
 
                 return (
@@ -79,3 +81,4 @@ export function ConsumptionMonthNav({ className }: Props) {
     </Popover>
   );
 }
+import { MONTHS } from '@kijk/api/months';

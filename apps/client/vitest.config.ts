@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite-plus';
@@ -11,17 +13,19 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
+    clearMocks: true,
+    restoreMocks: true,
     coverage: {
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/routeTree.gen.ts', 'src/shared/api/generated/**', 'src/test/**'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/routeTree.gen.ts', 'src/test/**'],
       include: ['src/**/*.{ts,tsx}'],
       provider: 'v8',
       reportsDirectory: './coverage',
-      reporter: ['text', 'html', 'lcov'],
+      reporter: ['text', 'html', ['lcov', { projectRoot: fileURLToPath(new URL('../..', import.meta.url)) }]],
       thresholds: {
-        branches: 5,
-        functions: 4,
-        lines: 6,
-        statements: 6,
+        branches: 34,
+        functions: 31,
+        lines: 42,
+        statements: 43,
       },
     },
     projects: [
@@ -56,14 +60,12 @@ export default defineConfig({
             '@tanstack/zod-adapter',
             'date-fns',
             'd3-shape',
-            'framer-motion',
             'lucide-react',
             'lucide-react/dynamic',
             'msw',
             'msw/browser',
-            'openapi-fetch',
+            '@kijk/api > openapi-fetch',
             'posthog-js',
-            'radix-ui',
             'react',
             'react-dom/client',
             'react-error-boundary',
@@ -71,8 +73,6 @@ export default defineConfig({
             'sonner',
             'zod',
             'zustand',
-            'zustand/middleware',
-            'zustand/middleware/immer',
           ],
         },
         test: {

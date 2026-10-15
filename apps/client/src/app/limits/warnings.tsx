@@ -1,7 +1,7 @@
+import { limitsQueryOptions } from '@kijk/api/limits/options';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { limitsQueryOptions } from '@/shared/api/limits/options';
 import { useWarningToasts } from '@/shared/hooks/use-warning-toasts';
 
 /**

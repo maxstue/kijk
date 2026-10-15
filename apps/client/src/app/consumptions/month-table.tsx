@@ -1,3 +1,4 @@
+import { consumptionsByQueryOptions } from '@kijk/api/consumptions/options';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -7,13 +8,12 @@ import { cn } from 'cn';
 import { format, parseISO } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 
-import { consumptionsByQueryOptions } from '@/shared/api/consumptions/options';
 import { DataTable } from '@/shared/components/data-table';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 import type { Consumption, Resource } from '@/shared/types/domain';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions');
+const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
 
 /** Sortable table of the consumptions of the selected year and month. */
 export function ConsumptionMonthTable() {

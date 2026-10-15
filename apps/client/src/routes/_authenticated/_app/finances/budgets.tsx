@@ -1,3 +1,6 @@
+import { budgetOverviewQueryOptions, budgetsQueryOptions } from '@kijk/api/budgets/options';
+import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import {
   Dialog,
   DialogContent,
@@ -14,14 +17,10 @@ import { z } from 'zod';
 
 import { BudgetForm } from '@/app/budgets/form';
 import { BudgetOverview } from '@/app/budgets/overview';
-import { budgetOverviewQueryOptions, budgetsQueryOptions } from '@/shared/api/budgets/options';
-import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { AppError } from '@/shared/components/errors/app-error';
 import { MonthSwitcher } from '@/shared/components/month-switcher';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 // Loaded on demand when viewing category spending.
@@ -42,9 +41,9 @@ const searchSchema = z.object({
 
 /** Budget evaluation of the month in the search params. */
 export const Route = createFileRoute('/_authenticated/_app/finances/budgets')({
+  validateSearch: zodValidator(searchSchema),
   component: BudgetsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
-  validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   loader: async ({ context: { queryClient }, deps }) => {
     await Promise.all([
@@ -56,11 +55,11 @@ export const Route = createFileRoute('/_authenticated/_app/finances/budgets')({
       queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
     ]);
   },
+  head: () => ({ meta: [{ title: 'Budgets' }] }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });
 
 function BudgetsPage() {
-  useSetSiteHeader('Budgets');
   const { month, view, year } = Route.useSearch();
   const navigate = Route.useNavigate();
   const canPlanShared = useSpacePermission(SpacePermissions.budgets.plan);
@@ -74,13 +73,15 @@ function BudgetsPage() {
       <PageToolbar
         actions={
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <PageAddButton
-                disabled={!canPlan}
-                title={canPlan ? undefined : 'Your role in this space does not allow planning budgets'}
-              >
-                Set budget
-              </PageAddButton>
+            <DialogTrigger
+              render={
+                <PageAddButton
+                  disabled={!canPlan}
+                  title={canPlan ? undefined : 'Your role in this space does not allow planning budgets'}
+                />
+              }
+            >
+              Set budget
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

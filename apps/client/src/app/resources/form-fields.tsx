@@ -1,12 +1,12 @@
+import { unitsQueryOptions } from '@kijk/api/units/options';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 
 import type { ResourceFormValues } from '@/app/resources/schemas';
-import { unitsQueryOptions } from '@/shared/api/units/options';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { UnitSelectOptions } from '@/shared/components/unit-select-options';
+import { UnitSelectOptions, unitSelectItems } from '@/shared/components/unit-select-options';
 
 import { ResourceIconPicker } from './icon-picker';
 
@@ -30,14 +30,15 @@ export function ResourceNameField({ className, field }: FieldProps<'name'>) {
 
 /** Unit select of the resource forms. */
 export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
-  const { data } = useSuspenseQuery(unitsQueryOptions());
-  const availableUnits = data.filter((unit) => unit.creatorType === 'System' || unit.isAvailableInActiveSpace);
+  // The space scope contains the system units and the units shared with the active space.
+  const { data } = useSuspenseQuery(unitsQueryOptions({ scope: 'Space' }));
+  const availableUnits = data.items;
 
   return (
     <FormItem className={className}>
       <FormLabel>Unit</FormLabel>
       <FormControl>
-        <Select value={field.value} onValueChange={field.onChange}>
+        <Select items={unitSelectItems(availableUnits)} value={field.value} onValueChange={field.onChange}>
           <SelectTrigger aria-label='Unit'>
             <SelectValue placeholder='Select a unit' />
           </SelectTrigger>

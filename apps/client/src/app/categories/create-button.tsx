@@ -1,3 +1,4 @@
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,6 @@ import {
 import { useState } from 'react';
 
 import { CategoryForm } from '@/app/categories/form';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { PageAddButton } from '@/shared/components/page-header';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -19,13 +19,15 @@ export function CategoryCreateButton() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   return (
     <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-      <DialogTrigger asChild>
-        <PageAddButton
-          disabled={!canConfigure}
-          title={canConfigure ? undefined : 'Your role in this space does not allow managing categories'}
-        >
-          Add category
-        </PageAddButton>
+      <DialogTrigger
+        render={
+          <PageAddButton
+            disabled={!canConfigure}
+            title={canConfigure ? undefined : 'Your role in this space does not allow managing categories'}
+          />
+        }
+      >
+        Add category
       </DialogTrigger>
       <DialogContent>
         <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>

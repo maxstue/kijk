@@ -1,3 +1,5 @@
+import { deleteUnitMutationOptions } from '@kijk/api/units/options';
+import type { Unit } from '@kijk/api/units/types';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -8,23 +10,17 @@ import {
   AlertDialogTitle,
 } from '@kijk/ui/components/alert-dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-import { queryKeys } from '@/shared/api/query-keys';
-import { deleteUnitMutationOptions } from '@/shared/api/units/options';
-import type { Unit } from '@/shared/api/units/types';
 
 /** Confirmation dialog content for deleting a unit. */
 export function UnitDeleteContent({ onClose, unit }: { onClose: () => void; unit: Unit }) {
-  const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation(deleteUnitMutationOptions());
 
   function handleDelete() {
     mutate(unit.id, {
       onError: (error) => toast.error(error.message),
       onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
         toast.success(`Successfully deleted: ${unit.name}`);
         onClose();
       },

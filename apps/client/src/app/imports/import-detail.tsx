@@ -1,3 +1,5 @@
+import { importQueryOptions, isImportProcessing } from '@kijk/api/imports/options';
+import type { ImportJob } from '@kijk/api/imports/types';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Progress } from '@kijk/ui/components/progress';
@@ -10,8 +12,6 @@ import { ImportMappingStep } from '@/app/imports/mapping-step';
 import { ImportReviewStep } from '@/app/imports/review-step';
 import { ImportStatusBadge } from '@/app/imports/status-badge';
 import { ImportWizard } from '@/app/imports/wizard';
-import { importQueryOptions, isImportProcessing } from '@/shared/api/imports/options';
-import type { ImportJob } from '@/shared/api/imports/types';
 
 const stepTitles: Record<ImportJob['status'], string> = {
   Pending: 'Preparing your file',
@@ -146,11 +146,11 @@ function DoneCard({ job }: { job: ImportJob }) {
         </CardDescription>
       </CardHeader>
       <CardContent className='flex gap-2'>
-        <Button asChild>
-          <Link to='/finances/transactions'>Show transactions</Link>
+        <Button render={<Link to='/finances/transactions' />} nativeButton={false}>
+          Show transactions
         </Button>
-        <Button asChild variant='outline'>
-          <Link to='/finances/budgets'>Show budgets</Link>
+        <Button render={<Link to='/finances/budgets' />} variant='outline' nativeButton={false}>
+          Show budgets
         </Button>
       </CardContent>
     </Card>
@@ -167,8 +167,8 @@ function ClosedCard({ job }: { job: ImportJob }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Button asChild variant='outline'>
-          <Link to='/finances/imports'>Back to imports</Link>
+        <Button render={<Link to='/finances/imports' />} variant='outline' nativeButton={false}>
+          Back to imports
         </Button>
       </CardContent>
     </Card>

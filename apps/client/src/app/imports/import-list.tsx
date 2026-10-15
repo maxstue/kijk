@@ -1,10 +1,10 @@
+import { importsQueryOptions } from '@kijk/api/imports/options';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 
 import { ImportStatusBadge } from '@/app/imports/status-badge';
-import { importsQueryOptions } from '@/shared/api/imports/options';
 
 /** Table of the space's latest imports, each linking to its details. */
 export function ImportList() {

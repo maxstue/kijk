@@ -35,14 +35,16 @@ export function ConnectedSignInMethods() {
         </h4>
         {methods.length > 1 && (
           <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type='button'
-                aria-label='How account linking works'
-                className='text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex size-7 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none'
-              >
-                <Info className='size-4' aria-hidden='true' />
-              </button>
+            <PopoverTrigger
+              render={
+                <button
+                  type='button'
+                  aria-label='How account linking works'
+                  className='text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex size-7 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none'
+                />
+              }
+            >
+              <Info className='size-4' aria-hidden='true' />
             </PopoverTrigger>
             <PopoverContent align='start' className='w-80 max-w-[calc(100vw-2rem)] gap-3'>
               <PopoverHeader>

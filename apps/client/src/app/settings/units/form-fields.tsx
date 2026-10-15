@@ -1,23 +1,21 @@
+import { unitsQueryOptions } from '@kijk/api/units/options';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
+import { useQuery } from '@tanstack/react-query';
 import { Info } from 'lucide-react';
 import type { Control } from 'react-hook-form';
 
-import type { Unit } from '@/shared/api/units/types';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { UnitSelectOptions } from '@/shared/components/unit-select-options';
+import { UnitSelectOptions, unitSelectItems } from '@/shared/components/unit-select-options';
 
 import type { CreateUnitFormValues } from './schemas';
 
 /** Shared fields of the unit forms: name, symbol, reference unit and factor. */
-export function UnitFormFields({
-  control,
-  systemUnits,
-}: {
-  control: Control<CreateUnitFormValues>;
-  systemUnits: Unit[];
-}) {
+export function UnitFormFields({ control }: { control: Control<CreateUnitFormValues> }) {
+  const { data } = useQuery(unitsQueryOptions({ scope: 'System' }));
+  const systemUnits = data?.items ?? [];
+
   return (
     <>
       <FormField
@@ -41,14 +39,16 @@ export function UnitFormFields({
             <div className='flex items-center gap-1.5'>
               <FormLabel>Symbol</FormLabel>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    aria-label='What is a unit symbol?'
-                    className='text-muted-foreground hover:text-foreground'
-                    type='button'
-                  >
-                    <Info className='size-4' />
-                  </button>
+                <TooltipTrigger
+                  render={
+                    <button
+                      aria-label='What is a unit symbol?'
+                      className='text-muted-foreground hover:text-foreground'
+                      type='button'
+                    />
+                  }
+                >
+                  <Info className='size-4' />
                 </TooltipTrigger>
                 <TooltipContent>
                   The short text shown after a value, such as l, kg, or kWh. No icon is needed.
@@ -70,14 +70,16 @@ export function UnitFormFields({
             <div className='flex items-center gap-1.5'>
               <FormLabel>Reference unit</FormLabel>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    aria-label='What is a reference unit?'
-                    className='text-muted-foreground hover:text-foreground'
-                    type='button'
-                  >
-                    <Info className='size-4' />
-                  </button>
+                <TooltipTrigger
+                  render={
+                    <button
+                      aria-label='What is a reference unit?'
+                      className='text-muted-foreground hover:text-foreground'
+                      type='button'
+                    />
+                  }
+                >
+                  <Info className='size-4' />
                 </TooltipTrigger>
                 <TooltipContent>
                   The reference unit says what your new unit equals. Example: 1 barrel = 200 liters. Choose Liter here
@@ -86,7 +88,7 @@ export function UnitFormFields({
               </Tooltip>
             </div>
             <FormControl>
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select items={unitSelectItems(systemUnits)} value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Select a reference unit' />
                 </SelectTrigger>

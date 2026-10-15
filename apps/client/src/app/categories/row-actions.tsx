@@ -1,9 +1,11 @@
+import type { Category } from '@kijk/api/categories/types';
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -16,7 +18,6 @@ import { useState } from 'react';
 
 import { CategoryDeleteContent } from '@/app/categories/delete-content';
 import { CategoryForm } from '@/app/categories/form';
-import type { Category } from '@/shared/api/categories/types';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 
 interface Props {
@@ -34,28 +35,28 @@ export function CategoryRowActions({ canConfigure, row }: Props) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className='h-8 w-8 p-0' variant='ghost'>
-            <span className='sr-only'>Open menu</span>
-            <MoreHorizontal className='h-4 w-4' />
-          </Button>
+        <DropdownMenuTrigger render={<Button className='h-8 w-8 p-0' variant='ghost' />}>
+          <span className='sr-only'>Open menu</span>
+          <MoreHorizontal className='h-4 w-4' />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <CategoryMenuItem
-            label='Update'
-            restriction={restriction}
-            tooltip='Update category'
-            onSelect={() => setShowUpdateDialog(true)}
-          />
-          <DropdownMenuSeparator />
-          <CategoryMenuItem
-            label='Delete'
-            restriction={restriction}
-            tooltip='Delete category'
-            variant='destructive'
-            onSelect={() => setShowDeleteDialog(true)}
-          />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <CategoryMenuItem
+              label='Update'
+              restriction={restriction}
+              tooltip='Update category'
+              onClick={() => setShowUpdateDialog(true)}
+            />
+            <DropdownMenuSeparator />
+            <CategoryMenuItem
+              label='Delete'
+              restriction={restriction}
+              tooltip='Delete category'
+              variant='destructive'
+              onClick={() => setShowDeleteDialog(true)}
+            />
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
@@ -88,23 +89,21 @@ function getManagementRestriction(category: Category, canConfigure: boolean) {
 
 interface CategoryMenuItemProps {
   label: string;
-  onSelect: () => void;
+  onClick: () => void;
   restriction: string | undefined;
   tooltip: string;
   variant?: 'default' | 'destructive';
 }
 
-function CategoryMenuItem({ label, onSelect, restriction, tooltip, variant }: CategoryMenuItemProps) {
+function CategoryMenuItem({ label, onClick, restriction, tooltip, variant }: CategoryMenuItemProps) {
   const disabled = restriction !== undefined;
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <div className={disabled ? 'cursor-not-allowed' : undefined}>
-          <DropdownMenuItem disabled={disabled} variant={variant} onSelect={onSelect}>
-            {label}
-          </DropdownMenuItem>
-        </div>
+      <TooltipTrigger render={<div className={disabled ? 'cursor-not-allowed' : undefined} />}>
+        <DropdownMenuItem disabled={disabled} variant={variant} onClick={onClick}>
+          {label}
+        </DropdownMenuItem>
       </TooltipTrigger>
       <TooltipContent>{restriction ?? tooltip}</TooltipContent>
     </Tooltip>

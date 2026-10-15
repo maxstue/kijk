@@ -1,7 +1,6 @@
+import type { components } from '@kijk/api/generated/kijk';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { LockIcon, UsersIcon } from 'lucide-react';
-
-import type { components } from '@/shared/api/generated/kijk';
 
 /** Who can see an account or a budget within a shared space. */
 export type Visibility = components['schemas']['Visibility'];
@@ -15,10 +14,20 @@ interface Props {
   onChange: (value: Visibility) => void;
 }
 
+const visibilityItems: Array<{ label: string; value: Visibility }> = [
+  { label: 'Shared with the space', value: 'Shared' },
+  { label: 'Private, only for me', value: 'Private' },
+];
+
 /** Chooses between shared (every member) and private (only me). */
 export function VisibilitySelect({ canShare, disabled, id, onChange, value }: Props) {
   return (
-    <Select disabled={disabled} value={value} onValueChange={(next) => onChange(next as Visibility)}>
+    <Select
+      disabled={disabled}
+      items={visibilityItems}
+      value={value}
+      onValueChange={(next) => onChange(next as Visibility)}
+    >
       <SelectTrigger id={id}>
         <SelectValue />
       </SelectTrigger>

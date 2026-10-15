@@ -1,22 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { createLimitMutationOptions, updateLimitMutationOptions } from '@kijk/api/limits/options';
+import type { Limit } from '@kijk/api/limits/types';
+import { resourcesQueryOptions } from '@kijk/api/resources/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Switch } from '@kijk/ui/components/switch';
 import { Textarea } from '@kijk/ui/components/textarea';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { limitSchema, periods } from '@/app/limits/schemas';
 import type { LimitFormValues } from '@/app/limits/schemas';
-import { useCreateLimit } from '@/app/limits/use-create-limit';
-import { useUpdateLimit } from '@/app/limits/use-update-limit';
-import type { Limit } from '@/shared/api/limits/types';
-import { resourcesQueryOptions } from '@/shared/api/resources/options';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import {
   Form,
   FormControl,
@@ -46,8 +45,8 @@ const createDefaultValues: LimitFormValues = {
 /** Form to create a limit, or to edit `initialData` when given. */
 export function LimitForm({ initialData, onClose }: Props) {
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
-  const createMutation = useCreateLimit();
-  const updateMutation = useUpdateLimit();
+  const createMutation = useMutation(createLimitMutationOptions());
+  const updateMutation = useMutation(updateLimitMutationOptions());
   const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
   const isPending = createMutation.isPending || updateMutation.isPending;
   const form = useForm<LimitFormValues>({
@@ -130,7 +129,12 @@ function ResourceField({
       render={({ field }) => (
         <FormItem>
           <FormLabel>Resource</FormLabel>
-          <Select disabled={disabled} value={field.value} onValueChange={field.onChange}>
+          <Select
+            disabled={disabled}
+            items={resources.map((resource) => ({ label: `${resource.name} (${resource.unit})`, value: resource.id }))}
+            value={field.value}
+            onValueChange={field.onChange}
+          >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder='Select an energy type' />

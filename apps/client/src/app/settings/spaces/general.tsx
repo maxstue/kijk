@@ -1,4 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { updateSpaceMutationOptions } from '@kijk/api/spaces/options';
+import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
@@ -6,7 +8,7 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Separator } from '@kijk/ui/components/separator';
 import { Textarea } from '@kijk/ui/components/textarea';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -14,9 +16,6 @@ import { toast } from 'sonner';
 
 import { spaceUpdateSchema } from '@/app/settings/spaces/schemas';
 import type { SpaceUpdateFormValues } from '@/app/settings/spaces/schemas';
-import { queryKeys } from '@/shared/api/query-keys';
-import { updateSpaceMutationOptions } from '@/shared/api/spaces/options';
-import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
 import {
   Form,
   FormControl,
@@ -39,7 +38,6 @@ export function SpaceGeneral() {
   // A personal space is created automatically and stays as long as the account exists.
   const canDelete = !space.isPersonal && hasSpacePermission(space, SpacePermissions.space.delete);
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const updateMutation = useMutation(updateSpaceMutationOptions());
 
@@ -68,7 +66,6 @@ export function SpaceGeneral() {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
           void (async () => {
-            await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
             await router.invalidate();
             toast.success('Space updated');
           })().catch((error: unknown) =>

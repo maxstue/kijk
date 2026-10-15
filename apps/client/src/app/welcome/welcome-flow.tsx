@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ApiError } from '@kijk/api/errors';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Input } from '@kijk/ui/components/input';
@@ -35,7 +36,6 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
-import { ApiError } from '@/shared/types/errors/api-error';
 
 const steps = [
   { label: 'Profile', value: 'profile' },
@@ -98,12 +98,7 @@ export function WelcomeFlow({
         <div className='space-y-3'>
           <StepperList>
             {steps.map((step, index) => (
-              <StepperItem
-                key={step.value}
-                completed={index < currentStepIndex}
-                defaultTrigger={false}
-                value={step.value}
-              >
+              <StepperItem key={step.value} completed={index < currentStepIndex} value={step.value}>
                 <StepperTrigger disabled={index > currentStepIndex}>
                   <StepperIndicator />
                   <StepperLabel>{step.label}</StepperLabel>
@@ -135,11 +130,7 @@ export function WelcomeFlow({
             <Form {...form}>
               <form className='space-y-6' onSubmit={form.handleSubmit(submit)}>
                 <div className='grid'>
-                  <StepperContent
-                    preserveLayout
-                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
-                    value='profile'
-                  >
+                  <StepperContent preserveLayout className='col-start-1 row-start-1' value='profile'>
                     <ProfileStep
                       providerName={providerName}
                       control={form.control}
@@ -148,35 +139,21 @@ export function WelcomeFlow({
                       imageUrl={imageUrl}
                     />
                   </StepperContent>
-                  <StepperContent
-                    preserveLayout
-                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
-                    value='space'
-                  >
+                  <StepperContent preserveLayout className='col-start-1 row-start-1' value='space'>
                     <SpaceStep control={form.control} />
                   </StepperContent>
-                  <StepperContent
-                    preserveLayout
-                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
-                    value='privacy'
-                  >
+                  <StepperContent preserveLayout className='col-start-1 row-start-1' value='privacy'>
                     <PrivacyStep control={form.control} />
                   </StepperContent>
-                  <StepperContent
-                    preserveLayout
-                    className='col-start-1 row-start-1 border-0 bg-transparent p-0 shadow-none data-[state=inactive]:invisible'
-                    value='review'
-                  >
+                  <StepperContent preserveLayout className='col-start-1 row-start-1' value='review'>
                     <ReviewStep />
                   </StepperContent>
                 </div>
 
                 <div className='flex justify-between gap-3 pt-2'>
                   {currentStep !== 'profile' && (
-                    <StepperPrevious asChild disabled={isPending}>
-                      <Button type='button' variant='secondary'>
-                        Back
-                      </Button>
+                    <StepperPrevious variant='secondary' disabled={isPending}>
+                      Back
                     </StepperPrevious>
                   )}
                   {currentStep === 'review' ? (
@@ -185,10 +162,8 @@ export function WelcomeFlow({
                       Finish setup
                     </Button>
                   ) : (
-                    <StepperNext asChild onBeforeNext={() => validateStep(form, currentStepIndex)}>
-                      <Button className='ml-auto' type='button'>
-                        Continue
-                      </Button>
+                    <StepperNext className='ml-auto' onBeforeNext={() => validateStep(form, currentStepIndex)}>
+                      Continue
                     </StepperNext>
                   )}
                 </div>
@@ -316,7 +291,7 @@ function SpaceStep({ control }: { control: ReturnType<typeof useForm<UserStepFor
 function Choice({ description, title, value }: { description: string; title: string; value: string }) {
   return (
     <FormItem className='gap-0'>
-      <FormLabel className='has-data-[state=checked]:border-primary flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 font-normal'>
+      <FormLabel className='has-data-checked:border-primary flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 font-normal'>
         <FormControl>
           <RadioGroupItem value={value} />
         </FormControl>

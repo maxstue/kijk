@@ -1,4 +1,4 @@
-import type { Budget } from '@/shared/api/budgets/types';
+import type { Budget } from '@kijk/api/budgets/types';
 
 /** Formats a month (1-12) as the ISO date of its first day, e.g. `2026-10-01`. */
 export function toMonthStart(year: number, month: number) {

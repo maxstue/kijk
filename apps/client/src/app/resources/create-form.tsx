@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { createResourceMutationOptions } from '@kijk/api/resources/options';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -10,7 +12,6 @@ import {
   ResourceNameField,
   ResourceUnitField,
 } from '@/app/resources/form-fields';
-import { useCreateResource } from '@/app/resources/use-create-resource';
 import { Form, FormField } from '@/shared/components/form';
 
 import { resourceSchema } from './schemas';
@@ -22,7 +23,7 @@ interface Props {
 
 /** Form to create a custom resource. */
 export function ResourceTypeCreateForm({ onClose }: Props) {
-  const { isPending, mutate } = useCreateResource();
+  const { isPending, mutate } = useMutation(createResourceMutationOptions());
 
   const form = useForm({
     defaultValues: {

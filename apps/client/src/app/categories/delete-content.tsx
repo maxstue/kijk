@@ -1,3 +1,5 @@
+import { deleteCategoryMutationOptions } from '@kijk/api/categories/options';
+import type { Category } from '@kijk/api/categories/types';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -8,10 +10,8 @@ import {
   AlertDialogTitle,
 } from '@kijk/ui/components/alert-dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-import { useDeleteCategory } from '@/app/categories/use-mutations';
-import type { Category } from '@/shared/api/categories/types';
 
 interface Props {
   category: Category;
@@ -20,7 +20,7 @@ interface Props {
 
 /** Confirmation dialog content for deleting a custom category. */
 export function CategoryDeleteContent({ category, onClose }: Props) {
-  const { isPending, mutate } = useDeleteCategory();
+  const { isPending, mutate } = useMutation(deleteCategoryMutationOptions());
 
   const handleDelete = () => {
     mutate(category.id, {

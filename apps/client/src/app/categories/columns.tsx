@@ -1,10 +1,10 @@
+import type { Category } from '@kijk/api/categories/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { CategoryRowActions } from '@/app/categories/row-actions';
-import type { Category } from '@/shared/api/categories/types';
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 

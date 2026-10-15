@@ -14,13 +14,12 @@ import { DialogDescription, DialogTitle } from '@kijk/ui/components/dialog';
 import { useNavigate } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { Laptop, Moon, SunMedium } from 'lucide-react';
-import type { Dialog } from 'radix-ui';
 import { useCallback, useEffect, useState } from 'react';
 
 import { mainNavGroups } from '@/app/root/constants';
 import { settingsNav } from '@/shared/navigation/settings';
 
-interface Props extends Dialog.DialogProps {
+interface Props {
   isCollapsed?: boolean;
 }
 

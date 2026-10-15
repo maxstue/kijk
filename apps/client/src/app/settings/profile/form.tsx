@@ -1,17 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
+import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { ConnectedSignInMethods } from '@/app/settings/profile/providers';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
-import { useUpdateUser } from '@/app/settings/profile/use-update-user';
-import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
   Form,
@@ -31,7 +30,7 @@ export function ProfileForm() {
   const externalIdentity = currentUser?.externalIdentity;
   const canRenameSpace = hasSpacePermission(activeSpace, SpacePermissions.space.configure);
 
-  const { mutate } = useUpdateUser();
+  const { mutate } = useMutation(updateUserMutationOptions());
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),

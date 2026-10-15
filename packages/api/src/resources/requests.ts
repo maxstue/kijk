@@ -1,0 +1,52 @@
+import { apiClient } from '@kijk/api/client';
+import { unwrapApiResponse } from '@kijk/api/http';
+
+import type { ResourceData, UpdateResourceData } from './types';
+
+/** Loads the resources of the active space. */
+export async function getResources(signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().GET('/api/resources', { signal }));
+}
+
+/** Loads a single resource. */
+export async function getResource(id: string, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient().GET('/api/resources/{id}', {
+      params: { path: { id } },
+      signal,
+    }),
+  );
+}
+
+/** Creates a custom resource. */
+export async function createResource(data: ResourceData, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient().POST('/api/resources', {
+      body: data,
+      signal,
+    }),
+  );
+}
+
+/** Updates a custom resource. */
+export async function updateResource(data: UpdateResourceData, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient().PUT('/api/resources/{id}', {
+      body: data.resource,
+      params: {
+        path: { id: data.id },
+      },
+      signal,
+    }),
+  );
+}
+
+/** Deletes an unused custom resource. */
+export async function deleteResource(id: string, signal?: AbortSignal) {
+  await apiClient().DELETE('/api/resources/{id}', {
+    params: {
+      path: { id },
+    },
+    signal,
+  });
+}

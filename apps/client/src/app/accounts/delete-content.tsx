@@ -1,3 +1,5 @@
+import { deleteAccountMutationOptions } from '@kijk/api/accounts/options';
+import type { Account } from '@kijk/api/accounts/types';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -8,10 +10,8 @@ import {
   AlertDialogTitle,
 } from '@kijk/ui/components/alert-dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-import { useDeleteAccount } from '@/app/accounts/use-mutations';
-import type { Account } from '@/shared/api/accounts/types';
 
 interface Props {
   account: Account;
@@ -20,7 +20,7 @@ interface Props {
 
 /** Confirmation dialog content for deleting an account. */
 export function AccountDeleteContent({ account, onClose }: Props) {
-  const { isPending, mutate } = useDeleteAccount();
+  const { isPending, mutate } = useMutation(deleteAccountMutationOptions());
 
   const handleDelete = () => {
     mutate(account.id, {

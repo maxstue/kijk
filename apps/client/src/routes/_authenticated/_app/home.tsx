@@ -6,16 +6,15 @@ import { HomeSectionCards } from '@/app/home/home-section-cards';
 import { HomeTable } from '@/app/home/home-table';
 import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
 /** `/home`: dashboard. */
 export const Route = createFileRoute('/_authenticated/_app/home')({
+  head: () => ({ meta: [{ title: 'Home' }] }),
   component: HomeIndexPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
 });
 
 function HomeIndexPage() {
-  useSetSiteHeader('Home');
   return (
     <>
       <div className='@container/main flex flex-1 flex-col gap-2'>

@@ -1,9 +1,9 @@
+import { categorizeTransactionMutationOptions } from '@kijk/api/transactions/options';
+import type { Transaction } from '@kijk/api/transactions/types';
 import { Button } from '@kijk/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-import { useCategorizeTransaction } from '@/app/transactions/use-transaction-mutations';
-import type { Transaction } from '@/shared/api/transactions/types';
 
 interface Props {
   categoryId: string;
@@ -17,7 +17,7 @@ interface Props {
  * rule stores nothing about the counterparty.
  */
 export function RememberDialog({ categoryId, categoryName, onClose, transaction }: Props) {
-  const categorizeMutation = useCategorizeTransaction();
+  const categorizeMutation = useMutation(categorizeTransactionMutationOptions());
 
   function remember(keyword?: string) {
     categorizeMutation.mutate(

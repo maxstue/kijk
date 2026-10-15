@@ -1,6 +1,7 @@
+import type { CsvImportMapping, ImportPreview } from '@kijk/api/imports/types';
+
 import type { ColumnRole } from '@/app/imports/constants';
 import { columnRoles } from '@/app/imports/constants';
-import type { CsvImportMapping, ImportPreview } from '@/shared/api/imports/types';
 import { formatMonthYear } from '@/shared/utils/months';
 
 /** Returns the role of each mapped column. */

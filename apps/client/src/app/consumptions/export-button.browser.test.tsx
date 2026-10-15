@@ -1,7 +1,7 @@
+import { exportConsumption, exportConsumptionMonth, type CsvDownload } from '@kijk/api/consumptions/requests';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { exportConsumption, exportConsumptionMonth, type CsvDownload } from '@/shared/api/consumptions/requests';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 import { ConsumptionExportButton } from './export-button';
@@ -10,7 +10,7 @@ vi.mock('@/shared/hooks/use-space-permission', () => ({
   useSpacePermission: vi.fn<() => boolean>(() => true),
 }));
 
-vi.mock('@/shared/api/consumptions/requests', () => ({
+vi.mock('@kijk/api/consumptions/requests', () => ({
   exportConsumption: vi.fn<(id: string, signal?: AbortSignal) => Promise<CsvDownload>>(),
   exportConsumptionMonth: vi.fn<(year: number, month: string, signal?: AbortSignal) => Promise<CsvDownload>>(),
 }));

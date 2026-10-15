@@ -1,3 +1,5 @@
+import { deleteLimitMutationOptions } from '@kijk/api/limits/options';
+import type { Limit } from '@kijk/api/limits/types';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -8,14 +10,12 @@ import {
   AlertDialogTitle,
 } from '@kijk/ui/components/alert-dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-import { useDeleteLimit } from '@/app/limits/use-delete-limit';
-import type { Limit } from '@/shared/api/limits/types';
 
 /** Confirmation dialog content for deleting a consumption limit. */
 export function LimitDeleteContent({ limit, onClose }: { limit: Limit; onClose: () => void }) {
-  const { isPending, mutate } = useDeleteLimit();
+  const { isPending, mutate } = useMutation(deleteLimitMutationOptions());
 
   return (
     <AlertDialogContent>

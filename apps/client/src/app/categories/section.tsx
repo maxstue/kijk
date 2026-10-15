@@ -1,10 +1,10 @@
+import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Tags } from 'lucide-react';
 
 import { categoryDefaultSort, getCategoryColumns } from '@/app/categories/columns';
-import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { DataTable } from '@/shared/components/data-table';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 

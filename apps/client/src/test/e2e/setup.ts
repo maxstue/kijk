@@ -1,10 +1,10 @@
+import type { ResourceData } from '@kijk/api/resources/types';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
+import type { Unit } from '@kijk/api/units/types';
+import type { CurrentUser } from '@kijk/api/users/types';
 import { HttpResponse, http } from 'msw';
 import { setupWorker } from 'msw/browser';
 
-import type { ResourceData } from '@/shared/api/resources/types';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
-import type { Unit } from '@/shared/api/units/types';
-import type { CurrentUser } from '@/shared/api/users/types';
 import type { Resource } from '@/shared/types/domain';
 
 const unitId = '00000000-0000-4000-8000-000000000002';
@@ -88,7 +88,15 @@ const worker = setupWorker(
     resources.push(resource);
     return HttpResponse.json(resource, { status: 201 });
   }),
-  http.get('*/api/units', () => HttpResponse.json(units)),
+  http.get('*/api/units', () =>
+    HttpResponse.json({
+      customCount: units.filter((unit) => unit.creatorType === 'User').length,
+      items: units,
+      page: 1,
+      pageSize: Math.max(units.length, 1),
+      totalCount: units.length,
+    }),
+  ),
 );
 
 await worker.start({

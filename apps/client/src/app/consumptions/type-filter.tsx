@@ -31,19 +31,21 @@ export function ConsumptionTypeFilter({ onSelect, resources, value }: Props) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-expanded={open}
-          aria-label='Filter consumptions by type'
-          className='w-full justify-between sm:w-64'
-          role='combobox'
-          variant='outline'
-        >
-          {selectedName}
-          <ChevronsUpDown className='ml-2 size-4 shrink-0 opacity-50' />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-expanded={open}
+            aria-label='Filter consumptions by type'
+            className='w-full justify-between sm:w-64'
+            role='combobox'
+            variant='outline'
+          />
+        }
+      >
+        {selectedName}
+        <ChevronsUpDown className='ml-2 size-4 shrink-0 opacity-50' />
       </PopoverTrigger>
-      <PopoverContent className='w-(--radix-popover-trigger-width) p-0'>
+      <PopoverContent className='w-(--anchor-width) p-0'>
         <Command>
           <CommandInput placeholder='Search types...' />
           <CommandList>

@@ -1,15 +1,12 @@
+import { queryKeys } from '@kijk/api/query-keys';
+import { categorizeTransaction } from '@kijk/api/transactions/requests';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { queryKeys } from '@/shared/api/query-keys';
-
 import { RuleSuggestions } from './rule-suggestions';
 
-const categorize = vi.fn<(data: unknown, options: unknown) => void>();
-vi.mock('@/app/transactions/use-transaction-mutations', () => ({
-  useCategorizeTransaction: () => ({ isPending: false, mutate: categorize }),
-}));
+vi.mock('@kijk/api/transactions/requests', { spy: true });
 
 const suggestions = [
   {
@@ -47,17 +44,23 @@ function renderSuggestions(canRecord = true) {
 }
 
 test('remembering a suggestion creates the rule from its latest correction', async () => {
+  vi.mocked(categorizeTransaction).mockResolvedValue({ appliedToOthers: 3 } as Awaited<
+    ReturnType<typeof categorizeTransaction>
+  >);
   const screen = await renderSuggestions();
 
   await expect.element(screen.getByText('REWE Markt → Groceries')).toBeVisible();
   await expect.element(screen.getByText(/categorizes 3 open transactions/)).toBeVisible();
   await screen.getByRole('button', { name: 'Remember' }).first().click();
 
-  expect(categorize).toHaveBeenCalledWith(
-    { correction: { categoryId: 'groceries', remember: true }, id: 'transaction-1' },
-    expect.anything(),
+  await vi.waitFor(() =>
+    expect(categorizeTransaction).toHaveBeenCalledWith({
+      correction: { categoryId: 'groceries', remember: true },
+      id: 'transaction-1',
+    }),
   );
   await screen.unmount();
+  vi.mocked(categorizeTransaction).mockReset();
 });
 
 test('hidden suggestions stay hidden', async () => {

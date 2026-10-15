@@ -1,0 +1,12 @@
+{
+  "extends": "@kijk/config/tsconfig/base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@kijk/api/*": ["./src/*"],
+      "@kijk/core/*": ["../core/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,3 +1,8 @@
+import { accountsQueryOptions } from '@kijk/api/accounts/options';
+import { budgetOverviewQueryOptions } from '@kijk/api/budgets/options';
+import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
+import { transactionsQueryOptions } from '@kijk/api/transactions/options';
 import { Button } from '@kijk/ui/components/button';
 import {
   Dialog,
@@ -30,16 +35,10 @@ import { TransactionExportMenuItem } from '@/app/transactions/export-menu-item';
 import { TransactionForm } from '@/app/transactions/form';
 import { TransactionList } from '@/app/transactions/list';
 import { RuleSuggestions } from '@/app/transactions/rule-suggestions';
-import { accountsQueryOptions } from '@/shared/api/accounts/options';
-import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
-import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
-import { transactionsQueryOptions } from '@/shared/api/transactions/options';
 import { AppError } from '@/shared/components/errors/app-error';
 import { MonthSwitcher } from '@/shared/components/month-switcher';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const searchSchema = z.object({
@@ -82,9 +81,9 @@ function toPageQuery(search: z.infer<typeof searchSchema>) {
  * uncategorized ones.
  */
 export const Route = createFileRoute('/_authenticated/_app/finances/transactions')({
+  validateSearch: zodValidator(searchSchema),
   component: TransactionsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
-  validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => toPageQuery(search),
   loader: async ({ context: { queryClient }, deps }) => {
     await Promise.all([
@@ -94,11 +93,11 @@ export const Route = createFileRoute('/_authenticated/_app/finances/transactions
       queryClient.query({ ...budgetOverviewQueryOptions(currentYear(), currentMonth()), staleTime: 'static' }),
     ]);
   },
+  head: () => ({ meta: [{ title: 'Transactions' }] }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });
 
 function TransactionsPage() {
-  useSetSiteHeader('Transactions');
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
@@ -171,10 +170,12 @@ function TransactionsPage() {
               </TabsList>
             </Tabs>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button aria-label='Transaction view' variant='outline' className='@min-[32rem]/toolbar:hidden'>
-                  {search.uncategorized ? 'Uncategorized' : 'All'} <ChevronDown />
-                </Button>
+              <DropdownMenuTrigger
+                render={
+                  <Button aria-label='Transaction view' variant='outline' className='@min-[32rem]/toolbar:hidden' />
+                }
+              >
+                {search.uncategorized ? 'Uncategorized' : 'All'} <ChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent align='start'>
                 <DropdownMenuRadioGroup
@@ -199,28 +200,28 @@ function TransactionsPage() {
         actions={
           <>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button aria-label='More actions' title='More actions' size='icon' variant='outline'>
-                  <MoreHorizontal />
-                </Button>
+              <DropdownMenuTrigger
+                render={<Button aria-label='More actions' title='More actions' size='icon' variant='outline' />}
+              >
+                <MoreHorizontal />
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
-                <DropdownMenuItem asChild>
-                  <Link to='/finances/imports'>
-                    <Upload /> Import CSV
-                  </Link>
+                <DropdownMenuItem render={<Link to='/finances/imports' />}>
+                  <Upload /> Import CSV
                 </DropdownMenuItem>
                 <TransactionExportMenuItem filters={toFilters(search)} />
               </DropdownMenuContent>
             </DropdownMenu>
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <DialogTrigger asChild>
-                <PageAddButton
-                  disabled={!canRecord}
-                  title={canRecord ? undefined : 'Your role in this space does not allow recording transactions'}
-                >
-                  Add transaction
-                </PageAddButton>
+              <DialogTrigger
+                render={
+                  <PageAddButton
+                    disabled={!canRecord}
+                    title={canRecord ? undefined : 'Your role in this space does not allow recording transactions'}
+                  />
+                }
+              >
+                Add transaction
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -235,16 +236,18 @@ function TransactionsPage() {
       >
         <div className='hidden items-center gap-2 @min-[60rem]/toolbar:flex'>{filterControls(true)}</div>
         <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              aria-label='Filters'
-              title='Filters'
-              variant='outline'
-              className='size-9 p-0 @min-[32rem]/toolbar:w-auto @min-[32rem]/toolbar:px-3 @min-[60rem]/toolbar:hidden'
-            >
-              <SlidersHorizontal />
-              <span className='sr-only @min-[32rem]/toolbar:not-sr-only'>Filters</span>
-            </Button>
+          <PopoverTrigger
+            render={
+              <Button
+                aria-label='Filters'
+                title='Filters'
+                variant='outline'
+                className='size-9 p-0 @min-[32rem]/toolbar:w-auto @min-[32rem]/toolbar:px-3 @min-[60rem]/toolbar:hidden'
+              />
+            }
+          >
+            <SlidersHorizontal />
+            <span className='sr-only @min-[32rem]/toolbar:not-sr-only'>Filters</span>
           </PopoverTrigger>
           <PopoverContent align='start' className='w-96 max-w-[calc(100vw-2rem)]'>
             <div className='flex flex-col items-start gap-3'>{filterControls(false)}</div>

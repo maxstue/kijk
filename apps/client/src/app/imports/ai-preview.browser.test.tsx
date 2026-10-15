@@ -1,25 +1,25 @@
 import '@kijk/ui/globals.css';
+import { categorizeImport } from '@kijk/api/imports/requests';
+import type { ImportJob } from '@kijk/api/imports/types';
+import { queryKeys } from '@kijk/api/query-keys';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { expect, test, vi } from 'vite-plus/test';
+import { afterEach, expect, onTestFinished, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
-
-import type { ImportJob } from '@/shared/api/imports/types';
-import { queryKeys } from '@/shared/api/query-keys';
 
 import { ImportAiCategorization } from './ai-preview';
 
-const updatePreview = vi.fn<() => void>();
-const categorize = vi.fn<(data: unknown, options: unknown) => void>();
-vi.mock('@/app/imports/use-import-mutations', () => ({
-  useCategorizeImport: () => ({ isPending: false, mutate: categorize }),
-  useUpdateImportAiPreviewItem: () => ({ isPending: false, mutate: updatePreview }),
-}));
+vi.mock('@kijk/api/imports/requests', { spy: true });
+
+afterEach(() => vi.mocked(categorizeImport).mockReset());
+
+type CategorizeResult = Awaited<ReturnType<typeof categorizeImport>>;
 
 const job = { aiCategorizationUnavailable: false, aiCategorizedCount: 0, id: 'import' } as unknown as ImportJob;
 
 function createClient(aiEnabled: boolean, aiDataSharing: 'Off' | 'Strict') {
-  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+  onTestFinished(() => client.clear());
   client.setQueryData(queryKeys.users.me, { status: 'Ready', user: { aiEnabled } });
   client.setQueryData(queryKeys.imports.settings(), { aiDataSharing, minimizeData: false, purposeRetention: 'Keep' });
   client.setQueryData(queryKeys.imports.aiPreview('import'), {
@@ -70,8 +70,11 @@ test('the preview lists exactly the selected texts and sends only those', async 
   await expect.element(screen.getByText(/2 texts for 3 rows · 1 rows withheld/)).toBeVisible();
   const deselected = screen.getByRole('checkbox', { name: 'Send this text to the AI' }).nth(2);
   await expect.element(deselected).not.toBeChecked();
+  vi.mocked(categorizeImport).mockResolvedValue({} as CategorizeResult);
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
-  expect(categorize).toHaveBeenCalledWith({ aiDataSharing: 'Strict', selectedTextKeys: ['a', 'b'] }, expect.anything());
+  await vi.waitFor(() =>
+    expect(categorizeImport).toHaveBeenCalledWith('import', { aiDataSharing: 'Strict', selectedTextKeys: ['a', 'b'] }),
+  );
   await screen.unmount();
 });
 
@@ -121,17 +124,18 @@ test('returns to the transaction review only after the request succeeds', async 
       <ImportAiCategorization job={job} onStarted={onStarted} />
     </QueryClientProvider>,
   );
+  const { promise, resolve } = Promise.withResolvers<CategorizeResult>();
+  vi.mocked(categorizeImport).mockReturnValue(promise);
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
+  await vi.waitFor(() => expect(categorizeImport).toHaveBeenCalledOnce());
   expect(onStarted).not.toHaveBeenCalled();
-  const options = categorize.mock.lastCall![1] as { onSuccess: () => void };
-  options.onSuccess();
-  expect(onStarted).toHaveBeenCalledOnce();
+  resolve({} as CategorizeResult);
+  await vi.waitFor(() => expect(onStarted).toHaveBeenCalledOnce());
   await screen.unmount();
 });
 
 test('keeps checkbox changes local and submits the final selection once', async () => {
-  categorize.mockClear();
-  updatePreview.mockClear();
+  vi.mocked(categorizeImport).mockResolvedValue({} as CategorizeResult);
   const client = createClient(true, 'Strict');
   const invalidate = vi.spyOn(client, 'invalidateQueries');
   const screen = await render(
@@ -145,13 +149,14 @@ test('keeps checkbox changes local and submits the final selection once', async 
   await expect.element(checkboxes.nth(0)).not.toBeChecked();
   await expect.element(checkboxes.nth(2)).toBeChecked();
   await expect.element(screen.getByText(/2 texts for 2 rows/)).toBeVisible();
-  expect(updatePreview).not.toHaveBeenCalled();
   expect(invalidate).not.toHaveBeenCalled();
-  expect(categorize).not.toHaveBeenCalled();
+  expect(categorizeImport).not.toHaveBeenCalled();
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
-  expect(categorize).toHaveBeenCalledExactlyOnceWith(
-    { aiDataSharing: 'Strict', selectedTextKeys: ['b', 'c'] },
-    expect.anything(),
+  await vi.waitFor(() =>
+    expect(categorizeImport).toHaveBeenCalledExactlyOnceWith('import', {
+      aiDataSharing: 'Strict',
+      selectedTextKeys: ['b', 'c'],
+    }),
   );
   await screen.unmount();
 });

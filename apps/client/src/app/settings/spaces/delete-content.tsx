@@ -1,3 +1,4 @@
+import { deleteSpaceMutationOptions } from '@kijk/api/spaces/options';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -13,9 +14,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-import { queryKeys } from '@/shared/api/query-keys';
-import { deleteSpaceMutationOptions } from '@/shared/api/spaces/options';
 
 import { useSpaceSettings } from './context';
 import { clearSpaceData } from './helpers';
@@ -35,7 +33,6 @@ export function SpaceDeleteContent({ onClose }: { onClose: () => void }) {
       onSuccess: () => {
         void (async () => {
           await clearSpaceData(queryClient);
-          await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
           toast.success(`Deleted space: ${space.name}`);
           onClose();
           await navigate({ replace: true, to: hasAnotherSpace ? '/home' : '/welcome' });

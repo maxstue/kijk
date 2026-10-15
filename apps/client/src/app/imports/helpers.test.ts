@@ -1,6 +1,5 @@
+import type { CsvImportMapping } from '@kijk/api/imports/types';
 import { describe, expect, test } from 'vite-plus/test';
-
-import type { CsvImportMapping } from '@/shared/api/imports/types';
 
 import { assignColumnRole, createEmptyMapping, getColumnRoles, getMissingMappingFields } from './helpers';
 

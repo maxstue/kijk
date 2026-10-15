@@ -6,7 +6,7 @@ import type { ComponentProps, ReactNode } from 'react';
 export function PageAddButton({
   children,
   ...props
-}: Omit<ComponentProps<typeof Button>, 'variant' | 'size' | 'asChild'>) {
+}: Omit<ComponentProps<typeof Button>, 'variant' | 'size' | 'render'>) {
   return (
     <Button {...props} variant='default' size='default'>
       <Plus /> {children}

@@ -1,8 +1,7 @@
+import { hasSpacePermission } from '@kijk/api/spaces/permissions';
+import type { SpacePermission } from '@kijk/api/spaces/permissions';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { useQuery } from '@tanstack/react-query';
-
-import { hasSpacePermission } from '@/shared/api/spaces/permissions';
-import type { SpacePermission } from '@/shared/api/spaces/permissions';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 
 /** Checks a permission in the current user's active space. */
 export function useSpacePermission(permission: SpacePermission) {

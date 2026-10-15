@@ -1,3 +1,4 @@
+import type { Account } from '@kijk/api/accounts/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
@@ -5,7 +6,6 @@ import { ArrowUpDown } from 'lucide-react';
 
 import { AccountRowActions } from '@/app/accounts/row-actions';
 import type { AccountPermissions } from '@/app/accounts/types';
-import type { Account } from '@/shared/api/accounts/types';
 import { PrivateBadge } from '@/shared/components/visibility-select';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 

@@ -27,7 +27,11 @@ export default defineConfig(({ mode }) => {
       tanstackDevtools({
         removeDevtoolsOnBuild: true,
       }),
-      tanstackRouter({ autoCodeSplitting: true, target: 'react' }),
+      tanstackRouter({
+        autoCodeSplitting: true,
+        routeFileIgnorePattern: '\\.(test|spec)\\.[cm]?[jt]sx?$',
+        target: 'react',
+      }),
       react(),
       babel({ presets: [reactCompilerPreset()] }),
       tailwindcss(),

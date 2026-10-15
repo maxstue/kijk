@@ -1,3 +1,12 @@
+import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
+import {
+  categorizeTransactionMutationOptions,
+  categorizeTransactionsMutationOptions,
+  deleteTransactionMutationOptions,
+  transactionsQueryOptions,
+} from '@kijk/api/transactions/options';
+import type { Transaction, TransactionPageQuery } from '@kijk/api/transactions/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +33,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Separator } from '@kijk/ui/components/separator';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { Pencil, ReceiptText, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
@@ -34,15 +43,6 @@ import { transactionPageSizes } from '@/app/transactions/constants';
 import { TransactionForm } from '@/app/transactions/form';
 import { RememberDialog } from '@/app/transactions/remember-dialog';
 import { noneValue } from '@/app/transactions/schemas';
-import {
-  useCategorizeTransaction,
-  useCategorizeTransactions,
-  useDeleteTransaction,
-} from '@/app/transactions/use-transaction-mutations';
-import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
-import { transactionsQueryOptions } from '@/shared/api/transactions/options';
-import type { Transaction, TransactionPageQuery } from '@/shared/api/transactions/types';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
@@ -221,7 +221,11 @@ function Pagination({
         Page {page} of {totalPages} · {totalCount} transactions
       </span>
       <div className='flex flex-wrap items-center gap-2'>
-        <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
+        <Select
+          items={transactionPageSizes.map((size) => ({ label: `${size} per page`, value: String(size) }))}
+          value={String(pageSize)}
+          onValueChange={(value) => onPageSizeChange(Number(value))}
+        >
           <SelectTrigger aria-label='Transactions per page' className='w-32' size='sm'>
             <SelectValue />
           </SelectTrigger>
@@ -263,7 +267,7 @@ function BulkCategoryBar({
   selectedTransactions: Transaction[];
 }) {
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
-  const categorizeMutation = useCategorizeTransactions();
+  const categorizeMutation = useMutation(categorizeTransactionsMutationOptions());
   const [categoryId, setCategoryId] = useState<string>();
 
   function onAssign() {
@@ -291,7 +295,11 @@ function BulkCategoryBar({
       <span className='px-2 text-sm font-medium'>{selectedIds.length} selected</span>
       <SelectionTotals transactions={selectedTransactions} />
       <Separator className='h-5' orientation='vertical' />
-      <Select value={categoryId ?? ''} onValueChange={setCategoryId}>
+      <Select
+        items={categories.map((category) => ({ label: category.name, value: category.id }))}
+        value={categoryId ?? null}
+        onValueChange={(value) => setCategoryId(value ?? undefined)}
+      >
         <SelectTrigger aria-label='Category for the selected transactions' className='w-48' size='sm'>
           <SelectValue placeholder='Set category…' />
         </SelectTrigger>
@@ -390,10 +398,10 @@ function TransactionRow({
 
 function CategorySelect({ disabled, transaction }: { disabled: boolean; transaction: Transaction }) {
   const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
-  const categorizeMutation = useCategorizeTransaction();
+  const categorizeMutation = useMutation(categorizeTransactionMutationOptions());
   const [rememberTarget, setRememberTarget] = useState<{ categoryId: string; transaction: Transaction }>();
 
-  function onChange(value: string) {
+  function onChange(value: string | null) {
     const categoryId = value === noneValue ? null : value;
     categorizeMutation.mutate(
       { correction: { categoryId, remember: false }, id: transaction.id },
@@ -424,6 +432,10 @@ function CategorySelect({ disabled, transaction }: { disabled: boolean; transact
       )}
       <Select
         disabled={disabled || categorizeMutation.isPending}
+        items={[
+          { label: 'Uncategorized', value: noneValue },
+          ...categories.map((category) => ({ label: category.name, value: category.id })),
+        ]}
         value={transaction.categoryId ?? noneValue}
         onValueChange={onChange}
       >
@@ -448,16 +460,18 @@ function EditButton({ disabled, transaction }: { disabled: boolean; transaction:
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          aria-label='Edit transaction'
-          className='text-muted-foreground'
-          disabled={disabled}
-          size='icon-sm'
-          variant='ghost'
-        >
-          <Pencil />
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            aria-label='Edit transaction'
+            className='text-muted-foreground'
+            disabled={disabled}
+            size='icon-sm'
+            variant='ghost'
+          />
+        }
+      >
+        <Pencil />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -471,7 +485,7 @@ function EditButton({ disabled, transaction }: { disabled: boolean; transaction:
 }
 
 function DeleteButton({ disabled, transaction }: { disabled: boolean; transaction: Transaction }) {
-  const deleteMutation = useDeleteTransaction();
+  const deleteMutation = useMutation(deleteTransactionMutationOptions());
 
   function onDelete() {
     deleteMutation.mutate(transaction.id, {
@@ -482,16 +496,18 @@ function DeleteButton({ disabled, transaction }: { disabled: boolean; transactio
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          aria-label='Delete transaction'
-          className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:text-destructive dark:hover:bg-destructive/20'
-          disabled={disabled || deleteMutation.isPending}
-          size='icon-sm'
-          variant='ghost'
-        >
-          <Trash2 />
-        </Button>
+      <AlertDialogTrigger
+        render={
+          <Button
+            aria-label='Delete transaction'
+            className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:text-destructive dark:hover:bg-destructive/20'
+            disabled={disabled || deleteMutation.isPending}
+            size='icon-sm'
+            variant='ghost'
+          />
+        }
+      >
+        <Trash2 />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

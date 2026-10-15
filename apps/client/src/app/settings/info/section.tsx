@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { Switch } from '@kijk/ui/components/switch';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { ExternalLink } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -9,8 +10,6 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { DeleteAccount } from '@/app/settings/info/delete-account';
-import { useUpdateUser } from '@/app/settings/profile/use-update-user';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AppVersion } from '@/shared/components/app-version';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/shared/components/form';
 import { PageHeader } from '@/shared/components/page-header';
@@ -26,7 +25,7 @@ type PrivacyFormValues = z.infer<typeof privacyFormSchema>;
 /** Info and privacy settings, including the analytics consent. */
 export function InfoSection() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const { mutate, isPending } = useUpdateUser();
+  const { mutate, isPending } = useMutation(updateUserMutationOptions());
   const form = useForm<PrivacyFormValues>({
     resolver: zodResolver(privacyFormSchema),
     values: {

@@ -67,13 +67,15 @@ export function ConsumptionMonthView({ consumptions, month, year }: Props) {
                         {item.valueType === ValueTypes.ABSOLUTE ? 'Meter reading' : 'Direct consumption entry'}
                       </Badge>
                       <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type='button'
-                            aria-label={`Explain ${item.valueType === ValueTypes.ABSOLUTE ? 'meter reading' : 'direct consumption entry'}`}
-                          >
-                            <InfoIcon className='text-muted-foreground size-4' />
-                          </button>
+                        <TooltipTrigger
+                          render={
+                            <button
+                              type='button'
+                              aria-label={`Explain ${item.valueType === ValueTypes.ABSOLUTE ? 'meter reading' : 'direct consumption entry'}`}
+                            />
+                          }
+                        >
+                          <InfoIcon className='text-muted-foreground size-4' />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className='max-w-72 text-sm'>

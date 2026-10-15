@@ -1,15 +1,17 @@
 import { Separator } from '@kijk/ui/components/separator';
 import { SidebarTrigger } from '@kijk/ui/components/sidebar';
-
-import { useSiteHeaderStore } from '@/shared/stores/site-header-store';
+import { useMatches } from '@tanstack/react-router';
 
 /** Page header showing the current title; also sets the document title. */
 export function SiteHeader() {
-  const { title } = useSiteHeaderStore();
+  const title =
+    useMatches({
+      select: (matches) => matches.flatMap((match) => match.meta ?? []).findLast((meta) => meta?.title)?.title,
+    }) ?? 'Kijk';
 
   return (
     <>
-      <title>{title ? `${title} | Kijk` : 'Kijk'}</title>
+      <title>{title === 'Kijk' ? title : `${title} | Kijk`}</title>
       <header className='bg-background sticky inset-x-0 top-0 isolate z-10 flex h-12 shrink-0 items-center gap-2 rounded-t-xl border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12'>
         <div className='flex h-14 w-full items-center gap-2 px-4 lg:gap-2 lg:px-6'>
           <SidebarTrigger className='-ml-1' />

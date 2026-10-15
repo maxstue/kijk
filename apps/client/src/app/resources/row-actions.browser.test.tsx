@@ -37,7 +37,7 @@ test('update action navigates to the canonical resource path and preserves searc
   expect(navigate).toHaveBeenCalledWith({
     params: { resourceId: 'resource-7' },
     search: expect.any(Function),
-    to: '/resources/$resourceId',
+    to: '/consumptions/resources/$resourceId',
   });
   const searchUpdater = navigate.mock.calls[0]?.[0].search as (previous: object) => object;
   const previousSearch = { filter: 'active' };

@@ -1,7 +1,7 @@
+import { currentUserQueryOptions } from '@kijk/api/users/options';
+import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
-import { currentUserQueryOptions } from '@/shared/api/users/options';
-import { isReadyCurrentUser } from '@/shared/api/users/types';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 
 /** Layout for onboarding; redirects to `/home` once onboarding is completed. */

@@ -1,4 +1,4 @@
-import type { CsvImportMapping, ImportJobStatus } from '@/shared/api/imports/types';
+import type { CsvImportMapping, ImportJobStatus } from '@kijk/api/imports/types';
 
 /** Mapping fields that point to a column, with the label shown in the column dropdown. */
 export const columnRoles = [

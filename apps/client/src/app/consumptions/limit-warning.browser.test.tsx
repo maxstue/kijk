@@ -1,3 +1,4 @@
+import type { Limit } from '@kijk/api/limits/types';
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
@@ -5,7 +6,6 @@ import type { PropsWithChildren } from 'react';
 import { expect, test } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import type { Limit } from '@/shared/api/limits/types';
 import { worker } from '@/test/mocks/browser';
 
 import { LimitWarning } from './limit-warning';
@@ -55,7 +55,7 @@ function renderWarning() {
   function TestProviders({ children }: PropsWithChildren) {
     return (
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+        <TooltipProvider delay={0}>{children}</TooltipProvider>
       </QueryClientProvider>
     );
   }

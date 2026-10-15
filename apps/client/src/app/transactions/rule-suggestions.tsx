@@ -1,15 +1,14 @@
+import { categoryRuleSuggestionsQueryOptions } from '@kijk/api/category-rules/options';
+import type { CategoryRuleSuggestion } from '@kijk/api/category-rules/types';
+import { categorizeTransactionMutationOptions } from '@kijk/api/transactions/options';
 import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Lightbulb } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-
-import { useCategorizeTransaction } from '@/app/transactions/use-transaction-mutations';
-import { categoryRuleSuggestionsQueryOptions } from '@/shared/api/category-rules/options';
-import type { CategoryRuleSuggestion } from '@/shared/api/category-rules/types';
 
 const hiddenKey = 'hidden-rule-suggestions';
 const hiddenSchema = z.array(z.string());
@@ -85,7 +84,7 @@ function SuggestionRow({
   onHide: () => void;
   suggestion: CategoryRuleSuggestion;
 }) {
-  const categorizeMutation = useCategorizeTransaction();
+  const categorizeMutation = useMutation(categorizeTransactionMutationOptions());
   const uncategorized = Number(suggestion.uncategorizedCount);
 
   function onRemember() {

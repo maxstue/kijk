@@ -1,25 +1,26 @@
 import { useAuth } from '@clerk/react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { currentUserQueryOptions, updateUserMutationOptions } from '@/shared/api/users/options';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 import type { CookieConsent } from '@/shared/types/analytics';
 
 /** Reads and updates the analytics consent: stored on the account for signed-in users, otherwise in the browser. */
 export function useAnalyticsConsent() {
   const { isLoaded, isSignedIn } = useAuth();
-  const queryClient = useQueryClient();
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const currentUser = currentAccount?.user;
   const [anonymousConsent, setAnonymousConsent] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());
   const serverConsent = toCookieConsent(currentUser?.analyticsConsent);
+  const updateUserOptions = updateUserMutationOptions();
   const { mutate, isPending } = useMutation({
-    ...updateUserMutationOptions(),
-    onSuccess(data) {
+    ...updateUserOptions,
+    async onSuccess(...args) {
+      const [data] = args;
       AnalyticsService.setCookieConsent(toCookieConsent(data.analyticsConsent));
-      queryClient.invalidateQueries({ queryKey: currentUserQueryOptions().queryKey });
+      await updateUserOptions.onSuccess?.(...args);
     },
   });
 

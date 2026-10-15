@@ -106,6 +106,12 @@ const chartData = [
 
 const areaCurve = d3Curve(curveNatural);
 
+const timeRangeItems = [
+  { label: 'Last 3 months', value: '90d' },
+  { label: 'Last 30 days', value: '30d' },
+  { label: 'Last 7 days', value: '7d' },
+];
+
 function formatDate(value: number) {
   return new Date(value).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 }
@@ -204,16 +210,15 @@ export function HomeChartArea() {
         <CardAction>
           <ToggleGroup
             className='hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex'
-            type='single'
-            value={timeRange}
+            value={[timeRange]}
             variant='outline'
-            onValueChange={setTimeRange}
+            onValueChange={(values) => values[0] && setTimeRange(values[0])}
           >
             <ToggleGroupItem value='90d'>Last 3 months</ToggleGroupItem>
             <ToggleGroupItem value='30d'>Last 30 days</ToggleGroupItem>
             <ToggleGroupItem value='7d'>Last 7 days</ToggleGroupItem>
           </ToggleGroup>
-          <Select value={timeRange} onValueChange={(x) => x && setTimeRange(x)}>
+          <Select items={timeRangeItems} value={timeRange} onValueChange={(x) => x && setTimeRange(x)}>
             <SelectTrigger
               aria-label='Select a value'
               className='flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden'

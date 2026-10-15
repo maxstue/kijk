@@ -1,10 +1,10 @@
+import { spaceMembersQueryOptions, spaceRolesQueryOptions } from '@kijk/api/spaces/options';
+import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@kijk/api/spaces/permissions';
+import type { SpacePermission } from '@kijk/api/spaces/permissions';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 
-import { spaceMembersQueryOptions, spaceRolesQueryOptions } from '@/shared/api/spaces/options';
-import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@/shared/api/spaces/permissions';
-import type { SpacePermission } from '@/shared/api/spaces/permissions';
 import { PageHeader } from '@/shared/components/page-header';
 
 import { SpaceBackLink } from './back-link';

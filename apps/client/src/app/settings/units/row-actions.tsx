@@ -1,26 +1,25 @@
+import {
+  archiveUnitMutationOptions,
+  shareUnitMutationOptions,
+  unshareUnitMutationOptions,
+} from '@kijk/api/units/options';
+import type { Unit } from '@kijk/api/units/types';
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@kijk/ui/components/dropdown-menu';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-import { queryKeys } from '@/shared/api/query-keys';
-import {
-  archiveUnitMutationOptions,
-  shareUnitMutationOptions,
-  unshareUnitMutationOptions,
-} from '@/shared/api/units/options';
-import type { Unit } from '@/shared/api/units/types';
 
 import { UnitDeleteContent } from './delete-content';
 import { UnitUpdateForm } from './update-form';
@@ -30,15 +29,13 @@ interface Props {
   /** Spaces in which the user's role allows sharing units. */
   shareableSpaces: Array<{ id: string; name: string }>;
   scope: 'space' | 'personal';
-  systemUnits: Unit[];
   unit: Unit;
 }
 
 /** Row menu of the unit table: edit, share, archive or restore, remove from space and delete. */
-export function UnitRowActions({ spaceId, scope, shareableSpaces, systemUnits, unit }: Props) {
+export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const queryClient = useQueryClient();
   const archiveMutation = useMutation(archiveUnitMutationOptions());
   const shareMutation = useMutation(shareUnitMutationOptions());
   const unshareMutation = useMutation(unshareUnitMutationOptions());
@@ -51,7 +48,6 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, systemUnits, u
       {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
           toast.success('Unit restored');
         },
       },
@@ -64,7 +60,6 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, systemUnits, u
       {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
           toast.success('Unit shared with space');
         },
       },
@@ -80,7 +75,6 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, systemUnits, u
       {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
           toast.success('Unit removed from space');
         },
       },
@@ -96,53 +90,53 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, systemUnits, u
           </Button>
         )}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className='h-8 w-8 p-0' variant='ghost'>
-              <span className='sr-only'>Open menu</span>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
+          <DropdownMenuTrigger render={<Button className='h-8 w-8 p-0' variant='ghost' />}>
+            <span className='sr-only'>Open menu</span>
+            <MoreHorizontal className='h-4 w-4' />
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                void navigator.clipboard.writeText(unit.name);
-                toast(`Successfully copied: ${unit.name}`);
-              }}
-            >
-              Copy Name
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled={!unit.isOwner} onSelect={() => setShowUpdateDialog(true)}>
-              {unit.conversionType === 'None' ? 'Convert legacy unit' : 'Update'}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {scope === 'personal' &&
-              unit.isOwner &&
-              !unit.isArchived &&
-              shareableSpaces
-                .filter((space) => !unit.spaceIds.includes(space.id))
-                .map((space) => (
-                  <DropdownMenuItem key={space.id} disabled={shareMutation.isPending} onSelect={() => share(space.id)}>
-                    Share with {space.name}
-                  </DropdownMenuItem>
-                ))}
-            {unit.isArchived && unit.isOwner && (
-              <DropdownMenuItem disabled={archiveMutation.isPending} onSelect={restore}>
-                Restore
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  void navigator.clipboard.writeText(unit.name);
+                  toast(`Successfully copied: ${unit.name}`);
+                }}
+              >
+                Copy Name
               </DropdownMenuItem>
-            )}
-            {scope === 'space' && (
-              <DropdownMenuItem disabled={!canUnshare || unshareMutation.isPending} onSelect={unshare}>
-                Remove from space
+              <DropdownMenuItem disabled={!unit.isOwner} onClick={() => setShowUpdateDialog(true)}>
+                {unit.conversionType === 'None' ? 'Convert legacy unit' : 'Update'}
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
-              disabled={!unit.isOwner || !canDelete}
-              variant='destructive'
-              onSelect={() => setShowDeleteDialog(true)}
-            >
-              Delete
-            </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {scope === 'personal' &&
+                unit.isOwner &&
+                !unit.isArchived &&
+                shareableSpaces
+                  .filter((space) => !unit.spaceIds.includes(space.id))
+                  .map((space) => (
+                    <DropdownMenuItem key={space.id} disabled={shareMutation.isPending} onClick={() => share(space.id)}>
+                      Share with {space.name}
+                    </DropdownMenuItem>
+                  ))}
+              {unit.isArchived && unit.isOwner && (
+                <DropdownMenuItem disabled={archiveMutation.isPending} onClick={restore}>
+                  Restore
+                </DropdownMenuItem>
+              )}
+              {scope === 'space' && (
+                <DropdownMenuItem disabled={!canUnshare || unshareMutation.isPending} onClick={unshare}>
+                  Remove from space
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                disabled={!unit.isOwner || !canDelete}
+                variant='destructive'
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -152,9 +146,7 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, systemUnits, u
             <DialogTitle>Update Unit</DialogTitle>
             <DialogDescription>Update the unit and its conversion definition.</DialogDescription>
           </DialogHeader>
-          {showUpdateDialog && (
-            <UnitUpdateForm systemUnits={systemUnits} unit={unit} onClose={() => setShowUpdateDialog(false)} />
-          )}
+          {showUpdateDialog && <UnitUpdateForm unit={unit} onClose={() => setShowUpdateDialog(false)} />}
         </DialogContent>
       </Dialog>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

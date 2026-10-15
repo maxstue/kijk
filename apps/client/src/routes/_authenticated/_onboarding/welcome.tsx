@@ -1,10 +1,9 @@
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
 import { WelcomeFlow } from '@/app/welcome/welcome-flow';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
-import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
 /** `/welcome`: onboarding flow. */
 export const Route = createFileRoute('/_authenticated/_onboarding/welcome')({
@@ -14,20 +13,22 @@ export const Route = createFileRoute('/_authenticated/_onboarding/welcome')({
 });
 
 function WelcomePage() {
-  useSetSiteHeader('Welcome');
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const navigate = useNavigate({ from: '/welcome' });
   const identity = currentUser?.identity ?? emptyIdentity;
 
   return (
-    <WelcomeFlow
-      email={identity.email}
-      fullName={identity.fullName}
-      spaceName={undefined}
-      imageUrl={identity.imageUrl}
-      initialDisplayName={identity.fullName ?? ''}
-      onComplete={() => navigate({ replace: true, to: '/home' })}
-    />
+    <>
+      <title>Welcome | Kijk</title>
+      <WelcomeFlow
+        email={identity.email}
+        fullName={identity.fullName}
+        spaceName={undefined}
+        imageUrl={identity.imageUrl}
+        initialDisplayName={identity.fullName ?? ''}
+        onComplete={() => navigate({ replace: true, to: '/home' })}
+      />
+    </>
   );
 }
 

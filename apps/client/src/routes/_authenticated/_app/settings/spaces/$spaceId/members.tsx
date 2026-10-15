@@ -1,7 +1,7 @@
+import { spaceMembersQueryOptions, spaceRolesQueryOptions } from '@kijk/api/spaces/options';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { SpaceMembers } from '@/app/settings/spaces/members';
-import { spaceMembersQueryOptions, spaceRolesQueryOptions } from '@/shared/api/spaces/options';
 import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 

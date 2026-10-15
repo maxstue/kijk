@@ -1,4 +1,5 @@
 import { useAuth } from '@clerk/react';
+import { requestAccountDeletionMutationOptions } from '@kijk/api/users/options';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,8 +18,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useId, useState } from 'react';
 import { toast } from 'sonner';
-
-import { requestAccountDeletionMutationOptions } from '@/shared/api/users/options';
 
 const confirmationWord = 'DELETE';
 
@@ -54,9 +53,7 @@ export function DeleteAccount() {
         </p>
       </div>
       <AlertDialog onOpenChange={() => setConfirmation('')}>
-        <AlertDialogTrigger asChild>
-          <Button variant='destructive'>Delete my account</Button>
-        </AlertDialogTrigger>
+        <AlertDialogTrigger render={<Button variant='destructive' />}>Delete my account</AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete your account?</AlertDialogTitle>

@@ -1,3 +1,6 @@
+import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
+import { unitsQueryOptions } from '@kijk/api/units/options';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -12,9 +15,6 @@ import { Link } from '@tanstack/react-router';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 
-import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
-import { systemUnitsQueryOptions, unitPageQueryOptions } from '@/shared/api/units/options';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { PageAddButton, PageHeader } from '@/shared/components/page-header';
 
 import { UnitCreateForm } from './create-form';
@@ -27,14 +27,19 @@ interface Props {
 
 /** Units page for personal units or the units of a space, with statistics, table and create dialog. */
 export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
-  const [showDialog, setShowDialog] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const { data: pageData, isPending } = useQuery(
-    unitPageQueryOptions(scope, selectedSpaceId, page, 20, deferredSearch),
+    unitsQueryOptions({
+      includeArchived: true,
+      page,
+      pageSize: 20,
+      scope: scope === 'space' ? 'Space' : 'Personal',
+      search: deferredSearch,
+      spaceId: selectedSpaceId,
+    }),
   );
-  const { data: systemUnits = [] } = useQuery(systemUnitsQueryOptions());
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const spaces = currentAccount?.user?.spaces ?? [];
   const activeSpace = spaces.find((space) => space.isActive);
@@ -48,29 +53,7 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
   return (
     <div className='space-y-6'>
       <PageHeader
-        actions={
-          <Dialog open={showDialog} onOpenChange={setShowDialog}>
-            <DialogTrigger asChild>
-              <PageAddButton
-                disabled={!canCreate}
-                title={canCreate ? undefined : 'Your role in this space does not allow sharing units'}
-              >
-                Add unit
-              </PageAddButton>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Unit</DialogTitle>
-                <DialogDescription>Define a custom unit relative to a supported system unit.</DialogDescription>
-              </DialogHeader>
-              <UnitCreateForm
-                spaceId={scope === 'space' ? spaceId : undefined}
-                onClose={() => setShowDialog(false)}
-                systemUnits={systemUnits}
-              />
-            </DialogContent>
-          </Dialog>
-        }
+        actions={<CreateUnitDialog canCreate={canCreate} spaceId={scope === 'space' ? spaceId : undefined} />}
         title={scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
         description={
           scope === 'personal'
@@ -112,12 +95,38 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
             search={search}
             setPage={setPage}
             setSearch={setSearch}
-            systemUnits={systemUnits}
             totalCount={Number(pageData?.totalCount ?? 0)}
           />
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+/** "Add unit" button with the create dialog; a new unit is shared with `spaceId` when given. */
+function CreateUnitDialog({ canCreate, spaceId }: { canCreate: boolean; spaceId?: string }) {
+  const [showDialog, setShowDialog] = useState(false);
+
+  return (
+    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <DialogTrigger
+        render={
+          <PageAddButton
+            disabled={!canCreate}
+            title={canCreate ? undefined : 'Your role in this space does not allow sharing units'}
+          />
+        }
+      >
+        Add unit
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Unit</DialogTitle>
+          <DialogDescription>Define a custom unit relative to a supported system unit.</DialogDescription>
+        </DialogHeader>
+        <UnitCreateForm spaceId={spaceId} onClose={() => setShowDialog(false)} />
+      </DialogContent>
+    </Dialog>
   );
 }
 

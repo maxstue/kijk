@@ -1,8 +1,8 @@
+import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { queryKeys } from '@/shared/api/query-keys';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 import { BudgetOverview } from './overview';

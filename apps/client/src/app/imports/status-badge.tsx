@@ -1,7 +1,7 @@
+import type { ImportJobStatus } from '@kijk/api/imports/types';
 import { Badge } from '@kijk/ui/components/badge';
 
 import { importStatusLabels } from '@/app/imports/constants';
-import type { ImportJobStatus } from '@/shared/api/imports/types';
 
 const variants: Record<ImportJobStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   Analyzing: 'secondary',

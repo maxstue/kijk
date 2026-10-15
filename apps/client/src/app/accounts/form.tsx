@@ -1,14 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { createAccountMutationOptions, updateAccountMutationOptions } from '@kijk/api/accounts/options';
+import type { Account } from '@kijk/api/accounts/types';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { accountSchema } from '@/app/accounts/schemas';
 import type { AccountFormValues } from '@/app/accounts/schemas';
-import { useCreateAccount, useUpdateAccount } from '@/app/accounts/use-mutations';
-import type { Account } from '@/shared/api/accounts/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { VisibilitySelect } from '@/shared/components/visibility-select';
 
@@ -23,8 +24,8 @@ interface Props {
 
 /** Form to create an account, or to edit `initialData` when given. */
 export function AccountForm({ canShare, initialData, onClose, showVisibility }: Props) {
-  const createMutation = useCreateAccount();
-  const updateMutation = useUpdateAccount();
+  const createMutation = useMutation(createAccountMutationOptions());
+  const updateMutation = useMutation(updateAccountMutationOptions());
   const isPending = createMutation.isPending || updateMutation.isPending;
   const isCash = initialData?.kind === 'Cash';
   const form = useForm<AccountFormValues>({

@@ -1,13 +1,13 @@
+import { consumptionsStatsQueryOptions } from '@kijk/api/consumptions/options';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 
-import { consumptionsStatsQueryOptions } from '@/shared/api/consumptions/options';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { Months } from '@/shared/utils/months';
 import { getMonthFromDate } from '@/shared/utils/months';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions');
+const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
 
 function getComparisonLabel(selectedYear: number, selectedMonth: Months) {
   const now = new Date();

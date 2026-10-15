@@ -1,10 +1,10 @@
+import { exportConsumption, exportConsumptionMonth } from '@kijk/api/consumptions/requests';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { DownloadIcon, LoaderCircleIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { exportConsumption, exportConsumptionMonth } from '@/shared/api/consumptions/requests';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { saveDownload } from '@/shared/utils/download';
 import type { Months } from '@/shared/utils/months';

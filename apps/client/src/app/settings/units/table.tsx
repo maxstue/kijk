@@ -1,10 +1,10 @@
+import type { Unit } from '@kijk/api/units/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import type { ReactNode } from 'react';
 
-import type { Unit } from '@/shared/api/units/types';
 import { PageToolbar } from '@/shared/components/page-header';
 
 import { UnitRowActions } from './row-actions';
@@ -22,7 +22,6 @@ interface Props {
   search: string;
   setPage: (page: number) => void;
   setSearch: (search: string) => void;
-  systemUnits: Unit[];
   totalCount: number;
 }
 
@@ -39,7 +38,6 @@ export function UnitTable({
   search,
   setPage,
   setSearch,
-  systemUnits,
   totalCount,
 }: Props) {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -100,13 +98,7 @@ export function UnitTable({
                   </TableCell>
                   <TableCell>{unit.isArchived ? 'Archived' : 'Active'}</TableCell>
                   <TableCell>
-                    <UnitRowActions
-                      spaceId={spaceId}
-                      shareableSpaces={shareableSpaces}
-                      scope={scope}
-                      systemUnits={systemUnits}
-                      unit={unit}
-                    />
+                    <UnitRowActions spaceId={spaceId} shareableSpaces={shareableSpaces} scope={scope} unit={unit} />
                   </TableCell>
                 </TableRow>
               ))

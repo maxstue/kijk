@@ -1,8 +1,7 @@
+import { limitsQueryOptions } from '@kijk/api/limits/options';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { TriangleAlert } from 'lucide-react';
-
-import { limitsQueryOptions } from '@/shared/api/limits/options';
 
 interface Props {
   resourceId: string;
@@ -19,10 +18,10 @@ export function LimitWarning({ resourceId }: Props) {
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <span aria-label='Limit(s) exceeded' className='inline-flex shrink-0 cursor-help' role='img'>
-          <TriangleAlert aria-hidden='true' className='size-4 text-amber-600 dark:text-amber-400' />
-        </span>
+      <TooltipTrigger
+        render={<span aria-label='Limit(s) exceeded' className='inline-flex shrink-0 cursor-help' role='img' />}
+      >
+        <TriangleAlert aria-hidden='true' className='size-4 text-amber-600 dark:text-amber-400' />
       </TooltipTrigger>
       <TooltipContent className='flex flex-col items-start justify-start space-y-1'>
         <p className='font-bold'>Limit(s) exceeded</p>

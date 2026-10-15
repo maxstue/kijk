@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { consumptionYearsQueryOptions } from '@kijk/api/consumptions/options';
 import { Button } from '@kijk/ui/components/button';
 import {
   Command,
@@ -30,11 +31,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { consumptionYearsQueryOptions } from '@/shared/api/consumptions/options';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions');
+const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
@@ -75,18 +75,20 @@ export function ConsumptionYearSwitcher({ className }: YProps) {
   return (
     <Dialog open={showNewYearDialog} onOpenChange={setShowNewYearDialog}>
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            aria-expanded={open}
-            aria-label='Select a year'
-            className={cn('w-full justify-between', className)}
-            role='combobox'
-            aria-controls='year-popover'
-            variant='outline'
-          >
-            {selectedYear}
-            <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              aria-expanded={open}
+              aria-label='Select a year'
+              className={cn('w-full justify-between', className)}
+              role='combobox'
+              aria-controls='year-popover'
+              variant='outline'
+            />
+          }
+        >
+          {selectedYear}
+          <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
         </PopoverTrigger>
         <PopoverContent className='w-50 p-0'>
           <Command>

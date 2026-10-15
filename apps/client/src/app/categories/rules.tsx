@@ -1,3 +1,6 @@
+import { categoryRulesQueryOptions } from '@kijk/api/category-rules/options';
+import type { CategoryRule } from '@kijk/api/category-rules/types';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -5,9 +8,6 @@ import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
 import { ArrowUpDown, Sparkles } from 'lucide-react';
 
 import { CategoryRuleRowActions } from '@/app/categories/rule-row-actions';
-import { categoryRulesQueryOptions } from '@/shared/api/category-rules/options';
-import type { CategoryRule } from '@/shared/api/category-rules/types';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { DataTable } from '@/shared/components/data-table';
 import { PrivateBadge } from '@/shared/components/visibility-select';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';

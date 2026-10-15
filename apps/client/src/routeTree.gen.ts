@@ -18,20 +18,21 @@ import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
-import { Route as AuthenticatedAppConsumptionsRouteRouteImport } from './routes/_authenticated/_app/consumptions/route'
 import { Route as AuthenticatedAppHomeRouteImport } from './routes/_authenticated/_app/home'
-import { Route as AuthenticatedAppLimitsRouteImport } from './routes/_authenticated/_app/limits'
-import { Route as AuthenticatedAppResourcesRouteRouteImport } from './routes/_authenticated/_app/resources/route'
 import { Route as AuthenticatedAppSettingsRouteRouteImport } from './routes/_authenticated/_app/settings/route'
 import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
-import { Route as AuthenticatedAppConsumptionsConsumptionIdRouteImport } from './routes/_authenticated/_app/consumptions/$consumptionId'
+import { Route as AuthenticatedAppConsumptionsOverviewRouteRouteImport } from './routes/_authenticated/_app/consumptions/_overview/route'
+import { Route as AuthenticatedAppConsumptionsLimitsRouteImport } from './routes/_authenticated/_app/consumptions/limits'
+import { Route as AuthenticatedAppConsumptionsResourcesRouteRouteImport } from './routes/_authenticated/_app/consumptions/resources/route'
 import { Route as AuthenticatedAppFinancesIndexRouteImport } from './routes/_authenticated/_app/finances/index'
 import { Route as AuthenticatedAppFinancesAccountsRouteImport } from './routes/_authenticated/_app/finances/accounts'
 import { Route as AuthenticatedAppFinancesBudgetsRouteImport } from './routes/_authenticated/_app/finances/budgets'
 import { Route as AuthenticatedAppFinancesCategoriesRouteImport } from './routes/_authenticated/_app/finances/categories'
 import { Route as AuthenticatedAppFinancesTransactionsRouteImport } from './routes/_authenticated/_app/finances/transactions'
-import { Route as AuthenticatedAppResourcesResourceIdRouteImport } from './routes/_authenticated/_app/resources/$resourceId'
 import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings/$section'
+import { Route as AuthenticatedAppConsumptionsOverviewIndexRouteImport } from './routes/_authenticated/_app/consumptions/_overview/index'
+import { Route as AuthenticatedAppConsumptionsOverviewConsumptionIdRouteImport } from './routes/_authenticated/_app/consumptions/_overview/$consumptionId'
+import { Route as AuthenticatedAppConsumptionsResourcesResourceIdRouteImport } from './routes/_authenticated/_app/consumptions/resources/$resourceId'
 import { Route as AuthenticatedAppFinancesImportsIndexRouteImport } from './routes/_authenticated/_app/finances/imports/index'
 import { Route as AuthenticatedAppFinancesImportsImportIdRouteImport } from './routes/_authenticated/_app/finances/imports/$importId'
 import { Route as AuthenticatedAppFinancesImportsNewRouteImport } from './routes/_authenticated/_app/finances/imports/new'
@@ -85,28 +86,11 @@ const AuthenticatedOnboardingRouteRoute =
     id: '/_onboarding',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAppConsumptionsRouteRoute =
-  AuthenticatedAppConsumptionsRouteRouteImport.update({
-    id: '/consumptions',
-    path: '/consumptions',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
 const AuthenticatedAppHomeRoute = AuthenticatedAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
   getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const AuthenticatedAppLimitsRoute = AuthenticatedAppLimitsRouteImport.update({
-  id: '/limits',
-  path: '/limits',
-  getParentRoute: () => AuthenticatedAppRouteRoute,
-} as any)
-const AuthenticatedAppResourcesRouteRoute =
-  AuthenticatedAppResourcesRouteRouteImport.update({
-    id: '/resources',
-    path: '/resources',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
 const AuthenticatedAppSettingsRouteRoute =
   AuthenticatedAppSettingsRouteRouteImport.update({
     id: '/settings',
@@ -119,11 +103,23 @@ const AuthenticatedOnboardingWelcomeRoute =
     path: '/welcome',
     getParentRoute: () => AuthenticatedOnboardingRouteRoute,
   } as any)
-const AuthenticatedAppConsumptionsConsumptionIdRoute =
-  AuthenticatedAppConsumptionsConsumptionIdRouteImport.update({
-    id: '/$consumptionId',
-    path: '/$consumptionId',
-    getParentRoute: () => AuthenticatedAppConsumptionsRouteRoute,
+const AuthenticatedAppConsumptionsOverviewRouteRoute =
+  AuthenticatedAppConsumptionsOverviewRouteRouteImport.update({
+    id: '/consumptions/_overview',
+    path: '/consumptions',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppConsumptionsLimitsRoute =
+  AuthenticatedAppConsumptionsLimitsRouteImport.update({
+    id: '/consumptions/limits',
+    path: '/consumptions/limits',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppConsumptionsResourcesRouteRoute =
+  AuthenticatedAppConsumptionsResourcesRouteRouteImport.update({
+    id: '/consumptions/resources',
+    path: '/consumptions/resources',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 const AuthenticatedAppFinancesIndexRoute =
   AuthenticatedAppFinancesIndexRouteImport.update({
@@ -155,17 +151,29 @@ const AuthenticatedAppFinancesTransactionsRoute =
     path: '/finances/transactions',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAppResourcesResourceIdRoute =
-  AuthenticatedAppResourcesResourceIdRouteImport.update({
-    id: '/$resourceId',
-    path: '/$resourceId',
-    getParentRoute: () => AuthenticatedAppResourcesRouteRoute,
-  } as any)
 const AuthenticatedAppSettingsSectionRoute =
   AuthenticatedAppSettingsSectionRouteImport.update({
     id: '/$section',
     path: '/$section',
     getParentRoute: () => AuthenticatedAppSettingsRouteRoute,
+  } as any)
+const AuthenticatedAppConsumptionsOverviewIndexRoute =
+  AuthenticatedAppConsumptionsOverviewIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppConsumptionsOverviewRouteRoute,
+  } as any)
+const AuthenticatedAppConsumptionsOverviewConsumptionIdRoute =
+  AuthenticatedAppConsumptionsOverviewConsumptionIdRouteImport.update({
+    id: '/$consumptionId',
+    path: '/$consumptionId',
+    getParentRoute: () => AuthenticatedAppConsumptionsOverviewRouteRoute,
+  } as any)
+const AuthenticatedAppConsumptionsResourcesResourceIdRoute =
+  AuthenticatedAppConsumptionsResourcesResourceIdRouteImport.update({
+    id: '/$resourceId',
+    path: '/$resourceId',
+    getParentRoute: () => AuthenticatedAppConsumptionsResourcesRouteRoute,
   } as any)
 const AuthenticatedAppFinancesImportsIndexRoute =
   AuthenticatedAppFinancesImportsIndexRouteImport.update({
@@ -229,23 +237,24 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
-  '/consumptions': typeof AuthenticatedAppConsumptionsRouteRouteWithChildren
-  '/resources': typeof AuthenticatedAppResourcesRouteRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/home': typeof AuthenticatedAppHomeRoute
-  '/limits': typeof AuthenticatedAppLimitsRoute
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
-  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/consumptions': typeof AuthenticatedAppConsumptionsOverviewRouteRouteWithChildren
+  '/consumptions/resources': typeof AuthenticatedAppConsumptionsResourcesRouteRouteWithChildren
+  '/consumptions/limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/finances/accounts': typeof AuthenticatedAppFinancesAccountsRoute
   '/finances/budgets': typeof AuthenticatedAppFinancesBudgetsRoute
   '/finances/categories': typeof AuthenticatedAppFinancesCategoriesRoute
   '/finances/transactions': typeof AuthenticatedAppFinancesTransactionsRoute
-  '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/finances/': typeof AuthenticatedAppFinancesIndexRoute
   '/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRouteWithChildren
+  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsOverviewConsumptionIdRoute
+  '/consumptions/resources/$resourceId': typeof AuthenticatedAppConsumptionsResourcesResourceIdRoute
   '/finances/imports/$importId': typeof AuthenticatedAppFinancesImportsImportIdRoute
   '/finances/imports/new': typeof AuthenticatedAppFinancesImportsNewRoute
+  '/consumptions/': typeof AuthenticatedAppConsumptionsOverviewIndexRoute
   '/finances/imports/': typeof AuthenticatedAppFinancesImportsIndexRoute
   '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
@@ -260,22 +269,22 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
-  '/consumptions': typeof AuthenticatedAppConsumptionsRouteRouteWithChildren
-  '/resources': typeof AuthenticatedAppResourcesRouteRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/home': typeof AuthenticatedAppHomeRoute
-  '/limits': typeof AuthenticatedAppLimitsRoute
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
-  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/consumptions/resources': typeof AuthenticatedAppConsumptionsResourcesRouteRouteWithChildren
+  '/consumptions/limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/finances/accounts': typeof AuthenticatedAppFinancesAccountsRoute
   '/finances/budgets': typeof AuthenticatedAppFinancesBudgetsRoute
   '/finances/categories': typeof AuthenticatedAppFinancesCategoriesRoute
   '/finances/transactions': typeof AuthenticatedAppFinancesTransactionsRoute
-  '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/finances': typeof AuthenticatedAppFinancesIndexRoute
+  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsOverviewConsumptionIdRoute
+  '/consumptions/resources/$resourceId': typeof AuthenticatedAppConsumptionsResourcesResourceIdRoute
   '/finances/imports/$importId': typeof AuthenticatedAppFinancesImportsImportIdRoute
   '/finances/imports/new': typeof AuthenticatedAppFinancesImportsNewRoute
+  '/consumptions': typeof AuthenticatedAppConsumptionsOverviewIndexRoute
   '/finances/imports': typeof AuthenticatedAppFinancesImportsIndexRoute
   '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
@@ -294,23 +303,24 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
-  '/_authenticated/_app/consumptions': typeof AuthenticatedAppConsumptionsRouteRouteWithChildren
-  '/_authenticated/_app/resources': typeof AuthenticatedAppResourcesRouteRouteWithChildren
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/_authenticated/_app/home': typeof AuthenticatedAppHomeRoute
-  '/_authenticated/_app/limits': typeof AuthenticatedAppLimitsRoute
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
-  '/_authenticated/_app/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+  '/_authenticated/_app/consumptions/_overview': typeof AuthenticatedAppConsumptionsOverviewRouteRouteWithChildren
+  '/_authenticated/_app/consumptions/resources': typeof AuthenticatedAppConsumptionsResourcesRouteRouteWithChildren
+  '/_authenticated/_app/consumptions/limits': typeof AuthenticatedAppConsumptionsLimitsRoute
   '/_authenticated/_app/finances/accounts': typeof AuthenticatedAppFinancesAccountsRoute
   '/_authenticated/_app/finances/budgets': typeof AuthenticatedAppFinancesBudgetsRoute
   '/_authenticated/_app/finances/categories': typeof AuthenticatedAppFinancesCategoriesRoute
   '/_authenticated/_app/finances/transactions': typeof AuthenticatedAppFinancesTransactionsRoute
-  '/_authenticated/_app/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/_authenticated/_app/finances/': typeof AuthenticatedAppFinancesIndexRoute
   '/_authenticated/_app/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRouteWithChildren
+  '/_authenticated/_app/consumptions/_overview/$consumptionId': typeof AuthenticatedAppConsumptionsOverviewConsumptionIdRoute
+  '/_authenticated/_app/consumptions/resources/$resourceId': typeof AuthenticatedAppConsumptionsResourcesResourceIdRoute
   '/_authenticated/_app/finances/imports/$importId': typeof AuthenticatedAppFinancesImportsImportIdRoute
   '/_authenticated/_app/finances/imports/new': typeof AuthenticatedAppFinancesImportsNewRoute
+  '/_authenticated/_app/consumptions/_overview/': typeof AuthenticatedAppConsumptionsOverviewIndexRoute
   '/_authenticated/_app/finances/imports/': typeof AuthenticatedAppFinancesImportsIndexRoute
   '/_authenticated/_app/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/_authenticated/_app/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
@@ -327,23 +337,24 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sso-callback'
     | '/terms'
-    | '/consumptions'
-    | '/resources'
     | '/settings'
     | '/home'
-    | '/limits'
     | '/welcome'
-    | '/consumptions/$consumptionId'
+    | '/consumptions'
+    | '/consumptions/resources'
+    | '/consumptions/limits'
     | '/finances/accounts'
     | '/finances/budgets'
     | '/finances/categories'
     | '/finances/transactions'
-    | '/resources/$resourceId'
     | '/settings/$section'
     | '/finances/'
     | '/settings/spaces/$spaceId'
+    | '/consumptions/$consumptionId'
+    | '/consumptions/resources/$resourceId'
     | '/finances/imports/$importId'
     | '/finances/imports/new'
+    | '/consumptions/'
     | '/finances/imports/'
     | '/settings/spaces/$spaceId/general'
     | '/settings/spaces/$spaceId/imports'
@@ -358,22 +369,22 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sso-callback'
     | '/terms'
-    | '/consumptions'
-    | '/resources'
     | '/settings'
     | '/home'
-    | '/limits'
     | '/welcome'
-    | '/consumptions/$consumptionId'
+    | '/consumptions/resources'
+    | '/consumptions/limits'
     | '/finances/accounts'
     | '/finances/budgets'
     | '/finances/categories'
     | '/finances/transactions'
-    | '/resources/$resourceId'
     | '/settings/$section'
     | '/finances'
+    | '/consumptions/$consumptionId'
+    | '/consumptions/resources/$resourceId'
     | '/finances/imports/$importId'
     | '/finances/imports/new'
+    | '/consumptions'
     | '/finances/imports'
     | '/settings/spaces/$spaceId/general'
     | '/settings/spaces/$spaceId/imports'
@@ -391,23 +402,24 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/_app'
     | '/_authenticated/_onboarding'
-    | '/_authenticated/_app/consumptions'
-    | '/_authenticated/_app/resources'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_app/home'
-    | '/_authenticated/_app/limits'
     | '/_authenticated/_onboarding/welcome'
-    | '/_authenticated/_app/consumptions/$consumptionId'
+    | '/_authenticated/_app/consumptions/_overview'
+    | '/_authenticated/_app/consumptions/resources'
+    | '/_authenticated/_app/consumptions/limits'
     | '/_authenticated/_app/finances/accounts'
     | '/_authenticated/_app/finances/budgets'
     | '/_authenticated/_app/finances/categories'
     | '/_authenticated/_app/finances/transactions'
-    | '/_authenticated/_app/resources/$resourceId'
     | '/_authenticated/_app/settings/$section'
     | '/_authenticated/_app/finances/'
     | '/_authenticated/_app/settings/spaces/$spaceId'
+    | '/_authenticated/_app/consumptions/_overview/$consumptionId'
+    | '/_authenticated/_app/consumptions/resources/$resourceId'
     | '/_authenticated/_app/finances/imports/$importId'
     | '/_authenticated/_app/finances/imports/new'
+    | '/_authenticated/_app/consumptions/_overview/'
     | '/_authenticated/_app/finances/imports/'
     | '/_authenticated/_app/settings/spaces/$spaceId/general'
     | '/_authenticated/_app/settings/spaces/$spaceId/imports'
@@ -491,32 +503,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/_app/consumptions': {
-      id: '/_authenticated/_app/consumptions'
-      path: '/consumptions'
-      fullPath: '/consumptions'
-      preLoaderRoute: typeof AuthenticatedAppConsumptionsRouteRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
     '/_authenticated/_app/home': {
       id: '/_authenticated/_app/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedAppHomeRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/_app/limits': {
-      id: '/_authenticated/_app/limits'
-      path: '/limits'
-      fullPath: '/limits'
-      preLoaderRoute: typeof AuthenticatedAppLimitsRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/_app/resources': {
-      id: '/_authenticated/_app/resources'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof AuthenticatedAppResourcesRouteRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/settings': {
@@ -533,12 +524,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingWelcomeRouteImport
       parentRoute: typeof AuthenticatedOnboardingRouteRoute
     }
-    '/_authenticated/_app/consumptions/$consumptionId': {
-      id: '/_authenticated/_app/consumptions/$consumptionId'
-      path: '/$consumptionId'
-      fullPath: '/consumptions/$consumptionId'
-      preLoaderRoute: typeof AuthenticatedAppConsumptionsConsumptionIdRouteImport
-      parentRoute: typeof AuthenticatedAppConsumptionsRouteRoute
+    '/_authenticated/_app/consumptions/_overview': {
+      id: '/_authenticated/_app/consumptions/_overview'
+      path: '/consumptions'
+      fullPath: '/consumptions'
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsOverviewRouteRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/consumptions/limits': {
+      id: '/_authenticated/_app/consumptions/limits'
+      path: '/consumptions/limits'
+      fullPath: '/consumptions/limits'
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsLimitsRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/consumptions/resources': {
+      id: '/_authenticated/_app/consumptions/resources'
+      path: '/consumptions/resources'
+      fullPath: '/consumptions/resources'
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsResourcesRouteRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/finances/': {
       id: '/_authenticated/_app/finances/'
@@ -575,19 +580,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppFinancesTransactionsRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/_app/resources/$resourceId': {
-      id: '/_authenticated/_app/resources/$resourceId'
-      path: '/$resourceId'
-      fullPath: '/resources/$resourceId'
-      preLoaderRoute: typeof AuthenticatedAppResourcesResourceIdRouteImport
-      parentRoute: typeof AuthenticatedAppResourcesRouteRoute
-    }
     '/_authenticated/_app/settings/$section': {
       id: '/_authenticated/_app/settings/$section'
       path: '/$section'
       fullPath: '/settings/$section'
       preLoaderRoute: typeof AuthenticatedAppSettingsSectionRouteImport
       parentRoute: typeof AuthenticatedAppSettingsRouteRoute
+    }
+    '/_authenticated/_app/consumptions/_overview/': {
+      id: '/_authenticated/_app/consumptions/_overview/'
+      path: '/'
+      fullPath: '/consumptions/'
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsOverviewIndexRouteImport
+      parentRoute: typeof AuthenticatedAppConsumptionsOverviewRouteRoute
+    }
+    '/_authenticated/_app/consumptions/_overview/$consumptionId': {
+      id: '/_authenticated/_app/consumptions/_overview/$consumptionId'
+      path: '/$consumptionId'
+      fullPath: '/consumptions/$consumptionId'
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsOverviewConsumptionIdRouteImport
+      parentRoute: typeof AuthenticatedAppConsumptionsOverviewRouteRoute
+    }
+    '/_authenticated/_app/consumptions/resources/$resourceId': {
+      id: '/_authenticated/_app/consumptions/resources/$resourceId'
+      path: '/$resourceId'
+      fullPath: '/consumptions/resources/$resourceId'
+      preLoaderRoute: typeof AuthenticatedAppConsumptionsResourcesResourceIdRouteImport
+      parentRoute: typeof AuthenticatedAppConsumptionsResourcesRouteRoute
     }
     '/_authenticated/_app/finances/imports/': {
       id: '/_authenticated/_app/finances/imports/'
@@ -655,36 +674,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedAppConsumptionsRouteRouteChildren {
-  AuthenticatedAppConsumptionsConsumptionIdRoute: typeof AuthenticatedAppConsumptionsConsumptionIdRoute
-}
-
-const AuthenticatedAppConsumptionsRouteRouteChildren: AuthenticatedAppConsumptionsRouteRouteChildren =
-  {
-    AuthenticatedAppConsumptionsConsumptionIdRoute:
-      AuthenticatedAppConsumptionsConsumptionIdRoute,
-  }
-
-const AuthenticatedAppConsumptionsRouteRouteWithChildren =
-  AuthenticatedAppConsumptionsRouteRoute._addFileChildren(
-    AuthenticatedAppConsumptionsRouteRouteChildren,
-  )
-
-interface AuthenticatedAppResourcesRouteRouteChildren {
-  AuthenticatedAppResourcesResourceIdRoute: typeof AuthenticatedAppResourcesResourceIdRoute
-}
-
-const AuthenticatedAppResourcesRouteRouteChildren: AuthenticatedAppResourcesRouteRouteChildren =
-  {
-    AuthenticatedAppResourcesResourceIdRoute:
-      AuthenticatedAppResourcesResourceIdRoute,
-  }
-
-const AuthenticatedAppResourcesRouteRouteWithChildren =
-  AuthenticatedAppResourcesRouteRoute._addFileChildren(
-    AuthenticatedAppResourcesRouteRouteChildren,
-  )
-
 interface AuthenticatedAppSettingsSpacesSpaceIdRouteRouteChildren {
   AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   AuthenticatedAppSettingsSpacesSpaceIdImportsRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
@@ -729,12 +718,45 @@ const AuthenticatedAppSettingsRouteRouteWithChildren =
     AuthenticatedAppSettingsRouteRouteChildren,
   )
 
+interface AuthenticatedAppConsumptionsOverviewRouteRouteChildren {
+  AuthenticatedAppConsumptionsOverviewConsumptionIdRoute: typeof AuthenticatedAppConsumptionsOverviewConsumptionIdRoute
+  AuthenticatedAppConsumptionsOverviewIndexRoute: typeof AuthenticatedAppConsumptionsOverviewIndexRoute
+}
+
+const AuthenticatedAppConsumptionsOverviewRouteRouteChildren: AuthenticatedAppConsumptionsOverviewRouteRouteChildren =
+  {
+    AuthenticatedAppConsumptionsOverviewConsumptionIdRoute:
+      AuthenticatedAppConsumptionsOverviewConsumptionIdRoute,
+    AuthenticatedAppConsumptionsOverviewIndexRoute:
+      AuthenticatedAppConsumptionsOverviewIndexRoute,
+  }
+
+const AuthenticatedAppConsumptionsOverviewRouteRouteWithChildren =
+  AuthenticatedAppConsumptionsOverviewRouteRoute._addFileChildren(
+    AuthenticatedAppConsumptionsOverviewRouteRouteChildren,
+  )
+
+interface AuthenticatedAppConsumptionsResourcesRouteRouteChildren {
+  AuthenticatedAppConsumptionsResourcesResourceIdRoute: typeof AuthenticatedAppConsumptionsResourcesResourceIdRoute
+}
+
+const AuthenticatedAppConsumptionsResourcesRouteRouteChildren: AuthenticatedAppConsumptionsResourcesRouteRouteChildren =
+  {
+    AuthenticatedAppConsumptionsResourcesResourceIdRoute:
+      AuthenticatedAppConsumptionsResourcesResourceIdRoute,
+  }
+
+const AuthenticatedAppConsumptionsResourcesRouteRouteWithChildren =
+  AuthenticatedAppConsumptionsResourcesRouteRoute._addFileChildren(
+    AuthenticatedAppConsumptionsResourcesRouteRouteChildren,
+  )
+
 interface AuthenticatedAppRouteRouteChildren {
-  AuthenticatedAppConsumptionsRouteRoute: typeof AuthenticatedAppConsumptionsRouteRouteWithChildren
-  AuthenticatedAppResourcesRouteRoute: typeof AuthenticatedAppResourcesRouteRouteWithChildren
   AuthenticatedAppSettingsRouteRoute: typeof AuthenticatedAppSettingsRouteRouteWithChildren
   AuthenticatedAppHomeRoute: typeof AuthenticatedAppHomeRoute
-  AuthenticatedAppLimitsRoute: typeof AuthenticatedAppLimitsRoute
+  AuthenticatedAppConsumptionsOverviewRouteRoute: typeof AuthenticatedAppConsumptionsOverviewRouteRouteWithChildren
+  AuthenticatedAppConsumptionsResourcesRouteRoute: typeof AuthenticatedAppConsumptionsResourcesRouteRouteWithChildren
+  AuthenticatedAppConsumptionsLimitsRoute: typeof AuthenticatedAppConsumptionsLimitsRoute
   AuthenticatedAppFinancesAccountsRoute: typeof AuthenticatedAppFinancesAccountsRoute
   AuthenticatedAppFinancesBudgetsRoute: typeof AuthenticatedAppFinancesBudgetsRoute
   AuthenticatedAppFinancesCategoriesRoute: typeof AuthenticatedAppFinancesCategoriesRoute
@@ -746,14 +768,15 @@ interface AuthenticatedAppRouteRouteChildren {
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
-  AuthenticatedAppConsumptionsRouteRoute:
-    AuthenticatedAppConsumptionsRouteRouteWithChildren,
-  AuthenticatedAppResourcesRouteRoute:
-    AuthenticatedAppResourcesRouteRouteWithChildren,
   AuthenticatedAppSettingsRouteRoute:
     AuthenticatedAppSettingsRouteRouteWithChildren,
   AuthenticatedAppHomeRoute: AuthenticatedAppHomeRoute,
-  AuthenticatedAppLimitsRoute: AuthenticatedAppLimitsRoute,
+  AuthenticatedAppConsumptionsOverviewRouteRoute:
+    AuthenticatedAppConsumptionsOverviewRouteRouteWithChildren,
+  AuthenticatedAppConsumptionsResourcesRouteRoute:
+    AuthenticatedAppConsumptionsResourcesRouteRouteWithChildren,
+  AuthenticatedAppConsumptionsLimitsRoute:
+    AuthenticatedAppConsumptionsLimitsRoute,
   AuthenticatedAppFinancesAccountsRoute: AuthenticatedAppFinancesAccountsRoute,
   AuthenticatedAppFinancesBudgetsRoute: AuthenticatedAppFinancesBudgetsRoute,
   AuthenticatedAppFinancesCategoriesRoute:

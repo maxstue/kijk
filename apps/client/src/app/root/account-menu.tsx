@@ -1,4 +1,7 @@
 import { useAuth } from '@clerk/react';
+import type { components } from '@kijk/api/generated/kijk';
+import { queryKeys } from '@kijk/api/query-keys';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 import { Dialog } from '@kijk/ui/components/dialog';
 import {
@@ -30,9 +33,6 @@ import { toast } from 'sonner';
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { getInitialChars } from '@/app/root/helpers';
 import { useSwitchSpace } from '@/app/root/use-switch-space';
-import type { components } from '@/shared/api/generated/kijk';
-import { queryKeys } from '@/shared/api/query-keys';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { siteConfig } from '@/shared/config/site';
 
 /** Sidebar account menu: settings, feedback and sign-out. */
@@ -46,8 +46,7 @@ export function AccountMenu() {
   const [showFeedback, setShowFeedback] = useState(false);
   const account = getAccountMenuData(currentAccount?.user);
 
-  const handleSignOut = (event: Event) => {
-    event.preventDefault();
+  const handleSignOut = () => {
     signOut()
       .then(() => {
         queryClient.removeQueries({ queryKey: queryKeys.users.me });
@@ -123,7 +122,7 @@ interface AccountMenuDropdownProps {
   isMobile: boolean;
   onNavigateToSettings: () => void;
   onOpenFeedback: () => void;
-  onSignOut: (event: Event) => void;
+  onSignOut: () => void;
 }
 
 function AccountMenuDropdown({
@@ -138,23 +137,25 @@ function AccountMenuDropdown({
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
-              tooltip={account.spaceName}
-            >
-              <LogoIcon className='text-sidebar-foreground size-5 shrink-0' />
-              <span className='truncate font-medium'>{account.spaceName}</span>
-              <ChevronsUpDown className='ml-auto size-3.5' />
-            </SidebarMenuButton>
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                className='data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground'
+                tooltip={account.spaceName}
+              />
+            }
+          >
+            <LogoIcon className='text-sidebar-foreground size-5 shrink-0' />
+            <span className='truncate font-medium'>{account.spaceName}</span>
+            <ChevronsUpDown className='ml-auto size-3.5' />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align='start'
-            className='w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg'
+            className='w-(--anchor-width) min-w-56 rounded-lg'
             side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
           >
-            <DropdownMenuLabel className='p-0 font-normal'>
+            <div className='p-0 font-normal'>
               <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
                 <UserSummary
                   displayName={account.displayName}
@@ -163,28 +164,28 @@ function AccountMenuDropdown({
                   initials={account.initials}
                 />
               </div>
-            </DropdownMenuLabel>
+            </div>
             <DropdownMenuSeparator />
             <SpaceSwitcher spaces={spaces} />
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onSelect={onNavigateToSettings}>
+              <DropdownMenuItem onClick={onNavigateToSettings}>
                 <SettingsIcon />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank'>
-                  <ExternalLinkIcon />
-                  Support
-                </a>
+              <DropdownMenuItem
+                render={<a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank' />}
+              >
+                <ExternalLinkIcon />
+                Support
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onOpenFeedback}>
+              <DropdownMenuItem onClick={onOpenFeedback}>
                 <SendIcon />
                 Give feedback
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={onSignOut}>
+            <DropdownMenuItem onClick={onSignOut}>
               <LogOut />
               Log out
             </DropdownMenuItem>
@@ -236,7 +237,7 @@ function SpaceSwitcher({ spaces }: { spaces: Space[] }) {
     <DropdownMenuGroup>
       <DropdownMenuLabel className='text-muted-foreground text-xs'>Spaces</DropdownMenuLabel>
       {sorted.map((space) => (
-        <DropdownMenuItem key={space.id} disabled={switchMutation.isPending} onSelect={() => onSwitch(space)}>
+        <DropdownMenuItem key={space.id} disabled={switchMutation.isPending} onClick={() => onSwitch(space)}>
           {space.isPersonal ? <LockIcon /> : <UsersIcon />}
           <span className='min-w-0 flex-1 truncate'>{space.name}</span>
           <span className='text-muted-foreground text-xs'>{space.isPersonal ? 'Private' : 'Shared'}</span>

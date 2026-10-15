@@ -5,7 +5,7 @@ import type { CaptureOptions, PostHogConfig, Properties } from 'posthog-js';
 import { config } from '@/shared/config';
 import { ErrorService } from '@/shared/lib/error-tracking';
 import type { CookieConsent } from '@/shared/types/analytics';
-import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
+import { COOKIE_CONSENT_KEY, LEGACY_CORRELATION_ID_KEY } from '@/shared/types/analytics';
 
 /** AnalyticsService is a wrapper around the Posthog analytics library. */
 const AnalyticsService = {
@@ -22,11 +22,8 @@ const AnalyticsService = {
 
   getInstance: () => posthog,
 
-  identifyUser: (new_distinct_id: string, userPropertiesToSet?: Properties, userPropertiesToSetOnce?: Properties) => {
-    posthog.identify(new_distinct_id, userPropertiesToSet, userPropertiesToSetOnce);
-  },
-
   init: () => {
+    browserStorage.removeItem(LEGACY_CORRELATION_ID_KEY);
     if (!config.PosthogKey || !config.PosthogUrl) {
       return;
     }

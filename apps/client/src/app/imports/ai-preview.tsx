@@ -1,19 +1,17 @@
+import { categorizeImportMutationOptions, importAiPreviewQueryOptions } from '@kijk/api/imports/options';
+import type { AiPreviewItem, ImportJob } from '@kijk/api/imports/types';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-import { useCategorizeImport } from '@/app/imports/use-import-mutations';
-import { importAiPreviewQueryOptions } from '@/shared/api/imports/options';
-import type { AiPreviewItem, ImportJob } from '@/shared/api/imports/types';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 
 /** Lets the user check and exclude shared texts before requesting category suggestions. */
 export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
@@ -33,7 +31,7 @@ export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onS
 
 function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
   const { data, isPending } = useQuery(importAiPreviewQueryOptions(job.id));
-  const categorizeMutation = useCategorizeImport(job.id);
+  const categorizeMutation = useMutation(categorizeImportMutationOptions(job.id));
   const [selection, setSelection] = useState<Record<string, boolean>>({});
 
   if (isPending || !data) {

@@ -20,9 +20,7 @@ export function NavMain() {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem className='w-full'>
-              <SidebarMenuButton asChild size='sm'>
-                <CommandMenu />
-              </SidebarMenuButton>
+              <SidebarMenuButton render={<CommandMenu />} size='sm' />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
@@ -35,19 +33,21 @@ export function NavMain() {
             <SidebarMenu>
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      activeOptions={{ exact: false }}
-                      className={cn(!item.isActive && 'cursor-not-allowed')}
-                      disabled={!item.isActive}
-                      to={item.url}
-                      activeProps={{
-                        className: 'bg-primary text-primary-foreground',
-                      }}
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
+                  <SidebarMenuButton
+                    render={
+                      <Link
+                        activeOptions={{ exact: 'exact' in item && item.exact }}
+                        className={cn(!item.isActive && 'cursor-not-allowed')}
+                        disabled={!item.isActive}
+                        to={item.url}
+                        activeProps={{
+                          className: 'bg-primary text-primary-foreground',
+                        }}
+                      />
+                    }
+                  >
+                    <item.icon />
+                    <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

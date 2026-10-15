@@ -1,10 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { accountsQueryOptions } from '@kijk/api/accounts/options';
+import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import { createTransactionMutationOptions, updateTransactionMutationOptions } from '@kijk/api/transactions/options';
+import type { Transaction } from '@kijk/api/transactions/types';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -12,12 +16,9 @@ import { toast } from 'sonner';
 import { getCreateDefaultValues, toFormValues, toRequest } from '@/app/transactions/helpers';
 import { noneValue, transactionSchema } from '@/app/transactions/schemas';
 import type { TransactionFormValues } from '@/app/transactions/schemas';
-import { useCreateTransaction, useUpdateTransaction } from '@/app/transactions/use-transaction-mutations';
-import { accountsQueryOptions } from '@/shared/api/accounts/options';
-import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import type { Transaction } from '@/shared/api/transactions/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { FormSwitchItem } from '@/shared/components/form-switch-item';
+import { accountLabel } from '@/shared/utils/format';
 
 interface Props {
   initialData?: Transaction;
@@ -30,8 +31,8 @@ interface FormComponentProps {
 
 /** Form to record a transaction, or to edit `initialData` when given. */
 export function TransactionForm({ initialData, onClose }: Props) {
-  const createMutation = useCreateTransaction();
-  const updateMutation = useUpdateTransaction();
+  const createMutation = useMutation(createTransactionMutationOptions());
+  const updateMutation = useMutation(updateTransactionMutationOptions());
   const isPending = createMutation.isPending || updateMutation.isPending;
   const submitLabel = initialData ? 'Update transaction' : 'Record transaction';
   const form = useForm<TransactionFormValues>({
@@ -155,10 +156,9 @@ function DirectionField({ form }: FormComponentProps) {
           <FormControl>
             <ToggleGroup
               className='w-full'
-              type='single'
-              value={field.value}
+              value={[field.value]}
               variant='outline'
-              onValueChange={(value) => value && field.onChange(value)}
+              onValueChange={(values) => values[0] && field.onChange(values[0])}
             >
               <ToggleGroupItem className='flex-1' value='expense'>
                 Expense or payment
@@ -184,7 +184,14 @@ function CategoryField({ form }: FormComponentProps) {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Category</FormLabel>
-          <Select value={field.value} onValueChange={field.onChange}>
+          <Select
+            items={[
+              { label: 'Uncategorized', value: noneValue },
+              ...categories.map((category) => ({ label: category.name, value: category.id })),
+            ]}
+            value={field.value}
+            onValueChange={field.onChange}
+          >
             <FormControl>
               <SelectTrigger className='w-full'>
                 <SelectValue />
@@ -216,7 +223,14 @@ function AccountField({ form }: FormComponentProps) {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Account</FormLabel>
-          <Select value={field.value} onValueChange={field.onChange}>
+          <Select
+            items={[
+              { label: 'No account', value: noneValue },
+              ...accounts.map((account) => ({ label: accountLabel(account), value: account.id })),
+            ]}
+            value={field.value}
+            onValueChange={field.onChange}
+          >
             <FormControl>
               <SelectTrigger className='w-full'>
                 <SelectValue />
@@ -226,8 +240,7 @@ function AccountField({ form }: FormComponentProps) {
               <SelectItem value={noneValue}>No account</SelectItem>
               {accounts.map((account) => (
                 <SelectItem key={account.id} value={account.id}>
-                  {account.name}
-                  {account.ibanLast4 ? ` (…${account.ibanLast4})` : ''}
+                  {accountLabel(account)}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -12,8 +12,8 @@ const { navigate, requestAccountDeletion, signOut } = vi.hoisted(() => ({
 
 vi.mock('@clerk/react', () => ({ useAuth: () => ({ signOut }) }));
 vi.mock('@tanstack/react-router', () => ({ useNavigate: () => navigate }));
-vi.mock('@/shared/api/users/requests', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/api/users/requests')>()),
+vi.mock('@kijk/api/users/requests', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@kijk/api/users/requests')>()),
   requestAccountDeletion,
 }));
 

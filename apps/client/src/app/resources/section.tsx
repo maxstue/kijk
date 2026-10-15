@@ -1,3 +1,6 @@
+import { resourcesQueryOptions } from '@kijk/api/resources/options';
+import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -13,9 +16,6 @@ import { useState } from 'react';
 
 import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/columns';
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
-import { resourcesQueryOptions } from '@/shared/api/resources/options';
-import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { DataTable } from '@/shared/components/data-table';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { CreatorTypes } from '@/shared/types/domain';
@@ -37,13 +37,15 @@ export function ResourceTypesSection() {
       <PageToolbar
         actions={
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
-            <DialogTrigger asChild>
-              <PageAddButton
-                disabled={!canManage}
-                title={canManage ? undefined : 'Your role in this space does not allow managing resources'}
-              >
-                Add resource
-              </PageAddButton>
+            <DialogTrigger
+              render={
+                <PageAddButton
+                  disabled={!canManage}
+                  title={canManage ? undefined : 'Your role in this space does not allow managing resources'}
+                />
+              }
+            >
+              Add resource
             </DialogTrigger>
             <DialogContent>
               <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>

@@ -1,3 +1,5 @@
+import { deleteCategoryRuleMutationOptions } from '@kijk/api/category-rules/options';
+import type { CategoryRule } from '@kijk/api/category-rules/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,19 +14,19 @@ import { Button } from '@kijk/ui/components/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@kijk/ui/components/dropdown-menu';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
+import { useMutation } from '@tanstack/react-query';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { useDeleteCategoryRule } from '@/app/categories/use-mutations';
-import type { CategoryRule } from '@/shared/api/category-rules/types';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 
 interface Props {
@@ -35,7 +37,7 @@ interface Props {
 /** Row menu of the rule table: delete. Rules are created from corrections and cannot be edited. */
 export function CategoryRuleRowActions({ canRecord, row }: Props) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { isPending, mutate } = useDeleteCategoryRule();
+  const { isPending, mutate } = useMutation(deleteCategoryRuleMutationOptions());
   const rule = row.original;
   const restriction = canRecord ? undefined : 'Your role in this space does not allow deleting rules.';
 
@@ -54,28 +56,26 @@ export function CategoryRuleRowActions({ canRecord, row }: Props) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className='h-8 w-8 p-0' variant='ghost'>
-            <span className='sr-only'>Open menu</span>
-            <MoreHorizontal className='h-4 w-4' />
-          </Button>
+        <DropdownMenuTrigger render={<Button className='h-8 w-8 p-0' variant='ghost' />}>
+          <span className='sr-only'>Open menu</span>
+          <MoreHorizontal className='h-4 w-4' />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className={restriction ? 'cursor-not-allowed' : undefined}>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <Tooltip>
+              <TooltipTrigger render={<div className={restriction ? 'cursor-not-allowed' : undefined} />}>
                 <DropdownMenuItem
                   disabled={restriction !== undefined}
                   variant='destructive'
-                  onSelect={() => setShowDeleteDialog(true)}
+                  onClick={() => setShowDeleteDialog(true)}
                 >
                   Delete
                 </DropdownMenuItem>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>{restriction ?? 'Delete rule'}</TooltipContent>
-          </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent>{restriction ?? 'Delete rule'}</TooltipContent>
+            </Tooltip>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

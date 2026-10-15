@@ -1,0 +1,38 @@
+import { apiClient } from '@kijk/api/client';
+import { unwrapApiResponse } from '@kijk/api/http';
+
+import type { CreateLimitRequest, UpdateLimitData } from './types';
+
+/** Loads the limits of the active space with their current evaluation. */
+export async function getLimits(signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().GET('/api/limits', { signal }));
+}
+
+/** Creates a limit and returns it with its evaluation. */
+export async function createLimit(data: CreateLimitRequest, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient().POST('/api/limits', {
+      body: data,
+      signal,
+    }),
+  );
+}
+
+/** Updates a limit and returns it with its evaluation. */
+export async function updateLimit(data: UpdateLimitData, signal?: AbortSignal) {
+  return unwrapApiResponse(
+    await apiClient().PUT('/api/limits/{id}', {
+      body: data.limit,
+      params: { path: { id: data.id } },
+      signal,
+    }),
+  );
+}
+
+/** Deletes a limit of the active space. */
+export async function deleteLimit(id: string, signal?: AbortSignal) {
+  await apiClient().DELETE('/api/limits/{id}', {
+    params: { path: { id } },
+    signal,
+  });
+}

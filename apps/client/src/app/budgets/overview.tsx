@@ -1,3 +1,6 @@
+import { budgetOverviewQueryOptions } from '@kijk/api/budgets/options';
+import type { BudgetCategory } from '@kijk/api/budgets/types';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -16,9 +19,6 @@ import { Suspense, lazy, useState } from 'react';
 
 import { BudgetForm } from '@/app/budgets/form';
 import { toAmount } from '@/app/budgets/helpers';
-import { budgetOverviewQueryOptions } from '@/shared/api/budgets/options';
-import type { BudgetCategory } from '@/shared/api/budgets/types';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import { PrivateBadge } from '@/shared/components/visibility-select';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
@@ -173,15 +173,17 @@ function EditBudgetButton({ category, month, year }: { category: BudgetCategory;
 
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogTrigger asChild>
-        <Button
-          disabled={!canEdit}
-          size='sm'
-          title={canEdit ? undefined : 'Your role in this space does not allow setting budgets'}
-          variant='ghost'
-        >
-          <Pencil /> {hasBudget ? 'Change budget' : 'Set budget'}
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            disabled={!canEdit}
+            size='sm'
+            title={canEdit ? undefined : 'Your role in this space does not allow setting budgets'}
+            variant='ghost'
+          />
+        }
+      >
+        <Pencil /> {hasBudget ? 'Change budget' : 'Set budget'}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

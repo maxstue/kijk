@@ -1,6 +1,5 @@
+import { queryKeys } from '@kijk/api/query-keys';
 import type { QueryClient } from '@tanstack/react-query';
-
-import { queryKeys } from '@/shared/api/query-keys';
 
 /** Cancels requests and removes data that may belong to a deleted or previously active space. */
 export async function clearSpaceData(queryClient: QueryClient) {

@@ -1,0 +1,35 @@
+{
+  "name": "@kijk/api",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Typed client for the Kijk API: requests, query keys, queryOptions and mutationOptions.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "generate": "pnpm --filter @kijk/openapi-codegen generate && oxfmt src/generated/kijk.ts",
+    "test": "vp test run",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt",
+    "test:coverage": "vp test run --coverage"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "catalog:",
+    "openapi-fetch": "catalog:"
+  },
+  "devDependencies": {
+    "@kijk/config": "workspace:*",
+    "@tanstack/eslint-plugin-query": "catalog:",
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "@vitest/coverage-v8": "catalog:"
+  }
+}

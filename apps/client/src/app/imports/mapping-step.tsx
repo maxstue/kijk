@@ -1,3 +1,5 @@
+import { confirmImportMappingMutationOptions, importPreviewQueryOptions } from '@kijk/api/imports/options';
+import type { CsvImportMapping, ImportJob, ImportPreview } from '@kijk/api/imports/types';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
@@ -5,16 +7,13 @@ import { Input } from '@kijk/ui/components/input';
 import { Label } from '@kijk/ui/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { useId, useState } from 'react';
 import { toast } from 'sonner';
 
 import type { ColumnRole } from '@/app/imports/constants';
 import { columnRoles, dateFormats, delimiters, encodings, ignoredColumn } from '@/app/imports/constants';
 import { assignColumnRole, createEmptyMapping, getColumnRoles, getMissingMappingFields } from '@/app/imports/helpers';
-import { useConfirmImportMapping } from '@/app/imports/use-import-mutations';
-import { importPreviewQueryOptions } from '@/shared/api/imports/options';
-import type { CsvImportMapping, ImportJob, ImportPreview } from '@/shared/api/imports/types';
 
 const proposalDescriptions: Record<NonNullable<ImportJob['proposedMappingSource']> | 'None', string> = {
   Ai: 'The AI suggested this mapping from the column names and masked value patterns; it never saw your data.',
@@ -58,7 +57,7 @@ interface MappingCardProps {
 }
 
 function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardProps) {
-  const confirmMutation = useConfirmImportMapping(job.id);
+  const confirmMutation = useMutation(confirmImportMappingMutationOptions(job.id));
   const roles = getColumnRoles(mapping);
   const missing = getMissingMappingFields(mapping);
 
@@ -139,6 +138,10 @@ function ColumnRoleSelect({
 }) {
   return (
     <Select
+      items={[
+        { label: 'Not imported', value: ignoredColumn },
+        ...columnRoles.map((option) => ({ label: option.label, value: option.key })),
+      ]}
       value={role ?? ignoredColumn}
       onValueChange={(value) => onChange(value === ignoredColumn ? undefined : (value as ColumnRole))}
     >
@@ -226,7 +229,15 @@ function OptionSelect({ label, onChange, options, value }: OptionSelectProps) {
   return (
     <div className='grid gap-2'>
       <Label>{label}</Label>
-      <Select value={value} onValueChange={onChange}>
+      <Select
+        items={options}
+        value={value}
+        onValueChange={(next) => {
+          if (next !== null) {
+            onChange(next);
+          }
+        }}
+      >
         <SelectTrigger className='w-full'>
           <SelectValue />
         </SelectTrigger>

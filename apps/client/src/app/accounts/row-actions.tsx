@@ -1,9 +1,11 @@
+import type { Account } from '@kijk/api/accounts/types';
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -17,7 +19,6 @@ import { useState } from 'react';
 import { AccountDeleteContent } from '@/app/accounts/delete-content';
 import { AccountForm } from '@/app/accounts/form';
 import type { AccountPermissions } from '@/app/accounts/types';
-import type { Account } from '@/shared/api/accounts/types';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 
 interface Props {
@@ -37,28 +38,28 @@ export function AccountRowActions({ permissions, row }: Props) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className='h-8 w-8 p-0' variant='ghost'>
-            <span className='sr-only'>Open menu</span>
-            <MoreHorizontal className='h-4 w-4' />
-          </Button>
+        <DropdownMenuTrigger render={<Button className='h-8 w-8 p-0' variant='ghost' />}>
+          <span className='sr-only'>Open menu</span>
+          <MoreHorizontal className='h-4 w-4' />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <AccountMenuItem
-            label='Update'
-            restriction={restriction}
-            tooltip='Update account'
-            onSelect={() => setShowUpdateDialog(true)}
-          />
-          <DropdownMenuSeparator />
-          <AccountMenuItem
-            label='Delete'
-            restriction={deleteRestriction}
-            tooltip='Delete account'
-            variant='destructive'
-            onSelect={() => setShowDeleteDialog(true)}
-          />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <AccountMenuItem
+              label='Update'
+              restriction={restriction}
+              tooltip='Update account'
+              onClick={() => setShowUpdateDialog(true)}
+            />
+            <DropdownMenuSeparator />
+            <AccountMenuItem
+              label='Delete'
+              restriction={deleteRestriction}
+              tooltip='Delete account'
+              variant='destructive'
+              onClick={() => setShowDeleteDialog(true)}
+            />
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
@@ -92,23 +93,21 @@ function getManagementRestriction(account: Account, { canConfigure, canRecord }:
 
 interface AccountMenuItemProps {
   label: string;
-  onSelect: () => void;
+  onClick: () => void;
   restriction: string | undefined;
   tooltip: string;
   variant?: 'default' | 'destructive';
 }
 
-function AccountMenuItem({ label, onSelect, restriction, tooltip, variant }: AccountMenuItemProps) {
+function AccountMenuItem({ label, onClick, restriction, tooltip, variant }: AccountMenuItemProps) {
   const disabled = restriction !== undefined;
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <div className={disabled ? 'cursor-not-allowed' : undefined}>
-          <DropdownMenuItem disabled={disabled} variant={variant} onSelect={onSelect}>
-            {label}
-          </DropdownMenuItem>
-        </div>
+      <TooltipTrigger render={<div className={disabled ? 'cursor-not-allowed' : undefined} />}>
+        <DropdownMenuItem disabled={disabled} variant={variant} onClick={onClick}>
+          {label}
+        </DropdownMenuItem>
       </TooltipTrigger>
       <TooltipContent>{restriction ?? tooltip}</TooltipContent>
     </Tooltip>

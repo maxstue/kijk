@@ -1,17 +1,15 @@
+import { aiDataSharingLabels, purposeRetentionLabels } from '@kijk/api/imports/constants';
+import { importSettingsQueryOptions, updateImportSettingsMutationOptions } from '@kijk/api/imports/options';
+import type { AiDataSharing, ImportSettings, PurposeRetention } from '@kijk/api/imports/types';
+import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Label } from '@kijk/ui/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Switch } from '@kijk/ui/components/switch';
-import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useId } from 'react';
 import { toast } from 'sonner';
-
-import { aiDataSharingLabels, purposeRetentionLabels } from '@/shared/api/imports/constants';
-import { importSettingsQueryOptions, updateImportSettingsMutationOptions } from '@/shared/api/imports/options';
-import type { AiDataSharing, ImportSettings, PurposeRetention } from '@/shared/api/imports/types';
-import { queryKeys } from '@/shared/api/query-keys';
-import { SpacePermissions, hasSpacePermission } from '@/shared/api/spaces/permissions';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
@@ -25,11 +23,7 @@ export function SpaceImportSettings() {
   const canConfigure = hasSpacePermission(space, SpacePermissions.finances.configure);
   const { data } = useSuspenseQuery(importSettingsQueryOptions(space.id));
   const { data: currentUser } = useQuery(currentUserQueryOptions());
-  const queryClient = useQueryClient();
-  const updateMutation = useMutation({
-    ...updateImportSettingsMutationOptions(space.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.imports.settings() }),
-  });
+  const updateMutation = useMutation(updateImportSettingsMutationOptions(space.id));
   const retentionId = useId();
   const sharingId = useId();
   const minimizeId = useId();
@@ -67,6 +61,7 @@ export function SpaceImportSettings() {
             </p>
             <Select
               disabled={!canConfigure || updateMutation.isPending}
+              items={purposeRetentionLabels}
               value={data.purposeRetention}
               onValueChange={(value) => save({ purposeRetention: value as PurposeRetention })}
             >
@@ -109,6 +104,7 @@ export function SpaceImportSettings() {
               </p>
               <Select
                 disabled={!canConfigure || updateMutation.isPending}
+                items={aiDataSharingLabels}
                 value={data.aiDataSharing}
                 onValueChange={(value) => save({ aiDataSharing: value as AiDataSharing })}
               >

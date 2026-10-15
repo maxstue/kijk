@@ -1,3 +1,4 @@
+import type { BudgetCategory } from '@kijk/api/budgets/types';
 import { Chart } from '@kijk/ui/components/chart';
 import { chartTheme, getChartTooltipContent } from '@kijk/ui/lib/chart';
 import { barY, defineChart, group } from '@tanstack/charts';
@@ -7,7 +8,6 @@ import { tooltip } from '@tanstack/charts/tooltip';
 import { useMemo } from 'react';
 
 import { toAmount } from '@/app/budgets/helpers';
-import type { BudgetCategory } from '@/shared/api/budgets/types';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 /** Bar chart comparing budget and spending per category. */

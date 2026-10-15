@@ -1,3 +1,4 @@
+import { budgetStatisticsQueryOptions } from '@kijk/api/budgets/options';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Chart } from '@kijk/ui/components/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
@@ -12,7 +13,6 @@ import { curveStep } from 'd3-shape';
 import { useMemo } from 'react';
 
 import { toAmount } from '@/app/budgets/helpers';
-import { budgetStatisticsQueryOptions } from '@/shared/api/budgets/options';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 const monthsShown = 12;

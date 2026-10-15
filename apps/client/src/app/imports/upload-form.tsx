@@ -1,3 +1,7 @@
+import { accountsQueryOptions } from '@kijk/api/accounts/options';
+import { createImportMutationOptions } from '@kijk/api/imports/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
+import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { Checkbox } from '@kijk/ui/components/checkbox';
@@ -5,17 +9,14 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Label } from '@kijk/ui/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Upload } from 'lucide-react';
 import { useId, useState } from 'react';
 import { toast } from 'sonner';
 
-import { useCreateImport, useGiveSensitiveDataConsent } from '@/app/imports/use-import-mutations';
-import { accountsQueryOptions } from '@/shared/api/accounts/options';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import { accountLabel } from '@/shared/utils/format';
 
 const maxFileBytes = 5 * 1024 * 1024;
 
@@ -29,8 +30,8 @@ export function ImportUploadForm() {
   const [consentChecked, setConsentChecked] = useState(false);
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const hasConsent = Boolean(currentUser?.user?.sensitiveDataConsentAt);
-  const consentMutation = useGiveSensitiveDataConsent();
-  const createMutation = useCreateImport();
+  const consentMutation = useMutation(updateUserMutationOptions());
+  const createMutation = useMutation(createImportMutationOptions());
   const navigate = useNavigate();
   const fileId = useId();
   const consentId = useId();
@@ -83,15 +84,18 @@ export function ImportUploadForm() {
           <form className='grid gap-6' onSubmit={onSubmit}>
             <div className='grid gap-2'>
               <Label>Bank account</Label>
-              <Select value={accountId} onValueChange={setAccountId}>
+              <Select
+                items={bankAccounts.map((account) => ({ label: accountLabel(account), value: account.id }))}
+                value={accountId}
+                onValueChange={(next) => setAccountId(next ?? '')}
+              >
                 <SelectTrigger aria-label='Bank account' className='w-full'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {bankAccounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.name}
-                      {account.ibanLast4 ? ` (…${account.ibanLast4})` : ''}
+                      {accountLabel(account)}
                     </SelectItem>
                   ))}
                 </SelectContent>

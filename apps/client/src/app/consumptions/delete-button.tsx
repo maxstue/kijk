@@ -1,3 +1,5 @@
+import { deleteConsumptionMutationOptions } from '@kijk/api/consumptions/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,12 +12,11 @@ import {
   AlertDialogTrigger,
 } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
+import { useMutation } from '@tanstack/react-query';
 import { Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { useDeleteConsumption } from '@/app/consumptions/use-delete-consumption';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { getMonthFromDate } from '@/shared/utils/months';
 
@@ -28,7 +29,7 @@ interface Props {
 export function ConsumptionDeleteButton({ id, date }: Props) {
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const [showModal, setShowModal] = useState(false);
-  const { mutate } = useDeleteConsumption();
+  const { mutate } = useMutation(deleteConsumptionMutationOptions());
 
   const handleDelete = () => {
     if (!canRecord) {
@@ -53,15 +54,17 @@ export function ConsumptionDeleteButton({ id, date }: Props) {
 
   return (
     <AlertDialog open={showModal} onOpenChange={setShowModal}>
-      <AlertDialogTrigger asChild>
-        <Button
-          disabled={!canRecord}
-          title={canRecord ? undefined : 'Your role in this space does not allow deleting consumptions'}
-          size='icon'
-          variant='destructive'
-        >
-          <Trash2Icon className='size-4' />
-        </Button>
+      <AlertDialogTrigger
+        render={
+          <Button
+            disabled={!canRecord}
+            title={canRecord ? undefined : 'Your role in this space does not allow deleting consumptions'}
+            size='icon'
+            variant='destructive'
+          />
+        }
+      >
+        <Trash2Icon className='size-4' />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

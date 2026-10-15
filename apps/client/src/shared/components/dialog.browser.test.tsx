@@ -25,9 +25,7 @@ test('a cold dialog loads in its modal and keeps the background layout mounted',
       <div id='dialog-background' style={{ minHeight: 300 }}>
         <h1>Existing page</h1>
         <Dialog>
-          <DialogTrigger asChild>
-            <PageAddButton>Add item</PageAddButton>
-          </DialogTrigger>
+          <DialogTrigger render={<PageAddButton />}>Add item</DialogTrigger>
           <DialogContent>
             <DeferredDialogContent data={data} />
           </DialogContent>

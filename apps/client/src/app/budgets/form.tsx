@@ -1,4 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { budgetsQueryOptions } from '@kijk/api/budgets/options';
+import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
@@ -10,9 +13,6 @@ import { toast } from 'sonner';
 import { budgetSchema } from '@/app/budgets/schemas';
 import type { BudgetFormValues } from '@/app/budgets/schemas';
 import { useSaveBudget } from '@/app/budgets/use-save-budget';
-import { budgetsQueryOptions } from '@/shared/api/budgets/options';
-import { categoriesQueryOptions } from '@/shared/api/categories/options';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import {
   Form,
   FormControl,
@@ -81,7 +81,12 @@ export function BudgetForm({ categoryId, initialAmount, initialVisibility, month
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select disabled={Boolean(categoryId)} value={field.value} onValueChange={field.onChange}>
+              <Select
+                disabled={Boolean(categoryId)}
+                items={expenseCategories.map((category) => ({ label: category.name, value: category.id }))}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder='Select a category' />

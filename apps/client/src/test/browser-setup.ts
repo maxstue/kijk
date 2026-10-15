@@ -1,6 +1,11 @@
+import '@kijk/ui/globals.css';
 import { afterAll, afterEach, beforeAll } from 'vite-plus/test';
 
+import { setupApiClient } from '@/shared/lib/api-client';
+
 import { worker } from './mocks/browser';
+
+setupApiClient();
 
 beforeAll(() =>
   worker.start({

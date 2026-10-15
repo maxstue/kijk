@@ -1,6 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { updateConsumptionMutationOptions } from '@kijk/api/consumptions/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useForm } from 'react-hook-form';
@@ -17,8 +20,6 @@ import {
 } from '@/app/consumptions/form-fields';
 import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
-import { useUpdateConsumption } from '@/app/consumptions/use-update-consumption';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
@@ -34,7 +35,7 @@ interface Props {
 /** Form to edit a consumption, prefilled with `initialData`. */
 export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Props) {
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
-  const { isPending, mutate } = useUpdateConsumption();
+  const { isPending, mutate } = useMutation(updateConsumptionMutationOptions());
 
   const form = useForm({
     defaultValues: {

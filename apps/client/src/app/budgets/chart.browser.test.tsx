@@ -1,8 +1,8 @@
+import type { BudgetCategory } from '@kijk/api/budgets/types';
 import { expect, test } from 'vite-plus/test';
 import { userEvent } from 'vite-plus/test/browser';
 import { render } from 'vitest-browser-react';
 
-import type { BudgetCategory } from '@/shared/api/budgets/types';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 import { BudgetChart } from './chart';

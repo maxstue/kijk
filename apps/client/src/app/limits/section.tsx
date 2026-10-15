@@ -1,3 +1,6 @@
+import { limitsQueryOptions } from '@kijk/api/limits/options';
+import type { Limit } from '@kijk/api/limits/types';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { AlertDialog, AlertDialogTrigger } from '@kijk/ui/components/alert-dialog';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
@@ -17,9 +20,6 @@ import { useState } from 'react';
 
 import { LimitDeleteContent } from '@/app/limits/delete-content';
 import { LimitForm } from '@/app/limits/form';
-import { limitsQueryOptions } from '@/shared/api/limits/options';
-import type { Limit } from '@/shared/api/limits/types';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -35,13 +35,15 @@ export function LimitsSection() {
         actions={
           <>
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <DialogTrigger asChild>
-                <PageAddButton
-                  disabled={!canPlan}
-                  title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
-                >
-                  Add limit
-                </PageAddButton>
+              <DialogTrigger
+                render={
+                  <PageAddButton
+                    disabled={!canPlan}
+                    title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
+                  />
+                }
+              >
+                Add limit
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -112,31 +114,35 @@ function LimitCard({ limit, canPlan }: { limit: Limit; canPlan: boolean }) {
       </CardContent>
       <CardFooter className='w-full justify-end gap-2 border-t pt-4'>
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogTrigger asChild>
-            <Button
-              disabled={!canPlan}
-              title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
-              aria-label='Delete limit'
-              size='icon'
-              variant='destructive'
-            >
-              <Trash2 className='size-4' />
-            </Button>
+          <AlertDialogTrigger
+            render={
+              <Button
+                disabled={!canPlan}
+                title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
+                aria-label='Delete limit'
+                size='icon'
+                variant='destructive'
+              />
+            }
+          >
+            <Trash2 className='size-4' />
           </AlertDialogTrigger>
           <LimitDeleteContent limit={limit} onClose={() => setShowDeleteDialog(false)} />
         </AlertDialog>
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogTrigger asChild>
-            <Button
-              disabled={!canPlan}
-              title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
-              aria-label='Edit limit'
-              className='text-muted-foreground'
-              size='icon'
-              variant='outline'
-            >
-              <EditIcon className='size-4' />
-            </Button>
+          <DialogTrigger
+            render={
+              <Button
+                disabled={!canPlan}
+                title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
+                aria-label='Edit limit'
+                className='text-muted-foreground'
+                size='icon'
+                variant='outline'
+              />
+            }
+          >
+            <EditIcon className='size-4' />
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

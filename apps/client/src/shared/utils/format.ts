@@ -12,17 +12,7 @@ export function formatStringToCurrency(value: string | number) {
   }).format(amount);
 }
 
-/**
- * Format a string date to only the date part in the format "YYYY-MM-DD".
- *
- * @param value A string representing a date, e.g. "2024-01-01T00:00:00.000Z"
- * @returns A string representing only the date part, e.g. "2024-01-01"
- */
-export function formatStringDateToOnlyDateString(value: string) {
-  const date = new Date(value);
-  const year = date.getFullYear();
-  const day = `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`;
-  const month = `${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}`;
-
-  return year.toString() + '-' + month + '-' + day;
+/** Name of an account with the last four characters of its IBAN, e.g. "Checking (…1234)". */
+export function accountLabel(account: { name: string; ibanLast4?: string | null }) {
+  return account.ibanLast4 ? `${account.name} (…${account.ibanLast4})` : account.name;
 }

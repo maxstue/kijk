@@ -15,6 +15,8 @@ interface MainNavItem {
   url: string;
   icon: typeof HousePlugIcon;
   isActive: boolean;
+  /** Only highlight on the exact URL, e.g. when sibling pages live below it. */
+  exact?: boolean;
 }
 
 interface MainNavGroup {
@@ -34,9 +36,9 @@ export const mainNavGroups = [
   {
     label: 'Consumption',
     items: [
-      { icon: HousePlugIcon, isActive: true, title: 'Consumptions', url: '/consumptions' },
-      { icon: TriangleAlertIcon, isActive: true, title: 'Limits', url: '/limits' },
-      { icon: HousePlugIcon, isActive: true, title: 'Resources', url: '/resources' },
+      { icon: HousePlugIcon, isActive: true, title: 'Consumptions', url: '/consumptions', exact: true },
+      { icon: TriangleAlertIcon, isActive: true, title: 'Limits', url: '/consumptions/limits' },
+      { icon: HousePlugIcon, isActive: true, title: 'Resources', url: '/consumptions/resources' },
     ],
   },
   {

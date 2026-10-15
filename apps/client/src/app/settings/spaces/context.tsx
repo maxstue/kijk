@@ -1,6 +1,5 @@
+import type { components } from '@kijk/api/generated/kijk';
 import { createContext, useContext } from 'react';
-
-import type { components } from '@/shared/api/generated/kijk';
 
 type Space = components['schemas']['UserSpaceResponse'];
 type User = components['schemas']['GetMeUserResponse'];

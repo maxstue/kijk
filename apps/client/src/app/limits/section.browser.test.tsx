@@ -1,10 +1,10 @@
+import { queryKeys } from '@kijk/api/query-keys';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { queryKeys } from '@/shared/api/query-keys';
-import { SpacePermissions } from '@/shared/api/spaces/permissions';
 import { worker } from '@/test/mocks/browser';
 
 import { LimitsSection } from './section';

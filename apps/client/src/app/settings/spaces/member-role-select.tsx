@@ -1,10 +1,8 @@
+import { changeSpaceMemberRoleMutationOptions } from '@kijk/api/spaces/options';
+import type { SpaceMember, SpaceRole } from '@kijk/api/spaces/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-import { queryKeys } from '@/shared/api/query-keys';
-import { changeSpaceMemberRoleMutationOptions } from '@/shared/api/spaces/options';
-import type { SpaceMember, SpaceRole } from '@/shared/api/spaces/types';
 
 interface Props {
   spaceId: string;
@@ -14,7 +12,6 @@ interface Props {
 
 /** Select that changes another member's role right away. */
 export function MemberRoleSelect({ spaceId, member, roles }: Props) {
-  const queryClient = useQueryClient();
   const changeRoleMutation = useMutation(changeSpaceMemberRoleMutationOptions());
 
   function changeRole(roleId: string) {
@@ -26,7 +23,6 @@ export function MemberRoleSelect({ spaceId, member, roles }: Props) {
       {
         onError: (error) => toast.error(error.message),
         onSuccess: (updated) => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.spaces.members(spaceId) });
           toast.success(`${updated.name} is now ${updated.role.name}`);
         },
       },
@@ -34,7 +30,16 @@ export function MemberRoleSelect({ spaceId, member, roles }: Props) {
   }
 
   return (
-    <Select disabled={changeRoleMutation.isPending} value={member.role.id} onValueChange={changeRole}>
+    <Select
+      disabled={changeRoleMutation.isPending}
+      items={roles.map((role) => ({ label: role.name, value: role.id }))}
+      value={member.role.id}
+      onValueChange={(roleId) => {
+        if (roleId) {
+          changeRole(roleId);
+        }
+      }}
+    >
       <SelectTrigger aria-label={`Role of ${member.name}`} className='w-36' size='sm'>
         <SelectValue />
       </SelectTrigger>

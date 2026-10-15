@@ -1,11 +1,10 @@
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { Outlet, createFileRoute, notFound } from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { SpaceSettingsContext } from '@/app/settings/spaces/context';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useSetSiteHeader } from '@/shared/hooks/use-set-site-header';
 
 /** `/settings/spaces/$spaceId`: loads the space and provides it to its settings pages. */
 export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spaceId')({
@@ -20,6 +19,7 @@ export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spac
     }
     return { space, user };
   },
+  head: ({ loaderData }) => ({ meta: [{ title: loaderData?.space.name ?? 'Space settings' }] }),
   notFoundComponent: () => <p className='text-muted-foreground'>This space is not available to your account.</p>,
   parseParams: (parameters) => ({ spaceId: z.uuid().parse(parameters.spaceId) }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
@@ -27,7 +27,6 @@ export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spac
 
 function SpaceSettingsPage() {
   const value = Route.useLoaderData();
-  useSetSiteHeader(value.space.name);
 
   return (
     <SpaceSettingsContext value={value}>
