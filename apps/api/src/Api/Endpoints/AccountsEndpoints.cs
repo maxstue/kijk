@@ -20,7 +20,7 @@ public sealed class AccountsEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("accounts")
+        var group = builder.MapSpaceGroup("accounts")
             .WithTags("Accounts")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

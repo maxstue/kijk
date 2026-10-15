@@ -13,7 +13,7 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 /** Import history with entry points for the wizard and space settings. */
-export const Route = createFileRoute('/_authenticated/_app/finances/imports/')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/')({
   loader: async ({ context: { queryClient } }) => {
     await queryClient.query({ ...importsQueryOptions(), staleTime: 'static' });
   },

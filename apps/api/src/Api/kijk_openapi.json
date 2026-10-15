@@ -6,13 +6,35 @@
     "version": "v1"
   },
   "paths": {
-    "/api/accounts": {
+    "/api/spaces/{spaceId}/accounts": {
       "get": {
         "tags": [
           "Accounts"
         ],
         "summary": "Gets the accounts of the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -50,6 +72,18 @@
           "Accounts"
         ],
         "summary": "Creates an account; shared accounts additionally require finances:configure",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -61,6 +95,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -101,13 +145,23 @@
         ]
       }
     },
-    "/api/accounts/{id}": {
+    "/api/spaces/{spaceId}/accounts/{id}": {
       "put": {
         "tags": [
           "Accounts"
         ],
         "summary": "Updates an account; shared accounts additionally require finances:configure",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -129,6 +183,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -175,6 +239,16 @@
         "summary": "Deletes an account without transactions; shared accounts additionally require finances:configure",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -185,6 +259,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -208,13 +292,35 @@
         ]
       }
     },
-    "/api/budgets": {
+    "/api/spaces/{spaceId}/budgets": {
       "get": {
         "tags": [
           "Budgets"
         ],
         "summary": "Gets all budget versions of the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -252,6 +358,18 @@
           "Budgets"
         ],
         "summary": "Creates a budget for a category from a month on; shared budgets additionally require budgets:plan",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -263,6 +381,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -303,13 +431,23 @@
         ]
       }
     },
-    "/api/budgets/statistics": {
+    "/api/spaces/{spaceId}/budgets/statistics": {
       "get": {
         "tags": [
           "Budgets"
         ],
         "summary": "Gets the spending per category over several months",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "year",
             "in": "query",
@@ -350,6 +488,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -380,13 +528,23 @@
         ]
       }
     },
-    "/api/budgets/overview": {
+    "/api/spaces/{spaceId}/budgets/overview": {
       "get": {
         "tags": [
           "Budgets"
         ],
         "summary": "Evaluates the budgets for a calendar month",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "year",
             "in": "query",
@@ -415,6 +573,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -445,13 +613,23 @@
         ]
       }
     },
-    "/api/budgets/{id}": {
+    "/api/spaces/{spaceId}/budgets/{id}": {
       "put": {
         "tags": [
           "Budgets"
         ],
         "summary": "Updates a budget version; shared budgets additionally require budgets:plan",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -473,6 +651,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -519,6 +707,16 @@
         "summary": "Deletes a budget version; shared budgets additionally require budgets:plan",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -529,6 +727,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -552,13 +760,35 @@
         ]
       }
     },
-    "/api/categories": {
+    "/api/spaces/{spaceId}/categories": {
       "get": {
         "tags": [
           "Categories"
         ],
         "summary": "Gets the categories available to the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -596,6 +826,18 @@
           "Categories"
         ],
         "summary": "Creates a custom category",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -607,6 +849,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -647,13 +899,23 @@
         ]
       }
     },
-    "/api/categories/{id}": {
+    "/api/spaces/{spaceId}/categories/{id}": {
       "put": {
         "tags": [
           "Categories"
         ],
         "summary": "Updates a custom category",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -675,6 +937,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -721,6 +993,16 @@
         "summary": "Deletes an unused custom category",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -731,6 +1013,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -754,13 +1046,35 @@
         ]
       }
     },
-    "/api/category-rules": {
+    "/api/spaces/{spaceId}/category-rules": {
       "get": {
         "tags": [
           "Category Rules"
         ],
         "summary": "Gets the remembered category corrections of the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -794,13 +1108,35 @@
         ]
       }
     },
-    "/api/category-rules/suggestions": {
+    "/api/spaces/{spaceId}/category-rules/suggestions": {
       "get": {
         "tags": [
           "Category Rules"
         ],
         "summary": "Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -834,13 +1170,23 @@
         ]
       }
     },
-    "/api/category-rules/{id}": {
+    "/api/spaces/{spaceId}/category-rules/{id}": {
       "delete": {
         "tags": [
           "Category Rules"
         ],
         "summary": "Deletes a remembered category correction",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -852,6 +1198,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -875,7 +1231,7 @@
         ]
       }
     },
-    "/api/consumptions/{id}": {
+    "/api/spaces/{spaceId}/consumptions/{id}": {
       "get": {
         "tags": [
           "Consumptions"
@@ -883,6 +1239,16 @@
         "summary": "Gets a consumption by id",
         "operationId": "GetConsumptionById",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -894,6 +1260,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -930,6 +1306,16 @@
         "summary": "Updates a consumption",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -950,6 +1336,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -986,6 +1382,16 @@
         "summary": "Deletes a consumption",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -996,6 +1402,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -1019,13 +1435,23 @@
         ]
       }
     },
-    "/api/consumptions/{id}/export": {
+    "/api/spaces/{spaceId}/consumptions/{id}/export": {
       "get": {
         "tags": [
           "Consumptions"
         ],
         "summary": "Exports a consumption as CSV",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1037,6 +1463,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1044,16 +1480,6 @@
                 "schema": {
                   "type": "string",
                   "format": "byte"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -1078,13 +1504,23 @@
         ]
       }
     },
-    "/api/consumptions/export": {
+    "/api/spaces/{spaceId}/consumptions/export": {
       "get": {
         "tags": [
           "Consumptions"
         ],
         "summary": "Exports all consumptions for a month as CSV",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "year",
             "in": "query",
@@ -1108,6 +1544,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1149,13 +1595,23 @@
         ]
       }
     },
-    "/api/consumptions": {
+    "/api/spaces/{spaceId}/consumptions": {
       "get": {
         "tags": [
           "Consumptions"
         ],
         "summary": "Gets all consumptions for the current user by year, month and type",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "year",
             "in": "query",
@@ -1177,6 +1633,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1214,6 +1680,18 @@
           "Consumptions"
         ],
         "summary": "Creates a new consumption",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1225,6 +1703,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created",
             "content": {
@@ -1265,13 +1753,23 @@
         ]
       }
     },
-    "/api/consumptions/stats": {
+    "/api/spaces/{spaceId}/consumptions/stats": {
       "get": {
         "tags": [
           "Consumptions"
         ],
         "summary": "Gets all consumptions stats",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "year",
             "in": "query",
@@ -1295,6 +1793,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1325,13 +1833,35 @@
         ]
       }
     },
-    "/api/consumptions/years": {
+    "/api/spaces/{spaceId}/consumptions/years": {
       "get": {
         "tags": [
           "Consumptions"
         ],
         "summary": "Gets all years",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1362,13 +1892,35 @@
         ]
       }
     },
-    "/api/imports": {
+    "/api/spaces/{spaceId}/imports": {
       "get": {
         "tags": [
           "Imports"
         ],
         "summary": "Gets the latest imports of the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1406,6 +1958,18 @@
           "Imports"
         ],
         "summary": "Uploads a bank export and starts its import",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -1440,6 +2004,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "202": {
             "description": "Accepted",
             "content": {
@@ -1470,7 +2044,7 @@
         ]
       }
     },
-    "/api/imports/{id}": {
+    "/api/spaces/{spaceId}/imports/{id}": {
       "get": {
         "tags": [
           "Imports"
@@ -1478,6 +2052,16 @@
         "summary": "Gets an import by id",
         "operationId": "GetImportById",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1489,6 +2073,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1519,13 +2113,23 @@
         ]
       }
     },
-    "/api/imports/{id}/preview": {
+    "/api/spaces/{spaceId}/imports/{id}/preview": {
       "get": {
         "tags": [
           "Imports"
         ],
         "summary": "Gets the first rows of an uploaded file for the column mapping",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1563,6 +2167,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1593,13 +2207,23 @@
         ]
       }
     },
-    "/api/imports/{id}/candidates": {
+    "/api/spaces/{spaceId}/imports/{id}/candidates": {
       "get": {
         "tags": [
           "Imports"
         ],
         "summary": "Gets the rows of an import waiting for review",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1652,6 +2276,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1682,13 +2316,23 @@
         ]
       }
     },
-    "/api/imports/{id}/mapping": {
+    "/api/spaces/{spaceId}/imports/{id}/mapping": {
       "post": {
         "tags": [
           "Imports"
         ],
         "summary": "Confirms the column mapping and starts reading the file",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1710,6 +2354,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "202": {
             "description": "Accepted",
             "content": {
@@ -1740,13 +2394,23 @@
         ]
       }
     },
-    "/api/imports/{id}/candidates/{candidateId}": {
+    "/api/spaces/{spaceId}/imports/{id}/candidates/{candidateId}": {
       "put": {
         "tags": [
           "Imports"
         ],
         "summary": "Changes the category or exclusion of a row during the review",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1777,6 +2441,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1807,13 +2481,23 @@
         ]
       }
     },
-    "/api/imports/{id}/ai-preview": {
+    "/api/spaces/{spaceId}/imports/{id}/ai-preview": {
       "get": {
         "tags": [
           "Imports"
         ],
         "summary": "Gets exactly the texts the AI categorization would send",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1825,6 +2509,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1855,13 +2549,23 @@
         ]
       }
     },
-    "/api/imports/{id}/categorize": {
+    "/api/spaces/{spaceId}/imports/{id}/categorize": {
       "post": {
         "tags": [
           "Imports"
         ],
         "summary": "Proposes categories with the AI for the rows that have none",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1883,6 +2587,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "202": {
             "description": "Accepted",
             "content": {
@@ -1923,13 +2637,23 @@
         ]
       }
     },
-    "/api/imports/{id}/commit": {
+    "/api/spaces/{spaceId}/imports/{id}/commit": {
       "post": {
         "tags": [
           "Imports"
         ],
         "summary": "Replaces the account's transactions in the covered months with the reviewed rows",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1951,6 +2675,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -1981,13 +2715,23 @@
         ]
       }
     },
-    "/api/imports/{id}/cancel": {
+    "/api/spaces/{spaceId}/imports/{id}/cancel": {
       "post": {
         "tags": [
           "Imports"
         ],
         "summary": "Cancels an open import and deletes its file",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -1999,6 +2743,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2029,13 +2783,35 @@
         ]
       }
     },
-    "/api/imports/settings": {
+    "/api/spaces/{spaceId}/imports/settings": {
       "get": {
         "tags": [
           "Imports"
         ],
         "summary": "Gets the import settings of the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2070,6 +2846,18 @@
           "Imports"
         ],
         "summary": "Changes the import settings of the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2081,6 +2869,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2121,13 +2919,35 @@
         ]
       }
     },
-    "/api/limits": {
+    "/api/spaces/{spaceId}/limits": {
       "get": {
         "tags": [
           "Consumption Limits"
         ],
         "summary": "Gets consumption limits for the active space",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2165,6 +2985,18 @@
           "Consumption Limits"
         ],
         "summary": "Creates a consumption limit",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2176,6 +3008,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created",
             "content": {
@@ -2216,7 +3058,7 @@
         ]
       }
     },
-    "/api/limits/{id}": {
+    "/api/spaces/{spaceId}/limits/{id}": {
       "get": {
         "tags": [
           "Consumption Limits"
@@ -2224,6 +3066,16 @@
         "summary": "Gets a consumption limit by id",
         "operationId": "GetLimitById",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -2235,6 +3087,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2271,6 +3133,16 @@
         "summary": "Updates a consumption limit",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -2291,6 +3163,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2337,6 +3219,16 @@
         "summary": "Deletes a consumption limit",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -2347,6 +3239,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -2370,13 +3272,35 @@
         ]
       }
     },
-    "/api/resources": {
+    "/api/spaces/{spaceId}/resources": {
       "get": {
         "tags": [
           "Resources"
         ],
         "summary": "Gets all resources",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2414,6 +3338,18 @@
           "Resources"
         ],
         "summary": "Creates a new resource type",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2425,6 +3361,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created",
             "content": {
@@ -2475,7 +3421,7 @@
         ]
       }
     },
-    "/api/resources/{id}": {
+    "/api/spaces/{spaceId}/resources/{id}": {
       "get": {
         "tags": [
           "Resources"
@@ -2483,6 +3429,16 @@
         "summary": "Gets a resource type",
         "operationId": "GetResourceById",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -2494,6 +3450,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2530,6 +3496,16 @@
         "summary": "Updates a custom resource type",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -2550,6 +3526,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -2606,6 +3592,16 @@
         "summary": "Deletes an unused custom resource type",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -2616,6 +3612,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -2917,127 +3923,23 @@
         ]
       }
     },
-    "/api/spaces/{id}/imports/settings": {
-      "get": {
-        "tags": [
-          "Spaces"
-        ],
-        "summary": "Gets the import settings of a specific space",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImportSettingsResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Spaces"
-        ],
-        "summary": "Changes the import settings of a specific space",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateImportSettingsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImportSettingsResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/transactions": {
+    "/api/spaces/{spaceId}/transactions": {
       "get": {
         "tags": [
           "Transactions"
         ],
         "summary": "Gets a page of transactions of the active space, optionally by year, month, categories or without category",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "year",
             "in": "query",
@@ -3106,6 +4008,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -3140,6 +4052,18 @@
           "Transactions"
         ],
         "summary": "Records a transaction manually",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3151,6 +4075,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created",
             "content": {
@@ -3191,13 +4125,23 @@
         ]
       }
     },
-    "/api/transactions/export": {
+    "/api/spaces/{spaceId}/transactions/export": {
       "get": {
         "tags": [
           "Transactions"
         ],
         "summary": "Exports transactions as CSV, optionally by year, month, categories or without category",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "year",
             "in": "query",
@@ -3242,8 +4186,15 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/401"
@@ -3265,7 +4216,7 @@
         ]
       }
     },
-    "/api/transactions/{id}": {
+    "/api/spaces/{spaceId}/transactions/{id}": {
       "get": {
         "tags": [
           "Transactions"
@@ -3273,6 +4224,16 @@
         "summary": "Gets a transaction by id",
         "operationId": "GetTransactionById",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -3284,6 +4245,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -3320,6 +4291,16 @@
         "summary": "Updates a transaction",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -3340,6 +4321,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -3386,6 +4377,16 @@
         "summary": "Deletes a transaction",
         "parameters": [
           {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -3396,6 +4397,16 @@
           }
         ],
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -3419,12 +4430,24 @@
         ]
       }
     },
-    "/api/transactions/category": {
+    "/api/spaces/{spaceId}/transactions/category": {
       "put": {
         "tags": [
           "Transactions"
         ],
         "summary": "Assigns one category to several transactions",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3436,6 +4459,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -3476,13 +4509,23 @@
         ]
       }
     },
-    "/api/transactions/{id}/category": {
+    "/api/spaces/{spaceId}/transactions/{id}/category": {
       "put": {
         "tags": [
           "Transactions"
         ],
         "summary": "Corrects the category of a transaction, optionally remembering it for the merchant or counterparty",
         "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "id",
             "in": "path",
@@ -3504,6 +4547,16 @@
           "required": true
         },
         "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -4064,17 +5117,17 @@
         ]
       }
     },
-    "/api/users/active-space": {
+    "/api/users/default-space": {
       "put": {
         "tags": [
           "Users"
         ],
-        "summary": "Switches the active space of the current user",
+        "summary": "Sets or clears the space the app opens first",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SwitchSpaceRequest"
+                "$ref": "#/components/schemas/SetDefaultSpaceRequest"
               }
             }
           },
@@ -6857,6 +7910,23 @@
         },
         "description": "A resource that consumptions can be recorded for."
       },
+      "SetDefaultSpaceRequest": {
+        "required": [
+          "spaceId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The space to open first, or `null` to open the last used space.",
+            "format": "uuid"
+          }
+        },
+        "description": "Request for choosing the space the app opens first."
+      },
       "SpaceMemberResponse": {
         "required": [
           "userId",
@@ -6912,20 +7982,6 @@
           }
         },
         "description": "A space role and the permissions it grants."
-      },
-      "SwitchSpaceRequest": {
-        "required": [
-          "spaceId"
-        ],
-        "type": "object",
-        "properties": {
-          "spaceId": {
-            "type": "string",
-            "description": "The space to switch to; the user must be a member.",
-            "format": "uuid"
-          }
-        },
-        "description": "Request for switching the active space of the current user."
       },
       "TransactionPageResponse": {
         "required": [
@@ -7688,7 +8744,6 @@
           "userName",
           "useDefaultResources",
           "useExternalProfile",
-          "spaceName",
           "analyticsConsent"
         ],
         "type": "object",
@@ -7713,13 +8768,6 @@
               "boolean"
             ],
             "description": "Whether Kijk may use the name and image from the authentication provider."
-          },
-          "spaceName": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "The new name of the active space."
           },
           "analyticsConsent": {
             "oneOf": [
@@ -7883,7 +8931,7 @@
           "name",
           "description",
           "role",
-          "isActive",
+          "isDefault",
           "isPersonal"
         ],
         "type": "object",
@@ -7908,9 +8956,9 @@
             "description": "The user's role in the space.",
             "$ref": "#/components/schemas/UserSpaceRoleResponse"
           },
-          "isActive": {
+          "isDefault": {
             "type": "boolean",
-            "description": "Whether this is the user's active space."
+            "description": "Whether the user chose this space as the one the app opens first."
           },
           "isPersonal": {
             "type": "boolean",
@@ -7969,7 +9017,7 @@
           },
           "spaceName": {
             "type": "string",
-            "description": "The name of the user's active space."
+            "description": "The name of the first space, which the user can share with others."
           },
           "useDefaultResources": {
             "type": "boolean",

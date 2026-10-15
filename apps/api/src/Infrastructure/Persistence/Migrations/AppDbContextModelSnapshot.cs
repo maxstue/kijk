@@ -1720,9 +1720,9 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDefault")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnName("is_default");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uuid")
@@ -1736,14 +1736,16 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("UserId", "SpaceId")
                         .HasName("pk_user_spaces");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("ix_user_spaces_is_active");
-
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_user_spaces_role_id");
 
                     b.HasIndex("SpaceId")
                         .HasDatabaseName("ix_user_spaces_space_id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_spaces_default")
+                        .HasFilter("is_default");
 
                     b.ToTable("user_spaces", (string)null);
                 });

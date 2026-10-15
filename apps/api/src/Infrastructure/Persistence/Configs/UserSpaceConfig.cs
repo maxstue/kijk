@@ -11,7 +11,11 @@ public class UserSpaceConfig : IEntityTypeConfiguration<UserSpace>
     public void Configure(EntityTypeBuilder<UserSpace> builder)
     {
         builder.HasKey(x => new { x.UserId, x.SpaceId });
-        builder.HasIndex(x => x.IsActive);
+        // A user has at most one default space.
+        builder.HasIndex(x => x.UserId)
+            .HasDatabaseName("ix_user_spaces_default")
+            .IsUnique()
+            .HasFilter("is_default");
 
         builder.Property(m => m.CreatedAt)
             .IsRequired()

@@ -1,5 +1,4 @@
 ﻿using Kijk.Shared;
-using Kijk.Shared.Exceptions;
 
 namespace Kijk.Domain.Entities;
 
@@ -56,14 +55,6 @@ public sealed class User : BaseEntity
     /// Units created by this user.
     /// </summary>
     public ICollection<Unit> Units { get; init; } = new List<Unit>();
-
-    /// <summary>
-    /// Returns the active space id for the user.
-    /// It should never be null as it is set when the user is created.
-    /// </summary>
-    /// <returns>The active space id.</returns>
-    /// <exception cref="NullException">The user has no active space.</exception>
-    public Guid GetActiveSpaceId() => UserSpaces.SingleOrDefault(x => x.IsActive)?.SpaceId ?? throw new NullException("Active space not found");
 
     private readonly List<Resource> _resources = [];
     /// <summary>Gets the resources the user has enabled.</summary>

@@ -23,15 +23,16 @@ public sealed class UserSpace : BaseEntity
     public required Role Role { get; set; }
 
     /// <summary>
-    /// A boolean which represents if the space is active or not.
+    /// Gets whether the user chose this space as the one the app opens first. A user has at most one default space;
+    /// without one, the client opens the last used space.
     /// </summary>
-    public bool IsActive { get; private set; }
+    public bool IsDefault { get; private set; }
 
     /// <summary>
-    /// Sets whether this is the user's active space.
+    /// Sets whether this is the user's default space.
     /// </summary>
-    /// <param name="isActive">Whether this space should be active.</param>
-    public void SetActive(bool isActive) => IsActive = isActive;
+    /// <param name="isDefault">Whether this space should be the default.</param>
+    public void SetDefault(bool isDefault) => IsDefault = isDefault;
 
     /// <summary>
     /// Changes the role of the user in the space.
@@ -47,14 +48,12 @@ public sealed class UserSpace : BaseEntity
     /// <param name="user">The member.</param>
     /// <param name="space">The space.</param>
     /// <param name="role">The member's role.</param>
-    /// <param name="isActive">Whether this becomes the user's active space.</param>
     /// <returns>The new membership.</returns>
-    public static UserSpace Create(User user, Space space, Role role, bool isActive = false) =>
+    public static UserSpace Create(User user, Space space, Role role) =>
         new()
         {
             User = user,
             Space = space,
             Role = role,
-            IsActive = isActive,
         };
 }

@@ -15,11 +15,6 @@ public sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserReq
             .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
             .When(request => request.UserName is not null);
 
-        RuleFor(request => request.SpaceName)
-            .Must(name => !string.IsNullOrWhiteSpace(name)).WithErrorCode(ErrorCodes.ValidationError)
-            .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
-            .When(request => request.SpaceName is not null);
-
         RuleFor(request => request.AnalyticsConsent)
             .IsInEnum().WithErrorCode(ErrorCodes.ValidationError)
             .When(request => request.AnalyticsConsent is not null);

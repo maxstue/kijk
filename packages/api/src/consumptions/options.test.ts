@@ -10,9 +10,9 @@ vi.mock('./requests', { spy: true });
 
 test('editing a reading refreshes statistics for both its old and new month', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  const oldMonth = queryKeys.consumptions.stats('2026', 'September');
-  const newMonth = queryKeys.consumptions.stats('2026', 'October');
-  for (const key of [oldMonth, newMonth, queryKeys.limits.list()]) {
+  const oldMonth = queryKeys.consumptions.stats('space', '2026', 'September');
+  const newMonth = queryKeys.consumptions.stats('space', '2026', 'October');
+  for (const key of [oldMonth, newMonth, queryKeys.limits.list('space')]) {
     client.setQueryData(key, []);
   }
   const updated = { id: 'reading', value: 200 } as unknown as Consumption;
@@ -20,7 +20,7 @@ test('editing a reading refreshes statistics for both its old and new month', as
 
   await client
     .getMutationCache()
-    .build(client, updateConsumptionMutationOptions())
+    .build(client, updateConsumptionMutationOptions('space'))
     .execute({
       id: 'reading',
       consumption: { date: new Date(2026, 9, 1), value: 200 },
@@ -28,7 +28,7 @@ test('editing a reading refreshes statistics for both its old and new month', as
 
   expect(client.getQueryState(oldMonth)?.isInvalidated).toBe(true);
   expect(client.getQueryState(newMonth)?.isInvalidated).toBe(true);
-  expect(client.getQueryState(queryKeys.limits.list())?.isInvalidated).toBe(true);
-  expect(client.getQueryData(queryKeys.consumptions.detail('reading'))).toEqual(updated);
+  expect(client.getQueryState(queryKeys.limits.list('space'))?.isInvalidated).toBe(true);
+  expect(client.getQueryData(queryKeys.consumptions.detail('space', 'reading'))).toEqual(updated);
   client.clear();
 });

@@ -87,9 +87,9 @@ public record ExternalIdentityResponse(string? FullName, string? Email, string? 
 /// <param name="Name">The space name.</param>
 /// <param name="Description">An optional description.</param>
 /// <param name="Role">The user's role in the space.</param>
-/// <param name="IsActive">Whether this is the user's active space.</param>
+/// <param name="IsDefault">Whether the user chose this space as the one the app opens first.</param>
 /// <param name="IsPersonal">Whether this is the user's personal space, which is never shared.</param>
-public record UserSpaceResponse(Guid Id, string Name, string? Description, UserSpaceRoleResponse Role, bool IsActive, bool IsPersonal);
+public record UserSpaceResponse(Guid Id, string Name, string? Description, UserSpaceRoleResponse Role, bool IsDefault, bool IsPersonal);
 
 /// <summary>The user's role in a space.</summary>
 /// <param name="Id">The role id.</param>

@@ -6,7 +6,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/finances/accounts`: bank and cash accounts of the active space. */
-export const Route = createFileRoute('/_authenticated/_app/finances/accounts')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/accounts')({
   loader: ({ context: { queryClient } }) => queryClient.query({ ...accountsQueryOptions(), staleTime: 'static' }),
   component: AccountsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,

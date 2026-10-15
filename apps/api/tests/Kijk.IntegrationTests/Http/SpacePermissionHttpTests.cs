@@ -36,7 +36,7 @@ public class SpacePermissionHttpTests
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
-        foreach (var path in new[] { "/api/resources", "/api/consumptions", "/api/limits", $"/api/limits/{fixture.Limit.Id}", $"/api/spaces/{fixture.Space.Id}/members" })
+        foreach (var path in new[] { $"/api/spaces/{fixture.Space.Id}/resources", $"/api/spaces/{fixture.Space.Id}/consumptions", $"/api/spaces/{fixture.Space.Id}/limits", $"/api/spaces/{fixture.Space.Id}/limits/{fixture.Limit.Id}", $"/api/spaces/{fixture.Space.Id}/members" })
         {
             using var response = await host.Client.GetAsync(path);
             if (response.StatusCode != HttpStatusCode.OK)
@@ -55,7 +55,7 @@ public class SpacePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.GetAsync($"/api/consumptions/{fixture.Consumption.Id}/export");
+        using var response = await host.Client.GetAsync($"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}/export");
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
     }
@@ -68,7 +68,7 @@ public class SpacePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PutAsJsonAsync($"/api/consumptions/{fixture.Consumption.Id}",
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}",
             new UpdateConsumptionRequest("Updated reading", 15m, UpdateConsumptionValueTypes.Relative, null, null));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
@@ -85,11 +85,11 @@ public class SpacePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PutAsJsonAsync($"/api/limits/{fixture.Limit.Id}",
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/limits/{fixture.Limit.Id}",
             new UpdateLimitRequest("Updated budget", null, 200m, fixture.Limit.Period, true));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
-        using var created = await host.Client.PostAsJsonAsync("/api/limits",
+        using var created = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Space.Id}/limits",
             new CreateLimitRequest("Yearly budget", null, 500m, Period.Year, true, fixture.Resource.Id));
         await Assert.That(created.StatusCode).IsEqualTo(expected == HttpStatusCode.OK ? HttpStatusCode.Created : HttpStatusCode.Forbidden);
     }
@@ -102,7 +102,7 @@ public class SpacePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.DeleteAsync($"/api/limits/{fixture.Limit.Id}");
+        using var response = await host.Client.DeleteAsync($"/api/spaces/{fixture.Space.Id}/limits/{fixture.Limit.Id}");
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
@@ -125,8 +125,8 @@ public class SpacePermissionHttpTests
         await dbContext.SaveChangesAsync();
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
-        using var missing = await host.Client.DeleteAsync($"/api/limits/{Guid.NewGuid()}");
-        using var inaccessible = await host.Client.DeleteAsync($"/api/limits/{otherLimit.Id}");
+        using var missing = await host.Client.DeleteAsync($"/api/spaces/{fixture.Space.Id}/limits/{Guid.NewGuid()}");
+        using var inaccessible = await host.Client.DeleteAsync($"/api/spaces/{fixture.Space.Id}/limits/{otherLimit.Id}");
         await Assert.That(missing.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
         await Assert.That(inaccessible.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
@@ -142,7 +142,7 @@ public class SpacePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PutAsJsonAsync($"/api/resources/{fixture.Resource.Id}",
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/resources/{fixture.Resource.Id}",
             new UpdateResourceRequest("Updated resource", null, null, null));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
@@ -153,7 +153,7 @@ public class SpacePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PutAsJsonAsync($"/api/resources/{fixture.Resource.Id}",
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/resources/{fixture.Resource.Id}",
             new UpdateResourceRequest(string.Empty, null, null, null));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
@@ -263,9 +263,9 @@ public class SpacePermissionHttpTests
         await using var admin = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         using var member = admin.CreateClient(fixture.OtherUser.AuthId);
         // The identity stays unchanged: permission changes must come from the DB, not token claims.
-        using var before = await member.GetAsync($"/api/consumptions/{fixture.Consumption.Id}/export");
+        using var before = await member.GetAsync($"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}/export");
         using var change = await admin.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/members/{fixture.OtherUser.Id}/role", new ChangeMemberRoleRequest(SpaceRoles.Viewer.Id));
-        using var after = await member.GetAsync($"/api/consumptions/{fixture.Consumption.Id}/export");
+        using var after = await member.GetAsync($"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}/export");
 
         await Assert.That(before.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(change.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -317,8 +317,8 @@ public class SpacePermissionHttpTests
         var member = await dbContext.Roles.SingleAsync(item => item.Id == SpaceRoles.Member.Id);
         var user = CreateUser("actor");
         var otherUser = CreateUser("other");
-        user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
-        otherUser.UserSpaces.Add(UserSpace.Create(otherUser, space, member, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, role));
+        otherUser.UserSpaces.Add(UserSpace.Create(otherUser, space, member));
         var systemUnit = await dbContext.Units.SingleAsync(item => item.Id == new Guid("11111111-1111-4111-8111-111111111113"));
         var resource = new Resource { Name = "Gas", Unit = systemUnit, Color = "#334455", Icon = "flame", CreatorType = CreatorType.User, Space = space };
         user.AddResource(resource);

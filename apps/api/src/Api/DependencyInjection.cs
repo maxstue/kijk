@@ -64,6 +64,7 @@ public static class DependencyInjection
             opt.AddDocumentTransformer<ComponentResponseTransformer>();
 
             opt.AddOperationTransformer<OperationResponseTransformer>();
+            opt.AddOperationTransformer<SpaceRouteParameterTransformer>();
         });
         return services;
     }

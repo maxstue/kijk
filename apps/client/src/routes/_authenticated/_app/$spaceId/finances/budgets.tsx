@@ -40,7 +40,7 @@ const searchSchema = z.object({
 });
 
 /** Budget evaluation of the month in the search params. */
-export const Route = createFileRoute('/_authenticated/_app/finances/budgets')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/budgets')({
   validateSearch: zodValidator(searchSchema),
   component: BudgetsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,

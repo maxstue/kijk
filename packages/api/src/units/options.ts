@@ -1,4 +1,4 @@
-import { invalidate } from '@kijk/api/cache';
+import { invalidate, invalidateInEverySpace } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
@@ -20,9 +20,12 @@ export const createUnitMutationOptions = () =>
 export const updateUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: ({ data, id }: { data: UpdateUnitData; id: string }) => updateUnit(id, data),
-    // Resources and consumptions show unit names and symbols.
+    // Resources and consumptions of every space the unit is shared with show its name and symbol.
     onSuccess: (_data, _variables, _result, { client }) =>
-      invalidate(client, queryKeys.units.all, queryKeys.resources.all, queryKeys.consumptions.all),
+      Promise.all([
+        invalidate(client, queryKeys.units.all),
+        invalidateInEverySpace(client, 'resources', 'consumptions'),
+      ]),
   });
 
 /** Mutation that archives or restores a unit. */

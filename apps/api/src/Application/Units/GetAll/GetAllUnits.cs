@@ -18,10 +18,15 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
     /// <returns>The units, or an authorization error for a space the user is not a member of.</returns>
     public async Task<Result<UnitPageResponse>> GetAsync(GetUnitsRequest request, CancellationToken cancellationToken)
     {
-        var selectedSpaceId = request.SpaceId ?? currentUser.ActiveSpaceId;
-        if (request.Scope == UnitScope.Space && (selectedSpaceId is null || !await dbContext.UserSpaces.AnyAsync(
+        var selectedSpaceId = request.SpaceId;
+        if (request.Scope == UnitScope.Space && selectedSpaceId is null)
+        {
+            return Error.Validation("The space scope needs a space id");
+        }
+
+        if (request.Scope == UnitScope.Space && !await dbContext.UserSpaces.AnyAsync(
                 link => link.UserId == currentUser.Id && link.SpaceId == selectedSpaceId,
-                cancellationToken)))
+                cancellationToken))
         {
             return Error.Authorization("The selected space is not available to the current user");
         }

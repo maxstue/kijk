@@ -2,78 +2,87 @@ import type { ImportCandidatesQuery, ImportPreviewParams } from '@kijk/api/impor
 import type { TransactionPageQuery } from '@kijk/api/transactions/types';
 import type { UnitListQuery } from '@kijk/api/units/types';
 
+/** First key part of every query that belongs to one space. */
+export const spaceKeyRoot = 'space';
+
+/** Root of all queries of a space; removing it drops every cached piece of data of the space. */
+const space = (spaceId: string) => [spaceKeyRoot, spaceId] as const;
+
 const users = {
   me: ['users', 'me'] as const,
 };
 
 const spaces = {
   all: ['spaces'] as const,
-  members: (spaceId: string) => [...spaces.all, 'members', spaceId] as const,
+  members: (spaceId: string) => [...space(spaceId), 'members'] as const,
   roles: () => [...spaces.all, 'roles'] as const,
 };
 
 const resources = {
-  all: ['resources'] as const,
-  detail: (id: string) => [...resources.all, 'detail', id] as const,
-  list: () => [...resources.all, 'list'] as const,
+  all: (spaceId: string) => [...space(spaceId), 'resources'] as const,
+  detail: (spaceId: string, id: string) => [...resources.all(spaceId), 'detail', id] as const,
+  list: (spaceId: string) => [...resources.all(spaceId), 'list'] as const,
 };
 
 const consumptions = {
-  all: ['consumptions'] as const,
-  byAll: () => [...consumptions.all, 'usage', 'getBy'] as const,
-  by: (year?: string, month?: string) => [...consumptions.all, 'usage', 'getBy', year, month] as const,
-  detail: (id: string) => [...consumptions.all, 'detail', id] as const,
-  stats: (year?: string, month?: string) => [...consumptions.all, 'stats', year, month] as const,
-  statsAll: () => [...consumptions.all, 'stats'] as const,
-  years: () => [...consumptions.all, 'years'] as const,
+  all: (spaceId: string) => [...space(spaceId), 'consumptions'] as const,
+  byAll: (spaceId: string) => [...consumptions.all(spaceId), 'usage', 'getBy'] as const,
+  by: (spaceId: string, year?: string, month?: string) => [...consumptions.byAll(spaceId), year, month] as const,
+  detail: (spaceId: string, id: string) => [...consumptions.all(spaceId), 'detail', id] as const,
+  stats: (spaceId: string, year?: string, month?: string) => [...consumptions.statsAll(spaceId), year, month] as const,
+  statsAll: (spaceId: string) => [...consumptions.all(spaceId), 'stats'] as const,
+  years: (spaceId: string) => [...consumptions.all(spaceId), 'years'] as const,
 };
 
 const limits = {
-  all: ['limits'] as const,
-  list: () => [...limits.all, 'list'] as const,
+  all: (spaceId: string) => [...space(spaceId), 'limits'] as const,
+  list: (spaceId: string) => [...limits.all(spaceId), 'list'] as const,
 };
 
 const categories = {
-  all: ['categories'] as const,
-  list: () => [...categories.all, 'list'] as const,
+  all: (spaceId: string) => [...space(spaceId), 'categories'] as const,
+  list: (spaceId: string) => [...categories.all(spaceId), 'list'] as const,
 };
 
 const accounts = {
-  all: ['accounts'] as const,
-  list: () => [...accounts.all, 'list'] as const,
+  all: (spaceId: string) => [...space(spaceId), 'accounts'] as const,
+  list: (spaceId: string) => [...accounts.all(spaceId), 'list'] as const,
 };
 
 const budgets = {
-  all: ['budgets'] as const,
-  list: () => [...budgets.all, 'list'] as const,
-  overview: (year: number, month: number) => [...budgets.all, 'overview', year, month] as const,
-  statistics: (year: number, month: number, months: number) =>
-    [...budgets.all, 'statistics', year, month, months] as const,
+  all: (spaceId: string) => [...space(spaceId), 'budgets'] as const,
+  list: (spaceId: string) => [...budgets.all(spaceId), 'list'] as const,
+  overview: (spaceId: string, year: number, month: number) =>
+    [...budgets.all(spaceId), 'overview', year, month] as const,
+  statistics: (spaceId: string, year: number, month: number, months: number) =>
+    [...budgets.all(spaceId), 'statistics', year, month, months] as const,
 };
 
 const transactions = {
-  all: ['transactions'] as const,
-  list: (query: TransactionPageQuery) => [...transactions.all, 'list', query] as const,
+  all: (spaceId: string) => [...space(spaceId), 'transactions'] as const,
+  list: (spaceId: string, query: TransactionPageQuery) => [...transactions.all(spaceId), 'list', query] as const,
 };
 
 const imports = {
-  all: ['imports'] as const,
-  candidates: (id: string) => [...imports.all, 'candidates', id] as const,
-  candidatesPage: (id: string, query: ImportCandidatesQuery) => [...imports.candidates(id), query] as const,
-  detail: (id: string) => [...imports.all, 'detail', id] as const,
-  aiPreview: (id: string) => [...imports.all, 'ai-preview', id] as const,
-  list: () => [...imports.all, 'list'] as const,
-  preview: (id: string, params: ImportPreviewParams) => [...imports.all, 'preview', id, params] as const,
-  settings: (spaceId?: string) =>
-    spaceId ? ([...imports.all, 'settings', spaceId] as const) : ([...imports.all, 'settings'] as const),
+  all: (spaceId: string) => [...space(spaceId), 'imports'] as const,
+  candidates: (spaceId: string, id: string) => [...imports.all(spaceId), 'candidates', id] as const,
+  candidatesPage: (spaceId: string, id: string, query: ImportCandidatesQuery) =>
+    [...imports.candidates(spaceId, id), query] as const,
+  detail: (spaceId: string, id: string) => [...imports.all(spaceId), 'detail', id] as const,
+  aiPreview: (spaceId: string, id: string) => [...imports.all(spaceId), 'ai-preview', id] as const,
+  list: (spaceId: string) => [...imports.all(spaceId), 'list'] as const,
+  preview: (spaceId: string, id: string, params: ImportPreviewParams) =>
+    [...imports.all(spaceId), 'preview', id, params] as const,
+  settings: (spaceId: string) => [...imports.all(spaceId), 'settings'] as const,
 };
 
 const categoryRules = {
-  all: ['category-rules'] as const,
-  list: () => [...categoryRules.all, 'list'] as const,
-  suggestions: () => [...categoryRules.all, 'suggestions'] as const,
+  all: (spaceId: string) => [...space(spaceId), 'category-rules'] as const,
+  list: (spaceId: string) => [...categoryRules.all(spaceId), 'list'] as const,
+  suggestions: (spaceId: string) => [...categoryRules.all(spaceId), 'suggestions'] as const,
 };
 
+// Units belong to users and are shared with spaces, so their lists name the space in the query.
 const units = {
   all: ['units'] as const,
   list: (query: UnitListQuery) => [...units.all, 'list', query] as const,
@@ -87,6 +96,7 @@ export const queryKeys = {
   categoryRules,
   limits,
   consumptions,
+  space,
   spaces,
   imports,
   resources,

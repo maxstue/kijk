@@ -68,7 +68,10 @@ public class ApiPipelineHttpTests
 
         var system = await host.Client.GetFromJsonAsync<UnitPageResponse>("/api/units?scope=System", Json);
         var personal = await host.Client.GetFromJsonAsync<UnitPageResponse>("/api/units?scope=Personal&pageSize=2&page=2", Json);
-        var space = await host.Client.GetFromJsonAsync<UnitPageResponse>("/api/units", Json);
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var spaceId = await dbContext.UserSpaces.Where(link => link.UserId == user.Id).Select(link => link.SpaceId).SingleAsync();
+        var space = await host.Client.GetFromJsonAsync<UnitPageResponse>($"/api/units?scope={UnitScope.Space}&spaceId={spaceId}", Json);
+        using var withoutSpace = await host.Client.GetAsync($"/api/units?scope={UnitScope.Space}");
 
         await Assert.That(system!.Items.All(unit => unit.CreatorType == CreatorType.System)).IsTrue();
         await Assert.That(system.TotalCount).IsEqualTo(system.Items.Count);
@@ -77,6 +80,7 @@ public class ApiPipelineHttpTests
         await Assert.That(personal.Items.Count).IsEqualTo(2);
         await Assert.That(personal.Page).IsEqualTo(2);
         await Assert.That(space!.TotalCount).IsEqualTo(system.TotalCount);
+        await Assert.That(withoutSpace.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -99,7 +103,7 @@ public class ApiPipelineHttpTests
         var admin = await dbContext.Roles.SingleAsync(item => item.Id == SpaceRoles.Admin.Id);
         var user = User.Init($"{name}-auth", name, $"{name}@example.test");
         user.CompleteOnboarding(name, AnalyticsConsent.Declined, DateTime.UtcNow);
-        user.UserSpaces.Add(UserSpace.Create(user, Space.Create($"{name} space"), admin, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, Space.Create($"{name} space"), admin));
         dbContext.Add(user);
         if (unitName is not null)
         {

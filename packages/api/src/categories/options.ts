@@ -6,37 +6,37 @@ import { createCategory, deleteCategory, getCategories, updateCategory } from '.
 import type { CreateCategoryRequest, UpdateCategoryRequest } from './types';
 
 /** Query for the categories available to the active space. */
-export const categoriesQueryOptions = () =>
+export const categoriesQueryOptions = (spaceId: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getCategories(signal),
-    queryKey: queryKeys.categories.list(),
+    queryFn: ({ signal }) => getCategories(spaceId, signal),
+    queryKey: queryKeys.categories.list(spaceId),
   });
 
 /** Mutation that creates a custom category. */
-export const createCategoryMutationOptions = () =>
+export const createCategoryMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CreateCategoryRequest) => createCategory(data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.categories.all),
+    mutationFn: (data: CreateCategoryRequest) => createCategory(spaceId, data),
+    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.categories.all(spaceId)),
   });
 
 /** Mutation that updates a custom category. */
-export const updateCategoryMutationOptions = () =>
+export const updateCategoryMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: ({ data, id }: { data: UpdateCategoryRequest; id: string }) => updateCategory(id, data),
+    mutationFn: ({ data, id }: { data: UpdateCategoryRequest; id: string }) => updateCategory(spaceId, id, data),
     // Budgets, transactions and rules show category names and colors.
     onSuccess: (_data, _variables, _result, { client }) =>
       invalidate(
         client,
-        queryKeys.categories.all,
-        queryKeys.budgets.all,
-        queryKeys.transactions.all,
-        queryKeys.categoryRules.all,
+        queryKeys.categories.all(spaceId),
+        queryKeys.budgets.all(spaceId),
+        queryKeys.transactions.all(spaceId),
+        queryKeys.categoryRules.all(spaceId),
       ),
   });
 
 /** Mutation that deletes a custom category. */
-export const deleteCategoryMutationOptions = () =>
+export const deleteCategoryMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (id: string) => deleteCategory(id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.categories.all),
+    mutationFn: (id: string) => deleteCategory(spaceId, id),
+    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.categories.all(spaceId)),
   });

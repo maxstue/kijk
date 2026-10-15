@@ -25,7 +25,7 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("consumptions")
+        var group = builder.MapSpaceGroup("consumptions")
             .WithTags("Consumptions")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

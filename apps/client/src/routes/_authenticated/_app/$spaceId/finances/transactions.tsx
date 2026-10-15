@@ -80,7 +80,7 @@ function toPageQuery(search: z.infer<typeof searchSchema>) {
  * `/finances/transactions`: one page of the transactions of the month in the search params, optionally only
  * uncategorized ones.
  */
-export const Route = createFileRoute('/_authenticated/_app/finances/transactions')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/transactions')({
   validateSearch: zodValidator(searchSchema),
   component: TransactionsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,

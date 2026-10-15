@@ -12,7 +12,7 @@ import { PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** The finances categories route, which shows the categories and categorization rules of the active space. */
-export const Route = createFileRoute('/_authenticated/_app/finances/categories')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/categories')({
   loader: async ({ context: { queryClient } }) => {
     await Promise.all([
       queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),

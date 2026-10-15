@@ -13,12 +13,12 @@ function respond(response: Response) {
 
 test('deleting an account accepts a successful response without a body', async () => {
   respond(new Response(null, { status: 204 }));
-  await expect(deleteAccount('account')).resolves.toBeUndefined();
+  await expect(deleteAccount('space', 'account')).resolves.toBeUndefined();
 });
 
 test('the same middleware raises problem details for reads and bodyless mutations', async () => {
   const problem = { status: 403, title: 'Forbidden', detail: 'No permission for this account' };
-  for (const request of [() => getAccounts(), () => deleteAccount('account')]) {
+  for (const request of [() => getAccounts('space'), () => deleteAccount('space', 'account')]) {
     respond(Response.json(problem, { status: 403 }));
     await expect(request()).rejects.toMatchObject({
       name: 'ApiError',
@@ -34,9 +34,9 @@ test.each([
   { body: null, expected: 'Bad Gateway' },
 ])('handles non-JSON and empty HTTP failures: $body', async ({ body, expected }) => {
   respond(new Response(body, { status: 502, statusText: 'Bad Gateway' }));
-  await expect(deleteAccount('account')).rejects.toBeInstanceOf(ApiError);
+  await expect(deleteAccount('space', 'account')).rejects.toBeInstanceOf(ApiError);
   respond(new Response(body, { status: 502, statusText: 'Bad Gateway' }));
-  await expect(getAccounts()).rejects.toMatchObject({ status: 502, message: expected });
+  await expect(getAccounts('space')).rejects.toMatchObject({ status: 502, message: expected });
 });
 
 test('lists every validation message of a validation problem', async () => {
@@ -46,7 +46,7 @@ test('lists every validation message of a validation problem', async () => {
     errors: { Name: ["E0004: 'Name' must be set", "E0004: 'Name' is too short"], Color: ['E0004: Invalid color'] },
   };
   respond(Response.json(problem, { status: 400 }));
-  const error = await getAccounts().catch((thrown: unknown) => thrown);
+  const error = await getAccounts('space').catch((thrown: unknown) => thrown);
 
   expect(ApiError.isApiError(error) && error.getErrorsString()).toBe(
     "E0004: 'Name' must be set, E0004: 'Name' is too short, E0004: Invalid color",
@@ -55,10 +55,11 @@ test('lists every validation message of a validation problem', async () => {
 
 test('does not send or store a correlation id', async () => {
   respond(new Response(null, { status: 204, headers: { 'X-Correlation-Id': 'server-id' } }));
-  await deleteAccount('account');
+  await deleteAccount('space', 'account');
   respond(new Response(null, { status: 204 }));
-  await deleteAccount('account');
+  await deleteAccount('space', 'account');
 
   const [request] = vi.mocked(fetch).mock.calls[0] as [Request];
   expect(request.headers.has('X-Correlation-Id')).toBe(false);
+  expect(new URL(request.url).pathname).toBe('/api/spaces/space/accounts/account');
 });

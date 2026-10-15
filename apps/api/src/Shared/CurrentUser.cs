@@ -32,21 +32,24 @@ public class CurrentUser
     /// <summary>Gets the email address from the token, if present.</summary>
     public string? Email => Principal?.FindFirst(ClaimTypes.Email)?.Value;
 
-    /// <summary>Gets the active space id, or <see langword="null" /> without an active space.</summary>
+    /// <summary>
+    /// Gets the id of the space the request works on, taken from the route of space endpoints, or
+    /// <see langword="null" /> for requests without a space.
+    /// </summary>
     public Guid? ActiveSpaceId => User?.SpaceId;
 
     /// <summary>
-    /// Gets the user's role in the active space, or <see langword="null"/> when there is no active space.
+    /// Gets the user's role in the space of the request, or <see langword="null"/> for requests without a space.
     /// </summary>
     public string? SpaceRole => User?.SpaceRole;
 
     /// <summary>
-    /// Gets the permissions the user's role grants in the active space.
+    /// Gets the permissions the user's role grants in the space of the request.
     /// </summary>
     public IReadOnlyCollection<string> SpacePermissions => User?.SpacePermissions ?? [];
 
     /// <summary>
-    /// Determines whether the user's role grants the given permission in the active space.
+    /// Determines whether the user's role grants the given permission in the space of the request.
     /// </summary>
     /// <param name="permission">The permission name.</param>
     /// <returns><see langword="true"/> when the permission is granted.</returns>
@@ -59,19 +62,19 @@ public class CurrentUser
 /// </summary>
 /// <param name="Id">The Kijk user id.</param>
 /// <param name="AuthId">The authentication provider's user id.</param>
-/// <param name="SpaceId">The active space id.</param>
+/// <param name="SpaceId">The space of the request, or <see langword="null" /> for requests without a space.</param>
 /// <param name="Name">The display name.</param>
 /// <param name="Email">The email address.</param>
 /// <param name="OnboardingCompleted">Whether onboarding is completed.</param>
 public record SimpleAuthUser(Guid Id, string AuthId, Guid? SpaceId, string Name, string? Email, bool OnboardingCompleted)
 {
     /// <summary>
-    /// Gets the user's role name in the active space.
+    /// Gets the user's role name in the space of the request.
     /// </summary>
     public string? SpaceRole { get; init; }
 
     /// <summary>
-    /// Gets the permissions the user's role grants in the active space.
+    /// Gets the permissions the user's role grants in the space of the request.
     /// </summary>
     public IReadOnlyCollection<string> SpacePermissions { get; init; } = [];
 }

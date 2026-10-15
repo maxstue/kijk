@@ -47,11 +47,12 @@ public class WelcomeUserHandler(
             dbContext.Users.Add(user);
         }
 
-        var activeSpace = user.UserSpaces
-            .SingleOrDefault(userSpace => userSpace.IsActive)
-            ?.Space;
+        // A retried onboarding reuses the space the first attempt created.
+        var firstSpace = user.UserSpaces
+            .Select(userSpace => userSpace.Space)
+            .FirstOrDefault(space => !space.IsPersonal);
 
-        if (activeSpace is null)
+        if (firstSpace is null)
         {
             // The user who creates a space becomes its administrator.
             var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Id == SpaceRoles.Admin.Id, cancellationToken);
@@ -61,8 +62,8 @@ public class WelcomeUserHandler(
                 return Error.Unexpected("Role was not found");
             }
 
-            activeSpace = Space.Create(request.SpaceName.Trim());
-            user.UserSpaces.Add(UserSpace.Create(user, activeSpace, adminRole, true));
+            firstSpace = Space.Create(request.SpaceName.Trim());
+            user.UserSpaces.Add(UserSpace.Create(user, firstSpace, adminRole));
             if (!user.UserSpaces.Any(link => link.Space.IsPersonal))
             {
                 // Every user also gets a personal space that is never shared.
@@ -75,7 +76,7 @@ public class WelcomeUserHandler(
             .ToListAsync(cancellationToken);
 
         var completedAt = timeProvider.GetUtcNow().UtcDateTime;
-        activeSpace.Rename(request.SpaceName.Trim());
+        firstSpace.Rename(request.SpaceName.Trim());
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 

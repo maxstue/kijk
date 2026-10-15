@@ -23,7 +23,7 @@ public sealed class TransactionsEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("transactions")
+        var group = builder.MapSpaceGroup("transactions")
             .WithTags("Transactions")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

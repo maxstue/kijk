@@ -1,7 +1,7 @@
 import type { LoadedClerk } from '@clerk/react/types';
 import { expect, test, vi } from 'vite-plus/test';
 
-import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/consumptions/_overview/route';
+import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/$spaceId/consumptions/_overview/route';
 import { Route as authPage } from '@/routes/auth';
 import { renderRoute } from '@/test/render-route';
 

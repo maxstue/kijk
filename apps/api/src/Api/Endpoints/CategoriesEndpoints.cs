@@ -20,7 +20,7 @@ public sealed class CategoriesEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("categories")
+        var group = builder.MapSpaceGroup("categories")
             .WithTags("Categories")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

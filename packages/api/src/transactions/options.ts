@@ -19,48 +19,48 @@ import type {
 } from './types';
 
 // Transactions feed the budget evaluations, and corrections change remembered rules and their suggestions.
-const invalidateFinances = (client: QueryClient) =>
-  invalidate(client, queryKeys.transactions.all, queryKeys.budgets.all, queryKeys.categoryRules.all);
+const invalidateFinances = (client: QueryClient, spaceId: string) =>
+  invalidate(client, queryKeys.transactions.all(spaceId), queryKeys.budgets.all(spaceId), queryKeys.categoryRules.all(spaceId));
 
 /** Query for a page of the transactions matching the filters. */
-export const transactionsQueryOptions = (query: TransactionPageQuery) =>
+export const transactionsQueryOptions = (spaceId: string, query: TransactionPageQuery) =>
   queryOptions({
     placeholderData: keepPreviousData,
-    queryFn: ({ signal }) => getTransactions(query, signal),
-    queryKey: queryKeys.transactions.list(query),
+    queryFn: ({ signal }) => getTransactions(spaceId, query, signal),
+    queryKey: queryKeys.transactions.list(spaceId, query),
   });
 
 /** Mutation that records a transaction. */
-export const createTransactionMutationOptions = () =>
+export const createTransactionMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CreateTransactionRequest) => createTransaction(data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client),
+    mutationFn: (data: CreateTransactionRequest) => createTransaction(spaceId, data),
+    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that updates a transaction. */
-export const updateTransactionMutationOptions = () =>
+export const updateTransactionMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: UpdateTransactionData) => updateTransaction(data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client),
+    mutationFn: (data: UpdateTransactionData) => updateTransaction(spaceId, data),
+    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that deletes a transaction. */
-export const deleteTransactionMutationOptions = () =>
+export const deleteTransactionMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (id: string) => deleteTransaction(id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client),
+    mutationFn: (id: string) => deleteTransaction(spaceId, id),
+    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that corrects the category of a transaction. */
-export const categorizeTransactionMutationOptions = () =>
+export const categorizeTransactionMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CategorizeTransactionData) => categorizeTransaction(data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client),
+    mutationFn: (data: CategorizeTransactionData) => categorizeTransaction(spaceId, data),
+    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that assigns one category to several transactions. */
-export const categorizeTransactionsMutationOptions = () =>
+export const categorizeTransactionsMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CategorizeTransactionsRequest) => categorizeTransactions(data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client),
+    mutationFn: (data: CategorizeTransactionsRequest) => categorizeTransactions(spaceId, data),
+    onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });

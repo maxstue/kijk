@@ -27,11 +27,15 @@ export const updateSpaceMutationOptions = () =>
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.users.me),
   });
 
-/** Mutation that deletes a space. */
+/** Mutation that deletes a space and drops all its cached data. */
 export const deleteSpaceMutationOptions = () =>
   mutationOptions({
     mutationFn: (id: string) => deleteSpace(id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.users.me),
+    onSuccess: async (_data, id, _result, { client }) => {
+      await client.cancelQueries({ queryKey: queryKeys.space(id) });
+      client.removeQueries({ queryKey: queryKeys.space(id) });
+      await invalidate(client, queryKeys.users.me);
+    },
   });
 
 /** Mutation that changes another member's role. */

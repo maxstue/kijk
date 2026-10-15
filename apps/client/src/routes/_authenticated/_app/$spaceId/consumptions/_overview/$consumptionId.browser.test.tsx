@@ -1,7 +1,7 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { expect, test, vi } from 'vite-plus/test';
 
-import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/consumptions/_overview/route';
+import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/$spaceId/consumptions/_overview/route';
 import { renderRoute } from '@/test/render-route';
 
 test('loads the canonical consumption URL and closes to the overview while preserving search', async () => {

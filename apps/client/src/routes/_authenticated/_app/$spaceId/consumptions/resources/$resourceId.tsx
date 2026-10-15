@@ -6,7 +6,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ResourceTypeUpdateForm } from '@/app/resources/update-form';
 
 /** `/consumptions/resources/$resourceId`: edit dialog of a resource. */
-export const Route = createFileRoute('/_authenticated/_app/consumptions/resources/$resourceId')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/resources/$resourceId')({
   component: ResourceEditDialog,
 });
 

@@ -16,7 +16,7 @@ import { useState } from 'react';
 import type { Months } from '@/shared/utils/months';
 import { formatMonth } from '@/shared/utils/months';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
+const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 type Props = React.HTMLAttributes<HTMLElement>;
 

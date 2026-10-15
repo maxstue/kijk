@@ -17,7 +17,6 @@ export interface UpdateUserData {
   aiEnabled?: boolean | null;
   analyticsConsent?: 'Accepted' | 'Declined' | null;
   sensitiveDataConsent?: boolean | null;
-  spaceName?: string | null;
   useDefaultResources?: boolean | null;
   useExternalProfile?: boolean | null;
   userName?: string | null;

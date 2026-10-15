@@ -1,10 +1,10 @@
 ﻿using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
+using Kijk.Application.Users.DefaultSpace;
 using Kijk.Application.Users.Delete;
 using Kijk.Application.Users.GetMe;
 using Kijk.Application.Users.Shared;
-using Kijk.Application.Users.SwitchSpace;
 using Kijk.Application.Users.Update;
 using Kijk.Application.Users.Welcome;
 using Kijk.Domain.Authorization;
@@ -33,14 +33,14 @@ public class UsersEndpoints : IEndpointGroup
 
         group.MapPut("", Update)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
-            .WithoutSpacePermission("Changes the current user's account; renaming the active space is checked in the handler (space:configure).")
+            .WithoutSpacePermission(CurrentUserOnly)
             .WithRequestValidation<UpdateUserRequest>()
             .WithSummary("Updates the current user");
 
-        group.MapPut("/active-space", SwitchSpace)
+        group.MapPut("/default-space", SetDefaultSpace)
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
-            .WithoutSpacePermission("Any member may switch to a space they belong to; the handler checks the membership.")
-            .WithSummary("Switches the active space of the current user");
+            .WithoutSpacePermission("Any member may open a space they belong to first; the handler checks the membership.")
+            .WithSummary("Sets or clears the space the app opens first");
 
         group.MapPost("/me/deletion", RequestDeletion)
             .WithoutSpacePermission("Deletes only the current user's own account and data.")
@@ -93,12 +93,12 @@ public class UsersEndpoints : IEndpointGroup
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
-    private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> SwitchSpace(
-        SwitchSpaceRequest request,
-        SwitchSpaceHandler handler,
+    private static async Task<Results<Ok<CurrentUserResponse>, ProblemHttpResult>> SetDefaultSpace(
+        SetDefaultSpaceRequest request,
+        SetDefaultSpaceHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.SwitchAsync(request, cancellationToken);
+        var result = await handler.SetAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

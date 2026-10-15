@@ -22,7 +22,7 @@ public sealed class BudgetsEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("budgets")
+        var group = builder.MapSpaceGroup("budgets")
             .WithTags("Budgets")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

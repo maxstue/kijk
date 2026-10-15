@@ -30,7 +30,7 @@ public sealed class ImportsEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("imports")
+        var group = builder.MapSpaceGroup("imports")
             .WithTags("Imports")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

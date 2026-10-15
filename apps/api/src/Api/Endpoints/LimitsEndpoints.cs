@@ -20,7 +20,7 @@ public sealed class LimitsEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("limits")
+        var group = builder.MapSpaceGroup("limits")
             .WithTags("Consumption Limits")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

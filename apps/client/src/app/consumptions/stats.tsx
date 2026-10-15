@@ -7,7 +7,7 @@ import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { Months } from '@/shared/utils/months';
 import { getMonthFromDate } from '@/shared/utils/months';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
+const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 function getComparisonLabel(selectedYear: number, selectedMonth: Months) {
   const now = new Date();

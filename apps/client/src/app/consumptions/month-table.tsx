@@ -13,7 +13,7 @@ import { ResourceUnit } from '@/shared/components/resources-unit';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 import type { Consumption, Resource } from '@/shared/types/domain';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
+const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 /** Sortable table of the consumptions of the selected year and month. */
 export function ConsumptionMonthTable() {

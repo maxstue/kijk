@@ -12,50 +12,50 @@ import type {
 } from './types';
 
 /** Loads a page of the transactions of the active space, newest first. */
-export async function getTransactions(query: TransactionPageQuery, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/transactions', { params: { query }, signal }));
+export async function getTransactions(spaceId: string, query: TransactionPageQuery, signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().GET('/api/spaces/{spaceId}/transactions', { params: { path: { spaceId },  query }, signal }));
 }
 
 /** Records a transaction manually. */
-export async function createTransaction(data: CreateTransactionRequest, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().POST('/api/transactions', { body: data, signal }));
+export async function createTransaction(spaceId: string, data: CreateTransactionRequest, signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().POST('/api/spaces/{spaceId}/transactions', { params: { path: { spaceId } }, body: data, signal }));
 }
 
 /** Updates a transaction. A changed category counts as set manually. */
-export async function updateTransaction(data: UpdateTransactionData, signal?: AbortSignal) {
+export async function updateTransaction(spaceId: string, data: UpdateTransactionData, signal?: AbortSignal) {
   return unwrapApiResponse(
-    await apiClient().PUT('/api/transactions/{id}', {
+    await apiClient().PUT('/api/spaces/{spaceId}/transactions/{id}', {
       body: data.transaction,
-      params: { path: { id: data.id } },
+      params: { path: { spaceId, id: data.id } },
       signal,
     }),
   );
 }
 
 /** Deletes a transaction. */
-export async function deleteTransaction(id: string, signal?: AbortSignal) {
-  await apiClient().DELETE('/api/transactions/{id}', { params: { path: { id } }, signal });
+export async function deleteTransaction(spaceId: string, id: string, signal?: AbortSignal) {
+  await apiClient().DELETE('/api/spaces/{spaceId}/transactions/{id}', { params: { path: { spaceId, id } }, signal });
 }
 
 /** Corrects the category, optionally remembering it for the merchant or counterparty. */
-export async function categorizeTransaction(data: CategorizeTransactionData) {
+export async function categorizeTransaction(spaceId: string, data: CategorizeTransactionData) {
   return unwrapApiResponse(
-    await apiClient().PUT('/api/transactions/{id}/category', {
+    await apiClient().PUT('/api/spaces/{spaceId}/transactions/{id}/category', {
       body: data.correction,
-      params: { path: { id: data.id } },
+      params: { path: { spaceId, id: data.id } },
     }),
   );
 }
 
 /** Assigns one category to several transactions; it counts as set by hand. */
-export async function categorizeTransactions(data: CategorizeTransactionsRequest) {
-  return unwrapApiResponse(await apiClient().PUT('/api/transactions/category', { body: data }));
+export async function categorizeTransactions(spaceId: string, data: CategorizeTransactionsRequest) {
+  return unwrapApiResponse(await apiClient().PUT('/api/spaces/{spaceId}/transactions/category', { params: { path: { spaceId } }, body: data }));
 }
 
 /** Exports the transactions matching the filters as CSV. */
-export async function exportTransactions(filters: TransactionFilters, signal?: AbortSignal): Promise<CsvDownload> {
-  const result = await apiClient().GET('/api/transactions/export', {
-    params: { query: filters },
+export async function exportTransactions(spaceId: string, filters: TransactionFilters, signal?: AbortSignal): Promise<CsvDownload> {
+  const result = await apiClient().GET('/api/spaces/{spaceId}/transactions/export', {
+    params: { path: { spaceId },  query: filters },
     parseAs: 'blob',
     signal,
   });

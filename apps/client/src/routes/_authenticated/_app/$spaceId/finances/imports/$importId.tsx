@@ -7,7 +7,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/finances/imports/$importId`: the steps of one import, from column mapping to review. */
-export const Route = createFileRoute('/_authenticated/_app/finances/imports/$importId')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/$importId')({
   loader: async ({ context: { queryClient }, params }) => {
     await Promise.all([
       queryClient.query({ ...importQueryOptions(params.importId), staleTime: 'static' }),

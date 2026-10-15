@@ -33,10 +33,10 @@ public class RuleSuggestionHttpTests
     [Test]
     public async Task RepeatedCorrectionsAreSuggestedAndRememberingCategorizesTheRest()
     {
-        var user = await SeedAsync();
+        var (user, spaceId) = await SeedAsync();
         await using var host = await SpaceApiHost.StartAsync(user.AuthId);
 
-        var suggestions = (await host.Client.GetFromJsonAsync<List<CategoryRuleSuggestionResponse>>("/api/category-rules/suggestions", Json))!;
+        var suggestions = (await host.Client.GetFromJsonAsync<List<CategoryRuleSuggestionResponse>>($"/api/spaces/{spaceId}/category-rules/suggestions", Json))!;
 
         // REWE twice by hand plus one open booking; the utility once by hand plus one open booking.
         await Assert.That(suggestions.Select(item => item.Label)).IsEquivalentTo(BeforeRemembering);
@@ -47,9 +47,9 @@ public class RuleSuggestionHttpTests
         await Assert.That(rewe.UncategorizedCount).IsEqualTo(1);
         await Assert.That(suggestions.Single(item => item.Label == "Stadtwerke").Scope).IsEqualTo(CategoryRuleScope.Counterparty);
 
-        using var remembered = await host.Client.PutAsJsonAsync($"/api/transactions/{rewe.TransactionId}/category", new CategorizeTransactionRequest(rewe.CategoryId, true), Json);
+        using var remembered = await host.Client.PutAsJsonAsync($"/api/spaces/{spaceId}/transactions/{rewe.TransactionId}/category", new CategorizeTransactionRequest(rewe.CategoryId, true), Json);
         var result = (await remembered.Content.ReadFromJsonAsync<CategorizeTransactionResponse>(Json))!;
-        var after = (await host.Client.GetFromJsonAsync<List<CategoryRuleSuggestionResponse>>("/api/category-rules/suggestions", Json))!;
+        var after = (await host.Client.GetFromJsonAsync<List<CategoryRuleSuggestionResponse>>($"/api/spaces/{spaceId}/category-rules/suggestions", Json))!;
 
         await Assert.That(result.AppliedToOthers).IsEqualTo(1);
         await Assert.That(after.Select(item => item.Label)).IsEquivalentTo(AfterRemembering);
@@ -58,14 +58,14 @@ public class RuleSuggestionHttpTests
         await Assert.That(open.CategoryId).IsEqualTo(GroceriesId);
     }
 
-    private static async Task<User> SeedAsync()
+    private static async Task<(User User, Guid SpaceId)> SeedAsync()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var space = Space.Create("Suggestions");
         var role = await dbContext.Roles.SingleAsync(item => item.Name == "Member");
         var user = User.Init("suggestion-auth", "suggestion", "suggestion@example.test");
         user.CompleteOnboarding("suggestion", AnalyticsConsent.Declined, DateTime.UtcNow);
-        user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, role));
         var account = Account.Create("Giro", "1234", space);
         var job = ImportJob.Create("export.csv", account, user, space);
         var categories = await dbContext.Categories.Where(item => item.CreatorType == CreatorType.System).ToDictionaryAsync(item => item.Id);
@@ -110,6 +110,6 @@ public class RuleSuggestionHttpTests
         var aldi = CategoryRuleKeys.For(null, "ALDI Süd", isMerchantPayment: true)!.Value;
         dbContext.Add(CategoryRule.CreateFromCorrection(aldi.Scope, aldi.Key, "ALDI Süd", categories[GroceriesId], space.Id));
         await dbContext.SaveChangesAsync();
-        return user;
+        return (user, space.Id);
     }
 }

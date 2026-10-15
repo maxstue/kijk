@@ -27,21 +27,21 @@ function row(id: string, bookingDate = '2026-10-15'): ImportCandidate {
 
 test('excluding a row on page two updates totals on every matching page without refetching them', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  const firstKey = importCandidatesQueryOptions('import', { months: '2026-10-01', page: 1 }).queryKey;
-  const secondKey = importCandidatesQueryOptions('import', { months: '2026-10-01', page: 2 }).queryKey;
-  const otherMonthKey = importCandidatesQueryOptions('import', { months: '2026-09-01' }).queryKey;
+  const firstKey = importCandidatesQueryOptions('space', 'import', { months: '2026-10-01', page: 1 }).queryKey;
+  const secondKey = importCandidatesQueryOptions('space', 'import', { months: '2026-10-01', page: 2 }).queryKey;
+  const otherMonthKey = importCandidatesQueryOptions('space', 'import', { months: '2026-09-01' }).queryKey;
   const first = row('first');
   const second = row('second');
   const updated = { ...second, excluded: true };
   client.setQueryData(firstKey, cachedPage([first]));
   client.setQueryData(secondKey, { ...cachedPage([second]), page: 2 });
   client.setQueryData(otherMonthKey, cachedPage([row('september', '2026-09-15')], 1));
-  client.setQueryData(queryKeys.imports.aiPreview('import'), { items: [] });
+  client.setQueryData(queryKeys.imports.aiPreview('space', 'import'), { items: [] });
   vi.mocked(updateImportCandidate).mockResolvedValue(updated);
 
   await client
     .getMutationCache()
-    .build(client, updateImportCandidateMutationOptions())
+    .build(client, updateImportCandidateMutationOptions('space'))
     .execute({
       importId: 'import',
       candidateId: 'second',
@@ -53,20 +53,20 @@ test('excluding a row on page two updates totals on every matching page without 
   expect(client.getQueryData(otherMonthKey)).toMatchObject({ includedCount: 1 });
   expect(client.getQueryState(firstKey)?.isInvalidated).toBe(false);
   expect(client.getQueryState(secondKey)?.isInvalidated).toBe(false);
-  expect(client.getQueryState(queryKeys.imports.aiPreview('import'))?.isInvalidated).toBe(true);
+  expect(client.getQueryState(queryKeys.imports.aiPreview('space', 'import'))?.isInvalidated).toBe(true);
   client.clear();
 });
 
 test('excluding a card statement refreshes card pages to fill the resulting gap', async () => {
   const client = new QueryClient();
   const candidate = { ...row('card'), isCardSettlement: true };
-  const key = importCandidatesQueryOptions('import', { months: '2026-10-01', cardSettlementsOnly: true }).queryKey;
+  const key = importCandidatesQueryOptions('space', 'import', { months: '2026-10-01', cardSettlementsOnly: true }).queryKey;
   client.setQueryData(key, { ...cachedPage([candidate], 1), cardSettlementCount: 1 });
   vi.mocked(updateImportCandidate).mockResolvedValue({ ...candidate, excluded: true });
 
   await client
     .getMutationCache()
-    .build(client, updateImportCandidateMutationOptions())
+    .build(client, updateImportCandidateMutationOptions('space'))
     .execute({
       importId: 'import',
       candidateId: 'card',

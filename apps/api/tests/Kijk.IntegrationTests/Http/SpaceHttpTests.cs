@@ -12,7 +12,7 @@ using Kijk.Application.Shared.Identity;
 using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Create;
 using Kijk.Application.Transactions.Shared;
-using Kijk.Application.Users.SwitchSpace;
+using Kijk.Application.Users.DefaultSpace;
 using Kijk.Application.Users.Welcome;
 using Kijk.Domain.Catalogs;
 using Kijk.Domain.Entities;
@@ -39,7 +39,7 @@ public class SpaceHttpTests
     public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
 
     [Test]
-    public async Task OnboardingCreatesAPersonalSpaceThatCanBeSwitchedToButNotDeleted()
+    public async Task OnboardingCreatesAPersonalSpaceThatCanBeTheDefaultButNotDeleted()
     {
         await using var host = await SpaceApiHost.StartAsync(
             "newcomer-auth",
@@ -55,56 +55,89 @@ public class SpaceHttpTests
                 .Where(link => link.User.AuthId == "newcomer-auth").ToListAsync();
             await Assert.That(memberships.Count).IsEqualTo(2);
             var personal = memberships.Single(link => link.Space.IsPersonal);
-            await Assert.That(personal.IsActive).IsFalse();
+            await Assert.That(memberships.Any(link => link.IsDefault)).IsFalse();
             await Assert.That(personal.Space.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);
             await Assert.That(memberships.Single(link => !link.Space.IsPersonal).Space.Name).IsEqualTo("Family");
             personalId = personal.SpaceId;
         }
 
-        using var switched = await host.Client.PutAsJsonAsync("/api/users/active-space", new SwitchSpaceRequest(personalId), Json);
-        using var foreign = await host.Client.PutAsJsonAsync("/api/users/active-space", new SwitchSpaceRequest(Guid.NewGuid()), Json);
+        using var chosen = await host.Client.PutAsJsonAsync("/api/users/default-space", new SetDefaultSpaceRequest(personalId), Json);
+        var me = (await chosen.Content.ReadFromJsonAsync<JsonElement>(Json)).GetProperty("user").GetProperty("spaces");
+        using var foreign = await host.Client.PutAsJsonAsync("/api/users/default-space", new SetDefaultSpaceRequest(Guid.NewGuid()), Json);
         using var deleted = await host.Client.DeleteAsync($"/api/spaces/{personalId}");
 
-        await Assert.That(switched.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(chosen.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        var defaults = me.EnumerateArray().Where(space => space.GetProperty("isDefault").GetBoolean()).Select(space => space.GetProperty("id").GetGuid());
+        await Assert.That(defaults).IsEquivalentTo(new[] { personalId });
         await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
         await Assert.That(deleted.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+
+        // Clearing the default leaves the choice to the client, which opens the last used space.
+        using var cleared = await host.Client.PutAsJsonAsync("/api/users/default-space", new SetDefaultSpaceRequest(null), Json);
+        await Assert.That(cleared.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
-        var active = await verification.UserSpaces.SingleAsync(link => link.User.AuthId == "newcomer-auth" && link.IsActive);
-        await Assert.That(active.SpaceId).IsEqualTo(personalId);
+        await Assert.That(await verification.UserSpaces.AnyAsync(link => link.User.AuthId == "newcomer-auth" && link.IsDefault)).IsFalse();
+    }
+
+    [Test]
+    public async Task SpaceRequestsWorkOnTheSpaceOfTheRoute()
+    {
+        var (admin, _, spaceId) = await CreateSharedSpaceAsync();
+        Guid personalId;
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var user = await dbContext.Users.SingleAsync(item => item.Id == admin.Id);
+            var personal = Space.CreatePersonal();
+            var adminRole = await dbContext.Roles.SingleAsync(item => item.Name == "Admin");
+            dbContext.UserSpaces.Add(UserSpace.Create(user, personal, adminRole));
+            await dbContext.SaveChangesAsync();
+            personalId = personal.Id;
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(admin.AuthId);
+        using var created = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/accounts", new CreateAccountRequest("Joint", null), Json);
+        var shared = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!;
+        var personalAccounts = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{personalId}/accounts", Json))!;
+        using var foreign = await host.Client.GetAsync($"/api/spaces/{Guid.NewGuid()}/accounts");
+
+        await Assert.That(created.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(shared.Select(item => item.Name)).Contains("Joint");
+        await Assert.That(personalAccounts.Select(item => item.Name)).DoesNotContain("Joint");
+        await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
     [Test]
     public async Task PrivateAccountsAndTheirTransactionsAreOnlyVisibleToTheirOwner()
     {
-        var (admin, member) = await CreateSharedSpaceAsync();
+        var (admin, member, spaceId) = await CreateSharedSpaceAsync();
         await using var host = await SpaceApiHost.StartAsync(member.AuthId);
         using var adminClient = host.CreateClient(admin.AuthId);
 
         // A member may keep a private account without finances:configure, but cannot add a shared one.
-        using var shared = await host.Client.PostAsJsonAsync("/api/accounts", new CreateAccountRequest("Joint", null), Json);
-        using var created = await host.Client.PostAsJsonAsync("/api/accounts", new CreateAccountRequest("Mine", "1234", Visibility.Private), Json);
+        using var shared = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/accounts", new CreateAccountRequest("Joint", null), Json);
+        using var created = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/accounts", new CreateAccountRequest("Mine", "1234", Visibility.Private), Json);
         await Assert.That(shared.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
         await Assert.That(created.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var account = (await created.Content.ReadFromJsonAsync<AccountResponse>(Json))!;
         await Assert.That(account.Visibility).IsEqualTo(Visibility.Private);
 
-        using var recorded = await host.Client.PostAsJsonAsync("/api/transactions",
+        using var recorded = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/transactions",
             new CreateTransactionRequest(new DateOnly(2026, 10, 3), -20m, "Secret shop", null, TransactionStatus.Booked, false, account.Id, GroceriesId), Json);
         var transaction = (await recorded.Content.ReadFromJsonAsync<TransactionResponse>(Json))!;
 
-        var ownAccounts = (await host.Client.GetFromJsonAsync<List<AccountResponse>>("/api/accounts", Json))!;
-        var ownTransactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2026&month=10", Json))!.Items;
-        var ownOverview = (await host.Client.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json))!;
+        var ownAccounts = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!;
+        var ownTransactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{spaceId}/transactions?year=2026&month=10", Json))!.Items;
+        var ownOverview = (await host.Client.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{spaceId}/budgets/overview?year=2026&month=10", Json))!;
         await Assert.That(ownAccounts.Select(item => item.Name)).Contains("Mine");
         await Assert.That(ownTransactions.Single().Id).IsEqualTo(transaction.Id);
         await Assert.That(ownOverview.TotalSpent).IsEqualTo(20m);
 
-        var accounts = (await adminClient.GetFromJsonAsync<List<AccountResponse>>("/api/accounts", Json))!;
-        var transactions = (await adminClient.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2026&month=10", Json))!.Items;
-        var overview = (await adminClient.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json))!;
-        var export = await adminClient.GetStringAsync("/api/transactions/export");
-        using var single = await adminClient.GetAsync($"/api/transactions/{transaction.Id}");
-        using var deleteAccount = await adminClient.DeleteAsync($"/api/accounts/{account.Id}");
+        var accounts = (await adminClient.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!;
+        var transactions = (await adminClient.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{spaceId}/transactions?year=2026&month=10", Json))!.Items;
+        var overview = (await adminClient.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{spaceId}/budgets/overview?year=2026&month=10", Json))!;
+        var export = await adminClient.GetStringAsync($"/api/spaces/{spaceId}/transactions/export");
+        using var single = await adminClient.GetAsync($"/api/spaces/{spaceId}/transactions/{transaction.Id}");
+        using var deleteAccount = await adminClient.DeleteAsync($"/api/spaces/{spaceId}/accounts/{account.Id}");
 
         await Assert.That(accounts.Select(item => item.Name)).DoesNotContain("Mine");
         await Assert.That(transactions).IsEmpty();
@@ -117,21 +150,21 @@ public class SpaceHttpTests
     [Test]
     public async Task PrivateBudgetsReplaceTheSharedBudgetForTheirOwnerOnly()
     {
-        var (admin, member) = await CreateSharedSpaceAsync();
+        var (admin, member, spaceId) = await CreateSharedSpaceAsync();
         await using var host = await SpaceApiHost.StartAsync(member.AuthId);
         using var adminClient = host.CreateClient(admin.AuthId);
 
-        using var sharedBudget = await adminClient.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(GroceriesId, 300m, October, true), Json);
-        using var memberShared = await host.Client.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(GroceriesId, 50m, October, true), Json);
-        using var privateBudget = await host.Client.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(GroceriesId, 100m, October, true, Visibility.Private), Json);
+        using var sharedBudget = await adminClient.PostAsJsonAsync($"/api/spaces/{spaceId}/budgets", new CreateBudgetRequest(GroceriesId, 300m, October, true), Json);
+        using var memberShared = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/budgets", new CreateBudgetRequest(GroceriesId, 50m, October, true), Json);
+        using var privateBudget = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/budgets", new CreateBudgetRequest(GroceriesId, 100m, October, true, Visibility.Private), Json);
         await Assert.That(sharedBudget.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(memberShared.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
         await Assert.That(privateBudget.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var created = (await privateBudget.Content.ReadFromJsonAsync<BudgetResponse>(Json))!;
 
-        var memberOverview = (await host.Client.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json))!;
-        var adminOverview = (await adminClient.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json))!;
-        using var foreignUpdate = await adminClient.PutAsJsonAsync($"/api/budgets/{created.Id}", new UpdateBudgetRequest(1m, true), Json);
+        var memberOverview = (await host.Client.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{spaceId}/budgets/overview?year=2026&month=10", Json))!;
+        var adminOverview = (await adminClient.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{spaceId}/budgets/overview?year=2026&month=10", Json))!;
+        using var foreignUpdate = await adminClient.PutAsJsonAsync($"/api/spaces/{spaceId}/budgets/{created.Id}", new UpdateBudgetRequest(1m, true), Json);
 
         var memberGroceries = memberOverview.Categories.Single(item => item.CategoryId == GroceriesId);
         var adminGroceries = adminOverview.Categories.Single(item => item.CategoryId == GroceriesId);
@@ -145,7 +178,7 @@ public class SpaceHttpTests
     [Test]
     public async Task RulesRememberedFromPrivateAccountsStayPrivate()
     {
-        var (admin, member) = await CreateSharedSpaceAsync();
+        var (admin, member, spaceId) = await CreateSharedSpaceAsync();
         Guid privateBooking;
         Guid sharedBooking;
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
@@ -174,10 +207,10 @@ public class SpaceHttpTests
         await using var host = await SpaceApiHost.StartAsync(member.AuthId);
         using var adminClient = host.CreateClient(admin.AuthId);
 
-        using var remembered = await host.Client.PutAsJsonAsync($"/api/transactions/{privateBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
+        using var remembered = await host.Client.PutAsJsonAsync($"/api/spaces/{spaceId}/transactions/{privateBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
         var result = (await remembered.Content.ReadFromJsonAsync<CategorizeTransactionResponse>(Json))!;
-        var ownRules = (await host.Client.GetFromJsonAsync<List<CategoryRuleResponse>>("/api/category-rules", Json))!;
-        var adminRules = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>("/api/category-rules", Json))!;
+        var ownRules = (await host.Client.GetFromJsonAsync<List<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!;
+        var adminRules = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!;
 
         await Assert.That(result.AppliedToOthers).IsEqualTo(0);
         await Assert.That(ownRules.Single().Visibility).IsEqualTo(Visibility.Private);
@@ -186,12 +219,12 @@ public class SpaceHttpTests
         await Assert.That((await verification.Transactions.SingleAsync(item => item.Id == sharedBooking)).CategoryId).IsNull();
 
         // Remembering from the shared account creates a shared rule next to the private one.
-        using var shared = await host.Client.PutAsJsonAsync($"/api/transactions/{sharedBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
-        var adminRulesAfter = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>("/api/category-rules", Json))!;
+        using var shared = await host.Client.PutAsJsonAsync($"/api/spaces/{spaceId}/transactions/{sharedBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
+        var adminRulesAfter = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!;
         await Assert.That(adminRulesAfter.Single().Visibility).IsEqualTo(Visibility.Shared);
     }
 
-    private static async Task<(User Admin, User Member)> CreateSharedSpaceAsync()
+    private static async Task<(User Admin, User Member, Guid SpaceId)> CreateSharedSpaceAsync()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var space = Space.Create("Shared space");
@@ -199,11 +232,11 @@ public class SpaceHttpTests
         var memberRole = await dbContext.Roles.SingleAsync(item => item.Name == "Member");
         var admin = CreateUser("space-admin");
         var member = CreateUser("space-member");
-        admin.UserSpaces.Add(UserSpace.Create(admin, space, adminRole, isActive: true));
-        member.UserSpaces.Add(UserSpace.Create(member, space, memberRole, isActive: true));
+        admin.UserSpaces.Add(UserSpace.Create(admin, space, adminRole));
+        member.UserSpaces.Add(UserSpace.Create(member, space, memberRole));
         dbContext.AddRange(admin, member);
         await dbContext.SaveChangesAsync();
-        return (admin, member);
+        return (admin, member, space.Id);
     }
 
     private static User CreateUser(string name)

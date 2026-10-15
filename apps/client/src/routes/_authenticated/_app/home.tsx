@@ -1,35 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Suspense } from 'react';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
+import { isReadyCurrentUser } from '@kijk/api/users/types';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-import { HomeChartArea } from '@/app/home/home-chart-area';
-import { HomeSectionCards } from '@/app/home/home-section-cards';
-import { HomeTable } from '@/app/home/home-table';
-import { AppError } from '@/shared/components/errors/app-error';
-import { Loader } from '@/shared/components/ui/loaders/loader';
+import { getStartSpace } from '@/shared/lib/spaces';
 
-/** `/home`: dashboard. */
+/** `/home`: opens the default space, otherwise the space used last on this device. */
 export const Route = createFileRoute('/_authenticated/_app/home')({
-  head: () => ({ meta: [{ title: 'Home' }] }),
-  component: HomeIndexPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  beforeLoad: async ({ context: { queryClient } }) => {
+    const currentUser = await queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' });
+    const space = isReadyCurrentUser(currentUser) ? getStartSpace(currentUser.user) : undefined;
+    throw space
+      ? redirect({ params: { spaceId: space.id }, replace: true, to: '/$spaceId' })
+      : redirect({ replace: true, to: '/welcome' });
+  },
 });
-
-function HomeIndexPage() {
-  return (
-    <>
-      <div className='@container/main flex flex-1 flex-col gap-2'>
-        <div className='flex flex-col gap-4'>
-          <HomeSectionCards />
-          <div>
-            <Suspense fallback={<Loader className='h-6 w-6' />}>
-              <HomeChartArea />
-            </Suspense>
-          </div>
-          <Suspense fallback={<Loader className='h-6 w-6' />}>
-            <HomeTable />
-          </Suspense>
-        </div>
-      </div>
-    </>
-  );
-}

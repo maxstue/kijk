@@ -1,6 +1,6 @@
+using Kijk.Application.Users.DefaultSpace;
 using Kijk.Application.Users.Delete;
 using Kijk.Application.Users.GetMe;
-using Kijk.Application.Users.SwitchSpace;
 using Kijk.Application.Users.Update;
 using Kijk.Application.Users.Welcome;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,8 +15,8 @@ public sealed class ModuleService : IModule
     {
         services.AddScoped<AccountEraser>();
         services.AddScoped<RequestAccountDeletionHandler>();
+        services.AddScoped<SetDefaultSpaceHandler>();
         services.AddScoped<GetMeUserHandler>();
-        services.AddScoped<SwitchSpaceHandler>();
         services.AddScoped<UpdateUserHandler>();
         services.AddScoped<WelcomeUserHandler>();
 

@@ -44,7 +44,7 @@ public class FinancePermissionHttpTests
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
-        foreach (var path in new[] { "/api/categories", "/api/accounts", "/api/budgets", "/api/budgets/overview?year=2026&month=10", "/api/transactions?year=2026&month=10", $"/api/transactions/{fixture.Transaction.Id}" })
+        foreach (var path in new[] { $"/api/spaces/{fixture.Account.SpaceId}/categories", $"/api/spaces/{fixture.Account.SpaceId}/accounts", $"/api/spaces/{fixture.Account.SpaceId}/budgets", $"/api/spaces/{fixture.Account.SpaceId}/budgets/overview?year=2026&month=10", $"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2026&month=10", $"/api/spaces/{fixture.Account.SpaceId}/transactions/{fixture.Transaction.Id}" })
         {
             using var response = await host.Client.GetAsync(path);
             if (response.StatusCode != HttpStatusCode.OK)
@@ -63,7 +63,7 @@ public class FinancePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PostAsJsonAsync("/api/transactions",
+        using var response = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions",
             new CreateTransactionRequest(new DateOnly(2026, 10, 2), -9.99m, "Bakery", null, TransactionStatus.Booked, false, fixture.Account.Id, GroceriesId));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
@@ -79,7 +79,7 @@ public class FinancePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 11, 15), true));
+        using var response = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new CreateBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 11, 15), true));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
     }
@@ -92,8 +92,8 @@ public class FinancePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var category = await host.Client.PostAsJsonAsync("/api/categories", new CreateCategoryRequest("Gifts", "gift", "#aa7744", CategoryKind.Expense));
-        using var account = await host.Client.PostAsJsonAsync("/api/accounts", new CreateAccountRequest("Savings", "9876"));
+        using var category = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/categories", new CreateCategoryRequest("Gifts", "gift", "#aa7744", CategoryKind.Expense));
+        using var account = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/accounts", new CreateAccountRequest("Savings", "9876"));
 
         await Assert.That(category.StatusCode).IsEqualTo(expected);
         await Assert.That(account.StatusCode).IsEqualTo(expected);
@@ -104,7 +104,7 @@ public class FinancePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.DeleteAsync($"/api/categories/{GroceriesId}");
+        using var response = await host.Client.DeleteAsync($"/api/spaces/{fixture.Account.SpaceId}/categories/{GroceriesId}");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
     }
@@ -114,7 +114,7 @@ public class FinancePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PostAsJsonAsync("/api/budgets", new CreateBudgetRequest(IncomeId, 100m, new DateOnly(2026, 10, 1), true));
+        using var response = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new CreateBudgetRequest(IncomeId, 100m, new DateOnly(2026, 10, 1), true));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
@@ -125,7 +125,7 @@ public class FinancePermissionHttpTests
         var fixture = await CreateFixtureAsync("Viewer");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
-        var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json);
+        var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{fixture.Account.SpaceId}/budgets/overview?year=2026&month=10", Json);
 
         var groceries = overview!.Categories.Single(item => item.CategoryId == GroceriesId);
         await Assert.That(groceries.Budget).IsEqualTo(300m);
@@ -140,7 +140,7 @@ public class FinancePermissionHttpTests
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         var leisureId = SystemCategories.All.Single(category => category.Name == "Leisure").Id;
 
-        using var response = await host.Client.PutAsJsonAsync($"/api/transactions/{fixture.Transaction.Id}",
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/{fixture.Transaction.Id}",
             new UpdateTransactionRequest(new DateOnly(2026, 10, 5), -42.5m, "Supermarket", null, TransactionStatus.Booked, false, fixture.Account.Id, leisureId));
         var updated = await response.Content.ReadFromJsonAsync<TransactionResponse>(Json);
 
@@ -162,10 +162,10 @@ public class FinancePermissionHttpTests
         }
 
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        var first = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=1&pageSize=2", Json))!;
-        var second = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=1&page=2&pageSize=2", Json))!;
+        var first = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=1&pageSize=2", Json))!;
+        var second = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=1&page=2&pageSize=2", Json))!;
         // A page past the end, e.g. after categorizing the last page empty, returns the last page.
-        var pastEnd = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=1&page=9&pageSize=2", Json))!;
+        var pastEnd = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=1&page=9&pageSize=2", Json))!;
 
         await Assert.That(first.TotalCount).IsEqualTo(3);
         // The totals cover all pages: -1 -2 -3.
@@ -196,9 +196,9 @@ public class FinancePermissionHttpTests
         }
 
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        var filtered = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/transactions?year=2025&month=2&categoryIds={GroceriesId}", Json))!;
-        var all = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?year=2025&month=2", Json))!;
-        var export = await host.Client.GetStringAsync($"/api/transactions/export?year=2025&month=2&categoryIds={GroceriesId}");
+        var filtered = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=2&categoryIds={GroceriesId}", Json))!;
+        var all = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=2", Json))!;
+        var export = await host.Client.GetStringAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/export?year=2025&month=2&categoryIds={GroceriesId}");
 
         await Assert.That(filtered.TotalCount).IsEqualTo(1);
         await Assert.That(filtered.Items.Single().Counterparty).IsEqualTo("Bakery");
@@ -223,18 +223,18 @@ public class FinancePermissionHttpTests
 
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
         // Without a period the list holds uncategorized transactions of all months.
-        var open = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?uncategorized=true", Json))!.Items;
+        var open = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?uncategorized=true", Json))!.Items;
         await Assert.That(open.Count).IsEqualTo(2);
 
-        using var assigned = await host.Client.PutAsJsonAsync("/api/transactions/category", new CategorizeTransactionsRequest([.. open.Select(item => item.Id)], GroceriesId), Json);
+        using var assigned = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/category", new CategorizeTransactionsRequest([.. open.Select(item => item.Id)], GroceriesId), Json);
         var result = await assigned.Content.ReadFromJsonAsync<CategorizeTransactionsResponse>(Json);
         await Assert.That(result!.Updated).IsEqualTo(2);
-        var remaining = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions?uncategorized=true", Json))!.Items;
+        var remaining = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?uncategorized=true", Json))!.Items;
         await Assert.That(remaining).IsEmpty();
 
-        var outsider = await CreateOutsiderAsync();
+        var (outsider, outsiderSpaceId) = await CreateOutsiderAsync();
         await using var outsiderHost = await SpaceApiHost.StartAsync(outsider.AuthId);
-        using var foreign = await outsiderHost.Client.PutAsJsonAsync("/api/transactions/category", new CategorizeTransactionsRequest([fixture.Transaction.Id], null), Json);
+        using var foreign = await outsiderHost.Client.PutAsJsonAsync($"/api/spaces/{outsiderSpaceId}/transactions/category", new CategorizeTransactionsRequest([fixture.Transaction.Id], null), Json);
         await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
@@ -247,7 +247,7 @@ public class FinancePermissionHttpTests
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
-        using var response = await host.Client.GetAsync("/api/transactions/export?year=2026&month=10");
+        using var response = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/export?year=2026&month=10");
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
     }
@@ -267,7 +267,7 @@ public class FinancePermissionHttpTests
         }
 
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.GetAsync("/api/transactions/export?year=2026&month=10");
+        using var response = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/export?year=2026&month=10");
         var bytes = await response.Content.ReadAsByteArrayAsync();
         var csv = System.Text.Encoding.UTF8.GetString(bytes);
 
@@ -285,8 +285,8 @@ public class FinancePermissionHttpTests
         var fixture = await CreateFixtureAsync("Viewer");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
-        var statistics = (await host.Client.GetFromJsonAsync<BudgetStatisticsResponse>("/api/budgets/statistics?year=2026&month=11&months=4", Json))!;
-        using var invalid = await host.Client.GetAsync("/api/budgets/statistics?year=2026&month=11&months=25");
+        var statistics = (await host.Client.GetFromJsonAsync<BudgetStatisticsResponse>($"/api/spaces/{fixture.Account.SpaceId}/budgets/statistics?year=2026&month=11&months=4", Json))!;
+        using var invalid = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets/statistics?year=2026&month=11&months=25");
 
         await Assert.That(statistics.Months).IsEquivalentTo(new[] { new DateOnly(2026, 8, 1), new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1), new DateOnly(2026, 11, 1) });
         var groceries = statistics.Categories.Single(item => item.CategoryId == GroceriesId);
@@ -301,19 +301,21 @@ public class FinancePermissionHttpTests
     public async Task SpacesCannotSeeOrUseEachOthersFinanceData()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        var outsider = await CreateOutsiderAsync();
+        var (outsider, outsiderSpaceId) = await CreateOutsiderAsync();
         await using var host = await SpaceApiHost.StartAsync(outsider.AuthId);
 
-        using var transaction = await host.Client.GetAsync($"/api/transactions/{fixture.Transaction.Id}");
-        var transactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>("/api/transactions", Json))!.Items;
-        var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>("/api/budgets/overview?year=2026&month=10", Json);
-        var budgets = await host.Client.GetFromJsonAsync<List<BudgetResponse>>("/api/budgets", Json);
-        using var foreignAccount = await host.Client.PostAsJsonAsync("/api/transactions",
+        using var transaction = await host.Client.GetAsync($"/api/spaces/{outsiderSpaceId}/transactions/{fixture.Transaction.Id}");
+        var transactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{outsiderSpaceId}/transactions", Json))!.Items;
+        var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{outsiderSpaceId}/budgets/overview?year=2026&month=10", Json);
+        var budgets = await host.Client.GetFromJsonAsync<List<BudgetResponse>>($"/api/spaces/{outsiderSpaceId}/budgets", Json);
+        using var foreignAccount = await host.Client.PostAsJsonAsync($"/api/spaces/{outsiderSpaceId}/transactions",
             new CreateTransactionRequest(new DateOnly(2026, 10, 2), -1m, null, null, TransactionStatus.Booked, false, fixture.Account.Id, null));
-        using var foreignCategory = await host.Client.PostAsJsonAsync("/api/transactions",
+        using var foreignCategory = await host.Client.PostAsJsonAsync($"/api/spaces/{outsiderSpaceId}/transactions",
             new CreateTransactionRequest(new DateOnly(2026, 10, 2), -1m, null, null, TransactionStatus.Booked, false, null, fixture.CustomCategory.Id));
-        using var foreignBudget = await host.Client.DeleteAsync($"/api/budgets/{fixture.Budget.Id}");
+        using var foreignBudget = await host.Client.DeleteAsync($"/api/spaces/{outsiderSpaceId}/budgets/{fixture.Budget.Id}");
+        using var foreignSpace = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions");
 
+        await Assert.That(foreignSpace.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
         await Assert.That(transaction.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
         await Assert.That(transactions).IsEmpty();
         await Assert.That(overview!.TotalSpent).IsEqualTo(0m);
@@ -329,7 +331,7 @@ public class FinancePermissionHttpTests
         var space = Space.Create("Shared space");
         var role = await dbContext.Roles.SingleAsync(item => item.Name == roleName);
         var user = CreateUser("actor");
-        user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, role));
         var groceries = await dbContext.Categories.SingleAsync(item => item.Id == GroceriesId);
         var customCategory = Category.Create("Pets", "paw-print", "#aa7744", CategoryKind.Expense, space);
         var account = Account.Create("Checking", "1234", space);
@@ -343,16 +345,16 @@ public class FinancePermissionHttpTests
         return new(user, account, customCategory, budget, transaction);
     }
 
-    private static async Task<User> CreateOutsiderAsync()
+    private static async Task<(User User, Guid SpaceId)> CreateOutsiderAsync()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var space = Space.Create("Other space");
         var admin = await dbContext.Roles.SingleAsync(item => item.Id == SpaceRoles.Admin.Id);
         var user = CreateUser("outsider");
-        user.UserSpaces.Add(UserSpace.Create(user, space, admin, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, admin));
         dbContext.Add(user);
         await dbContext.SaveChangesAsync();
-        return user;
+        return (user, space.Id);
     }
 
     private static User CreateUser(string name)

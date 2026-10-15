@@ -4,24 +4,24 @@ import { unwrapApiResponse } from '@kijk/api/http';
 import type { ResourceData, UpdateResourceData } from './types';
 
 /** Loads the resources of the active space. */
-export async function getResources(signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/resources', { signal }));
+export async function getResources(spaceId: string, signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().GET('/api/spaces/{spaceId}/resources', { params: { path: { spaceId } }, signal }));
 }
 
 /** Loads a single resource. */
-export async function getResource(id: string, signal?: AbortSignal) {
+export async function getResource(spaceId: string, id: string, signal?: AbortSignal) {
   return unwrapApiResponse(
-    await apiClient().GET('/api/resources/{id}', {
-      params: { path: { id } },
+    await apiClient().GET('/api/spaces/{spaceId}/resources/{id}', {
+      params: { path: { spaceId, id } },
       signal,
     }),
   );
 }
 
 /** Creates a custom resource. */
-export async function createResource(data: ResourceData, signal?: AbortSignal) {
+export async function createResource(spaceId: string, data: ResourceData, signal?: AbortSignal) {
   return unwrapApiResponse(
-    await apiClient().POST('/api/resources', {
+    await apiClient().POST('/api/spaces/{spaceId}/resources', { params: { path: { spaceId } },
       body: data,
       signal,
     }),
@@ -29,12 +29,12 @@ export async function createResource(data: ResourceData, signal?: AbortSignal) {
 }
 
 /** Updates a custom resource. */
-export async function updateResource(data: UpdateResourceData, signal?: AbortSignal) {
+export async function updateResource(spaceId: string, data: UpdateResourceData, signal?: AbortSignal) {
   return unwrapApiResponse(
-    await apiClient().PUT('/api/resources/{id}', {
+    await apiClient().PUT('/api/spaces/{spaceId}/resources/{id}', {
       body: data.resource,
       params: {
-        path: { id: data.id },
+        path: { spaceId, id: data.id },
       },
       signal,
     }),
@@ -42,10 +42,10 @@ export async function updateResource(data: UpdateResourceData, signal?: AbortSig
 }
 
 /** Deletes an unused custom resource. */
-export async function deleteResource(id: string, signal?: AbortSignal) {
-  await apiClient().DELETE('/api/resources/{id}', {
+export async function deleteResource(spaceId: string, id: string, signal?: AbortSignal) {
+  await apiClient().DELETE('/api/spaces/{spaceId}/resources/{id}', {
     params: {
-      path: { id },
+      path: { spaceId, id },
     },
     signal,
   });

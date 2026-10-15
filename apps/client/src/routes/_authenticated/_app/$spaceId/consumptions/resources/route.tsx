@@ -6,7 +6,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/consumptions/resources`: resources of the active space. */
-export const Route = createFileRoute('/_authenticated/_app/consumptions/resources')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/resources')({
   loader: ({ context: { queryClient } }) => queryClient.query({ ...resourcesQueryOptions(), staleTime: 'static' }),
   component: ResourcesPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,

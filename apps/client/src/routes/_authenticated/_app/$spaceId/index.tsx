@@ -1,0 +1,35 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { Suspense } from 'react';
+
+import { HomeChartArea } from '@/app/home/home-chart-area';
+import { HomeSectionCards } from '@/app/home/home-section-cards';
+import { HomeTable } from '@/app/home/home-table';
+import { AppError } from '@/shared/components/errors/app-error';
+import { Loader } from '@/shared/components/ui/loaders/loader';
+
+/** `/$spaceId`: dashboard of the space. */
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/')({
+  head: () => ({ meta: [{ title: 'Home' }] }),
+  component: HomeIndexPage,
+  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+});
+
+function HomeIndexPage() {
+  return (
+    <>
+      <div className='@container/main flex flex-1 flex-col gap-2'>
+        <div className='flex flex-col gap-4'>
+          <HomeSectionCards />
+          <div>
+            <Suspense fallback={<Loader className='h-6 w-6' />}>
+              <HomeChartArea />
+            </Suspense>
+          </div>
+          <Suspense fallback={<Loader className='h-6 w-6' />}>
+            <HomeTable />
+          </Suspense>
+        </div>
+      </div>
+    </>
+  );
+}

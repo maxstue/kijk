@@ -42,32 +42,20 @@ public sealed class DeleteSpaceHandler(IAppDbContext dbContext, CurrentUser curr
             return Error.Authorization("Your space role does not allow deleting the space");
         }
 
+        // Members without another space return to onboarding.
         var memberUserIds = space.UserSpaces.Select(link => link.UserId).ToArray();
-        var otherMemberships = await dbContext.UserSpaces
+        var usersWithOtherSpaces = await dbContext.UserSpaces
             .Where(link => memberUserIds.Contains(link.UserId) && link.SpaceId != id)
+            .Select(link => link.UserId)
+            .Distinct()
             .ToListAsync(cancellationToken);
 
-        foreach (var membership in space.UserSpaces)
+        foreach (var membership in space.UserSpaces.Where(link => !usersWithOtherSpaces.Contains(link.UserId)))
         {
-            var remainingMemberships = otherMemberships.Where(link => link.UserId == membership.UserId).ToList();
-            if (remainingMemberships.Count == 0)
-            {
-                membership.User.ResetOnboarding();
-                continue;
-            }
-
-            if (membership.IsActive || remainingMemberships.All(link => !link.IsActive))
-            {
-                foreach (var remainingMembership in remainingMemberships)
-                {
-                    remainingMembership.SetActive(false);
-                }
-
-                remainingMemberships[0].SetActive(true);
-            }
+            membership.User.ResetOnboarding();
         }
 
-        // The members' new active spaces are saved first; then the space and all its data go in one transaction.
+        // The members' onboarding resets are saved first; then the space and all its data go in one transaction.
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         await SpaceDataEraser.EraseAsync(dbContext, id, cancellationToken);

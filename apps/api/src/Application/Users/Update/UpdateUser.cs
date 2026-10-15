@@ -1,8 +1,6 @@
-﻿using Kijk.Application.Shared.Authorization;
-using Kijk.Application.Shared.Identity;
+﻿using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Shared;
-using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -20,8 +18,7 @@ public class UpdateUserHandler(
     ILogger<UpdateUserHandler> logger)
 {
     /// <summary>
-    /// Updates the current user's settings. Renaming the active space additionally requires the
-    /// space:configure permission there; sending the unchanged name is always allowed.
+    /// Updates the current user's settings.
     /// </summary>
     /// <param name="request">The changes.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -31,9 +28,6 @@ public class UpdateUserHandler(
         var userEntity = await dbContext.Users
             .Where(x => x.Id == currentUser.Id)
             .Include(x => x.Resources)
-            .Include(x => x.UserSpaces)
-            .ThenInclude(x => x.Space)
-            .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
         if (userEntity is null)
@@ -45,12 +39,6 @@ public class UpdateUserHandler(
         if (request.UserName is not null)
         {
             userEntity.Name = request.UserName.Trim();
-        }
-
-        if (request.SpaceName is not null
-            && await RenameActiveSpaceAsync(userEntity, request.SpaceName.Trim(), cancellationToken) is { } renameError)
-        {
-            return renameError;
         }
 
         if (request.AnalyticsConsent is not null)
@@ -78,30 +66,6 @@ public class UpdateUserHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return userEntity.ToResponse(userEntity.Resources.Any(resource => resource.CreatorType == CreatorType.System));
-    }
-
-    /// <summary>Renames the user's active space; a changed name requires the space:configure permission.</summary>
-    private async Task<Error?> RenameActiveSpaceAsync(User user, string spaceName, CancellationToken cancellationToken)
-    {
-        var activeSpace = user.UserSpaces.SingleOrDefault(x => x.IsActive)?.Space;
-        if (activeSpace is null)
-        {
-            logger.LogWarning("Active space for user with id '{Id}' not found", currentUser.Id);
-            return Error.NotFound("Active space not found");
-        }
-
-        if (string.Equals(spaceName, activeSpace.Name, StringComparison.Ordinal))
-        {
-            return null;
-        }
-
-        if (await dbContext.AuthorizeSpaceAsync(currentUser.Id, activeSpace.Id, SpacePermissions.Space.Configure, cancellationToken) is { } error)
-        {
-            return error;
-        }
-
-        activeSpace.Rename(spaceName);
-        return null;
     }
 
     /// <summary>Enables or disables the system default resources when the requested state differs.</summary>

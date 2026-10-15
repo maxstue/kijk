@@ -17,11 +17,12 @@ public class GetMeUserResponseMapperTests
             Space = Space.Create("Home"),
             Role = new Role { Name = "Admin", Permissions = [] }
         };
-        membership.SetActive(true);
+        membership.SetDefault(true);
         user.UserSpaces.Add(membership);
 
         var response = new[] { user }.AsQueryable().ToResponse().Single();
 
         await Assert.That(response.Spaces!.Single().Id).IsEqualTo(spaceId);
+        await Assert.That(response.Spaces!.Single().IsDefault).IsTrue();
     }
 }

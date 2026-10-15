@@ -34,7 +34,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions/_overview');
+const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 

@@ -1,17 +1,14 @@
 using Kijk.Api.Mappers;
-using Kijk.Application.Shared.Identity;
 using Kijk.Application.Spaces.ChangeMemberRole;
 using Kijk.Application.Spaces.GetMembers;
 using Kijk.Application.Spaces.Update;
 using Kijk.Application.Units.Create;
 using Kijk.Application.Units.Manage;
-using Kijk.Application.Users.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Kijk.IntegrationTests.Persistence;
 
@@ -45,7 +42,7 @@ public class SpaceRoleTests
     }
 
     [Test]
-    public async Task CurrentUserProjectionContainsRoleAndPermissionsOfActiveSpace()
+    public async Task CurrentUserProjectionContainsRoleAndPermissionsOfTheRequestedSpace()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var space = await CreateSpaceAsync(dbContext);
@@ -55,11 +52,14 @@ public class SpaceRoleTests
         dbContext.UserSpaces.Add(UserSpace.Create(member, other, adminRole));
         await dbContext.SaveChangesAsync();
 
-        var user = await dbContext.Users.Where(item => item.Id == member.Id).ToSimpleAuthUser().SingleAsync();
+        var user = await dbContext.Users.Where(item => item.Id == member.Id).ToSimpleAuthUser(space.Id).SingleAsync();
+        var foreign = await dbContext.Users.Where(item => item.Id == member.Id).ToSimpleAuthUser(Guid.NewGuid()).SingleAsync();
 
         await Assert.That(user.SpaceId).IsEqualTo(space.Id);
         await Assert.That(user.SpaceRole).IsEqualTo(SpaceRoles.MemberName);
         await Assert.That(user.SpacePermissions).IsEquivalentTo(SpaceRoles.Member.Permissions);
+        await Assert.That(foreign.SpaceId).IsNull();
+        await Assert.That(foreign.SpacePermissions).IsEmpty();
     }
 
     [Test]
@@ -164,25 +164,6 @@ public class SpaceRoleTests
     }
 
     [Test]
-    public async Task MemberCannotRenameTheSpaceThroughTheProfileButCanSaveTheUnchangedName()
-    {
-        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var space = await CreateSpaceAsync(dbContext);
-        var member = await AddMemberAsync(dbContext, space, "member", SpaceRoles.Member);
-        var handler = new UpdateUserHandler(
-            dbContext, new UnusedIdentityProvider(), CurrentUserFor(member, space), TimeProvider.System, NullLogger<UpdateUserHandler>.Instance);
-
-        var rename = await handler.UpdateAsync(new UpdateUserRequest("member", null, null, "Renamed", null), CancellationToken.None);
-        var unchanged = await handler.UpdateAsync(new UpdateUserRequest("Member renamed", null, null, space.Name, null), CancellationToken.None);
-
-        await Assert.That(rename.Error.Type).IsEqualTo(ErrorType.Authorization);
-        await Assert.That(unchanged.IsSuccess).IsTrue();
-        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
-        var spaceName = await verification.Spaces.Where(item => item.Id == space.Id).Select(item => item.Name).SingleAsync();
-        await Assert.That(spaceName).IsEqualTo(space.Name);
-    }
-
-    [Test]
     public async Task CreatingAUnitSharedWithTheSpaceRequiresTheSharePermission()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
@@ -214,7 +195,7 @@ public class SpaceRoleTests
     {
         var user = User.Init($"{name}-auth", name, $"{name}@example.test");
         var roleEntity = await dbContext.Roles.SingleAsync(item => item.Id == role.Id);
-        user.UserSpaces.Add(UserSpace.Create(user, space, roleEntity, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, roleEntity));
         dbContext.Users.Add(user);
         await dbContext.SaveChangesAsync();
         return user;
@@ -222,16 +203,4 @@ public class SpaceRoleTests
 
     private static CurrentUser CurrentUserFor(User user, Space activeSpace) =>
         new() { User = new SimpleAuthUser(user.Id, user.AuthId, activeSpace.Id, user.Name, user.Email, true) };
-
-    private sealed class UnusedIdentityProvider : IIdentityProvider
-    {
-        public Task<ExternalIdentity> GetAsync(string authId, CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
-
-        public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
-
-        public Task DeleteAsync(string authId, CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
-    }
 }

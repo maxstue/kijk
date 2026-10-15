@@ -22,7 +22,7 @@ public class ResourcesEndpoints : IEndpointGroup
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("/resources")
+        var group = builder.MapSpaceGroup("resources")
             .WithTags("Resources")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 

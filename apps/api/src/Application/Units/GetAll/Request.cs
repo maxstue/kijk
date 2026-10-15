@@ -17,7 +17,7 @@ public enum UnitScope
 /// Filters and pages a unit list.
 /// </summary>
 /// <param name="Scope">Which units to list.</param>
-/// <param name="SpaceId">The space of <see cref="UnitScope.Space" />; defaults to the active space.</param>
+/// <param name="SpaceId">The space of <see cref="UnitScope.Space" />; required for that scope.</param>
 /// <param name="IncludeArchived">Whether archived units are included.</param>
 /// <param name="Search">An optional name or symbol filter.</param>
 /// <param name="Page">The 1-based page number.</param>

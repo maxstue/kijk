@@ -28,7 +28,7 @@ import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 import { getMonthNumber } from '@/shared/utils/months';
 
-const route = getRouteApi('/_authenticated/_app/consumptions/_overview');
+const route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 interface Props {
   consumptions: Consumption[];

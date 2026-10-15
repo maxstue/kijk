@@ -36,7 +36,7 @@ const searchSchema = z.object({
 });
 
 /** `/consumptions`: consumptions of the year/month in the search params, with statistics. */
-export const Route = createFileRoute('/_authenticated/_app/consumptions/_overview')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/_overview')({
   validateSearch: zodValidator(searchSchema),
   component: UsagePage,
   loaderDeps: ({ search: { month, view, year } }) => ({ month, view, year }),

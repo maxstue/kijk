@@ -7,7 +7,7 @@ import { LimitWarning } from '@/app/consumptions/limit-warning';
 import { ConsumptionUpdateForm } from '@/app/consumptions/update-form';
 
 /** `/consumptions/$consumptionId`: edit dialog of a consumption. */
-export const Route = createFileRoute('/_authenticated/_app/consumptions/_overview/$consumptionId')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/_overview/$consumptionId')({
   component: ConsumptionEditDialog,
 });
 

@@ -51,8 +51,8 @@ public class ImportHttpTests
             jobsEnabled: true,
             configuration: new Dictionary<string, string?> { ["Jobs:Enabled"] = "false" });
 
-        var job = await UploadAsync(host.Client, fixture.Account.Id, "dkb-synthetic.csv");
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
+        var job = await UploadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "dkb-synthetic.csv");
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsMapping);
 
         await Assert.That(job.ProposedMapping).IsNotNull();
     }
@@ -63,7 +63,7 @@ public class ImportHttpTests
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
 
-        using var response = await UploadResponseAsync(host.Client, fixture.Account.Id, "dkb-synthetic.csv");
+        using var response = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "dkb-synthetic.csv");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.InternalServerError);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
@@ -76,7 +76,7 @@ public class ImportHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
-        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
             await dbContext.ImportCandidates.Where(item => item.ImportJobId == job.Id).ExecuteDeleteAsync();
@@ -95,10 +95,10 @@ public class ImportHttpTests
             await dbContext.SaveChangesAsync();
         }
 
-        var first = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&page=1&pageSize=100", Json))!;
-        var second = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&page=2&pageSize=100", Json))!;
-        var last = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&page=999&pageSize=10000", Json))!;
-        var cards = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&cardSettlementsOnly=true&page=2&pageSize=10", Json))!;
+        var first = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates?months=2026-10-01&page=1&pageSize=100", Json))!;
+        var second = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates?months=2026-10-01&page=2&pageSize=100", Json))!;
+        var last = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates?months=2026-10-01&page=999&pageSize=10000", Json))!;
+        var cards = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates?months=2026-10-01&cardSettlementsOnly=true&page=2&pageSize=10", Json))!;
         await Assert.That(first.Items.Count).IsEqualTo(100);
         await Assert.That(first.TotalCount).IsEqualTo(250);
         await Assert.That(first.IncludedCount).IsEqualTo(245);
@@ -115,12 +115,12 @@ public class ImportHttpTests
         await Assert.That(cards.TotalCount).IsEqualTo(123);
         await Assert.That(cards.IncludedCount).IsEqualTo(245);
         await Assert.That(cards.Items.All(item => item.IsCardSettlement && !item.Excluded)).IsTrue();
-        using var invalidMonth = await host.Client.GetAsync($"/api/imports/{job.Id}/candidates?months=2026-12-01");
+        using var invalidMonth = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates?months=2026-12-01");
         await Assert.That(invalidMonth.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
-        using var missing = await host.Client.GetAsync($"/api/imports/{Guid.NewGuid()}/candidates?months=2026-10-01");
+        using var missing = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{Guid.NewGuid()}/candidates?months=2026-10-01");
         await Assert.That(missing.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
 
-        using var committed = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/commit", new CommitImportRequest([November], true), Json);
+        using var committed = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/commit", new CommitImportRequest([November], true), Json);
         await Assert.That(committed.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var result = (await committed.Content.ReadFromJsonAsync<ImportJobResponse>(Json))!;
         await Assert.That(result.ImportedCount).IsEqualTo(286);
@@ -134,24 +134,24 @@ public class ImportHttpTests
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
 
-        var job = await UploadAsync(host.Client, fixture.Account.Id, "dkb-synthetic.csv");
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
+        var job = await UploadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "dkb-synthetic.csv");
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsMapping);
         await Assert.That(job.ProposedMappingSource).IsEqualTo(MappingSource.Suggestion);
-        using (var preview = await host.Client.GetAsync($"/api/imports/{job.Id}/preview"))
+        using (var preview = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/preview"))
         {
             await Assert.That(preview.StatusCode).IsEqualTo(HttpStatusCode.OK);
         }
 
-        using var confirmed = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/mapping", job.ProposedMapping, Json);
+        using var confirmed = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/mapping", job.ProposedMapping, Json);
         await Assert.That(confirmed.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsReview);
         await Assert.That(job.FullMonths).IsEquivalentTo(new[] { October });
         await Assert.That(job.EdgeMonths).IsEquivalentTo(new[] { September, November });
-        var candidates = await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates", Json);
+        var candidates = await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates", Json);
         await Assert.That(candidates!.TotalCount).IsEqualTo(8);
 
-        job = await CommitAsync(host.Client, job.Id, [November]);
-        var again = await CommitAsync(host.Client, job.Id, [November]);
+        job = await CommitAsync(host.Client, fixture.Account.SpaceId, job.Id, [November]);
+        var again = await CommitAsync(host.Client, fixture.Account.SpaceId, job.Id, [November]);
 
         await Assert.That(job.Status).IsEqualTo(ImportJobStatus.Done);
         await Assert.That(job.ImportedCount).IsEqualTo(7);
@@ -177,7 +177,7 @@ public class ImportHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
-        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
+        await ImportDkbSampleAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, confirmMapping: true);
 
         List<Guid> importedIds;
         List<Guid> manualIds;
@@ -196,7 +196,7 @@ public class ImportHttpTests
             manualIds = manual.Select(item => item.Id).ToList();
         }
 
-        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: false);
+        await ImportDkbSampleAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, confirmMapping: false);
 
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
         var transactions = await verification.Transactions.Where(item => item.AccountId == fixture.Account.Id).ToListAsync();
@@ -211,14 +211,14 @@ public class ImportHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
-        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
+        await ImportDkbSampleAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, confirmMapping: true);
 
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
             var rent = await dbContext.Transactions.Where(item => item.Amount == -750m).OrderBy(item => item.BookingKey).FirstAsync();
             var rewe = await dbContext.Transactions.SingleAsync(item => item.Amount == -41.10m);
-            using var corrected = await host.Client.PutAsJsonAsync($"/api/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, false), Json);
-            using var remembered = await host.Client.PutAsJsonAsync($"/api/transactions/{rewe.Id}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
+            using var corrected = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, false), Json);
+            using var remembered = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/{rewe.Id}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
             await Assert.That(corrected.StatusCode).IsEqualTo(HttpStatusCode.OK);
             var rememberedResult = await remembered.Content.ReadFromJsonAsync<CategorizeTransactionResponse>(Json);
             // The pending REWE booking in November gets the remembered category too.
@@ -226,7 +226,7 @@ public class ImportHttpTests
         }
 
         // The confirmed profile is used, so the second import needs no mapping step.
-        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: false);
+        await ImportDkbSampleAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, confirmMapping: false);
 
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
         var transactions = await verification.Transactions.Where(item => item.AccountId == fixture.Account.Id).ToListAsync();
@@ -245,12 +245,12 @@ public class ImportHttpTests
     {
         var fixture = await CreateFixtureAsync("Member");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
-        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
+        await ImportDkbSampleAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, confirmMapping: true);
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var rent = await dbContext.Transactions.Where(item => item.Amount == -750m).OrderBy(item => item.BookingKey).FirstAsync();
 
-        using var wrong = await host.Client.PutAsJsonAsync($"/api/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, true, "gehalt"), Json);
-        using var remembered = await host.Client.PutAsJsonAsync($"/api/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, true, "Miete"), Json);
+        using var wrong = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, true, "gehalt"), Json);
+        using var remembered = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, true, "Miete"), Json);
         var result = await remembered.Content.ReadFromJsonAsync<CategorizeTransactionResponse>(Json);
 
         await Assert.That(wrong.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
@@ -280,16 +280,16 @@ public class ImportHttpTests
         // Column names the heuristic does not know.
         var file = "Wann;Wer;Wofür;Wieviel\n01.10.2026;Bäckerei;Brötchen;-3,20\n15.10.2026;Kino;Film;-12,00\n02.11.2026;Markt;Obst;-5,10\n"u8.ToArray();
 
-        var first = await UploadBytesAsync(host.Client, fixture.Account.Id, file);
-        first = await WaitForAsync(host.Client, first.Id, ImportJobStatus.NeedsMapping);
+        var first = await UploadBytesAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, file);
+        first = await WaitForAsync(host.Client, fixture.Account.SpaceId, first.Id, ImportJobStatus.NeedsMapping);
         await Assert.That(first.ProposedMappingSource).IsEqualTo(MappingSource.Ai);
         await Assert.That(first.ProposedMapping!.AmountColumn).IsEqualTo(3);
-        using var confirmed = await host.Client.PostAsJsonAsync($"/api/imports/{first.Id}/mapping", first.ProposedMapping, Json);
-        await WaitForAsync(host.Client, first.Id, ImportJobStatus.NeedsReview);
-        using var cancelled = await host.Client.PostAsync($"/api/imports/{first.Id}/cancel", null);
+        using var confirmed = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{first.Id}/mapping", first.ProposedMapping, Json);
+        await WaitForAsync(host.Client, fixture.Account.SpaceId, first.Id, ImportJobStatus.NeedsReview);
+        using var cancelled = await host.Client.PostAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{first.Id}/cancel", null);
 
-        var second = await UploadBytesAsync(host.Client, fixture.Account.Id, file);
-        second = await WaitForAsync(host.Client, second.Id, ImportJobStatus.NeedsReview);
+        var second = await UploadBytesAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, file);
+        second = await WaitForAsync(host.Client, fixture.Account.SpaceId, second.Id, ImportJobStatus.NeedsReview);
 
         await Assert.That(second.ProposedMappingSource).IsEqualTo(MappingSource.Profile);
         await Assert.That(chat.Calls).IsEqualTo(1);
@@ -306,8 +306,8 @@ public class ImportHttpTests
             services => services.AddSingleton<IChatClient>(new CountingChatClient(null)),
             new Dictionary<string, string?> { ["Ai:Enabled"] = "true", ["Ai:ApiKey"] = "test-key" });
 
-        var job = await UploadAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
+        var job = await UploadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "generic-comma.csv");
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsMapping);
 
         await Assert.That(job.ProposedMappingSource).IsEqualTo(MappingSource.Suggestion);
         await Assert.That(job.AiUnavailable).IsTrue();
@@ -319,22 +319,22 @@ public class ImportHttpTests
         var fixture = await CreateFixtureAsync("Admin");
         var chat = new CategorizingChatClient("Groceries");
         await using var host = await StartWithAiAsync(fixture, chat);
-        using var settings = await host.Client.PutAsJsonAsync("/api/imports/settings", new UpdateImportSettingsRequest(PurposeRetention.Keep, AiDataSharing.Strict), Json);
+        using var settings = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/settings", new UpdateImportSettingsRequest(PurposeRetention.Keep, AiDataSharing.Strict), Json);
         await Assert.That(settings.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
-        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
 
         // Nothing is sent before the user starts it from the preview.
         await Assert.That(chat.Requests).IsEmpty();
-        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
+        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/ai-preview", Json))!;
         await Assert.That(preview.Items.Count).IsEqualTo(5);
         var bakery = preview.Items.Single(item => item.Counterparty == "Bäckerei Schön");
         var selectedKeys = preview.Items.Where(item => item.Key != bakery.Key).Select(item => item.Key).ToList();
-        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(SelectedTextKeys: selectedKeys), Json);
+        using var started = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/categorize", new CategorizeImportRequest(SelectedTextKeys: selectedKeys), Json);
         await Assert.That(started.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsReview);
 
-        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        var rows = await GetCandidatesAsync(host.Client, fixture.Account.SpaceId, job.Id);
         var salary = rows.Single(row => row.Amount > 0);
         var bakeryRow = rows.Single(row => row.Counterparty == "Bäckerei Schön");
         var others = rows.Where(row => row.Amount < 0 && row.Id != bakeryRow.Id).ToList();
@@ -355,11 +355,11 @@ public class ImportHttpTests
         }
 
         // A manual category survives categorizing again.
-        using var chosen = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/candidates/{salary.Id}", new UpdateImportCandidateRequest(HousingId, false), Json);
-        using var again = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(), Json);
+        using var chosen = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates/{salary.Id}", new UpdateImportCandidateRequest(HousingId, false), Json);
+        using var again = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/categorize", new CategorizeImportRequest(), Json);
         await Assert.That(again.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
-        await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
-        var after = await GetCandidatesAsync(host.Client, job.Id);
+        await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsReview);
+        var after = await GetCandidatesAsync(host.Client, fixture.Account.SpaceId, job.Id);
         await Assert.That(after.Single(row => row.Id == salary.Id).CategorySource).IsEqualTo(CategorySource.Manual);
         await Assert.That(after.Single(row => row.Id == salary.Id).CategoryId).IsEqualTo(HousingId);
     }
@@ -370,14 +370,14 @@ public class ImportHttpTests
         var fixture = await CreateFixtureAsync("Admin");
         var chat = new CategorizingChatClient("Groceries");
         await using var host = await StartWithAiAsync(fixture, chat);
-        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
-        using var empty = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, []), Json);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
+        using var empty = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, []), Json);
         await Assert.That(empty.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
-        using var stale = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, ["0000000000000000"]), Json);
+        using var stale = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, ["0000000000000000"]), Json);
         await Assert.That(stale.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
-        var unchanged = (await host.Client.GetFromJsonAsync<ImportJobResponse>($"/api/imports/{job.Id}", Json))!;
+        var unchanged = (await host.Client.GetFromJsonAsync<ImportJobResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}", Json))!;
         await Assert.That(unchanged.Status).IsEqualTo(ImportJobStatus.NeedsReview);
-        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
+        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/ai-preview", Json))!;
         await Assert.That(preview.Items.All(item => !item.Excluded)).IsTrue();
         await Assert.That(chat.Requests).IsEmpty();
     }
@@ -388,8 +388,8 @@ public class ImportHttpTests
         var fixture = await CreateFixtureAsync("Admin");
         var chat = new CategorizingChatClient("Groceries");
         await using var host = await StartWithAiAsync(fixture, chat);
-        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
-        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
+        var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/ai-preview", Json))!;
         var bakery = preview.Items.Single(item => item.Counterparty == "Bäckerei Schön");
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
@@ -397,10 +397,10 @@ public class ImportHttpTests
             row.SetAiExcluded(true);
             await dbContext.SaveChangesAsync();
         }
-        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, [bakery.Key]), Json);
+        using var started = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, [bakery.Key]), Json);
         await Assert.That(started.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
-        await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
-        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsReview);
+        var rows = await GetCandidatesAsync(host.Client, fixture.Account.SpaceId, job.Id);
         await Assert.That(rows.Single(row => row.Counterparty == "Bäckerei Schön").CategoryId).IsEqualTo(GroceriesId);
         await Assert.That(rows.Where(row => row.Counterparty != "Bäckerei Schön").All(row => row.CategoryId is null)).IsTrue();
     }
@@ -412,10 +412,10 @@ public class ImportHttpTests
         var chat = new CategorizingChatClient("Groceries");
         await using var host = await StartWithAiAsync(fixture, chat);
 
-        var off = await UploadAndReadAsync(host.Client, fixture.Account.Id);
-        using var refused = await host.Client.PostAsJsonAsync($"/api/imports/{off.Id}/categorize", new CategorizeImportRequest(), Json);
+        var off = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
+        using var refused = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{off.Id}/categorize", new CategorizeImportRequest(), Json);
         await Assert.That(refused.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
-        using var cancelled = await host.Client.PostAsync($"/api/imports/{off.Id}/cancel", null);
+        using var cancelled = await host.Client.PostAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{off.Id}/cancel", null);
 
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
@@ -423,9 +423,9 @@ public class ImportHttpTests
             await dbContext.SaveChangesAsync();
         }
 
-        var switchedOff = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        var switchedOff = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
         // Even an explicit choice for this import is refused while the user turned AI off.
-        using var rejected = await host.Client.PostAsJsonAsync($"/api/imports/{switchedOff.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict), Json);
+        using var rejected = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{switchedOff.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict), Json);
 
         await Assert.That(rejected.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
         await Assert.That(chat.Requests).IsEmpty();
@@ -438,13 +438,13 @@ public class ImportHttpTests
         var chat = new CategorizingChatClient(null);
         await using var host = await StartWithAiAsync(fixture, chat);
 
-        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
-        using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict), Json);
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
+        using var started = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict), Json);
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsReview);
 
         await Assert.That(job.AiCategorizationUnavailable).IsTrue();
         await Assert.That(job.AiDataSharing).IsEqualTo(AiDataSharing.Strict);
-        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        var rows = await GetCandidatesAsync(host.Client, fixture.Account.SpaceId, job.Id);
         await Assert.That(rows.Count(row => row.Errors is null)).IsEqualTo(5);
         await Assert.That(rows.Any(row => row.CategoryId is not null)).IsFalse();
     }
@@ -461,20 +461,20 @@ public class ImportHttpTests
             20.10.2026;Bäckerei;Brötchen;-3,20
             """u8.ToArray();
 
-        var job = await UploadBytesAsync(host.Client, fixture.Account.Id, file);
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
-        using var confirmed = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/mapping", job.ProposedMapping, Json);
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
-        var rows = await GetCandidatesAsync(host.Client, job.Id);
+        var job = await UploadBytesAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, file);
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsMapping);
+        using var confirmed = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/mapping", job.ProposedMapping, Json);
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsReview);
+        var rows = await GetCandidatesAsync(host.Client, fixture.Account.SpaceId, job.Id);
         var statements = rows.Where(row => row.IsCardSettlement).ToList();
         await Assert.That(statements.Count).IsEqualTo(2);
         await Assert.That(rows.Single(row => row.Counterparty == "Bäckerei").IsCardSettlement).IsFalse();
 
         var offset = statements.Single(row => row.Amount == -420m);
-        using var updated = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/candidates/{offset.Id}", new UpdateImportCandidateRequest(null, false, true), Json);
+        using var updated = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates/{offset.Id}", new UpdateImportCandidateRequest(null, false, true), Json);
         await Assert.That(updated.StatusCode).IsEqualTo(HttpStatusCode.OK);
         // The file covers only part of October, which is therefore an edge month to include explicitly.
-        await CommitAsync(host.Client, job.Id, [October]);
+        await CommitAsync(host.Client, fixture.Account.SpaceId, job.Id, [October]);
 
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
         var transactions = await verification.Transactions.Where(item => item.AccountId == fixture.Account.Id).ToListAsync();
@@ -487,11 +487,11 @@ public class ImportHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
-        using var settings = await host.Client.PutAsJsonAsync("/api/imports/settings", new UpdateImportSettingsRequest(PurposeRetention.Keep, MinimizeData: true), Json);
+        using var settings = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/settings", new UpdateImportSettingsRequest(PurposeRetention.Keep, MinimizeData: true), Json);
         var saved = await settings.Content.ReadFromJsonAsync<ImportSettingsResponse>(Json);
         await Assert.That(saved!.MinimizeData).IsTrue();
 
-        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
+        await ImportDkbSampleAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, confirmMapping: true);
 
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
         var transactions = await verification.Transactions.Where(item => item.AccountId == fixture.Account.Id).ToListAsync();
@@ -503,7 +503,7 @@ public class ImportHttpTests
 
         // Without a counterparty key a transfer can only be remembered by a keyword.
         var rent = transactions.First(item => item.Amount == -750m);
-        using var byPerson = await host.Client.PutAsJsonAsync($"/api/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, true), Json);
+        using var byPerson = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/{rent.Id}/category", new CategorizeTransactionRequest(HousingId, true), Json);
         await Assert.That(byPerson.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
 
@@ -514,37 +514,37 @@ public class ImportHttpTests
             services => services.AddSingleton(chat),
             new Dictionary<string, string?> { ["Ai:Enabled"] = "true", ["Ai:ApiKey"] = "test-key" });
 
-    private static async Task<ImportJobResponse> UploadAndReadAsync(HttpClient client, Guid accountId)
+    private static async Task<ImportJobResponse> UploadAndReadAsync(HttpClient client, Guid spaceId, Guid accountId)
     {
-        var job = await UploadAsync(client, accountId, "ing-synthetic.csv");
+        var job = await UploadAsync(client, spaceId, accountId, "ing-synthetic.csv");
         // A confirmed profile of an earlier import skips the mapping step.
         while (job.Status is ImportJobStatus.Pending or ImportJobStatus.Analyzing)
         {
             await Task.Delay(100);
-            job = (await client.GetFromJsonAsync<ImportJobResponse>($"/api/imports/{job.Id}", Json))!;
+            job = (await client.GetFromJsonAsync<ImportJobResponse>($"/api/spaces/{spaceId}/imports/{job.Id}", Json))!;
         }
 
         if (job.Status == ImportJobStatus.NeedsMapping)
         {
-            using var confirmed = await client.PostAsJsonAsync($"/api/imports/{job.Id}/mapping", job.ProposedMapping, Json);
+            using var confirmed = await client.PostAsJsonAsync($"/api/spaces/{spaceId}/imports/{job.Id}/mapping", job.ProposedMapping, Json);
         }
 
-        return await WaitForAsync(client, job.Id, ImportJobStatus.NeedsReview);
+        return await WaitForAsync(client, spaceId, job.Id, ImportJobStatus.NeedsReview);
     }
 
-    private static async Task<List<ImportCandidateResponse>> GetCandidatesAsync(HttpClient client, Guid id) =>
-        (await client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{id}/candidates", Json))!.Items;
+    private static async Task<List<ImportCandidateResponse>> GetCandidatesAsync(HttpClient client, Guid spaceId, Guid id) =>
+        (await client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/spaces/{spaceId}/imports/{id}/candidates", Json))!.Items;
 
     [Test]
     public async Task CancellingDeletesTheFileRightAway()
     {
         var fixture = await CreateFixtureAsync("Member");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
-        var job = await UploadAsync(host.Client, fixture.Account.Id, "ing-synthetic.csv");
-        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
+        var job = await UploadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "ing-synthetic.csv");
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsMapping);
 
-        using var cancelled = await host.Client.PostAsync($"/api/imports/{job.Id}/cancel", null);
-        using var uploadAgain = await UploadResponseAsync(host.Client, fixture.Account.Id, "ing-synthetic.csv");
+        using var cancelled = await host.Client.PostAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/cancel", null);
+        using var uploadAgain = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "ing-synthetic.csv");
 
         await Assert.That(cancelled.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(uploadAgain.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
@@ -562,7 +562,7 @@ public class ImportHttpTests
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
 
-        using var response = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
+        using var response = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "generic-comma.csv");
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
     }
@@ -574,9 +574,9 @@ public class ImportHttpTests
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         using var withdrawn = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: false), Json);
 
-        using var refused = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
+        using var refused = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "generic-comma.csv");
         using var given = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: true), Json);
-        using var accepted = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
+        using var accepted = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "generic-comma.csv");
 
         await Assert.That(withdrawn.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(refused.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
@@ -594,7 +594,7 @@ public class ImportHttpTests
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var cash = await dbContext.Accounts.SingleAsync(item => item.SpaceId == fixture.Account.SpaceId && item.Kind == AccountKind.Cash);
 
-        using var response = await UploadResponseAsync(host.Client, cash.Id, "generic-comma.csv");
+        using var response = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, cash.Id, "generic-comma.csv");
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
@@ -642,23 +642,23 @@ public class ImportHttpTests
         await Assert.That(key.Contains("DE89", StringComparison.Ordinal)).IsFalse();
     }
 
-    private static async Task ImportDkbSampleAsync(HttpClient client, Guid accountId, bool confirmMapping)
+    private static async Task ImportDkbSampleAsync(HttpClient client, Guid spaceId, Guid accountId, bool confirmMapping)
     {
-        var job = await UploadAsync(client, accountId, "dkb-synthetic.csv");
+        var job = await UploadAsync(client, spaceId, accountId, "dkb-synthetic.csv");
         if (confirmMapping)
         {
-            job = await WaitForAsync(client, job.Id, ImportJobStatus.NeedsMapping);
-            using var confirmed = await client.PostAsJsonAsync($"/api/imports/{job.Id}/mapping", job.ProposedMapping, Json);
+            job = await WaitForAsync(client, spaceId, job.Id, ImportJobStatus.NeedsMapping);
+            using var confirmed = await client.PostAsJsonAsync($"/api/spaces/{spaceId}/imports/{job.Id}/mapping", job.ProposedMapping, Json);
             await Assert.That(confirmed.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
         }
 
-        job = await WaitForAsync(client, job.Id, ImportJobStatus.NeedsReview);
-        await CommitAsync(client, job.Id, [November]);
+        job = await WaitForAsync(client, spaceId, job.Id, ImportJobStatus.NeedsReview);
+        await CommitAsync(client, spaceId, job.Id, [November]);
     }
 
-    private static async Task<ImportJobResponse> CommitAsync(HttpClient client, Guid id, List<DateOnly> includedEdgeMonths)
+    private static async Task<ImportJobResponse> CommitAsync(HttpClient client, Guid spaceId, Guid id, List<DateOnly> includedEdgeMonths)
     {
-        using var response = await client.PostAsJsonAsync($"/api/imports/{id}/commit", new CommitImportRequest(includedEdgeMonths, false), Json);
+        using var response = await client.PostAsJsonAsync($"/api/spaces/{spaceId}/imports/{id}/commit", new CommitImportRequest(includedEdgeMonths, false), Json);
         if (response.StatusCode != HttpStatusCode.OK)
         {
             throw new InvalidOperationException($"Commit failed: {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
@@ -667,9 +667,9 @@ public class ImportHttpTests
         return (await response.Content.ReadFromJsonAsync<ImportJobResponse>(Json))!;
     }
 
-    private static async Task<ImportJobResponse> UploadAsync(HttpClient client, Guid accountId, string sample)
+    private static async Task<ImportJobResponse> UploadAsync(HttpClient client, Guid spaceId, Guid accountId, string sample)
     {
-        using var response = await UploadResponseAsync(client, accountId, sample);
+        using var response = await UploadResponseAsync(client, spaceId, accountId, sample);
         if (response.StatusCode != HttpStatusCode.Accepted)
         {
             throw new InvalidOperationException($"Upload failed: {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
@@ -678,12 +678,12 @@ public class ImportHttpTests
         return (await response.Content.ReadFromJsonAsync<ImportJobResponse>(Json))!;
     }
 
-    private static async Task<ImportJobResponse> UploadBytesAsync(HttpClient client, Guid accountId, byte[] content)
+    private static async Task<ImportJobResponse> UploadBytesAsync(HttpClient client, Guid spaceId, Guid accountId, byte[] content)
     {
         using var form = new MultipartFormDataContent();
         form.Add(new StringContent(accountId.ToString()), "accountId");
         form.Add(new ByteArrayContent(content), "file", "export.csv");
-        using var response = await client.PostAsync("/api/imports", form);
+        using var response = await client.PostAsync($"/api/spaces/{spaceId}/imports", form);
         if (response.StatusCode != HttpStatusCode.Accepted)
         {
             throw new InvalidOperationException($"Upload failed: {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
@@ -692,21 +692,21 @@ public class ImportHttpTests
         return (await response.Content.ReadFromJsonAsync<ImportJobResponse>(Json))!;
     }
 
-    private static async Task<HttpResponseMessage> UploadResponseAsync(HttpClient client, Guid accountId, string sample)
+    private static async Task<HttpResponseMessage> UploadResponseAsync(HttpClient client, Guid spaceId, Guid accountId, string sample)
     {
         using var form = new MultipartFormDataContent();
         form.Add(new StringContent(accountId.ToString()), "accountId");
         var file = new ByteArrayContent(await File.ReadAllBytesAsync(Path.Combine(AppContext.BaseDirectory, "Samples", sample)));
         file.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         form.Add(file, "file", sample);
-        return await client.PostAsync("/api/imports", form);
+        return await client.PostAsync($"/api/spaces/{spaceId}/imports", form);
     }
 
-    private static async Task<ImportJobResponse> WaitForAsync(HttpClient client, Guid id, ImportJobStatus status)
+    private static async Task<ImportJobResponse> WaitForAsync(HttpClient client, Guid spaceId, Guid id, ImportJobStatus status)
     {
         for (var attempt = 0; attempt < 120; attempt++)
         {
-            var job = (await client.GetFromJsonAsync<ImportJobResponse>($"/api/imports/{id}", Json))!;
+            var job = (await client.GetFromJsonAsync<ImportJobResponse>($"/api/spaces/{spaceId}/imports/{id}", Json))!;
             if (job.Status == status)
             {
                 return job;
@@ -732,7 +732,7 @@ public class ImportHttpTests
         user.CompleteOnboarding("importer", AnalyticsConsent.Declined, DateTime.UtcNow);
         user.SetSensitiveDataConsent(true, DateTime.UtcNow);
         user.SetAiEnabled(true);
-        user.UserSpaces.Add(UserSpace.Create(user, space, role, isActive: true));
+        user.UserSpaces.Add(UserSpace.Create(user, space, role));
         var account = Account.Create("Giro", "3000", space);
         dbContext.AddRange(user, account);
         await dbContext.SaveChangesAsync();

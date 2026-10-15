@@ -6,38 +6,38 @@ import { createResource, deleteResource, getResource, getResources, updateResour
 import type { ResourceData, UpdateResourceData } from './types';
 
 /** Query for the resources of the active space. */
-export const resourcesQueryOptions = () =>
+export const resourcesQueryOptions = (spaceId: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getResources(signal),
-    queryKey: queryKeys.resources.list(),
+    queryFn: ({ signal }) => getResources(spaceId, signal),
+    queryKey: queryKeys.resources.list(spaceId),
   });
 
 /** Query for a single resource. */
-export const resourceQueryOptions = (id: string) =>
+export const resourceQueryOptions = (spaceId: string, id: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getResource(id, signal),
-    queryKey: queryKeys.resources.detail(id),
+    queryFn: ({ signal }) => getResource(spaceId, id, signal),
+    queryKey: queryKeys.resources.detail(spaceId, id),
   });
 
 /** Mutation that creates a resource. */
-export const createResourceMutationOptions = () =>
+export const createResourceMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: ResourceData) => createResource(data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.resources.all),
+    mutationFn: (data: ResourceData) => createResource(spaceId, data),
+    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.resources.all(spaceId)),
   });
 
 /** Mutation that updates a resource. */
-export const updateResourceMutationOptions = () =>
+export const updateResourceMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: UpdateResourceData) => updateResource(data),
+    mutationFn: (data: UpdateResourceData) => updateResource(spaceId, data),
     // Consumptions show the resource and its unit.
     onSuccess: (_data, _variables, _result, { client }) =>
-      invalidate(client, queryKeys.resources.all, queryKeys.consumptions.all),
+      invalidate(client, queryKeys.resources.all(spaceId), queryKeys.consumptions.all(spaceId)),
   });
 
 /** Mutation that deletes a resource. */
-export const deleteResourceMutationOptions = () =>
+export const deleteResourceMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: { id: string }) => deleteResource(data.id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.resources.all),
+    mutationFn: (data: { id: string }) => deleteResource(spaceId, data.id),
+    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.resources.all(spaceId)),
   });

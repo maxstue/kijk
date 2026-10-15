@@ -7,7 +7,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/consumptions/limits`: consumption limits of the active space. */
-export const Route = createFileRoute('/_authenticated/_app/consumptions/limits')({
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/limits')({
   loader: async ({ context: { queryClient } }) => {
     await Promise.all([
       queryClient.query({ ...limitsQueryOptions(), staleTime: 'static' }),

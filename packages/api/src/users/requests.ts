@@ -16,7 +16,6 @@ export async function updateUser(data: UpdateUserData) {
         aiEnabled: data.aiEnabled ?? null,
         analyticsConsent: data.analyticsConsent ?? null,
         sensitiveDataConsent: data.sensitiveDataConsent ?? null,
-        spaceName: data.spaceName ?? null,
         useDefaultResources: data.useDefaultResources ?? null,
         useExternalProfile: data.useExternalProfile ?? null,
         userName: data.userName ?? null,
@@ -40,9 +39,9 @@ export async function welcomeUser(data: WelcomeUserData) {
   );
 }
 
-/** Switches the active space; every other request works on the active space. */
-export async function switchSpace(spaceId: string) {
-  return unwrapApiResponse(await apiClient().PUT('/api/users/active-space', { body: { spaceId } }));
+/** Sets the space the app opens first; `null` opens the last used space instead. */
+export async function setDefaultSpace(spaceId: string | null) {
+  return unwrapApiResponse(await apiClient().PUT('/api/users/default-space', { body: { spaceId } }));
 }
 
 /** Starts deleting the current user's account and all their data in the background. */

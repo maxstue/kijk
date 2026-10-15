@@ -102,8 +102,8 @@ public class AccountDeletionHttpTests
         var shared = Space.Create("Shared");
         leaving.UserSpaces.Add(UserSpace.Create(leaving, personal, admin));
         leaving.UserSpaces.Add(UserSpace.Create(leaving, solo, admin));
-        leaving.UserSpaces.Add(UserSpace.Create(leaving, shared, admin, isActive: true));
-        remaining.UserSpaces.Add(UserSpace.Create(remaining, shared, member, isActive: true));
+        leaving.UserSpaces.Add(UserSpace.Create(leaving, shared, admin));
+        remaining.UserSpaces.Add(UserSpace.Create(remaining, shared, member));
         dbContext.AddRange(leaving, remaining);
         // The private account only knows its owner's id, so the users must exist first.
         await dbContext.SaveChangesAsync();

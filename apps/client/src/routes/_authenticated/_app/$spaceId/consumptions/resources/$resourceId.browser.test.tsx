@@ -1,7 +1,7 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { expect, test, vi } from 'vite-plus/test';
 
-import { Route as resourcesRoute } from '@/routes/_authenticated/_app/consumptions/resources/route';
+import { Route as resourcesRoute } from '@/routes/_authenticated/_app/$spaceId/consumptions/resources/route';
 import { renderRoute } from '@/test/render-route';
 
 test('loads the canonical resource URL and closes to the overview while preserving search', async () => {
