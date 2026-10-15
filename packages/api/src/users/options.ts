@@ -1,6 +1,6 @@
 import { invalidate } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
-import { mutationOptions, queryOptions } from '@tanstack/react-query';
+import { mutationOptions, queryOptions, type Query } from '@tanstack/react-query';
 
 import { getCurrentUser, requestAccountDeletion, switchSpace, updateUser, welcomeUser } from './requests';
 
@@ -33,10 +33,13 @@ export const welcomeUserMutationOptions = () =>
 export const switchSpaceMutationOptions = () =>
   mutationOptions({
     mutationFn: switchSpace,
-    onSuccess: (currentUser, _variables, _result, { client }) => {
+    onSuccess: async (currentUser, _variables, _result, { client }) => {
       client.setQueryData(queryKeys.users.me, currentUser);
-      // Every other query belongs to the previous space.
-      client.removeQueries({ predicate: (query) => query.queryKey[0] !== queryKeys.users.me[0] });
+      // Every other query belongs to the previous space: unused ones are dropped, visible ones keep their data until
+      // the new space's data replaces it.
+      const predicate = (query: Query) => query.queryKey[0] !== queryKeys.users.me[0];
+      client.removeQueries({ predicate, type: 'inactive' });
+      await client.invalidateQueries({ predicate });
     },
   });
 

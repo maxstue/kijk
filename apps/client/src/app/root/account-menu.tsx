@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/react';
 import type { components } from '@kijk/api/generated/kijk';
 import { queryKeys } from '@kijk/api/query-keys';
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import { currentUserQueryOptions, switchSpaceMutationOptions } from '@kijk/api/users/options';
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 import { Dialog } from '@kijk/ui/components/dialog';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@kijk/ui/components/dropdown-menu';
 import { LogoIcon } from '@kijk/ui/components/icons';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@kijk/ui/components/sidebar';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import {
   Check,
@@ -32,7 +32,6 @@ import { toast } from 'sonner';
 
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { getInitialChars } from '@/app/root/helpers';
-import { useSwitchSpace } from '@/app/root/use-switch-space';
 import { siteConfig } from '@/shared/config/site';
 
 /** Sidebar account menu: settings, feedback and sign-out. */
@@ -220,7 +219,7 @@ function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProp
 
 /** Lists the user's spaces, personal first, and switches the active one. */
 function SpaceSwitcher({ spaces }: { spaces: Space[] }) {
-  const switchMutation = useSwitchSpace();
+  const switchMutation = useMutation(switchSpaceMutationOptions());
   const sorted = spaces.toSorted((a, b) => Number(b.isPersonal) - Number(a.isPersonal) || a.name.localeCompare(b.name));
 
   function onSwitch(space: Space) {
