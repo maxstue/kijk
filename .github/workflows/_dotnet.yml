@@ -1,54 +1,41 @@
-name: Api 🚀
+name: .NET
+
+# Builds, format-checks, tests and audits the API. The coverage reports of the unit and integration tests are uploaded
+# as `coverage-dotnet` for `_sonar.yml`.
 
 on:
-  workflow_dispatch:
-  push:
-    branches: ["main"]
-    paths:
-      - "apps/api/**"
-      - ".github/actions/setup-dotnet/**"
-      - ".github/workflows/api.yml"
-  pull_request:
-    branches: ["main", "develop"]
-    paths:
-      - "apps/api/**"
-      - ".github/actions/setup-dotnet/**"
-      - ".github/workflows/api.yml"
+  workflow_call:
 
 permissions:
   contents: read
-
-concurrency:
-  group: api-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 defaults:
   run:
     working-directory: ./apps/api
 
 jobs:
-  basic:
-    name: "🛠️ Build, Lint/Format & Test"
+  build-and-test:
+    name: "🛠️ Build, format and test"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
-      - name: 🏖️ Checkout Repository
+      - name: "🏖️ Checkout Repository"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: 🔧 Setup .NET
+      - name: "🔧 Set up .NET"
         uses: ./.github/actions/setup-dotnet
 
-      - name: 📦 Install dependencies
-        run: dotnet restore "Kijk.slnx" --locked-mode
+      - name: "📦 Restore dependencies"
+        run: dotnet restore Kijk.slnx --locked-mode
 
-      - name: 🧱 Build
-        run: dotnet build "Kijk.slnx" -c Release --no-restore
+      - name: "🧱 Build"
+        run: dotnet build Kijk.slnx --configuration Release --no-restore
 
-      - name: 🧹 Format
-        run: dotnet format --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
+      - name: "🧹 Format"
+        run: dotnet format Kijk.slnx --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
 
-      - name: 🧪 Test
+      - name: "🧪 Tests and coverage"
         run: |
           dotnet test --project tests/Kijk.Api.SourceGenerators.Tests/Kijk.Api.SourceGenerators.Tests.csproj \
             --configuration Release \
@@ -73,9 +60,17 @@ jobs:
             --coverage-output integration.coverage.xml \
             --coverage-output-format xml
 
-      - name: 🔍 Audit
+      - name: "📎 Upload coverage"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-dotnet
+          path: apps/api/TestResults/*.coverage.xml
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: "🔍 Audit"
         run: |
-          dotnet list package --vulnerable --include-transitive --format=json > list.json
+          dotnet list Kijk.slnx package --vulnerable --include-transitive --format=json > list.json
           if jq -cre '.projects | .. | .severity? // empty | select(test("Critical"))' list.json; then
             echo 'Vulnerabilities found! Exiting...'
             jq . list.json

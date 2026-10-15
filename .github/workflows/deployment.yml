@@ -39,16 +39,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: '🔧 Set up Vite+'
-        uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
-        with:
-          version-file: package.json
-          node-version: '26'
-          cache: true
-          run-install: false
-
-      - name: '📦 Install dependencies'
-        run: vp install --frozen-lockfile
+      - name: '🔧 Set up JavaScript'
+        uses: ./.github/actions/setup-js
 
       - name: '🏷️ Determine release metadata'
         id: release
@@ -96,8 +88,8 @@ jobs:
         with:
           connection_string: ${{ env.API_MIGRATION_CONNECTION }}
 
-  deploy-api:
-    name: 'Deploy API 🚂'
+  deploy:
+    name: 'Deploy ${{ matrix.name }} 🚂'
     needs: [migrate-database, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -109,6 +101,15 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    strategy:
+      # A failed deployment must not cancel the other service in the middle of its deployment.
+      fail-fast: false
+      matrix:
+        include:
+          - name: API
+            service_id_variable: RAILWAY_API_SERVICE_ID
+          - name: Client
+            service_id_variable: RAILWAY_CLIENT_SERVICE_ID
     steps:
       - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -123,58 +124,20 @@ jobs:
           env-slug: prod
           secret-path: /CI/Deploy
 
-      - name: '🚀 Deploy API to Railway'
+      - name: '🚀 Deploy ${{ matrix.name }} to Railway'
         uses: ./.github/actions/deploy-railway
         with:
           api_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
           project_id: ${{ env.RAILWAY_PROJECT_ID }}
-          service_id: ${{ env.RAILWAY_API_SERVICE_ID }}
+          service_id: ${{ env[matrix.service_id_variable] }}
           environment_id: ${{ env.RAILWAY_ENVIRONMENT_ID }}
-          release_summary: Deploy API from ${{ github.sha }}
-          release_version: ${{ needs.prepare-release.outputs.version }}
-          source_sha: ${{ needs.prepare-release.outputs.source_sha }}
-
-  deploy-client:
-    name: 'Deploy Client 🚂'
-    needs: [migrate-database, prepare-release]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    container: ghcr.io/railwayapp/cli:latest
-    # The production environment binds the Infisical identity (OIDC subject) that may only read
-    # prod /CI/Deploy and prod /CI/Database.
-    environment:
-      name: production
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: '🏖️ Checkout Repository'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: '🔐 Load secrets'
-        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
-        with:
-          method: oidc
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
-          domain: https://eu.infisical.com
-          env-slug: prod
-          secret-path: /CI/Deploy
-
-      - name: '🚀 Deploy Client to Railway'
-        uses: ./.github/actions/deploy-railway
-        with:
-          api_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
-          project_id: ${{ env.RAILWAY_PROJECT_ID }}
-          service_id: ${{ env.RAILWAY_CLIENT_SERVICE_ID }}
-          environment_id: ${{ env.RAILWAY_ENVIRONMENT_ID }}
-          release_summary: Deploy client from ${{ github.sha }}
+          release_summary: Deploy ${{ matrix.name }} from ${{ github.sha }}
           release_version: ${{ needs.prepare-release.outputs.version }}
           source_sha: ${{ needs.prepare-release.outputs.source_sha }}
 
   release:
     name: 'Create Release 📝'
-    needs: [deploy-api, deploy-client, prepare-release]
+    needs: [deploy, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

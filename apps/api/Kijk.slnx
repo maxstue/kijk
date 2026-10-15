@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path="../../.github/workflows/api.yml" />
+    <File Path="../../.github/workflows/_dotnet.yml" />
     <File Path="../../docker-compose.yml" />
     <File Path=".config/dotnet-tools.json" />
     <File Path=".editorconfig" />
