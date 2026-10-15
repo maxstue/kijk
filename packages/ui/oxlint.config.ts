@@ -3,6 +3,7 @@ import { reactHooksJsPlugin, reactHooksRules, sharedIgnorePatterns } from '@kijk
 import { defineConfig } from 'oxlint';
 
 export default defineConfig({
+  overrides: [{ files: ['**/*.test.{ts,tsx}'], rules: { 'typescript/no-floating-promises': 'error' } }],
   extends: [baseConfig],
   ignorePatterns: [...sharedIgnorePatterns],
   categories: {

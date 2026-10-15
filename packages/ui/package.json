@@ -13,29 +13,25 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt --check",
-    "fmt:fix": "oxfmt"
+    "fmt:fix": "oxfmt",
+    "test": "vp test run",
+    "test:coverage": "vp test run --coverage"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
     "@fontsource-variable/inter": "catalog:",
     "@kijk/core": "workspace:*",
-    "@radix-ui/react-slot": "catalog:",
     "@tanstack/charts": "catalog:",
     "class-variance-authority": "catalog:",
-    "cn": "catalog:",
     "cmdk": "catalog:",
-    "date-fns": "catalog:",
-    "embla-carousel-react": "catalog:",
-    "input-otp": "catalog:",
+    "cn": "catalog:",
     "lucide-react": "catalog:",
-    "radix-ui": "catalog:",
     "react": "catalog:",
     "react-day-picker": "catalog:",
     "react-dom": "catalog:",
-    "react-resizable-panels": "catalog:",
     "shadcn": "catalog:",
     "sonner": "catalog:",
-    "tw-animate-css": "catalog:",
-    "vaul": "catalog:"
+    "tw-animate-css": "catalog:"
   },
   "devDependencies": {
     "@kijk/config": "workspace:*",
@@ -48,6 +44,12 @@
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "vitest-browser-react": "catalog:",
+    "vitest": "catalog:"
   }
 }

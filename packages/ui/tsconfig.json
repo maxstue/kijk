@@ -2,6 +2,7 @@
   "extends": "@kijk/config/tsconfig/base.json",
   "compilerOptions": {
     "composite": true,
+    "types": ["node", "vite-plus/client"],
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
