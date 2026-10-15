@@ -1,6 +1,7 @@
 # Build output
 node_modules
 **/lint-results.sarif
+**/coverage/
 
 # Editor directories and files
 !.vscode/extensions.json

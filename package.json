@@ -4,10 +4,10 @@
   "private": true,
   "description": "Track any resource and plan your budgets – on your own or together.",
   "keywords": [
-    "resource tracking",
     "budgeting",
     "consumption",
-    "household"
+    "household",
+    "resource tracking"
   ],
   "license": "MIT",
   "author": {
@@ -18,7 +18,7 @@
     "dev": "pnpm run --parallel --filter \"kijk*\" dev",
     "dev:client": "pnpm run --filter \"kijk-client\" dev",
     "dev:api": "pnpm run --filter \"kijk-api\" dev",
-    "api:generate": "pnpm run --filter \"kijk-api\" build && pnpm run --filter \"kijk-client\" api:generate",
+    "api:generate": "pnpm run --filter \"kijk-api\" build && pnpm run --filter \"@kijk/api\" generate",
     "build": "pnpm run --parallel --filter \"kijk*\" build",
     "build:api": "pnpm run --filter \"kijk-api\" build",
     "build:client": "pnpm run --filter \"kijk-client\" build",
@@ -30,7 +30,6 @@
     "fmt:api": "pnpm run --filter \"kijk-api\" fmt",
     "fmt:api:fix": "pnpm run --filter \"kijk-api\" fmt:fix",
     "fmt:api:staged": "dotnet format apps/api/Kijk.slnx --no-restore --verbosity minimal --exclude apps/api/src/Infrastructure/Migrations --include",
-    "fmt:api:staged:project": "dotnet format apps/api/Kijk.slnx --no-restore --verbosity minimal --exclude apps/api/src/Infrastructure/Migrations",
     "fmt:client": "pnpm run --filter \"kijk-client\" fmt",
     "fmt:client:fix": "pnpm run --filter \"kijk-client\" fmt:fix",
     "lint": "pnpm run --parallel -r lint",
@@ -38,10 +37,6 @@
     "lint:api": "pnpm run --filter \"kijk-api\" lint",
     "lint:client": "pnpm run --filter \"kijk-client\" lint",
     "lint:staged": "lint-staged",
-    "lint:staged:client": "pnpm --filter kijk-client lint:fix && pnpm --filter kijk-client fmt:fix",
-    "lint:staged:config": "pnpm --filter @kijk/config lint:fix && pnpm --filter @kijk/config fmt:fix",
-    "lint:staged:core": "pnpm --filter @kijk/core lint:fix && pnpm --filter @kijk/core fmt:fix",
-    "lint:staged:ui": "pnpm --filter @kijk/ui lint:fix && pnpm --filter @kijk/ui fmt:fix",
     "prepare": "husky",
     "release": "release-it"
   },
@@ -55,14 +50,6 @@
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:"
-  },
-  "lint-staged": {
-    "apps/client/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:client'",
-    "packages/config/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:config'",
-    "packages/core/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:core'",
-    "packages/ui/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts,json,css,md,yml,yaml}": "sh -c 'pnpm run lint:staged:ui'",
-    "apps/api/**/*.cs": "pnpm run fmt:api:staged --",
-    "apps/api/**/*.{csproj,props,targets,sln,slnx}": "pnpm run fmt:api:staged:project"
   },
   "devEngines": {
     "packageManager": {
