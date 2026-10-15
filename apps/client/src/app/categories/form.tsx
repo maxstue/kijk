@@ -13,6 +13,7 @@ import { customCategoryIcon } from '@/app/categories/constants';
 import { categorySchema } from '@/app/categories/schemas';
 import type { CategoryFormValues } from '@/app/categories/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 interface Props {
   initialData?: Category;
@@ -21,8 +22,9 @@ interface Props {
 
 /** Form to create a custom category, or to edit `initialData` when given. */
 export function CategoryForm({ initialData, onClose }: Props) {
-  const createMutation = useMutation(createCategoryMutationOptions());
-  const updateMutation = useMutation(updateCategoryMutationOptions());
+  const spaceId = useSpaceId();
+  const createMutation = useMutation(createCategoryMutationOptions(spaceId));
+  const updateMutation = useMutation(updateCategoryMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const form = useForm<CategoryFormValues>({
     defaultValues: {

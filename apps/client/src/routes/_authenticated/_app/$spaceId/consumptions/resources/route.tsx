@@ -7,7 +7,8 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/consumptions/resources`: resources of the active space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/resources')({
-  loader: ({ context: { queryClient } }) => queryClient.query({ ...resourcesQueryOptions(), staleTime: 'static' }),
+  loader: ({ params: { spaceId }, context: { queryClient } }) =>
+    queryClient.query({ ...resourcesQueryOptions(spaceId), staleTime: 'static' }),
   component: ResourcesPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   pendingComponent: () => <Loader className='h-6 w-6' />,

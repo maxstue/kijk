@@ -1,7 +1,6 @@
 import { useAuth } from '@clerk/react';
 import type { components } from '@kijk/api/generated/kijk';
-import { queryKeys } from '@kijk/api/query-keys';
-import { currentUserQueryOptions, switchSpaceMutationOptions } from '@kijk/api/users/options';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 import { Dialog } from '@kijk/ui/components/dialog';
 import {
@@ -15,8 +14,8 @@ import {
 } from '@kijk/ui/components/dropdown-menu';
 import { LogoIcon } from '@kijk/ui/components/icons';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@kijk/ui/components/sidebar';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useRouter } from '@tanstack/react-router';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useParams, useRouter } from '@tanstack/react-router';
 import {
   Check,
   ChevronsUpDown,
@@ -28,7 +27,6 @@ import {
   UsersIcon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { getInitialChars } from '@/app/root/helpers';
@@ -43,12 +41,14 @@ export function AccountMenu() {
   const router = useRouter();
   const { isMobile } = useSidebar();
   const [showFeedback, setShowFeedback] = useState(false);
-  const account = getAccountMenuData(currentAccount?.user);
+  const { spaceId } = useParams({ strict: false });
+  const account = getAccountMenuData(currentAccount?.user, spaceId);
 
   const handleSignOut = () => {
     signOut()
-      .then(() => {
-        queryClient.removeQueries({ queryKey: queryKeys.users.me });
+      .then(async () => {
+        await queryClient.cancelQueries();
+        queryClient.clear();
         return router.invalidate();
       })
       .then(() => navigate({ replace: true, to: '/auth' }))
@@ -80,14 +80,14 @@ interface AccountMenuData {
   initials: string;
 }
 
-function getAccountMenuData(user?: CurrentUser): AccountMenuData {
+function getAccountMenuData(user?: CurrentUser, spaceId?: string): AccountMenuData {
   const displayName = getDisplayName(user);
   const email = getEmail(user);
 
   return {
     displayName,
     email,
-    spaceName: getActiveSpaceName(user),
+    spaceName: getActiveSpaceName(user, spaceId),
     imageUrl: getImageUrl(user),
     initials: getInitialChars(getIdentityLabel(displayName, email)),
   };
@@ -109,8 +109,8 @@ function getIdentityLabel(displayName?: string | null, email?: string | null) {
   return displayName ?? email ?? undefined;
 }
 
-function getActiveSpaceName(user?: CurrentUser) {
-  return user?.spaces?.find((space) => space.isActive)?.name ?? siteConfig.name;
+function getActiveSpaceName(user?: CurrentUser, spaceId?: string) {
+  return user?.spaces?.find((space) => space.id === spaceId)?.name ?? siteConfig.name;
 }
 
 type Space = NonNullable<CurrentUser['spaces']>[number];
@@ -219,28 +219,19 @@ function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProp
 
 /** Lists the user's spaces, personal first, and switches the active one. */
 function SpaceSwitcher({ spaces }: { spaces: Space[] }) {
-  const switchMutation = useMutation(switchSpaceMutationOptions());
+  const navigate = useNavigate();
+  const { spaceId } = useParams({ strict: false });
   const sorted = spaces.toSorted((a, b) => Number(b.isPersonal) - Number(a.isPersonal) || a.name.localeCompare(b.name));
-
-  function onSwitch(space: Space) {
-    if (space.isActive) {
-      return;
-    }
-    switchMutation.mutate(space.id, {
-      onError: (error) => toast.error(error.name, { description: error.message }),
-      onSuccess: () => toast.success(`Switched to ${space.name}`),
-    });
-  }
 
   return (
     <DropdownMenuGroup>
       <DropdownMenuLabel className='text-muted-foreground text-xs'>Spaces</DropdownMenuLabel>
       {sorted.map((space) => (
-        <DropdownMenuItem key={space.id} disabled={switchMutation.isPending} onClick={() => onSwitch(space)}>
+        <DropdownMenuItem key={space.id} onClick={() => navigate({ to: '/$spaceId', params: { spaceId: space.id } })}>
           {space.isPersonal ? <LockIcon /> : <UsersIcon />}
           <span className='min-w-0 flex-1 truncate'>{space.name}</span>
           <span className='text-muted-foreground text-xs'>{space.isPersonal ? 'Private' : 'Shared'}</span>
-          {space.isActive && <Check aria-label='Active space' className='size-4' />}
+          {space.id === spaceId && <Check aria-label='Active space' className='size-4' />}
         </DropdownMenuItem>
       ))}
     </DropdownMenuGroup>

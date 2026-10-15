@@ -9,11 +9,16 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId')({
     const currentUser = await queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' });
     const space = currentUser.user?.spaces?.find((entry) => entry.id === spaceId);
     if (!space) {
-      throw redirect({ replace: true, to: '/home' });
+      throw redirect({ replace: true, to: '/' });
     }
 
-    rememberLastSpace(space.id);
+    rememberLastSpace(currentUser.user!.id, space.id);
     return { space };
   },
-  component: Outlet,
+  component: SpaceLayout,
 });
+
+function SpaceLayout() {
+  const { spaceId } = Route.useParams();
+  return <Outlet key={spaceId} />;
+}

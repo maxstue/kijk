@@ -24,6 +24,7 @@ import {
 } from '@/shared/components/form';
 import { FormSwitchItem } from '@/shared/components/form-switch-item';
 import { type Visibility, VisibilitySelect } from '@/shared/components/visibility-select';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useActiveSpace } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatMonthYear } from '@/shared/utils/months';
@@ -42,10 +43,11 @@ interface Props {
 
 /** Form that sets the monthly budget of an expense category from the selected month on. */
 export function BudgetForm({ categoryId, initialAmount, initialVisibility, month, onClose, year }: Props) {
+  const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.budgets.plan);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
-  const { data: budgets } = useSuspenseQuery(budgetsQueryOptions());
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
+  const { data: budgets } = useSuspenseQuery(budgetsQueryOptions(spaceId));
   const saveMutation = useSaveBudget();
   const expenseCategories = categories.filter((category) => category.kind === 'Expense');
   const monthLabel = formatMonthYear(year, month);

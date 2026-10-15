@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { ImportSteps } from '@/app/imports/steps';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 /** Stable page frame shared by every step of the import wizard. */
 export function ImportWizard({
@@ -18,11 +19,13 @@ export function ImportWizard({
   description: string;
   context?: ReactNode;
 }) {
+  const spaceId = useSpaceId();
   return (
     <div className='mx-auto w-full max-w-5xl space-y-8 py-6'>
       <Link
         className='text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm'
-        to='/finances/imports'
+        params={{ spaceId: spaceId }}
+        to='/$spaceId/finances/imports'
       >
         <ArrowLeft className='size-4' /> Import history
       </Link>

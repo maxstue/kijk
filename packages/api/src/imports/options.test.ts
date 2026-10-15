@@ -60,7 +60,10 @@ test('excluding a row on page two updates totals on every matching page without 
 test('excluding a card statement refreshes card pages to fill the resulting gap', async () => {
   const client = new QueryClient();
   const candidate = { ...row('card'), isCardSettlement: true };
-  const key = importCandidatesQueryOptions('space', 'import', { months: '2026-10-01', cardSettlementsOnly: true }).queryKey;
+  const key = importCandidatesQueryOptions('space', 'import', {
+    months: '2026-10-01',
+    cardSettlementsOnly: true,
+  }).queryKey;
   client.setQueryData(key, { ...cachedPage([candidate], 1), cardSettlementCount: 1 });
   vi.mocked(updateImportCandidate).mockResolvedValue({ ...candidate, excluded: true });
 

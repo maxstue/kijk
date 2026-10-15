@@ -17,6 +17,7 @@ import { cn } from 'cn';
 import { Check, PlusCircle, Tags } from 'lucide-react';
 
 import { ResourceIcon } from '@/shared/components/resource-icon';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 interface Props {
   compact?: boolean;
@@ -26,7 +27,8 @@ interface Props {
 
 /** Faceted filter for the transaction list: pick any number of categories; none selected means all. */
 export function TransactionCategoryFilter({ compact = false, onChange, value }: Props) {
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
+  const spaceId = useSpaceId();
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
   const selected = new Set(value);
   const selectedCategories = categories.filter((category) => selected.has(category.id));
 

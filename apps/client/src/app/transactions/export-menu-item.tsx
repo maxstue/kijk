@@ -6,14 +6,16 @@ import { useMutation } from '@tanstack/react-query';
 import { DownloadIcon, LoaderCircleIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { saveDownload } from '@/shared/utils/download';
 
 /** Downloads the transactions matching `filters` as CSV. */
 export function TransactionExportMenuItem({ filters }: { filters: TransactionFilters }) {
+  const spaceId = useSpaceId();
   const canExport = useSpacePermission(SpacePermissions.finances.export);
   const exportMutation = useMutation({
-    mutationFn: () => exportTransactions(filters),
+    mutationFn: () => exportTransactions(spaceId, filters),
     onError: (error) => toast.error('Export failed', { description: error.message }),
     onSuccess: saveDownload,
   });

@@ -14,10 +14,10 @@ test('restores layouts, guards and the loader when the router fixture is cleaned
   const routes = [routeTree, authenticatedRoute, appRoute, Route];
   const originals = routes.map((route) => ({ ...route.options }));
   const { cleanup, queryClient } = await renderRoute({
-    initialEntry: '/consumptions?view=year&year=2026',
+    initialEntry: '/space/consumptions?view=year&year=2026',
     overviewRoute: Route,
     seedQueryClient(client) {
-      client.setQueryData(queryKeys.limits.list(), []);
+      client.setQueryData(queryKeys.limits.list('space'), []);
     },
   });
   expect(authenticatedRoute.options.beforeLoad).toBeUndefined();
@@ -33,14 +33,14 @@ test('runs the real loader with validated search and waits for the requested dat
   const pending = Promise.withResolvers<void>();
   const requests: URL[] = [];
   worker.use(
-    http.get('http://localhost:5000/api/consumptions', async ({ request }) => {
+    http.get('http://localhost:5000/api/spaces/space/consumptions', async ({ request }) => {
       requests.push(new URL(request.url));
       await pending.promise;
       return HttpResponse.json([]);
     }),
   );
   const { router, queryClient } = await renderRoute({
-    initialEntry: '/consumptions?view=month&year=2026&month=september',
+    initialEntry: '/space/consumptions?view=month&year=2026&month=september',
     overviewRoute: Route,
     stubOverviewLoader: false,
     seedQueryClient() {},
@@ -51,19 +51,19 @@ test('runs the real loader with validated search and waits for the requested dat
   expect(requests.every((url) => url.searchParams.get('year') === '2026')).toBe(true);
   pending.resolve();
   await vi.waitFor(() => expect(router.state.isLoading).toBe(false));
-  expect(queryClient.getQueryData(queryKeys.consumptions.by('2026', 'september'))).toEqual([]);
-  expect(queryClient.getQueryData(queryKeys.consumptions.by('2026'))).toEqual([]);
+  expect(queryClient.getQueryData(queryKeys.consumptions.by('space', '2026', 'september'))).toEqual([]);
+  expect(queryClient.getQueryData(queryKeys.consumptions.by('space', '2026'))).toEqual([]);
   expect(router.state.matches.find((match) => match.routeId === Route.id)?.status).toBe('success');
 });
 
 test('reports a real loader failure instead of entering the route successfully', async () => {
   worker.use(
-    http.get('http://localhost:5000/api/consumptions', () =>
+    http.get('http://localhost:5000/api/spaces/space/consumptions', () =>
       HttpResponse.json({ title: 'Unavailable' }, { status: 503 }),
     ),
   );
   const { router } = await renderRoute({
-    initialEntry: '/consumptions?view=year&year=2026',
+    initialEntry: '/space/consumptions?view=year&year=2026',
     overviewRoute: Route,
     stubOverviewLoader: false,
     seedQueryClient() {},

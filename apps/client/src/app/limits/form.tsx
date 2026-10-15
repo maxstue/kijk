@@ -25,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/components/form';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Resource } from '@/shared/types/domain';
 
@@ -44,10 +45,11 @@ const createDefaultValues: LimitFormValues = {
 
 /** Form to create a limit, or to edit `initialData` when given. */
 export function LimitForm({ initialData, onClose }: Props) {
+  const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
-  const createMutation = useMutation(createLimitMutationOptions());
-  const updateMutation = useMutation(updateLimitMutationOptions());
-  const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
+  const createMutation = useMutation(createLimitMutationOptions(spaceId));
+  const updateMutation = useMutation(updateLimitMutationOptions(spaceId));
+  const { data: resources } = useSuspenseQuery(resourcesQueryOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const form = useForm<LimitFormValues>({
     defaultValues: initialData ? getUpdateDefaultValues(initialData) : createDefaultValues,

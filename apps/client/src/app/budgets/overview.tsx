@@ -21,6 +21,7 @@ import { BudgetForm } from '@/app/budgets/form';
 import { toAmount } from '@/app/budgets/helpers';
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import { PrivateBadge } from '@/shared/components/visibility-select';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
@@ -36,7 +37,8 @@ interface Props {
 
 /** Monthly budgets or spending across all expense categories. */
 export function BudgetOverview({ month, view = 'budgets', year }: Props) {
-  const { data } = useSuspenseQuery(budgetOverviewQueryOptions(year, month));
+  const spaceId = useSpaceId();
+  const { data } = useSuspenseQuery(budgetOverviewQueryOptions(spaceId, year, month));
   const budgeted = data.categories.filter((category) => category.budget !== null && category.budget !== undefined);
   const categories = view === 'budgets' ? budgeted : data.categories;
   const budgetedSpent = budgeted.reduce((total, category) => total + toAmount(category.spent), 0);

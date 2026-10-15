@@ -10,6 +10,8 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+
 const hiddenKey = 'hidden-rule-suggestions';
 const hiddenSchema = z.array(z.string());
 
@@ -35,7 +37,8 @@ function writeHidden(ids: string[]) {
  * transactions, so recurring bookings no longer need the AI.
  */
 export function RuleSuggestions({ canRecord }: { canRecord: boolean }) {
-  const { data } = useQuery(categoryRuleSuggestionsQueryOptions());
+  const spaceId = useSpaceId();
+  const { data } = useQuery(categoryRuleSuggestionsQueryOptions(spaceId));
   const [hidden, setHidden] = useState(readHidden);
   const hiddenIds = new Set(hidden);
   const visible = (data ?? []).filter((suggestion) => !hiddenIds.has(suggestion.id));
@@ -84,7 +87,8 @@ function SuggestionRow({
   onHide: () => void;
   suggestion: CategoryRuleSuggestion;
 }) {
-  const categorizeMutation = useMutation(categorizeTransactionMutationOptions());
+  const spaceId = useSpaceId();
+  const categorizeMutation = useMutation(categorizeTransactionMutationOptions(spaceId));
   const uncategorized = Number(suggestion.uncategorizedCount);
 
   function onRemember() {

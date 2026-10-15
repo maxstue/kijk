@@ -12,6 +12,7 @@ import { ImportMappingStep } from '@/app/imports/mapping-step';
 import { ImportReviewStep } from '@/app/imports/review-step';
 import { ImportStatusBadge } from '@/app/imports/status-badge';
 import { ImportWizard } from '@/app/imports/wizard';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 const stepTitles: Record<ImportJob['status'], string> = {
   Pending: 'Preparing your file',
@@ -27,7 +28,8 @@ const stepTitles: Record<ImportJob['status'], string> = {
 
 /** An import with the step that matches its state. */
 export function ImportDetail({ importId }: { importId: string }) {
-  const { data: job } = useSuspenseQuery(importQueryOptions(importId));
+  const spaceId = useSpaceId();
+  const { data: job } = useSuspenseQuery(importQueryOptions(spaceId, importId));
 
   const [reviewStage, setReviewStage] = useState<'months' | 'review'>('months');
   const isReview = job.status === 'NeedsReview' || job.status === 'Categorizing';
@@ -136,6 +138,7 @@ function ProcessingCard({ job }: { job: ImportJob }) {
 }
 
 function DoneCard({ job }: { job: ImportJob }) {
+  const spaceId = useSpaceId();
   return (
     <Card>
       <CardHeader>
@@ -146,10 +149,17 @@ function DoneCard({ job }: { job: ImportJob }) {
         </CardDescription>
       </CardHeader>
       <CardContent className='flex gap-2'>
-        <Button render={<Link to='/finances/transactions' />} nativeButton={false}>
+        <Button
+          render={<Link params={{ spaceId: spaceId }} to='/$spaceId/finances/transactions' />}
+          nativeButton={false}
+        >
           Show transactions
         </Button>
-        <Button render={<Link to='/finances/budgets' />} variant='outline' nativeButton={false}>
+        <Button
+          render={<Link params={{ spaceId: spaceId }} to='/$spaceId/finances/budgets' />}
+          variant='outline'
+          nativeButton={false}
+        >
           Show budgets
         </Button>
       </CardContent>
@@ -158,6 +168,7 @@ function DoneCard({ job }: { job: ImportJob }) {
 }
 
 function ClosedCard({ job }: { job: ImportJob }) {
+  const spaceId = useSpaceId();
   return (
     <Card>
       <CardHeader>
@@ -167,7 +178,11 @@ function ClosedCard({ job }: { job: ImportJob }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Button render={<Link to='/finances/imports' />} variant='outline' nativeButton={false}>
+        <Button
+          render={<Link params={{ spaceId: spaceId }} to='/$spaceId/finances/imports' />}
+          variant='outline'
+          nativeButton={false}
+        >
           Back to imports
         </Button>
       </CardContent>

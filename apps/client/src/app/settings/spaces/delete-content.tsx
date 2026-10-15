@@ -10,19 +10,17 @@ import {
 } from '@kijk/ui/components/alert-dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { useSpaceSettings } from './context';
-import { clearSpaceData } from './helpers';
 
 /** Confirmation dialog content for deleting the space with all of its data. */
 export function SpaceDeleteContent({ onClose }: { onClose: () => void }) {
   const { space, user } = useSpaceSettings();
   const [confirmation, setConfirmation] = useState('');
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { isPending, mutate } = useMutation(deleteSpaceMutationOptions());
   const hasAnotherSpace = user.spaces?.some((entry) => entry.id !== space.id) ?? false;
@@ -32,10 +30,9 @@ export function SpaceDeleteContent({ onClose }: { onClose: () => void }) {
       onError: (error) => toast.error(error.message),
       onSuccess: () => {
         void (async () => {
-          await clearSpaceData(queryClient);
           toast.success(`Deleted space: ${space.name}`);
           onClose();
-          await navigate({ replace: true, to: hasAnotherSpace ? '/home' : '/welcome' });
+          await navigate({ replace: true, to: hasAnotherSpace ? '/' : '/welcome' });
         })().catch((error: unknown) =>
           toast.error(error instanceof Error ? error.message : 'Could not open the next page'),
         );

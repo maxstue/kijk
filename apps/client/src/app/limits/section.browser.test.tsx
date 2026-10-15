@@ -3,9 +3,9 @@ import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { expect, test, vi } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
 
 import { worker } from '@/test/mocks/browser';
+import { render } from '@/test/render-space';
 
 import { LimitsSection } from './section';
 
@@ -18,9 +18,9 @@ test.each([
 ])('$role gets limit actions matching its permissions', async ({ permissions, disabled }) => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   client.setQueryData(queryKeys.users.me, {
-    user: { spaces: [{ isActive: true, role: { permissions } }] },
+    user: { spaces: [{ id: 'space', isDefault: true, role: { permissions } }] },
   });
-  client.setQueryData(queryKeys.limits.list(), [
+  client.setQueryData(queryKeys.limits.list('space'), [
     {
       id: 'limit',
       name: 'Energy budget',
@@ -50,9 +50,9 @@ test.each([
 test('deleting a limit requires confirmation and refreshes the list after a 204 response', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity }, mutations: { retry: false } } });
   client.setQueryData(queryKeys.users.me, {
-    user: { spaces: [{ isActive: true, role: { permissions: [SpacePermissions.limits.plan] } }] },
+    user: { spaces: [{ id: 'space', isDefault: true, role: { permissions: [SpacePermissions.limits.plan] } }] },
   });
-  client.setQueryData(queryKeys.limits.list(), [
+  client.setQueryData(queryKeys.limits.list('space'), [
     {
       id: 'limit',
       name: 'Energy budget',
@@ -68,7 +68,7 @@ test('deleting a limit requires confirmation and refreshes the list after a 204 
   ]);
   const deleted = vi.fn<() => void>();
   worker.use(
-    http.delete('http://localhost:5000/api/limits/limit', () => {
+    http.delete('http://localhost:5000/api/spaces/space/limits/limit', () => {
       deleted();
       return new HttpResponse(null, { status: 204 });
     }),

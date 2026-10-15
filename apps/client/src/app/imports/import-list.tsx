@@ -5,10 +5,12 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 
 import { ImportStatusBadge } from '@/app/imports/status-badge';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 /** Table of the space's latest imports, each linking to its details. */
 export function ImportList() {
-  const { data } = useSuspenseQuery(importsQueryOptions());
+  const spaceId = useSpaceId();
+  const { data } = useSuspenseQuery(importsQueryOptions(spaceId));
 
   return (
     <Card>
@@ -32,8 +34,8 @@ export function ImportList() {
                   <TableCell>
                     <Link
                       className='font-medium underline-offset-4 hover:underline'
-                      params={{ importId: job.id }}
-                      to='/finances/imports/$importId'
+                      params={{ spaceId: spaceId, importId: job.id }}
+                      to='/$spaceId/finances/imports/$importId'
                     >
                       {job.fileName}
                     </Link>

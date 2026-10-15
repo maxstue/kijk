@@ -3769,14 +3769,13 @@ export interface components {
        */
       categoryId: null | string;
       /**
-       * `false` corrects only this transaction. `true` also remembers the category for this merchant or
-       * counterparty, applies it to its other automatically categorized transactions and to future imports.
+       * `false` corrects only this transaction. `true` also remembers the category for this merchant or counterparty,
+       * applies it to its other automatically categorized transactions and to future imports.
        */
       remember: boolean;
       /**
        * With Remember: remembers the category for all bookings whose purpose contains this word (one of
-       * IReadOnlyList&lt;string&gt; TransactionResponse.RememberKeywords) instead of for the merchant or
-       * counterparty.
+       * IReadOnlyList&lt;string&gt; TransactionResponse.RememberKeywords) instead of for the merchant or counterparty.
        */
       keyword?: null | string;
     };
@@ -4111,10 +4110,7 @@ export interface components {
       validFrom: string;
       /** Whether the budget is evaluated. */
       active: boolean;
-      /**
-       * A private budget is seen and used only by its creator and replaces the shared budget of the category for
-       * them.
-       */
+      /** A private budget is seen and used only by its creator and replaces the shared budget of the category for them. */
       visibility?: components['schemas']['Visibility'];
     };
     /** Request for creating a custom category. */
@@ -4985,8 +4981,8 @@ export interface components {
       /** Whether the row is not imported. */
       excluded: boolean;
       /**
-       * For a card statement: whether its single purchases are imported separately, so it only offsets them.
-       * Unchanged when omitted.
+       * For a card statement: whether its single purchases are imported separately, so it only offsets them. Unchanged
+       * when omitted.
        */
       countsAsOffset?: null | boolean;
     };

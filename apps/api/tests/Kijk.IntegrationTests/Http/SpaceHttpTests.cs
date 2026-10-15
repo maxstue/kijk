@@ -80,6 +80,42 @@ public class SpaceHttpTests
     }
 
     [Test]
+    public async Task DefaultCanMoveBetweenMembershipsAndConcurrentChangesKeepOneDefault()
+    {
+        var (admin, _, sharedId) = await CreateSharedSpaceAsync();
+        Guid personalId;
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var user = await dbContext.Users.SingleAsync(item => item.Id == admin.Id);
+            var role = await dbContext.Roles.SingleAsync(item => item.Name == "Admin");
+            var personal = Space.CreatePersonal();
+            dbContext.UserSpaces.Add(UserSpace.Create(user, personal, role));
+            await dbContext.SaveChangesAsync();
+            personalId = personal.Id;
+        }
+        await using var host = await SpaceApiHost.StartAsync(admin.AuthId,
+            configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider, FakeIdentityProvider>()));
+        foreach (var id in new[] { sharedId, personalId, sharedId, personalId })
+        {
+            using var response = await host.Client.PutAsJsonAsync("/api/users/default-space", new SetDefaultSpaceRequest(id), Json);
+            await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        }
+        using var secondTab = host.CreateClient(admin.AuthId);
+        var responses = await Task.WhenAll(
+            host.Client.PutAsJsonAsync("/api/users/default-space", new SetDefaultSpaceRequest(sharedId), Json),
+            secondTab.PutAsJsonAsync("/api/users/default-space", new SetDefaultSpaceRequest(personalId), Json));
+        foreach (var response in responses)
+        {
+            using (response)
+            {
+                await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+            }
+        }
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.UserSpaces.CountAsync(link => link.UserId == admin.Id && link.IsDefault)).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task SpaceRequestsWorkOnTheSpaceOfTheRoute()
     {
         var (admin, _, spaceId) = await CreateSharedSpaceAsync();
@@ -94,7 +130,8 @@ public class SpaceHttpTests
             personalId = personal.Id;
         }
 
-        await using var host = await SpaceApiHost.StartAsync(admin.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(admin.AuthId,
+            configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider, FakeIdentityProvider>()));
         using var created = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/accounts", new CreateAccountRequest("Joint", null), Json);
         var shared = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!;
         var personalAccounts = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{personalId}/accounts", Json))!;

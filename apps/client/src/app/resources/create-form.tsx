@@ -13,6 +13,7 @@ import {
   ResourceUnitField,
 } from '@/app/resources/form-fields';
 import { Form, FormField } from '@/shared/components/form';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 import { resourceSchema } from './schemas';
 import type { ResourceFormValues } from './schemas';
@@ -23,7 +24,8 @@ interface Props {
 
 /** Form to create a custom resource. */
 export function ResourceTypeCreateForm({ onClose }: Props) {
-  const { isPending, mutate } = useMutation(createResourceMutationOptions());
+  const spaceId = useSpaceId();
+  const { isPending, mutate } = useMutation(createResourceMutationOptions(spaceId));
 
   const form = useForm({
     defaultValues: {

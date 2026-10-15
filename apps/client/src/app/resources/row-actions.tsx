@@ -17,6 +17,7 @@ import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ResourceTypeDeleteContent } from '@/app/resources/delete-content';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 import { CreatorTypes, type CreatorType, type Resource } from '@/shared/types/domain';
 
@@ -27,6 +28,7 @@ interface DataTableRowActionsProps {
 
 /** Row menu of the resource table: copy name, edit and delete. System resources and missing permissions disable editing. */
 export function ResourceTypeRowActions({ canManage, row }: DataTableRowActionsProps) {
+  const spaceId = useSpaceId();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
   const resourceType = row.original;
@@ -57,8 +59,8 @@ export function ResourceTypeRowActions({ canManage, row }: DataTableRowActionsPr
               tooltip={managementRestriction ?? 'Update resource'}
               onClick={() =>
                 navigate({
-                  to: '/consumptions/resources/$resourceId',
-                  params: { resourceId: resourceType.id },
+                  to: '/$spaceId/consumptions/resources/$resourceId',
+                  params: { spaceId: spaceId, resourceId: resourceType.id },
                   search: (previous) => previous,
                 })
               }

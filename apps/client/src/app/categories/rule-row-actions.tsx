@@ -27,6 +27,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 
 interface Props {
@@ -36,8 +37,9 @@ interface Props {
 
 /** Row menu of the rule table: delete. Rules are created from corrections and cannot be edited. */
 export function CategoryRuleRowActions({ canRecord, row }: Props) {
+  const spaceId = useSpaceId();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { isPending, mutate } = useMutation(deleteCategoryRuleMutationOptions());
+  const { isPending, mutate } = useMutation(deleteCategoryRuleMutationOptions(spaceId));
   const rule = row.original;
   const restriction = canRecord ? undefined : 'Your role in this space does not allow deleting rules.';
 

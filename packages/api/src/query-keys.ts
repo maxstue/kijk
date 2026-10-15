@@ -85,7 +85,9 @@ const categoryRules = {
 // Units belong to users and are shared with spaces, so their lists name the space in the query.
 const units = {
   all: ['units'] as const,
-  list: (query: UnitListQuery) => [...units.all, 'list', query] as const,
+  inSpace: (spaceId: string) => [...space(spaceId), 'units'] as const,
+  list: (query: UnitListQuery) =>
+    [...(query.scope === 'Space' && query.spaceId ? units.inSpace(query.spaceId) : units.all), 'list', query] as const,
 };
 
 /** Query keys for the API queries and mutations. */

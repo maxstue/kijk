@@ -3,6 +3,7 @@ import { Button } from '@kijk/ui/components/button';
 import { Link } from '@tanstack/react-router';
 import { EditIcon } from 'lucide-react';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 /** Opens the edit page of a consumption, keeping the current search params. */
 export function ConsumptionEditButton({ id }: Props) {
+  const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   if (!canRecord) {
     return null;
@@ -20,9 +22,9 @@ export function ConsumptionEditButton({ id }: Props) {
     <Button
       render={
         <Link
-          from='/consumptions'
-          to='/consumptions/$consumptionId'
-          params={{ consumptionId: id }}
+          from='/$spaceId/consumptions'
+          to='/$spaceId/consumptions/$consumptionId'
+          params={{ spaceId: spaceId, consumptionId: id }}
           search={(previous) => previous}
         />
       }

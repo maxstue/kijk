@@ -12,6 +12,7 @@ import { accountSchema } from '@/app/accounts/schemas';
 import type { AccountFormValues } from '@/app/accounts/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { VisibilitySelect } from '@/shared/components/visibility-select';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 interface Props {
   /** Whether the member may create or keep shared accounts (finances:configure). */
@@ -24,8 +25,9 @@ interface Props {
 
 /** Form to create an account, or to edit `initialData` when given. */
 export function AccountForm({ canShare, initialData, onClose, showVisibility }: Props) {
-  const createMutation = useMutation(createAccountMutationOptions());
-  const updateMutation = useMutation(updateAccountMutationOptions());
+  const spaceId = useSpaceId();
+  const createMutation = useMutation(createAccountMutationOptions(spaceId));
+  const updateMutation = useMutation(updateAccountMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const isCash = initialData?.kind === 'Cash';
   const form = useForm<AccountFormValues>({

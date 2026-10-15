@@ -4,6 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { ResourceTypeUpdateForm } from '@/app/resources/update-form';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 /** `/consumptions/resources/$resourceId`: edit dialog of a resource. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/resources/$resourceId')({
@@ -11,11 +12,13 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
 });
 
 function ResourceEditDialog() {
+  const spaceId = useSpaceId();
   const navigate = Route.useNavigate();
   const closeDialog = () =>
     navigate({
+      params: { spaceId: spaceId },
       replace: true,
-      to: '/consumptions/resources',
+      to: '/$spaceId/consumptions/resources',
       search: (previous) => previous,
     });
 
@@ -29,8 +32,9 @@ function ResourceEditDialog() {
 }
 
 function ResourceEditContent({ onClose }: { onClose: () => void }) {
+  const spaceId = useSpaceId();
   const { resourceId } = Route.useParams();
-  const { data: resource } = useSuspenseQuery(resourceQueryOptions(resourceId));
+  const { data: resource } = useSuspenseQuery(resourceQueryOptions(spaceId, resourceId));
   return (
     <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>
       <DialogHeader>

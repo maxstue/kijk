@@ -5,7 +5,8 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, onTestFinished, test, vi } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
+
+import { render } from '@/test/render-space';
 
 import { ImportAiCategorization } from './ai-preview';
 
@@ -21,8 +22,12 @@ function createClient(aiEnabled: boolean, aiDataSharing: 'Off' | 'Strict') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   onTestFinished(() => client.clear());
   client.setQueryData(queryKeys.users.me, { status: 'Ready', user: { aiEnabled } });
-  client.setQueryData(queryKeys.imports.settings(), { aiDataSharing, minimizeData: false, purposeRetention: 'Keep' });
-  client.setQueryData(queryKeys.imports.aiPreview('import'), {
+  client.setQueryData(queryKeys.imports.settings('space'), {
+    aiDataSharing,
+    minimizeData: false,
+    purposeRetention: 'Keep',
+  });
+  client.setQueryData(queryKeys.imports.aiPreview('space', 'import'), {
     items: [
       { counterparty: 'REWE Markt', excluded: false, incoming: false, key: 'a', purpose: 'Einkauf', rowCount: 2 },
       { counterparty: '[PERSON]', excluded: false, incoming: false, key: 'b', purpose: 'Miete Oktober', rowCount: 1 },
@@ -73,14 +78,17 @@ test('the preview lists exactly the selected texts and sends only those', async 
   vi.mocked(categorizeImport).mockResolvedValue({} as CategorizeResult);
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
   await vi.waitFor(() =>
-    expect(categorizeImport).toHaveBeenCalledWith('import', { aiDataSharing: 'Strict', selectedTextKeys: ['a', 'b'] }),
+    expect(categorizeImport).toHaveBeenCalledWith('space', 'import', {
+      aiDataSharing: 'Strict',
+      selectedTextKeys: ['a', 'b'],
+    }),
   );
   await screen.unmount();
 });
 
 test.each([360, 768])('keeps a long AI preview inside a %i px dialog', async (width) => {
   const client = createClient(true, 'Strict');
-  client.setQueryData(queryKeys.imports.aiPreview('import'), {
+  client.setQueryData(queryKeys.imports.aiPreview('space', 'import'), {
     items: Array.from({ length: 30 }, (_, index) => ({
       counterparty: 'A very long merchant name that must stay inside the table',
       excluded: false,
@@ -153,7 +161,7 @@ test('keeps checkbox changes local and submits the final selection once', async 
   expect(categorizeImport).not.toHaveBeenCalled();
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
   await vi.waitFor(() =>
-    expect(categorizeImport).toHaveBeenCalledExactlyOnceWith('import', {
+    expect(categorizeImport).toHaveBeenCalledExactlyOnceWith('space', 'import', {
       aiDataSharing: 'Strict',
       selectedTextKeys: ['b', 'c'],
     }),

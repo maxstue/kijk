@@ -2,7 +2,8 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { categorizeTransaction } from '@kijk/api/transactions/requests';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, test, vi } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
+
+import { render } from '@/test/render-space';
 
 import { RuleSuggestions } from './rule-suggestions';
 
@@ -35,7 +36,7 @@ afterEach(() => localStorage.clear());
 
 function renderSuggestions(canRecord = true) {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  client.setQueryData(queryKeys.categoryRules.suggestions(), suggestions);
+  client.setQueryData(queryKeys.categoryRules.suggestions('space'), suggestions);
   return render(
     <QueryClientProvider client={client}>
       <RuleSuggestions canRecord={canRecord} />
@@ -54,7 +55,7 @@ test('remembering a suggestion creates the rule from its latest correction', asy
   await screen.getByRole('button', { name: 'Remember' }).first().click();
 
   await vi.waitFor(() =>
-    expect(categorizeTransaction).toHaveBeenCalledWith({
+    expect(categorizeTransaction).toHaveBeenCalledWith('space', {
       correction: { categoryId: 'groceries', remember: true },
       id: 'transaction-1',
     }),

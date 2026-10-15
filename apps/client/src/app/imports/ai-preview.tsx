@@ -13,6 +13,8 @@ import { Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+
 /** Lets the user check and exclude shared texts before requesting category suggestions. */
 export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
   const { data: currentUser } = useQuery(currentUserQueryOptions());
@@ -30,8 +32,9 @@ export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onS
 }
 
 function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
-  const { data, isPending } = useQuery(importAiPreviewQueryOptions(job.id));
-  const categorizeMutation = useMutation(categorizeImportMutationOptions(job.id));
+  const spaceId = useSpaceId();
+  const { data, isPending } = useQuery(importAiPreviewQueryOptions(spaceId, job.id));
+  const categorizeMutation = useMutation(categorizeImportMutationOptions(spaceId, job.id));
   const [selection, setSelection] = useState<Record<string, boolean>>({});
 
   if (isPending || !data) {

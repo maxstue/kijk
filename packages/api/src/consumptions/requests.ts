@@ -9,7 +9,9 @@ export type { CsvDownload } from '@kijk/api/download';
 
 /** Loads the years that have consumptions. */
 export async function getYears(spaceId: string, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/spaces/{spaceId}/consumptions/years', { params: { path: { spaceId } }, signal }));
+  return unwrapApiResponse(
+    await apiClient().GET('/api/spaces/{spaceId}/consumptions/years', { params: { path: { spaceId } }, signal }),
+  );
 }
 
 /**
@@ -27,7 +29,7 @@ export async function getYears(spaceId: string, signal?: AbortSignal) {
 export async function getConsumptionsBy(spaceId: string, year?: string, month?: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/consumptions', {
-      params: { path: { spaceId },  query: { month, year } },
+      params: { path: { spaceId }, query: { month, year } },
       signal,
     }),
   );
@@ -58,7 +60,7 @@ export async function getConsumptionsStats(spaceId: string, year?: string, month
 
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/consumptions/stats', {
-      params: { path: { spaceId },  query: { month, year } },
+      params: { path: { spaceId }, query: { month, year } },
       signal,
     }),
   );
@@ -67,7 +69,8 @@ export async function getConsumptionsStats(spaceId: string, year?: string, month
 /** Records a consumption; the value type defaults to an absolute meter reading. */
 export async function createConsumption(spaceId: string, data: ConsumptionData, signal?: AbortSignal) {
   return unwrapApiResponse(
-    await apiClient().POST('/api/spaces/{spaceId}/consumptions', { params: { path: { spaceId } },
+    await apiClient().POST('/api/spaces/{spaceId}/consumptions', {
+      params: { path: { spaceId } },
       body: {
         date: data.date.toISOString(),
         name: data.name,
@@ -82,7 +85,12 @@ export async function createConsumption(spaceId: string, data: ConsumptionData, 
 }
 
 /** Updates a consumption; omitted fields keep their current value. */
-export async function updateConsumption(spaceId: string, id: string, data: Partial<ConsumptionData>, signal?: AbortSignal) {
+export async function updateConsumption(
+  spaceId: string,
+  id: string,
+  data: Partial<ConsumptionData>,
+  signal?: AbortSignal,
+) {
   return unwrapApiResponse(
     await apiClient().PUT('/api/spaces/{spaceId}/consumptions/{id}', {
       body: {
@@ -129,9 +137,14 @@ export async function exportConsumption(spaceId: string, id: string, signal?: Ab
  * @param month The English month name.
  * @param signal Aborts the request.
  */
-export async function exportConsumptionMonth(spaceId: string, year: number, month: string, signal?: AbortSignal): Promise<CsvDownload> {
+export async function exportConsumptionMonth(
+  spaceId: string,
+  year: number,
+  month: string,
+  signal?: AbortSignal,
+): Promise<CsvDownload> {
   const result = await apiClient().GET('/api/spaces/{spaceId}/consumptions/export', {
-    params: { path: { spaceId },  query: { month, year } },
+    params: { path: { spaceId }, query: { month, year } },
     parseAs: 'blob',
     signal,
   });

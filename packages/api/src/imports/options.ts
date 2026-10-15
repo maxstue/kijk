@@ -108,10 +108,16 @@ export const updateImportCandidateMutationOptions = (spaceId: string) =>
     onSuccess: async (data, { importId }, _result, { client }) => {
       // Prevent a list request started before this edit from overwriting the updated row.
       await client.cancelQueries({ queryKey: queryKeys.imports.candidates(spaceId, importId) });
-      const pages = client.getQueriesData<ImportCandidatePage>({ queryKey: queryKeys.imports.candidates(spaceId, importId) });
+      const pages = client.getQueriesData<ImportCandidatePage>({
+        queryKey: queryKeys.imports.candidates(spaceId, importId),
+      });
       const previous = pages.flatMap(([, page]) => page?.items ?? []).find((candidate) => candidate.id === data.id);
       if (!previous) {
-        await invalidate(client, queryKeys.imports.candidates(spaceId, importId), queryKeys.imports.aiPreview(spaceId, importId));
+        await invalidate(
+          client,
+          queryKeys.imports.candidates(spaceId, importId),
+          queryKeys.imports.aiPreview(spaceId, importId),
+        );
         return;
       }
       const includedDelta =
@@ -146,7 +152,12 @@ export const commitImportMutationOptions = (spaceId: string, id: string) =>
   mutationOptions({
     mutationFn: (data: CommitImportRequest) => commitImport(spaceId, id, data),
     onSuccess: (_data, _variables, _result, { client }) =>
-      invalidate(client, queryKeys.imports.all(spaceId), queryKeys.transactions.all(spaceId), queryKeys.budgets.all(spaceId)),
+      invalidate(
+        client,
+        queryKeys.imports.all(spaceId),
+        queryKeys.transactions.all(spaceId),
+        queryKeys.budgets.all(spaceId),
+      ),
   });
 
 /** Mutation that cancels an import. */

@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
 import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
@@ -22,20 +21,19 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 
-/** Form for the display name, active space name, default resources and profile usage. */
+import { DefaultSpaceSelect } from './default-space-select';
+
+/** Form for the display name, default space, default resources and profile usage. */
 export function ProfileForm() {
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const currentUser = currentAccount?.user;
-  const activeSpace = currentUser?.spaces?.find((space) => space.isActive);
   const externalIdentity = currentUser?.externalIdentity;
-  const canRenameSpace = hasSpacePermission(activeSpace, SpacePermissions.space.configure);
 
   const { mutate } = useMutation(updateUserMutationOptions());
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
-      spaceName: activeSpace?.name ?? '',
       useDefaultResources: currentUser?.resources?.some((resource) => resource.creatorType === 'System') ?? false,
       useExternalProfile: currentUser?.useExternalProfile ?? false,
       userName: currentUser?.name ?? '',
@@ -94,24 +92,7 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name='spaceName'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Space name</FormLabel>
-              <FormControl>
-                <Input disabled={!canRenameSpace} placeholder='My space' {...field} />
-              </FormControl>
-              <FormDescription>
-                {canRenameSpace
-                  ? 'The name of your active space.'
-                  : 'Your role in this space does not allow renaming the space.'}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <DefaultSpaceSelect spaces={currentUser?.spaces ?? []} />
         <div className='flex w-full items-center'>
           <FormField
             control={form.control}

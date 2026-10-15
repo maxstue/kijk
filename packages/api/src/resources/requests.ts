@@ -5,7 +5,9 @@ import type { ResourceData, UpdateResourceData } from './types';
 
 /** Loads the resources of the active space. */
 export async function getResources(spaceId: string, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/spaces/{spaceId}/resources', { params: { path: { spaceId } }, signal }));
+  return unwrapApiResponse(
+    await apiClient().GET('/api/spaces/{spaceId}/resources', { params: { path: { spaceId } }, signal }),
+  );
 }
 
 /** Loads a single resource. */
@@ -21,10 +23,7 @@ export async function getResource(spaceId: string, id: string, signal?: AbortSig
 /** Creates a custom resource. */
 export async function createResource(spaceId: string, data: ResourceData, signal?: AbortSignal) {
   return unwrapApiResponse(
-    await apiClient().POST('/api/spaces/{spaceId}/resources', { params: { path: { spaceId } },
-      body: data,
-      signal,
-    }),
+    await apiClient().POST('/api/spaces/{spaceId}/resources', { params: { path: { spaceId } }, body: data, signal }),
   );
 }
 

@@ -7,7 +7,8 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/finances/accounts`: bank and cash accounts of the active space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/accounts')({
-  loader: ({ context: { queryClient } }) => queryClient.query({ ...accountsQueryOptions(), staleTime: 'static' }),
+  loader: ({ params: { spaceId }, context: { queryClient } }) =>
+    queryClient.query({ ...accountsQueryOptions(spaceId), staleTime: 'static' }),
   component: AccountsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   head: () => ({ meta: [{ title: 'Accounts' }] }),

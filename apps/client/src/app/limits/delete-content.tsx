@@ -13,9 +13,12 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+
 /** Confirmation dialog content for deleting a consumption limit. */
 export function LimitDeleteContent({ limit, onClose }: { limit: Limit; onClose: () => void }) {
-  const { isPending, mutate } = useMutation(deleteLimitMutationOptions());
+  const spaceId = useSpaceId();
+  const { isPending, mutate } = useMutation(deleteLimitMutationOptions(spaceId));
 
   return (
     <AlertDialogContent>

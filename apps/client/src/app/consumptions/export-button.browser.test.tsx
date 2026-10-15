@@ -1,8 +1,8 @@
 import { exportConsumption, exportConsumptionMonth, type CsvDownload } from '@kijk/api/consumptions/requests';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
 
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import { render } from '@/test/render-space';
 
 import { ConsumptionExportButton } from './export-button';
 
@@ -11,8 +11,9 @@ vi.mock('@/shared/hooks/use-space-permission', () => ({
 }));
 
 vi.mock('@kijk/api/consumptions/requests', () => ({
-  exportConsumption: vi.fn<(id: string, signal?: AbortSignal) => Promise<CsvDownload>>(),
-  exportConsumptionMonth: vi.fn<(year: number, month: string, signal?: AbortSignal) => Promise<CsvDownload>>(),
+  exportConsumption: vi.fn<(spaceId: string, id: string, signal?: AbortSignal) => Promise<CsvDownload>>(),
+  exportConsumptionMonth:
+    vi.fn<(spaceId: string, year: number, month: string, signal?: AbortSignal) => Promise<CsvDownload>>(),
 }));
 
 const exportSingle = vi.mocked(exportConsumption);
@@ -32,7 +33,7 @@ test('downloads a single consumption through the API', async () => {
 
   await screen.getByRole('button', { name: 'Export consumption' }).click();
 
-  expect(exportSingle).toHaveBeenCalledWith('consumption-42');
+  expect(exportSingle).toHaveBeenCalledWith('space', 'consumption-42');
 });
 
 test('downloads the selected month through the API', async () => {
@@ -41,7 +42,7 @@ test('downloads the selected month through the API', async () => {
 
   await screen.getByRole('button', { name: 'Export monthly consumptions' }).click();
 
-  expect(exportMonth).toHaveBeenCalledWith(2026, 'september');
+  expect(exportMonth).toHaveBeenCalledWith('space', 2026, 'september');
 });
 
 test('disables an empty month export', async () => {

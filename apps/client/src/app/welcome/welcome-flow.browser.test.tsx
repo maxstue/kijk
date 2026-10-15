@@ -1,6 +1,7 @@
 import { toast } from 'sonner';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
+
+import { render } from '@/test/render-space';
 
 import type { UserStepFormValues } from './schemas';
 import { WelcomeFlow } from './welcome-flow';

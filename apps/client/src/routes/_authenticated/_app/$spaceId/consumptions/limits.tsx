@@ -8,10 +8,10 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/consumptions/limits`: consumption limits of the active space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/limits')({
-  loader: async ({ context: { queryClient } }) => {
+  loader: async ({ params: { spaceId }, context: { queryClient } }) => {
     await Promise.all([
-      queryClient.query({ ...limitsQueryOptions(), staleTime: 'static' }),
-      queryClient.query({ ...resourcesQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...limitsQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...resourcesQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   component: LimitsPage,

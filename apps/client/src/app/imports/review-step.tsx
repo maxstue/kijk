@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { ImportAiCategorization } from '@/app/imports/ai-preview';
 import { ImportCandidatePagination, ImportCandidateTable } from '@/app/imports/candidate-table';
 import { formatImportMonth } from '@/app/imports/helpers';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 /** Step that shows what the import will change and commits it. */
@@ -33,28 +34,29 @@ export function ImportReviewStep({
   stage: 'months' | 'review';
   onStageChange: (stage: 'months' | 'review') => void;
 }) {
+  const spaceId = useSpaceId();
   const queryClient = useQueryClient();
   const previousStatus = useRef(job.status);
   useEffect(() => {
     if (previousStatus.current === 'Categorizing' && job.status === 'NeedsReview') {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(job.id) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(job.id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(spaceId, job.id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(spaceId, job.id) });
     }
     previousStatus.current = job.status;
-  }, [job.id, job.status, queryClient]);
+  }, [job.id, job.status, queryClient, spaceId]);
 
   const [includedEdgeMonths, setIncludedEdgeMonths] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [acceptErrors, setAcceptErrors] = useState(false);
   const [showAiPreview, setShowAiPreview] = useState(false);
-  const commitMutation = useMutation(commitImportMutationOptions(job.id));
-  const cancelMutation = useMutation(cancelImportMutationOptions(job.id));
+  const commitMutation = useMutation(commitImportMutationOptions(spaceId, job.id));
+  const cancelMutation = useMutation(cancelImportMutationOptions(spaceId, job.id));
 
   const included = new Set(includedEdgeMonths);
   const months = new Set([...job.fullMonths, ...includedEdgeMonths]);
   const selectedMonths = [...months].sort().join(',');
   const reviewQuery = useQuery({
-    ...importCandidatesQueryOptions(job.id, { months: selectedMonths, page }),
+    ...importCandidatesQueryOptions(spaceId, job.id, { months: selectedMonths, page }),
     enabled: stage === 'review',
     placeholderData: keepPreviousData,
   });
@@ -364,10 +366,11 @@ function MonthSelection({
 
 /** Credit card statements found in the file; they count as offset only when the user confirms it per row. */
 function CardSettlements({ count, months, importId }: { count: number; months: string; importId: string }) {
+  const spaceId = useSpaceId();
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
   const { data, isFetching, isError, refetch } = useQuery({
-    ...importCandidatesQueryOptions(importId, { months, page, cardSettlementsOnly: true }),
+    ...importCandidatesQueryOptions(spaceId, importId, { months, page, cardSettlementsOnly: true }),
     enabled: open && count > 0,
     placeholderData: keepPreviousData,
   });
@@ -410,7 +413,8 @@ function CardSettlements({ count, months, importId }: { count: number; months: s
 }
 
 function CardSettlementOption({ candidate, importId }: { candidate: ImportCandidate; importId: string }) {
-  const updateMutation = useMutation(updateImportCandidateMutationOptions());
+  const spaceId = useSpaceId();
+  const updateMutation = useMutation(updateImportCandidateMutationOptions(spaceId));
   const id = useId();
 
   function onCheckedChange(checked: boolean) {

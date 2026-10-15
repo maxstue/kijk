@@ -13,10 +13,10 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** The finances categories route, which shows the categories and categorization rules of the active space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/categories')({
-  loader: async ({ context: { queryClient } }) => {
+  loader: async ({ params: { spaceId }, context: { queryClient } }) => {
     await Promise.all([
-      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
-      queryClient.query({ ...categoryRulesQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...categoriesQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...categoryRulesQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   component: CategoriesPage,

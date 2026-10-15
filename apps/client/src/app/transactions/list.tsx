@@ -43,6 +43,7 @@ import { transactionPageSizes } from '@/app/transactions/constants';
 import { TransactionForm } from '@/app/transactions/form';
 import { RememberDialog } from '@/app/transactions/remember-dialog';
 import { noneValue } from '@/app/transactions/schemas';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
@@ -61,7 +62,8 @@ export function TransactionList({
   query: TransactionPageQuery;
   selectable?: boolean;
 }) {
-  const { data: page, isFetching } = useSuspenseQuery(transactionsQueryOptions(query));
+  const spaceId = useSpaceId();
+  const { data: page, isFetching } = useSuspenseQuery(transactionsQueryOptions(spaceId, query));
   const data = page.items;
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
   // Transactions that left the list, e.g. because they got a category, are no longer selected.
@@ -266,8 +268,9 @@ function BulkCategoryBar({
   selectedIds: string[];
   selectedTransactions: Transaction[];
 }) {
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
-  const categorizeMutation = useMutation(categorizeTransactionsMutationOptions());
+  const spaceId = useSpaceId();
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
+  const categorizeMutation = useMutation(categorizeTransactionsMutationOptions(spaceId));
   const [categoryId, setCategoryId] = useState<string>();
 
   function onAssign() {
@@ -397,8 +400,9 @@ function TransactionRow({
 }
 
 function CategorySelect({ disabled, transaction }: { disabled: boolean; transaction: Transaction }) {
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
-  const categorizeMutation = useMutation(categorizeTransactionMutationOptions());
+  const spaceId = useSpaceId();
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
+  const categorizeMutation = useMutation(categorizeTransactionMutationOptions(spaceId));
   const [rememberTarget, setRememberTarget] = useState<{ categoryId: string; transaction: Transaction }>();
 
   function onChange(value: string | null) {
@@ -485,7 +489,8 @@ function EditButton({ disabled, transaction }: { disabled: boolean; transaction:
 }
 
 function DeleteButton({ disabled, transaction }: { disabled: boolean; transaction: Transaction }) {
-  const deleteMutation = useMutation(deleteTransactionMutationOptions());
+  const spaceId = useSpaceId();
+  const deleteMutation = useMutation(deleteTransactionMutationOptions(spaceId));
 
   function onDelete() {
     deleteMutation.mutate(transaction.id, {

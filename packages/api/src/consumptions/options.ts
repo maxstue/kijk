@@ -63,7 +63,12 @@ export const createConsumptionMutationOptions = (spaceId: string) =>
         client.setQueryData(queryKey, [...cached, data]);
       }
 
-      await invalidate(client, queryKeys.consumptions.byAll(spaceId), queryKeys.consumptions.statsAll(spaceId), queryKeys.limits.all(spaceId));
+      await invalidate(
+        client,
+        queryKeys.consumptions.byAll(spaceId),
+        queryKeys.consumptions.statsAll(spaceId),
+        queryKeys.limits.all(spaceId),
+      );
     },
   });
 
@@ -74,7 +79,12 @@ export const updateConsumptionMutationOptions = (spaceId: string) =>
     onSuccess: async (data, variables, _result, { client }) => {
       client.setQueryData(queryKeys.consumptions.detail(spaceId, data.id), data);
 
-      await invalidate(client, queryKeys.consumptions.byAll(spaceId), queryKeys.consumptions.statsAll(spaceId), queryKeys.limits.all(spaceId));
+      await invalidate(
+        client,
+        queryKeys.consumptions.byAll(spaceId),
+        queryKeys.consumptions.statsAll(spaceId),
+        queryKeys.limits.all(spaceId),
+      );
 
       const date = variables.consumption.date;
       if (!date) {

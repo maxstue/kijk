@@ -22,6 +22,11 @@ public sealed class SetDefaultSpaceHandler(IAppDbContext dbContext, CurrentUser 
     /// <returns>The updated account, or a not-found error when the user is not a member.</returns>
     public async Task<Result<CurrentUserResponse>> SetAsync(SetDefaultSpaceRequest request, CancellationToken cancellationToken)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        // Serialize default changes for this user, including concurrent browser tabs.
+        await dbContext.Users.FromSqlInterpolated($"SELECT * FROM users WHERE id = {currentUser.Id} FOR UPDATE")
+            .SingleAsync(cancellationToken);
+
         var memberships = await dbContext.UserSpaces
             .Where(link => link.UserId == currentUser.Id)
             .ToListAsync(cancellationToken);
@@ -30,12 +35,19 @@ public sealed class SetDefaultSpaceHandler(IAppDbContext dbContext, CurrentUser 
             return Error.NotFound("Space could not be found");
         }
 
-        foreach (var membership in memberships)
+        // Clear the old value before setting the new one: the partial unique index is checked per statement.
+        foreach (var membership in memberships.Where(link => link.IsDefault))
         {
-            membership.SetDefault(membership.SpaceId == request.SpaceId);
+            membership.SetDefault(false);
         }
-
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        if (request.SpaceId is { } defaultId)
+        {
+            memberships.Single(link => link.SpaceId == defaultId).SetDefault(true);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        await transaction.CommitAsync(cancellationToken);
         return await getMeUserHandler.GetMeAsync(cancellationToken);
     }
 }

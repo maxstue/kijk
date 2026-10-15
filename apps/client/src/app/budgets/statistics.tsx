@@ -13,6 +13,7 @@ import { curveStep } from 'd3-shape';
 import { useMemo } from 'react';
 
 import { toAmount } from '@/app/budgets/helpers';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 const monthsShown = 12;
@@ -28,7 +29,8 @@ interface Trend {
 
 /** Spending per category over the last twelve months up to the given month, as small multiples or table. */
 export function BudgetStatistics({ month, year }: { month: number; year: number }) {
-  const { data } = useQuery(budgetStatisticsQueryOptions(year, month, monthsShown));
+  const spaceId = useSpaceId();
+  const { data } = useQuery(budgetStatisticsQueryOptions(spaceId, year, month, monthsShown));
   if (!data) {
     return null;
   }

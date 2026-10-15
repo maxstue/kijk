@@ -3,7 +3,9 @@ import { unwrapApiResponse } from '@kijk/api/http';
 
 /** Loads the remembered category corrections of the active space. */
 export async function getCategoryRules(spaceId: string, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/spaces/{spaceId}/category-rules', { params: { path: { spaceId } }, signal }));
+  return unwrapApiResponse(
+    await apiClient().GET('/api/spaces/{spaceId}/category-rules', { params: { path: { spaceId } }, signal }),
+  );
 }
 
 /** Deletes a remembered category correction; transactions keep their categories. */
@@ -13,5 +15,10 @@ export async function deleteCategoryRule(spaceId: string, id: string) {
 
 /** Loads rules suggested from repeated manual corrections. */
 export async function getCategoryRuleSuggestions(spaceId: string, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/spaces/{spaceId}/category-rules/suggestions', { params: { path: { spaceId } }, signal }));
+  return unwrapApiResponse(
+    await apiClient().GET('/api/spaces/{spaceId}/category-rules/suggestions', {
+      params: { path: { spaceId } },
+      signal,
+    }),
+  );
 }

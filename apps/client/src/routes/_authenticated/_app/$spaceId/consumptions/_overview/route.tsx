@@ -26,6 +26,7 @@ import { LimitWarnings } from '@/app/limits/warnings';
 import { NotFound } from '@/shared/components/not-found';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { getMonthFromDate, monthSchema } from '@/shared/utils/months';
 
@@ -40,14 +41,14 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
   validateSearch: zodValidator(searchSchema),
   component: UsagePage,
   loaderDeps: ({ search: { month, view, year } }) => ({ month, view, year }),
-  loader: async ({ context: { queryClient }, deps }) => {
+  loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([
       queryClient.query({
-        ...consumptionsByQueryOptions(deps.year, deps.view === 'month' ? deps.month : undefined),
+        ...consumptionsByQueryOptions(spaceId, deps.year, deps.view === 'month' ? deps.month : undefined),
         staleTime: 'static',
       }),
-      queryClient.query({ ...consumptionsByQueryOptions(deps.year), staleTime: 'static' }),
-      queryClient.query({ ...limitsQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...consumptionsByQueryOptions(spaceId, deps.year), staleTime: 'static' }),
+      queryClient.query({ ...limitsQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   notFoundComponent: NotFound,
@@ -56,12 +57,13 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
 });
 
 function UsagePage() {
+  const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const [showDialog, setShowDialog] = useState(false);
   const { month, view, year } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data } = useSuspenseQuery(consumptionsByQueryOptions(year, view === 'month' ? month : undefined));
-  const { data: yearlyConsumptions } = useSuspenseQuery(consumptionsByQueryOptions(year));
+  const { data } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year, view === 'month' ? month : undefined));
+  const { data: yearlyConsumptions } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year));
 
   const handleClose = () => setShowDialog(false);
 

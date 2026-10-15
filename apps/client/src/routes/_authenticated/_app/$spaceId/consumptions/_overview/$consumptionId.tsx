@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { LimitWarning } from '@/app/consumptions/limit-warning';
 import { ConsumptionUpdateForm } from '@/app/consumptions/update-form';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 /** `/consumptions/$consumptionId`: edit dialog of a consumption. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/_overview/$consumptionId')({
@@ -12,11 +13,13 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
 });
 
 function ConsumptionEditDialog() {
+  const spaceId = useSpaceId();
   const navigate = Route.useNavigate();
   const closeDialog = () =>
     navigate({
+      params: { spaceId: spaceId },
       replace: true,
-      to: '/consumptions',
+      to: '/$spaceId/consumptions',
       search: (previous) => previous,
     });
 
@@ -30,10 +33,11 @@ function ConsumptionEditDialog() {
 }
 
 function ConsumptionEditContent({ onClose }: { onClose: () => void }) {
+  const spaceId = useSpaceId();
   const { consumptionId } = Route.useParams();
   const { year } = Route.useSearch();
-  const { data: consumption } = useSuspenseQuery(consumptionQueryOptions(consumptionId));
-  const { data: consumptions } = useSuspenseQuery(consumptionsByQueryOptions(year));
+  const { data: consumption } = useSuspenseQuery(consumptionQueryOptions(spaceId, consumptionId));
+  const { data: consumptions } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year));
   return (
     <>
       <DialogHeader>

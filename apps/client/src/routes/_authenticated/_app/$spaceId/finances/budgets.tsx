@@ -45,14 +45,14 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/bud
   component: BudgetsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
-  loader: async ({ context: { queryClient }, deps }) => {
+  loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([
       queryClient.query({
-        ...budgetOverviewQueryOptions(deps.year, deps.month),
+        ...budgetOverviewQueryOptions(spaceId, deps.year, deps.month),
         staleTime: 'static',
       }),
-      queryClient.query({ ...budgetsQueryOptions(), staleTime: 'static' }),
-      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...budgetsQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...categoriesQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   head: () => ({ meta: [{ title: 'Budgets' }] }),

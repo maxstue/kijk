@@ -15,6 +15,7 @@ import {
 import type { ResourceFormValues } from '@/app/resources/schemas';
 import { resourceSchema } from '@/app/resources/schemas';
 import { Form, FormField } from '@/shared/components/form';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Resource } from '@/shared/types/domain';
 
 interface Props {
@@ -26,7 +27,8 @@ const handleSubmitError = () => toast.error('Resource could not be updated');
 
 /** Form to edit a custom resource, prefilled with `initialData`. */
 export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
-  const { isPending, mutate } = useMutation(updateResourceMutationOptions());
+  const spaceId = useSpaceId();
+  const { isPending, mutate } = useMutation(updateResourceMutationOptions(spaceId));
 
   const form = useForm({
     defaultValues: {

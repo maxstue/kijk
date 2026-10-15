@@ -1,9 +1,9 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
 
 import { formatStringToCurrency } from '@/shared/utils/format';
+import { render } from '@/test/render-space';
 
 import { BudgetOverview } from './overview';
 
@@ -48,7 +48,7 @@ const categories = [
 
 function createClient(selectedCategories = categories) {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  client.setQueryData(queryKeys.budgets.overview(2026, 10), {
+  client.setQueryData(queryKeys.budgets.overview('space', 2026, 10), {
     categories: selectedCategories,
     income: 0,
     pendingExpenses: 0,

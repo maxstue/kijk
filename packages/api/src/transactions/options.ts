@@ -20,7 +20,12 @@ import type {
 
 // Transactions feed the budget evaluations, and corrections change remembered rules and their suggestions.
 const invalidateFinances = (client: QueryClient, spaceId: string) =>
-  invalidate(client, queryKeys.transactions.all(spaceId), queryKeys.budgets.all(spaceId), queryKeys.categoryRules.all(spaceId));
+  invalidate(
+    client,
+    queryKeys.transactions.all(spaceId),
+    queryKeys.budgets.all(spaceId),
+    queryKeys.categoryRules.all(spaceId),
+  );
 
 /** Query for a page of the transactions matching the filters. */
 export const transactionsQueryOptions = (spaceId: string, query: TransactionPageQuery) =>

@@ -1,4 +1,5 @@
 import type { LoadedClerk } from '@clerk/react/types';
+import { queryKeys } from '@kijk/api/query-keys';
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Outlet, RouterProvider, createMemoryHistory, createRouter, type AnyRoute } from '@tanstack/react-router';
@@ -32,6 +33,10 @@ export async function renderRoute({
 }: RenderRouteOptions) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+  });
+  queryClient.setQueryData(queryKeys.users.me, {
+    status: 'Ready',
+    user: { id: 'user', spaces: [{ id: 'space', isPersonal: true, role: { permissions: [] } }] },
   });
   seedQueryClient(queryClient);
 

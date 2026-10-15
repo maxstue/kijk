@@ -7,6 +7,7 @@ import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 import type { ResourceFormValues } from '@/app/resources/schemas';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { UnitSelectOptions, unitSelectItems } from '@/shared/components/unit-select-options';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 import { ResourceIconPicker } from './icon-picker';
 
@@ -30,8 +31,9 @@ export function ResourceNameField({ className, field }: FieldProps<'name'>) {
 
 /** Unit select of the resource forms. */
 export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
+  const spaceId = useSpaceId();
   // The space scope contains the system units and the units shared with the active space.
-  const { data } = useSuspenseQuery(unitsQueryOptions({ scope: 'Space' }));
+  const { data } = useSuspenseQuery(unitsQueryOptions({ scope: 'Space', spaceId }));
   const availableUnits = data.items;
 
   return (

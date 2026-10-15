@@ -2,6 +2,7 @@ import { budgetOverviewQueryOptions } from '@kijk/api/budgets/options';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useWarningToasts } from '@/shared/hooks/use-warning-toasts';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
@@ -10,7 +11,8 @@ import { formatStringToCurrency } from '@/shared/utils/format';
  * dismisses it once the spending is back within the budget. Renders nothing.
  */
 export function BudgetWarnings({ month, year }: { month: number; year: number }) {
-  const { data } = useSuspenseQuery(budgetOverviewQueryOptions(year, month));
+  const spaceId = useSpaceId();
+  const { data } = useSuspenseQuery(budgetOverviewQueryOptions(spaceId, year, month));
   const warnings = useMemo(
     () =>
       data.categories

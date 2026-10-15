@@ -32,7 +32,7 @@ export const welcomeUserMutationOptions = () =>
 /** Mutation that sets or clears the space the app opens first. */
 export const setDefaultSpaceMutationOptions = () =>
   mutationOptions({
-    mutationFn: setDefaultSpace,
+    mutationFn: (spaceId: string | null) => setDefaultSpace(spaceId),
     onSuccess: (currentUser, _variables, _result, { client }) => {
       client.setQueryData(queryKeys.users.me, currentUser);
     },

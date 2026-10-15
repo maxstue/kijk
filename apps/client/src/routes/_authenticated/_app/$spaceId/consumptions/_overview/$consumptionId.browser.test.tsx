@@ -13,19 +13,19 @@ test('loads the canonical consumption URL and closes to the overview while prese
     unit: 'kWh',
   };
   const { router, screen } = await renderRoute({
-    initialEntry: '/consumptions/consumption-42?view=month&year=2026&month=september',
+    initialEntry: '/space/consumptions/consumption-42?view=month&year=2026&month=september',
     overviewRoute: consumptionsRoute,
     seedQueryClient(queryClient) {
-      queryClient.setQueryData(queryKeys.consumptions.detail('consumption-42'), {
+      queryClient.setQueryData(queryKeys.consumptions.detail('space', 'consumption-42'), {
         date: '2026-09-08',
         id: 'consumption-42',
         name: 'Office electricity',
         resource,
         value: 42,
       });
-      queryClient.setQueryData(queryKeys.resources.list(), [resource]);
-      queryClient.setQueryData(queryKeys.limits.list(), []);
-      queryClient.setQueryData(queryKeys.consumptions.by('2026'), []);
+      queryClient.setQueryData(queryKeys.resources.list('space'), [resource]);
+      queryClient.setQueryData(queryKeys.limits.list('space'), []);
+      queryClient.setQueryData(queryKeys.consumptions.by('space', '2026'), []);
     },
   });
 
@@ -33,6 +33,6 @@ test('loads the canonical consumption URL and closes to the overview while prese
   await expect.element(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Office electricity');
   await screen.getByRole('button', { name: 'Close' }).click();
 
-  await vi.waitFor(() => expect(router.state.location.pathname).toBe('/consumptions'));
+  await vi.waitFor(() => expect(router.state.location.pathname).toBe('/space/consumptions'));
   expect(router.state.location.search).toEqual({ month: 'september', view: 'month', year: 2026 });
 });

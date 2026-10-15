@@ -17,6 +17,7 @@ import { Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { getMonthFromDate } from '@/shared/utils/months';
 
@@ -27,9 +28,10 @@ interface Props {
 
 /** Deletes a consumption after confirmation. */
 export function ConsumptionDeleteButton({ id, date }: Props) {
+  const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const [showModal, setShowModal] = useState(false);
-  const { mutate } = useMutation(deleteConsumptionMutationOptions());
+  const { mutate } = useMutation(deleteConsumptionMutationOptions(spaceId));
 
   const handleDelete = () => {
     if (!canRecord) {

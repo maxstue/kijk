@@ -4,6 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 
 import { ResourceUnit } from '@/shared/components/resources-unit';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Months } from '@/shared/utils/months';
 import { getMonthFromDate } from '@/shared/utils/months';
 
@@ -18,13 +19,14 @@ function getComparisonLabel(selectedYear: number, selectedMonth: Months) {
 
 /** Monthly overview cards with totals and comparisons for every resource. */
 export default function ConsumptionStats() {
+  const spaceId = useSpaceId();
   const searchParameters = Route.useSearch();
 
   const selectedYear = searchParameters.year;
   const selectedMonth = searchParameters.month;
   const comparisonLabel = getComparisonLabel(selectedYear, selectedMonth);
 
-  const { data } = useSuspenseQuery(consumptionsStatsQueryOptions(selectedYear, selectedMonth));
+  const { data } = useSuspenseQuery(consumptionsStatsQueryOptions(spaceId, selectedYear, selectedMonth));
 
   return (
     <section aria-labelledby='monthly-overview-heading' className='bg-muted/30 space-y-4 rounded-lg border p-4 sm:p-6'>

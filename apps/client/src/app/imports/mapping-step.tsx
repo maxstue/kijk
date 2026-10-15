@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import type { ColumnRole } from '@/app/imports/constants';
 import { columnRoles, dateFormats, delimiters, encodings, ignoredColumn } from '@/app/imports/constants';
 import { assignColumnRole, createEmptyMapping, getColumnRoles, getMissingMappingFields } from '@/app/imports/helpers';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 const proposalDescriptions: Record<NonNullable<ImportJob['proposedMappingSource']> | 'None', string> = {
   Ai: 'The AI suggested this mapping from the column names and masked value patterns; it never saw your data.',
@@ -30,13 +31,14 @@ export function ImportMappingStep({
   initialMapping: CsvImportMapping | null;
   job: ImportJob;
 }) {
+  const spaceId = useSpaceId();
   // A draft the user edits; it starts from the proposal and is sent only when confirmed.
   const [mapping, setMapping] = useState<CsvImportMapping | null>(initialMapping);
   const format = mapping
     ? { delimiter: mapping.delimiter, encoding: mapping.encoding, headerRowIndex: Number(mapping.headerRowIndex) }
     : {};
   const { data: preview, isFetching } = useQuery({
-    ...importPreviewQueryOptions(job.id, format),
+    ...importPreviewQueryOptions(spaceId, job.id, format),
     placeholderData: keepPreviousData,
   });
 
@@ -57,7 +59,8 @@ interface MappingCardProps {
 }
 
 function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardProps) {
-  const confirmMutation = useMutation(confirmImportMappingMutationOptions(job.id));
+  const spaceId = useSpaceId();
+  const confirmMutation = useMutation(confirmImportMappingMutationOptions(spaceId, job.id));
   const roles = getColumnRoles(mapping);
   const missing = getMissingMappingFields(mapping);
 

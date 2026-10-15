@@ -518,8 +518,13 @@ public class ImportHttpTests
     {
         var job = await UploadAsync(client, spaceId, accountId, "ing-synthetic.csv");
         // A confirmed profile of an earlier import skips the mapping step.
+        var attempts = 0;
         while (job.Status is ImportJobStatus.Pending or ImportJobStatus.Analyzing)
         {
+            if (++attempts > 120)
+            {
+                throw new TimeoutException($"Import stayed in {job.Status} instead of becoming ready for mapping or review");
+            }
             await Task.Delay(100);
             job = (await client.GetFromJsonAsync<ImportJobResponse>($"/api/spaces/{spaceId}/imports/{job.Id}", Json))!;
         }

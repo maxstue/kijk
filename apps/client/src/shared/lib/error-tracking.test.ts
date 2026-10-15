@@ -44,7 +44,7 @@ test('keeps minimal error reporting enabled but suppresses breadcrumbs and uncon
   expect(options.beforeBreadcrumb?.({}, {})).toBeNull();
   expect(options.tracePropagationTargets).toEqual([]);
   expect(options.tracesSampler?.({} as Parameters<NonNullable<typeof options.tracesSampler>>[0])).toBe(0);
-  expect(options.beforeSendTransaction?.({ type: 'transaction', transaction: '/home' }, {})).toBeNull();
+  expect(options.beforeSendTransaction?.({ type: 'transaction', transaction: '/' }, {})).toBeNull();
   expect(sdk.addIntegration).not.toHaveBeenCalled();
   expect(storage.hasItem).toHaveBeenCalledWith(COOKIE_CONSENT_KEY);
 });
@@ -99,7 +99,7 @@ test('discards an already started transaction when consent is withdrawn', () => 
   storage.getItem.mockReturnValue('declined');
   service.setPerformanceConsent('declined');
   expect(options.tracesSampler?.({} as Parameters<NonNullable<typeof options.tracesSampler>>[0])).toBe(0);
-  expect(options.beforeSendTransaction?.({ type: 'transaction', transaction: '/home' }, {})).toBeNull();
+  expect(options.beforeSendTransaction?.({ type: 'transaction', transaction: '/' }, {})).toBeNull();
 });
 
 test('does not install tracing before the router exists', () => {

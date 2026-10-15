@@ -7,7 +7,8 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/new')({
-  loader: ({ context: { queryClient } }) => queryClient.query({ ...accountsQueryOptions(), staleTime: 'static' }),
+  loader: ({ params: { spaceId }, context: { queryClient } }) =>
+    queryClient.query({ ...accountsQueryOptions(spaceId), staleTime: 'static' }),
   component: NewImportPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   head: () => ({ meta: [{ title: 'New import' }] }),

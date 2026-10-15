@@ -6,12 +6,14 @@ import { Tags } from 'lucide-react';
 
 import { categoryDefaultSort, getCategoryColumns } from '@/app/categories/columns';
 import { DataTable } from '@/shared/components/data-table';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 /** Categories page: default and custom categories, with create, update and delete for the custom ones. */
 export function CategoriesSection() {
+  const spaceId = useSpaceId();
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
   const columns = getCategoryColumns(canConfigure);
 
   return (

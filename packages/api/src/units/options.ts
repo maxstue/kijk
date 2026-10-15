@@ -13,7 +13,8 @@ export const unitsQueryOptions = (query: UnitListQuery) =>
 export const createUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: (data: CreateUnitData) => createUnit(data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.units.all),
+    onSuccess: (_data, { shareWithSpaceIds }, _result, { client }) =>
+      invalidate(client, queryKeys.units.all, ...(shareWithSpaceIds ?? []).map(queryKeys.units.inSpace)),
   });
 
 /** Mutation that updates a unit. */
@@ -24,7 +25,7 @@ export const updateUnitMutationOptions = () =>
     onSuccess: (_data, _variables, _result, { client }) =>
       Promise.all([
         invalidate(client, queryKeys.units.all),
-        invalidateInEverySpace(client, 'resources', 'consumptions'),
+        invalidateInEverySpace(client, 'units', 'resources', 'consumptions'),
       ]),
   });
 
@@ -32,26 +33,30 @@ export const updateUnitMutationOptions = () =>
 export const archiveUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: ({ id, restore }: { id: string; restore?: boolean }) => archiveUnit(id, restore),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.units.all),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      Promise.all([invalidate(client, queryKeys.units.all), invalidateInEverySpace(client, 'units')]),
   });
 
 /** Mutation that deletes a unit. */
 export const deleteUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: (id: string) => deleteUnit(id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.units.all),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      Promise.all([invalidate(client, queryKeys.units.all), invalidateInEverySpace(client, 'units')]),
   });
 
 /** Mutation that shares a unit with a space. */
 export const shareUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => shareUnit(id, spaceId),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.units.all),
+    onSuccess: (_data, { spaceId }, _result, { client }) =>
+      invalidate(client, queryKeys.units.all, queryKeys.units.inSpace(spaceId)),
   });
 
 /** Mutation that removes a unit from a space. */
 export const unshareUnitMutationOptions = () =>
   mutationOptions({
     mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => unshareUnit(id, spaceId),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.units.all),
+    onSuccess: (_data, { spaceId }, _result, { client }) =>
+      invalidate(client, queryKeys.units.all, queryKeys.units.inSpace(spaceId)),
   });

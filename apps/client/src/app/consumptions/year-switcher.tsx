@@ -33,6 +33,7 @@ import { z } from 'zod';
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
@@ -40,12 +41,13 @@ type YProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
 /** Year picker that updates the `year` search param and can add a year without entries. */
 export function ConsumptionYearSwitcher({ className }: YProps) {
+  const spaceId = useSpaceId();
   const [open, setOpen] = useState(false);
   const [showNewYearDialog, setShowNewYearDialog] = useState(false);
   const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data } = useSuspenseQuery(consumptionYearsQueryOptions());
+  const { data } = useSuspenseQuery(consumptionYearsQueryOptions(spaceId));
   const queryClient = useQueryClient();
 
   const selectedYear = searchParameters.year;
@@ -141,6 +143,7 @@ const yearSchema = z.object({
 type YearFormValues = z.infer<typeof yearSchema>;
 
 function AddNewYearDialog({ onClose }: { onClose: () => void }) {
+  const spaceId = useSpaceId();
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
   const form = useForm({
@@ -150,16 +153,20 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   });
 
   function handleSubmit(data: YearFormValues) {
-    const response = queryClient.getQueryData(consumptionYearsQueryOptions().queryKey);
+    const response = queryClient.getQueryData(consumptionYearsQueryOptions(spaceId).queryKey);
     if (response?.years.map(Number).includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
       return;
     }
 
-    queryClient.setQueryData(consumptionYearsQueryOptions().queryKey, (old) => ({
+    queryClient.setQueryData(consumptionYearsQueryOptions(spaceId).queryKey, (old) => ({
       years: [...(old?.years.map(Number) ?? []), data.year].sort((a, b) => b - a),
     }));
-    navigate({ search: (previous) => ({ ...previous, year: data.year }), to: '/consumptions' });
+    navigate({
+      params: { spaceId: spaceId },
+      search: (previous) => ({ ...previous, year: data.year }),
+      to: '/$spaceId/consumptions',
+    });
     onClose();
   }
 

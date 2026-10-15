@@ -3,7 +3,8 @@ import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
+
+import { render } from '@/test/render-space';
 
 import { AccountsSection } from './section';
 
@@ -16,9 +17,9 @@ function createClient(permissions: string[], isPersonal: boolean) {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   client.setQueryData(queryKeys.users.me, {
     status: 'Ready',
-    user: { spaces: [{ id: 'space', isActive: true, isPersonal, name: 'Space', role: { permissions } }] },
+    user: { spaces: [{ id: 'space', isDefault: true, isPersonal, name: 'Space', role: { permissions } }] },
   });
-  client.setQueryData(queryKeys.accounts.list(), accounts);
+  client.setQueryData(queryKeys.accounts.list('space'), accounts);
   return client;
 }
 

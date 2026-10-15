@@ -13,6 +13,8 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+
 interface Props {
   category: Category;
   onClose: () => void;
@@ -20,7 +22,8 @@ interface Props {
 
 /** Confirmation dialog content for deleting a custom category. */
 export function CategoryDeleteContent({ category, onClose }: Props) {
-  const { isPending, mutate } = useMutation(deleteCategoryMutationOptions());
+  const spaceId = useSpaceId();
+  const { isPending, mutate } = useMutation(deleteCategoryMutationOptions(spaceId));
 
   const handleDelete = () => {
     mutate(category.id, {

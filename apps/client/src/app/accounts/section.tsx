@@ -17,6 +17,7 @@ import { accountDefaultSort, getAccountColumns } from '@/app/accounts/columns';
 import { AccountForm } from '@/app/accounts/form';
 import { DataTable } from '@/shared/components/data-table';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useActiveSpace } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -25,10 +26,11 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
  * accounts need finances:configure.
  */
 export function AccountsSection() {
+  const spaceId = useSpaceId();
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
-  const { data: accounts } = useSuspenseQuery(accountsQueryOptions());
+  const { data: accounts } = useSuspenseQuery(accountsQueryOptions(spaceId));
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const canCreate = canConfigure || canRecord;
   const columns = getAccountColumns({ canConfigure, canRecord, isPersonalSpace });

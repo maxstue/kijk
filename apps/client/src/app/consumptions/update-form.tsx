@@ -22,6 +22,7 @@ import type { ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionUpdateSchema } from '@/app/consumptions/schemas';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
@@ -34,8 +35,9 @@ interface Props {
 
 /** Form to edit a consumption, prefilled with `initialData`. */
 export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Props) {
+  const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
-  const { isPending, mutate } = useMutation(updateConsumptionMutationOptions());
+  const { isPending, mutate } = useMutation(updateConsumptionMutationOptions(spaceId));
 
   const form = useForm({
     defaultValues: {

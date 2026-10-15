@@ -24,7 +24,11 @@ test('choosing a default space keeps the cached data of every space', async () =
 
 test('changing user settings refreshes the resources of every space', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  for (const key of [queryKeys.resources.list('first'), queryKeys.resources.list('second'), queryKeys.limits.list('first')]) {
+  for (const key of [
+    queryKeys.resources.list('first'),
+    queryKeys.resources.list('second'),
+    queryKeys.limits.list('first'),
+  ]) {
     client.setQueryData(key, []);
   }
   vi.mocked(updateUser).mockResolvedValue({} as Awaited<ReturnType<typeof updateUser>>);

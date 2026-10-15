@@ -1,3 +1,4 @@
+vi.mock('@/shared/hooks/use-active-space', () => ({ useSpaceId: () => 'space' }));
 import type { ReactNode } from 'react';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
@@ -35,9 +36,9 @@ test('navigates to the canonical consumption path and preserves search', async (
   await screen.getByRole('button', { name: 'Edit consumption' }).click();
 
   expect(navigate).toHaveBeenCalledWith({
-    params: { consumptionId: 'consumption-42' },
+    params: { spaceId: 'space', consumptionId: 'consumption-42' },
     search: expect.any(Function),
-    to: '/consumptions/$consumptionId',
+    to: '/$spaceId/consumptions/$consumptionId',
   });
   const searchUpdater = navigate.mock.calls[0]?.[0].search as (previous: object) => object;
   const previousSearch = { month: 'september', view: 'month', year: 2026 };

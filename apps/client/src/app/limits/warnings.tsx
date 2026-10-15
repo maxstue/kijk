@@ -2,6 +2,7 @@ import { limitsQueryOptions } from '@kijk/api/limits/options';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useWarningToasts } from '@/shared/hooks/use-warning-toasts';
 
 /**
@@ -9,7 +10,8 @@ import { useWarningToasts } from '@/shared/hooks/use-warning-toasts';
  * nothing.
  */
 export function LimitWarnings() {
-  const { data } = useSuspenseQuery(limitsQueryOptions());
+  const spaceId = useSpaceId();
+  const { data } = useSuspenseQuery(limitsQueryOptions(spaceId));
   const warnings = useMemo(
     () =>
       data.map((limit) => ({

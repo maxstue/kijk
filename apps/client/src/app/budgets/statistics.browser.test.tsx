@@ -1,7 +1,8 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
+
+import { render } from '@/test/render-space';
 
 import { BudgetStatistics } from './statistics';
 
@@ -13,7 +14,7 @@ const zeros = months.map(() => 0);
 
 test('shows a small chart per category, the uncategorized spending and a table view', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  client.setQueryData(queryKeys.budgets.statistics(2026, 10, 12), {
+  client.setQueryData(queryKeys.budgets.statistics('space', 2026, 10, 12), {
     categories: [
       {
         budget: months.map(() => 300),
@@ -66,7 +67,7 @@ test('shows a small chart per category, the uncategorized spending and a table v
 test('leaves gaps in the budget reference line for months without a budget', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   const budget = [300, 300, null, null, 300, 300, 300, 300, 300, 300, 300, 300];
-  client.setQueryData(queryKeys.budgets.statistics(2026, 10, 12), {
+  client.setQueryData(queryKeys.budgets.statistics('space', 2026, 10, 12), {
     categories: [{ budget, categoryId: 'g', name: 'Groceries', spent: zeros }],
     months,
     totalBudget: budget.map((value) => value ?? 0),

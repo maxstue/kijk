@@ -5,6 +5,7 @@ import { DownloadIcon, LoaderCircleIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { saveDownload } from '@/shared/utils/download';
 import type { Months } from '@/shared/utils/months';
@@ -15,6 +16,7 @@ type Props =
 
 /** Downloads a single consumption (`consumptionId`) or a whole month (`year` + `month`) as CSV. */
 export function ConsumptionExportButton(props: Props) {
+  const spaceId = useSpaceId();
   const canExport = useSpacePermission(SpacePermissions.consumptions.export);
   const [isExporting, setIsExporting] = useState(false);
   const isSingleExport = props.consumptionId !== undefined;
@@ -27,8 +29,8 @@ export function ConsumptionExportButton(props: Props) {
     setIsExporting(true);
     try {
       const download = isSingleExport
-        ? await exportConsumption(props.consumptionId)
-        : await exportConsumptionMonth(props.year, props.month);
+        ? await exportConsumption(spaceId, props.consumptionId)
+        : await exportConsumptionMonth(spaceId, props.year, props.month);
       saveDownload(download);
     } catch (error) {
       toast.error('Export failed', { description: error instanceof Error ? error.message : undefined });

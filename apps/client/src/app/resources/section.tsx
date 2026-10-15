@@ -18,15 +18,17 @@ import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/col
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
 import { DataTable } from '@/shared/components/data-table';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { CreatorTypes } from '@/shared/types/domain';
 import type { Resource } from '@/shared/types/domain';
 
 /** Resources page: statistics, the resource table and the create dialog. */
 export function ResourceTypesSection() {
+  const spaceId = useSpaceId();
   const [showDialog, setShowDialog] = useState(false);
-  const { data } = useSuspenseQuery(resourcesQueryOptions());
+  const { data } = useSuspenseQuery(resourcesQueryOptions(spaceId));
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const activeSpace = currentAccount?.user?.spaces?.find((space) => space.isActive);
+  const activeSpace = currentAccount?.user?.spaces?.find((space) => space.id === spaceId);
   const canManage = hasSpacePermission(activeSpace, SpacePermissions.resources.configure);
   const columns = getResourceTypeColumns(canManage);
 

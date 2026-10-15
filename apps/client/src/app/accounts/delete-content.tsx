@@ -13,6 +13,8 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+
 interface Props {
   account: Account;
   onClose: () => void;
@@ -20,7 +22,8 @@ interface Props {
 
 /** Confirmation dialog content for deleting an account. */
 export function AccountDeleteContent({ account, onClose }: Props) {
-  const { isPending, mutate } = useMutation(deleteAccountMutationOptions());
+  const spaceId = useSpaceId();
+  const { isPending, mutate } = useMutation(deleteAccountMutationOptions(spaceId));
 
   const handleDelete = () => {
     mutate(account.id, {

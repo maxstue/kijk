@@ -39,6 +39,7 @@ import { AppError } from '@/shared/components/errors/app-error';
 import { MonthSwitcher } from '@/shared/components/month-switcher';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 const searchSchema = z.object({
@@ -85,12 +86,12 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/tra
   component: TransactionsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loaderDeps: ({ search }) => toPageQuery(search),
-  loader: async ({ context: { queryClient }, deps }) => {
+  loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([
-      queryClient.query({ ...transactionsQueryOptions(deps), staleTime: 'static' }),
-      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
-      queryClient.query({ ...accountsQueryOptions(), staleTime: 'static' }),
-      queryClient.query({ ...budgetOverviewQueryOptions(currentYear(), currentMonth()), staleTime: 'static' }),
+      queryClient.query({ ...transactionsQueryOptions(spaceId, deps), staleTime: 'static' }),
+      queryClient.query({ ...categoriesQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...accountsQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...budgetOverviewQueryOptions(spaceId, currentYear(), currentMonth()), staleTime: 'static' }),
     ]);
   },
   head: () => ({ meta: [{ title: 'Transactions' }] }),
@@ -98,6 +99,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/tra
 });
 
 function TransactionsPage() {
+  const spaceId = useSpaceId();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
@@ -206,7 +208,7 @@ function TransactionsPage() {
                 <MoreHorizontal />
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
-                <DropdownMenuItem render={<Link to='/finances/imports' />}>
+                <DropdownMenuItem render={<Link params={{ spaceId: spaceId }} to='/$spaceId/finances/imports' />}>
                   <Upload /> Import CSV
                 </DropdownMenuItem>
                 <TransactionExportMenuItem filters={toFilters(search)} />

@@ -10,7 +10,7 @@ const authSearchSchema = z.object({
   from: z.string().optional(),
 });
 
-/** `/auth`: sign-in and sign-up; signed-in users are sent to `from` or `/home`. */
+/** `/auth`: sign-in and sign-up; signed-in users are sent to `from` or `/`. */
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
   component: AuthPage,
@@ -21,13 +21,13 @@ export const Route = createFileRoute('/auth')({
       return;
     }
 
-    throw redirect({ to: search.from ?? '/home' });
+    throw redirect({ to: search.from ?? '/' });
   },
 });
 
 function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
-  const { from = '/home' } = Route.useSearch();
+  const { from = '/' } = Route.useSearch();
 
   return (
     <div className='bg-muted flex h-full flex-col gap-6 p-6'>

@@ -18,6 +18,7 @@ import { noneValue, transactionSchema } from '@/app/transactions/schemas';
 import type { TransactionFormValues } from '@/app/transactions/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { FormSwitchItem } from '@/shared/components/form-switch-item';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { accountLabel } from '@/shared/utils/format';
 
 interface Props {
@@ -31,8 +32,9 @@ interface FormComponentProps {
 
 /** Form to record a transaction, or to edit `initialData` when given. */
 export function TransactionForm({ initialData, onClose }: Props) {
-  const createMutation = useMutation(createTransactionMutationOptions());
-  const updateMutation = useMutation(updateTransactionMutationOptions());
+  const spaceId = useSpaceId();
+  const createMutation = useMutation(createTransactionMutationOptions(spaceId));
+  const updateMutation = useMutation(updateTransactionMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const submitLabel = initialData ? 'Update transaction' : 'Record transaction';
   const form = useForm<TransactionFormValues>({
@@ -175,7 +177,8 @@ function DirectionField({ form }: FormComponentProps) {
 }
 
 function CategoryField({ form }: FormComponentProps) {
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
+  const spaceId = useSpaceId();
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
 
   return (
     <FormField
@@ -214,7 +217,8 @@ function CategoryField({ form }: FormComponentProps) {
 }
 
 function AccountField({ form }: FormComponentProps) {
-  const { data: accounts } = useSuspenseQuery(accountsQueryOptions());
+  const spaceId = useSpaceId();
+  const { data: accounts } = useSuspenseQuery(accountsQueryOptions(spaceId));
 
   return (
     <FormField

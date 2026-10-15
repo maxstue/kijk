@@ -39,6 +39,8 @@ public static class JobsDependencyInjection
             // Handler dependencies such as IAppDbContext are registered with factories, so Wolverine resolves them
             // from the message's service scope instead of constructing them inline.
             options.ServiceLocationPolicy = ServiceLocationPolicy.AlwaysAllowed;
+            // Service-location code uses these types even when discovery does not see a direct handler dependency.
+            options.CodeGeneration.ReferenceAssembly(typeof(IServiceScopeFactory).Assembly);
             options.Discovery.DisableConventionalDiscovery()
                 .IncludeType(typeof(ImportMessageHandler))
                 .IncludeType(typeof(DeleteUserAccountMessageHandler));

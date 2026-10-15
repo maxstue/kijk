@@ -1,7 +1,27 @@
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { currentUserQueryOptions } from '@kijk/api/users/options';
+import { isReadyCurrentUser } from '@kijk/api/users/types';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+
+import { getStartSpace } from '@/shared/lib/spaces';
 
 /** `/`: public landing page. */
-export const Route = createFileRoute('/')({ component: PublicHomePage });
+export const Route = createFileRoute('/')({
+  beforeLoad: async ({ context: { authClient, queryClient } }) => {
+    if (!(await authClient?.session?.getToken())) {
+      return;
+    }
+    const currentUser = await queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' });
+    if (!isReadyCurrentUser(currentUser)) {
+      throw redirect({ to: '/welcome', replace: true });
+    }
+    const space = getStartSpace(currentUser.user);
+    if (space) {
+      throw redirect({ to: '/$spaceId', params: { spaceId: space.id }, replace: true });
+    }
+    throw redirect({ to: '/welcome', replace: true });
+  },
+  component: PublicHomePage,
+});
 
 function PublicHomePage() {
   return (

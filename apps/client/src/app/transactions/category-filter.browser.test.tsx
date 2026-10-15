@@ -1,7 +1,8 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
+
+import { render } from '@/test/render-space';
 
 import { TransactionCategoryFilter } from './category-filter';
 
@@ -19,7 +20,7 @@ const categories = [
 
 function renderFilter(value: string[], onChange: (categoryIds: string[]) => void) {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  client.setQueryData(queryKeys.categories.list(), categories);
+  client.setQueryData(queryKeys.categories.list('space'), categories);
   return render(
     <QueryClientProvider client={client}>
       <TransactionCategoryFilter value={value} onChange={onChange} />

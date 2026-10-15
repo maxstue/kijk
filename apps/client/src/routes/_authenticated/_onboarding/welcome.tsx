@@ -26,7 +26,7 @@ function WelcomePage() {
         spaceName={undefined}
         imageUrl={identity.imageUrl}
         initialDisplayName={identity.fullName ?? ''}
-        onComplete={() => navigate({ replace: true, to: '/home' })}
+        onComplete={() => navigate({ replace: true, to: '/' })}
       />
     </>
   );

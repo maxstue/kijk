@@ -10,12 +10,13 @@ import { ImportList } from '@/app/imports/import-list';
 import { AppError } from '@/shared/components/errors/app-error';
 import { PageToolbar } from '@/shared/components/page-header';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 /** Import history with entry points for the wizard and space settings. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/')({
-  loader: async ({ context: { queryClient } }) => {
-    await queryClient.query({ ...importsQueryOptions(), staleTime: 'static' });
+  loader: async ({ params: { spaceId }, context: { queryClient } }) => {
+    await queryClient.query({ ...importsQueryOptions(spaceId), staleTime: 'static' });
   },
   component: ImportsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
@@ -24,9 +25,10 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
 });
 
 function ImportsPage() {
+  const spaceId = useSpaceId();
   const canImport = useSpacePermission(SpacePermissions.finances.import);
   const { data } = useSuspenseQuery(currentUserQueryOptions());
-  const activeSpace = data.user?.spaces?.find((space) => space.isActive);
+  const activeSpace = data.user?.spaces?.find((space) => space.id === spaceId);
 
   return (
     <div className='space-y-6 pt-6'>
@@ -43,7 +45,10 @@ function ImportsPage() {
               </Button>
             )}
             {canImport && (
-              <Button render={<Link to='/finances/imports/new' />} nativeButton={false}>
+              <Button
+                render={<Link params={{ spaceId: spaceId }} to='/$spaceId/finances/imports/new' />}
+                nativeButton={false}
+              >
                 <Plus /> New import
               </Button>
             )}

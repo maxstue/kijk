@@ -13,12 +13,16 @@ import type {
 
 /** Loads a page of the transactions of the active space, newest first. */
 export async function getTransactions(spaceId: string, query: TransactionPageQuery, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/spaces/{spaceId}/transactions', { params: { path: { spaceId },  query }, signal }));
+  return unwrapApiResponse(
+    await apiClient().GET('/api/spaces/{spaceId}/transactions', { params: { path: { spaceId }, query }, signal }),
+  );
 }
 
 /** Records a transaction manually. */
 export async function createTransaction(spaceId: string, data: CreateTransactionRequest, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().POST('/api/spaces/{spaceId}/transactions', { params: { path: { spaceId } }, body: data, signal }));
+  return unwrapApiResponse(
+    await apiClient().POST('/api/spaces/{spaceId}/transactions', { params: { path: { spaceId } }, body: data, signal }),
+  );
 }
 
 /** Updates a transaction. A changed category counts as set manually. */
@@ -49,13 +53,19 @@ export async function categorizeTransaction(spaceId: string, data: CategorizeTra
 
 /** Assigns one category to several transactions; it counts as set by hand. */
 export async function categorizeTransactions(spaceId: string, data: CategorizeTransactionsRequest) {
-  return unwrapApiResponse(await apiClient().PUT('/api/spaces/{spaceId}/transactions/category', { params: { path: { spaceId } }, body: data }));
+  return unwrapApiResponse(
+    await apiClient().PUT('/api/spaces/{spaceId}/transactions/category', { params: { path: { spaceId } }, body: data }),
+  );
 }
 
 /** Exports the transactions matching the filters as CSV. */
-export async function exportTransactions(spaceId: string, filters: TransactionFilters, signal?: AbortSignal): Promise<CsvDownload> {
+export async function exportTransactions(
+  spaceId: string,
+  filters: TransactionFilters,
+  signal?: AbortSignal,
+): Promise<CsvDownload> {
   const result = await apiClient().GET('/api/spaces/{spaceId}/transactions/export', {
-    params: { path: { spaceId },  query: filters },
+    params: { path: { spaceId }, query: filters },
     parseAs: 'blob',
     signal,
   });

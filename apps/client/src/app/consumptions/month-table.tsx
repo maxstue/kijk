@@ -10,6 +10,7 @@ import { ArrowUpDown } from 'lucide-react';
 
 import { DataTable } from '@/shared/components/data-table';
 import { ResourceUnit } from '@/shared/components/resources-unit';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 import type { Consumption, Resource } from '@/shared/types/domain';
 
@@ -17,9 +18,10 @@ const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview'
 
 /** Sortable table of the consumptions of the selected year and month. */
 export function ConsumptionMonthTable() {
+  const spaceId = useSpaceId();
   const { month, year } = Route.useSearch();
 
-  const { data } = useSuspenseQuery(consumptionsByQueryOptions(year, month));
+  const { data } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year, month));
 
   return <DataTable columns={columns} data={data} defaultSort={defaultSort} />;
 }

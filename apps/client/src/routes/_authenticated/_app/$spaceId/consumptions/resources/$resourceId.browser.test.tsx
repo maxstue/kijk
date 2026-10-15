@@ -6,17 +6,17 @@ import { renderRoute } from '@/test/render-route';
 
 test('loads the canonical resource URL and closes to the overview while preserving search', async () => {
   const { router, screen } = await renderRoute({
-    initialEntry: '/consumptions/resources/resource-7?filter=active',
+    initialEntry: '/space/consumptions/resources/resource-7?filter=active',
     overviewRoute: resourcesRoute,
     seedQueryClient(queryClient) {
-      queryClient.setQueryData(queryKeys.resources.detail('resource-7'), {
+      queryClient.setQueryData(queryKeys.resources.detail('space', 'resource-7'), {
         color: '#123456',
         creatorType: 'User',
         id: 'resource-7',
         name: 'Electricity',
         unit: 'kWh',
       });
-      queryClient.setQueryData(queryKeys.units.list({ scope: 'Space' }), {
+      queryClient.setQueryData(queryKeys.units.list({ scope: 'Space', spaceId: 'space' }), {
         customCount: 0,
         items: [],
         page: 1,
@@ -30,6 +30,6 @@ test('loads the canonical resource URL and closes to the overview while preservi
   await expect.element(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Electricity');
   await screen.getByRole('button', { name: 'Close' }).click();
 
-  await vi.waitFor(() => expect(router.state.location.pathname).toBe('/consumptions/resources'));
+  await vi.waitFor(() => expect(router.state.location.pathname).toBe('/space/consumptions/resources'));
   expect(router.state.location.search).toEqual({ filter: 'active' });
 });

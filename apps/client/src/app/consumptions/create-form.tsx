@@ -23,6 +23,7 @@ import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionCreateSchema } from '@/app/consumptions/schemas';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
@@ -37,8 +38,9 @@ interface Props {
 
 /** Form to record a consumption; `consumptions` are used to show the running meter total. */
 export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
+  const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
-  const { isPending, mutate } = useMutation(createConsumptionMutationOptions());
+  const { isPending, mutate } = useMutation(createConsumptionMutationOptions(spaceId));
   const { month, year } = route.useSearch();
 
   const creationDate = new Date(`${Number(year)}-${getMonthNumber(month)}-${new Date().getDate()}`);

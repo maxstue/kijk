@@ -11,9 +11,11 @@ import { cn } from 'cn';
 
 import { CommandMenu } from '@/app/root/command-menu';
 import { mainNavGroups } from '@/app/root/constants';
+import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 
 /** Main navigation of the sidebar: the command menu followed by one group per area. */
 export function NavMain() {
+  const spaceId = useNavigationSpaceId();
   return (
     <>
       <SidebarGroup>
@@ -38,7 +40,8 @@ export function NavMain() {
                       <Link
                         activeOptions={{ exact: 'exact' in item && item.exact }}
                         className={cn(!item.isActive && 'cursor-not-allowed')}
-                        disabled={!item.isActive}
+                        disabled={!item.isActive || !spaceId}
+                        params={{ spaceId }}
                         to={item.url}
                         activeProps={{
                           className: 'bg-primary text-primary-foreground',

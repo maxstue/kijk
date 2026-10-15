@@ -17,6 +17,7 @@ import { Laptop, Moon, SunMedium } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { mainNavGroups } from '@/app/root/constants';
+import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 import { settingsNav } from '@/shared/navigation/settings';
 
 interface Props {
@@ -25,6 +26,7 @@ interface Props {
 
 /** Command palette (⌘K) to navigate the app. */
 export function CommandMenu({ ...props }: Props) {
+  const spaceId = useNavigationSpaceId();
   const navigate = useNavigate({ from: '/' });
   const [open, setOpen] = useState(false);
   const { setMode } = useThemeStoreActions();
@@ -99,7 +101,7 @@ export function CommandMenu({ ...props }: Props) {
                       key={item.url}
                       keywords={[group.label]}
                       value={item.title}
-                      onSelect={runCommand(() => navigate({ to: item.url }))}
+                      onSelect={runCommand(() => navigate({ params: { spaceId }, to: item.url }))}
                     >
                       <item.icon />
                       {item.title}

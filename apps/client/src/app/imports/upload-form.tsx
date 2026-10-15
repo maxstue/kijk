@@ -15,6 +15,7 @@ import { Upload } from 'lucide-react';
 import { useId, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { accountLabel } from '@/shared/utils/format';
 
@@ -22,8 +23,9 @@ const maxFileBytes = 5 * 1024 * 1024;
 
 /** Card for uploading a bank export into one of the space's bank accounts. */
 export function ImportUploadForm() {
+  const spaceId = useSpaceId();
   const canImport = useSpacePermission(SpacePermissions.finances.import);
-  const { data: accounts } = useSuspenseQuery(accountsQueryOptions());
+  const { data: accounts } = useSuspenseQuery(accountsQueryOptions(spaceId));
   const bankAccounts = accounts.filter((account) => account.kind === 'Bank');
   const [accountId, setAccountId] = useState(bankAccounts[0]?.id ?? '');
   const [file, setFile] = useState<File>();
@@ -31,7 +33,7 @@ export function ImportUploadForm() {
   const { data: currentUser } = useQuery(currentUserQueryOptions());
   const hasConsent = Boolean(currentUser?.user?.sensitiveDataConsentAt);
   const consentMutation = useMutation(updateUserMutationOptions());
-  const createMutation = useMutation(createImportMutationOptions());
+  const createMutation = useMutation(createImportMutationOptions(spaceId));
   const navigate = useNavigate();
   const fileId = useId();
   const consentId = useId();
@@ -51,7 +53,11 @@ export function ImportUploadForm() {
         { accountId, file: selected },
         {
           onError: (error) => toast.error(error.name, { description: error.message }),
-          onSuccess: (job) => void navigate({ params: { importId: job.id }, to: '/finances/imports/$importId' }),
+          onSuccess: (job) =>
+            void navigate({
+              params: { spaceId: spaceId, importId: job.id },
+              to: '/$spaceId/finances/imports/$importId',
+            }),
         },
       );
     if (hasConsent) {
@@ -75,7 +81,11 @@ export function ImportUploadForm() {
       <CardContent className='pt-6'>
         {bankAccounts.length === 0 ? (
           <p className='text-muted-foreground text-sm'>
-            <Link className='underline underline-offset-4' to='/finances/accounts'>
+            <Link
+              className='underline underline-offset-4'
+              params={{ spaceId: spaceId }}
+              to='/$spaceId/finances/accounts'
+            >
               Add a bank account
             </Link>{' '}
             before starting an import.

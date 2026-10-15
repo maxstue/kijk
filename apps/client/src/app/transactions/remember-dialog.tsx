@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+
 interface Props {
   categoryId: string;
   categoryName: string;
@@ -17,7 +19,8 @@ interface Props {
  * rule stores nothing about the counterparty.
  */
 export function RememberDialog({ categoryId, categoryName, onClose, transaction }: Props) {
-  const categorizeMutation = useMutation(categorizeTransactionMutationOptions());
+  const spaceId = useSpaceId();
+  const categorizeMutation = useMutation(categorizeTransactionMutationOptions(spaceId));
 
   function remember(keyword?: string) {
     categorizeMutation.mutate(

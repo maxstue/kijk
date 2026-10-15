@@ -29,26 +29,26 @@ export const mainNavGroups = [
   {
     label: 'Overview',
     items: [
-      { icon: LayoutDashboardIcon, isActive: true, title: 'Home', url: '/home' },
+      { icon: LayoutDashboardIcon, isActive: true, title: 'Home', url: '/$spaceId', exact: true },
       { icon: ChartAreaIcon, isActive: false, title: 'Analytics', url: '/analytics' },
     ],
   },
   {
     label: 'Consumption',
     items: [
-      { icon: HousePlugIcon, isActive: true, title: 'Consumptions', url: '/consumptions', exact: true },
-      { icon: TriangleAlertIcon, isActive: true, title: 'Limits', url: '/consumptions/limits' },
-      { icon: HousePlugIcon, isActive: true, title: 'Resources', url: '/consumptions/resources' },
+      { icon: HousePlugIcon, isActive: true, title: 'Consumptions', url: '/$spaceId/consumptions', exact: true },
+      { icon: TriangleAlertIcon, isActive: true, title: 'Limits', url: '/$spaceId/consumptions/limits' },
+      { icon: HousePlugIcon, isActive: true, title: 'Resources', url: '/$spaceId/consumptions/resources' },
     ],
   },
   {
     label: 'Finances',
     items: [
-      { icon: PiggyBankIcon, isActive: true, title: 'Budgets', url: '/finances/budgets' },
-      { icon: ReceiptTextIcon, isActive: true, title: 'Transactions', url: '/finances/transactions' },
-      { icon: LandmarkIcon, isActive: true, title: 'Accounts', url: '/finances/accounts' },
-      { icon: TagsIcon, isActive: true, title: 'Categories', url: '/finances/categories' },
-      { icon: UploadIcon, isActive: true, title: 'Imports', url: '/finances/imports' },
+      { icon: PiggyBankIcon, isActive: true, title: 'Budgets', url: '/$spaceId/finances/budgets' },
+      { icon: ReceiptTextIcon, isActive: true, title: 'Transactions', url: '/$spaceId/finances/transactions' },
+      { icon: LandmarkIcon, isActive: true, title: 'Accounts', url: '/$spaceId/finances/accounts' },
+      { icon: TagsIcon, isActive: true, title: 'Categories', url: '/$spaceId/finances/categories' },
+      { icon: UploadIcon, isActive: true, title: 'Imports', url: '/$spaceId/finances/imports' },
     ],
   },
 ] satisfies MainNavGroup[];

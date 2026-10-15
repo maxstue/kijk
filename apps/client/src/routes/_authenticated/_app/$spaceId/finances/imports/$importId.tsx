@@ -10,8 +10,8 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/$importId')({
   loader: async ({ context: { queryClient }, params }) => {
     await Promise.all([
-      queryClient.query({ ...importQueryOptions(params.importId), staleTime: 'static' }),
-      queryClient.query({ ...categoriesQueryOptions(), staleTime: 'static' }),
+      queryClient.query({ ...importQueryOptions(params.spaceId, params.importId), staleTime: 'static' }),
+      queryClient.query({ ...categoriesQueryOptions(params.spaceId), staleTime: 'static' }),
     ]);
   },
   component: ImportPage,

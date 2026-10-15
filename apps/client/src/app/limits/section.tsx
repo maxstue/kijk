@@ -21,12 +21,14 @@ import { useState } from 'react';
 import { LimitDeleteContent } from '@/app/limits/delete-content';
 import { LimitForm } from '@/app/limits/form';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 /** Page section listing the space's limits with create, edit and delete actions. */
 export function LimitsSection() {
+  const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
-  const { data } = useSuspenseQuery(limitsQueryOptions());
+  const { data } = useSuspenseQuery(limitsQueryOptions(spaceId));
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   return (

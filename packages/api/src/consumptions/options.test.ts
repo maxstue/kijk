@@ -15,6 +15,7 @@ test('editing a reading refreshes statistics for both its old and new month', as
   for (const key of [oldMonth, newMonth, queryKeys.limits.list('space')]) {
     client.setQueryData(key, []);
   }
+  client.setQueryData(queryKeys.consumptions.stats('other', '2026', 'October'), []);
   const updated = { id: 'reading', value: 200 } as unknown as Consumption;
   vi.mocked(updateConsumption).mockResolvedValue(updated);
 
@@ -30,5 +31,7 @@ test('editing a reading refreshes statistics for both its old and new month', as
   expect(client.getQueryState(newMonth)?.isInvalidated).toBe(true);
   expect(client.getQueryState(queryKeys.limits.list('space'))?.isInvalidated).toBe(true);
   expect(client.getQueryData(queryKeys.consumptions.detail('space', 'reading'))).toEqual(updated);
+  expect(client.getQueryState(queryKeys.consumptions.stats('other', '2026', 'October'))?.isInvalidated).toBe(false);
+  expect(client.getQueryState(queryKeys.consumptions.detail('other', 'reading'))).toBeUndefined();
   client.clear();
 });

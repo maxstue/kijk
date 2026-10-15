@@ -10,6 +10,7 @@ import { ArrowUpDown, Sparkles } from 'lucide-react';
 import { CategoryRuleRowActions } from '@/app/categories/rule-row-actions';
 import { DataTable } from '@/shared/components/data-table';
 import { PrivateBadge } from '@/shared/components/visibility-select';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 
@@ -59,8 +60,9 @@ const getRuleColumns = (canRecord: boolean): Array<ColumnDef<DataTableFeatures, 
 
 /** Remembered category corrections that imports apply automatically, with deleting them. */
 export function CategoryRulesSection() {
+  const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
-  const { data: rules } = useSuspenseQuery(categoryRulesQueryOptions());
+  const { data: rules } = useSuspenseQuery(categoryRulesQueryOptions(spaceId));
   const columns = getRuleColumns(canRecord);
 
   return (

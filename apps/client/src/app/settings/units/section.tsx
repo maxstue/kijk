@@ -42,8 +42,7 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
   );
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const spaces = currentAccount?.user?.spaces ?? [];
-  const activeSpace = spaces.find((space) => space.isActive);
-  const spaceId = selectedSpaceId ?? activeSpace?.id;
+  const spaceId = selectedSpaceId;
   const selectedSpace = spaces.find((space) => space.id === spaceId);
   // In the space scope a new unit is shared with that space right away, which needs units:share.
   const canCreate =

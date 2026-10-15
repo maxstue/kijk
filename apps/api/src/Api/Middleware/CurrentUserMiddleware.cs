@@ -55,7 +55,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
         currentUser.User = userEntity;
 
         // Space ids of other users' spaces are not disclosed.
-        return spaceId is not null && userEntity is { SpaceId: null }
+        return spaceId is not null && userEntity?.SpaceId is null
             ? Error.NotFound("Space could not be found")
             : null;
     }

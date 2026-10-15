@@ -13,6 +13,7 @@ import type { ConsumptionCreateFormSchema, ConsumptionUpdateFormSchema } from '@
 import { DatePicker } from '@/shared/components/date-picker';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { ResourceUnit } from '@/shared/components/resources-unit';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 
@@ -39,12 +40,13 @@ interface RunningTotalProps {
 
 /** Shows the meter total the entered value results in, based on the previous reading of the resource. */
 export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTotalProps) {
+  const spaceId = useSpaceId();
   const { control } = useFormContext<ConsumptionFormValues>();
   const date = useWatch({ control, name: 'date' });
   const resourceId = useWatch({ control, name: 'resourceId' });
   const value = useWatch({ control, name: 'value' });
   const valueType = useWatch({ control, name: 'valueType' });
-  const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
+  const { data: resources } = useSuspenseQuery(resourcesQueryOptions(spaceId));
   const resource = resources.find((item) => item.id === resourceId);
   const entryDate = date instanceof Date ? format(date, 'yyyy-MM-dd') : '';
   const previousEntry = consumptions.find(
@@ -93,10 +95,11 @@ export function ConsumptionValueField<TFormValues extends ConsumptionFormValues>
   className,
   field,
 }: FieldProps<TFormValues, 'value'>) {
+  const spaceId = useSpaceId();
   const { control } = useFormContext<TFormValues>();
   const resourceId = useWatch<TFormValues>({ control, name: 'resourceId' as FieldPath<TFormValues> });
   const valueType = useWatch<TFormValues>({ control, name: 'valueType' as FieldPath<TFormValues> });
-  const { data } = useSuspenseQuery(resourcesQueryOptions());
+  const { data } = useSuspenseQuery(resourcesQueryOptions(spaceId));
   const resource = data.find((item) => item.id === resourceId);
 
   return (
@@ -170,7 +173,8 @@ export function ConsumptionResourceField<TFormValues extends ConsumptionFormValu
   className,
   field,
 }: FieldProps<TFormValues, 'resourceId'>) {
-  const { data } = useSuspenseQuery(resourcesQueryOptions());
+  const spaceId = useSpaceId();
+  const { data } = useSuspenseQuery(resourcesQueryOptions(spaceId));
 
   return (
     <FormItem className={className}>

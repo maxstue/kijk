@@ -11,6 +11,7 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 const uncategorized = 'none';
@@ -27,7 +28,8 @@ export function ImportCandidateTable({
   isFetching: boolean;
   onPageChange: (page: number) => void;
 }) {
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions());
+  const spaceId = useSpaceId();
+  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
   return (
     <div className='border-t'>
       <Table>
@@ -109,7 +111,8 @@ function CandidateRow({
   categories: Category[];
   importId: string;
 }) {
-  const updateMutation = useMutation(updateImportCandidateMutationOptions());
+  const spaceId = useSpaceId();
+  const updateMutation = useMutation(updateImportCandidateMutationOptions(spaceId));
 
   function update(change: { categoryId?: string | null; excluded?: boolean }) {
     updateMutation.mutate(

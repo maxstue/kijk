@@ -4,9 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import type { PropsWithChildren } from 'react';
 import { expect, test } from 'vite-plus/test';
-import { render } from 'vitest-browser-react';
 
 import { worker } from '@/test/mocks/browser';
+import { render } from '@/test/render-space';
 
 import { LimitWarning } from './limit-warning';
 
@@ -20,7 +20,7 @@ test('does not render a warning when no active limit is exceeded', async () => {
 
 test('renders exceeded limits returned by the API', async () => {
   worker.use(
-    http.get('http://localhost:5000/api/limits', () =>
+    http.get('http://localhost:5000/api/spaces/space/limits', () =>
       HttpResponse.json<Limit[]>([
         {
           active: true,

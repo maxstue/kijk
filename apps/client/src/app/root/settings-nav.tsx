@@ -23,7 +23,7 @@ export function SettingsNav() {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton render={<Link to='/home' />}>
+              <SidebarMenuButton render={<Link to='/' />}>
                 <ArrowLeftIcon />
                 <span>Back to app</span>
               </SidebarMenuButton>

@@ -3,13 +3,16 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/too
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { TriangleAlert } from 'lucide-react';
 
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+
 interface Props {
   resourceId: string;
 }
 
 /** Warning icon with tooltip when an active limit of the resource is exceeded. */
 export function LimitWarning({ resourceId }: Props) {
-  const { data } = useSuspenseQuery(limitsQueryOptions());
+  const spaceId = useSpaceId();
+  const { data } = useSuspenseQuery(limitsQueryOptions(spaceId));
   const exceededLimits = data.filter((limit) => limit.active && limit.isExceeded && limit.resource.id === resourceId);
 
   if (exceededLimits.length === 0) {
