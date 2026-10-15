@@ -1,3 +1,4 @@
+using System.Globalization;
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Finances;
@@ -10,7 +11,7 @@ namespace Kijk.Application.Imports.Get;
 /// <summary>
 /// Retrieves imports of the active space, the preview of an uploaded file and the rows waiting for review.
 /// </summary>
-public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser currentUser, ImportFileReader fileReader) : IHandler
+public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser currentUser, ImportFileReader fileReader)
 {
     private const int ListSize = 20;
 
@@ -99,25 +100,70 @@ public sealed class GetImportsHandler(IAppDbContext dbContext, CurrentUser curre
             table.Records.Count);
     }
 
-    /// <summary>Gets the rows of an import waiting for review, rows with errors first.</summary>
+    /// <summary>Gets a bounded page of review rows with totals over the selected months.</summary>
     /// <param name="id">The import id.</param>
+    /// <param name="page">The one-based page number, clamped to the available pages.</param>
+    /// <param name="pageSize">The page size, clamped to 1-100.</param>
+    /// <param name="months">Comma-separated first days of selected months; null includes all rows.</param>
+    /// <param name="cardSettlementsOnly">Whether to show only included, readable card statements.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The rows, or a not-found error.</returns>
-    public async Task<Result<List<ImportCandidateResponse>>> GetCandidatesAsync(Guid id, CancellationToken cancellationToken)
+    /// <returns>The page, or a not-found or invalid-month error.</returns>
+    public async Task<Result<ImportCandidatePageResponse>> GetCandidatesAsync(
+        Guid id,
+        int page,
+        int pageSize,
+        string? months,
+        bool cardSettlementsOnly,
+        CancellationToken cancellationToken)
     {
-        if (await FindAsync(id, cancellationToken) is null)
+        var job = await FindAsync(id, cancellationToken);
+        if (job is null)
         {
             return Error.NotFound("Import could not be found");
         }
 
-        var candidates = await dbContext.ImportCandidates
-            .Where(item => item.ImportJobId == id)
-            .OrderBy(item => item.Errors == null)
-            .ThenBy(item => item.RowNumber)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var all = dbContext.ImportCandidates.Where(item => item.ImportJobId == id);
+        var query = all;
+        if (months is not null)
+        {
+            var allowed = job.FullMonths.Concat(job.EdgeMonths).Select(DateOnly.FromDateTime).ToHashSet();
+            var selected = new HashSet<int>();
+            foreach (var value in months.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (!DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var month)
+                    || month.Day != 1 || !allowed.Contains(month))
+                {
+                    return Error.Validation("The selected month is not part of the import");
+                }
+                selected.Add(month.Year * 12 + month.Month);
+            }
+            query = query.Where(item => item.Errors == null && item.BookingDate != null
+                && selected.Contains(item.BookingDate.Value.Year * 12 + item.BookingDate.Value.Month));
+        }
 
-        return candidates.Select(candidate => candidate.ToResponse()).ToList();
+        var summary = await query.GroupBy(_ => 1).Select(group => new
+        {
+            Count = group.Count(),
+            Included = group.Count(item => item.Errors == null && !item.Excluded),
+            CardSettlements = group.Count(item => item.Errors == null && !item.Excluded && item.IsCardSettlement)
+        }).SingleOrDefaultAsync(cancellationToken);
+        var totalCount = summary?.Count ?? 0;
+        if (cardSettlementsOnly)
+        {
+            query = query.Where(item => item.Errors == null && !item.Excluded && item.IsCardSettlement);
+            totalCount = summary?.CardSettlements ?? 0;
+        }
+
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        var lastPage = Math.Max(1, (totalCount + pageSize - 1) / pageSize);
+        page = Math.Clamp(page, 1, lastPage);
+        var items = await query.OrderBy(item => item.Errors == null).ThenBy(item => item.RowNumber).ThenBy(item => item.Id)
+            .Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToResponses().ToListAsync(cancellationToken);
+        var errors = await all.Where(item => item.Errors != null).OrderBy(item => item.RowNumber).ThenBy(item => item.Id)
+            .Take(10).Select(item => new ImportCandidateErrorResponse(item.RowNumber, item.Errors!)).ToListAsync(cancellationToken);
+
+        return new ImportCandidatePageResponse(items, totalCount, page, pageSize,
+            summary?.Included ?? 0, job.ErrorCount, errors, summary?.CardSettlements ?? 0);
     }
 
     private Task<ImportJob?> FindAsync(Guid id, CancellationToken cancellationToken) =>

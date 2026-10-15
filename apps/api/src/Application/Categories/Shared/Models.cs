@@ -1,5 +1,6 @@
 using Kijk.Domain.Entities;
 using Kijk.Shared;
+using Riok.Mapperly.Abstractions;
 
 namespace Kijk.Application.Categories.Shared;
 
@@ -34,16 +35,22 @@ public static class CategoryValidationRules
 }
 
 /// <summary>
-/// Maps category entities to API responses and provides category checks used by the Categories feature.
+/// Maps category entities to API responses.
 /// </summary>
-public static class CategoryHelpers
+[Mapper]
+public static partial class CategoryResponseMapper
 {
     /// <summary>Maps a category to a response.</summary>
     /// <param name="source">The category.</param>
     /// <returns>The response.</returns>
-    public static CategoryResponse ToResponse(this Category source) =>
-        new(source.Id, source.Name, source.Icon, source.Color, source.Kind, source.CreatorType);
+    public static partial CategoryResponse ToResponse(this Category source);
+}
 
+/// <summary>
+/// Provides category checks used by the Categories feature.
+/// </summary>
+public static class CategoryHelpers
+{
     /// <summary>
     /// Determines whether a category with the same normalized name exists in the active space or the system catalog.
     /// </summary>

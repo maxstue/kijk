@@ -10,7 +10,7 @@ namespace Kijk.Application.Accounts.Update;
 /// <summary>
 /// Updates accounts of the active space.
 /// </summary>
-public sealed class UpdateAccountHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class UpdateAccountHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Updates an account of the active space.</summary>
     /// <param name="id">The account id.</param>

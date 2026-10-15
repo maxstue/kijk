@@ -7,7 +7,7 @@ namespace Kijk.Application.Spaces.GetRoles;
 /// <summary>
 /// Gets the fixed space roles and the permissions they grant.
 /// </summary>
-public sealed class GetSpaceRolesHandler(IAppDbContext dbContext) : IHandler
+public sealed class GetSpaceRolesHandler(IAppDbContext dbContext)
 {
     /// <summary>
     /// Gets all space roles ordered by the number of granted permissions, the most powerful role first.

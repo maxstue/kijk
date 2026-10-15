@@ -18,7 +18,7 @@ public sealed record CommitImportRequest(List<DateOnly> IncludedEdgeMonths, bool
 /// Replaces the account's transactions in the covered months with the reviewed rows, in one database transaction.
 /// Committing twice has no further effect.
 /// </summary>
-public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
+public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>Commits an import.</summary>
     /// <param name="id">The import id.</param>
@@ -99,6 +99,7 @@ public sealed class CommitImportHandler(IAppDbContext dbContext, CurrentUser cur
         var existing = await dbContext.Transactions
             .Where(item => item.SpaceId == job.SpaceId
                            && item.AccountId == job.AccountId
+                           && item.BookingKey != null
                            && item.BookingDate >= from
                            && item.BookingDate < to)
             .ToListAsync(cancellationToken);

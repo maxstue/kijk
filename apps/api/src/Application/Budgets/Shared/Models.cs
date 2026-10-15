@@ -1,6 +1,8 @@
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
+using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
+using Riok.Mapperly.Abstractions;
 
 namespace Kijk.Application.Budgets.Shared;
 
@@ -65,38 +67,24 @@ public sealed record BudgetCategoryResponse(
 /// <summary>
 /// Maps budget entities and evaluations to API responses.
 /// </summary>
-public static class BudgetResponseMapper
+[Mapper]
+public static partial class BudgetResponseMapper
 {
     /// <summary>Maps a budget with its loaded category to a response.</summary>
     /// <param name="source">The budget.</param>
     /// <returns>The response.</returns>
-    public static BudgetResponse ToResponse(this Budget source) =>
-        new(source.Id, source.CategoryId, source.Category.Name, source.Amount, DateOnly.FromDateTime(source.ValidFrom), source.Active, source.Visibility);
+    public static partial BudgetResponse ToResponse(this Budget source);
 
     /// <summary>Maps a month evaluation to a response.</summary>
-    /// <param name="source">The evaluation.</param>
+    /// <param name="source">The month evaluation.</param>
     /// <returns>The response.</returns>
-    public static BudgetOverviewResponse ToResponse(this BudgetMonthSummary source) =>
-        new(
-            source.Month.Year,
-            source.Month.Month,
-            source.TotalBudget,
-            source.TotalSpent,
-            source.Income,
-            source.UncategorizedExpenses,
-            source.UncategorizedIncome,
-            source.PendingExpenses,
-            source.Categories.Select(item => new BudgetCategoryResponse(
-                item.Category.Id,
-                item.Category.Name,
-                item.Category.Icon,
-                item.Category.Color,
-                item.Budget?.Id,
-                item.Budget?.Amount,
-                item.Spent,
-                item.Pending,
-                item.Remaining,
-                item.UtilizationPercentage,
-                item.IsExceeded,
-                item.Budget?.Visibility)).ToList());
+    [MapProperty(new[] { nameof(BudgetMonthSummary.Month), nameof(MonthYear.Year) }, nameof(BudgetOverviewResponse.Year))]
+    [MapProperty(new[] { nameof(BudgetMonthSummary.Month), nameof(MonthYear.Month) }, nameof(BudgetOverviewResponse.Month))]
+    public static partial BudgetOverviewResponse ToResponse(this BudgetMonthSummary source);
+
+    [MapProperty(new[] { nameof(CategorySpending.Category), nameof(Category.Name) }, nameof(BudgetCategoryResponse.Name))]
+    [MapProperty(new[] { nameof(CategorySpending.Category), nameof(Category.Icon) }, nameof(BudgetCategoryResponse.Icon))]
+    [MapProperty(new[] { nameof(CategorySpending.Category), nameof(Category.Color) }, nameof(BudgetCategoryResponse.Color))]
+    [MapProperty(new[] { nameof(CategorySpending.Budget), nameof(Budget.Amount) }, nameof(BudgetCategoryResponse.Budget))]
+    private static partial BudgetCategoryResponse MapCategory(CategorySpending source);
 }

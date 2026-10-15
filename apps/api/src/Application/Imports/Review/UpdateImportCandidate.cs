@@ -19,7 +19,7 @@ public sealed record UpdateImportCandidateRequest(Guid? CategoryId, bool Exclude
 /// <summary>
 /// Changes the category or the exclusion of a row while the import waits for review.
 /// </summary>
-public sealed class UpdateImportCandidateHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class UpdateImportCandidateHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Updates a row of an import.</summary>
     /// <param name="id">The import id.</param>

@@ -2,6 +2,7 @@ using Kijk.Application.Shared.Finances;
 using Kijk.Domain.Entities;
 using Kijk.Domain.Services;
 using Kijk.Shared;
+using Riok.Mapperly.Abstractions;
 
 namespace Kijk.Application.Transactions.Shared;
 
@@ -41,28 +42,20 @@ public sealed record TransactionResponse(
 /// <summary>
 /// Maps transaction entities to API responses.
 /// </summary>
-public static class TransactionResponseMapper
+[Mapper]
+public static partial class TransactionResponseMapper
 {
     /// <summary>Maps a transaction with its loaded account and category to a response.</summary>
     /// <param name="source">The transaction.</param>
     /// <returns>The response.</returns>
-    public static TransactionResponse ToResponse(this Transaction source) =>
-        new(
-            source.Id,
-            DateOnly.FromDateTime(source.BookingDate),
-            source.Amount,
-            source.Currency,
-            source.Counterparty,
-            source.Purpose,
-            source.Status,
-            source.IsTransfer,
-            source.AccountId,
-            source.Account?.Name,
-            source.CategoryId,
-            source.Category?.Name,
-            source.CategorySource,
-            CategoryRuleKeys.For(source.CounterpartyKey, source.Counterparty, source.IsMerchantPayment)?.Scope,
-            PurposeKeywords.Words(source.Purpose));
+    [MapPropertyFromSource(nameof(TransactionResponse.RememberScope), Use = nameof(MapRememberScope))]
+    [MapProperty(nameof(Transaction.Purpose), nameof(TransactionResponse.RememberKeywords), Use = nameof(MapRememberKeywords))]
+    public static partial TransactionResponse ToResponse(this Transaction source);
+
+    private static CategoryRuleScope? MapRememberScope(Transaction source) =>
+        CategoryRuleKeys.For(source.CounterpartyKey, source.Counterparty, source.IsMerchantPayment)?.Scope;
+
+    private static IReadOnlyList<string> MapRememberKeywords(string? purpose) => PurposeKeywords.Words(purpose);
 }
 
 /// <summary>

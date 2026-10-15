@@ -17,7 +17,7 @@ public sealed class CreateImportHandler(
     IImportFileProtector protector,
     IJobQueue queue,
     TimeProvider timeProvider,
-    ILogger<CreateImportHandler> logger) : IHandler
+    ILogger<CreateImportHandler> logger)
 {
     /// <summary>Creates an import for a bank account.</summary>
     /// <param name="accountId">The bank account.</param>

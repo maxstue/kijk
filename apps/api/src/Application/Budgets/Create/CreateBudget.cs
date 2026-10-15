@@ -13,7 +13,7 @@ namespace Kijk.Application.Budgets.Create;
 /// <summary>
 /// Creates budgets for the active space.
 /// </summary>
-public sealed class CreateBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateBudgetHandler> logger) : IHandler
+public sealed class CreateBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateBudgetHandler> logger)
 {
     private const string DuplicateMessage = "A budget already starts in this month for this category";
 

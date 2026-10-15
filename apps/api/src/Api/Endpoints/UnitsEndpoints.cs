@@ -26,9 +26,7 @@ public sealed class UnitsEndpoints : IEndpointGroup
             .WithTags("Units")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("", GetAll).WithoutSpacePermission(UserOwned).WithSummary("Gets units visible to the current user");
-        group.MapGet("/system", GetSystem).WithoutSpacePermission("System units are public reference data.").WithSummary("Gets supported system units");
-        group.MapGet("/page", GetPage).WithoutSpacePermission(UserOwned).WithSummary("Gets a page of units for settings");
+        group.MapGet("", GetAll).WithoutSpacePermission("Lists system units, the user's own units, or the units of a space the user is a member of; the handler checks the membership.").WithSummary("Gets the units of a scope, optionally filtered and paged");
         group.MapPost("", Create).WithoutSpacePermission("Creates a unit owned by the current user; sharing it with spaces is checked in the handler (units:share).").WithRequestValidation<CreateUnitRequest>().WithSummary("Creates a user unit");
         group.MapPut("/{id:guid}", Update).WithoutSpacePermission(UserOwned).WithRequestValidation<UpdateUnitRequest>().WithSummary("Updates a user unit");
         group.MapPost("/{id:guid}/archive", Archive).WithoutSpacePermission(UserOwned).WithSummary("Archives a user unit");
@@ -39,27 +37,17 @@ public sealed class UnitsEndpoints : IEndpointGroup
         return builder;
     }
 
-    private static async Task<Results<Ok<List<UnitResponse>>, ProblemHttpResult>> GetAll(
-        bool includeArchived,
+    private static async Task<Results<Ok<UnitPageResponse>, ProblemHttpResult>> GetAll(
         GetAllUnitsHandler handler,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        UnitScope scope = UnitScope.Space,
+        Guid? spaceId = null,
+        bool includeArchived = false,
+        string? search = null,
+        int? page = null,
+        int? pageSize = null)
     {
-        var result = await handler.GetAllAsync(includeArchived, cancellationToken);
-        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
-    }
-
-    private static async Task<Results<Ok<List<UnitResponse>>, ProblemHttpResult>> GetSystem(
-        GetAllUnitsHandler handler, CancellationToken cancellationToken)
-    {
-        var result = await handler.GetSystemAsync(cancellationToken);
-        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
-    }
-
-    private static async Task<Results<Ok<UnitPageResponse>, ProblemHttpResult>> GetPage(
-        bool space, Guid? spaceId, int page, int pageSize, string? search,
-        GetAllUnitsHandler handler, CancellationToken cancellationToken)
-    {
-        var result = await handler.GetPageAsync(space, spaceId, page, pageSize, search, cancellationToken);
+        var result = await handler.GetAsync(new(scope, spaceId, includeArchived, search, page, pageSize), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

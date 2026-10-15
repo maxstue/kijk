@@ -1,19 +1,11 @@
 using System.Globalization;
 using Kijk.Application.Shared.Persistence;
-using Kijk.Domain.Entities;
 using Kijk.Shared;
 
 namespace Kijk.Application.Consumptions.GetStats;
 
-/// <summary>
-/// Handler for getting consumption statistics.
-/// It returns the resource usage statistics for the selected year and month.
-/// The statistics include the total, average, min, and max values for the selected year.
-/// The comparison year is the previous year if the selected year is the current year.
-/// The comparison year is the current year if the selected year is in the past.
-/// The comparison month is the current month unless the selected month is the current month.
-/// </summary>
-public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+/// <summary>Calculates resource statistics from monthly totals for the selected and comparison periods.</summary>
+public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>Calculates the statistics of every resource for the selected year and month.</summary>
     /// <param name="year">The selected year.</param>
@@ -27,168 +19,72 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
             return Error.Validation($"Month '{month}' is invalid");
         }
 
-        var selectedYearUsages = await dbContext.Consumptions
-            .Include(x => x.Resource.Unit)
-            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
-            .Where(x => x.Date.Year == year)
-            .AsNoTracking()
+        var now = timeProvider.GetUtcNow();
+        var isCurrentYear = year == now.Year;
+        var isCurrentMonth = isCurrentYear && parsedMonth.Month == now.Month;
+        var comparisonYear = year < now.Year ? now.Year : year;
+        if (isCurrentYear)
+        {
+            comparisonYear = now.Year - 1;
+        }
+        var comparisonMonth = isCurrentMonth ? now.AddMonths(-1) : now;
+        var selectedStart = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var selectedEnd = selectedStart.AddYears(1);
+        var comparisonStart = new DateTime(comparisonYear, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var comparisonEnd = comparisonStart.AddYears(1);
+        var comparisonMonthStart = new DateTime(comparisonMonth.Year, comparisonMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var comparisonMonthEnd = comparisonMonthStart.AddMonths(1);
+
+        // Aggregate in PostgreSQL once; overlapping periods do not duplicate consumptions.
+        var monthlyTotals = await dbContext.Consumptions
+            .Where(consumption => consumption.SpaceId == currentUser.ActiveSpaceId)
+            .Where(consumption =>
+                (consumption.Date >= selectedStart && consumption.Date < selectedEnd)
+                || (consumption.Date >= comparisonStart && consumption.Date < comparisonEnd)
+                || (consumption.Date >= comparisonMonthStart && consumption.Date < comparisonMonthEnd))
+            .GroupBy(consumption => new
+            {
+                consumption.ResourceId,
+                consumption.Resource.Name,
+                consumption.Resource.Unit.Symbol,
+                consumption.Resource.Color,
+                consumption.Resource.Icon,
+                consumption.Date.Year,
+                consumption.Date.Month
+            })
+            .Select(group => new MonthlyTotal(
+                new ConsumptionStatsResourceResponse(group.Key.ResourceId, group.Key.Name, group.Key.Symbol, group.Key.Color, group.Key.Icon),
+                group.Key.Year,
+                group.Key.Month,
+                group.Sum(consumption => consumption.CalculatedConsumption)))
             .ToListAsync(cancellationToken);
 
-        var selectedMonth = parsedMonth.Month;
-        var comparisonYear = GetComparisonYear(year);
-        var comparisonYearUsages = await dbContext.Consumptions
-            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
-            .Where(x => x.Date.Year == comparisonYear)
-            .Include(x => x.Resource.Unit)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        var comparisonMonth = GetComparisonMonthPeriod(year, selectedMonth);
-        var comparisonMonthUsages = await dbContext.Consumptions
-            .Include(x => x.Resource.Unit)
-            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
-            .Where(x => x.Date.Year == comparisonMonth.Year)
-            .Where(x => x.Date.Month == comparisonMonth.Month)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        var resources = selectedYearUsages
-            .Concat(comparisonYearUsages)
-            .Concat(comparisonMonthUsages)
-            .Select(x => x.Resource)
-            .DistinctBy(x => x.Id)
-            .ToList();
-
-        var result = resources
-            .Select(resource => CalculateStats(new(
-                resource,
-                new(year, selectedMonth),
-                new(selectedYearUsages, comparisonYearUsages, comparisonMonthUsages))))
-            .ToList();
-
-        return new GetStatsConsumptionsResponseWrapper(result);
-    }
-
-    /// <summary>
-    /// Get the comparison year based on the selected year
-    /// If the selected year is the current year, the comparison year is the previous year
-    /// If the selected year is in the past, the comparison year is the current year
-    /// </summary>
-    /// <param name="selectedYear">The selected year.</param>
-    /// <returns>The year to compare with.</returns>
-    private static int GetComparisonYear(int selectedYear)
-    {
-        var currentYear = DateTime.UtcNow.Year;
-        // compare to previous year if selected year is current year
-        if (selectedYear == currentYear)
+        var stats = monthlyTotals.GroupBy(total => total.Resource).Select(resourceTotals =>
         {
-            return currentYear - 1;
-        }
+            var byYear = resourceTotals.ToLookup(total => total.Year);
+            var selectedTotals = byYear[year].ToDictionary(total => total.Month, total => total.Value);
+            var yearTotal = selectedTotals.Values.Sum();
+            var monthTotal = selectedTotals.GetValueOrDefault(parsedMonth.Month);
+            var comparisonYearTotal = byYear[comparisonYear].Sum(total => total.Value);
+            var comparisonMonthTotal = byYear[comparisonMonth.Year]
+                .Where(total => total.Month == comparisonMonth.Month)
+                .Sum(total => total.Value);
 
-        // compare to current year if selected year is in the past
-        if (selectedYear < currentYear)
-        {
-            return currentYear;
-        }
+            return new ConsumptionStatsResponse(
+                resourceTotals.Key,
+                monthTotal,
+                yearTotal,
+                selectedTotals.Count == 0 ? 0 : selectedTotals.Values.Average(),
+                selectedTotals.Values.DefaultIfEmpty(0).Min(),
+                selectedTotals.Values.DefaultIfEmpty(0).Max(),
+                comparisonYearTotal,
+                isCurrentYear ? yearTotal - comparisonYearTotal : comparisonYearTotal - yearTotal,
+                comparisonMonthTotal,
+                isCurrentMonth ? monthTotal - comparisonMonthTotal : comparisonMonthTotal - monthTotal);
+        }).ToList();
 
-        // compare to current year if selected year is in the future
-        return selectedYear;
+        return new GetStatsConsumptionsResponseWrapper(stats);
     }
 
-    private static (int Year, int Month) GetComparisonMonthPeriod(int selectedYear, int selectedMonth)
-    {
-        var currentYear = DateTime.UtcNow.Year;
-        var currentMonth = DateTime.UtcNow.Month;
-
-        if (selectedYear == currentYear && selectedMonth == currentMonth)
-        {
-            return currentMonth == 1 ? (currentYear - 1, 12) : (currentYear, currentMonth - 1);
-        }
-
-        return (currentYear, currentMonth);
-    }
-
-    private static ConsumptionStatsResponse CalculateStats(StatsCalculationParameters parameters)
-    {
-        var selectedYearConsumptions = parameters.Usages.SelectedYear
-            .Where(x => x.ResourceId == parameters.Resource.Id)
-            .ToList();
-        var comparisonYearConsumptions = parameters.Usages.ComparisonYear
-            .Where(x => x.ResourceId == parameters.Resource.Id)
-            .ToList();
-        var comparisonMonthConsumptions = parameters.Usages.ComparisonMonth
-            .Where(x => x.ResourceId == parameters.Resource.Id)
-            .ToList();
-
-        var selectedMonthlyTotals = selectedYearConsumptions
-            .GroupBy(x => x.Date.Month)
-            .Select(group => group.Sum(x => x.CalculatedConsumption))
-            .ToList();
-
-        var yearTotal = selectedMonthlyTotals.Sum();
-        var yearAverage = selectedMonthlyTotals.Count == 0 ? 0 : selectedMonthlyTotals.Average();
-        var yearMin = selectedMonthlyTotals.DefaultIfEmpty(0).Min();
-        var yearMax = selectedMonthlyTotals.DefaultIfEmpty(0).Max();
-
-        var compYearTotal = comparisonYearConsumptions.Sum(x => x.CalculatedConsumption);
-        var compYearDiff = CalculateYearDiff(parameters.Period.SelectedYear, yearTotal, compYearTotal);
-
-        var compMonthTotal = comparisonMonthConsumptions.Sum(x => x.CalculatedConsumption);
-        var selectedMonthTotal = selectedYearConsumptions
-            .Where(x => x.Date.Month == parameters.Period.SelectedMonth)
-            .Sum(x => x.CalculatedConsumption);
-        var compMonthDiff = CalculateMonthDiff(
-            parameters.Period.SelectedYear,
-            parameters.Period.SelectedMonth,
-            selectedMonthTotal,
-            compMonthTotal);
-
-        return new ConsumptionStatsResponse(
-            new ConsumptionStatsResourceResponse(
-                parameters.Resource.Id,
-                parameters.Resource.Name,
-                parameters.Resource.Unit.Symbol,
-                parameters.Resource.Color,
-                parameters.Resource.Icon),
-            selectedMonthTotal,
-            yearTotal,
-            yearAverage,
-            yearMin,
-            yearMax,
-            compYearTotal,
-            compYearDiff,
-            compMonthTotal,
-            compMonthDiff);
-    }
-
-    private sealed record StatsCalculationParameters(
-        Resource Resource,
-        StatsPeriodParameters Period,
-        StatsUsageParameters Usages);
-
-    private sealed record StatsPeriodParameters(int SelectedYear, int SelectedMonth);
-
-    private sealed record StatsUsageParameters(
-        IList<Domain.Entities.Consumption> SelectedYear,
-        IList<Domain.Entities.Consumption> ComparisonYear,
-        IList<Domain.Entities.Consumption> ComparisonMonth);
-
-    private static decimal CalculateYearDiff(int selectedYear, decimal selectedYearTotal, decimal compYearTotal)
-    {
-        var currentYear = DateTime.UtcNow.Year;
-
-        return selectedYear == currentYear
-            ? selectedYearTotal - compYearTotal
-            : compYearTotal - selectedYearTotal;
-    }
-
-    private static decimal CalculateMonthDiff(int selectedYear, int selectedMonth, decimal selectedMonthTotal, decimal compMonthTotal)
-    {
-        var currentYear = DateTime.UtcNow.Year;
-        var currentMonth = DateTime.UtcNow.Month;
-
-        return selectedYear == currentYear && selectedMonth == currentMonth
-            ? selectedMonthTotal - compMonthTotal
-            : compMonthTotal - selectedMonthTotal;
-    }
+    private sealed record MonthlyTotal(ConsumptionStatsResourceResponse Resource, int Year, int Month, decimal Value);
 }

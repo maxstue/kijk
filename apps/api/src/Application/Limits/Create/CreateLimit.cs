@@ -14,7 +14,7 @@ public sealed class CreateLimitHandler(
     IAppDbContext dbContext,
     CurrentUser currentUser,
     TimeProvider timeProvider,
-    ILogger<CreateLimitHandler> logger) : IHandler
+    ILogger<CreateLimitHandler> logger)
 {
     /// <summary>Creates a consumption limit for the active space.</summary>
     /// <param name="request">The limit data.</param>

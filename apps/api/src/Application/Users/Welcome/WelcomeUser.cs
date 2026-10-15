@@ -17,7 +17,7 @@ public class WelcomeUserHandler(
     CurrentUser currentUser,
     TimeProvider timeProvider,
     ILogger<WelcomeUserHandler> logger,
-    GetMeUserHandler getMeUserHandler) : IHandler
+    GetMeUserHandler getMeUserHandler)
 {
     /// <summary>
     /// Creates or completes the current Kijk account and returns its resulting state.

@@ -15,7 +15,7 @@ public class UpdateResourceHandler(
     IAppDbContext dbContext,
     CurrentUser currentUser,
     IUnitConversionService unitConversionService,
-    ILogger<UpdateResourceHandler> logger) : IHandler
+    ILogger<UpdateResourceHandler> logger)
 {
     /// <summary>Updates a custom resource of the active space.</summary>
     /// <param name="id">The resource id.</param>

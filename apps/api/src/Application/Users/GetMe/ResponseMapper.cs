@@ -6,7 +6,7 @@ namespace Kijk.Application.Users.GetMe;
 /// <summary>
 /// Projects user entities to detailed current-user responses.
 /// </summary>
-[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+[Mapper]
 public static partial class GetMeUserResponseMapper
 {
     /// <summary>

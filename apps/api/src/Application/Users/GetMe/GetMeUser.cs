@@ -12,7 +12,7 @@ namespace Kijk.Application.Users.GetMe;
 public class GetMeUserHandler(
   IAppDbContext dbContext,
   IIdentityProvider identityProvider,
-  CurrentUser currentUser) : IHandler
+  CurrentUser currentUser)
 {
     /// <summary>Gets the current account state; users without a completed onboarding get only their identity data.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

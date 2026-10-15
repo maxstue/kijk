@@ -9,7 +9,7 @@ namespace Kijk.Application.Resources.GetAll;
 /// <summary>
 /// Handler for getting all resources.
 /// </summary>
-public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger) : IHandler
+public class GetAllResourcesHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetAllResourcesHandler> logger)
 {
     /// <summary>Gets the resources available in the active space.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

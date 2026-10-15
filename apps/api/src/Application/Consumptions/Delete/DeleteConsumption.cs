@@ -13,7 +13,7 @@ public class DeleteConsumptionHandler(
     IAppDbContext dbContext,
     CurrentUser currentUser,
     TimeProvider timeProvider,
-    ILogger<DeleteConsumptionHandler> logger) : IHandler
+    ILogger<DeleteConsumptionHandler> logger)
 {
     /// <summary>Deletes a consumption of the active space and recalculates later meter readings.</summary>
     /// <param name="id">The consumption id.</param>

@@ -2,7 +2,6 @@
 using Kijk.Api.Extensions;
 using Kijk.Api.Mappers;
 using Kijk.Infrastructure.Persistence;
-using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Authorization;
 
@@ -12,10 +11,9 @@ namespace Kijk.Api.Middleware;
 /// Middleware to set the current user.
 /// </summary>
 /// <param name="problemDetailsService">Writes problem-details responses.</param>
-/// <param name="telemetryService">Reports errors to the telemetry service.</param>
 /// <param name="dbContext">The database context.</param>
 /// <param name="currentUser">The current user.</param>
-public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService, ITelemetryService telemetryService, AppDbContext dbContext, CurrentUser currentUser) : IMiddleware
+public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService, AppDbContext dbContext, CurrentUser currentUser) : IMiddleware
 {
     /// <inheritdoc />
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -38,8 +36,7 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
         else
         {
             var problemDetails = Error.Custom(ErrorType.Authentication, ErrorCodes.AuthenticationError, errorMessage).ToProblemDetails();
-            telemetryService.SendProblemDetails(problemDetails);
-
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             await problemDetailsService.TryWriteAsync(new() { HttpContext = context, ProblemDetails = problemDetails });
         }
     }

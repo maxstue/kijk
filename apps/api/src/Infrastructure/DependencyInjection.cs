@@ -6,13 +6,13 @@ using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Authorization;
 using Kijk.Infrastructure.Ai;
 using Kijk.Infrastructure.Auth;
+using Kijk.Infrastructure.Configuration;
 using Kijk.Infrastructure.Imports;
+using Kijk.Infrastructure.Jobs;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;
 using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
-using Kijk.Shared.Exceptions;
-using Kijk.Shared.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -29,20 +29,20 @@ public static class DependencyInjection
 {
     extension(IServiceCollection services)
     {
-        /// <summary>Registers all infrastructure services.</summary>
+        /// <summary>Registers infrastructure services. Register durable workers separately with <see cref="JobsDependencyInjection.AddBackgroundJobs" />.</summary>
         /// <param name="configuration">The application configuration.</param>
         /// <returns>The service collection.</returns>
         public IServiceCollection AddInfrastructure(IConfiguration configuration) =>
-            services.AddOptions(configuration)
-                .AddDatabase(configuration)
-                .AddHealthCheck(configuration)
+            services.AddConfigurationOptions(configuration)
+                .AddDatabase()
+                .AddHealthCheck()
                 .AddCorsPolicy(configuration)
                 .AddTelemetry()
                 .AddLogging(configuration)
                 .AddClerkBackendApi()
-                .AddAuth(configuration)
-                .AddImports(configuration)
-                .AddAi(configuration);
+                .AddAuth()
+                .AddImports()
+                .AddAi();
 
         private IServiceCollection AddTelemetry()
         {
@@ -50,20 +50,11 @@ public static class DependencyInjection
             return services;
         }
 
-        private IServiceCollection AddOptions(IConfiguration configuration)
-        {
-            services.ConfigureOptions<AuthOptions>(configuration)
-                .ConfigureOptions<ConnectionOptions>(configuration)
-                .ConfigureOptions<PersistenceOptions>(configuration);
-
-            return services;
-        }
-
-        private IServiceCollection AddDatabase(IConfiguration configuration)
+        private IServiceCollection AddDatabase()
         {
             services.AddDbContextPool<AppDbContext>((sp, optionsBuilder) =>
             {
-                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                var connectionString = sp.GetRequiredService<IOptions<ConnectionOptions>>().Value.DefaultConnection;
                 var persistenceOptions = sp.GetRequiredService<IOptions<PersistenceOptions>>().Value;
 
                 IList<IInterceptor> interceptors =
@@ -82,15 +73,11 @@ public static class DependencyInjection
             return services;
         }
 
-        private IServiceCollection AddHealthCheck(IConfiguration configuration)
+        private IServiceCollection AddHealthCheck()
         {
-            var conString = configuration.GetConnectionString(ConnectionOptions.SectionName);
-            if (conString is null)
-            {
-                throw new NullException($"No connection string found, {conString}");
-            }
-
-            services.AddHealthChecks().AddNpgSql(conString, tags: ["database", "postgresql"]);
+            services.AddHealthChecks().AddNpgSql(
+                sp => sp.GetRequiredService<IOptions<ConnectionOptions>>().Value.DefaultConnection,
+                tags: ["database", "postgresql"]);
 
             return services;
         }
@@ -112,17 +99,14 @@ public static class DependencyInjection
             return services;
         }
 
-        private IServiceCollection AddAuth(IConfiguration configuration)
+        private IServiceCollection AddAuth()
         {
-            var authOptions = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
-            if (authOptions is null)
-            {
-                throw new NullException($"No AuthSettings found, {authOptions}");
-            }
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(x =>
+                .AddJwtBearer();
+            services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IOptions<AuthOptions>>((x, configuredAuth) =>
                 {
+                    var authOptions = configuredAuth.Value;
                     // Authority is the URL of your clerk instance
                     x.Authority = authOptions.Authority;
                     x.TokenValidationParameters = new()

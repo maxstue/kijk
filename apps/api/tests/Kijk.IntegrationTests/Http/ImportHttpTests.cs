@@ -43,6 +43,92 @@ public class ImportHttpTests
     public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
 
     [Test]
+    public async Task LegacyDisabledSettingCannotDiscardImportJobs()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(
+            fixture.User.AuthId,
+            jobsEnabled: true,
+            configuration: new Dictionary<string, string?> { ["Jobs:Enabled"] = "false" });
+
+        var job = await UploadAsync(host.Client, fixture.Account.Id, "dkb-synthetic.csv");
+        job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsMapping);
+
+        await Assert.That(job.ProposedMapping).IsNotNull();
+    }
+
+    [Test]
+    public async Task ATestWithoutWorkersRejectsUploadsWithoutSavingTheImport()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+
+        using var response = await UploadResponseAsync(host.Client, fixture.Account.Id, "dkb-synthetic.csv");
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.InternalServerError);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.ImportJobs.AnyAsync()).IsFalse();
+        await Assert.That(await verification.ImportFiles.AnyAsync()).IsFalse();
+    }
+
+    [Test]
+    public async Task CandidatePagesFilterBeforePagingAndCommitIncludesEverySelectedPage()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            await dbContext.ImportCandidates.Where(item => item.ImportJobId == job.Id).ExecuteDeleteAsync();
+            for (var index = 0; index < 321; index++)
+            {
+                var month = index switch { < 250 => October, < 291 => November, _ => September };
+                var row = ImportCandidate.CreateValid(job.Id, index + 1, new ImportCandidateValues(
+                    month.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc), -12.34m, "Merchant", null,
+                    TransactionStatus.Booked, true, $"booking-{index}", null, IsCardSettlement: index < 250 && index % 2 == 0));
+                row.SetExcluded(index is >= 245 and < 250);
+                dbContext.ImportCandidates.Add(row);
+            }
+            dbContext.ImportCandidates.AddRange(Enumerable.Range(322, 15).Select(number => ImportCandidate.CreateInvalid(job.Id, number, "Invalid date")));
+            var storedJob = await dbContext.ImportJobs.SingleAsync(item => item.Id == job.Id);
+            storedJob.ReportProgress(336, 15);
+            await dbContext.SaveChangesAsync();
+        }
+
+        var first = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&page=1&pageSize=100", Json))!;
+        var second = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&page=2&pageSize=100", Json))!;
+        var last = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&page=999&pageSize=10000", Json))!;
+        var cards = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates?months=2026-10-01&cardSettlementsOnly=true&page=2&pageSize=10", Json))!;
+        await Assert.That(first.Items.Count).IsEqualTo(100);
+        await Assert.That(first.TotalCount).IsEqualTo(250);
+        await Assert.That(first.IncludedCount).IsEqualTo(245);
+        await Assert.That(first.ErrorCount).IsEqualTo(15);
+        await Assert.That(first.ErrorSamples.Count).IsEqualTo(10);
+        await Assert.That(first.Items.All(item => item.BookingDate!.Value.Month == 10)).IsTrue();
+        await Assert.That(first.Items.Select(item => item.Id).Intersect(second.Items.Select(item => item.Id))).IsEmpty();
+        await Assert.That(second.Items.Select(item => item.RowNumber)).IsEquivalentTo(Enumerable.Range(101, 100));
+        await Assert.That(second.IncludedCount).IsEqualTo(245);
+        await Assert.That(last.PageSize).IsEqualTo(100);
+        await Assert.That(last.Page).IsEqualTo(3);
+        await Assert.That(last.Items.Count).IsEqualTo(50);
+        await Assert.That(cards.Items.Count).IsEqualTo(10);
+        await Assert.That(cards.TotalCount).IsEqualTo(123);
+        await Assert.That(cards.IncludedCount).IsEqualTo(245);
+        await Assert.That(cards.Items.All(item => item.IsCardSettlement && !item.Excluded)).IsTrue();
+        using var invalidMonth = await host.Client.GetAsync($"/api/imports/{job.Id}/candidates?months=2026-12-01");
+        await Assert.That(invalidMonth.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        using var missing = await host.Client.GetAsync($"/api/imports/{Guid.NewGuid()}/candidates?months=2026-10-01");
+        await Assert.That(missing.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+
+        using var committed = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/commit", new CommitImportRequest([November], true), Json);
+        await Assert.That(committed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        var result = (await committed.Content.ReadFromJsonAsync<ImportJobResponse>(Json))!;
+        await Assert.That(result.ImportedCount).IsEqualTo(286);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.Transactions.CountAsync()).IsEqualTo(286);
+    }
+
+    [Test]
     public async Task ImportReplacesCoveredMonthsAndKeepsFilesOnlyUntilCommitted()
     {
         var fixture = await CreateFixtureAsync("Admin");
@@ -61,8 +147,8 @@ public class ImportHttpTests
         job = await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
         await Assert.That(job.FullMonths).IsEquivalentTo(new[] { October });
         await Assert.That(job.EdgeMonths).IsEquivalentTo(new[] { September, November });
-        var candidates = await host.Client.GetFromJsonAsync<List<ImportCandidateResponse>>($"/api/imports/{job.Id}/candidates", Json);
-        await Assert.That(candidates!.Count).IsEqualTo(8);
+        var candidates = await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{job.Id}/candidates", Json);
+        await Assert.That(candidates!.TotalCount).IsEqualTo(8);
 
         job = await CommitAsync(host.Client, job.Id, [November]);
         var again = await CommitAsync(host.Client, job.Id, [November]);
@@ -84,6 +170,40 @@ public class ImportHttpTests
         var keys = await verification.DataProtectionKeys.Select(item => item.Xml).ToListAsync();
         await Assert.That(keys.Count).IsGreaterThan(0);
         await Assert.That(keys.All(xml => xml!.Contains("encryptedSecret", StringComparison.Ordinal) && !xml.Contains("<masterKey", StringComparison.Ordinal))).IsTrue();
+    }
+
+    [Test]
+    public async Task ReimportPreservesManualBookingsAndReplacesImportsWithoutTheirJobLink()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: true);
+
+        List<Guid> importedIds;
+        List<Guid> manualIds;
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            importedIds = await dbContext.Transactions.Select(item => item.Id).ToListAsync();
+            // Cleanup can remove the job link, but the booking key still identifies an imported transaction.
+            await dbContext.Transactions.ExecuteUpdateAsync(setters => setters.SetProperty(item => item.ImportJobId, (Guid?)null));
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            var manual = new[] { October, November }.Select(month => Transaction.Create(
+                new TransactionDetails(month.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc), -12.34m, "Manual booking", null, TransactionStatus.Booked, false),
+                account, user, account.Space)).ToList();
+            dbContext.Transactions.AddRange(manual);
+            await dbContext.SaveChangesAsync();
+            manualIds = manual.Select(item => item.Id).ToList();
+        }
+
+        await ImportDkbSampleAsync(host.Client, fixture.Account.Id, confirmMapping: false);
+
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var transactions = await verification.Transactions.Where(item => item.AccountId == fixture.Account.Id).ToListAsync();
+        await Assert.That(transactions.Count).IsEqualTo(9);
+        await Assert.That(transactions.Where(item => item.BookingKey == null).Select(item => item.Id)).IsEquivalentTo(manualIds);
+        await Assert.That(transactions.Any(item => importedIds.Contains(item.Id))).IsFalse();
+        await Assert.That(transactions.Count(item => item.BookingKey != null && item.ImportJobId != null)).IsEqualTo(7);
     }
 
     [Test]
@@ -271,8 +391,12 @@ public class ImportHttpTests
         var job = await UploadAndReadAsync(host.Client, fixture.Account.Id);
         var preview = (await host.Client.GetFromJsonAsync<AiPreviewResponse>($"/api/imports/{job.Id}/ai-preview", Json))!;
         var bakery = preview.Items.Single(item => item.Counterparty == "Bäckerei Schön");
-        using var previouslyExcluded = await host.Client.PutAsJsonAsync($"/api/imports/{job.Id}/ai-preview/{bakery.Key}", new UpdateAiPreviewItemRequest(true), Json);
-        await Assert.That(previouslyExcluded.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var row = await dbContext.ImportCandidates.SingleAsync(item => item.ImportJobId == job.Id && item.Counterparty == "Bäckerei Schön");
+            row.SetAiExcluded(true);
+            await dbContext.SaveChangesAsync();
+        }
         using var started = await host.Client.PostAsJsonAsync($"/api/imports/{job.Id}/categorize", new CategorizeImportRequest(AiDataSharing.Strict, [bakery.Key]), Json);
         await Assert.That(started.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
         await WaitForAsync(host.Client, job.Id, ImportJobStatus.NeedsReview);
@@ -409,7 +533,7 @@ public class ImportHttpTests
     }
 
     private static async Task<List<ImportCandidateResponse>> GetCandidatesAsync(HttpClient client, Guid id) =>
-        (await client.GetFromJsonAsync<List<ImportCandidateResponse>>($"/api/imports/{id}/candidates", Json))!;
+        (await client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/imports/{id}/candidates", Json))!.Items;
 
     [Test]
     public async Task CancellingDeletesTheFileRightAway()
@@ -436,7 +560,7 @@ public class ImportHttpTests
     public async Task UploadingRequiresImportPermission(string role, HttpStatusCode expected)
     {
         var fixture = await CreateFixtureAsync(role);
-        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
 
         using var response = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");
 
@@ -447,7 +571,7 @@ public class ImportHttpTests
     public async Task UploadingRequiresConsentToProcessSensitiveData()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         using var withdrawn = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: false), Json);
 
         using var refused = await UploadResponseAsync(host.Client, fixture.Account.Id, "generic-comma.csv");

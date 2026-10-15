@@ -1,5 +1,6 @@
 using Kijk.Domain.Entities;
 using Kijk.Shared;
+using Riok.Mapperly.Abstractions;
 
 namespace Kijk.Application.CategoryRules.Shared;
 
@@ -16,11 +17,14 @@ public sealed record CategoryRuleResponse(Guid Id, CategoryRuleScope Scope, stri
 /// <summary>
 /// Maps category rules to API responses.
 /// </summary>
-public static class CategoryRuleResponseMapper
+[Mapper]
+public static partial class CategoryRuleResponseMapper
 {
     /// <summary>Maps a rule with its loaded category.</summary>
     /// <param name="source">The rule.</param>
     /// <returns>The response.</returns>
-    public static CategoryRuleResponse ToResponse(this CategoryRule source) =>
-        new(source.Id, source.Scope, source.Label, source.CategoryId, source.Category?.Name ?? string.Empty, source.CreatedAt, source.Visibility);
+    [MapPropertyFromSource(nameof(CategoryRuleResponse.CategoryName), Use = nameof(MapCategoryName))]
+    public static partial CategoryRuleResponse ToResponse(this CategoryRule source);
+
+    private static string MapCategoryName(CategoryRule source) => source.Category?.Name ?? string.Empty;
 }

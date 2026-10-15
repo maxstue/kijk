@@ -17,7 +17,7 @@ public sealed record DeleteUserAccount(Guid UserId, string AuthId);
 /// Starts deleting the current user's account and all their data. The deletion itself runs as a durable background
 /// job, so a restart neither loses nor repeats half of it.
 /// </summary>
-public sealed class RequestAccountDeletionHandler(IAppDbContext dbContext, CurrentUser currentUser, IJobQueue queue, TimeProvider timeProvider) : IHandler
+public sealed class RequestAccountDeletionHandler(IAppDbContext dbContext, CurrentUser currentUser, IJobQueue queue, TimeProvider timeProvider)
 {
     /// <summary>Queues the deletion. Asking again while it runs has no further effect.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>
@@ -47,7 +47,7 @@ public sealed class RequestAccountDeletionHandler(IAppDbContext dbContext, Curre
 /// at the authentication provider. Shared data they created stays in the space for the other members and is
 /// attributed to another member; if no administrator would remain, that member becomes one.
 /// </summary>
-public sealed class AccountEraser(IAppDbContext dbContext, IIdentityProvider identityProvider, ILogger<AccountEraser> logger) : IHandler
+public sealed class AccountEraser(IAppDbContext dbContext, IIdentityProvider identityProvider, ILogger<AccountEraser> logger)
 {
     /// <summary>Runs the deletion. It can run again after a failure.</summary>
     /// <param name="message">The user to delete.</param>

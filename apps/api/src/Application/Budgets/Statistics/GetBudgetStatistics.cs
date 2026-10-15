@@ -30,7 +30,7 @@ public sealed record CategoryTrendResponse(Guid CategoryId, string Name, string 
 /// <summary>
 /// Evaluates the spending per category over several months with the same rules as the monthly budget overview.
 /// </summary>
-public sealed class GetBudgetStatisticsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetBudgetStatisticsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>The maximum number of months per request.</summary>
     public const int MaximumMonths = 24;

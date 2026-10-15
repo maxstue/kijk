@@ -1,11 +1,8 @@
-using NetEscapades.EnumGenerators;
-
 namespace Kijk.Shared;
 
 /// <summary>
 /// Represents who was the creator of the object.
 /// </summary>
-[EnumExtensions]
 public enum CreatorType
 {
     /// <summary>Created and maintained by Kijk.</summary>
@@ -17,7 +14,6 @@ public enum CreatorType
 /// <summary>
 /// Represents a period of time.
 /// </summary>
-[EnumExtensions]
 public enum Period
 {
     /// <summary>A calendar month.</summary>
@@ -31,7 +27,6 @@ public enum Period
 /// <summary>
 /// Represents the user's analytics collection preference.
 /// </summary>
-[EnumExtensions]
 public enum AnalyticsConsent
 {
     /// <summary>The user allows analytics.</summary>
@@ -43,7 +38,6 @@ public enum AnalyticsConsent
 /// <summary>
 /// Represents whether a category groups expenses or income.
 /// </summary>
-[EnumExtensions]
 public enum CategoryKind
 {
     /// <summary>Spending that counts against a budget.</summary>
@@ -55,7 +49,6 @@ public enum CategoryKind
 /// <summary>
 /// Represents how the category of a transaction was assigned.
 /// </summary>
-[EnumExtensions]
 public enum CategorySource
 {
     /// <summary>Assigned by a category rule.</summary>
@@ -71,7 +64,6 @@ public enum CategorySource
 /// <summary>
 /// Represents the booking status of a transaction.
 /// </summary>
-[EnumExtensions]
 public enum TransactionStatus
 {
     /// <summary>The bank has booked the transaction. Only booked transactions count against budgets.</summary>
@@ -83,7 +75,6 @@ public enum TransactionStatus
 /// <summary>
 /// Represents the kind of a space account.
 /// </summary>
-[EnumExtensions]
 public enum AccountKind
 {
     /// <summary>A bank account whose transactions are imported from bank exports.</summary>
@@ -95,7 +86,6 @@ public enum AccountKind
 /// <summary>
 /// Represents the processing state of a CSV import.
 /// </summary>
-[EnumExtensions]
 public enum ImportJobStatus
 {
     /// <summary>The file is stored and waits for the analysis.</summary>
@@ -121,7 +111,6 @@ public enum ImportJobStatus
 /// <summary>
 /// Represents where a proposed column mapping came from.
 /// </summary>
-[EnumExtensions]
 public enum MappingSource
 {
     /// <summary>A confirmed profile of the same file format.</summary>
@@ -135,7 +124,6 @@ public enum MappingSource
 /// <summary>
 /// Represents what a category rule matches on.
 /// </summary>
-[EnumExtensions]
 public enum CategoryRuleScope
 {
     /// <summary>The normalized name of a merchant, for transactions without a counterparty IBAN.</summary>
@@ -149,7 +137,6 @@ public enum CategoryRuleScope
 /// <summary>
 /// Represents how a category rule was created.
 /// </summary>
-[EnumExtensions]
 public enum CategoryRuleOrigin
 {
     /// <summary>A user chose to remember a correction.</summary>
@@ -161,7 +148,6 @@ public enum CategoryRuleOrigin
 /// <summary>
 /// Represents how much of the purpose text a space keeps after an import.
 /// </summary>
-[EnumExtensions]
 public enum PurposeRetention
 {
     /// <summary>Keeps the cleaned purpose.</summary>
@@ -175,7 +161,6 @@ public enum PurposeRetention
 /// <summary>
 /// Represents which transaction data a space lets the AI categorization see.
 /// </summary>
-[EnumExtensions]
 public enum AiDataSharing
 {
     /// <summary>No transaction leaves the server.</summary>
@@ -187,7 +172,6 @@ public enum AiDataSharing
 /// <summary>
 /// Represents who can see an account or a budget within a shared space.
 /// </summary>
-[EnumExtensions]
 public enum Visibility
 {
     /// <summary>Every member of the space.</summary>

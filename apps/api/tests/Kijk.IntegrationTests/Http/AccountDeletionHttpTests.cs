@@ -26,6 +26,20 @@ public class AccountDeletionHttpTests
     public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
 
     [Test]
+    public async Task ATestWithoutWorkersRejectsDeletionWithoutSavingTheRequest()
+    {
+        var seed = await SeedAsync();
+        await using var host = await SpaceApiHost.StartAsync(seed.Leaving.AuthId);
+
+        using var response = await host.Client.PostAsync("/api/users/me/deletion", null);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.InternalServerError);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var user = await verification.Users.SingleAsync(item => item.Id == seed.Leaving.Id);
+        await Assert.That(user.DeletionRequestedAt).IsNull();
+    }
+
+    [Test]
     public async Task DeletingAnAccountRemovesOwnDataAndHandsSharedDataToTheRemainingMember()
     {
         var seed = await SeedAsync();

@@ -9,7 +9,7 @@ namespace Kijk.Application.Spaces.ChangeMemberRole;
 /// <summary>
 /// Changes the role of another member of a space.
 /// </summary>
-public sealed class ChangeMemberRoleHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class ChangeMemberRoleHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>
     /// Changes a member's role when the current user's role allows assigning roles.

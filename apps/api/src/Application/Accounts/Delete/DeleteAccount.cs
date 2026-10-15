@@ -9,7 +9,7 @@ namespace Kijk.Application.Accounts.Delete;
 /// <summary>
 /// Deletes unused accounts of the active space.
 /// </summary>
-public sealed class DeleteAccountHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class DeleteAccountHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Deletes an account without transactions.</summary>
     /// <param name="id">The account id.</param>

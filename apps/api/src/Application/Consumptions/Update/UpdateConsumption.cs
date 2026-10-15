@@ -18,7 +18,7 @@ public class UpdateConsumptionHandler(
     CurrentUser currentUser,
     TimeProvider timeProvider,
     IUnitConversionService unitConversionService,
-    ILogger<UpdateConsumptionHandler> logger) : IHandler
+    ILogger<UpdateConsumptionHandler> logger)
 {
     /// <summary>Updates a consumption of the active space and recalculates affected meter readings.</summary>
     /// <param name="id">The consumption id.</param>

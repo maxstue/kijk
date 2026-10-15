@@ -17,7 +17,7 @@ public class UpdateUserHandler(
     IIdentityProvider identityProvider,
     CurrentUser currentUser,
     TimeProvider timeProvider,
-    ILogger<UpdateUserHandler> logger) : IHandler
+    ILogger<UpdateUserHandler> logger)
 {
     /// <summary>
     /// Updates the current user's settings. Renaming the active space additionally requires the

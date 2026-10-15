@@ -20,5 +20,14 @@ internal static class GeneratorDiagnostics
         category: "Kijk.Api.SourceGenerators",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Generated application registrations cannot register open generic modules or handlers.");
+        description: "Generated application registrations cannot register open generic modules or validators.");
+
+    internal static readonly DiagnosticDescriptor DuplicateValidator = new(
+        id: "KIJKSG005",
+        title: "Request type has more than one validator",
+        messageFormat: "Request type '{0}' is already validated by '{1}'; '{2}' is not registered",
+        category: "Kijk.Api.SourceGenerators",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The request validation filter resolves a single validator per request type, so each request type may have only one validator.");
 }

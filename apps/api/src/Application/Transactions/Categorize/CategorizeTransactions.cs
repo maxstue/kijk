@@ -37,7 +37,7 @@ public sealed record CategorizeTransactionsResponse(int Updated);
 /// Assigns one category to several transactions of the active space. The category counts as set by hand, so
 /// automatic categorization never overrides it.
 /// </summary>
-public sealed class CategorizeTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class CategorizeTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Assigns the category.</summary>
     /// <param name="request">The transactions and the category.</param>

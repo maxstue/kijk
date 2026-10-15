@@ -19,7 +19,7 @@ public sealed record TransactionCsvExport(byte[] Content, string FileName);
 /// <summary>
 /// Exports the transactions of the active space as CSV, with the same filters as the transaction list.
 /// </summary>
-public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
+public sealed class ExportTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>Exports transactions, oldest first.</summary>
     /// <param name="filter">The period and category filters.</param>

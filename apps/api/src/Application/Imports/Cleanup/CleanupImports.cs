@@ -8,7 +8,7 @@ namespace Kijk.Application.Imports.Cleanup;
 /// Deletes expired upload files and leftover review rows, and fails imports whose file expired. Runs at startup and
 /// periodically, so files never outlive their expiry even after a restart or an abandoned upload.
 /// </summary>
-public sealed class CleanupImportsHandler(IAppDbContext dbContext, TimeProvider timeProvider, ILogger<CleanupImportsHandler> logger) : IHandler
+public sealed class CleanupImportsHandler(IAppDbContext dbContext, TimeProvider timeProvider, ILogger<CleanupImportsHandler> logger)
 {
     /// <summary>Runs the cleanup.</summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>

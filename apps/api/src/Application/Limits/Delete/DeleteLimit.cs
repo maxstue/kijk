@@ -4,7 +4,7 @@ using Kijk.Shared;
 namespace Kijk.Application.Limits.Delete;
 
 /// <summary>Deletes consumption limits owned by the active space.</summary>
-public sealed class DeleteLimitHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class DeleteLimitHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Deletes a limit of the active space.</summary>
     /// <param name="id">The limit id.</param>

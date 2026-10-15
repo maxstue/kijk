@@ -8,7 +8,7 @@ namespace Kijk.Application.CategoryRules.Get;
 /// <summary>
 /// Retrieves the remembered category corrections of the active space.
 /// </summary>
-public sealed class GetCategoryRulesHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetCategoryRulesHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Gets all rules, ordered by label.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

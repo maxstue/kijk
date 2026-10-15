@@ -9,7 +9,7 @@ namespace Kijk.Application.Transactions.Update;
 /// <summary>
 /// Updates transactions of the active space.
 /// </summary>
-public sealed class UpdateTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class UpdateTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Updates a transaction of the active space.</summary>
     /// <param name="id">The transaction id.</param>

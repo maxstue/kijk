@@ -10,7 +10,7 @@ namespace Kijk.Application.Budgets.Get;
 /// <summary>
 /// Retrieves budgets and the monthly budget evaluation of the active space.
 /// </summary>
-public sealed class GetBudgetsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetBudgetsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Gets all budget versions of the active space.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

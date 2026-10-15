@@ -8,7 +8,7 @@ namespace Kijk.Application.Consumptions.GetById;
 /// <summary>
 /// Handler for getting consumption by id.
 /// </summary>
-public class GetByIdConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger) : IHandler
+public class GetByIdConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdConsumptionHandler> logger)
 {
     /// <summary>Gets a consumption of the active space.</summary>
     /// <param name="id">The consumption id.</param>

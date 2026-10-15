@@ -13,6 +13,7 @@ using Kijk.Domain.Entities;
 using Kijk.Domain.ValueObjects;
 using Kijk.IntegrationTests.Persistence;
 using Kijk.Shared;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kijk.IntegrationTests.Http;
@@ -145,6 +146,19 @@ public class SpacePermissionHttpTests
             new UpdateResourceRequest("Updated resource", null, null, null));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task SeveralFailedRulesOfOnePropertyAreAllReported()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.PutAsJsonAsync($"/api/resources/{fixture.Resource.Id}",
+            new UpdateResourceRequest(string.Empty, null, null, null));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        var problem = await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>();
+        await Assert.That(problem!.Errors["Name"].Length).IsGreaterThan(1);
     }
 
     [Test]

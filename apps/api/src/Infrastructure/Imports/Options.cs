@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Kijk.Shared;
-using Wolverine;
 
 namespace Kijk.Infrastructure.Imports;
 
@@ -8,13 +6,13 @@ namespace Kijk.Infrastructure.Imports;
 /// The secret for pseudonymous keys (HMAC). It comes from Infisical as <c>Fingerprint__MasterKey</c> and is never stored
 /// in the database, its backups or Git.
 /// </summary>
-public sealed class FingerprintOptions : IConfigOptions
+public sealed class FingerprintOptions
 {
-    /// <inheritdoc />
+    /// <summary>Gets the configuration section name.</summary>
     public static string SectionName => "Fingerprint";
 
     /// <summary>Gets or sets 32 random bytes, Base64-encoded.</summary>
-    [Required]
+    [Base64SecretKey(ErrorMessage = "Fingerprint__MasterKey must be 32 random bytes, Base64-encoded")]
     public string MasterKey { get; set; } = string.Empty;
 
     /// <summary>Gets or sets the version of <see cref="MasterKey" />; increase it only when the key is rotated.</summary>
@@ -26,29 +24,22 @@ public sealed class FingerprintOptions : IConfigOptions
 /// The key that encrypts the ASP.NET Data Protection key ring stored in Postgres. It comes from Infisical as
 /// <c>DataProtection__KeyEncryptionKey</c>.
 /// </summary>
-public sealed class KeyRingOptions : IConfigOptions
+public sealed class KeyRingOptions
 {
-    /// <inheritdoc />
+    /// <summary>Gets the configuration section name.</summary>
     public static string SectionName => "DataProtection";
 
     /// <summary>Gets or sets 32 random bytes, Base64-encoded.</summary>
-    [Required]
+    [Base64SecretKey(ErrorMessage = "DataProtection__KeyEncryptionKey must be 32 random bytes, Base64-encoded")]
     public string KeyEncryptionKey { get; set; } = string.Empty;
 }
 
-/// <summary>
-/// Settings of the background job processing.
-/// </summary>
-public sealed class JobsOptions : IConfigOptions
+/// <summary>Requires a Base64-encoded 32-byte secret without including its value in validation errors.</summary>
+[AttributeUsage(AttributeTargets.Property)]
+internal sealed class Base64SecretKeyAttribute : ValidationAttribute
 {
     /// <inheritdoc />
-    public static string SectionName => "Jobs";
-
-    /// <summary>Gets or sets whether background jobs run. Only tests that do not need imports turn them off.</summary>
-    public bool Enabled { get; set; } = true;
-
-    /// <summary>Gets or sets how Wolverine coordinates durable messages between nodes.</summary>
-    public DurabilityMode DurabilityMode { get; set; } = DurabilityMode.Balanced;
+    public override bool IsValid(object? value) => value is string key && SecretKey.IsValid(key);
 }
 
 /// <summary>

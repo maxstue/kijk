@@ -1,19 +1,22 @@
 using Kijk.Application.Limits.Create;
+using Kijk.Application.Limits.Delete;
+using Kijk.Application.Limits.Get;
 using Kijk.Application.Limits.Update;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Limits;
 
-/// <summary>
-/// Registers consumption limit services.
-/// </summary>
+/// <summary>Registers the handlers and services owned by the Limits feature.</summary>
 public sealed class ModuleService : IModule
 {
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<IValidator<CreateLimitRequest>, CreateLimitValidator>();
-        services.AddScoped<IValidator<UpdateLimitRequest>, UpdateLimitValidator>();
+        services.AddScoped<CreateLimitHandler>();
+        services.AddScoped<DeleteLimitHandler>();
+        services.AddScoped<GetLimitsHandler>();
+        services.AddScoped<UpdateLimitHandler>();
+
         return services;
     }
 }

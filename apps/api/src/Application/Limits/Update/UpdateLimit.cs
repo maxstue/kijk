@@ -7,7 +7,7 @@ namespace Kijk.Application.Limits.Update;
 /// <summary>
 /// Updates consumption limits owned by the active space.
 /// </summary>
-public sealed class UpdateLimitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
+public sealed class UpdateLimitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>Updates a limit of the active space.</summary>
     /// <param name="id">The limit id.</param>

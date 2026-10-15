@@ -1,5 +1,5 @@
-using Kijk.Application.Imports.Shared;
 using Kijk.Application.Imports.Categorization;
+using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Ai;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Jobs;
@@ -33,7 +33,7 @@ public sealed class CategorizeImportValidator : AbstractValidator<CategorizeImpo
 /// Starts the AI categorization of an import waiting for review, e.g. to catch up after the AI was unavailable or to
 /// share more than the space default for a single import. Rows with a category are never changed.
 /// </summary>
-public sealed class CategorizeImportHandler(IAppDbContext dbContext, CurrentUser currentUser, IAiGate aiGate, IJobQueue queue) : IHandler
+public sealed class CategorizeImportHandler(IAppDbContext dbContext, CurrentUser currentUser, IAiGate aiGate, IJobQueue queue)
 {
     /// <summary>Queues the categorization.</summary>
     /// <param name="id">The import id.</param>

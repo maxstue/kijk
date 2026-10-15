@@ -9,7 +9,7 @@ namespace Kijk.Application.Spaces.GetMembers;
 /// <summary>
 /// Gets the members of a space with their roles.
 /// </summary>
-public sealed class GetSpaceMembersHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetSpaceMembersHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>
     /// Gets the members of a space when the current user's role allows viewing them.

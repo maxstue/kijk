@@ -8,7 +8,7 @@ namespace Kijk.Application.Spaces.Delete;
 /// <summary>
 /// Deletes a space and its space-owned data.
 /// </summary>
-public sealed class DeleteSpaceHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class DeleteSpaceHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>
     /// Deletes a space when the current user's role allows deleting it.

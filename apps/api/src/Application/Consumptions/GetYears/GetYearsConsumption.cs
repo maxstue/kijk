@@ -7,7 +7,7 @@ namespace Kijk.Application.Consumptions.GetYears;
 /// <summary>
 /// Handler for getting all years that have energy usages.
 /// </summary>
-public class GetYearsConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetYearsConsumptionHandler> logger) : IHandler
+public class GetYearsConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetYearsConsumptionHandler> logger)
 {
     /// <summary>
     /// Retrieves all years that have consumption usages and all years in between.

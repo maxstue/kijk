@@ -7,7 +7,7 @@ namespace Kijk.Application.Spaces.Update;
 /// <summary>
 /// Updates the details of a space managed by the current user.
 /// </summary>
-public sealed class UpdateSpaceHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class UpdateSpaceHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>
     /// Updates a space when the current user's role allows configuring it.

@@ -10,7 +10,7 @@ namespace Kijk.Application.Categories.Create;
 /// <summary>
 /// Creates custom categories for the active space.
 /// </summary>
-public sealed class CreateCategoryHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateCategoryHandler> logger) : IHandler
+public sealed class CreateCategoryHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateCategoryHandler> logger)
 {
     /// <summary>Creates a custom category in the active space.</summary>
     /// <param name="request">The category data.</param>

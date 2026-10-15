@@ -3,10 +3,4 @@
     <PropertyGroup>
         <RootNamespace>Kijk.Shared</RootNamespace>
     </PropertyGroup>
-
-    <ItemGroup>
-        <!-- Other -->
-        <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders"/>
-        <PackageReference Include="NetEscapades.EnumGenerators"/>
-    </ItemGroup>
 </Project>

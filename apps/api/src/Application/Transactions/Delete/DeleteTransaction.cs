@@ -7,7 +7,7 @@ namespace Kijk.Application.Transactions.Delete;
 /// <summary>
 /// Deletes transactions of the active space.
 /// </summary>
-public sealed class DeleteTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class DeleteTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Deletes a transaction of the active space.</summary>
     /// <param name="id">The transaction id.</param>

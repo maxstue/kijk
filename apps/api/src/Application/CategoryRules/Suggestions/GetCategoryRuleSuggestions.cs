@@ -30,7 +30,7 @@ public sealed record CategoryRuleSuggestionResponse(
 /// transactions the member can see count, and merchants or counterparties with a rule or conflicting manual
 /// categories are left out.
 /// </summary>
-public sealed class GetCategoryRuleSuggestionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetCategoryRuleSuggestionsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>The maximum number of suggestions returned.</summary>
     public const int MaximumSuggestions = 20;

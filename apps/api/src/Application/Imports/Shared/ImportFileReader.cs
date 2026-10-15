@@ -6,7 +6,7 @@ namespace Kijk.Application.Imports.Shared;
 /// <summary>
 /// Loads and decrypts the stored file of an import.
 /// </summary>
-public sealed class ImportFileReader(IAppDbContext dbContext, IImportFileProtector protector) : IHandler
+public sealed class ImportFileReader(IAppDbContext dbContext, IImportFileProtector protector)
 {
     /// <summary>Loads the decrypted file.</summary>
     /// <param name="importJobId">The import.</param>

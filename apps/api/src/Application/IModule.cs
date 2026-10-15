@@ -3,7 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Kijk.Application;
 
 /// <summary>
-/// Classes implementing this interface will be automatically registered on startup.
+/// Owns the explicit registration of a feature's handlers and injectable services.
+/// Modules are discovered automatically; FluentValidation validators are registered separately by a source generator.
 /// </summary>
 public interface IModule
 {

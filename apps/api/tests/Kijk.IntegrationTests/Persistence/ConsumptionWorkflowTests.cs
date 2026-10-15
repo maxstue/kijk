@@ -112,7 +112,7 @@ public class ConsumptionWorkflowTests
         await CreateAsync(create, "January reading", 1_060m, CreateConsumptionValueTypes.Absolute, fixture.Resource.Id, UtcDate(2024, 1, 20));
         await CreateAsync(create, "February relative", 30m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2024, 2, 10));
 
-        var result = await new GetStatsConsumptionsHandler(dbContext, fixture.CurrentUser)
+        var result = await new GetStatsConsumptionsHandler(dbContext, fixture.CurrentUser, clock)
             .GetStatsAsync(2024, "January", CancellationToken.None);
 
         await Assert.That(result.IsSuccess).IsTrue();

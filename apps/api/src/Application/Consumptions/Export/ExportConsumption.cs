@@ -8,7 +8,7 @@ namespace Kijk.Application.Consumptions.Export;
 /// <summary>
 /// Handles server-side CSV exports for consumptions.
 /// </summary>
-public sealed class ExportConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class ExportConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>
     /// Exports a single consumption owned by the active space.

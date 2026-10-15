@@ -9,7 +9,7 @@ namespace Kijk.Application.Transactions.Create;
 /// <summary>
 /// Records transactions manually for the active space.
 /// </summary>
-public sealed class CreateTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateTransactionHandler> logger) : IHandler
+public sealed class CreateTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateTransactionHandler> logger)
 {
     /// <summary>Records a transaction in the active space.</summary>
     /// <param name="request">The transaction data.</param>

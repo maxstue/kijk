@@ -1,5 +1,6 @@
 using Kijk.Domain.Entities;
 using Kijk.Shared;
+using Riok.Mapperly.Abstractions;
 
 namespace Kijk.Application.Accounts.Shared;
 
@@ -14,12 +15,13 @@ public sealed record AccountResponse(Guid Id, string Name, string? IbanLast4, Ac
 /// <summary>
 /// Maps account entities to API responses.
 /// </summary>
-public static class AccountResponseMapper
+[Mapper]
+public static partial class AccountResponseMapper
 {
     /// <summary>Maps an account to a response.</summary>
     /// <param name="source">The account.</param>
     /// <returns>The response.</returns>
-    public static AccountResponse ToResponse(this Account source) => new(source.Id, source.Name, source.IbanLast4, source.Kind, source.Visibility);
+    public static partial AccountResponse ToResponse(this Account source);
 }
 
 /// <summary>

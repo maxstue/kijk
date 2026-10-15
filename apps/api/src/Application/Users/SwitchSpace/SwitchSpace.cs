@@ -14,7 +14,7 @@ public sealed record SwitchSpaceRequest(Guid SpaceId);
 /// Switches the current user's active space, e.g. between their personal space and a shared one. All other requests
 /// work on the active space.
 /// </summary>
-public sealed class SwitchSpaceHandler(IAppDbContext dbContext, CurrentUser currentUser, GetMeUserHandler getMeUserHandler) : IHandler
+public sealed class SwitchSpaceHandler(IAppDbContext dbContext, CurrentUser currentUser, GetMeUserHandler getMeUserHandler)
 {
     /// <summary>Makes a membership the active one.</summary>
     /// <param name="request">The space to switch to.</param>

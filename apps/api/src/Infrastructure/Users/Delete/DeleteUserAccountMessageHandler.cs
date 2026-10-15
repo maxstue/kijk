@@ -1,11 +1,11 @@
 using Kijk.Application.Users.Delete;
 
-namespace Kijk.Infrastructure.Imports;
+namespace Kijk.Infrastructure.Users.Delete;
 
 /// <summary>
 /// Wolverine handler for account messages. It only delegates to <see cref="AccountEraser" />.
 /// </summary>
-public static class AccountMessageHandler
+public static class DeleteUserAccountMessageHandler
 {
     /// <summary>Deletes an account and all its data.</summary>
     /// <param name="message">The message.</param>

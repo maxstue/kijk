@@ -49,7 +49,6 @@ public sealed class ImportsEndpoints : IEndpointGroup
         group.MapPost("/{id:guid}/mapping", ConfirmMapping).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Confirms the column mapping and starts reading the file");
         group.MapPut("/{id:guid}/candidates/{candidateId:guid}", UpdateCandidate).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Changes the category or exclusion of a row during the review");
         group.MapGet("/{id:guid}/ai-preview", GetAiPreview).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Gets exactly the texts the AI categorization would send");
-        group.MapPut("/{id:guid}/ai-preview/{key}", UpdateAiPreviewItem).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Deselects or selects a text of the AI preview");
         group.MapPost("/{id:guid}/categorize", Categorize).RequireSpacePermission(SpacePermissions.Finances.Import).WithRequestValidation<CategorizeImportRequest>().WithSummary("Proposes categories with the AI for the rows that have none");
         group.MapPost("/{id:guid}/commit", Commit).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Replaces the account's transactions in the covered months with the reviewed rows");
         group.MapPost("/{id:guid}/cancel", Cancel).RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Cancels an open import and deletes its file");
@@ -83,9 +82,16 @@ public sealed class ImportsEndpoints : IEndpointGroup
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
-    private static async Task<Results<Ok<List<ImportCandidateResponse>>, ProblemHttpResult>> GetCandidates(Guid id, GetImportsHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<ImportCandidatePageResponse>, ProblemHttpResult>> GetCandidates(
+        Guid id,
+        GetImportsHandler handler,
+        CancellationToken cancellationToken,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 100,
+        [FromQuery] string? months = null,
+        [FromQuery] bool cardSettlementsOnly = false)
     {
-        var result = await handler.GetCandidatesAsync(id, cancellationToken);
+        var result = await handler.GetCandidatesAsync(id, page, pageSize, months, cardSettlementsOnly, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -142,17 +148,6 @@ public sealed class ImportsEndpoints : IEndpointGroup
     private static async Task<Results<Ok<AiPreviewResponse>, ProblemHttpResult>> GetAiPreview(Guid id, ImportAiPreviewHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.GetAsync(id, cancellationToken);
-        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
-    }
-
-    private static async Task<Results<Ok<AiPreviewItemResponse>, ProblemHttpResult>> UpdateAiPreviewItem(
-        Guid id,
-        string key,
-        UpdateAiPreviewItemRequest request,
-        ImportAiPreviewHandler handler,
-        CancellationToken cancellationToken)
-    {
-        var result = await handler.UpdateAsync(id, key, request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

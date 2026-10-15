@@ -1,5 +1,3 @@
-using NetEscapades.EnumGenerators;
-
 namespace Kijk.Application.Consumptions.Update;
 
 /// <summary>Changes to a consumption; <see langword="null" /> values keep the current value.</summary>
@@ -18,7 +16,6 @@ public record UpdateConsumptionRequest(
     bool StartsNewMeterSegment = false);
 
 /// <summary>How the entered value of a consumption is interpreted.</summary>
-[EnumExtensions]
 public enum UpdateConsumptionValueTypes
 {
     /// <summary>A meter reading; the consumption is the difference to the previous reading.</summary>

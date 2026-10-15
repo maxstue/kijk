@@ -8,7 +8,7 @@ namespace Kijk.Application.Units.Manage;
 /// <summary>
 /// Archives, restores, shares, unshares, and deletes user-owned units.
 /// </summary>
-public sealed class ManageUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
+public sealed class ManageUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>Archives or restores a unit owned by the current user.</summary>
     /// <param name="id">The unit id.</param>

@@ -5,7 +5,9 @@ using Kijk.Api;
 using Kijk.Api.Extensions;
 using Kijk.Api.Middleware;
 using Kijk.Application;
+using Kijk.Application.Shared.Jobs;
 using Kijk.Infrastructure;
+using Kijk.Infrastructure.Jobs;
 using Kijk.IntegrationTests.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -20,7 +22,7 @@ using DependencyInjection = Kijk.Api.DependencyInjection;
 namespace Kijk.IntegrationTests.Http;
 
 // Runs the production endpoints, policies and current-user middleware over HTTP.
-// Only external authentication and the database connection are replaced.
+// Authentication and the database connection are replaced; tests opt into durable workers explicitly.
 internal sealed class SpaceApiHost(WebApplication application, HttpClient client) : IAsyncDisposable
 {
     internal HttpClient Client => client;
@@ -53,7 +55,6 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
             ["ConnectionStrings:DefaultConnection"] = PostgreSqlTestDatabase.ConnectionString,
             ["Fingerprint:MasterKey"] = TestFingerprintKey,
             ["DataProtection:KeyEncryptionKey"] = "ZmVkY2JhOTg3NjU0MzIxMGZlZGNiYTk4NzY1NDMyMTA=",
-            ["Jobs:Enabled"] = jobsEnabled.ToString(),
             ["Jobs:DurabilityMode"] = "Solo",
             ["Cors:0"] = "http://localhost",
             ["Serilog:WriteTo:0:Name"] = "Console",
@@ -65,7 +66,16 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
         }
 
         builder.WebHost.UseKestrel(options => options.Listen(IPAddress.Loopback, 0));
-        builder.Services.AddApplication().AddApi(builder.Configuration).AddInfrastructure(builder.Configuration);
+        builder.Services.AddApplication().AddApi().AddInfrastructure(builder.Configuration);
+        if (jobsEnabled)
+        {
+            builder.Services.AddBackgroundJobs(builder.Configuration);
+        }
+        else
+        {
+            builder.Services.AddScoped<IJobQueue, UnexpectedJobQueue>();
+        }
+
         // Keep the production DbContext registration so HTTP tests also cover its provider options,
         // execution strategy and interceptors. Only the connection string points to Testcontainers.
         builder.Services.AddSingleton<IHub>(HubAdapter.Instance);
@@ -81,6 +91,7 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
         app.UseRouting();
         app.UseRateLimiter();
         app.UseExceptionHandler();
+        app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseAuthentication();
         app.UseMiddleware<CurrentUserMiddleware>();
         app.UseAuthorization();
@@ -95,6 +106,13 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
     {
         client.Dispose();
         await application.DisposeAsync();
+    }
+
+    private sealed class UnexpectedJobQueue : IJobQueue
+    {
+        public Task SaveChangesAndEnqueueAsync<TMessage>(TMessage message, CancellationToken cancellationToken)
+            where TMessage : class =>
+            throw new InvalidOperationException("This HTTP test queues background work. Start its host with jobsEnabled: true.");
     }
 
     private sealed class TestAuthenticationHandler(

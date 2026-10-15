@@ -7,7 +7,7 @@ namespace Kijk.Application.Limits.Get;
 /// <summary>
 /// Retrieves and evaluates consumption limits for the active space.
 /// </summary>
-public sealed class GetLimitsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
+public sealed class GetLimitsHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>Gets all limits of the active space with their current evaluation.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

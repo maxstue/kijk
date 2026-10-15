@@ -1,7 +1,6 @@
 using System.ClientModel;
 using Kijk.Application.Shared.Ai;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OpenAI;
@@ -17,11 +16,9 @@ internal static class AiDependencyInjection
     /// are never logged.
     /// </summary>
     /// <param name="services">The service collection.</param>
-    /// <param name="configuration">The application configuration.</param>
     /// <returns>The service collection.</returns>
-    public static IServiceCollection AddAi(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAi(this IServiceCollection services)
     {
-        services.Configure<AiOptions>(configuration.GetSection(AiOptions.SectionName));
         services.AddScoped<IAiGate, AiGate>();
         services.AddSingleton<IChatClient>(provider =>
         {

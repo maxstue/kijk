@@ -30,7 +30,7 @@ public sealed class UpdateImportSettingsValidator : AbstractValidator<UpdateImpo
 /// <summary>
 /// Reads and changes import settings in the active space or an explicitly authorized space.
 /// </summary>
-public sealed class ImportSettingsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class ImportSettingsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Gets the import settings.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

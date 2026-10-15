@@ -8,7 +8,7 @@ namespace Kijk.Application.Imports.Cancel;
 /// <summary>
 /// Cancels an open import and deletes its file and rows right away.
 /// </summary>
-public sealed class CancelImportHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
+public sealed class CancelImportHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>Cancels an import.</summary>
     /// <param name="id">The import id.</param>

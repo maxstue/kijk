@@ -10,7 +10,7 @@ namespace Kijk.Application.Resources.Create;
 /// <summary>
 /// Handler to create a new resource.
 /// </summary>
-public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger) : IHandler
+public class CreateResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateResourceHandler> logger)
 {
     /// <summary>Creates a custom resource in the active space.</summary>
     /// <param name="request">The resource data.</param>

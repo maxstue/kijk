@@ -7,7 +7,7 @@ namespace Kijk.Application.CategoryRules.Delete;
 /// <summary>
 /// Deletes a remembered category correction. Transactions keep their categories.
 /// </summary>
-public sealed class DeleteCategoryRuleHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class DeleteCategoryRuleHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Deletes a rule of the active space.</summary>
     /// <param name="id">The rule id.</param>

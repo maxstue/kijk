@@ -17,7 +17,7 @@ public sealed class ConfirmImportMappingHandler(
     CurrentUser currentUser,
     ImportFileReader fileReader,
     IJobQueue queue,
-    TimeProvider timeProvider) : IHandler
+    TimeProvider timeProvider)
 {
     private const int ShownErrors = 10;
 

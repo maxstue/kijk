@@ -8,7 +8,7 @@ namespace Kijk.Application.Units.Update;
 /// <summary>
 /// Updates user-owned unit metadata.
 /// </summary>
-public sealed class UpdateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class UpdateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Updates a unit owned by the current user.</summary>
     /// <param name="id">The unit id.</param>

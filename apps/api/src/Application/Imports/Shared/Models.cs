@@ -2,6 +2,7 @@ using System.Text.Json;
 using Kijk.Application.Imports.Csv;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
+using Riok.Mapperly.Abstractions;
 
 namespace Kijk.Application.Imports.Shared;
 
@@ -100,6 +101,30 @@ public sealed record ImportCandidateResponse(
     bool IsCardSettlement,
     bool CountsAsOffset);
 
+/// <summary>A bounded page of review rows and totals for the entire selected period.</summary>
+/// <param name="Items">The rows on this page.</param>
+/// <param name="TotalCount">The number of rows matching the page filter.</param>
+/// <param name="Page">The actual one-based page number.</param>
+/// <param name="PageSize">The bounded page size.</param>
+/// <param name="IncludedCount">Readable, included rows in all selected months, across every page.</param>
+/// <param name="ErrorCount">Unreadable rows in the whole import.</param>
+/// <param name="ErrorSamples">At most ten unreadable row descriptions.</param>
+/// <param name="CardSettlementCount">Included card statements in all selected months.</param>
+public sealed record ImportCandidatePageResponse(
+    List<ImportCandidateResponse> Items,
+    int TotalCount,
+    int Page,
+    int PageSize,
+    int IncludedCount,
+    int ErrorCount,
+    List<ImportCandidateErrorResponse> ErrorSamples,
+    int CardSettlementCount);
+
+/// <summary>A bounded error preview without the original row content.</summary>
+/// <param name="RowNumber">The record number in the file.</param>
+/// <param name="Errors">Why the record could not be parsed.</param>
+public sealed record ImportCandidateErrorResponse(int RowNumber, string Errors);
+
 /// <summary>The import settings of the active space.</summary>
 /// <param name="PurposeRetention">How much of the purpose text imported transactions keep.</param>
 /// <param name="AiDataSharing">Which transaction data the AI categorization may see.</param>
@@ -121,7 +146,7 @@ public sealed record AiPreviewItemResponse(string Key, string? Counterparty, str
 public sealed record AiPreviewResponse(List<AiPreviewItemResponse> Items, int WithheldRows);
 
 /// <summary>
-/// Maps import entities to API responses and serializes mappings.
+/// Serializes the column mappings of imports for storage.
 /// </summary>
 public static class ImportMapper
 {
@@ -138,54 +163,30 @@ public static class ImportMapper
     public static CsvImportMapping? Deserialize(string? json) =>
         json is null ? null : JsonSerializer.Deserialize<CsvImportMapping>(json, JsonOptions);
 
+}
+
+/// <summary>
+/// Maps import entities to API responses.
+/// </summary>
+[Mapper]
+public static partial class ImportResponseMapper
+{
     /// <summary>Maps an import with its loaded account.</summary>
     /// <param name="source">The import.</param>
     /// <returns>The response.</returns>
-    public static ImportJobResponse ToResponse(this ImportJob source) =>
-        new(
-            source.Id,
-            source.Status,
-            source.FileName,
-            source.AccountId,
-            source.Account.Name,
-            source.RowCount,
-            source.ProcessedRows,
-            source.ErrorCount,
-            source.ImportedCount,
-            source.HasHighErrorRate,
-            source.Error,
-            Deserialize(source.ProposedMapping),
-            source.ProposedMappingSource,
-            source.AiUnavailable,
-            source.AiDataSharing,
-            source.AiCategorizedCount,
-            source.AiCategorizationUnavailable,
-            Deserialize(source.Mapping),
-            ToDates(source.FullMonths),
-            ToDates(source.EdgeMonths),
-            ToDates(source.ReplacedMonths),
-            ToDates(source.SkippedMonths),
-            source.CreatedAt,
-            source.CompletedAt);
+    public static partial ImportJobResponse ToResponse(this ImportJob source);
 
     /// <summary>Maps a candidate.</summary>
     /// <param name="source">The candidate.</param>
     /// <returns>The response.</returns>
-    public static ImportCandidateResponse ToResponse(this ImportCandidate source) =>
-        new(
-            source.Id,
-            source.RowNumber,
-            source.BookingDate is { } date ? DateOnly.FromDateTime(date) : null,
-            source.Amount,
-            source.Counterparty,
-            source.Purpose,
-            source.Status,
-            source.CategoryId,
-            source.CategorySource,
-            source.Errors,
-            source.Excluded,
-            source.IsCardSettlement,
-            source.CountsAsOffset);
+    public static partial ImportCandidateResponse ToResponse(this ImportCandidate source);
 
-    private static List<DateOnly> ToDates(IEnumerable<DateTime> months) => [.. months.Order().Select(DateOnly.FromDateTime)];
+    /// <summary>Projects candidates to responses in the database query.</summary>
+    /// <param name="source">The bounded candidate query.</param>
+    /// <returns>The response projection.</returns>
+    public static partial IQueryable<ImportCandidateResponse> ToResponses(this IQueryable<ImportCandidate> source);
+
+    private static CsvImportMapping? MapMapping(string? json) => ImportMapper.Deserialize(json);
+
+    private static List<DateOnly> MapMonths(List<DateTime> months) => [.. months.Order().Select(DateOnly.FromDateTime)];
 }

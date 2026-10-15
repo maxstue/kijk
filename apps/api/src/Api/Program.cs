@@ -3,6 +3,7 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Middleware;
 using Kijk.Application;
 using Kijk.Infrastructure;
+using Kijk.Infrastructure.Jobs;
 using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Serilog;
@@ -23,15 +24,14 @@ try
 
     builder.Services
         .AddApplication()
-        .AddApi(builder.Configuration)
-        .AddInfrastructure(builder.Configuration);
+        .AddApi()
+        .AddInfrastructure(builder.Configuration)
+        .AddBackgroundJobs(builder.Configuration);
 
     // ##### Configure the HTTP request pipeline. #####
     var app = builder.Build();
     app.UseRateLimiter();
 
-    // TODO warum ist die units paginierung unter der router "units/page"
-    // und wazu wird "units/system" immer geladen
     app.MapHealthCheck()
         .MapOpenApi()
         .UseStatusCodePages();
@@ -39,10 +39,6 @@ try
     app.UseResponseCompression()
         .UseSecurityHeaders();
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
     if (app.Environment.IsProduction())
     {
         app.UseHsts();
@@ -51,7 +47,7 @@ try
     app.MapStaticAssets();
 
     app.UseExceptionHandler()
-        .UseMiddleware<ExtendRequestLoggingMiddleware>()
+        .UseMiddleware<CorrelationIdMiddleware>()
         .UseRequestLogging()
         .UseForwardedHeaders(new() { ForwardedHeaders = ForwardedHeaders.All })
         .UseCors(AppConstants.Cors)
@@ -60,9 +56,6 @@ try
 
     app.UseMiddleware<CurrentUserMiddleware>();
     app.UseAuthorization();
-
-    // Needs to be after authentication and current-user resolution so user data is available
-    app.UseMiddleware<TelemetryMiddleware>();
 
     app.MapEndpoints();
 

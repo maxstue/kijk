@@ -6,64 +6,57 @@ using Kijk.Shared;
 namespace Kijk.Application.Units.GetAll;
 
 /// <summary>
-/// Lists system, personal, and active-space units visible to the current user.
+/// Lists the system, personal, or space units available to the current user.
 /// </summary>
-public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
-    /// <summary>Gets the system units.</summary>
-    /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The system units.</returns>
-    public async Task<Result<List<UnitResponse>>> GetSystemAsync(CancellationToken cancellationToken)
-    {
-        var units = await dbContext.Units.Where(unit => unit.CreatorType == CreatorType.System
-                                                        && unit.ConversionType == UnitConversionType.UnitsNet)
-            .OrderBy(unit => unit.Name)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-        return units.Select(unit => UnitResponseFactory.Create(unit, currentUser, 0)).ToList();
-    }
+    private const int MaximumPageSize = 100;
 
-    /// <summary>Gets a page of the user's personal units or of the units available in a space.</summary>
-    /// <param name="space">Whether to list space units instead of personal units.</param>
-    /// <param name="spaceId">The space; defaults to the active space.</param>
-    /// <param name="page">The 1-based page number.</param>
-    /// <param name="pageSize">The page size (1-100).</param>
-    /// <param name="search">An optional name or symbol filter.</param>
+    /// <summary>Gets the units of a scope, optionally filtered and paged.</summary>
+    /// <param name="request">The scope, filters, and page.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The page.</returns>
-    public async Task<Result<UnitPageResponse>> GetPageAsync(
-        bool space, Guid? spaceId, int page, int pageSize, string? search, CancellationToken cancellationToken)
+    /// <returns>The units, or an authorization error for a space the user is not a member of.</returns>
+    public async Task<Result<UnitPageResponse>> GetAsync(GetUnitsRequest request, CancellationToken cancellationToken)
     {
-        pageSize = Math.Clamp(pageSize, 1, 100);
-        page = Math.Clamp(page, 1, int.MaxValue / pageSize);
-        var selectedSpaceId = spaceId ?? currentUser.ActiveSpaceId;
-        if (space && (selectedSpaceId is null || !await dbContext.UserSpaces.AnyAsync(
+        var selectedSpaceId = request.SpaceId ?? currentUser.ActiveSpaceId;
+        if (request.Scope == UnitScope.Space && (selectedSpaceId is null || !await dbContext.UserSpaces.AnyAsync(
                 link => link.UserId == currentUser.Id && link.SpaceId == selectedSpaceId,
                 cancellationToken)))
         {
             return Error.Authorization("The selected space is not available to the current user");
         }
 
-        var query = dbContext.Units
-            .Where(unit => unit.CreatorType == CreatorType.System
-                           || (space
-                               ? unit.Spaces.Any(link => link.SpaceId == selectedSpaceId)
-                               : unit.OwnerUserId == currentUser.Id));
-        if (!string.IsNullOrWhiteSpace(search))
+        var query = request.Scope switch
         {
-            var term = search.Trim().ToLower();
+            UnitScope.Space => dbContext.Units.Where(unit => unit.CreatorType == CreatorType.System
+                                                             || unit.Spaces.Any(link => link.SpaceId == selectedSpaceId)),
+            UnitScope.Personal => dbContext.Units.Where(unit => unit.CreatorType == CreatorType.System
+                                                                || unit.OwnerUserId == currentUser.Id),
+            _ => dbContext.Units.Where(unit => unit.CreatorType == CreatorType.System)
+        };
+        if (!request.IncludeArchived)
+        {
+            query = query.Where(unit => unit.ArchivedAt == null);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var term = request.Search.Trim().ToLower();
             query = query.Where(unit => unit.Name.ToLower().Contains(term) || unit.Symbol.ToLower().Contains(term));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var customCount = await query.CountAsync(unit => unit.CreatorType == CreatorType.User, cancellationToken);
-        var units = await query.Include(unit => unit.Spaces)
+        var ordered = query.Include(unit => unit.Spaces)
             .OrderBy(unit => unit.Name)
-            .ThenBy(unit => unit.Id)
-            .Skip((page - 1) * pageSize)
+            .ThenBy(unit => unit.Id);
+        var pageSize = request.PageSize is { } size ? Math.Clamp(size, 1, MaximumPageSize) : Math.Max(totalCount, 1);
+        var page = Math.Clamp(request.Page ?? 1, 1, int.MaxValue / pageSize);
+        var units = await ordered.Skip((page - 1) * pageSize)
             .Take(pageSize)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
+
         var ids = units.Select(unit => unit.Id).ToList();
         var counts = await dbContext.Resources.Where(resource => ids.Contains(resource.UnitId))
             .GroupBy(resource => resource.UnitId)
@@ -71,28 +64,5 @@ public sealed class GetAllUnitsHandler(IAppDbContext dbContext, CurrentUser curr
             .ToDictionaryAsync(item => item.UnitId, item => item.Count, cancellationToken);
         var items = units.Select(unit => UnitResponseFactory.Create(unit, currentUser, counts.GetValueOrDefault(unit.Id), selectedSpaceId)).ToList();
         return new UnitPageResponse(items, totalCount, customCount, page, pageSize);
-    }
-
-    /// <summary>Gets all units visible to the current user.</summary>
-    /// <param name="includeArchived">Whether to include archived units.</param>
-    /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The units.</returns>
-    public async Task<Result<List<UnitResponse>>> GetAllAsync(bool includeArchived, CancellationToken cancellationToken)
-    {
-        var units = await dbContext.GetVisibleUnits(currentUser)
-            .Include(unit => unit.Spaces)
-            .Where(unit => includeArchived || unit.ArchivedAt == null)
-            .OrderBy(unit => unit.CreatorType)
-            .ThenBy(unit => unit.Name)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-        var ids = units.Select(unit => unit.Id).ToList();
-        var counts = await dbContext.Resources
-            .Where(resource => ids.Contains(resource.UnitId))
-            .GroupBy(resource => resource.UnitId)
-            .Select(group => new { UnitId = group.Key, Count = group.Count() })
-            .ToDictionaryAsync(item => item.UnitId, item => item.Count, cancellationToken);
-
-        return units.Select(unit => UnitResponseFactory.Create(unit, currentUser, counts.GetValueOrDefault(unit.Id))).ToList();
     }
 }

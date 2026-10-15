@@ -7,7 +7,7 @@ namespace Kijk.Application.Categories.Delete;
 /// <summary>
 /// Deletes unused custom categories of the active space.
 /// </summary>
-public sealed class DeleteCategoryHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class DeleteCategoryHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Deletes a custom category that no transaction or budget uses.</summary>
     /// <param name="id">The category id.</param>

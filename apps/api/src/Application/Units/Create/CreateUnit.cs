@@ -10,7 +10,7 @@ namespace Kijk.Application.Units.Create;
 /// <summary>
 /// Creates user-owned units and optional space shares.
 /// </summary>
-public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) : IHandler
+public sealed class CreateUnitHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>
     /// Creates a unit owned by the current user and optionally shares it with spaces; sharing requires the

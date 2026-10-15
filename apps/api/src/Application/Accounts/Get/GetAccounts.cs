@@ -8,7 +8,7 @@ namespace Kijk.Application.Accounts.Get;
 /// <summary>
 /// Retrieves the accounts of the active space.
 /// </summary>
-public sealed class GetAccountsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetAccountsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Gets all accounts of the active space, bank accounts first, then by name.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

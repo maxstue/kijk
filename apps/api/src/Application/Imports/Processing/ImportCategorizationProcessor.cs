@@ -16,7 +16,7 @@ public sealed class ImportCategorizationProcessor(
     IAppDbContext dbContext,
     ITransactionCategorizer categorizer,
     IAiGate aiGate,
-    ILogger<ImportCategorizationProcessor> logger) : IHandler
+    ILogger<ImportCategorizationProcessor> logger)
 {
     /// <summary>
     /// Proposes categories for the candidates that have none. Only sanitized text leaves the server, identical

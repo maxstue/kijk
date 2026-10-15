@@ -8,7 +8,7 @@ namespace Kijk.Application.Resources.Delete;
 /// <summary>
 /// Handler for the delete a resource.
 /// </summary>
-public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger) : IHandler
+public class DeleteResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<DeleteResourceHandler> logger)
 {
     /// <summary>Deletes an unused custom resource of the active space.</summary>
     /// <param name="id">The resource id.</param>

@@ -13,13 +13,17 @@ public class ApplicationRegistrationGeneratorTests
 
             public static class ServiceCollectionServiceExtensions
             {
-                public static IServiceCollection AddTransient<TImplementation>(IServiceCollection services)
-                    where TImplementation : class => services;
-
-                public static IServiceCollection AddTransient<TService, TImplementation>(IServiceCollection services)
+                public static IServiceCollection AddScoped<TService, TImplementation>(IServiceCollection services)
                     where TService : class
                     where TImplementation : class, TService => services;
             }
+        }
+
+        namespace FluentValidation
+        {
+            public interface IValidator<T> { }
+
+            public abstract class AbstractValidator<T> : IValidator<T> { }
         }
 
         namespace Kijk.Application
@@ -29,8 +33,6 @@ public class ApplicationRegistrationGeneratorTests
                 Microsoft.Extensions.DependencyInjection.IServiceCollection RegisterServices(
                     Microsoft.Extensions.DependencyInjection.IServiceCollection services);
             }
-
-            public interface IHandler { }
         }
         """;
 
@@ -83,58 +85,81 @@ public class ApplicationRegistrationGeneratorTests
     }
 
     [Test]
-    public async Task HandlersAreRegisteredForAllServiceInterfacesOrAsConcreteTypes()
+    public async Task GenericModuleReportsDiagnostic()
     {
         var source = Contracts + """
 
-            public interface IFirstService { }
-            public interface ISecondService { }
-
-            public sealed class ConcreteHandler : Kijk.Application.IHandler { }
-            public sealed class MultiInterfaceHandler : Kijk.Application.IHandler, ISecondService, IFirstService { }
+            public sealed class GenericModule<T> : Kijk.Application.IModule
+            {
+                public Microsoft.Extensions.DependencyInjection.IServiceCollection RegisterServices(
+                    Microsoft.Extensions.DependencyInjection.IServiceCollection services) => services;
+            }
             """;
 
         var result = RunGenerator(source);
-        var generatedSource = GetGeneratedSource(result, "GeneratedHandlerRegistrations.g.cs");
-
-        await Assert.That(result.Diagnostics).IsEmpty();
-        await Assert.That(generatedSource).Contains("AddTransient<global::ConcreteHandler>(services);");
-        await Assert.That(generatedSource).Contains("AddTransient<global::IFirstService, global::MultiInterfaceHandler>(services);");
-        await Assert.That(generatedSource).Contains("AddTransient<global::ISecondService, global::MultiInterfaceHandler>(services);");
-        await Assert.That(generatedSource.IndexOf("IFirstService", StringComparison.Ordinal))
-            .IsLessThan(generatedSource.IndexOf("ISecondService", StringComparison.Ordinal));
-        await Assert.That(GetCompilationErrors(result.OutputCompilation)).IsEmpty();
-    }
-
-    [Test]
-    public async Task IndirectHandlersAreGeneratedAndAbstractHandlersAreIgnored()
-    {
-        var source = Contracts + """
-
-            public abstract class HandlerBase : Kijk.Application.IHandler { }
-            public sealed class ConcreteHandler : HandlerBase { }
-            """;
-
-        var result = RunGenerator(source);
-        var generatedSource = GetGeneratedSource(result, "GeneratedHandlerRegistrations.g.cs");
-
-        await Assert.That(result.Diagnostics).IsEmpty();
-        await Assert.That(generatedSource).Contains("AddTransient<global::ConcreteHandler>(services);");
-        await Assert.That(generatedSource).DoesNotContain("AddTransient<global::HandlerBase>");
-        await Assert.That(GetCompilationErrors(result.OutputCompilation)).IsEmpty();
-    }
-
-    [Test]
-    public async Task GenericApplicationRegistrationReportsDiagnostic()
-    {
-        var source = Contracts + """
-
-            public sealed class GenericHandler<T> : Kijk.Application.IHandler { }
-            """;
-
-        var result = RunGenerator(source);
+        var generatedSource = GetGeneratedSource(result, "GeneratedModuleRegistrations.g.cs");
 
         await Assert.That(result.Diagnostics.Select(static diagnostic => diagnostic.Id)).Contains("KIJKSG004");
+        await Assert.That(generatedSource).DoesNotContain("GenericModule");
+    }
+
+    [Test]
+    public async Task GenericValidatorReportsDiagnostic()
+    {
+        var source = Contracts + """
+
+            public sealed class GenericValidator<T> : FluentValidation.AbstractValidator<T> { }
+            """;
+
+        var result = RunGenerator(source);
+        var generatedSource = GetGeneratedSource(result, "GeneratedValidatorRegistrations.g.cs");
+
+        await Assert.That(result.Diagnostics.Select(static diagnostic => diagnostic.Id)).Contains("KIJKSG004");
+        await Assert.That(generatedSource).DoesNotContain("GenericValidator");
+    }
+
+    [Test]
+    public async Task ValidatorsAreRegisteredForTheirRequestTypesAndAbstractValidatorsAreIgnored()
+    {
+        var source = Contracts + """
+
+            public sealed record FirstRequest;
+            public sealed record SecondRequest;
+
+            public abstract class ValidatorBase<T> : FluentValidation.AbstractValidator<T> { }
+            public sealed class SecondRequestValidator : ValidatorBase<SecondRequest> { }
+            public sealed class FirstRequestValidator : FluentValidation.AbstractValidator<FirstRequest> { }
+            """;
+
+        var result = RunGenerator(source);
+        var generatedSource = GetGeneratedSource(result, "GeneratedValidatorRegistrations.g.cs");
+
+        await Assert.That(result.Diagnostics).IsEmpty();
+        await Assert.That(generatedSource).Contains("AddScoped<global::FluentValidation.IValidator<global::FirstRequest>, global::FirstRequestValidator>(services);");
+        await Assert.That(generatedSource).Contains("AddScoped<global::FluentValidation.IValidator<global::SecondRequest>, global::SecondRequestValidator>(services);");
+        await Assert.That(generatedSource.IndexOf("FirstRequestValidator", StringComparison.Ordinal))
+            .IsLessThan(generatedSource.IndexOf("SecondRequestValidator", StringComparison.Ordinal));
+        await Assert.That(generatedSource).DoesNotContain("ValidatorBase");
+        await Assert.That(GetCompilationErrors(result.OutputCompilation)).IsEmpty();
+    }
+
+    [Test]
+    public async Task SecondValidatorForTheSameRequestReportsDiagnostic()
+    {
+        var source = Contracts + """
+
+            public sealed record Request;
+
+            public sealed class FirstValidator : FluentValidation.AbstractValidator<Request> { }
+            public sealed class SecondValidator : FluentValidation.AbstractValidator<Request> { }
+            """;
+
+        var result = RunGenerator(source);
+        var generatedSource = GetGeneratedSource(result, "GeneratedValidatorRegistrations.g.cs");
+
+        await Assert.That(result.Diagnostics.Select(static diagnostic => diagnostic.Id)).Contains("KIJKSG005");
+        await Assert.That(generatedSource).Contains("global::FirstValidator>(services);");
+        await Assert.That(generatedSource).DoesNotContain("global::SecondValidator>(services);");
     }
 
     [Test]
@@ -142,7 +167,9 @@ public class ApplicationRegistrationGeneratorTests
     {
         var applicationReference = CreateMetadataReference(Contracts);
 
-        var result = RunGenerator("public sealed class ConsumerType { }", [applicationReference]);
+        var result = RunGenerator(
+            "public sealed class ConsumerValidator : FluentValidation.AbstractValidator<ConsumerValidator> { }",
+            [applicationReference]);
 
         await Assert.That(result.Diagnostics).IsEmpty();
         await Assert.That(result.GeneratedTrees).IsEmpty();
@@ -162,7 +189,7 @@ public class ApplicationRegistrationGeneratorTests
 
         GeneratorDriver driver = CSharpGeneratorDriver.Create(
                 new ModuleRegistrationGenerator(),
-                new HandlerRegistrationGenerator())
+                new ValidatorRegistrationGenerator())
             .WithUpdatedParseOptions((CSharpParseOptions)compilation.SyntaxTrees.Single().Options);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
 

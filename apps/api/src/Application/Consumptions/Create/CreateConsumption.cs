@@ -13,7 +13,7 @@ namespace Kijk.Application.Consumptions.Create;
 /// <summary>
 /// Handler for creating a new consumption.
 /// </summary>
-public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<CreateConsumptionHandler> logger) : IHandler
+public class CreateConsumptionHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider, ILogger<CreateConsumptionHandler> logger)
 {
     /// <summary>Records a consumption in the active space and recalculates later meter readings.</summary>
     /// <param name="request">The consumption data.</param>

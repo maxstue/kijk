@@ -9,7 +9,7 @@ namespace Kijk.Application.Consumptions.GetByYearMonth;
 /// <summary>
 /// Handler for getting consumptions by year and month.
 /// </summary>
-public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public class GetByYearMonthHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Gets the consumptions of the active space, newest first.</summary>
     /// <param name="year">The year, or <see langword="null" /> for all years.</param>

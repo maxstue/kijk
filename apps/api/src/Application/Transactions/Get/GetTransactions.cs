@@ -8,7 +8,7 @@ namespace Kijk.Application.Transactions.Get;
 /// <summary>
 /// Retrieves transactions of the active space.
 /// </summary>
-public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetTransactionsHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>The page size when the request names none.</summary>
     public const int DefaultPageSize = 25;

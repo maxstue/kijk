@@ -12,15 +12,6 @@ public static class UnitQueryExtensions
     extension(IAppDbContext dbContext)
     {
         /// <summary>
-        /// Returns units visible to the current user.
-        /// </summary>
-        public IQueryable<Unit> GetVisibleUnits(CurrentUser currentUser) =>
-            dbContext.Units.Where(unit =>
-                unit.CreatorType == CreatorType.System
-                || unit.OwnerUserId == currentUser.Id
-                || unit.Spaces.Any(link => link.SpaceId == currentUser.ActiveSpaceId));
-
-        /// <summary>
         /// Returns units selectable in the active space.
         /// </summary>
         public IQueryable<Unit> GetAvailableUnits(CurrentUser currentUser) =>

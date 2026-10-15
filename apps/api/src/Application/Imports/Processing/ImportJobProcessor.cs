@@ -25,7 +25,7 @@ public sealed class ImportJobProcessor(
     IPseudonymizer pseudonymizer,
     ICsvFormatDetector formatDetector,
     TimeProvider timeProvider,
-    ILogger<ImportJobProcessor> logger) : IHandler
+    ILogger<ImportJobProcessor> logger)
 {
     private const int BatchSize = 500;
     private const int DetectionRecords = 60;

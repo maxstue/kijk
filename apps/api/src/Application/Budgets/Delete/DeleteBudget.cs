@@ -9,7 +9,7 @@ namespace Kijk.Application.Budgets.Delete;
 /// <summary>
 /// Deletes budget versions of the active space.
 /// </summary>
-public sealed class DeleteBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class DeleteBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Deletes a budget version. The previous version of the category applies again from its month on.</summary>
     /// <param name="id">The budget id.</param>

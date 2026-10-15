@@ -23,14 +23,14 @@ public class CurrentUser
 
     /// <summary>Gets the authentication provider's user id from the token.</summary>
     /// <exception cref="NullException">The token has no user id.</exception>
-    public string AuthId => Principal?.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new NullException("'AuthId' not found");
+    public string AuthId => Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new NullException("'AuthId' not found");
 
     /// <summary>Gets the display name.</summary>
     /// <exception cref="NullException">The Kijk user does not exist yet.</exception>
     public string Name => User?.Name ?? throw new NullException("'Name' not found");
 
     /// <summary>Gets the email address from the token, if present.</summary>
-    public string? Email => Principal?.FindFirstValue(ClaimTypes.Email);
+    public string? Email => Principal?.FindFirst(ClaimTypes.Email)?.Value;
 
     /// <summary>Gets the active space id, or <see langword="null" /> without an active space.</summary>
     public Guid? ActiveSpaceId => User?.SpaceId;

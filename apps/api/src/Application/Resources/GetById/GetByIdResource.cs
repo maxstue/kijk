@@ -12,7 +12,7 @@ namespace Kijk.Application.Resources.GetById;
 /// <param name="dbContext">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="logger">The logger.</param>
-public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdResourceHandler> logger) : IHandler
+public class GetByIdResourceHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<GetByIdResourceHandler> logger)
 {
     /// <summary>
     /// Handle to get a resource type by id.

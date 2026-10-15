@@ -8,7 +8,7 @@ namespace Kijk.Application.Categories.Get;
 /// <summary>
 /// Retrieves the categories available to the active space.
 /// </summary>
-public sealed class GetCategoriesHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class GetCategoriesHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Gets the system categories and the active space's own categories.</summary>
     /// <param name="cancellationToken">The request cancellation token.</param>

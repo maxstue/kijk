@@ -10,7 +10,7 @@ namespace Kijk.Application.Budgets.Update;
 /// <summary>
 /// Updates budget versions of the active space.
 /// </summary>
-public sealed class UpdateBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class UpdateBudgetHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Updates a budget version of the active space.</summary>
     /// <param name="id">The budget id.</param>

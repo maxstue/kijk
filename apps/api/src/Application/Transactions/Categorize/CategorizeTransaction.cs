@@ -30,7 +30,7 @@ public sealed record CategorizeTransactionResponse(TransactionResponse Transacti
 /// Corrects the category of a transaction, optionally remembering it as a rule. Manual categories of other
 /// transactions are never changed.
 /// </summary>
-public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser) : IHandler
+public sealed class CategorizeTransactionHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
     /// <summary>Corrects a category.</summary>
     /// <param name="id">The transaction id.</param>

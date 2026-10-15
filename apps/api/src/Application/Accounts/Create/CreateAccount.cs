@@ -11,7 +11,7 @@ namespace Kijk.Application.Accounts.Create;
 /// <summary>
 /// Creates accounts for the active space.
 /// </summary>
-public sealed class CreateAccountHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateAccountHandler> logger) : IHandler
+public sealed class CreateAccountHandler(IAppDbContext dbContext, CurrentUser currentUser, ILogger<CreateAccountHandler> logger)
 {
     /// <summary>Creates an account in the active space.</summary>
     /// <param name="request">The account data.</param>
