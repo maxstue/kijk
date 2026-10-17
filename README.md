@@ -9,7 +9,7 @@
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 [![GitHub Issues](https://img.shields.io/github/issues/maxstue/kijk)](https://github.com/maxstue/kijk/issues)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+[![License](https://img.shields.io/badge/license-AGPLv3-blue.svg)](./LICENSE)
 
 </div>
 
@@ -30,6 +30,7 @@
 - [Deployment](#deployment)
 - [Built Using](#built_using)
 - [Contributing](../CONTRIBUTING.md)
+- [License](#license)
 - [Acknowledgments](#acknowledgement)
 
 ## 🧐 Motivation <a name = "motivation"></a>
@@ -59,6 +60,15 @@ Deployment is handled through the repository's GitHub Actions workflows.
 - [Tailwind](https://tailwindcss.com/) - Styling
 - [dotnet](https://dotnet.microsoft.com/en-us/) - Server Framework
 - [PostgreSQL](https://www.postgresql.org/) - Database
+
+## License
+
+Kijk is licensed under [AGPL-3.0-only with additional attribution and origin
+terms](./LICENSE). Forks and commercial hosting are welcome: preserve
+the reference to Kijk and its original author, identify your changes, and
+follow the AGPL source-sharing requirements, including for modified
+versions used over a network. The full license and required attribution
+are in [LICENSE](./LICENSE).
 
 ## 🎉 Acknowledgements <a name = "acknowledgement"></a>
 
