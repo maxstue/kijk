@@ -71,10 +71,11 @@ jobs:
       - name: "🔍 Audit"
         run: |
           dotnet list Kijk.slnx package --vulnerable --include-transitive --format=json > list.json
-          if jq -cre '.projects | .. | .severity? // empty | select(test("Critical"))' list.json; then
-            echo 'Vulnerabilities found! Exiting...'
-            jq . list.json
+          high_or_critical="$(jq '.projects | [.. | objects | .severity? // empty | select(. == "High" or . == "Critical")] | length' list.json)"
+          jq . list.json
+          if [ "$high_or_critical" -gt 0 ]; then
+            echo 'High or critical vulnerabilities found! Exiting...'
             exit 1
           else
-            echo 'No vulnerabilities found!'
+            echo 'No high or critical vulnerabilities found.'
           fi

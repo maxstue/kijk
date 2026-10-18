@@ -11,10 +11,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { ArrowLeftIcon, LockIcon, UsersIcon } from 'lucide-react';
 
+import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 import { settingsNavGroups } from '@/shared/navigation/settings';
 
 /** Sidebar navigation of the settings pages, including one entry per space. */
 export function SettingsNav() {
+  const spaceId = useNavigationSpaceId();
   const { data: currentAccount } = useQuery(currentUserQueryOptions());
   const spaces = currentAccount?.user?.spaces ?? [];
   return (
@@ -23,7 +25,7 @@ export function SettingsNav() {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton render={<Link to='/' />}>
+              <SidebarMenuButton render={spaceId ? <Link to='/$spaceId' params={{ spaceId }} /> : <Link to='/' />}>
                 <ArrowLeftIcon />
                 <span>Back to app</span>
               </SidebarMenuButton>

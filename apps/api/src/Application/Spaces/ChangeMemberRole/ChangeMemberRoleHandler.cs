@@ -27,6 +27,16 @@ public sealed class ChangeMemberRoleHandler(IAppDbContext dbContext, CurrentUser
         ChangeMemberRoleRequest request,
         CancellationToken cancellationToken)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        // Role changes in this space must check permissions after the previous change commits.
+        var space = await dbContext.Spaces
+            .FromSqlInterpolated($"SELECT * FROM spaces WHERE id = {spaceId} FOR UPDATE")
+            .SingleOrDefaultAsync(cancellationToken);
+        if (space is null)
+        {
+            return Error.NotFound("Space could not be found");
+        }
+
         if (await dbContext.AuthorizeSpaceAsync(currentUser.Id, spaceId, SpacePermissions.Members.AssignRole, cancellationToken) is { } error)
         {
             return error;
@@ -56,6 +66,7 @@ public sealed class ChangeMemberRoleHandler(IAppDbContext dbContext, CurrentUser
 
         membership.ChangeRole(role);
         await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return new SpaceMemberResponse(
             membership.UserId,

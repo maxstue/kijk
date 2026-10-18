@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Kijk.Application.Consumptions.Create;
 using Kijk.Application.Consumptions.Update;
 using Kijk.Application.Imports.Settings;
 using Kijk.Application.Limits.Create;
@@ -217,6 +218,87 @@ public class SpacePermissionHttpTests
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
         var roleId = await verification.UserSpaces.Where(link => link.UserId == fixture.OtherUser.Id).Select(link => link.RoleId).SingleAsync();
         await Assert.That(roleId).IsEqualTo(expected == HttpStatusCode.OK ? SpaceRoles.Viewer.Id : SpaceRoles.Member.Id);
+    }
+
+    [Test]
+    public async Task ConcurrentRoleChangesCannotRemoveBothAdministrators()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using (var seed = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var membership = await seed.UserSpaces.SingleAsync(link => link.UserId == fixture.OtherUser.Id);
+            membership.ChangeRole(await seed.Roles.SingleAsync(role => role.Id == SpaceRoles.Admin.Id));
+            await seed.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var other = host.CreateClient(fixture.OtherUser.AuthId);
+        var responses = await Task.WhenAll(
+            host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/members/{fixture.OtherUser.Id}/role", new ChangeMemberRoleRequest(SpaceRoles.Member.Id)),
+            other.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/members/{fixture.User.Id}/role", new ChangeMemberRoleRequest(SpaceRoles.Member.Id)));
+        try
+        {
+            await Assert.That(responses.Select(response => response.StatusCode))
+                .IsEquivalentTo(new[] { HttpStatusCode.OK, HttpStatusCode.Forbidden });
+            await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+            await Assert.That(await verification.UserSpaces.CountAsync(link => link.SpaceId == fixture.Space.Id && link.RoleId == SpaceRoles.Admin.Id)).IsEqualTo(1);
+        }
+        finally
+        {
+            foreach (var response in responses)
+            {
+                response.Dispose();
+            }
+        }
+    }
+
+    [Test]
+    [Arguments("name")]
+    [Arguments("value")]
+    [Arguments("date")]
+    [Arguments("type")]
+    [Arguments("resource")]
+    public async Task InvalidConsumptionChangesAreRejectedWithoutSaving(string field)
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var request = new UpdateConsumptionRequest(
+            field == "name" ? "" : null,
+            field == "value" ? -5 : null,
+            field == "type" ? (UpdateConsumptionValueTypes)123 : UpdateConsumptionValueTypes.Relative,
+            field == "resource" ? Guid.Empty : null,
+            field == "date" ? DateTime.UtcNow.AddDays(1) : null);
+
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}", request);
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        using var createResponse = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Space.Id}/consumptions",
+            new CreateConsumptionRequest(
+                field == "name" ? "" : "Reading",
+                field == "value" ? -5 : 1,
+                field == "type" ? (CreateConsumptionValueTypes)123 : CreateConsumptionValueTypes.Relative,
+                field == "resource" ? Guid.Empty : fixture.Resource.Id,
+                field == "date" ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow.Date));
+        await Assert.That(createResponse.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var stored = await verification.Consumptions.SingleAsync(item => item.Id == fixture.Consumption.Id);
+        await Assert.That(stored.Name).IsEqualTo("Reading");
+        await Assert.That(stored.Value).IsEqualTo(10m);
+        await Assert.That(stored.Date).IsEqualTo(fixture.Consumption.Date);
+    }
+
+    [Test]
+    public async Task ANewMeterCanStartAtZero()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}",
+            new UpdateConsumptionRequest(null, 0, UpdateConsumptionValueTypes.Absolute, null, null, true));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var stored = await verification.Consumptions.SingleAsync(item => item.Id == fixture.Consumption.Id);
+        await Assert.That(stored.Value).IsEqualTo(0m);
+        await Assert.That(stored.StartsNewMeterSegment).IsTrue();
     }
 
     [Test]

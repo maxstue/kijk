@@ -912,6 +912,15 @@ export interface paths {
             'application/json': components['schemas']['ConsumptionResponse'];
           };
         };
+        /** Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+          };
+        };
         401: components['responses']['401'];
         403: components['responses']['403'];
         /** Not Found */

@@ -39,9 +39,9 @@ public class GetStatsConsumptionsHandler(IAppDbContext dbContext, CurrentUser cu
         var monthlyTotals = await dbContext.Consumptions
             .Where(consumption => consumption.SpaceId == currentUser.ActiveSpaceId)
             .Where(consumption =>
-                (consumption.Date >= selectedStart && consumption.Date < selectedEnd)
-                || (consumption.Date >= comparisonStart && consumption.Date < comparisonEnd)
-                || (consumption.Date >= comparisonMonthStart && consumption.Date < comparisonMonthEnd))
+                consumption.Date >= selectedStart && consumption.Date < selectedEnd
+                || consumption.Date >= comparisonStart && consumption.Date < comparisonEnd
+                || consumption.Date >= comparisonMonthStart && consumption.Date < comparisonMonthEnd)
             .GroupBy(consumption => new
             {
                 consumption.ResourceId,

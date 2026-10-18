@@ -15,7 +15,7 @@ public static class RateLimitExtensions
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
         options.AddPolicy(AppConstants.RateLimit, context => RateLimitPartition.GetFixedWindowLimiter(
-            context.User.Identity?.Name ?? "anonymous",
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "anonymous",
             _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 100,

@@ -65,6 +65,7 @@ public class ConsumptionsEndpoints : IEndpointGroup
 
         group.MapPut("/{id:guid}", Update)
             .RequireSpacePermission(SpacePermissions.Consumptions.Record)
+            .WithRequestValidation<UpdateConsumptionRequest>()
             .WithSummary("Updates a consumption");
 
         group.MapDelete("/{id:guid}", Delete)

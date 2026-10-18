@@ -3,7 +3,7 @@ import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 
-import { getStartSpace } from '@/shared/lib/spaces';
+import { getLastSpace, getStartSpace } from '@/shared/lib/spaces';
 
 /** Returns the id of the space in the URL; only use it below the `/$spaceId` route. */
 export function useSpaceId() {
@@ -21,5 +21,8 @@ export function useActiveSpace() {
 export function useNavigationSpaceId() {
   const { spaceId } = useParams({ strict: false });
   const { data } = useQuery(currentUserQueryOptions());
-  return spaceId ?? (data && isReadyCurrentUser(data) ? getStartSpace(data.user)?.id : undefined);
+  return (
+    spaceId ??
+    (data && isReadyCurrentUser(data) ? (getLastSpace(data.user) ?? getStartSpace(data.user))?.id : undefined)
+  );
 }

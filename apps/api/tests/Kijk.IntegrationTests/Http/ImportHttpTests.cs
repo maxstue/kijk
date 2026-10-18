@@ -541,6 +541,32 @@ public class ImportHttpTests
         (await client.GetFromJsonAsync<ImportCandidatePageResponse>($"/api/spaces/{spaceId}/imports/{id}/candidates", Json))!.Items;
 
     [Test]
+    public async Task ConcurrentUploadsForTheSameAccountOnlyCreateOneImport()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+
+        var responses = await Task.WhenAll(
+            UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "ing-synthetic.csv"),
+            UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "ing-synthetic.csv"));
+        try
+        {
+            await Assert.That(responses.Select(response => response.StatusCode))
+                .IsEquivalentTo(new[] { HttpStatusCode.Accepted, HttpStatusCode.Conflict });
+            await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+            await Assert.That(await verification.ImportJobs.CountAsync()).IsEqualTo(1);
+            await Assert.That(await verification.ImportFiles.CountAsync()).IsEqualTo(1);
+        }
+        finally
+        {
+            foreach (var response in responses)
+            {
+                response.Dispose();
+            }
+        }
+    }
+
+    [Test]
     public async Task CancellingDeletesTheFileRightAway()
     {
         var fixture = await CreateFixtureAsync("Member");

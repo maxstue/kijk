@@ -53,17 +53,6 @@ public sealed class CreateImportHandler(
             return Error.Validation("Bank exports can only be imported into bank accounts");
         }
 
-        var hasOpenImport = await dbContext.ImportJobs.AnyAsync(
-            item => item.AccountId == account.Id
-                    && item.Status != ImportJobStatus.Done
-                    && item.Status != ImportJobStatus.Failed
-                    && item.Status != ImportJobStatus.Cancelled,
-            cancellationToken);
-        if (hasOpenImport)
-        {
-            return Error.Conflict("Finish or cancel the open import of this account first");
-        }
-
         var bytes = await ReadLimitedAsync(content, cancellationToken);
         if (bytes is null)
         {
@@ -75,6 +64,22 @@ public sealed class CreateImportHandler(
             return Error.Validation("The file is empty");
         }
 
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        // Serialize uploads for this account before checking for an open import.
+        await dbContext.Accounts.FromSqlInterpolated($"SELECT * FROM accounts WHERE id = {account.Id} FOR UPDATE")
+            .SingleAsync(cancellationToken);
+
+        var hasOpenImport = await dbContext.ImportJobs.AnyAsync(
+            item => item.AccountId == account.Id
+                    && item.Status != ImportJobStatus.Done
+                    && item.Status != ImportJobStatus.Failed
+                    && item.Status != ImportJobStatus.Cancelled,
+            cancellationToken);
+        if (hasOpenImport)
+        {
+            return Error.Conflict("Finish or cancel the open import of this account first");
+        }
+
         var name = Path.GetFileName(fileName).Trim();
         var job = ImportJob.Create(
             name.Length > ImportLimits.FileNameMaximumLength ? name[..ImportLimits.FileNameMaximumLength] : name,
@@ -83,6 +88,7 @@ public sealed class CreateImportHandler(
             space);
         dbContext.ImportJobs.Add(job);
         dbContext.ImportFiles.Add(ImportFile.Create(protector.Protect(bytes), job, timeProvider.GetUtcNow().UtcDateTime));
+        // The outbox commits this transaction together with the queued message.
         await queue.SaveChangesAndEnqueueAsync(new AnalyzeImport(job.Id), cancellationToken);
 
         return job.ToResponse();

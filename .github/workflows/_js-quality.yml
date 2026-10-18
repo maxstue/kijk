@@ -38,5 +38,6 @@ jobs:
         run: pnpm --recursive --filter '!kijk-api' run lint
 
       - name: "🔍 Audit"
-        run: pnpm audit
-        continue-on-error: true
+        # Unpatched braces is only reached by shadcn's CLI glob parser; Kijk imports shadcn/tailwind.css only.
+        # Keep this single exception visible and remove it when upstream ships a fix. Other High/Critical findings fail CI.
+        run: pnpm audit --audit-level high --ignore GHSA-vfj7-8cjw-p6xm

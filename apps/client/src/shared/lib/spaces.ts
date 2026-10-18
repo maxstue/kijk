@@ -20,15 +20,16 @@ export function rememberLastSpace(userId: string, spaceId: string) {
  */
 export function getStartSpace(user: ReadyCurrentUser): UserSpace | undefined {
   const spaces = user.spaces ?? [];
+  return spaces.find((space) => space.isDefault) ?? getLastSpace(user) ?? spaces.find((space) => space.isPersonal);
+}
+
+/** Returns the last visited space on this device, if the user is still a member. */
+export function getLastSpace(user: ReadyCurrentUser): UserSpace | undefined {
   let lastSpaceId: string | undefined;
   try {
     lastSpaceId = browserStorage.getItem<string>(`${lastSpaceStorageKey}:${user.id}`);
   } catch {
-    // A corrupt value or unavailable storage falls back to the personal space.
+    // A corrupt value or unavailable storage leaves the caller to choose a fallback.
   }
-  return (
-    spaces.find((space) => space.isDefault) ??
-    spaces.find((space) => space.id === lastSpaceId) ??
-    spaces.find((space) => space.isPersonal)
-  );
+  return user.spaces?.find((space) => space.id === lastSpaceId);
 }

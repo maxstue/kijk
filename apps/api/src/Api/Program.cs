@@ -30,7 +30,6 @@ try
 
     // ##### Configure the HTTP request pipeline. #####
     var app = builder.Build();
-    app.UseRateLimiter();
 
     app.MapHealthCheck()
         .MapOpenApi()
@@ -52,7 +51,8 @@ try
         .UseForwardedHeaders(new() { ForwardedHeaders = ForwardedHeaders.All })
         .UseCors(AppConstants.Cors)
         .UseHttpsRedirection()
-        .UseAuthentication();
+        .UseAuthentication()
+        .UseRateLimiter();
 
     app.UseMiddleware<CurrentUserMiddleware>();
     app.UseAuthorization();

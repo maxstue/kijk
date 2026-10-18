@@ -26,6 +26,27 @@ public class ApiPipelineHttpTests
     public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
 
     [Test]
+    public async Task RateLimitsAreSeparateForDifferentIdentities()
+    {
+        var first = await CreateUserAsync("first");
+        var second = await CreateUserAsync("second");
+        await using var host = await SpaceApiHost.StartAsync(first.AuthId);
+        using var other = host.CreateClient(second.AuthId);
+
+        for (var index = 0; index < 100; index++)
+        {
+            using var allowed = await host.Client.GetAsync("/api/spaces/roles");
+            await Assert.That(allowed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        }
+        using var limited = await host.Client.GetAsync("/api/spaces/roles");
+        using var unaffected = await other.GetAsync("/api/spaces/roles");
+
+        await Assert.That(limited.StatusCode).IsEqualTo(HttpStatusCode.TooManyRequests);
+        await Assert.That(unaffected.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(limited.Headers.Contains(AppConstants.CorrelationId)).IsTrue();
+    }
+
+    [Test]
     public async Task UnexpectedErrorsHideTheExceptionMessage()
     {
         var user = await CreateUserAsync("actor");

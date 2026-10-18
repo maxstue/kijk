@@ -67,6 +67,7 @@ export const createConsumptionMutationOptions = (spaceId: string) =>
         client,
         queryKeys.consumptions.byAll(spaceId),
         queryKeys.consumptions.statsAll(spaceId),
+        queryKeys.consumptions.years(spaceId),
         queryKeys.limits.all(spaceId),
       );
     },
@@ -83,6 +84,7 @@ export const updateConsumptionMutationOptions = (spaceId: string) =>
         client,
         queryKeys.consumptions.byAll(spaceId),
         queryKeys.consumptions.statsAll(spaceId),
+        queryKeys.consumptions.years(spaceId),
         queryKeys.limits.all(spaceId),
       );
 
@@ -108,7 +110,12 @@ export const deleteConsumptionMutationOptions = (spaceId: string) =>
     mutationFn: (data: DeleteConsumptionData) => deleteConsumption(spaceId, data.id),
     onSuccess: async (_data, _variables, _result, { client }) => {
       await invalidate(client, queryKeys.consumptions.byAll(spaceId));
-      await invalidate(client, queryKeys.consumptions.statsAll(spaceId), queryKeys.limits.all(spaceId));
+      await invalidate(
+        client,
+        queryKeys.consumptions.statsAll(spaceId),
+        queryKeys.consumptions.years(spaceId),
+        queryKeys.limits.all(spaceId),
+      );
     },
   });
 

@@ -4,11 +4,15 @@ import { ValueTypes } from '@/shared/types/domain';
 
 /** Validation of the create-consumption form. */
 export const consumptionCreateSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters',
-  }),
-  value: z.number().min(1, {
-    message: 'Value must be at least 1 character',
+  name: z
+    .string()
+    .trim()
+    .min(2, {
+      message: 'Name must be at least 2 characters',
+    })
+    .max(50),
+  value: z.number().min(0, {
+    message: 'Value must not be negative',
   }),
   valueType: z.enum(ValueTypes).default('Absolute'),
   startsNewMeterSegment: z.boolean().default(false),
@@ -26,11 +30,15 @@ export type ConsumptionCreateFormSchema = z.input<typeof consumptionCreateSchema
 /** Validation of the update-consumption form. */
 export const consumptionUpdateSchema = z.object({
   id: z.uuid(),
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters',
-  }),
-  value: z.number().min(1, {
-    message: 'Value must be at least 1 character',
+  name: z
+    .string()
+    .trim()
+    .min(2, {
+      message: 'Name must be at least 2 characters',
+    })
+    .max(50),
+  value: z.number().min(0, {
+    message: 'Value must not be negative',
   }),
   valueType: z.enum(ValueTypes).default('Absolute'),
   startsNewMeterSegment: z.boolean().default(false),

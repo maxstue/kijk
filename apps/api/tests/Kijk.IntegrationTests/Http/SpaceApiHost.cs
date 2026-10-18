@@ -89,10 +89,10 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
 
         var app = builder.Build();
         app.UseRouting();
-        app.UseRateLimiter();
         app.UseExceptionHandler();
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseAuthentication();
+        app.UseRateLimiter();
         app.UseMiddleware<CurrentUserMiddleware>();
         app.UseAuthorization();
         app.MapEndpoints();

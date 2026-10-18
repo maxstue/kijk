@@ -25,7 +25,7 @@ export const updateUnitMutationOptions = () =>
     onSuccess: (_data, _variables, _result, { client }) =>
       Promise.all([
         invalidate(client, queryKeys.units.all),
-        invalidateInEverySpace(client, 'units', 'resources', 'consumptions'),
+        invalidateInEverySpace(client, 'units', 'resources', 'consumptions', 'limits'),
       ]),
   });
 

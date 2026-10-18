@@ -1,7 +1,7 @@
 import type { ReadyCurrentUser } from '@kijk/api/users/types';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 
-import { getStartSpace, rememberLastSpace } from './spaces';
+import { getLastSpace, getStartSpace, rememberLastSpace } from './spaces';
 
 const storage = vi.hoisted(() => ({
   getItem: vi.fn<(key: string) => string | undefined>(),
@@ -21,6 +21,16 @@ test('an explicit default wins over the last visited space', () => {
 test('without a default the last visited membership wins', () => {
   vi.mocked(storage.getItem).mockReturnValue('shared');
   expect(getStartSpace(user())?.id).toBe('shared');
+});
+test('returning to the app keeps the last visited space even when another space is the default', () => {
+  vi.mocked(storage.getItem).mockReturnValue('shared');
+  const account = user([shared, { ...personal, isDefault: true }]);
+  expect(getLastSpace(account)?.id).toBe('shared');
+  expect(getStartSpace(account)?.id).toBe('personal');
+});
+test('returning after a membership was removed falls back to the start space', () => {
+  vi.mocked(storage.getItem).mockReturnValue('removed');
+  expect(getLastSpace(user()) ?? getStartSpace(user())).toBe(personal);
 });
 test('a removed membership falls back to the personal space', () => {
   vi.mocked(storage.getItem).mockReturnValue('removed');

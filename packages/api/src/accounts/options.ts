@@ -25,7 +25,12 @@ export const updateAccountMutationOptions = (spaceId: string) =>
     mutationFn: ({ data, id }: { data: UpdateAccountRequest; id: string }) => updateAccount(spaceId, id, data),
     // Transactions show the account name.
     onSuccess: (_data, _variables, _result, { client }) =>
-      invalidate(client, queryKeys.accounts.all(spaceId), queryKeys.transactions.all(spaceId)),
+      invalidate(
+        client,
+        queryKeys.accounts.all(spaceId),
+        queryKeys.transactions.all(spaceId),
+        queryKeys.imports.all(spaceId),
+      ),
   });
 
 /** Mutation that deletes an account. */

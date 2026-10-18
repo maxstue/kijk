@@ -31,6 +31,7 @@ export const updateCategoryMutationOptions = (spaceId: string) =>
         queryKeys.budgets.all(spaceId),
         queryKeys.transactions.all(spaceId),
         queryKeys.categoryRules.all(spaceId),
+        queryKeys.imports.all(spaceId),
       ),
   });
 

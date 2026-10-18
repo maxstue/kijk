@@ -30,9 +30,14 @@ export const createResourceMutationOptions = (spaceId: string) =>
 export const updateResourceMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: UpdateResourceData) => updateResource(spaceId, data),
-    // Consumptions show the resource and its unit.
+    // Consumptions and limits show the resource; a unit change also converts limit thresholds.
     onSuccess: (_data, _variables, _result, { client }) =>
-      invalidate(client, queryKeys.resources.all(spaceId), queryKeys.consumptions.all(spaceId)),
+      invalidate(
+        client,
+        queryKeys.resources.all(spaceId),
+        queryKeys.consumptions.all(spaceId),
+        queryKeys.limits.all(spaceId),
+      ),
   });
 
 /** Mutation that deletes a resource. */
