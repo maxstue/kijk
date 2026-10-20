@@ -10,31 +10,21 @@ export function ThemeModeSwitcher() {
 
     root.classList.remove('light', 'dark');
 
-    if (mode === undefined) {
-      root.classList.add('light');
+    if (mode !== 'system') {
+      root.classList.add(mode ?? 'light');
       return;
     }
 
-    if (mode === 'system') {
-      const systemTheme = globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    root.classList.add(mode);
-  }, [mode]);
-
-  useEffect(() => {
-    const root = globalThis.document.documentElement;
-
-    const listener = (event: MediaQueryListEvent) => {
+    const mediaQuery = globalThis.matchMedia('(prefers-color-scheme: dark)');
+    const applySystemTheme = () => {
       root.classList.remove('light', 'dark');
-      root.classList.add(event.matches ? 'dark' : 'light');
+      root.classList.add(mediaQuery.matches ? 'dark' : 'light');
     };
 
-    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listener);
-  }, []);
+    applySystemTheme();
+    mediaQuery.addEventListener('change', applySystemTheme);
+    return () => mediaQuery.removeEventListener('change', applySystemTheme);
+  }, [mode]);
 
   return undefined;
 }

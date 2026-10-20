@@ -32,18 +32,13 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
     mode: 'onBlur',
     resolver: zodResolver(authSchema),
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = form.formState.isSubmitting;
   const [loadingProvider, setLoadingProvider] = useState<AllowedProviders | null>(null);
 
   const { isLoaded, signIn } = useSignIn();
 
   async function handleEmailSubmit(data: AuthSchema) {
-    setIsLoading(true);
-    try {
-      await onSubmit(data.email.toLowerCase(), data.password);
-    } finally {
-      setIsLoading(false);
-    }
+    await onSubmit(data.email.toLowerCase(), data.password);
   }
 
   const handleSocialSignIn = useCallback(

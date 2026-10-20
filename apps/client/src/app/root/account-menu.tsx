@@ -173,11 +173,13 @@ function AccountMenuDropdown({
                 Settings
               </DropdownMenuItem>
               <DropdownMenuItem
-                render={<a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank' />}
-              >
-                <ExternalLinkIcon />
-                Support
-              </DropdownMenuItem>
+                render={
+                  <a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank'>
+                    <ExternalLinkIcon />
+                    Support
+                  </a>
+                }
+              />
               <DropdownMenuItem onClick={onOpenFeedback}>
                 <SendIcon />
                 Give feedback

@@ -1,15 +1,17 @@
-import { setDefaultSpaceMutationOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import type { ReadyCurrentUser } from '@kijk/api/users/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { useMutation } from '@tanstack/react-query';
+import { useId } from 'react';
 import { toast } from 'sonner';
 
 /** Selects the account-wide default, independently of the space being viewed. */
 export function DefaultSpaceSelect({ spaces }: { spaces: NonNullable<ReadyCurrentUser['spaces']> }) {
-  const defaultMutation = useMutation(setDefaultSpaceMutationOptions());
+  const selectId = useId();
+  const defaultMutation = useMutation(usersOptions.setDefaultSpaceMutationOptions());
   return (
     <div className='space-y-2'>
-      <label id='default-space-label' className='text-sm font-medium'>
+      <label htmlFor={selectId} id={`${selectId}-label`} className='text-sm font-medium'>
         Default space
       </label>
       <Select
@@ -29,7 +31,7 @@ export function DefaultSpaceSelect({ spaces }: { spaces: NonNullable<ReadyCurren
           });
         }}
       >
-        <SelectTrigger aria-labelledby='default-space-label'>
+        <SelectTrigger id={selectId} aria-labelledby={`${selectId}-label`}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
