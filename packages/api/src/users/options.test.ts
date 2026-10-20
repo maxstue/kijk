@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { setDefaultSpaceMutationOptions, updateUserMutationOptions } from './options';
-import { setDefaultSpace, updateUser } from './requests';
+import { setDefaultSpaceMutationOptions, updateMutationOptions } from './options';
+import { setDefaultSpace, update } from './requests';
 import type { CurrentUser } from './types';
 
 vi.mock('./requests', { spy: true });
@@ -31,9 +31,9 @@ test('changing user settings refreshes the resources of every space', async () =
   ]) {
     client.setQueryData(key, []);
   }
-  vi.mocked(updateUser).mockResolvedValue({} as Awaited<ReturnType<typeof updateUser>>);
+  vi.mocked(update).mockResolvedValue({} as Awaited<ReturnType<typeof update>>);
 
-  await client.getMutationCache().build(client, updateUserMutationOptions()).execute({ userName: 'Kim' });
+  await client.getMutationCache().build(client, updateMutationOptions()).execute({ userName: 'Kim' });
 
   expect(client.getQueryState(queryKeys.resources.list('first'))?.isInvalidated).toBe(true);
   expect(client.getQueryState(queryKeys.resources.list('second'))?.isInvalidated).toBe(true);

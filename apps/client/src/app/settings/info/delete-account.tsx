@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/react';
-import { requestAccountDeletionMutationOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -32,7 +32,7 @@ export function DeleteAccount() {
   const [confirmation, setConfirmation] = useState('');
   const confirmationId = useId();
   const deleteMutation = useMutation({
-    ...requestAccountDeletionMutationOptions(),
+    ...usersOptions.requestDeletionMutationOptions(),
     onError: (error) => toast.error(error.name, { description: error.message }),
     onSuccess: async () => {
       toast.success('Your account is being deleted');

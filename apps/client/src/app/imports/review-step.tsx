@@ -1,9 +1,4 @@
-import {
-  cancelImportMutationOptions,
-  commitImportMutationOptions,
-  importCandidatesQueryOptions,
-  updateImportCandidateMutationOptions,
-} from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import type { ImportCandidate, ImportCandidatePage, ImportJob } from '@kijk/api/imports/types';
 import { queryKeys } from '@kijk/api/query-keys';
 import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
@@ -49,14 +44,14 @@ export function ImportReviewStep({
   const [page, setPage] = useState(1);
   const [acceptErrors, setAcceptErrors] = useState(false);
   const [showAiPreview, setShowAiPreview] = useState(false);
-  const commitMutation = useMutation(commitImportMutationOptions(spaceId, job.id));
-  const cancelMutation = useMutation(cancelImportMutationOptions(spaceId, job.id));
+  const commitMutation = useMutation(importsOptions.commitMutationOptions(spaceId, job.id));
+  const cancelMutation = useMutation(importsOptions.cancelMutationOptions(spaceId, job.id));
 
   const included = new Set(includedEdgeMonths);
   const months = new Set([...job.fullMonths, ...includedEdgeMonths]);
   const selectedMonths = [...months].sort().join(',');
   const reviewQuery = useQuery({
-    ...importCandidatesQueryOptions(spaceId, job.id, { months: selectedMonths, page }),
+    ...importsOptions.candidatesQueryOptions(spaceId, job.id, { months: selectedMonths, page }),
     enabled: stage === 'review',
     placeholderData: keepPreviousData,
   });
@@ -370,7 +365,7 @@ function CardSettlements({ count, months, importId }: { count: number; months: s
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
   const { data, isFetching, isError, refetch } = useQuery({
-    ...importCandidatesQueryOptions(spaceId, importId, { months, page, cardSettlementsOnly: true }),
+    ...importsOptions.candidatesQueryOptions(spaceId, importId, { months, page, cardSettlementsOnly: true }),
     enabled: open && count > 0,
     placeholderData: keepPreviousData,
   });
@@ -414,7 +409,7 @@ function CardSettlements({ count, months, importId }: { count: number; months: s
 
 function CardSettlementOption({ candidate, importId }: { candidate: ImportCandidate; importId: string }) {
   const spaceId = useSpaceId();
-  const updateMutation = useMutation(updateImportCandidateMutationOptions(spaceId));
+  const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId));
   const id = useId();
 
   function onCheckedChange(checked: boolean) {

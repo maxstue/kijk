@@ -1,8 +1,4 @@
-import {
-  archiveUnitMutationOptions,
-  shareUnitMutationOptions,
-  unshareUnitMutationOptions,
-} from '@kijk/api/units/options';
+import * as unitsOptions from '@kijk/api/units/options';
 import type { Unit } from '@kijk/api/units/types';
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
@@ -36,22 +32,19 @@ interface Props {
 export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const archiveMutation = useMutation(archiveUnitMutationOptions());
-  const shareMutation = useMutation(shareUnitMutationOptions());
-  const unshareMutation = useMutation(unshareUnitMutationOptions());
+  const restoreMutation = useMutation(unitsOptions.restoreMutationOptions());
+  const shareMutation = useMutation(unitsOptions.shareWithSpaceMutationOptions());
+  const unshareMutation = useMutation(unitsOptions.removeFromSpaceMutationOptions());
   const canDelete = Number(unit.resourceCount) === 0 && unit.spaceIds.length === 0;
   const canUnshare = scope === 'space' && unit.isOwner && shareableSpaces.some((space) => space.id === spaceId);
 
   function restore() {
-    archiveMutation.mutate(
-      { id: unit.id, restore: true },
-      {
-        onError: (error) => toast.error(error.message),
-        onSuccess: () => {
-          toast.success('Unit restored');
-        },
+    restoreMutation.mutate(unit.id, {
+      onError: (error) => toast.error(error.message),
+      onSuccess: () => {
+        toast.success('Unit restored');
       },
-    );
+    });
   }
 
   function share(targetSpaceId: string) {
@@ -109,18 +102,15 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props)
                 {unit.conversionType === 'None' ? 'Convert legacy unit' : 'Update'}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {scope === 'personal' &&
-                unit.isOwner &&
-                !unit.isArchived &&
-                shareableSpaces
-                  .filter((space) => !unit.spaceIds.includes(space.id))
-                  .map((space) => (
-                    <DropdownMenuItem key={space.id} disabled={shareMutation.isPending} onClick={() => share(space.id)}>
-                      Share with {space.name}
-                    </DropdownMenuItem>
-                  ))}
+              <UnitSharingActions
+                unit={unit}
+                scope={scope}
+                shareableSpaces={shareableSpaces}
+                isPending={shareMutation.isPending}
+                onShare={share}
+              />
               {unit.isArchived && unit.isOwner && (
-                <DropdownMenuItem disabled={archiveMutation.isPending} onClick={restore}>
+                <DropdownMenuItem disabled={restoreMutation.isPending} onClick={restore}>
                   Restore
                 </DropdownMenuItem>
               )}
@@ -154,4 +144,24 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props)
       </AlertDialog>
     </>
   );
+}
+
+function UnitSharingActions({
+  scope,
+  shareableSpaces,
+  unit,
+  isPending,
+  onShare,
+}: Omit<Props, 'spaceId'> & { isPending: boolean; onShare: (spaceId: string) => void }) {
+  if (scope !== 'personal' || !unit.isOwner || unit.isArchived) {
+    return null;
+  }
+  const sharedSpaceIds = new Set(unit.spaceIds);
+  return shareableSpaces
+    .filter((space) => !sharedSpaceIds.has(space.id))
+    .map((space) => (
+      <DropdownMenuItem key={space.id} disabled={isPending} onClick={() => onShare(space.id)}>
+        Share with {space.name}
+      </DropdownMenuItem>
+    ));
 }

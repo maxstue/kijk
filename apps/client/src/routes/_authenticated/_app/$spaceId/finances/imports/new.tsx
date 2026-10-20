@@ -1,4 +1,4 @@
-import { accountsQueryOptions } from '@kijk/api/accounts/options';
+import * as accountsOptions from '@kijk/api/accounts/options';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { ImportUploadForm } from '@/app/imports/upload-form';
@@ -8,7 +8,7 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/new')({
   loader: ({ params: { spaceId }, context: { queryClient } }) =>
-    queryClient.query({ ...accountsQueryOptions(spaceId), staleTime: 'static' }),
+    queryClient.query({ ...accountsOptions.listQueryOptions(spaceId), staleTime: 'static' }),
   component: NewImportPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   head: () => ({ meta: [{ title: 'New import' }] }),

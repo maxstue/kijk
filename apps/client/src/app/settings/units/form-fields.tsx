@@ -1,4 +1,4 @@
-import { unitsQueryOptions } from '@kijk/api/units/options';
+import * as unitsOptions from '@kijk/api/units/options';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
@@ -13,7 +13,7 @@ import type { CreateUnitFormValues } from './schemas';
 
 /** Shared fields of the unit forms: name, symbol, reference unit and factor. */
 export function UnitFormFields({ control }: { control: Control<CreateUnitFormValues> }) {
-  const { data } = useQuery(unitsQueryOptions({ scope: 'System' }));
+  const { data } = useQuery(unitsOptions.listQueryOptions({ scope: 'System' }));
   const systemUnits = data?.items ?? [];
 
   return (

@@ -1,4 +1,4 @@
-import { deleteCategoryMutationOptions } from '@kijk/api/categories/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import type { Category } from '@kijk/api/categories/types';
 import {
   AlertDialogAction,
@@ -23,7 +23,7 @@ interface Props {
 /** Confirmation dialog content for deleting a custom category. */
 export function CategoryDeleteContent({ category, onClose }: Props) {
   const spaceId = useSpaceId();
-  const { isPending, mutate } = useMutation(deleteCategoryMutationOptions(spaceId));
+  const { isPending, mutate } = useMutation(categoriesOptions.deleteMutationOptions(spaceId));
 
   const handleDelete = () => {
     mutate(category.id, {

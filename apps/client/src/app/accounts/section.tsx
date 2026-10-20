@@ -1,4 +1,4 @@
-import { accountsQueryOptions } from '@kijk/api/accounts/options';
+import * as accountsOptions from '@kijk/api/accounts/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
@@ -30,7 +30,7 @@ export function AccountsSection() {
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
-  const { data: accounts } = useSuspenseQuery(accountsQueryOptions(spaceId));
+  const { data: accounts } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const canCreate = canConfigure || canRecord;
   const columns = getAccountColumns({ canConfigure, canRecord, isPersonalSpace });

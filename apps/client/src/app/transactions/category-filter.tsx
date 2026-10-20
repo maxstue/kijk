@@ -1,4 +1,4 @@
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import {
@@ -28,7 +28,7 @@ interface Props {
 /** Faceted filter for the transaction list: pick any number of categories; none selected means all. */
 export function TransactionCategoryFilter({ compact = false, onChange, value }: Props) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
+  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const selected = new Set(value);
   const selectedCategories = categories.filter((category) => selected.has(category.id));
 

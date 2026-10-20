@@ -1,5 +1,5 @@
-import { budgetOverviewQueryOptions, budgetsQueryOptions } from '@kijk/api/budgets/options';
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import * as budgetsOptions from '@kijk/api/budgets/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import {
   Dialog,
@@ -48,11 +48,11 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/bud
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([
       queryClient.query({
-        ...budgetOverviewQueryOptions(spaceId, deps.year, deps.month),
+        ...budgetsOptions.overviewQueryOptions(spaceId, deps.year, deps.month),
         staleTime: 'static',
       }),
-      queryClient.query({ ...budgetsQueryOptions(spaceId), staleTime: 'static' }),
-      queryClient.query({ ...categoriesQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...budgetsOptions.versionsQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...categoriesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   head: () => ({ meta: [{ title: 'Budgets' }] }),

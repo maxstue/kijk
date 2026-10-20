@@ -1,9 +1,9 @@
 using Kijk.Api.Mappers;
 using Kijk.Application.Spaces.ChangeMemberRole;
-using Kijk.Application.Spaces.GetMembers;
+using Kijk.Application.Spaces.Members;
 using Kijk.Application.Spaces.Update;
 using Kijk.Application.Units.Create;
-using Kijk.Application.Units.Manage;
+using Kijk.Application.Units.ShareWithSpace;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
@@ -71,8 +71,8 @@ public class SpaceRoleTests
         var member = await AddMemberAsync(dbContext, space, "member", SpaceRoles.Member);
         var request = new UpdateSpaceRequest("Renamed", null);
 
-        var memberResult = await new UpdateSpaceHandler(dbContext, CurrentUserFor(member, space)).UpdateAsync(space.Id, request, CancellationToken.None);
-        var adminResult = await new UpdateSpaceHandler(dbContext, CurrentUserFor(admin, space)).UpdateAsync(space.Id, request, CancellationToken.None);
+        var memberResult = await new UpdateHandler(dbContext, CurrentUserFor(member, space)).HandleAsync(space.Id, request, CancellationToken.None);
+        var adminResult = await new UpdateHandler(dbContext, CurrentUserFor(admin, space)).HandleAsync(space.Id, request, CancellationToken.None);
 
         await Assert.That(memberResult.Error.Type).IsEqualTo(ErrorType.Authorization);
         await Assert.That(adminResult.IsSuccess).IsTrue();
@@ -88,8 +88,8 @@ public class SpaceRoleTests
         var outsiderSpace = Space.Create("Outsider space");
         var outsider = await AddMemberAsync(dbContext, outsiderSpace, "outsider", SpaceRoles.Admin);
 
-        var viewerResult = await new GetSpaceMembersHandler(dbContext, CurrentUserFor(viewer, space)).GetAllAsync(space.Id, CancellationToken.None);
-        var outsiderResult = await new GetSpaceMembersHandler(dbContext, CurrentUserFor(outsider, outsiderSpace)).GetAllAsync(space.Id, CancellationToken.None);
+        var viewerResult = await new MembersHandler(dbContext, CurrentUserFor(viewer, space)).HandleAsync(space.Id, CancellationToken.None);
+        var outsiderResult = await new MembersHandler(dbContext, CurrentUserFor(outsider, outsiderSpace)).HandleAsync(space.Id, CancellationToken.None);
 
         await Assert.That(viewerResult.IsSuccess).IsTrue();
         await Assert.That(viewerResult.Value.Select(item => item.Role.Name)).IsEquivalentTo([SpaceRoles.AdminName, SpaceRoles.ViewerName]);
@@ -106,7 +106,7 @@ public class SpaceRoleTests
         var member = await AddMemberAsync(dbContext, space, "member", SpaceRoles.Member);
 
         var result = await new ChangeMemberRoleHandler(dbContext, CurrentUserFor(admin, space))
-            .ChangeAsync(space.Id, member.Id, new(SpaceRoles.Viewer.Id), CancellationToken.None);
+            .HandleAsync(space.Id, member.Id, new(SpaceRoles.Viewer.Id), CancellationToken.None);
 
         await Assert.That(result.IsSuccess).IsTrue();
         await Assert.That(result.Value.Role.Permissions).IsEquivalentTo(SpaceRoles.Viewer.Permissions);
@@ -128,10 +128,10 @@ public class SpaceRoleTests
         var asAdmin = new ChangeMemberRoleHandler(dbContext, CurrentUserFor(admin, space));
         var asMember = new ChangeMemberRoleHandler(dbContext, CurrentUserFor(member, space));
 
-        var memberChangesAdmin = await asMember.ChangeAsync(space.Id, admin.Id, new(SpaceRoles.Viewer.Id), CancellationToken.None);
-        var adminChangesSelf = await asAdmin.ChangeAsync(space.Id, admin.Id, new(SpaceRoles.Member.Id), CancellationToken.None);
-        var unknownRole = await asAdmin.ChangeAsync(space.Id, member.Id, new(Guid.NewGuid()), CancellationToken.None);
-        var unknownMember = await asAdmin.ChangeAsync(space.Id, Guid.NewGuid(), new(SpaceRoles.Viewer.Id), CancellationToken.None);
+        var memberChangesAdmin = await asMember.HandleAsync(space.Id, admin.Id, new(SpaceRoles.Viewer.Id), CancellationToken.None);
+        var adminChangesSelf = await asAdmin.HandleAsync(space.Id, admin.Id, new(SpaceRoles.Member.Id), CancellationToken.None);
+        var unknownRole = await asAdmin.HandleAsync(space.Id, member.Id, new(Guid.NewGuid()), CancellationToken.None);
+        var unknownMember = await asAdmin.HandleAsync(space.Id, Guid.NewGuid(), new(SpaceRoles.Viewer.Id), CancellationToken.None);
 
         await Assert.That(memberChangesAdmin.Error.Type).IsEqualTo(ErrorType.Authorization);
         await Assert.That(adminChangesSelf.Error.Type).IsEqualTo(ErrorType.Validation);
@@ -157,8 +157,8 @@ public class SpaceRoleTests
         dbContext.Units.Add(unit);
         await dbContext.SaveChangesAsync();
 
-        var result = await new ManageUnitHandler(dbContext, CurrentUserFor(member, space), TimeProvider.System)
-            .ShareAsync(unit.Id, space.Id, CancellationToken.None);
+        var result = await new ShareWithSpaceHandler(dbContext, CurrentUserFor(member, space), TimeProvider.System)
+            .HandleAsync(unit.Id, space.Id, CancellationToken.None);
 
         await Assert.That(result.Error.Type).IsEqualTo(ErrorType.Authorization);
     }
@@ -172,10 +172,10 @@ public class SpaceRoleTests
         var member = await AddMemberAsync(dbContext, space, "member", SpaceRoles.Member);
         var kilowattHour = new Guid("22222222-2222-4222-8222-222222222222");
 
-        var asMember = await new CreateUnitHandler(dbContext, CurrentUserFor(member, space), TimeProvider.System)
-            .CreateAsync(new CreateUnitRequest("Member battery", "mbat", kilowattHour, 2m, [space.Id]), CancellationToken.None);
-        var asAdmin = await new CreateUnitHandler(dbContext, CurrentUserFor(admin, space), TimeProvider.System)
-            .CreateAsync(new CreateUnitRequest("Admin battery", "abat", kilowattHour, 2m, [space.Id]), CancellationToken.None);
+        var asMember = await new CreateHandler(dbContext, CurrentUserFor(member, space), TimeProvider.System)
+            .HandleAsync(new CreateUnitRequest("Member battery", "mbat", kilowattHour, 2m, [space.Id]), CancellationToken.None);
+        var asAdmin = await new CreateHandler(dbContext, CurrentUserFor(admin, space), TimeProvider.System)
+            .HandleAsync(new CreateUnitRequest("Admin battery", "abat", kilowattHour, 2m, [space.Id]), CancellationToken.None);
 
         await Assert.That(asMember.Error.Type).IsEqualTo(ErrorType.Authorization);
         await Assert.That(asAdmin.IsSuccess).IsTrue();

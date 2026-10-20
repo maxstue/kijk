@@ -1,0 +1,30 @@
+@baseUrl = https://localhost:7043
+@spaceId = 00000000-0000-0000-0000-000000000000
+@categoryId = 00000000-0000-0000-0000-000000000000
+@token = replace-with-your-access-token
+
+### Set a category budget. Repeating the request updates the version starting in this month.
+PUT {{baseUrl}}/api/spaces/{{spaceId}}/budgets
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "categoryId": "{{categoryId}}",
+  "amount": 400,
+  "validFrom": "2026-10-01",
+  "active": true,
+  "visibility": "Private"
+}
+
+### An invalid amount is rejected with 400 without changing a budget.
+PUT {{baseUrl}}/api/spaces/{{spaceId}}/budgets
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "categoryId": "{{categoryId}}",
+  "amount": -1,
+  "validFrom": "2026-10-01",
+  "active": true,
+  "visibility": "Private"
+}

@@ -1,4 +1,4 @@
-import { importsQueryOptions } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -10,7 +10,7 @@ import { useSpaceId } from '@/shared/hooks/use-active-space';
 /** Table of the space's latest imports, each linking to its details. */
 export function ImportList() {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(importsQueryOptions(spaceId));
+  const { data } = useSuspenseQuery(importsOptions.listQueryOptions(spaceId));
 
   return (
     <Card>

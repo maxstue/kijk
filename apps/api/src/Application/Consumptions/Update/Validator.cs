@@ -18,7 +18,7 @@ public sealed class UpdateConsumptionRequestValidator : AbstractValidator<Update
         RuleFor(request => request.Date)
             .Must(date => date is null || date.Value != default && date.Value.Date <= timeProvider.GetUtcNow().UtcDateTime.Date)
             .WithErrorCode(ErrorCodes.ValidationError).WithMessage("Date must be set and must not be in the future");
-        RuleFor(request => request.StartsNewMeterSegment).Equal(false)
-            .When(request => request.ValueType != UpdateConsumptionValueTypes.Absolute).WithErrorCode(ErrorCodes.ValidationError);
+        RuleFor(request => request.StartsNewMeterSegment).NotEqual(true)
+            .When(request => request.ValueType == UpdateConsumptionValueTypes.Relative).WithErrorCode(ErrorCodes.ValidationError);
     }
 }

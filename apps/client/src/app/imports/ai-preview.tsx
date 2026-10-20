@@ -1,6 +1,6 @@
-import { categorizeImportMutationOptions, importAiPreviewQueryOptions } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import type { AiPreviewItem, ImportJob } from '@kijk/api/imports/types';
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -17,7 +17,7 @@ import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 /** Lets the user check and exclude shared texts before requesting category suggestions. */
 export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
-  const { data: currentUser } = useQuery(currentUserQueryOptions());
+  const { data: currentUser } = useQuery(usersOptions.meQueryOptions());
   if (!currentUser?.user) {
     return null;
   }
@@ -33,8 +33,8 @@ export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onS
 
 function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
   const spaceId = useSpaceId();
-  const { data, isPending } = useQuery(importAiPreviewQueryOptions(spaceId, job.id));
-  const categorizeMutation = useMutation(categorizeImportMutationOptions(spaceId, job.id));
+  const { data, isPending } = useQuery(importsOptions.aiDataPreviewQueryOptions(spaceId, job.id));
+  const categorizeMutation = useMutation(importsOptions.startCategorizationMutationOptions(spaceId, job.id));
   const [selection, setSelection] = useState<Record<string, boolean>>({});
 
   if (isPending || !data) {

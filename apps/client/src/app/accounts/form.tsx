@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createAccountMutationOptions, updateAccountMutationOptions } from '@kijk/api/accounts/options';
+import * as accountsOptions from '@kijk/api/accounts/options';
 import type { Account } from '@kijk/api/accounts/types';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
@@ -26,8 +26,8 @@ interface Props {
 /** Form to create an account, or to edit `initialData` when given. */
 export function AccountForm({ canShare, initialData, onClose, showVisibility }: Props) {
   const spaceId = useSpaceId();
-  const createMutation = useMutation(createAccountMutationOptions(spaceId));
-  const updateMutation = useMutation(updateAccountMutationOptions(spaceId));
+  const createMutation = useMutation(accountsOptions.createMutationOptions(spaceId));
+  const updateMutation = useMutation(accountsOptions.updateMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const isCash = initialData?.kind === 'Cash';
   const form = useForm<AccountFormValues>({

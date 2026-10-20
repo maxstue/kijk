@@ -1,6 +1,6 @@
 import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
-import { unitsQueryOptions } from '@kijk/api/units/options';
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as unitsOptions from '@kijk/api/units/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -31,7 +31,7 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const { data: pageData, isPending } = useQuery(
-    unitsQueryOptions({
+    unitsOptions.listQueryOptions({
       includeArchived: true,
       page,
       pageSize: 20,
@@ -40,7 +40,7 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
       spaceId: selectedSpaceId,
     }),
   );
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const spaces = currentAccount?.user?.spaces ?? [];
   const spaceId = selectedSpaceId;
   const selectedSpace = spaces.find((space) => space.id === spaceId);

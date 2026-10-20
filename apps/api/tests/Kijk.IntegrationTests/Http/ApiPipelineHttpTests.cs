@@ -2,8 +2,9 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Kijk.Application.Units.GetAll;
+using Kijk.Application.Units.List;
 using Kijk.Application.Units.Shared;
+using Kijk.Application.Users.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.IntegrationTests.Persistence;
@@ -52,7 +53,7 @@ public class ApiPipelineHttpTests
         var user = await CreateUserAsync("actor");
         await using var host = await SpaceApiHost.StartAsync(
             user.AuthId,
-            configureServices: services => services.AddScoped<GetAllUnitsHandler>(_ => throw new InvalidOperationException("internal detail")));
+            configureServices: services => services.AddScoped<ListHandler>(_ => throw new InvalidOperationException("internal detail")));
 
         using var response = await host.Client.GetAsync("/api/units");
         var body = await response.Content.ReadAsStringAsync();
@@ -102,6 +103,26 @@ public class ApiPipelineHttpTests
         await Assert.That(personal.Page).IsEqualTo(2);
         await Assert.That(space!.TotalCount).IsEqualTo(system.TotalCount);
         await Assert.That(withoutSpace.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task ProfileUpdatesAndConsumptionStatisticsUseCanonicalPaths()
+    {
+        var user = await CreateUserAsync("actor");
+        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var spaceId = await dbContext.UserSpaces.Where(link => link.UserId == user.Id).Select(link => link.SpaceId).SingleAsync();
+
+        using var update = await host.Client.PutAsJsonAsync("/api/users/me", new UpdateUserRequest("Updated actor", null, null, null), Json);
+        using var statistics = await host.Client.GetAsync($"/api/spaces/{spaceId}/consumptions/statistics?year=2026&month=October");
+        using var previousUpdate = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest("Previous route", null, null, null), Json);
+        using var previousStatistics = await host.Client.GetAsync($"/api/spaces/{spaceId}/consumptions/stats?year=2026&month=October");
+
+        await Assert.That(update.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(statistics.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(previousUpdate.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(previousStatistics.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(await dbContext.Users.Where(item => item.Id == user.Id).Select(item => item.Name).SingleAsync()).IsEqualTo("Updated actor");
     }
 
     [Test]

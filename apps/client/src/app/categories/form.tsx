@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createCategoryMutationOptions, updateCategoryMutationOptions } from '@kijk/api/categories/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import type { Category } from '@kijk/api/categories/types';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
@@ -23,8 +23,8 @@ interface Props {
 /** Form to create a custom category, or to edit `initialData` when given. */
 export function CategoryForm({ initialData, onClose }: Props) {
   const spaceId = useSpaceId();
-  const createMutation = useMutation(createCategoryMutationOptions(spaceId));
-  const updateMutation = useMutation(updateCategoryMutationOptions(spaceId));
+  const createMutation = useMutation(categoriesOptions.createMutationOptions(spaceId));
+  const updateMutation = useMutation(categoriesOptions.updateMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const form = useForm<CategoryFormValues>({
     defaultValues: {

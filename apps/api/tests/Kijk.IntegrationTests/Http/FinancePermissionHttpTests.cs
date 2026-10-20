@@ -3,12 +3,13 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Kijk.Application.Accounts.Create;
-using Kijk.Application.Budgets.Create;
+using Kijk.Application.Budgets.SetFromMonth;
 using Kijk.Application.Budgets.Shared;
 using Kijk.Application.Budgets.Statistics;
 using Kijk.Application.Categories.Create;
 using Kijk.Application.Transactions.Categorize;
-using Kijk.Application.Transactions.Create;
+using Kijk.Application.Transactions.CategorizeMany;
+using Kijk.Application.Transactions.Record;
 using Kijk.Application.Transactions.Shared;
 using Kijk.Application.Transactions.Update;
 using Kijk.Domain.Authorization;
@@ -79,7 +80,7 @@ public class FinancePermissionHttpTests
     {
         var fixture = await CreateFixtureAsync(role);
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new CreateBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 11, 15), true));
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new SetBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 11, 15), true));
 
         await Assert.That(response.StatusCode).IsEqualTo(expected);
     }
@@ -110,11 +111,65 @@ public class FinancePermissionHttpTests
     }
 
     [Test]
+    [Arguments(Visibility.Shared)]
+    [Arguments(Visibility.Private)]
+    public async Task SettingBudgetUpdatesTheSameMonthAndPreservesOtherVersions(Visibility visibility)
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var path = $"/api/spaces/{fixture.Account.SpaceId}/budgets";
+        using var first = await host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 10, 15), true, visibility), Json);
+        first.EnsureSuccessStatusCode();
+        var created = (await first.Content.ReadFromJsonAsync<BudgetResponse>(Json))!;
+        using var future = await host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 600m, new DateOnly(2026, 11, 1), true, visibility), Json);
+        future.EnsureSuccessStatusCode();
+        using var repeat = await host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 450m, new DateOnly(2026, 10, 31), false, visibility), Json);
+        repeat.EnsureSuccessStatusCode();
+        var updated = (await repeat.Content.ReadFromJsonAsync<BudgetResponse>(Json))!;
+
+        await Assert.That(updated.Id).IsEqualTo(created.Id);
+        await Assert.That(updated.ValidFrom).IsEqualTo(new DateOnly(2026, 10, 1));
+        await Assert.That(updated.Amount).IsEqualTo(450m);
+        await Assert.That(updated.Active).IsFalse();
+        await Assert.That(updated.Visibility).IsEqualTo(visibility);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var versions = await verification.Budgets.Where(item => item.SpaceId == fixture.Account.SpaceId).OrderBy(item => item.ValidFrom).ToListAsync();
+        await Assert.That(versions.Count).IsEqualTo(3);
+        await Assert.That(versions[0].Amount).IsEqualTo(300m);
+        await Assert.That(versions[2].Amount).IsEqualTo(600m);
+    }
+
+    [Test]
+    public async Task ConcurrentBudgetSavesCannotCreateDuplicateVersions()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var path = $"/api/spaces/{fixture.Account.SpaceId}/budgets";
+        var responses = await Task.WhenAll(
+            host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 10, 1), true), Json),
+            host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 500m, new DateOnly(2026, 10, 1), true), Json));
+        try
+        {
+            await Assert.That(responses.Any(response => response.StatusCode == HttpStatusCode.OK)).IsTrue();
+            await Assert.That(responses.All(response => response.StatusCode is HttpStatusCode.OK or HttpStatusCode.Conflict)).IsTrue();
+            await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+            await Assert.That(await verification.Budgets.CountAsync(item => item.SpaceId == fixture.Account.SpaceId && item.ValidFrom.Month == 10)).IsEqualTo(1);
+        }
+        finally
+        {
+            foreach (var response in responses)
+            {
+                response.Dispose();
+            }
+        }
+    }
+
+    [Test]
     public async Task BudgetsCanOnlyBeSetForExpenseCategories()
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new CreateBudgetRequest(IncomeId, 100m, new DateOnly(2026, 10, 1), true));
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new SetBudgetRequest(IncomeId, 100m, new DateOnly(2026, 10, 1), true));
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }

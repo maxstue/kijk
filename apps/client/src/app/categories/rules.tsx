@@ -1,4 +1,4 @@
-import { categoryRulesQueryOptions } from '@kijk/api/category-rules/options';
+import * as categoryRulesOptions from '@kijk/api/category-rules/options';
 import type { CategoryRule } from '@kijk/api/category-rules/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
@@ -62,7 +62,7 @@ const getRuleColumns = (canRecord: boolean): Array<ColumnDef<DataTableFeatures, 
 export function CategoryRulesSection() {
   const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
-  const { data: rules } = useSuspenseQuery(categoryRulesQueryOptions(spaceId));
+  const { data: rules } = useSuspenseQuery(categoryRulesOptions.listQueryOptions(spaceId));
   const columns = getRuleColumns(canRecord);
 
   return (

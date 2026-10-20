@@ -1,6 +1,6 @@
-import { categoryRuleSuggestionsQueryOptions } from '@kijk/api/category-rules/options';
+import * as categoryRulesOptions from '@kijk/api/category-rules/options';
 import type { CategoryRuleSuggestion } from '@kijk/api/category-rules/types';
-import { categorizeTransactionMutationOptions } from '@kijk/api/transactions/options';
+import * as transactionsOptions from '@kijk/api/transactions/options';
 import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -38,7 +38,7 @@ function writeHidden(ids: string[]) {
  */
 export function RuleSuggestions({ canRecord }: { canRecord: boolean }) {
   const spaceId = useSpaceId();
-  const { data } = useQuery(categoryRuleSuggestionsQueryOptions(spaceId));
+  const { data } = useQuery(categoryRulesOptions.suggestionsQueryOptions(spaceId));
   const [hidden, setHidden] = useState(readHidden);
   const hiddenIds = new Set(hidden);
   const visible = (data ?? []).filter((suggestion) => !hiddenIds.has(suggestion.id));
@@ -88,7 +88,7 @@ function SuggestionRow({
   suggestion: CategoryRuleSuggestion;
 }) {
   const spaceId = useSpaceId();
-  const categorizeMutation = useMutation(categorizeTransactionMutationOptions(spaceId));
+  const categorizeMutation = useMutation(transactionsOptions.categorizeMutationOptions(spaceId));
   const uncategorized = Number(suggestion.uncategorizedCount);
 
   function onRemember() {

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { Switch } from '@kijk/ui/components/switch';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -24,8 +24,8 @@ type PrivacyFormValues = z.infer<typeof privacyFormSchema>;
 
 /** Info and privacy settings, including the analytics consent. */
 export function InfoSection() {
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const { mutate, isPending } = useMutation(updateUserMutationOptions());
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
+  const { mutate, isPending } = useMutation(usersOptions.updateMutationOptions());
   const form = useForm<PrivacyFormValues>({
     resolver: zodResolver(privacyFormSchema),
     values: {

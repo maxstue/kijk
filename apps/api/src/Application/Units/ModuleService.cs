@@ -1,7 +1,11 @@
+using Kijk.Application.Units.Archive;
 using Kijk.Application.Units.Create;
-using Kijk.Application.Units.GetAll;
-using Kijk.Application.Units.Manage;
+using Kijk.Application.Units.Delete;
+using Kijk.Application.Units.List;
+using Kijk.Application.Units.RemoveFromSpace;
+using Kijk.Application.Units.Restore;
 using Kijk.Application.Units.Shared;
+using Kijk.Application.Units.ShareWithSpace;
 using Kijk.Application.Units.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,10 +17,14 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<CreateUnitHandler>();
-        services.AddScoped<GetAllUnitsHandler>();
-        services.AddScoped<ManageUnitHandler>();
-        services.AddScoped<UpdateUnitHandler>();
+        services.AddScoped<CreateHandler>();
+        services.AddScoped<ListHandler>();
+        services.AddScoped<ArchiveHandler>();
+        services.AddScoped<RestoreHandler>();
+        services.AddScoped<ShareWithSpaceHandler>();
+        services.AddScoped<RemoveFromSpaceHandler>();
+        services.AddScoped<DeleteHandler>();
+        services.AddScoped<UpdateHandler>();
         services.AddScoped<IUnitConversionService, UnitsNetConversionService>();
 
         return services;

@@ -1,6 +1,6 @@
-import { importsQueryOptions } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
@@ -16,7 +16,7 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 /** Import history with entry points for the wizard and space settings. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/')({
   loader: async ({ params: { spaceId }, context: { queryClient } }) => {
-    await queryClient.query({ ...importsQueryOptions(spaceId), staleTime: 'static' });
+    await queryClient.query({ ...importsOptions.listQueryOptions(spaceId), staleTime: 'static' });
   },
   component: ImportsPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
 function ImportsPage() {
   const spaceId = useSpaceId();
   const canImport = useSpacePermission(SpacePermissions.finances.import);
-  const { data } = useSuspenseQuery(currentUserQueryOptions());
+  const { data } = useSuspenseQuery(usersOptions.meQueryOptions());
   const activeSpace = data.user?.spaces?.find((space) => space.id === spaceId);
 
   return (

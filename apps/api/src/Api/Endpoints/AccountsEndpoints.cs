@@ -3,7 +3,7 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Accounts.Create;
 using Kijk.Application.Accounts.Delete;
-using Kijk.Application.Accounts.Get;
+using Kijk.Application.Accounts.List;
 using Kijk.Application.Accounts.Shared;
 using Kijk.Application.Accounts.Update;
 using Kijk.Domain.Authorization;
@@ -24,42 +24,42 @@ public sealed class AccountsEndpoints : IEndpointGroup
             .WithTags("Accounts")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the accounts of the active space");
-        group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account; shared accounts additionally require finances:configure");
-        group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<UpdateAccountRequest>().WithSummary("Updates an account; shared accounts additionally require finances:configure");
-        group.MapDelete("/{id:guid}", Delete).RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Deletes an account without transactions; shared accounts additionally require finances:configure");
+        group.MapGet("/", List).WithName("Accounts.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the accounts of the active space");
+        group.MapPost("/", Create).WithName("Accounts.Create").RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account; shared accounts additionally require finances:configure");
+        group.MapPut("/{id:guid}", Update).WithName("Accounts.Update").RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<UpdateAccountRequest>().WithSummary("Updates an account; shared accounts additionally require finances:configure");
+        group.MapDelete("/{id:guid}", Delete).WithName("Accounts.Delete").RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Deletes an account without transactions; shared accounts additionally require finances:configure");
 
         return builder;
     }
 
-    private static async Task<Results<Ok<List<AccountResponse>>, ProblemHttpResult>> GetAll(GetAccountsHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<List<AccountResponse>>, ProblemHttpResult>> List(ListHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.GetAllAsync(cancellationToken);
+        var result = await handler.HandleAsync(cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
     private static async Task<Results<Ok<AccountResponse>, ProblemHttpResult>> Create(
         CreateAccountRequest request,
-        CreateAccountHandler handler,
+        CreateHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.CreateAsync(request, cancellationToken);
+        var result = await handler.HandleAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
     private static async Task<Results<Ok<AccountResponse>, ProblemHttpResult>> Update(
         Guid id,
         UpdateAccountRequest request,
-        UpdateAccountHandler handler,
+        UpdateHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.UpdateAsync(id, request, cancellationToken);
+        var result = await handler.HandleAsync(id, request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
-    private static async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid id, DeleteAccountHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid id, DeleteHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.DeleteAsync(id, cancellationToken);
+        var result = await handler.HandleAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 }

@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { updateCategoryMutationOptions } from './options';
-import { updateCategory } from './requests';
+import { updateMutationOptions } from './options';
+import { update } from './requests';
 
 vi.mock('./requests', { spy: true });
 
@@ -15,10 +15,10 @@ test('renaming a category refreshes import review rows and previews', async () =
   }
   const other = queryKeys.imports.aiPreview('other', 'import');
   client.setQueryData(other, []);
-  vi.mocked(updateCategory).mockResolvedValue({ id: 'category' } as Awaited<ReturnType<typeof updateCategory>>);
+  vi.mocked(update).mockResolvedValue({ id: 'category' } as Awaited<ReturnType<typeof update>>);
   await client
     .getMutationCache()
-    .build(client, updateCategoryMutationOptions('space'))
+    .build(client, updateMutationOptions('space'))
     .execute({
       id: 'category',
       data: { name: 'New name', color: '#112233', icon: 'circle', kind: 'Expense' },

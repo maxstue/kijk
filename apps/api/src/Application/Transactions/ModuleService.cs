@@ -1,8 +1,9 @@
 using Kijk.Application.Transactions.Categorize;
-using Kijk.Application.Transactions.Create;
+using Kijk.Application.Transactions.CategorizeMany;
 using Kijk.Application.Transactions.Delete;
 using Kijk.Application.Transactions.Export;
-using Kijk.Application.Transactions.Get;
+using Kijk.Application.Transactions.Queries;
+using Kijk.Application.Transactions.Record;
 using Kijk.Application.Transactions.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,13 +15,13 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<CategorizeTransactionHandler>();
-        services.AddScoped<CategorizeTransactionsHandler>();
-        services.AddScoped<CreateTransactionHandler>();
-        services.AddScoped<DeleteTransactionHandler>();
-        services.AddScoped<ExportTransactionsHandler>();
-        services.AddScoped<GetTransactionsHandler>();
-        services.AddScoped<UpdateTransactionHandler>();
+        services.AddScoped<CategorizeHandler>();
+        services.AddScoped<CategorizeManyHandler>();
+        services.AddScoped<RecordHandler>();
+        services.AddScoped<DeleteHandler>();
+        services.AddScoped<ExportHandler>();
+        services.AddScoped<QueriesHandler>();
+        services.AddScoped<UpdateHandler>();
 
         return services;
     }

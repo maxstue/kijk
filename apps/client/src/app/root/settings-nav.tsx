@@ -1,4 +1,4 @@
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -17,7 +17,7 @@ import { settingsNavGroups } from '@/shared/navigation/settings';
 /** Sidebar navigation of the settings pages, including one entry per space. */
 export function SettingsNav() {
   const spaceId = useNavigationSpaceId();
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const spaces = currentAccount?.user?.spaces ?? [];
   return (
     <>

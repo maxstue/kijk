@@ -14,34 +14,6 @@ namespace Kijk.Application.Users.Delete;
 public sealed record DeleteUserAccount(Guid UserId, string AuthId);
 
 /// <summary>
-/// Starts deleting the current user's account and all their data. The deletion itself runs as a durable background
-/// job, so a restart neither loses nor repeats half of it.
-/// </summary>
-public sealed class RequestAccountDeletionHandler(IAppDbContext dbContext, CurrentUser currentUser, IJobQueue queue, TimeProvider timeProvider)
-{
-    /// <summary>Queues the deletion. Asking again while it runs has no further effect.</summary>
-    /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns><see langword="true" /> when queued, or a not-found error.</returns>
-    public async Task<Result<bool>> RequestAsync(CancellationToken cancellationToken)
-    {
-        var user = await dbContext.Users.FirstOrDefaultAsync(item => item.Id == currentUser.Id, cancellationToken);
-        if (user is null)
-        {
-            return Error.NotFound("User not found");
-        }
-
-        if (user.DeletionRequestedAt is not null)
-        {
-            return true;
-        }
-
-        user.RequestDeletion(timeProvider.GetUtcNow().UtcDateTime);
-        await queue.SaveChangesAndEnqueueAsync(new DeleteUserAccount(user.Id, user.AuthId), cancellationToken);
-        return true;
-    }
-}
-
-/// <summary>
 /// Deletes a user and everything that belongs only to them: their personal space, shared spaces they are the only
 /// member of, their private accounts, transactions, imports, budgets and rules, their unused units and their identity
 /// at the authentication provider. Shared data they created stays in the space for the other members and is

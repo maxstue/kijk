@@ -1,8 +1,8 @@
-using Kijk.Application.Budgets.Create;
-using Kijk.Application.Budgets.Delete;
-using Kijk.Application.Budgets.Get;
+using Kijk.Application.Budgets.DeleteVersion;
+using Kijk.Application.Budgets.Queries;
+using Kijk.Application.Budgets.SetFromMonth;
 using Kijk.Application.Budgets.Statistics;
-using Kijk.Application.Budgets.Update;
+using Kijk.Application.Budgets.UpdateVersion;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Budgets;
@@ -13,11 +13,11 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<CreateBudgetHandler>();
-        services.AddScoped<DeleteBudgetHandler>();
-        services.AddScoped<GetBudgetsHandler>();
-        services.AddScoped<GetBudgetStatisticsHandler>();
-        services.AddScoped<UpdateBudgetHandler>();
+        services.AddScoped<SetFromMonthHandler>();
+        services.AddScoped<DeleteVersionHandler>();
+        services.AddScoped<QueriesHandler>();
+        services.AddScoped<StatisticsHandler>();
+        services.AddScoped<UpdateVersionHandler>();
 
         return services;
     }

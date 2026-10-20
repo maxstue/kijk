@@ -1,8 +1,9 @@
-using Kijk.Application.Users.DefaultSpace;
+using Kijk.Application.Users.CompleteOnboarding;
 using Kijk.Application.Users.Delete;
-using Kijk.Application.Users.GetMe;
+using Kijk.Application.Users.Me;
+using Kijk.Application.Users.RequestDeletion;
+using Kijk.Application.Users.SetDefaultSpace;
 using Kijk.Application.Users.Update;
-using Kijk.Application.Users.Welcome;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Users;
@@ -14,11 +15,11 @@ public sealed class ModuleService : IModule
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         services.AddScoped<AccountEraser>();
-        services.AddScoped<RequestAccountDeletionHandler>();
+        services.AddScoped<RequestDeletionHandler>();
         services.AddScoped<SetDefaultSpaceHandler>();
-        services.AddScoped<GetMeUserHandler>();
-        services.AddScoped<UpdateUserHandler>();
-        services.AddScoped<WelcomeUserHandler>();
+        services.AddScoped<MeHandler>();
+        services.AddScoped<UpdateHandler>();
+        services.AddScoped<CompleteOnboardingHandler>();
 
         return services;
     }

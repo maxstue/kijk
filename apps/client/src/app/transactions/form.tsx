@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { accountsQueryOptions } from '@kijk/api/accounts/options';
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
-import { createTransactionMutationOptions, updateTransactionMutationOptions } from '@kijk/api/transactions/options';
+import * as accountsOptions from '@kijk/api/accounts/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
+import * as transactionsOptions from '@kijk/api/transactions/options';
 import type { Transaction } from '@kijk/api/transactions/types';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
@@ -33,8 +33,8 @@ interface FormComponentProps {
 /** Form to record a transaction, or to edit `initialData` when given. */
 export function TransactionForm({ initialData, onClose }: Props) {
   const spaceId = useSpaceId();
-  const createMutation = useMutation(createTransactionMutationOptions(spaceId));
-  const updateMutation = useMutation(updateTransactionMutationOptions(spaceId));
+  const createMutation = useMutation(transactionsOptions.recordMutationOptions(spaceId));
+  const updateMutation = useMutation(transactionsOptions.updateMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const submitLabel = initialData ? 'Update transaction' : 'Record transaction';
   const form = useForm<TransactionFormValues>({
@@ -178,7 +178,7 @@ function DirectionField({ form }: FormComponentProps) {
 
 function CategoryField({ form }: FormComponentProps) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
+  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
 
   return (
     <FormField
@@ -218,7 +218,7 @@ function CategoryField({ form }: FormComponentProps) {
 
 function AccountField({ form }: FormComponentProps) {
   const spaceId = useSpaceId();
-  const { data: accounts } = useSuspenseQuery(accountsQueryOptions(spaceId));
+  const { data: accounts } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
 
   return (
     <FormField

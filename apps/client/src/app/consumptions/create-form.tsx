@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createConsumptionMutationOptions } from '@kijk/api/consumptions/options';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
@@ -40,7 +40,7 @@ interface Props {
 export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
   const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
-  const { isPending, mutate } = useMutation(createConsumptionMutationOptions(spaceId));
+  const { isPending, mutate } = useMutation(consumptionsOptions.recordMutationOptions(spaceId));
   const { month, year } = route.useSearch();
 
   const creationDate = new Date(`${Number(year)}-${getMonthNumber(month)}-${new Date().getDate()}`);

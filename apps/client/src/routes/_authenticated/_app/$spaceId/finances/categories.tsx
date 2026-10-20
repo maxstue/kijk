@@ -1,5 +1,5 @@
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
-import { categoryRulesQueryOptions } from '@kijk/api/category-rules/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
+import * as categoryRulesOptions from '@kijk/api/category-rules/options';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
 import { createFileRoute } from '@tanstack/react-router';
 import { Sparkles, Tags } from 'lucide-react';
@@ -15,8 +15,8 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/categories')({
   loader: async ({ params: { spaceId }, context: { queryClient } }) => {
     await Promise.all([
-      queryClient.query({ ...categoriesQueryOptions(spaceId), staleTime: 'static' }),
-      queryClient.query({ ...categoryRulesQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...categoriesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...categoryRulesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   component: CategoriesPage,

@@ -1,4 +1,4 @@
-import { confirmImportMappingMutationOptions, importPreviewQueryOptions } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import type { CsvImportMapping, ImportJob, ImportPreview } from '@kijk/api/imports/types';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -38,7 +38,7 @@ export function ImportMappingStep({
     ? { delimiter: mapping.delimiter, encoding: mapping.encoding, headerRowIndex: Number(mapping.headerRowIndex) }
     : {};
   const { data: preview, isFetching } = useQuery({
-    ...importPreviewQueryOptions(spaceId, job.id, format),
+    ...importsOptions.filePreviewQueryOptions(spaceId, job.id, format),
     placeholderData: keepPreviousData,
   });
 
@@ -60,7 +60,7 @@ interface MappingCardProps {
 
 function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardProps) {
   const spaceId = useSpaceId();
-  const confirmMutation = useMutation(confirmImportMappingMutationOptions(spaceId, job.id));
+  const confirmMutation = useMutation(importsOptions.confirmMappingMutationOptions(spaceId, job.id));
   const roles = getColumnRoles(mapping);
   const missing = getMissingMappingFields(mapping);
 

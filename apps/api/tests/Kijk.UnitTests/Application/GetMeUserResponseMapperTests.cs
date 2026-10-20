@@ -1,4 +1,4 @@
-using Kijk.Application.Users.GetMe;
+using Kijk.Application.Users.Me;
 using Kijk.Domain.Entities;
 
 namespace Kijk.UnitTests.Application;

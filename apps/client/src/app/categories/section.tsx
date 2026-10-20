@@ -1,4 +1,4 @@
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 export function CategoriesSection() {
   const spaceId = useSpaceId();
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
+  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const columns = getCategoryColumns(canConfigure);
 
   return (

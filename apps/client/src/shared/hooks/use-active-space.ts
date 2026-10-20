@@ -1,4 +1,4 @@
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
@@ -13,14 +13,14 @@ export function useSpaceId() {
 /** Returns the current user's membership of the space in the URL, or `undefined` outside a space or while loading. */
 export function useActiveSpace() {
   const { spaceId } = useParams({ strict: false });
-  const { data } = useQuery(currentUserQueryOptions());
+  const { data } = useQuery(usersOptions.meQueryOptions());
   return data?.user?.spaces?.find((entry) => entry.id === spaceId);
 }
 
 /** Space for app navigation, including when account settings have no space in their URL. */
 export function useNavigationSpaceId() {
   const { spaceId } = useParams({ strict: false });
-  const { data } = useQuery(currentUserQueryOptions());
+  const { data } = useQuery(usersOptions.meQueryOptions());
   return (
     spaceId ??
     (data && isReadyCurrentUser(data) ? (getLastSpace(data.user) ?? getStartSpace(data.user))?.id : undefined)

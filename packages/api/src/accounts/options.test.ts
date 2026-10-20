@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { updateAccountMutationOptions } from './options';
-import { updateAccount } from './requests';
+import { updateMutationOptions } from './options';
+import { update } from './requests';
 
 vi.mock('./requests', { spy: true });
 
@@ -13,10 +13,10 @@ test('renaming an account refreshes its name in imports', async () => {
   const other = queryKeys.imports.detail('other', 'import');
   client.setQueryData(selected, { accountName: 'Old name' });
   client.setQueryData(other, { accountName: 'Other' });
-  vi.mocked(updateAccount).mockResolvedValue({ id: 'account' } as Awaited<ReturnType<typeof updateAccount>>);
+  vi.mocked(update).mockResolvedValue({ id: 'account' } as Awaited<ReturnType<typeof update>>);
   await client
     .getMutationCache()
-    .build(client, updateAccountMutationOptions('space'))
+    .build(client, updateMutationOptions('space'))
     .execute({
       id: 'account',
       data: { name: 'New name', ibanLast4: null, visibility: null },

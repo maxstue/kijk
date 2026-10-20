@@ -1,5 +1,5 @@
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
-import { importQueryOptions } from '@kijk/api/imports/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { ImportDetail } from '@/app/imports/import-detail';
@@ -10,8 +10,11 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/$importId')({
   loader: async ({ context: { queryClient }, params }) => {
     await Promise.all([
-      queryClient.query({ ...importQueryOptions(params.spaceId, params.importId), staleTime: 'static' }),
-      queryClient.query({ ...categoriesQueryOptions(params.spaceId), staleTime: 'static' }),
+      queryClient.query({
+        ...importsOptions.detailsQueryOptions(params.spaceId, params.importId),
+        staleTime: 'static',
+      }),
+      queryClient.query({ ...categoriesOptions.listQueryOptions(params.spaceId), staleTime: 'static' }),
     ]);
   },
   component: ImportPage,

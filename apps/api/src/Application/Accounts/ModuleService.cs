@@ -1,6 +1,6 @@
 using Kijk.Application.Accounts.Create;
 using Kijk.Application.Accounts.Delete;
-using Kijk.Application.Accounts.Get;
+using Kijk.Application.Accounts.List;
 using Kijk.Application.Accounts.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,10 +12,10 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<CreateAccountHandler>();
-        services.AddScoped<DeleteAccountHandler>();
-        services.AddScoped<GetAccountsHandler>();
-        services.AddScoped<UpdateAccountHandler>();
+        services.AddScoped<CreateHandler>();
+        services.AddScoped<DeleteHandler>();
+        services.AddScoped<ListHandler>();
+        services.AddScoped<UpdateHandler>();
 
         return services;
     }

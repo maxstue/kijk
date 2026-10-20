@@ -13,21 +13,21 @@ import type {
 } from './types';
 
 /** Loads the latest imports of the active space. */
-export async function getImports(spaceId: string, signal?: AbortSignal) {
+export async function list(spaceId: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/imports', { params: { path: { spaceId } }, signal }),
   );
 }
 
 /** Loads an import. */
-export async function getImport(spaceId: string, id: string, signal?: AbortSignal) {
+export async function getDetails(spaceId: string, id: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/imports/{id}', { params: { path: { spaceId, id } }, signal }),
   );
 }
 
 /** Loads the first rows of an uploaded file, optionally with another format. */
-export async function getImportPreview(spaceId: string, id: string, query: ImportPreviewParams, signal?: AbortSignal) {
+export async function getFilePreview(spaceId: string, id: string, query: ImportPreviewParams, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/imports/{id}/preview', {
       params: { path: { spaceId, id }, query },
@@ -37,7 +37,7 @@ export async function getImportPreview(spaceId: string, id: string, query: Impor
 }
 
 /** Loads the rows of an import waiting for review. */
-export async function getImportCandidates(
+export async function getCandidates(
   spaceId: string,
   id: string,
   query: ImportCandidatesQuery = {},
@@ -52,7 +52,7 @@ export async function getImportCandidates(
 }
 
 /** Uploads a bank export as multipart form data and starts its import. */
-export async function createImport(spaceId: string, data: CreateImportData) {
+export async function start(spaceId: string, data: CreateImportData) {
   const form = new FormData();
   form.append('accountId', data.accountId);
   form.append('file', data.file);
@@ -66,7 +66,7 @@ export async function createImport(spaceId: string, data: CreateImportData) {
 }
 
 /** Confirms the column mapping and starts reading the file. */
-export async function confirmImportMapping(spaceId: string, id: string, mapping: CsvImportMapping) {
+export async function confirmMapping(spaceId: string, id: string, mapping: CsvImportMapping) {
   return unwrapApiResponse(
     await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/mapping', {
       body: mapping,
@@ -76,7 +76,7 @@ export async function confirmImportMapping(spaceId: string, id: string, mapping:
 }
 
 /** Changes the category or exclusion of a row during the review. */
-export async function updateImportCandidate(spaceId: string, data: UpdateImportCandidateData) {
+export async function updateCandidate(spaceId: string, data: UpdateImportCandidateData) {
   return unwrapApiResponse(
     await apiClient().PUT('/api/spaces/{spaceId}/imports/{id}/candidates/{candidateId}', {
       body: data.candidate,
@@ -86,7 +86,7 @@ export async function updateImportCandidate(spaceId: string, data: UpdateImportC
 }
 
 /** Replaces the account's transactions in the covered months with the reviewed rows. */
-export async function commitImport(spaceId: string, id: string, data: CommitImportRequest) {
+export async function commit(spaceId: string, id: string, data: CommitImportRequest) {
   return unwrapApiResponse(
     await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/commit', {
       body: data,
@@ -96,28 +96,28 @@ export async function commitImport(spaceId: string, id: string, data: CommitImpo
 }
 
 /** Cancels an open import and deletes its file. */
-export async function cancelImport(spaceId: string, id: string) {
+export async function cancel(spaceId: string, id: string) {
   return unwrapApiResponse(
     await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/cancel', { params: { path: { spaceId, id } } }),
   );
 }
 
 /** Loads the import settings of a space. */
-export async function getImportSettings(spaceId: string, signal?: AbortSignal) {
+export async function getSettings(spaceId: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/imports/settings', { params: { path: { spaceId } }, signal }),
   );
 }
 
 /** Changes the import settings of a space. */
-export async function updateImportSettings(spaceId: string, data: UpdateImportSettingsRequest) {
+export async function updateSettings(spaceId: string, data: UpdateImportSettingsRequest) {
   return unwrapApiResponse(
     await apiClient().PUT('/api/spaces/{spaceId}/imports/settings', { params: { path: { spaceId } }, body: data }),
   );
 }
 
 /** Starts the AI categorization of the rows without a category. */
-export async function categorizeImport(spaceId: string, id: string, data: CategorizeImportRequest) {
+export async function startCategorization(spaceId: string, id: string, data: CategorizeImportRequest) {
   return unwrapApiResponse(
     await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/categorize', {
       body: data,
@@ -127,7 +127,7 @@ export async function categorizeImport(spaceId: string, id: string, data: Catego
 }
 
 /** Loads exactly the texts the AI categorization of an import would send. */
-export async function getImportAiPreview(spaceId: string, id: string, signal?: AbortSignal) {
+export async function getAiDataPreview(spaceId: string, id: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/imports/{id}/ai-preview', {
       params: { path: { spaceId, id } },

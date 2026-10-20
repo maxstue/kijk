@@ -2,56 +2,49 @@ import { invalidate } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { keepPreviousData, mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import {
-  createBudget,
-  deleteBudget,
-  getBudgetOverview,
-  getBudgetStatistics,
-  getBudgets,
-  updateBudget,
-} from './requests';
-import type { CreateBudgetRequest, UpdateBudgetData } from './types';
+import { setFromMonth, deleteVersion, getOverview, getStatistics, listVersions, updateVersion } from './requests';
+import type { SetBudgetRequest, UpdateBudgetData } from './types';
 
 /** Query for all budget versions of the active space. */
-export const budgetsQueryOptions = (spaceId: string) =>
+export const versionsQueryOptions = (spaceId: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getBudgets(spaceId, signal),
+    queryFn: ({ signal }) => listVersions(spaceId, signal),
     queryKey: queryKeys.budgets.list(spaceId),
   });
 
 /** Query for the budget evaluation of a month (`month` is 1-12). */
-export const budgetOverviewQueryOptions = (spaceId: string, year: number, month: number) =>
+export const overviewQueryOptions = (spaceId: string, year: number, month: number) =>
   queryOptions({
     placeholderData: keepPreviousData,
-    queryFn: ({ signal }) => getBudgetOverview(spaceId, year, month, signal),
+    queryFn: ({ signal }) => getOverview(spaceId, year, month, signal),
     queryKey: queryKeys.budgets.overview(spaceId, year, month),
   });
 
 /** Query for the spending per category over `months` months that end with the given month. */
-export const budgetStatisticsQueryOptions = (spaceId: string, year: number, month: number, months: number) =>
+export const statisticsQueryOptions = (spaceId: string, year: number, month: number, months: number) =>
   queryOptions({
     placeholderData: keepPreviousData,
-    queryFn: ({ signal }) => getBudgetStatistics(spaceId, year, month, months, signal),
+    queryFn: ({ signal }) => getStatistics(spaceId, year, month, months, signal),
     queryKey: queryKeys.budgets.statistics(spaceId, year, month, months),
   });
 
-/** Mutation that creates a budget. */
-export const createBudgetMutationOptions = (spaceId: string) =>
+/** Mutation that sets the budget of a category from a month on. */
+export const setFromMonthMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CreateBudgetRequest) => createBudget(spaceId, data),
+    mutationFn: (data: SetBudgetRequest) => setFromMonth(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.budgets.all(spaceId)),
   });
 
 /** Mutation that updates a budget. */
-export const updateBudgetMutationOptions = (spaceId: string) =>
+export const updateVersionMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: UpdateBudgetData) => updateBudget(spaceId, data),
+    mutationFn: (data: UpdateBudgetData) => updateVersion(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.budgets.all(spaceId)),
   });
 
 /** Mutation that deletes a budget. */
-export const deleteBudgetMutationOptions = (spaceId: string) =>
+export const deleteVersionMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (id: string) => deleteBudget(spaceId, id),
+    mutationFn: (id: string) => deleteVersion(spaceId, id),
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.budgets.all(spaceId)),
   });

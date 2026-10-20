@@ -1,4 +1,4 @@
-import { changeSpaceMemberRoleMutationOptions } from '@kijk/api/spaces/options';
+import * as spacesOptions from '@kijk/api/spaces/options';
 import type { SpaceMember, SpaceRole } from '@kijk/api/spaces/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { useMutation } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ interface Props {
 
 /** Select that changes another member's role right away. */
 export function MemberRoleSelect({ spaceId, member, roles }: Props) {
-  const changeRoleMutation = useMutation(changeSpaceMemberRoleMutationOptions());
+  const changeRoleMutation = useMutation(spacesOptions.changeMemberRoleMutationOptions());
 
   function changeRole(roleId: string) {
     if (roleId === member.role.id) {

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createLimitMutationOptions, updateLimitMutationOptions } from '@kijk/api/limits/options';
+import * as limitsOptions from '@kijk/api/limits/options';
 import type { Limit } from '@kijk/api/limits/types';
-import { resourcesQueryOptions } from '@kijk/api/resources/options';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
@@ -47,9 +47,9 @@ const createDefaultValues: LimitFormValues = {
 export function LimitForm({ initialData, onClose }: Props) {
   const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
-  const createMutation = useMutation(createLimitMutationOptions(spaceId));
-  const updateMutation = useMutation(updateLimitMutationOptions(spaceId));
-  const { data: resources } = useSuspenseQuery(resourcesQueryOptions(spaceId));
+  const createMutation = useMutation(limitsOptions.createMutationOptions(spaceId));
+  const updateMutation = useMutation(limitsOptions.updateMutationOptions(spaceId));
+  const { data: resources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const form = useForm<LimitFormValues>({
     defaultValues: initialData ? getUpdateDefaultValues(initialData) : createDefaultValues,

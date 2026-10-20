@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { shareUnitMutationOptions, updateUnitMutationOptions } from './options';
-import { shareUnit, updateUnit } from './requests';
+import { shareWithSpaceMutationOptions, updateMutationOptions } from './options';
+import { shareWithSpace, update } from './requests';
 
 vi.mock('./requests', { spy: true });
 
@@ -15,10 +15,10 @@ test('sharing a unit refreshes that space and personal units while retaining oth
   for (const key of [personal, selected, other]) {
     client.setQueryData(key, []);
   }
-  vi.mocked(shareUnit).mockResolvedValue();
+  vi.mocked(shareWithSpace).mockResolvedValue();
   await client
     .getMutationCache()
-    .build(client, shareUnitMutationOptions())
+    .build(client, shareWithSpaceMutationOptions())
     .execute({ id: 'unit', spaceId: 'selected' });
   expect(client.getQueryState(personal)?.isInvalidated).toBe(true);
   expect(client.getQueryState(selected)?.isInvalidated).toBe(true);
@@ -31,10 +31,10 @@ test('renaming a shared unit refreshes limit labels in every space', async () =>
   for (const space of ['first', 'second']) {
     client.setQueryData(queryKeys.limits.list(space), []);
   }
-  vi.mocked(updateUnit).mockResolvedValue({ id: 'unit' } as Awaited<ReturnType<typeof updateUnit>>);
+  vi.mocked(update).mockResolvedValue({ id: 'unit' } as Awaited<ReturnType<typeof update>>);
   await client
     .getMutationCache()
-    .build(client, updateUnitMutationOptions())
+    .build(client, updateMutationOptions())
     .execute({
       id: 'unit',
       data: { name: 'Bucket', symbol: 'bkt', referenceUnitId: 'liter', conversionFactor: 10 },

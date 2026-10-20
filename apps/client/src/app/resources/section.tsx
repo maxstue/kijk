@@ -1,6 +1,6 @@
-import { resourcesQueryOptions } from '@kijk/api/resources/options';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -26,8 +26,8 @@ import type { Resource } from '@/shared/types/domain';
 export function ResourceTypesSection() {
   const spaceId = useSpaceId();
   const [showDialog, setShowDialog] = useState(false);
-  const { data } = useSuspenseQuery(resourcesQueryOptions(spaceId));
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const activeSpace = currentAccount?.user?.spaces?.find((space) => space.id === spaceId);
   const canManage = hasSpacePermission(activeSpace, SpacePermissions.resources.configure);
   const columns = getResourceTypeColumns(canManage);

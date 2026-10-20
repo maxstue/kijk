@@ -1,0 +1,54 @@
+using System.Globalization;
+using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Shared.Persistence;
+using Kijk.Domain.Services;
+using Kijk.Shared;
+
+namespace Kijk.Application.Consumptions.List;
+
+/// <summary>
+/// Handler for getting consumptions by year and month.
+/// </summary>
+public class ListHandler(IAppDbContext dbContext, CurrentUser currentUser)
+{
+    /// <summary>Gets the consumptions of the active space, newest first.</summary>
+    /// <param name="year">The year, or <see langword="null" /> for all years.</param>
+    /// <param name="month">The English month name, or <see langword="null" /> for all months.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The consumptions, or a validation error for an invalid month.</returns>
+    public async Task<Result<List<ConsumptionResponse>>> HandleAsync(int? year, string? month, CancellationToken cancellationToken)
+    {
+        var monthInt = -1;
+        if (month is not null)
+        {
+            if (!DateTime.TryParseExact(month, "MMMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedMonth))
+            {
+                return Error.Validation($"Month '{month}' is invalid");
+            }
+
+            monthInt = parsedMonth.Month;
+        }
+
+        var consumptions = await dbContext.Consumptions
+            .AsNoTracking()
+            .Where(x => x.SpaceId == currentUser.ActiveSpaceId)
+            .Include(x => x.Resource.Unit)
+            .ToListAsync(cancellationToken);
+
+        var calculatedMeterReadings = consumptions
+            .GroupBy(item => item.ResourceId)
+            .SelectMany(group => ConsumptionTimelineCalculator.CalculateMeterReadings(group))
+            .ToDictionary(item => item.Key, item => item.Value);
+
+        var response = consumptions
+            .Where(item => year is null || item.Date.Year == year)
+            .Where(item => monthInt == -1 || item.Date.Month == monthInt)
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.Id)
+            .Select(item => item.ToResponse() with { CalculatedMeterReading = calculatedMeterReadings[item.Id] })
+            .ToList();
+
+        return response;
+    }
+}

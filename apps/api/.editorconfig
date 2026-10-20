@@ -30,6 +30,8 @@ generated_code = true
 
 #### .NET Coding Conventions ####
 [*.cs]
+# Require useful API contract documentation without boilerplate on every handler or adapter.
+dotnet_diagnostic.CS1591.severity = none
 # Organize usings
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true
@@ -312,3 +314,7 @@ dotnet_diagnostic.CA1862.severity = suggestion
 
 # Simplify new expression
 dotnet_diagnostic.IDE0090.severity = none
+
+# Dedicated request/response files and shared API models feed the OpenAPI documentation.
+[src/Application/**/{Request,Response,Models,*Request,*Response}.cs]
+dotnet_diagnostic.CS1591.severity = error

@@ -1,8 +1,8 @@
 import { aiDataSharingLabels, purposeRetentionLabels } from '@kijk/api/imports/constants';
-import { importSettingsQueryOptions, updateImportSettingsMutationOptions } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import type { AiDataSharing, ImportSettings, PurposeRetention } from '@kijk/api/imports/types';
 import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Label } from '@kijk/ui/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
@@ -21,9 +21,9 @@ const sharingLevels = Object.keys(aiDataSharingLabels) as AiDataSharing[];
 export function SpaceImportSettings() {
   const { space } = useSpaceSettings();
   const canConfigure = hasSpacePermission(space, SpacePermissions.finances.configure);
-  const { data } = useSuspenseQuery(importSettingsQueryOptions(space.id));
-  const { data: currentUser } = useQuery(currentUserQueryOptions());
-  const updateMutation = useMutation(updateImportSettingsMutationOptions(space.id));
+  const { data } = useSuspenseQuery(importsOptions.settingsQueryOptions(space.id));
+  const { data: currentUser } = useQuery(usersOptions.meQueryOptions());
+  const updateMutation = useMutation(importsOptions.updateSettingsMutationOptions(space.id));
   const retentionId = useId();
   const sharingId = useId();
   const minimizeId = useId();

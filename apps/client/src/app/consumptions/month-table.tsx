@@ -1,4 +1,4 @@
-import { consumptionsByQueryOptions } from '@kijk/api/consumptions/options';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -21,7 +21,7 @@ export function ConsumptionMonthTable() {
   const spaceId = useSpaceId();
   const { month, year } = Route.useSearch();
 
-  const { data } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year, month));
+  const { data } = useSuspenseQuery(consumptionsOptions.listQueryOptions(spaceId, year, month));
 
   return <DataTable columns={columns} data={data} defaultSort={defaultSort} />;
 }

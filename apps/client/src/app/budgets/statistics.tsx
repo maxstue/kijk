@@ -1,4 +1,4 @@
-import { budgetStatisticsQueryOptions } from '@kijk/api/budgets/options';
+import * as budgetsOptions from '@kijk/api/budgets/options';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Chart } from '@kijk/ui/components/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
@@ -30,7 +30,7 @@ interface Trend {
 /** Spending per category over the last twelve months up to the given month, as small multiples or table. */
 export function BudgetStatistics({ month, year }: { month: number; year: number }) {
   const spaceId = useSpaceId();
-  const { data } = useQuery(budgetStatisticsQueryOptions(spaceId, year, month, monthsShown));
+  const { data } = useQuery(budgetsOptions.statisticsQueryOptions(spaceId, year, month, monthsShown));
   if (!data) {
     return null;
   }

@@ -1,4 +1,4 @@
-import { limitsQueryOptions } from '@kijk/api/limits/options';
+import * as limitsOptions from '@kijk/api/limits/options';
 import type { Limit } from '@kijk/api/limits/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { AlertDialog, AlertDialogTrigger } from '@kijk/ui/components/alert-dialog';
@@ -28,7 +28,7 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 export function LimitsSection() {
   const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
-  const { data } = useSuspenseQuery(limitsQueryOptions(spaceId));
+  const { data } = useSuspenseQuery(limitsOptions.listQueryOptions(spaceId));
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   return (

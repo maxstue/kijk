@@ -26,7 +26,7 @@ export async function getYears(spaceId: string, signal?: AbortSignal) {
  * @param signal The signal
  * @returns The list of resources
  */
-export async function getConsumptionsBy(spaceId: string, year?: string, month?: string, signal?: AbortSignal) {
+export async function list(spaceId: string, year?: string, month?: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/consumptions', {
       params: { path: { spaceId }, query: { month, year } },
@@ -36,7 +36,7 @@ export async function getConsumptionsBy(spaceId: string, year?: string, month?: 
 }
 
 /** Loads a single consumption. */
-export async function getConsumption(spaceId: string, id: string, signal?: AbortSignal) {
+export async function getDetails(spaceId: string, id: string, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().GET('/api/spaces/{spaceId}/consumptions/{id}', {
       params: { path: { spaceId, id } },
@@ -53,13 +53,13 @@ export async function getConsumption(spaceId: string, id: string, signal?: Abort
  * @param signal The signal
  * @returns The list of resources
  */
-export async function getConsumptionsStats(spaceId: string, year?: string, month?: string, signal?: AbortSignal) {
+export async function getStatistics(spaceId: string, year?: string, month?: string, signal?: AbortSignal) {
   if (!year || !month) {
     throw new Error('Year and month are required to load consumption stats.');
   }
 
   return unwrapApiResponse(
-    await apiClient().GET('/api/spaces/{spaceId}/consumptions/stats', {
+    await apiClient().GET('/api/spaces/{spaceId}/consumptions/statistics', {
       params: { path: { spaceId }, query: { month, year } },
       signal,
     }),
@@ -67,7 +67,7 @@ export async function getConsumptionsStats(spaceId: string, year?: string, month
 }
 
 /** Records a consumption; the value type defaults to an absolute meter reading. */
-export async function createConsumption(spaceId: string, data: ConsumptionData, signal?: AbortSignal) {
+export async function record(spaceId: string, data: ConsumptionData, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().POST('/api/spaces/{spaceId}/consumptions', {
       params: { path: { spaceId } },
@@ -85,12 +85,7 @@ export async function createConsumption(spaceId: string, data: ConsumptionData, 
 }
 
 /** Updates a consumption; omitted fields keep their current value. */
-export async function updateConsumption(
-  spaceId: string,
-  id: string,
-  data: Partial<ConsumptionData>,
-  signal?: AbortSignal,
-) {
+export async function update(spaceId: string, id: string, data: Partial<ConsumptionData>, signal?: AbortSignal) {
   return unwrapApiResponse(
     await apiClient().PUT('/api/spaces/{spaceId}/consumptions/{id}', {
       body: {
@@ -98,8 +93,8 @@ export async function updateConsumption(
         name: data.name ?? null,
         resourceId: data.resourceId ?? null,
         value: data.value ?? null,
-        valueType: data.valueType ?? 'Absolute',
-        startsNewMeterSegment: data.startsNewMeterSegment ?? false,
+        valueType: data.valueType ?? null,
+        startsNewMeterSegment: data.startsNewMeterSegment ?? null,
       },
       params: {
         path: { spaceId, id },
@@ -110,7 +105,7 @@ export async function updateConsumption(
 }
 
 /** Deletes a consumption. */
-export async function deleteConsumption(spaceId: string, id: string, signal?: AbortSignal) {
+export async function remove(spaceId: string, id: string, signal?: AbortSignal) {
   await apiClient().DELETE('/api/spaces/{spaceId}/consumptions/{id}', {
     params: {
       path: { spaceId, id },
@@ -120,7 +115,7 @@ export async function deleteConsumption(spaceId: string, id: string, signal?: Ab
 }
 
 /** Exports a single consumption as CSV. */
-export async function exportConsumption(spaceId: string, id: string, signal?: AbortSignal): Promise<CsvDownload> {
+export async function exportCsv(spaceId: string, id: string, signal?: AbortSignal): Promise<CsvDownload> {
   const result = await apiClient().GET('/api/spaces/{spaceId}/consumptions/{id}/export', {
     params: { path: { spaceId, id } },
     parseAs: 'blob',
@@ -137,7 +132,7 @@ export async function exportConsumption(spaceId: string, id: string, signal?: Ab
  * @param month The English month name.
  * @param signal Aborts the request.
  */
-export async function exportConsumptionMonth(
+export async function exportMonth(
   spaceId: string,
   year: number,
   month: string,

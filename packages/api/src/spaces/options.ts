@@ -2,35 +2,35 @@ import { invalidate } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import { changeSpaceMemberRole, deleteSpace, getSpaceMembers, getSpaceRoles, updateSpace } from './requests';
+import { changeMemberRole, remove, getMembers, getRoles, update } from './requests';
 import type { UpdateSpaceData } from './types';
 
 /** Query for the fixed space roles; never stale. */
-export const spaceRolesQueryOptions = () =>
+export const rolesQueryOptions = () =>
   queryOptions({
-    queryFn: ({ signal }) => getSpaceRoles(signal),
+    queryFn: ({ signal }) => getRoles(signal),
     queryKey: queryKeys.spaces.roles(),
     staleTime: Infinity,
   });
 
 /** Query for the members of a space. */
-export const spaceMembersQueryOptions = (spaceId: string) =>
+export const membersQueryOptions = (spaceId: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getSpaceMembers(spaceId, signal),
+    queryFn: ({ signal }) => getMembers(spaceId, signal),
     queryKey: queryKeys.spaces.members(spaceId),
   });
 
 /** Mutation that updates space details. */
-export const updateSpaceMutationOptions = () =>
+export const updateMutationOptions = () =>
   mutationOptions({
-    mutationFn: ({ data, id }: { data: UpdateSpaceData; id: string }) => updateSpace(id, data),
+    mutationFn: ({ data, id }: { data: UpdateSpaceData; id: string }) => update(id, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.users.me),
   });
 
 /** Mutation that deletes a space and drops all its cached data. */
-export const deleteSpaceMutationOptions = () =>
+export const deleteMutationOptions = () =>
   mutationOptions({
-    mutationFn: (id: string) => deleteSpace(id),
+    mutationFn: (id: string) => remove(id),
     onSuccess: async (_data, id, _result, { client }) => {
       await client.cancelQueries({ queryKey: queryKeys.space(id) });
       client.removeQueries({ queryKey: queryKeys.space(id) });
@@ -39,9 +39,9 @@ export const deleteSpaceMutationOptions = () =>
   });
 
 /** Mutation that changes another member's role. */
-export const changeSpaceMemberRoleMutationOptions = () =>
+export const changeMemberRoleMutationOptions = () =>
   mutationOptions({
     mutationFn: ({ spaceId, roleId, userId }: { spaceId: string; roleId: string; userId: string }) =>
-      changeSpaceMemberRole(spaceId, userId, roleId),
+      changeMemberRole(spaceId, userId, roleId),
     onSuccess: (_data, { spaceId }, _result, { client }) => invalidate(client, queryKeys.spaces.members(spaceId)),
   });

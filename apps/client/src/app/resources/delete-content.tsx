@@ -1,4 +1,4 @@
-import { deleteResourceMutationOptions } from '@kijk/api/resources/options';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,7 +23,7 @@ interface Props {
 /** Confirmation dialog content for deleting a resource. */
 export function ResourceTypeDeleteContent({ onClose, resourceType }: Props) {
   const spaceId = useSpaceId();
-  const { isPending, mutate } = useMutation(deleteResourceMutationOptions(spaceId));
+  const { isPending, mutate } = useMutation(resourcesOptions.deleteMutationOptions(spaceId));
 
   const handleDelete = () => {
     mutate(

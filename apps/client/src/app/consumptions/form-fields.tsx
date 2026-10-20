@@ -1,4 +1,4 @@
-import { resourcesQueryOptions } from '@kijk/api/resources/options';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
@@ -46,7 +46,7 @@ export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTota
   const resourceId = useWatch({ control, name: 'resourceId' });
   const value = useWatch({ control, name: 'value' });
   const valueType = useWatch({ control, name: 'valueType' });
-  const { data: resources } = useSuspenseQuery(resourcesQueryOptions(spaceId));
+  const { data: resources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const resource = resources.find((item) => item.id === resourceId);
   const entryDate = date instanceof Date ? format(date, 'yyyy-MM-dd') : '';
   const previousEntry = consumptions.find(
@@ -99,7 +99,7 @@ export function ConsumptionValueField<TFormValues extends ConsumptionFormValues>
   const { control } = useFormContext<TFormValues>();
   const resourceId = useWatch<TFormValues>({ control, name: 'resourceId' as FieldPath<TFormValues> });
   const valueType = useWatch<TFormValues>({ control, name: 'valueType' as FieldPath<TFormValues> });
-  const { data } = useSuspenseQuery(resourcesQueryOptions(spaceId));
+  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const resource = data.find((item) => item.id === resourceId);
 
   return (
@@ -174,7 +174,7 @@ export function ConsumptionResourceField<TFormValues extends ConsumptionFormValu
   field,
 }: FieldProps<TFormValues, 'resourceId'>) {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(resourcesQueryOptions(spaceId));
+  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
 
   return (
     <FormItem className={className}>

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createUnitMutationOptions } from '@kijk/api/units/options';
+import * as unitsOptions from '@kijk/api/units/options';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
@@ -19,7 +19,7 @@ interface Props {
 
 /** Form to create a unit; it is shared with `spaceId` when given. */
 export function UnitCreateForm({ spaceId, onClose }: Props) {
-  const { isPending, mutate } = useMutation(createUnitMutationOptions());
+  const { isPending, mutate } = useMutation(unitsOptions.createMutationOptions());
   const form = useForm<CreateUnitFormValues>({
     defaultValues: { conversionFactor: '', name: '', referenceUnitId: '', symbol: '' },
     resolver: zodResolver(createUnitSchema),

@@ -2,28 +2,28 @@ import { invalidate, invalidateInEverySpace } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import { getCurrentUser, requestAccountDeletion, setDefaultSpace, updateUser, welcomeUser } from './requests';
+import { getMe, requestDeletion, setDefaultSpace, update, completeOnboarding } from './requests';
 
 /** Query for the current account state. */
-export const currentUserQueryOptions = () =>
+export const meQueryOptions = () =>
   queryOptions({
-    queryFn: ({ signal }) => getCurrentUser(signal),
+    queryFn: ({ signal }) => getMe(signal),
     queryKey: queryKeys.users.me,
   });
 
 /** Mutation that updates the user's settings. */
-export const updateUserMutationOptions = () =>
+export const updateMutationOptions = () =>
   mutationOptions({
-    mutationFn: updateUser,
+    mutationFn: update,
     // Resources of every space show values in the user's preferred units.
     onSuccess: (_data, _variables, _result, { client }) =>
       Promise.all([invalidate(client, queryKeys.users.me), invalidateInEverySpace(client, 'resources')]),
   });
 
 /** Mutation that completes onboarding. */
-export const welcomeUserMutationOptions = () =>
+export const completeOnboardingMutationOptions = () =>
   mutationOptions({
-    mutationFn: welcomeUser,
+    mutationFn: completeOnboarding,
     onSuccess: (data, _variables, _result, { client }) => {
       client.setQueryData(queryKeys.users.me, data);
     },
@@ -39,7 +39,7 @@ export const setDefaultSpaceMutationOptions = () =>
   });
 
 /** Mutation that starts deleting the current user's account and all their data. */
-export const requestAccountDeletionMutationOptions = () =>
+export const requestDeletionMutationOptions = () =>
   mutationOptions({
-    mutationFn: requestAccountDeletion,
+    mutationFn: requestDeletion,
   });

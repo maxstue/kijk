@@ -1,6 +1,6 @@
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import type { Category } from '@kijk/api/categories/types';
-import { updateImportCandidateMutationOptions } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import type { ImportCandidate, ImportCandidatePage } from '@kijk/api/imports/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
@@ -29,7 +29,7 @@ export function ImportCandidateTable({
   onPageChange: (page: number) => void;
 }) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
+  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   return (
     <div className='border-t'>
       <Table>
@@ -112,7 +112,7 @@ function CandidateRow({
   importId: string;
 }) {
   const spaceId = useSpaceId();
-  const updateMutation = useMutation(updateImportCandidateMutationOptions(spaceId));
+  const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId));
 
   function update(change: { categoryId?: string | null; excluded?: boolean }) {
     updateMutation.mutate(

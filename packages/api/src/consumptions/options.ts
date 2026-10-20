@@ -3,59 +3,58 @@ import { MONTHS } from '@kijk/api/months';
 import { queryKeys } from '@kijk/api/query-keys';
 import { keepPreviousData, mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import {
-  createConsumption,
-  deleteConsumption,
-  getConsumption,
-  getConsumptionsBy,
-  getConsumptionsStats,
-  getYears,
-  updateConsumption,
-} from './requests';
+import { record, remove, exportCsv, exportMonth, getDetails, list, getStatistics, getYears, update } from './requests';
 import type { Consumption, ConsumptionData, DeleteConsumptionData, UpdateConsumptionData } from './types';
 
+/** Downloads one consumption or a selected month's consumptions without changing cached data. */
+export const exportMutationOptions = (spaceId: string) =>
+  mutationOptions({
+    mutationFn: (data: { consumptionId: string } | { month: string; year: number }) =>
+      'consumptionId' in data ? exportCsv(spaceId, data.consumptionId) : exportMonth(spaceId, data.year, data.month),
+  });
+
 /** Query for the years that have consumptions. */
-export const consumptionYearsQueryOptions = (spaceId: string) =>
+export const yearsQueryOptions = (spaceId: string) =>
   queryOptions({
     queryFn: ({ signal }) => getYears(spaceId, signal),
     queryKey: queryKeys.consumptions.years(spaceId),
   });
 
 /** Query for the consumptions of a year/month; omitted values mean all. */
-export const consumptionsByQueryOptions = (spaceId: string, year?: number | string, month?: string) => {
+export const listQueryOptions = (spaceId: string, year?: number | string, month?: string) => {
   const y = year ? year.toString() : undefined;
   const m = month ?? undefined;
 
   return queryOptions({
     placeholderData: keepPreviousData,
-    queryFn: ({ signal }) => getConsumptionsBy(spaceId, y, m, signal),
+    queryFn: ({ signal }) => list(spaceId, y, m, signal),
     queryKey: queryKeys.consumptions.by(spaceId, y, m),
   });
 };
 
 /** Query for a single consumption. */
-export const consumptionQueryOptions = (spaceId: string, id: string) =>
+export const detailsQueryOptions = (spaceId: string, id: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getConsumption(spaceId, id, signal),
+    queryFn: ({ signal }) => getDetails(spaceId, id, signal),
     queryKey: queryKeys.consumptions.detail(spaceId, id),
   });
 
 /** Query for the statistics of a year and month. */
-export const consumptionsStatsQueryOptions = (spaceId: string, year?: number | string, month?: string) => {
+export const statisticsQueryOptions = (spaceId: string, year?: number | string, month?: string) => {
   const y = year ? year.toString() : undefined;
   const m = month ?? undefined;
 
   return queryOptions({
     placeholderData: keepPreviousData,
-    queryFn: ({ signal }) => getConsumptionsStats(spaceId, y, m, signal),
+    queryFn: ({ signal }) => getStatistics(spaceId, y, m, signal),
     queryKey: queryKeys.consumptions.stats(spaceId, y, m),
   });
 };
 
 /** Mutation that records a consumption; adds it to the cached list of its month right away. */
-export const createConsumptionMutationOptions = (spaceId: string) =>
+export const recordMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: ConsumptionData) => createConsumption(spaceId, data),
+    mutationFn: (data: ConsumptionData) => record(spaceId, data),
     onSuccess: async (data, variables, _result, { client }) => {
       const queryKey = consumptionsByKey(spaceId, variables.date);
       const cached = client.getQueryData<Consumption[]>(queryKey);
@@ -74,9 +73,9 @@ export const createConsumptionMutationOptions = (spaceId: string) =>
   });
 
 /** Mutation that updates a consumption; caches the result and patches the cached list of its month. */
-export const updateConsumptionMutationOptions = (spaceId: string) =>
+export const updateMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: UpdateConsumptionData) => updateConsumption(spaceId, data.id, data.consumption),
+    mutationFn: (data: UpdateConsumptionData) => update(spaceId, data.id, data.consumption),
     onSuccess: async (data, variables, _result, { client }) => {
       client.setQueryData(queryKeys.consumptions.detail(spaceId, data.id), data);
 
@@ -105,9 +104,9 @@ export const updateConsumptionMutationOptions = (spaceId: string) =>
   });
 
 /** Mutation that deletes a consumption. */
-export const deleteConsumptionMutationOptions = (spaceId: string) =>
+export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: DeleteConsumptionData) => deleteConsumption(spaceId, data.id),
+    mutationFn: (data: DeleteConsumptionData) => remove(spaceId, data.id),
     onSuccess: async (_data, _variables, _result, { client }) => {
       await invalidate(client, queryKeys.consumptions.byAll(spaceId));
       await invalidate(

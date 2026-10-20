@@ -10,10 +10,10 @@ namespace Kijk.Application.Consumptions.Update;
 public record UpdateConsumptionRequest(
     string? Name,
     decimal? Value,
-    UpdateConsumptionValueTypes ValueType,
+    UpdateConsumptionValueTypes? ValueType,
     Guid? ResourceId,
     DateTime? Date,
-    bool StartsNewMeterSegment = false);
+    bool? StartsNewMeterSegment = null);
 
 /// <summary>How the entered value of a consumption is interpreted.</summary>
 public enum UpdateConsumptionValueTypes

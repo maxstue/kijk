@@ -1,4 +1,4 @@
-import { importQueryOptions, isImportProcessing } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import type { ImportJob } from '@kijk/api/imports/types';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -29,7 +29,7 @@ const stepTitles: Record<ImportJob['status'], string> = {
 /** An import with the step that matches its state. */
 export function ImportDetail({ importId }: { importId: string }) {
   const spaceId = useSpaceId();
-  const { data: job } = useSuspenseQuery(importQueryOptions(spaceId, importId));
+  const { data: job } = useSuspenseQuery(importsOptions.detailsQueryOptions(spaceId, importId));
 
   const [reviewStage, setReviewStage] = useState<'months' | 'review'>('months');
   const isReview = job.status === 'NeedsReview' || job.status === 'Categorizing';
@@ -94,7 +94,7 @@ function getStepPresentation(status: ImportJob['status'], stage: 'months' | 'rev
 }
 
 function ImportStep({ job }: { job: ImportJob }) {
-  if (isImportProcessing(job.status)) {
+  if (importsOptions.isProcessing(job.status)) {
     return <ProcessingCard job={job} />;
   }
   switch (job.status) {

@@ -4,14 +4,14 @@ import { unwrapApiResponse } from '@kijk/api/http';
 import type { UpdateUserData, WelcomeUserData } from './types';
 
 /** Loads the current account state. */
-export async function getCurrentUser(signal?: AbortSignal) {
+export async function getMe(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient().GET('/api/users/me', { signal }));
 }
 
 /** Updates the user's settings; omitted values stay unchanged. */
-export async function updateUser(data: UpdateUserData) {
+export async function update(data: UpdateUserData) {
   return unwrapApiResponse(
-    await apiClient().PUT('/api/users', {
+    await apiClient().PUT('/api/users/me', {
       body: {
         aiEnabled: data.aiEnabled ?? null,
         analyticsConsent: data.analyticsConsent ?? null,
@@ -25,7 +25,7 @@ export async function updateUser(data: UpdateUserData) {
 }
 
 /** Completes onboarding and creates the account and first space if needed. */
-export async function welcomeUser(data: WelcomeUserData) {
+export async function completeOnboarding(data: WelcomeUserData) {
   return unwrapApiResponse(
     await apiClient().PUT('/api/users/onboarding', {
       body: {
@@ -45,6 +45,6 @@ export async function setDefaultSpace(spaceId: string | null) {
 }
 
 /** Starts deleting the current user's account and all their data in the background. */
-export async function requestAccountDeletion() {
+export async function requestDeletion() {
   await apiClient().POST('/api/users/me/deletion');
 }

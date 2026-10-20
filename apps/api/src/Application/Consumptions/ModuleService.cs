@@ -1,11 +1,11 @@
-using Kijk.Application.Consumptions.Create;
 using Kijk.Application.Consumptions.Delete;
+using Kijk.Application.Consumptions.Details;
 using Kijk.Application.Consumptions.Export;
-using Kijk.Application.Consumptions.GetById;
-using Kijk.Application.Consumptions.GetByYearMonth;
-using Kijk.Application.Consumptions.GetStats;
-using Kijk.Application.Consumptions.GetYears;
+using Kijk.Application.Consumptions.List;
+using Kijk.Application.Consumptions.Record;
+using Kijk.Application.Consumptions.Statistics;
 using Kijk.Application.Consumptions.Update;
+using Kijk.Application.Consumptions.Years;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Consumptions;
@@ -16,14 +16,14 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<CreateConsumptionHandler>();
-        services.AddScoped<DeleteConsumptionHandler>();
-        services.AddScoped<ExportConsumptionHandler>();
-        services.AddScoped<GetByIdConsumptionHandler>();
-        services.AddScoped<GetByYearMonthHandler>();
-        services.AddScoped<GetStatsConsumptionsHandler>();
-        services.AddScoped<GetYearsConsumptionHandler>();
-        services.AddScoped<UpdateConsumptionHandler>();
+        services.AddScoped<RecordHandler>();
+        services.AddScoped<DeleteHandler>();
+        services.AddScoped<ExportHandler>();
+        services.AddScoped<DetailsHandler>();
+        services.AddScoped<ListHandler>();
+        services.AddScoped<StatisticsHandler>();
+        services.AddScoped<YearsHandler>();
+        services.AddScoped<UpdateHandler>();
 
         return services;
     }

@@ -1,5 +1,5 @@
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
-import { exportTransactions } from '@kijk/api/transactions/requests';
+import * as transactionsApi from '@kijk/api/transactions/requests';
 import type { TransactionFilters } from '@kijk/api/transactions/types';
 import { DropdownMenuItem } from '@kijk/ui/components/dropdown-menu';
 import { useMutation } from '@tanstack/react-query';
@@ -15,7 +15,7 @@ export function TransactionExportMenuItem({ filters }: { filters: TransactionFil
   const spaceId = useSpaceId();
   const canExport = useSpacePermission(SpacePermissions.finances.export);
   const exportMutation = useMutation({
-    mutationFn: () => exportTransactions(spaceId, filters),
+    mutationFn: () => transactionsApi.exportCsv(spaceId, filters),
     onError: (error) => toast.error('Export failed', { description: error.message }),
     onSuccess: saveDownload,
   });

@@ -1,15 +1,15 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Kijk.Application.Imports.AiPreview;
-using Kijk.Application.Imports.Categorize;
+using Kijk.Application.Imports.AiDataPreview;
 using Kijk.Application.Imports.Cleanup;
 using Kijk.Application.Imports.Commit;
-using Kijk.Application.Imports.Review;
 using Kijk.Application.Imports.Settings;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Imports.StartCategorization;
+using Kijk.Application.Imports.UpdateCandidate;
 using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Users.Update;
 using Kijk.Domain.Catalogs;
@@ -603,10 +603,10 @@ public class ImportHttpTests
     {
         var fixture = await CreateFixtureAsync("Admin");
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
-        using var withdrawn = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: false), Json);
+        using var withdrawn = await host.Client.PutAsJsonAsync("/api/users/me", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: false), Json);
 
         using var refused = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "generic-comma.csv");
-        using var given = await host.Client.PutAsJsonAsync("/api/users", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: true), Json);
+        using var given = await host.Client.PutAsJsonAsync("/api/users/me", new UpdateUserRequest(null, null, null, null, null, SensitiveDataConsent: true), Json);
         using var accepted = await UploadResponseAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "generic-comma.csv");
 
         await Assert.That(withdrawn.StatusCode).IsEqualTo(HttpStatusCode.OK);

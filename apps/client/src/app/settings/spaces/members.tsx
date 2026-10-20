@@ -1,4 +1,4 @@
-import { spaceMembersQueryOptions, spaceRolesQueryOptions } from '@kijk/api/spaces/options';
+import * as spacesOptions from '@kijk/api/spaces/options';
 import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@kijk/api/spaces/permissions';
 import type { SpacePermission } from '@kijk/api/spaces/permissions';
 import { Card, CardContent } from '@kijk/ui/components/card';
@@ -14,8 +14,8 @@ import { MemberRoleSelect } from './member-role-select';
 /** Members page: member list with roles, the user's own permissions and the role overview. */
 export function SpaceMembers() {
   const { space } = useSpaceSettings();
-  const { data: members } = useSuspenseQuery(spaceMembersQueryOptions(space.id));
-  const { data: roles } = useSuspenseQuery(spaceRolesQueryOptions());
+  const { data: members } = useSuspenseQuery(spacesOptions.membersQueryOptions(space.id));
+  const { data: roles } = useSuspenseQuery(spacesOptions.rolesQueryOptions());
   const canAssignRoles = hasSpacePermission(space, SpacePermissions.members.assignRole);
 
   return (

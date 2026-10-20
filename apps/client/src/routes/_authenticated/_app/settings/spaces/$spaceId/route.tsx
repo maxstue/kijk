@@ -1,4 +1,4 @@
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Outlet, createFileRoute, notFound } from '@tanstack/react-router';
 import { z } from 'zod';
 
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spac
   component: SpaceSettingsPage,
   errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
   loader: async ({ context: { queryClient }, params: { spaceId } }) => {
-    const account = await queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' });
+    const account = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
     const user = account.user;
     const space = user?.spaces?.find((entry) => entry.id === spaceId);
     if (!user || !space) {

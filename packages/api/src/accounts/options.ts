@@ -2,27 +2,27 @@ import { invalidate } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import { createAccount, deleteAccount, getAccounts, updateAccount } from './requests';
+import { create, remove, list, update } from './requests';
 import type { CreateAccountRequest, UpdateAccountRequest } from './types';
 
 /** Query for the accounts of the active space. */
-export const accountsQueryOptions = (spaceId: string) =>
+export const listQueryOptions = (spaceId: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getAccounts(spaceId, signal),
+    queryFn: ({ signal }) => list(spaceId, signal),
     queryKey: queryKeys.accounts.list(spaceId),
   });
 
 /** Mutation that creates an account. */
-export const createAccountMutationOptions = (spaceId: string) =>
+export const createMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CreateAccountRequest) => createAccount(spaceId, data),
+    mutationFn: (data: CreateAccountRequest) => create(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.accounts.all(spaceId)),
   });
 
 /** Mutation that updates an account. */
-export const updateAccountMutationOptions = (spaceId: string) =>
+export const updateMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: ({ data, id }: { data: UpdateAccountRequest; id: string }) => updateAccount(spaceId, id, data),
+    mutationFn: ({ data, id }: { data: UpdateAccountRequest; id: string }) => update(spaceId, id, data),
     // Transactions show the account name.
     onSuccess: (_data, _variables, _result, { client }) =>
       invalidate(
@@ -34,8 +34,8 @@ export const updateAccountMutationOptions = (spaceId: string) =>
   });
 
 /** Mutation that deletes an account. */
-export const deleteAccountMutationOptions = (spaceId: string) =>
+export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (id: string) => deleteAccount(spaceId, id),
+    mutationFn: (id: string) => remove(spaceId, id),
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.accounts.all(spaceId)),
   });

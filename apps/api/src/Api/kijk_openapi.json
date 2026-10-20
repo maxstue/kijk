@@ -12,6 +12,7 @@
           "Accounts"
         ],
         "summary": "Gets the accounts of the active space",
+        "operationId": "Accounts.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -72,6 +73,7 @@
           "Accounts"
         ],
         "summary": "Creates an account; shared accounts additionally require finances:configure",
+        "operationId": "Accounts.Create",
         "parameters": [
           {
             "name": "spaceId",
@@ -151,6 +153,7 @@
           "Accounts"
         ],
         "summary": "Updates an account; shared accounts additionally require finances:configure",
+        "operationId": "Accounts.Update",
         "parameters": [
           {
             "name": "spaceId",
@@ -237,6 +240,7 @@
           "Accounts"
         ],
         "summary": "Deletes an account without transactions; shared accounts additionally require finances:configure",
+        "operationId": "Accounts.Delete",
         "parameters": [
           {
             "name": "spaceId",
@@ -298,6 +302,7 @@
           "Budgets"
         ],
         "summary": "Gets all budget versions of the active space",
+        "operationId": "Budgets.ListVersions",
         "parameters": [
           {
             "name": "spaceId",
@@ -353,11 +358,12 @@
           }
         ]
       },
-      "post": {
+      "put": {
         "tags": [
           "Budgets"
         ],
-        "summary": "Creates a budget for a category from a month on; shared budgets additionally require budgets:plan",
+        "summary": "Sets the budget of a category from a month on; shared budgets additionally require budgets:plan",
+        "operationId": "Budgets.SetFromMonth",
         "parameters": [
           {
             "name": "spaceId",
@@ -374,7 +380,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateBudgetRequest"
+                "$ref": "#/components/schemas/SetBudgetRequest"
               }
             }
           },
@@ -437,6 +443,7 @@
           "Budgets"
         ],
         "summary": "Gets the spending per category over several months",
+        "operationId": "Budgets.Statistics",
         "parameters": [
           {
             "name": "spaceId",
@@ -534,6 +541,7 @@
           "Budgets"
         ],
         "summary": "Evaluates the budgets for a calendar month",
+        "operationId": "Budgets.Overview",
         "parameters": [
           {
             "name": "spaceId",
@@ -619,6 +627,7 @@
           "Budgets"
         ],
         "summary": "Updates a budget version; shared budgets additionally require budgets:plan",
+        "operationId": "Budgets.UpdateVersion",
         "parameters": [
           {
             "name": "spaceId",
@@ -705,6 +714,7 @@
           "Budgets"
         ],
         "summary": "Deletes a budget version; shared budgets additionally require budgets:plan",
+        "operationId": "Budgets.DeleteVersion",
         "parameters": [
           {
             "name": "spaceId",
@@ -766,6 +776,7 @@
           "Categories"
         ],
         "summary": "Gets the categories available to the active space",
+        "operationId": "Categories.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -826,6 +837,7 @@
           "Categories"
         ],
         "summary": "Creates a custom category",
+        "operationId": "Categories.Create",
         "parameters": [
           {
             "name": "spaceId",
@@ -905,6 +917,7 @@
           "Categories"
         ],
         "summary": "Updates a custom category",
+        "operationId": "Categories.Update",
         "parameters": [
           {
             "name": "spaceId",
@@ -991,6 +1004,7 @@
           "Categories"
         ],
         "summary": "Deletes an unused custom category",
+        "operationId": "Categories.Delete",
         "parameters": [
           {
             "name": "spaceId",
@@ -1052,6 +1066,7 @@
           "Category Rules"
         ],
         "summary": "Gets the remembered category corrections of the active space",
+        "operationId": "CategoryRules.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -1114,6 +1129,7 @@
           "Category Rules"
         ],
         "summary": "Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule",
+        "operationId": "CategoryRules.Suggestions",
         "parameters": [
           {
             "name": "spaceId",
@@ -1176,6 +1192,7 @@
           "Category Rules"
         ],
         "summary": "Deletes a remembered category correction",
+        "operationId": "CategoryRules.Delete",
         "parameters": [
           {
             "name": "spaceId",
@@ -1237,7 +1254,7 @@
           "Consumptions"
         ],
         "summary": "Gets a consumption by id",
-        "operationId": "GetConsumptionById",
+        "operationId": "Consumptions.Details",
         "parameters": [
           {
             "name": "spaceId",
@@ -1304,6 +1321,7 @@
           "Consumptions"
         ],
         "summary": "Updates a consumption",
+        "operationId": "Consumptions.Update",
         "parameters": [
           {
             "name": "spaceId",
@@ -1390,6 +1408,7 @@
           "Consumptions"
         ],
         "summary": "Deletes a consumption",
+        "operationId": "Consumptions.Delete",
         "parameters": [
           {
             "name": "spaceId",
@@ -1451,6 +1470,7 @@
           "Consumptions"
         ],
         "summary": "Exports a consumption as CSV",
+        "operationId": "Consumptions.Export",
         "parameters": [
           {
             "name": "spaceId",
@@ -1520,6 +1540,7 @@
           "Consumptions"
         ],
         "summary": "Exports all consumptions for a month as CSV",
+        "operationId": "Consumptions.ExportMonth",
         "parameters": [
           {
             "name": "spaceId",
@@ -1611,6 +1632,7 @@
           "Consumptions"
         ],
         "summary": "Gets all consumptions for the current user by year, month and type",
+        "operationId": "Consumptions.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -1690,6 +1712,7 @@
           "Consumptions"
         ],
         "summary": "Creates a new consumption",
+        "operationId": "Consumptions.Record",
         "parameters": [
           {
             "name": "spaceId",
@@ -1763,12 +1786,13 @@
         ]
       }
     },
-    "/api/spaces/{spaceId}/consumptions/stats": {
+    "/api/spaces/{spaceId}/consumptions/statistics": {
       "get": {
         "tags": [
           "Consumptions"
         ],
         "summary": "Gets all consumptions stats",
+        "operationId": "Consumptions.Statistics",
         "parameters": [
           {
             "name": "spaceId",
@@ -1849,6 +1873,7 @@
           "Consumptions"
         ],
         "summary": "Gets all years",
+        "operationId": "Consumptions.Years",
         "parameters": [
           {
             "name": "spaceId",
@@ -1908,6 +1933,7 @@
           "Imports"
         ],
         "summary": "Gets the latest imports of the active space",
+        "operationId": "Imports.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -1968,6 +1994,7 @@
           "Imports"
         ],
         "summary": "Uploads a bank export and starts its import",
+        "operationId": "Imports.Start",
         "parameters": [
           {
             "name": "spaceId",
@@ -2060,7 +2087,7 @@
           "Imports"
         ],
         "summary": "Gets an import by id",
-        "operationId": "GetImportById",
+        "operationId": "Imports.Details",
         "parameters": [
           {
             "name": "spaceId",
@@ -2129,6 +2156,7 @@
           "Imports"
         ],
         "summary": "Gets the first rows of an uploaded file for the column mapping",
+        "operationId": "Imports.FilePreview",
         "parameters": [
           {
             "name": "spaceId",
@@ -2223,6 +2251,7 @@
           "Imports"
         ],
         "summary": "Gets the rows of an import waiting for review",
+        "operationId": "Imports.Candidates",
         "parameters": [
           {
             "name": "spaceId",
@@ -2332,6 +2361,7 @@
           "Imports"
         ],
         "summary": "Confirms the column mapping and starts reading the file",
+        "operationId": "Imports.ConfirmMapping",
         "parameters": [
           {
             "name": "spaceId",
@@ -2410,6 +2440,7 @@
           "Imports"
         ],
         "summary": "Changes the category or exclusion of a row during the review",
+        "operationId": "Imports.UpdateCandidate",
         "parameters": [
           {
             "name": "spaceId",
@@ -2497,6 +2528,7 @@
           "Imports"
         ],
         "summary": "Gets exactly the texts the AI categorization would send",
+        "operationId": "Imports.AiDataPreview",
         "parameters": [
           {
             "name": "spaceId",
@@ -2565,6 +2597,7 @@
           "Imports"
         ],
         "summary": "Proposes categories with the AI for the rows that have none",
+        "operationId": "Imports.StartCategorization",
         "parameters": [
           {
             "name": "spaceId",
@@ -2653,6 +2686,7 @@
           "Imports"
         ],
         "summary": "Replaces the account's transactions in the covered months with the reviewed rows",
+        "operationId": "Imports.Commit",
         "parameters": [
           {
             "name": "spaceId",
@@ -2731,6 +2765,7 @@
           "Imports"
         ],
         "summary": "Cancels an open import and deletes its file",
+        "operationId": "Imports.Cancel",
         "parameters": [
           {
             "name": "spaceId",
@@ -2799,6 +2834,7 @@
           "Imports"
         ],
         "summary": "Gets the import settings of the active space",
+        "operationId": "Imports.Settings",
         "parameters": [
           {
             "name": "spaceId",
@@ -2856,6 +2892,7 @@
           "Imports"
         ],
         "summary": "Changes the import settings of the active space",
+        "operationId": "Imports.UpdateSettings",
         "parameters": [
           {
             "name": "spaceId",
@@ -2935,6 +2972,7 @@
           "Consumption Limits"
         ],
         "summary": "Gets consumption limits for the active space",
+        "operationId": "Limits.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -2995,6 +3033,7 @@
           "Consumption Limits"
         ],
         "summary": "Creates a consumption limit",
+        "operationId": "Limits.Create",
         "parameters": [
           {
             "name": "spaceId",
@@ -3074,7 +3113,7 @@
           "Consumption Limits"
         ],
         "summary": "Gets a consumption limit by id",
-        "operationId": "GetLimitById",
+        "operationId": "Limits.Details",
         "parameters": [
           {
             "name": "spaceId",
@@ -3141,6 +3180,7 @@
           "Consumption Limits"
         ],
         "summary": "Updates a consumption limit",
+        "operationId": "Limits.Update",
         "parameters": [
           {
             "name": "spaceId",
@@ -3227,6 +3267,7 @@
           "Consumption Limits"
         ],
         "summary": "Deletes a consumption limit",
+        "operationId": "Limits.Delete",
         "parameters": [
           {
             "name": "spaceId",
@@ -3288,6 +3329,7 @@
           "Resources"
         ],
         "summary": "Gets all resources",
+        "operationId": "Resources.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -3348,6 +3390,7 @@
           "Resources"
         ],
         "summary": "Creates a new resource type",
+        "operationId": "Resources.Create",
         "parameters": [
           {
             "name": "spaceId",
@@ -3437,7 +3480,7 @@
           "Resources"
         ],
         "summary": "Gets a resource type",
-        "operationId": "GetResourceById",
+        "operationId": "Resources.Details",
         "parameters": [
           {
             "name": "spaceId",
@@ -3504,6 +3547,7 @@
           "Resources"
         ],
         "summary": "Updates a custom resource type",
+        "operationId": "Resources.Update",
         "parameters": [
           {
             "name": "spaceId",
@@ -3600,6 +3644,7 @@
           "Resources"
         ],
         "summary": "Deletes an unused custom resource type",
+        "operationId": "Resources.Delete",
         "parameters": [
           {
             "name": "spaceId",
@@ -3671,6 +3716,7 @@
           "Spaces"
         ],
         "summary": "Gets the space roles and their permissions",
+        "operationId": "Spaces.Roles",
         "responses": {
           "200": {
             "description": "OK",
@@ -3711,6 +3757,7 @@
           "Spaces"
         ],
         "summary": "Updates space details",
+        "operationId": "Spaces.Update",
         "parameters": [
           {
             "name": "id",
@@ -3770,6 +3817,7 @@
           "Spaces"
         ],
         "summary": "Deletes a space and its data",
+        "operationId": "Spaces.Delete",
         "parameters": [
           {
             "name": "id",
@@ -3811,6 +3859,7 @@
           "Spaces"
         ],
         "summary": "Gets the members of a space with their roles",
+        "operationId": "Spaces.Members",
         "parameters": [
           {
             "name": "id",
@@ -3862,6 +3911,7 @@
           "Spaces"
         ],
         "summary": "Changes the role of another space member",
+        "operationId": "Spaces.ChangeMemberRole",
         "parameters": [
           {
             "name": "id",
@@ -3939,6 +3989,7 @@
           "Transactions"
         ],
         "summary": "Gets a page of transactions of the active space, optionally by year, month, categories or without category",
+        "operationId": "Transactions.List",
         "parameters": [
           {
             "name": "spaceId",
@@ -4062,6 +4113,7 @@
           "Transactions"
         ],
         "summary": "Records a transaction manually",
+        "operationId": "Transactions.Record",
         "parameters": [
           {
             "name": "spaceId",
@@ -4141,6 +4193,7 @@
           "Transactions"
         ],
         "summary": "Exports transactions as CSV, optionally by year, month, categories or without category",
+        "operationId": "Transactions.Export",
         "parameters": [
           {
             "name": "spaceId",
@@ -4232,7 +4285,7 @@
           "Transactions"
         ],
         "summary": "Gets a transaction by id",
-        "operationId": "GetTransactionById",
+        "operationId": "Transactions.Details",
         "parameters": [
           {
             "name": "spaceId",
@@ -4299,6 +4352,7 @@
           "Transactions"
         ],
         "summary": "Updates a transaction",
+        "operationId": "Transactions.Update",
         "parameters": [
           {
             "name": "spaceId",
@@ -4385,6 +4439,7 @@
           "Transactions"
         ],
         "summary": "Deletes a transaction",
+        "operationId": "Transactions.Delete",
         "parameters": [
           {
             "name": "spaceId",
@@ -4446,6 +4501,7 @@
           "Transactions"
         ],
         "summary": "Assigns one category to several transactions",
+        "operationId": "Transactions.CategorizeMany",
         "parameters": [
           {
             "name": "spaceId",
@@ -4525,6 +4581,7 @@
           "Transactions"
         ],
         "summary": "Corrects the category of a transaction, optionally remembering it for the merchant or counterparty",
+        "operationId": "Transactions.Categorize",
         "parameters": [
           {
             "name": "spaceId",
@@ -4603,6 +4660,7 @@
           "Units"
         ],
         "summary": "Gets the units of a scope, optionally filtered and paged",
+        "operationId": "Units.List",
         "parameters": [
           {
             "name": "scope",
@@ -4695,6 +4753,7 @@
           "Units"
         ],
         "summary": "Creates a user unit",
+        "operationId": "Units.Create",
         "requestBody": {
           "content": {
             "application/json": {
@@ -4752,6 +4811,7 @@
           "Units"
         ],
         "summary": "Updates a user unit",
+        "operationId": "Units.Update",
         "parameters": [
           {
             "name": "id",
@@ -4818,6 +4878,7 @@
           "Units"
         ],
         "summary": "Deletes an unused user unit",
+        "operationId": "Units.Delete",
         "parameters": [
           {
             "name": "id",
@@ -4859,6 +4920,7 @@
           "Units"
         ],
         "summary": "Archives a user unit",
+        "operationId": "Units.Archive",
         "parameters": [
           {
             "name": "id",
@@ -4900,6 +4962,7 @@
           "Units"
         ],
         "summary": "Restores a user unit",
+        "operationId": "Units.Restore",
         "parameters": [
           {
             "name": "id",
@@ -4941,6 +5004,7 @@
           "Units"
         ],
         "summary": "Shares a unit with a space",
+        "operationId": "Units.ShareWithSpace",
         "parameters": [
           {
             "name": "id",
@@ -4989,6 +5053,7 @@
           "Units"
         ],
         "summary": "Removes a unit from a space",
+        "operationId": "Units.RemoveFromSpace",
         "parameters": [
           {
             "name": "id",
@@ -5039,6 +5104,7 @@
           "Users"
         ],
         "summary": "Gets me",
+        "operationId": "Users.Me",
         "responses": {
           "200": {
             "description": "OK",
@@ -5068,14 +5134,13 @@
             "Bearer": [ ]
           }
         ]
-      }
-    },
-    "/api/users": {
+      },
       "put": {
         "tags": [
           "Users"
         ],
         "summary": "Updates the current user",
+        "operationId": "Users.Update",
         "requestBody": {
           "content": {
             "application/json": {
@@ -5133,6 +5198,7 @@
           "Users"
         ],
         "summary": "Sets or clears the space the app opens first",
+        "operationId": "Users.SetDefaultSpace",
         "requestBody": {
           "content": {
             "application/json": {
@@ -5180,6 +5246,7 @@
           "Users"
         ],
         "summary": "Deletes the current user's account and all their data in the background",
+        "operationId": "Users.RequestDeletion",
         "responses": {
           "202": {
             "description": "Accepted"
@@ -5210,6 +5277,7 @@
           "Users"
         ],
         "summary": "Completes onboarding and creates the Kijk account when needed",
+        "operationId": "Users.CompleteOnboarding",
         "requestBody": {
           "content": {
             "application/json": {
@@ -6372,45 +6440,6 @@
           }
         },
         "description": "Request for creating an account."
-      },
-      "CreateBudgetRequest": {
-        "required": [
-          "categoryId",
-          "amount",
-          "validFrom",
-          "active"
-        ],
-        "type": "object",
-        "properties": {
-          "categoryId": {
-            "type": "string",
-            "description": "The expense category.",
-            "format": "uuid"
-          },
-          "amount": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
-            "description": "The monthly amount in EUR.",
-            "format": "double"
-          },
-          "validFrom": {
-            "type": "string",
-            "description": "Any day of the first month the budget applies to.",
-            "format": "date"
-          },
-          "active": {
-            "type": "boolean",
-            "description": "Whether the budget is evaluated."
-          },
-          "visibility": {
-            "description": "A private budget is seen and used only by its creator and replaces the shared budget of the category for them.",
-            "$ref": "#/components/schemas/Visibility"
-          }
-        },
-        "description": "Request for creating a budget for a category from a month on."
       },
       "CreateCategoryRequest": {
         "required": [
@@ -7920,6 +7949,45 @@
         },
         "description": "A resource that consumptions can be recorded for."
       },
+      "SetBudgetRequest": {
+        "required": [
+          "categoryId",
+          "amount",
+          "validFrom",
+          "active"
+        ],
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "description": "The expense category.",
+            "format": "uuid"
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The monthly amount in EUR.",
+            "format": "double"
+          },
+          "validFrom": {
+            "type": "string",
+            "description": "Any day of the first month the budget applies to.",
+            "format": "date"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the budget is evaluated."
+          },
+          "visibility": {
+            "description": "A private budget is seen and used only by its creator and replaces the shared budget of the category for them.",
+            "$ref": "#/components/schemas/Visibility"
+          }
+        },
+        "description": "Request for setting a budget for a category from a month on."
+      },
       "SetDefaultSpaceRequest": {
         "required": [
           "spaceId"
@@ -8459,8 +8527,15 @@
             "format": "double"
           },
           "valueType": {
-            "description": "Whether the value is a meter reading or the consumed amount.",
-            "$ref": "#/components/schemas/UpdateConsumptionValueTypes"
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Whether the value is a meter reading or the consumed amount.",
+                "$ref": "#/components/schemas/UpdateConsumptionValueTypes"
+              }
+            ]
           },
           "resourceId": {
             "type": [
@@ -8479,9 +8554,11 @@
             "format": "date-time"
           },
           "startsNewMeterSegment": {
-            "type": "boolean",
-            "description": "Whether a meter reading starts a new segment.",
-            "default": false
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Whether a meter reading starts a new segment."
           }
         },
         "description": "Changes to a consumption; `null` values keep the current value."
@@ -8489,9 +8566,9 @@
       "UpdateConsumptionValueTypes": {
         "enum": [
           "Absolute",
-          "Relative"
-        ],
-        "description": "How the entered value of a consumption is interpreted."
+          "Relative",
+          null
+        ]
       },
       "UpdateImportCandidateRequest": {
         "required": [

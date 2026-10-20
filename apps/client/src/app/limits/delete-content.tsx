@@ -1,4 +1,4 @@
-import { deleteLimitMutationOptions } from '@kijk/api/limits/options';
+import * as limitsOptions from '@kijk/api/limits/options';
 import type { Limit } from '@kijk/api/limits/types';
 import {
   AlertDialogAction,
@@ -18,7 +18,7 @@ import { useSpaceId } from '@/shared/hooks/use-active-space';
 /** Confirmation dialog content for deleting a consumption limit. */
 export function LimitDeleteContent({ limit, onClose }: { limit: Limit; onClose: () => void }) {
   const spaceId = useSpaceId();
-  const { isPending, mutate } = useMutation(deleteLimitMutationOptions(spaceId));
+  const { isPending, mutate } = useMutation(limitsOptions.deleteMutationOptions(spaceId));
 
   return (
     <AlertDialogContent>

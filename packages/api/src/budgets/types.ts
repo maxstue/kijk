@@ -10,8 +10,8 @@ export type BudgetCategory = components['schemas']['BudgetCategoryResponse'];
 export type BudgetStatistics = components['schemas']['BudgetStatisticsResponse'];
 /** The spending of an expense category per month. */
 export type CategoryTrend = components['schemas']['CategoryTrendResponse'];
-/** Payload for creating a budget. */
-export type CreateBudgetRequest = components['schemas']['CreateBudgetRequest'];
+/** Payload for setting the budget of a category from a month on. */
+export type SetBudgetRequest = components['schemas']['SetBudgetRequest'];
 /** Payload for updating a budget. */
 export type UpdateBudgetRequest = components['schemas']['UpdateBudgetRequest'];
 

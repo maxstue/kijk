@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { deleteSpaceMutationOptions } from './options';
-import { deleteSpace } from './requests';
+import { deleteMutationOptions } from './options';
+import { remove } from './requests';
 
 vi.mock('./requests', { spy: true });
 
@@ -13,9 +13,9 @@ test('deleting a space drops its cached data and keeps the other spaces', async 
   client.setQueryData(queryKeys.spaces.members('deleted'), ['member']);
   client.setQueryData(queryKeys.accounts.list('other'), ['account']);
   client.setQueryData(queryKeys.units.list({ scope: 'Space', spaceId: 'deleted' }), ['unit']);
-  vi.mocked(deleteSpace).mockResolvedValue();
+  vi.mocked(remove).mockResolvedValue();
 
-  await client.getMutationCache().build(client, deleteSpaceMutationOptions()).execute('deleted');
+  await client.getMutationCache().build(client, deleteMutationOptions()).execute('deleted');
 
   expect(client.getQueryCache().findAll({ queryKey: queryKeys.space('deleted') })).toHaveLength(0);
   expect(client.getQueryData(queryKeys.accounts.list('other'))).toEqual(['account']);
@@ -34,8 +34,8 @@ test('deleting a space cancels its in-flight requests before removing the cache'
       },
     })
     .catch(() => undefined);
-  vi.mocked(deleteSpace).mockResolvedValue();
-  await client.getMutationCache().build(client, deleteSpaceMutationOptions()).execute('deleted');
+  vi.mocked(remove).mockResolvedValue();
+  await client.getMutationCache().build(client, deleteMutationOptions()).execute('deleted');
   await request;
   expect(requestSignal?.aborted).toBe(true);
   expect(client.getQueryState(queryKeys.resources.list('deleted'))).toBeUndefined();

@@ -1,7 +1,7 @@
 using Kijk.Application.Resources.Create;
 using Kijk.Application.Resources.Delete;
-using Kijk.Application.Resources.GetAll;
-using Kijk.Application.Resources.GetById;
+using Kijk.Application.Resources.Details;
+using Kijk.Application.Resources.List;
 using Kijk.Application.Resources.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,11 +13,11 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<CreateResourceHandler>();
-        services.AddScoped<DeleteResourceHandler>();
-        services.AddScoped<GetAllResourcesHandler>();
-        services.AddScoped<GetByIdResourceHandler>();
-        services.AddScoped<UpdateResourceHandler>();
+        services.AddScoped<CreateHandler>();
+        services.AddScoped<DeleteHandler>();
+        services.AddScoped<ListHandler>();
+        services.AddScoped<DetailsHandler>();
+        services.AddScoped<UpdateHandler>();
 
         return services;
     }

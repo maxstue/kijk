@@ -1,8 +1,8 @@
-using Kijk.Application.Consumptions.Create;
 using Kijk.Application.Consumptions.Delete;
 using Kijk.Application.Consumptions.Export;
-using Kijk.Application.Consumptions.GetByYearMonth;
-using Kijk.Application.Consumptions.GetStats;
+using Kijk.Application.Consumptions.List;
+using Kijk.Application.Consumptions.Record;
+using Kijk.Application.Consumptions.Statistics;
 using Kijk.Application.Consumptions.Update;
 using Kijk.Domain.Entities;
 using Kijk.Domain.ValueObjects;
@@ -36,8 +36,8 @@ public class ConsumptionWorkflowTests
         await CreateAsync(create, "Later", 20m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 20));
         await CreateAsync(create, "Other month", 30m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 10, 1));
 
-        var result = await new ExportConsumptionHandler(dbContext, fixture.CurrentUser)
-            .ExportMonthAsync(2026, "september", CancellationToken.None);
+        var result = await new ExportHandler(dbContext, fixture.CurrentUser)
+            .MonthAsync(2026, "september", CancellationToken.None);
 
         await Assert.That(result.IsSuccess).IsTrue();
         var csv = System.Text.Encoding.UTF8.GetString(result.Value.Content);
@@ -58,8 +58,8 @@ public class ConsumptionWorkflowTests
         await CreateAsync(create, "Earlier", 10m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 1));
         await CreateAsync(create, "Later", 20m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 20));
 
-        var result = await new GetByYearMonthHandler(dbContext, fixture.CurrentUser)
-            .GetByYearMonthAsync(2026, "September", CancellationToken.None);
+        var result = await new ListHandler(dbContext, fixture.CurrentUser)
+            .HandleAsync(2026, "September", CancellationToken.None);
 
         await Assert.That(result.IsSuccess).IsTrue();
         await Assert.That(result.Value.Count).IsEqualTo(2);
@@ -92,8 +92,8 @@ public class ConsumptionWorkflowTests
         dbContext.AddRange(otherSpace, otherResource, foreignConsumption);
         await dbContext.SaveChangesAsync();
 
-        var result = await new ExportConsumptionHandler(dbContext, fixture.CurrentUser)
-            .ExportByIdAsync(foreignConsumption.Id, CancellationToken.None);
+        var result = await new ExportHandler(dbContext, fixture.CurrentUser)
+            .HandleAsync(foreignConsumption.Id, CancellationToken.None);
 
         await Assert.That(result.IsError).IsTrue();
         await Assert.That(result.Error.Type).IsEqualTo(ErrorType.NotFound);
@@ -112,8 +112,8 @@ public class ConsumptionWorkflowTests
         await CreateAsync(create, "January reading", 1_060m, CreateConsumptionValueTypes.Absolute, fixture.Resource.Id, UtcDate(2024, 1, 20));
         await CreateAsync(create, "February relative", 30m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2024, 2, 10));
 
-        var result = await new GetStatsConsumptionsHandler(dbContext, fixture.CurrentUser, clock)
-            .GetStatsAsync(2024, "January", CancellationToken.None);
+        var result = await new StatisticsHandler(dbContext, fixture.CurrentUser, clock)
+            .HandleAsync(2024, "January", CancellationToken.None);
 
         await Assert.That(result.IsSuccess).IsTrue();
         var stats = result.Value.Stats.Single(item => item.Resource.Id == fixture.Resource.Id);
@@ -151,8 +151,8 @@ public class ConsumptionWorkflowTests
         await Assert.That(limit.LastOccurrence).IsEqualTo(firstOccurrence.UtcDateTime);
 
         var crossingEntry = await dbContext.Consumptions.SingleAsync(item => item.Name == "Cross limit");
-        await new DeleteConsumptionHandler(dbContext, fixture.CurrentUser, clock, NullLogger<DeleteConsumptionHandler>.Instance)
-            .DeleteAsync(crossingEntry.Id, CancellationToken.None);
+        await new DeleteHandler(dbContext, fixture.CurrentUser, clock, NullLogger<DeleteHandler>.Instance)
+            .HandleAsync(crossingEntry.Id, CancellationToken.None);
 
         var secondOccurrence = firstOccurrence.AddHours(2);
         clock.UtcNow = secondOccurrence;
@@ -176,32 +176,32 @@ public class ConsumptionWorkflowTests
         await AssertCalculatedAsync(dbContext, "Later reading", 70m);
 
         var relative = await dbContext.Consumptions.SingleAsync(item => item.Name == "Intervening usage");
-        var updateResult = await new UpdateConsumptionHandler(dbContext, fixture.CurrentUser, clock,
-                new Kijk.Application.Units.Shared.UnitsNetConversionService(), NullLogger<UpdateConsumptionHandler>.Instance)
-            .UpdateAsync(relative.Id, new UpdateConsumptionRequest(null, 40m, UpdateConsumptionValueTypes.Relative, null, null), CancellationToken.None);
+        var updateResult = await new UpdateHandler(dbContext, fixture.CurrentUser, clock,
+                new Kijk.Application.Units.Shared.UnitsNetConversionService(), NullLogger<UpdateHandler>.Instance)
+            .HandleAsync(relative.Id, new UpdateConsumptionRequest(null, 40m, UpdateConsumptionValueTypes.Relative, null, null), CancellationToken.None);
         await Assert.That(updateResult.IsSuccess).IsTrue();
         await AssertCalculatedAsync(dbContext, "Later reading", 60m);
 
-        var deleteResult = await new DeleteConsumptionHandler(dbContext, fixture.CurrentUser, clock, NullLogger<DeleteConsumptionHandler>.Instance)
-            .DeleteAsync(relative.Id, CancellationToken.None);
+        var deleteResult = await new DeleteHandler(dbContext, fixture.CurrentUser, clock, NullLogger<DeleteHandler>.Instance)
+            .HandleAsync(relative.Id, CancellationToken.None);
         await Assert.That(deleteResult.IsSuccess).IsTrue();
         await AssertCalculatedAsync(dbContext, "Later reading", 100m);
     }
 
-    private static CreateConsumptionHandler CreateHandler(AppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) =>
-        new(dbContext, currentUser, timeProvider, NullLogger<CreateConsumptionHandler>.Instance);
+    private static RecordHandler CreateHandler(AppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) =>
+        new(dbContext, currentUser, timeProvider, NullLogger<RecordHandler>.Instance);
 
     private static DateTime UtcDate(int year, int month, int day) => new(year, month, day, 0, 0, 0, DateTimeKind.Utc);
 
     private static async Task CreateAsync(
-        CreateConsumptionHandler handler,
+        RecordHandler handler,
         string name,
         decimal value,
         CreateConsumptionValueTypes valueType,
         Guid resourceId,
         DateTime date)
     {
-        var result = await handler.CreateAsync(
+        var result = await handler.HandleAsync(
             new CreateConsumptionRequest(name, value, valueType, resourceId, date),
             CancellationToken.None);
         await Assert.That(result.IsSuccess).IsTrue();

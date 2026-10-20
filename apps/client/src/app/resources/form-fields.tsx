@@ -1,4 +1,4 @@
-import { unitsQueryOptions } from '@kijk/api/units/options';
+import * as unitsOptions from '@kijk/api/units/options';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ export function ResourceNameField({ className, field }: FieldProps<'name'>) {
 export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
   const spaceId = useSpaceId();
   // The space scope contains the system units and the units shared with the active space.
-  const { data } = useSuspenseQuery(unitsQueryOptions({ scope: 'Space', spaceId }));
+  const { data } = useSuspenseQuery(unitsOptions.listQueryOptions({ scope: 'Space', spaceId }));
   const availableUnits = data.items;
 
   return (

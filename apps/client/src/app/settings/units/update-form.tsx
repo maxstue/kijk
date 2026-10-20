@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateUnitMutationOptions } from '@kijk/api/units/options';
+import * as unitsOptions from '@kijk/api/units/options';
 import type { Unit } from '@kijk/api/units/types';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
@@ -20,7 +20,7 @@ interface Props {
 
 /** Form to edit a unit owned by the user. */
 export function UnitUpdateForm({ onClose, unit }: Props) {
-  const { isPending, mutate } = useMutation(updateUnitMutationOptions());
+  const { isPending, mutate } = useMutation(unitsOptions.updateMutationOptions());
   const form = useForm<UpdateUnitFormValues>({
     defaultValues: {
       conversionFactor: unit.conversionFactor == null ? '' : String(unit.conversionFactor),

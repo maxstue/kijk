@@ -1,8 +1,8 @@
-import { accountsQueryOptions } from '@kijk/api/accounts/options';
-import { budgetOverviewQueryOptions } from '@kijk/api/budgets/options';
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import * as accountsOptions from '@kijk/api/accounts/options';
+import * as budgetsOptions from '@kijk/api/budgets/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
-import { transactionsQueryOptions } from '@kijk/api/transactions/options';
+import * as transactionsOptions from '@kijk/api/transactions/options';
 import { Button } from '@kijk/ui/components/button';
 import {
   Dialog,
@@ -88,10 +88,13 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/tra
   loaderDeps: ({ search }) => toPageQuery(search),
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([
-      queryClient.query({ ...transactionsQueryOptions(spaceId, deps), staleTime: 'static' }),
-      queryClient.query({ ...categoriesQueryOptions(spaceId), staleTime: 'static' }),
-      queryClient.query({ ...accountsQueryOptions(spaceId), staleTime: 'static' }),
-      queryClient.query({ ...budgetOverviewQueryOptions(spaceId, currentYear(), currentMonth()), staleTime: 'static' }),
+      queryClient.query({ ...transactionsOptions.listQueryOptions(spaceId, deps), staleTime: 'static' }),
+      queryClient.query({ ...categoriesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...accountsOptions.listQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({
+        ...budgetsOptions.overviewQueryOptions(spaceId, currentYear(), currentMonth()),
+        staleTime: 'static',
+      }),
     ]);
   },
   head: () => ({ meta: [{ title: 'Transactions' }] }),

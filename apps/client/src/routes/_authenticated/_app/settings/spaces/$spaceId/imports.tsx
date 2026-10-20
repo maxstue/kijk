@@ -1,4 +1,4 @@
-import { importSettingsQueryOptions } from '@kijk/api/imports/options';
+import * as importsOptions from '@kijk/api/imports/options';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { SpaceImportSettings } from '@/app/settings/spaces/imports';
@@ -10,6 +10,6 @@ export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spac
   component: SpaceImportSettings,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
   loader: ({ context: { queryClient }, params: { spaceId } }) =>
-    queryClient.query({ ...importSettingsQueryOptions(spaceId), staleTime: 'static' }),
+    queryClient.query({ ...importsOptions.settingsQueryOptions(spaceId), staleTime: 'static' }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });

@@ -1,4 +1,4 @@
-import { budgetOverviewQueryOptions } from '@kijk/api/budgets/options';
+import * as budgetsOptions from '@kijk/api/budgets/options';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
@@ -12,7 +12,7 @@ import { formatStringToCurrency } from '@/shared/utils/format';
  */
 export function BudgetWarnings({ month, year }: { month: number; year: number }) {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(budgetOverviewQueryOptions(spaceId, year, month));
+  const { data } = useSuspenseQuery(budgetsOptions.overviewQueryOptions(spaceId, year, month));
   const warnings = useMemo(
     () =>
       data.categories

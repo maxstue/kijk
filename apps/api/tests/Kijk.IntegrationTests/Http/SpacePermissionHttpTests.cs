@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Kijk.Application.Consumptions.Create;
+using Kijk.Application.Consumptions.Record;
 using Kijk.Application.Consumptions.Update;
 using Kijk.Application.Imports.Settings;
 using Kijk.Application.Limits.Create;
@@ -284,6 +284,54 @@ public class SpacePermissionHttpTests
         await Assert.That(stored.Name).IsEqualTo("Reading");
         await Assert.That(stored.Value).IsEqualTo(10m);
         await Assert.That(stored.Date).IsEqualTo(fixture.Consumption.Date);
+    }
+
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task RenamingAConsumptionPreservesItsValueTypeAndMeterSegment(bool startsNewMeterSegment)
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        var valueType = startsNewMeterSegment ? ConsumptionValueType.Absolute : ConsumptionValueType.Relative;
+        await using (var seed = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var entry = await seed.Consumptions.SingleAsync(item => item.Id == fixture.Consumption.Id);
+            entry.ValueType = valueType;
+            entry.StartsNewMeterSegment = startsNewMeterSegment;
+            await seed.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}", new { name = "Renamed reading" });
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var stored = await verification.Consumptions.SingleAsync(item => item.Id == fixture.Consumption.Id);
+        await Assert.That(stored.Name).IsEqualTo("Renamed reading");
+        await Assert.That(stored.ValueType).IsEqualTo(valueType);
+        await Assert.That(stored.StartsNewMeterSegment).IsEqualTo(startsNewMeterSegment);
+        await Assert.That(stored.Value).IsEqualTo(fixture.Consumption.Value);
+    }
+
+    [Test]
+    public async Task MeterSegmentChangesUseTheExistingValueTypeWhenOmitted()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var path = $"/api/spaces/{fixture.Space.Id}/consumptions/{fixture.Consumption.Id}";
+        using var invalid = await host.Client.PutAsJsonAsync(path, new { startsNewMeterSegment = true });
+        await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        using var reset = await host.Client.PutAsJsonAsync(path, new UpdateConsumptionRequest(null, 0, UpdateConsumptionValueTypes.Absolute, null, null, true));
+        reset.EnsureSuccessStatusCode();
+        using var renamed = await host.Client.PutAsJsonAsync(path, new { name = "New meter" });
+        renamed.EnsureSuccessStatusCode();
+        using var clearReset = await host.Client.PutAsJsonAsync(path, new { startsNewMeterSegment = false });
+        clearReset.EnsureSuccessStatusCode();
+
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var stored = await verification.Consumptions.SingleAsync(item => item.Id == fixture.Consumption.Id);
+        await Assert.That(stored.ValueType).IsEqualTo(ConsumptionValueType.Absolute);
+        await Assert.That(stored.StartsNewMeterSegment).IsFalse();
+        await Assert.That(stored.Value).IsEqualTo(0m);
     }
 
     [Test]

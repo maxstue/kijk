@@ -1,5 +1,5 @@
-import { consumptionsByQueryOptions } from '@kijk/api/consumptions/options';
-import { limitsQueryOptions } from '@kijk/api/limits/options';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
+import * as limitsOptions from '@kijk/api/limits/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import {
   Dialog,
@@ -44,11 +44,11 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([
       queryClient.query({
-        ...consumptionsByQueryOptions(spaceId, deps.year, deps.view === 'month' ? deps.month : undefined),
+        ...consumptionsOptions.listQueryOptions(spaceId, deps.year, deps.view === 'month' ? deps.month : undefined),
         staleTime: 'static',
       }),
-      queryClient.query({ ...consumptionsByQueryOptions(spaceId, deps.year), staleTime: 'static' }),
-      queryClient.query({ ...limitsQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...consumptionsOptions.listQueryOptions(spaceId, deps.year), staleTime: 'static' }),
+      queryClient.query({ ...limitsOptions.listQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   notFoundComponent: NotFound,
@@ -62,8 +62,10 @@ function UsagePage() {
   const [showDialog, setShowDialog] = useState(false);
   const { month, view, year } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year, view === 'month' ? month : undefined));
-  const { data: yearlyConsumptions } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year));
+  const { data } = useSuspenseQuery(
+    consumptionsOptions.listQueryOptions(spaceId, year, view === 'month' ? month : undefined),
+  );
+  const { data: yearlyConsumptions } = useSuspenseQuery(consumptionsOptions.listQueryOptions(spaceId, year));
 
   const handleClose = () => setShowDialog(false);
 

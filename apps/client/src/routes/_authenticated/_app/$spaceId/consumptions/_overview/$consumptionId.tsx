@@ -1,4 +1,4 @@
-import { consumptionQueryOptions, consumptionsByQueryOptions } from '@kijk/api/consumptions/options';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -36,8 +36,8 @@ function ConsumptionEditContent({ onClose }: { onClose: () => void }) {
   const spaceId = useSpaceId();
   const { consumptionId } = Route.useParams();
   const { year } = Route.useSearch();
-  const { data: consumption } = useSuspenseQuery(consumptionQueryOptions(spaceId, consumptionId));
-  const { data: consumptions } = useSuspenseQuery(consumptionsByQueryOptions(spaceId, year));
+  const { data: consumption } = useSuspenseQuery(consumptionsOptions.detailsQueryOptions(spaceId, consumptionId));
+  const { data: consumptions } = useSuspenseQuery(consumptionsOptions.listQueryOptions(spaceId, year));
   return (
     <>
       <DialogHeader>

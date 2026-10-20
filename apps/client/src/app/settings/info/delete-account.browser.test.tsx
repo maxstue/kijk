@@ -15,7 +15,7 @@ vi.mock('@clerk/react', () => ({ useAuth: () => ({ signOut }) }));
 vi.mock('@tanstack/react-router', () => ({ useNavigate: () => navigate }));
 vi.mock('@kijk/api/users/requests', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kijk/api/users/requests')>()),
-  requestAccountDeletion,
+  requestDeletion: requestAccountDeletion,
 }));
 
 test('deleting the account needs the typed confirmation and signs out', async () => {

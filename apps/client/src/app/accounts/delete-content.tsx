@@ -1,4 +1,4 @@
-import { deleteAccountMutationOptions } from '@kijk/api/accounts/options';
+import * as accountsOptions from '@kijk/api/accounts/options';
 import type { Account } from '@kijk/api/accounts/types';
 import {
   AlertDialogAction,
@@ -23,7 +23,7 @@ interface Props {
 /** Confirmation dialog content for deleting an account. */
 export function AccountDeleteContent({ account, onClose }: Props) {
   const spaceId = useSpaceId();
-  const { isPending, mutate } = useMutation(deleteAccountMutationOptions(spaceId));
+  const { isPending, mutate } = useMutation(accountsOptions.deleteMutationOptions(spaceId));
 
   const handleDelete = () => {
     mutate(account.id, {

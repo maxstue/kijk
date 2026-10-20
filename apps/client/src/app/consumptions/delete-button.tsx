@@ -1,4 +1,4 @@
-import { deleteConsumptionMutationOptions } from '@kijk/api/consumptions/options';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import {
   AlertDialog,
@@ -31,7 +31,7 @@ export function ConsumptionDeleteButton({ id, date }: Props) {
   const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const [showModal, setShowModal] = useState(false);
-  const { mutate } = useMutation(deleteConsumptionMutationOptions(spaceId));
+  const { mutate } = useMutation(consumptionsOptions.deleteMutationOptions(spaceId));
 
   const handleDelete = () => {
     if (!canRecord) {

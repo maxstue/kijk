@@ -1,8 +1,8 @@
-import { exportConsumption, exportConsumptionMonth } from '@kijk/api/consumptions/requests';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
+import { useMutation } from '@tanstack/react-query';
 import { DownloadIcon, LoaderCircleIcon } from 'lucide-react';
-import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { useSpaceId } from '@/shared/hooks/use-active-space';
@@ -18,25 +18,22 @@ type Props =
 export function ConsumptionExportButton(props: Props) {
   const spaceId = useSpaceId();
   const canExport = useSpacePermission(SpacePermissions.consumptions.export);
-  const [isExporting, setIsExporting] = useState(false);
+  const exportMutation = useMutation({
+    ...consumptionsOptions.exportMutationOptions(spaceId),
+    onSuccess: saveDownload,
+    onError: (error) => toast.error('Export failed', { description: error.message }),
+  });
+  const isExporting = exportMutation.isPending;
   const isSingleExport = props.consumptionId !== undefined;
   const label = isSingleExport ? 'Export consumption' : 'Export monthly consumptions';
 
-  const handleExport = async () => {
+  const handleExport = () => {
     if (!canExport) {
       return;
     }
-    setIsExporting(true);
-    try {
-      const download = isSingleExport
-        ? await exportConsumption(spaceId, props.consumptionId)
-        : await exportConsumptionMonth(spaceId, props.year, props.month);
-      saveDownload(download);
-    } catch (error) {
-      toast.error('Export failed', { description: error instanceof Error ? error.message : undefined });
-    } finally {
-      setIsExporting(false);
-    }
+    exportMutation.mutate(
+      isSingleExport ? { consumptionId: props.consumptionId } : { year: props.year, month: props.month },
+    );
   };
 
   return (

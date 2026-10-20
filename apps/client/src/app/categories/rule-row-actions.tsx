@@ -1,4 +1,4 @@
-import { deleteCategoryRuleMutationOptions } from '@kijk/api/category-rules/options';
+import * as categoryRulesOptions from '@kijk/api/category-rules/options';
 import type { CategoryRule } from '@kijk/api/category-rules/types';
 import {
   AlertDialog,
@@ -39,7 +39,7 @@ interface Props {
 export function CategoryRuleRowActions({ canRecord, row }: Props) {
   const spaceId = useSpaceId();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { isPending, mutate } = useMutation(deleteCategoryRuleMutationOptions(spaceId));
+  const { isPending, mutate } = useMutation(categoryRulesOptions.deleteMutationOptions(spaceId));
   const rule = row.original;
   const restriction = canRecord ? undefined : 'Your role in this space does not allow deleting rules.';
 

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createResourceMutationOptions } from '@kijk/api/resources/options';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
@@ -25,7 +25,7 @@ interface Props {
 /** Form to create a custom resource. */
 export function ResourceTypeCreateForm({ onClose }: Props) {
   const spaceId = useSpaceId();
-  const { isPending, mutate } = useMutation(createResourceMutationOptions(spaceId));
+  const { isPending, mutate } = useMutation(resourcesOptions.createMutationOptions(spaceId));
 
   const form = useForm({
     defaultValues: {

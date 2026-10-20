@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateSpaceMutationOptions } from '@kijk/api/spaces/options';
+import * as spacesOptions from '@kijk/api/spaces/options';
 import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
@@ -39,7 +39,7 @@ export function SpaceGeneral() {
   const canDelete = !space.isPersonal && hasSpacePermission(space, SpacePermissions.space.delete);
   const router = useRouter();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const updateMutation = useMutation(updateSpaceMutationOptions());
+  const updateMutation = useMutation(spacesOptions.updateMutationOptions());
 
   const form = useForm<SpaceUpdateFormValues>({
     defaultValues: {

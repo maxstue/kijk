@@ -1,15 +1,15 @@
 using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
-using Kijk.Application.Consumptions.Create;
 using Kijk.Application.Consumptions.Delete;
+using Kijk.Application.Consumptions.Details;
 using Kijk.Application.Consumptions.Export;
-using Kijk.Application.Consumptions.GetById;
-using Kijk.Application.Consumptions.GetByYearMonth;
-using Kijk.Application.Consumptions.GetStats;
-using Kijk.Application.Consumptions.GetYears;
+using Kijk.Application.Consumptions.List;
+using Kijk.Application.Consumptions.Record;
 using Kijk.Application.Consumptions.Shared;
+using Kijk.Application.Consumptions.Statistics;
 using Kijk.Application.Consumptions.Update;
+using Kijk.Application.Consumptions.Years;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -29,46 +29,46 @@ public class ConsumptionsEndpoints : IEndpointGroup
             .WithTags("Consumptions")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/{id:guid}", GetById)
-            .WithName("GetConsumptionById")
+        group.MapGet("/{id:guid}", Details).WithName("Consumptions.Details")
+
             .RequireSpacePermission(SpacePermissions.Consumptions.View)
             .WithSummary("Gets a consumption by id");
 
-        group.MapGet("/{id:guid}/export", ExportById)
+        group.MapGet("/{id:guid}/export", Export).WithName("Consumptions.Export")
             .RequireSpacePermission(SpacePermissions.Consumptions.Export)
             .WithSummary("Exports a consumption as CSV")
             .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv")
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapGet("/export", ExportMonth)
+        group.MapGet("/export", ExportMonth).WithName("Consumptions.ExportMonth")
             .RequireSpacePermission(SpacePermissions.Consumptions.Export)
             .WithSummary("Exports all consumptions for a month as CSV")
             .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv")
             .ProducesValidationProblem();
 
-        group.MapGet("/", GetByYearMonth)
+        group.MapGet("/", List).WithName("Consumptions.List")
             .RequireSpacePermission(SpacePermissions.Consumptions.View)
             .WithSummary("Gets all consumptions for the current user by year, month and type");
 
-        group.MapGet("/stats", GetStats)
+        group.MapGet("/statistics", Statistics).WithName("Consumptions.Statistics")
             .RequireSpacePermission(SpacePermissions.Consumptions.View)
             .WithSummary("Gets all consumptions stats");
 
-        group.MapGet("/years", GetYears)
+        group.MapGet("/years", Years).WithName("Consumptions.Years")
             .RequireSpacePermission(SpacePermissions.Consumptions.View)
             .WithSummary("Gets all years");
 
-        group.MapPost("/", Create)
+        group.MapPost("/", Record).WithName("Consumptions.Record")
             .RequireSpacePermission(SpacePermissions.Consumptions.Record)
             .WithRequestValidation<CreateConsumptionRequest>()
             .WithSummary("Creates a new consumption");
 
-        group.MapPut("/{id:guid}", Update)
+        group.MapPut("/{id:guid}", Update).WithName("Consumptions.Update")
             .RequireSpacePermission(SpacePermissions.Consumptions.Record)
             .WithRequestValidation<UpdateConsumptionRequest>()
             .WithSummary("Updates a consumption");
 
-        group.MapDelete("/{id:guid}", Delete)
+        group.MapDelete("/{id:guid}", Delete).WithName("Consumptions.Delete")
             .RequireSpacePermission(SpacePermissions.Consumptions.Record)
             .WithSummary("Deletes a consumption");
 
@@ -82,21 +82,21 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> GetById(Guid id, GetByIdConsumptionHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> Details(Guid id, DetailsHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.GetByIdAsync(id, cancellationToken);
+        var result = await handler.HandleAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
     /// <summary>
     /// Exports a consumption as CSV.
     /// </summary>
-    private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> ExportById(
+    private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> Export(
         Guid id,
-        ExportConsumptionHandler handler,
+        ExportHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.ExportByIdAsync(id, cancellationToken);
+        var result = await handler.HandleAsync(id, cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
             : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
@@ -108,10 +108,10 @@ public class ConsumptionsEndpoints : IEndpointGroup
     private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> ExportMonth(
         [FromQuery] int year,
         [FromQuery] string month,
-        ExportConsumptionHandler handler,
+        ExportHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.ExportMonthAsync(year, month, cancellationToken);
+        var result = await handler.MonthAsync(year, month, cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
             : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
@@ -125,9 +125,9 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<Ok<List<ConsumptionResponse>>, ProblemHttpResult>> GetByYearMonth(int? year, string? month, GetByYearMonthHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<List<ConsumptionResponse>>, ProblemHttpResult>> List(int? year, string? month, ListHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.GetByYearMonthAsync(year, month, cancellationToken);
+        var result = await handler.HandleAsync(year, month, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -139,10 +139,10 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<Ok<GetStatsConsumptionsResponseWrapper>, ProblemHttpResult>> GetStats([FromQuery] int year, [FromQuery] string month, GetStatsConsumptionsHandler handler,
+    private static async Task<Results<Ok<GetStatsConsumptionsResponseWrapper>, ProblemHttpResult>> Statistics([FromQuery] int year, [FromQuery] string month, StatisticsHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.GetStatsAsync(year, month, cancellationToken);
+        var result = await handler.HandleAsync(year, month, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -152,9 +152,9 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<Ok<GetYearsConsumptionQueryResponse>, ProblemHttpResult>> GetYears(GetYearsConsumptionHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<GetYearsConsumptionQueryResponse>, ProblemHttpResult>> Years(YearsHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.GetYearsAsync(cancellationToken);
+        var result = await handler.HandleAsync(cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -167,13 +167,13 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<CreatedAtRoute<ConsumptionResponse>, ProblemHttpResult>> Create(CreateConsumptionRequest request,
-        CreateConsumptionHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<CreatedAtRoute<ConsumptionResponse>, ProblemHttpResult>> Record(CreateConsumptionRequest request,
+        RecordHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.CreateAsync(request, cancellationToken);
+        var result = await handler.HandleAsync(request, cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
-            : TypedResults.CreatedAtRoute(result.Value, "GetConsumptionById", new { id = result.Value.Id });
+            : TypedResults.CreatedAtRoute(result.Value, "Consumptions.Details", new { id = result.Value.Id });
     }
 
     /// <summary>
@@ -184,10 +184,10 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> Update(Guid id, UpdateConsumptionRequest request, UpdateConsumptionHandler handler,
+    private static async Task<Results<Ok<ConsumptionResponse>, ProblemHttpResult>> Update(Guid id, UpdateConsumptionRequest request, UpdateHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.UpdateAsync(id, request, cancellationToken);
+        var result = await handler.HandleAsync(id, request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -198,9 +198,9 @@ public class ConsumptionsEndpoints : IEndpointGroup
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid id, DeleteConsumptionHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<NoContent, ProblemHttpResult>> Delete(Guid id, DeleteHandler handler, CancellationToken cancellationToken)
     {
-        var result = await handler.DeleteAsync(id, cancellationToken);
+        var result = await handler.HandleAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 }

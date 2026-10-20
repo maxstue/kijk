@@ -1,4 +1,4 @@
-import { resourceQueryOptions } from '@kijk/api/resources/options';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -34,7 +34,7 @@ function ResourceEditDialog() {
 function ResourceEditContent({ onClose }: { onClose: () => void }) {
   const spaceId = useSpaceId();
   const { resourceId } = Route.useParams();
-  const { data: resource } = useSuspenseQuery(resourceQueryOptions(spaceId, resourceId));
+  const { data: resource } = useSuspenseQuery(resourcesOptions.detailsQueryOptions(spaceId, resourceId));
   return (
     <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>
       <DialogHeader>

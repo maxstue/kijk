@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
@@ -25,11 +25,11 @@ import { DefaultSpaceSelect } from './default-space-select';
 
 /** Form for the display name, default space, default resources and profile usage. */
 export function ProfileForm() {
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const currentUser = currentAccount?.user;
   const externalIdentity = currentUser?.externalIdentity;
 
-  const { mutate } = useMutation(updateUserMutationOptions());
+  const { mutate } = useMutation(usersOptions.updateMutationOptions());
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),

@@ -1,7 +1,7 @@
 using Kijk.Application.Spaces.ChangeMemberRole;
 using Kijk.Application.Spaces.Delete;
-using Kijk.Application.Spaces.GetMembers;
-using Kijk.Application.Spaces.GetRoles;
+using Kijk.Application.Spaces.Members;
+using Kijk.Application.Spaces.Roles;
 using Kijk.Application.Spaces.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,10 +14,10 @@ public sealed class ModuleService : IModule
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         services.AddScoped<ChangeMemberRoleHandler>();
-        services.AddScoped<DeleteSpaceHandler>();
-        services.AddScoped<GetSpaceMembersHandler>();
-        services.AddScoped<GetSpaceRolesHandler>();
-        services.AddScoped<UpdateSpaceHandler>();
+        services.AddScoped<DeleteHandler>();
+        services.AddScoped<MembersHandler>();
+        services.AddScoped<RolesHandler>();
+        services.AddScoped<UpdateHandler>();
 
         return services;
     }

@@ -9,93 +9,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the accounts of the active space */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['AccountResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Accounts.List'];
     put?: never;
     /** Creates an account; shared accounts additionally require finances:configure */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateAccountRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['AccountResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Accounts.Create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -111,93 +28,10 @@ export interface paths {
     };
     get?: never;
     /** Updates an account; shared accounts additionally require finances:configure */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateAccountRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['AccountResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Accounts.Update'];
     post?: never;
     /** Deletes an account without transactions; shared accounts additionally require finances:configure */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Accounts.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -211,93 +45,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets all budget versions of the active space */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['BudgetResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    put?: never;
-    /** Creates a budget for a category from a month on; shared budgets additionally require budgets:plan */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateBudgetRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['BudgetResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Budgets.ListVersions'];
+    /** Sets the budget of a category from a month on; shared budgets additionally require budgets:plan */
+    put: operations['Budgets.SetFromMonth'];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -312,46 +63,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the spending per category over several months */
-    get: {
-      parameters: {
-        query: {
-          year: number | string;
-          month: number | string;
-          months?: number | string;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['BudgetStatisticsResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Budgets.Statistics'];
     put?: never;
     post?: never;
     delete?: never;
@@ -368,45 +80,7 @@ export interface paths {
       cookie?: never;
     };
     /** Evaluates the budgets for a calendar month */
-    get: {
-      parameters: {
-        query: {
-          year: number | string;
-          month: number | string;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['BudgetOverviewResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Budgets.Overview'];
     put?: never;
     post?: never;
     delete?: never;
@@ -424,93 +98,10 @@ export interface paths {
     };
     get?: never;
     /** Updates a budget version; shared budgets additionally require budgets:plan */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateBudgetRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['BudgetResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Budgets.UpdateVersion'];
     post?: never;
     /** Deletes a budget version; shared budgets additionally require budgets:plan */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Budgets.DeleteVersion'];
     options?: never;
     head?: never;
     patch?: never;
@@ -524,93 +115,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the categories available to the active space */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CategoryResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Categories.List'];
     put?: never;
     /** Creates a custom category */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateCategoryRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CategoryResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Categories.Create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -626,93 +134,10 @@ export interface paths {
     };
     get?: never;
     /** Updates a custom category */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateCategoryRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CategoryResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Categories.Update'];
     post?: never;
     /** Deletes an unused custom category */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Categories.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -726,42 +151,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the remembered category corrections of the active space */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CategoryRuleResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['CategoryRules.List'];
     put?: never;
     post?: never;
     delete?: never;
@@ -781,42 +171,7 @@ export interface paths {
      * Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the
      * rule
      */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CategoryRuleSuggestionResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['CategoryRules.Suggestions'];
     put?: never;
     post?: never;
     delete?: never;
@@ -836,41 +191,7 @@ export interface paths {
     put?: never;
     post?: never;
     /** Deletes a remembered category correction */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['CategoryRules.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -884,95 +205,12 @@ export interface paths {
       cookie?: never;
     };
     /** Gets a consumption by id */
-    get: operations['GetConsumptionById'];
+    get: operations['Consumptions.Details'];
     /** Updates a consumption */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateConsumptionRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ConsumptionResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Consumptions.Update'];
     post?: never;
     /** Deletes a consumption */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Consumptions.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -986,43 +224,7 @@ export interface paths {
       cookie?: never;
     };
     /** Exports a consumption as CSV */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/csv': string;
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Consumptions.Export'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1039,54 +241,7 @@ export interface paths {
       cookie?: never;
     };
     /** Exports all consumptions for a month as CSV */
-    get: {
-      parameters: {
-        query: {
-          year: number | string;
-          month: string;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'text/csv': string;
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Consumptions.ExportMonth'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1103,103 +258,17 @@ export interface paths {
       cookie?: never;
     };
     /** Gets all consumptions for the current user by year, month and type */
-    get: {
-      parameters: {
-        query?: {
-          year?: number | string;
-          month?: string;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ConsumptionResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Consumptions.List'];
     put?: never;
     /** Creates a new consumption */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateConsumptionRequest'];
-        };
-      };
-      responses: {
-        /** Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ConsumptionResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Consumptions.Record'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/spaces/{spaceId}/consumptions/stats': {
+  '/api/spaces/{spaceId}/consumptions/statistics': {
     parameters: {
       query?: never;
       header?: never;
@@ -1207,45 +276,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets all consumptions stats */
-    get: {
-      parameters: {
-        query: {
-          year: number | string;
-          month: string;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['GetStatsConsumptionsResponseWrapper'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Consumptions.Statistics'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1262,42 +293,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets all years */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['GetYearsConsumptionQueryResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Consumptions.Years'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1314,89 +310,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the latest imports of the active space */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportJobResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Imports.List'];
     put?: never;
     /** Uploads a bank export and starts its import */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'multipart/form-data': {
-            /** Format: uuid */
-            accountId: string;
-          } & {
-            file: components['schemas']['IFormFile'];
-          };
-        };
-      };
-      responses: {
-        /** Accepted */
-        202: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportJobResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Imports.Start'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1411,7 +328,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets an import by id */
-    get: operations['GetImportById'];
+    get: operations['Imports.Details'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1428,47 +345,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the first rows of an uploaded file for the column mapping */
-    get: {
-      parameters: {
-        query?: {
-          delimiter?: string;
-          encoding?: string;
-          headerRowIndex?: number | string;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportPreviewResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Imports.FilePreview'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1485,48 +362,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the rows of an import waiting for review */
-    get: {
-      parameters: {
-        query?: {
-          page?: number | string;
-          pageSize?: number | string;
-          months?: string;
-          cardSettlementsOnly?: boolean;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportCandidatePageResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Imports.Candidates'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1545,47 +381,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Confirms the column mapping and starts reading the file */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CsvImportMapping'];
-        };
-      };
-      responses: {
-        /** Accepted */
-        202: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportJobResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Imports.ConfirmMapping'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1601,48 +397,7 @@ export interface paths {
     };
     get?: never;
     /** Changes the category or exclusion of a row during the review */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-          candidateId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateImportCandidateRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportCandidateResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Imports.UpdateCandidate'];
     post?: never;
     delete?: never;
     options?: never;
@@ -1658,43 +413,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets exactly the texts the AI categorization would send */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['AiPreviewResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Imports.AiDataPreview'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1713,56 +432,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Proposes categories with the AI for the rows that have none */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CategorizeImportRequest'];
-        };
-      };
-      responses: {
-        /** Accepted */
-        202: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportJobResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Imports.StartCategorization'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1779,47 +449,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Replaces the account's transactions in the covered months with the reviewed rows */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CommitImportRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportJobResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Imports.Commit'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1836,43 +466,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Cancels an open import and deletes its file */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportJobResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Imports.Cancel'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1887,92 +481,9 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the import settings of the active space */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportSettingsResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Imports.Settings'];
     /** Changes the import settings of the active space */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateImportSettingsRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ImportSettingsResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Imports.UpdateSettings'];
     post?: never;
     delete?: never;
     options?: never;
@@ -1988,93 +499,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets consumption limits for the active space */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['LimitResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Limits.List'];
     put?: never;
     /** Creates a consumption limit */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateLimitRequest'];
-        };
-      };
-      responses: {
-        /** Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['LimitResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Limits.Create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2089,95 +517,12 @@ export interface paths {
       cookie?: never;
     };
     /** Gets a consumption limit by id */
-    get: operations['GetLimitById'];
+    get: operations['Limits.Details'];
     /** Updates a consumption limit */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateLimitRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['LimitResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Limits.Update'];
     post?: never;
     /** Deletes a consumption limit */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Limits.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2191,102 +536,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets all resources */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ResourceResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Resources.List'];
     put?: never;
     /** Creates a new resource type */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateResourceRequest'];
-        };
-      };
-      responses: {
-        /** Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ResourceResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        /** Conflict */
-        409: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Resources.Create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2301,113 +554,12 @@ export interface paths {
       cookie?: never;
     };
     /** Gets a resource type */
-    get: operations['GetResourceById'];
+    get: operations['Resources.Details'];
     /** Updates a custom resource type */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateResourceRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ResourceResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        /** Conflict */
-        409: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Resources.Update'];
     post?: never;
     /** Deletes an unused custom resource type */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        /** Conflict */
-        409: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Resources.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2421,30 +573,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the space roles and their permissions */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['SpaceRoleResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Spaces.Roles'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2462,69 +591,10 @@ export interface paths {
     };
     get?: never;
     /** Updates space details */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateSpaceRequest'];
-        };
-      };
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Spaces.Update'];
     post?: never;
     /** Deletes a space and its data */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Spaces.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2538,32 +608,7 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the members of a space with their roles */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['SpaceMemberResponse'][];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Spaces.Members'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2581,46 +626,7 @@ export interface paths {
     };
     get?: never;
     /** Changes the role of another space member */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-          userId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['ChangeMemberRoleRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['SpaceMemberResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Spaces.ChangeMemberRole'];
     post?: never;
     delete?: never;
     options?: never;
@@ -2636,100 +642,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets a page of transactions of the active space, optionally by year, month, categories or without category */
-    get: {
-      parameters: {
-        query?: {
-          year?: number | string;
-          month?: number | string;
-          uncategorized?: boolean;
-          categoryIds?: string[];
-          page?: number | string;
-          pageSize?: number | string;
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['TransactionPageResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Transactions.List'];
     put?: never;
     /** Records a transaction manually */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateTransactionRequest'];
-        };
-      };
-      responses: {
-        /** Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['TransactionResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Transactions.Record'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2744,38 +660,7 @@ export interface paths {
       cookie?: never;
     };
     /** Exports transactions as CSV, optionally by year, month, categories or without category */
-    get: {
-      parameters: {
-        query?: {
-          year?: number | string;
-          month?: number | string;
-          uncategorized?: boolean;
-          categoryIds?: string[];
-        };
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Transactions.Export'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2792,95 +677,12 @@ export interface paths {
       cookie?: never;
     };
     /** Gets a transaction by id */
-    get: operations['GetTransactionById'];
+    get: operations['Transactions.Details'];
     /** Updates a transaction */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateTransactionRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['TransactionResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Transactions.Update'];
     post?: never;
     /** Deletes a transaction */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Transactions.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2895,55 +697,7 @@ export interface paths {
     };
     get?: never;
     /** Assigns one category to several transactions */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CategorizeTransactionsRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CategorizeTransactionsResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Transactions.CategorizeMany'];
     post?: never;
     delete?: never;
     options?: never;
@@ -2960,47 +714,7 @@ export interface paths {
     };
     get?: never;
     /** Corrects the category of a transaction, optionally remembering it for the merchant or counterparty */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** The space the request works on. */
-          spaceId: string;
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CategorizeTransactionRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CategorizeTransactionResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        /** Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['ProblemDetails'];
-          };
-        };
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Transactions.Categorize'];
     post?: never;
     delete?: never;
     options?: never;
@@ -3016,76 +730,10 @@ export interface paths {
       cookie?: never;
     };
     /** Gets the units of a scope, optionally filtered and paged */
-    get: {
-      parameters: {
-        query?: {
-          scope?: components['schemas']['UnitScope'];
-          spaceId?: string;
-          includeArchived?: boolean;
-          search?: string;
-          page?: number | string;
-          pageSize?: number | string;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['UnitPageResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    get: operations['Units.List'];
     put?: never;
     /** Creates a user unit */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateUnitRequest'];
-        };
-      };
-      responses: {
-        /** Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['UnitResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Units.Create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -3101,71 +749,10 @@ export interface paths {
     };
     get?: never;
     /** Updates a user unit */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateUnitRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['UnitResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Units.Update'];
     post?: never;
     /** Deletes an unused user unit */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Units.Delete'];
     options?: never;
     head?: never;
     patch?: never;
@@ -3181,30 +768,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Archives a user unit */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Units.Archive'];
     delete?: never;
     options?: never;
     head?: never;
@@ -3221,30 +785,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Restores a user unit */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Units.Restore'];
     delete?: never;
     options?: never;
     head?: never;
@@ -3260,58 +801,10 @@ export interface paths {
     };
     get?: never;
     /** Shares a unit with a space */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Units.ShareWithSpace'];
     post?: never;
     /** Removes a unit from a space */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-          spaceId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    delete: operations['Units.RemoveFromSpace'];
     options?: never;
     head?: never;
     patch?: never;
@@ -3325,84 +818,9 @@ export interface paths {
       cookie?: never;
     };
     /** Gets me */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CurrentUserResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/users': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
+    get: operations['Users.Me'];
     /** Updates the current user */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateUserRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['UserResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Users.Update'];
     post?: never;
     delete?: never;
     options?: never;
@@ -3419,34 +837,7 @@ export interface paths {
     };
     get?: never;
     /** Sets or clears the space the app opens first */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['SetDefaultSpaceRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CurrentUserResponse'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Users.SetDefaultSpace'];
     post?: never;
     delete?: never;
     options?: never;
@@ -3464,28 +855,7 @@ export interface paths {
     get?: never;
     put?: never;
     /** Deletes the current user's account and all their data in the background */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** Accepted */
-        202: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    post: operations['Users.RequestDeletion'];
     delete?: never;
     options?: never;
     head?: never;
@@ -3501,43 +871,7 @@ export interface paths {
     };
     get?: never;
     /** Completes onboarding and creates the Kijk account when needed */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['WelcomeUserRequest'];
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['CurrentUserResponse'];
-          };
-        };
-        /** Bad Request */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
-          };
-        };
-        401: components['responses']['401'];
-        403: components['responses']['403'];
-        429: components['responses']['429'];
-        500: components['responses']['500'];
-      };
-    };
+    put: operations['Users.CompleteOnboarding'];
     post?: never;
     delete?: never;
     options?: never;
@@ -4095,31 +1429,6 @@ export interface components {
     CreateAccountRequest: {
       name: string;
       ibanLast4: null | string;
-      visibility?: components['schemas']['Visibility'];
-    };
-    /** Request for creating a budget for a category from a month on. */
-    CreateBudgetRequest: {
-      /**
-       * Format: uuid
-       *
-       * The expense category.
-       */
-      categoryId: string;
-      /**
-       * Format: double
-       *
-       * The monthly amount in EUR.
-       */
-      amount: number | string;
-      /**
-       * Format: date
-       *
-       * Any day of the first month the budget applies to.
-       */
-      validFrom: string;
-      /** Whether the budget is evaluated. */
-      active: boolean;
-      /** A private budget is seen and used only by its creator and replaces the shared budget of the category for them. */
       visibility?: components['schemas']['Visibility'];
     };
     /** Request for creating a custom category. */
@@ -4742,6 +2051,31 @@ export interface components {
       /** Whether it is a system or a custom resource. */
       creatorType: components['schemas']['CreatorType'];
     };
+    /** Request for setting a budget for a category from a month on. */
+    SetBudgetRequest: {
+      /**
+       * Format: uuid
+       *
+       * The expense category.
+       */
+      categoryId: string;
+      /**
+       * Format: double
+       *
+       * The monthly amount in EUR.
+       */
+      amount: number | string;
+      /**
+       * Format: date
+       *
+       * Any day of the first month the budget applies to.
+       */
+      validFrom: string;
+      /** Whether the budget is evaluated. */
+      active: boolean;
+      /** A private budget is seen and used only by its creator and replaces the shared budget of the category for them. */
+      visibility?: components['schemas']['Visibility'];
+    };
     /** Request for choosing the space the app opens first. */
     SetDefaultSpaceRequest: {
       /**
@@ -4952,8 +2286,7 @@ export interface components {
        * The new value.
        */
       value: null | number | string;
-      /** Whether the value is a meter reading or the consumed amount. */
-      valueType: components['schemas']['UpdateConsumptionValueTypes'];
+      valueType: null | components['schemas']['UpdateConsumptionValueTypes'];
       /**
        * Format: uuid
        *
@@ -4966,19 +2299,11 @@ export interface components {
        * The new date.
        */
       date: null | string;
-      /**
-       * Whether a meter reading starts a new segment.
-       *
-       * @default false
-       */
-      startsNewMeterSegment: boolean;
+      /** Whether a meter reading starts a new segment. */
+      startsNewMeterSegment?: null | boolean;
     };
-    /**
-     * How the entered value of a consumption is interpreted.
-     *
-     * @enum {unknown}
-     */
-    UpdateConsumptionValueTypes: 'Absolute' | 'Relative';
+    /** @enum {unknown} */
+    UpdateConsumptionValueTypes: 'Absolute' | 'Relative' | null;
     /** Request for changing a row during the review. */
     UpdateImportCandidateRequest: {
       /**
@@ -5246,7 +2571,703 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  GetConsumptionById: {
+  'Accounts.List': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AccountResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Accounts.Create': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateAccountRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AccountResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Accounts.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateAccountRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AccountResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Accounts.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Budgets.ListVersions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BudgetResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Budgets.SetFromMonth': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetBudgetRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BudgetResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Budgets.Statistics': {
+    parameters: {
+      query: {
+        year: number | string;
+        month: number | string;
+        months?: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BudgetStatisticsResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Budgets.Overview': {
+    parameters: {
+      query: {
+        year: number | string;
+        month: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BudgetOverviewResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Budgets.UpdateVersion': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateBudgetRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BudgetResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Budgets.DeleteVersion': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Categories.List': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CategoryResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Categories.Create': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCategoryRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CategoryResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Categories.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateCategoryRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CategoryResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Categories.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'CategoryRules.List': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CategoryRuleResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'CategoryRules.Suggestions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CategoryRuleSuggestionResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'CategoryRules.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.Details': {
     parameters: {
       query?: never;
       header?: never;
@@ -5283,7 +3304,421 @@ export interface operations {
       500: components['responses']['500'];
     };
   };
-  GetImportById: {
+  'Consumptions.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateConsumptionRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsumptionResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.Export': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'text/csv': string;
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.ExportMonth': {
+    parameters: {
+      query: {
+        year: number | string;
+        month: string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'text/csv': string;
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.List': {
+    parameters: {
+      query?: {
+        year?: number | string;
+        month?: string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsumptionResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.Record': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateConsumptionRequest'];
+      };
+    };
+    responses: {
+      /** Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsumptionResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.Statistics': {
+    parameters: {
+      query: {
+        year: number | string;
+        month: string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetStatsConsumptionsResponseWrapper'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Consumptions.Years': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetYearsConsumptionQueryResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.List': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportJobResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.Start': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /** Format: uuid */
+          accountId: string;
+        } & {
+          file: components['schemas']['IFormFile'];
+        };
+      };
+    };
+    responses: {
+      /** Accepted */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportJobResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.Details': {
     parameters: {
       query?: never;
       header?: never;
@@ -5320,7 +3755,508 @@ export interface operations {
       500: components['responses']['500'];
     };
   };
-  GetLimitById: {
+  'Imports.FilePreview': {
+    parameters: {
+      query?: {
+        delimiter?: string;
+        encoding?: string;
+        headerRowIndex?: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportPreviewResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.Candidates': {
+    parameters: {
+      query?: {
+        page?: number | string;
+        pageSize?: number | string;
+        months?: string;
+        cardSettlementsOnly?: boolean;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportCandidatePageResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.ConfirmMapping': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CsvImportMapping'];
+      };
+    };
+    responses: {
+      /** Accepted */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportJobResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.UpdateCandidate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+        candidateId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateImportCandidateRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportCandidateResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.AiDataPreview': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AiPreviewResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.StartCategorization': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CategorizeImportRequest'];
+      };
+    };
+    responses: {
+      /** Accepted */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportJobResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.Commit': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CommitImportRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportJobResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.Cancel': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportJobResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.Settings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportSettingsResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.UpdateSettings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateImportSettingsRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportSettingsResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Limits.List': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LimitResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Limits.Create': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateLimitRequest'];
+      };
+    };
+    responses: {
+      /** Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LimitResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Limits.Details': {
     parameters: {
       query?: never;
       header?: never;
@@ -5357,7 +4293,186 @@ export interface operations {
       500: components['responses']['500'];
     };
   };
-  GetResourceById: {
+  'Limits.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateLimitRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LimitResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Limits.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Resources.List': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResourceResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Resources.Create': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateResourceRequest'];
+      };
+    };
+    responses: {
+      /** Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResourceResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      /** Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Resources.Details': {
     parameters: {
       query?: never;
       header?: never;
@@ -5394,7 +4509,385 @@ export interface operations {
       500: components['responses']['500'];
     };
   };
-  GetTransactionById: {
+  'Resources.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateResourceRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResourceResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      /** Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Resources.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      /** Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Spaces.Roles': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SpaceRoleResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Spaces.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateSpaceRequest'];
+      };
+    };
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Spaces.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Spaces.Members': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SpaceMemberResponse'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Spaces.ChangeMemberRole': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        userId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangeMemberRoleRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SpaceMemberResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.List': {
+    parameters: {
+      query?: {
+        year?: number | string;
+        month?: number | string;
+        uncategorized?: boolean;
+        categoryIds?: string[];
+        page?: number | string;
+        pageSize?: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TransactionPageResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.Record': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateTransactionRequest'];
+      };
+    };
+    responses: {
+      /** Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TransactionResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.Export': {
+    parameters: {
+      query?: {
+        year?: number | string;
+        month?: number | string;
+        uncategorized?: boolean;
+        categoryIds?: string[];
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.Details': {
     parameters: {
       query?: never;
       header?: never;
@@ -5427,6 +4920,558 @@ export interface operations {
           'application/problem+json': components['schemas']['ProblemDetails'];
         };
       };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateTransactionRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TransactionResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.CategorizeMany': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CategorizeTransactionsRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CategorizeTransactionsResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Transactions.Categorize': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CategorizeTransactionRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CategorizeTransactionResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.List': {
+    parameters: {
+      query?: {
+        scope?: components['schemas']['UnitScope'];
+        spaceId?: string;
+        includeArchived?: boolean;
+        search?: string;
+        page?: number | string;
+        pageSize?: number | string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UnitPageResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.Create': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateUnitRequest'];
+      };
+    };
+    responses: {
+      /** Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UnitResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateUnitRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UnitResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.Delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.Archive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.Restore': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.ShareWithSpace': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Units.RemoveFromSpace': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.Me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CurrentUserResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.Update': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateUserRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.SetDefaultSpace': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetDefaultSpaceRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CurrentUserResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.RequestDeletion': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** Accepted */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.CompleteOnboarding': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['WelcomeUserRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CurrentUserResponse'];
+        };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
       429: components['responses']['429'];
       500: components['responses']['500'];
     };

@@ -1,4 +1,4 @@
-import { deleteSpaceMutationOptions } from '@kijk/api/spaces/options';
+import * as spacesOptions from '@kijk/api/spaces/options';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -22,7 +22,7 @@ export function SpaceDeleteContent({ onClose }: { onClose: () => void }) {
   const { space, user } = useSpaceSettings();
   const [confirmation, setConfirmation] = useState('');
   const navigate = useNavigate();
-  const { isPending, mutate } = useMutation(deleteSpaceMutationOptions());
+  const { isPending, mutate } = useMutation(spacesOptions.deleteMutationOptions());
   const hasAnotherSpace = user.spaces?.some((entry) => entry.id !== space.id) ?? false;
 
   function handleDelete() {

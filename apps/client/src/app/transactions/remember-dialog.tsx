@@ -1,4 +1,4 @@
-import { categorizeTransactionMutationOptions } from '@kijk/api/transactions/options';
+import * as transactionsOptions from '@kijk/api/transactions/options';
 import type { Transaction } from '@kijk/api/transactions/types';
 import { Button } from '@kijk/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
@@ -20,7 +20,7 @@ interface Props {
  */
 export function RememberDialog({ categoryId, categoryName, onClose, transaction }: Props) {
   const spaceId = useSpaceId();
-  const categorizeMutation = useMutation(categorizeTransactionMutationOptions(spaceId));
+  const categorizeMutation = useMutation(transactionsOptions.categorizeMutationOptions(spaceId));
 
   function remember(keyword?: string) {
     categorizeMutation.mutate(

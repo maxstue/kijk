@@ -1,4 +1,4 @@
-import { deleteUnitMutationOptions } from '@kijk/api/units/options';
+import * as unitsOptions from '@kijk/api/units/options';
 import type { Unit } from '@kijk/api/units/types';
 import {
   AlertDialogAction,
@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 
 /** Confirmation dialog content for deleting a unit. */
 export function UnitDeleteContent({ onClose, unit }: { onClose: () => void; unit: Unit }) {
-  const { isPending, mutate } = useMutation(deleteUnitMutationOptions());
+  const { isPending, mutate } = useMutation(unitsOptions.deleteMutationOptions());
 
   function handleDelete() {
     mutate(unit.id, {

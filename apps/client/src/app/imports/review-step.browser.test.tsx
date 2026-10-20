@@ -1,6 +1,6 @@
 import '@kijk/ui/globals.css';
-import { importCandidatesQueryOptions } from '@kijk/api/imports/options';
-import { commitImport, getImportCandidates, updateImportCandidate } from '@kijk/api/imports/requests';
+import * as importsOptions from '@kijk/api/imports/options';
+import * as importsApi from '@kijk/api/imports/requests';
 import type { ImportCandidate, ImportCandidatePage, ImportCandidatesQuery, ImportJob } from '@kijk/api/imports/types';
 import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -23,9 +23,9 @@ vi.mock('@/app/imports/ai-preview', () => ({
 }));
 
 afterEach(() => {
-  vi.mocked(commitImport).mockReset();
-  vi.mocked(getImportCandidates).mockReset();
-  vi.mocked(updateImportCandidate).mockReset();
+  vi.mocked(importsApi.commit).mockReset();
+  vi.mocked(importsApi.getCandidates).mockReset();
+  vi.mocked(importsApi.updateCandidate).mockReset();
 });
 
 function ReviewHarness({ job, initialStage }: { job: ImportJob; initialStage: 'months' | 'review' }) {
@@ -75,9 +75,19 @@ async function renderReview(
       excluded: false,
       id: `row-${index}`,
     })) as unknown as ImportCandidate[]);
-  vi.mocked(getImportCandidates).mockImplementation(async (_spaceId, _id, params) => candidatePage(rows, params));
+  vi.mocked(importsApi.getCandidates).mockImplementation(async (_spaceId, _id, params) => candidatePage(rows, params));
+  vi.mocked(importsApi.updateCandidate).mockImplementation(async (_spaceId, { candidateId, candidate }) => {
+    const index = rows.findIndex((row) => row.id === candidateId);
+    const updated = {
+      ...rows[index],
+      ...candidate,
+      countsAsOffset: candidate.countsAsOffset ?? rows[index].countsAsOffset ?? false,
+    };
+    rows.splice(index, 1, updated);
+    return updated;
+  });
   client.setQueryData(
-    importCandidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
+    importsOptions.candidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
     candidatePage(rows),
   );
   const job = {
@@ -106,26 +116,18 @@ test.each([360, 960])('can review and edit rows beyond the former 300-row limit 
     await next.click();
   }
   await expect.element(screen.getByText('Merchant 301', { exact: true })).toBeVisible();
-  expect(getImportCandidates).toHaveBeenCalledWith(
+  expect(importsApi.getCandidates).toHaveBeenCalledWith(
     'space',
     'import',
     { months: '2026-09-01', page: 4, pageSize: 100, cardSettlementsOnly: false },
     expect.any(AbortSignal),
   );
   await expect.element(next).toBeDisabled();
-  vi.mocked(updateImportCandidate).mockResolvedValue({
-    id: 'row-300',
-    bookingDate: '2026-09-15',
-    counterparty: 'Merchant 301',
-    amount: 12,
-    categoryId: null,
-    excluded: true,
-    errors: null,
-  } as unknown as ImportCandidate);
+
   await screen.getByRole('checkbox', { name: 'Import this row' }).click();
   await expect.element(screen.getByRole('checkbox', { name: 'Import this row' })).not.toBeChecked();
   await vi.waitFor(() =>
-    expect(updateImportCandidate).toHaveBeenCalledWith('space', {
+    expect(importsApi.updateCandidate).toHaveBeenCalledWith('space', {
       importId: 'import',
       candidateId: 'row-300',
       candidate: { categoryId: null, excluded: true },
@@ -168,7 +170,7 @@ test('changing selected months requests page one and updates the selection-wide 
   await expect.element(screen.getByText('Merchant 1', { exact: true })).toBeVisible();
   await expect.element(screen.getByText(/203.*transactions ready to import/)).toBeVisible();
   await expect.element(screen.getByRole('button', { name: 'Previous rows' })).toBeDisabled();
-  expect(getImportCandidates).toHaveBeenCalledWith(
+  expect(importsApi.getCandidates).toHaveBeenCalledWith(
     'space',
     'import',
     {
@@ -184,9 +186,9 @@ test('changing selected months requests page one and updates the selection-wide 
 
 test('blocks saving while a new page loads and allows retry after a failed request', async () => {
   const screen = await renderReview({ fullMonths: ['2026-09-01'], edgeMonths: [] }, 960, 'review', 201);
-  const implementation = vi.mocked(getImportCandidates).getMockImplementation()!;
+  const implementation = vi.mocked(importsApi.getCandidates).getMockImplementation()!;
   const pending = Promise.withResolvers<ImportCandidatePage>();
-  vi.mocked(getImportCandidates).mockImplementation((spaceId, id, params, signal) =>
+  vi.mocked(importsApi.getCandidates).mockImplementation((spaceId, id, params, signal) =>
     params?.page === 2 ? pending.promise : implementation(spaceId, id, params, signal),
   );
   await screen.getByRole('button', { name: 'Next rows' }).click();
@@ -194,7 +196,7 @@ test('blocks saving while a new page loads and allows retry after a failed reque
   pending.reject(new Error('Unavailable'));
   await expect.element(screen.getByText('Transactions could not be loaded')).toBeVisible();
   await expect.element(screen.getByRole('button', { name: 'Save import' })).toBeDisabled();
-  vi.mocked(getImportCandidates).mockImplementation(implementation);
+  vi.mocked(importsApi.getCandidates).mockImplementation(implementation);
   await screen.getByRole('button', { name: 'Try again' }).click();
   await expect.element(screen.getByText('Merchant 101', { exact: true })).toBeVisible();
   await expect.element(screen.getByRole('button', { name: 'Save import' })).toBeEnabled();
@@ -215,12 +217,11 @@ test('loads card statements outside the visible transaction page only when expan
   })) as unknown as ImportCandidate[];
   const screen = await renderReview({ fullMonths: ['2026-09-01'], edgeMonths: [] }, 960, 'review', 102, rows);
   const cardRequests = () =>
-    vi.mocked(getImportCandidates).mock.calls.filter(([, , query]) => query?.cardSettlementsOnly);
+    vi.mocked(importsApi.getCandidates).mock.calls.filter(([, , query]) => query?.cardSettlementsOnly);
   expect(cardRequests()).toHaveLength(0);
   await screen.getByText('2 credit card statements were found').click();
   await expect.element(screen.getByText(/Merchant 101.*purchases imported separately/)).toBeVisible();
   expect(cardRequests()).toHaveLength(1);
-  vi.mocked(updateImportCandidate).mockResolvedValue({ ...rows[100], countsAsOffset: true });
   const checkbox = screen.getByRole('checkbox', { name: /Merchant 101.*purchases imported separately/ });
   await checkbox.click();
   await expect.element(checkbox).toBeChecked();
@@ -228,7 +229,9 @@ test('loads card statements outside the visible transaction page only when expan
 });
 
 test('explains the missing month and enables saving after a month is selected', async () => {
-  vi.mocked(commitImport).mockResolvedValue({ importedCount: 120 } as Awaited<ReturnType<typeof commitImport>>);
+  vi.mocked(importsApi.commit).mockResolvedValue({ importedCount: 120 } as Awaited<
+    ReturnType<typeof importsApi.commit>
+  >);
   const screen = await renderReview();
   await expect.element(screen.getByRole('button', { name: 'Continue to review' })).toBeDisabled();
   await expect.element(screen.getByRole('button', { name: 'Save import' })).not.toBeInTheDocument();
@@ -238,7 +241,7 @@ test('explains the missing month and enables saving after a month is selected', 
   await expect.element(screen.getByText(/120.*transactions ready to import/)).toBeVisible();
   await screen.getByRole('button', { name: 'Save import' }).click();
   await vi.waitFor(() =>
-    expect(commitImport).toHaveBeenCalledWith('space', 'import', {
+    expect(importsApi.commit).toHaveBeenCalledWith('space', 'import', {
       acceptErrors: false,
       includedEdgeMonths: ['2026-09-01'],
     }),
@@ -356,10 +359,10 @@ test('refreshes category suggestions when background categorization finishes', a
   } as unknown as ImportCandidate;
   client.setQueryData(queryKeys.categories.list('space'), [{ id: 'food', name: 'Food' }]);
   client.setQueryData(
-    importCandidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
+    importsOptions.candidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
     candidatePage([candidate]),
   );
-  vi.mocked(getImportCandidates).mockResolvedValue(
+  vi.mocked(importsApi.getCandidates).mockResolvedValue(
     candidatePage([{ ...candidate, categoryId: 'food', categorySource: 'Ai' }]),
   );
   const job = {
@@ -388,10 +391,10 @@ test.each([360, 960])('keeps the table position stable while AI starts and finis
   onTestFinished(() => client.clear());
   client.setQueryData(queryKeys.categories.list('space'), []);
   client.setQueryData(
-    importCandidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
+    importsOptions.candidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
     candidatePage([]),
   );
-  vi.mocked(getImportCandidates).mockResolvedValue(candidatePage([]));
+  vi.mocked(importsApi.getCandidates).mockResolvedValue(candidatePage([]));
   const job = {
     id: 'import',
     fullMonths: ['2026-09-01'],

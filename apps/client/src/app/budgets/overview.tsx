@@ -1,4 +1,4 @@
-import { budgetOverviewQueryOptions } from '@kijk/api/budgets/options';
+import * as budgetsOptions from '@kijk/api/budgets/options';
 import type { BudgetCategory } from '@kijk/api/budgets/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Badge } from '@kijk/ui/components/badge';
@@ -38,7 +38,7 @@ interface Props {
 /** Monthly budgets or spending across all expense categories. */
 export function BudgetOverview({ month, view = 'budgets', year }: Props) {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(budgetOverviewQueryOptions(spaceId, year, month));
+  const { data } = useSuspenseQuery(budgetsOptions.overviewQueryOptions(spaceId, year, month));
   const budgeted = data.categories.filter((category) => category.budget !== null && category.budget !== undefined);
   const categories = view === 'budgets' ? budgeted : data.categories;
   const budgetedSpent = budgeted.reduce((total, category) => total + toAmount(category.spent), 0);

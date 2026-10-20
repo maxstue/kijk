@@ -1,5 +1,5 @@
 using Kijk.Application.CategoryRules.Delete;
-using Kijk.Application.CategoryRules.Get;
+using Kijk.Application.CategoryRules.List;
 using Kijk.Application.CategoryRules.Suggestions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,9 +11,9 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<DeleteCategoryRuleHandler>();
-        services.AddScoped<GetCategoryRulesHandler>();
-        services.AddScoped<GetCategoryRuleSuggestionsHandler>();
+        services.AddScoped<DeleteHandler>();
+        services.AddScoped<ListHandler>();
+        services.AddScoped<SuggestionsHandler>();
 
         return services;
     }

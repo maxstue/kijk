@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/react';
-import { currentUserQueryOptions, updateUserMutationOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -10,11 +10,11 @@ import type { CookieConsent } from '@/shared/types/analytics';
 /** Reads and updates the analytics consent: stored on the account for signed-in users, otherwise in the browser. */
 export function useAnalyticsConsent() {
   const { isLoaded, isSignedIn } = useAuth();
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const currentUser = currentAccount?.user;
   const [anonymousConsent, setAnonymousConsent] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());
   const serverConsent = toCookieConsent(currentUser?.analyticsConsent);
-  const updateUserOptions = updateUserMutationOptions();
+  const updateUserOptions = usersOptions.updateMutationOptions();
   const { mutate, isPending } = useMutation({
     ...updateUserOptions,
     async onSuccess(...args) {

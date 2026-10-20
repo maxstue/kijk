@@ -2,25 +2,25 @@ import { invalidate, invalidateInEverySpace } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import { archiveUnit, createUnit, deleteUnit, getUnits, shareUnit, unshareUnit, updateUnit } from './requests';
+import { archive, restore, create, remove, list, shareWithSpace, removeFromSpace, update } from './requests';
 import type { CreateUnitData, UnitListQuery, UpdateUnitData } from './types';
 
 /** Query for the units of a scope, optionally filtered and paged. */
-export const unitsQueryOptions = (query: UnitListQuery) =>
-  queryOptions({ queryFn: ({ signal }) => getUnits(query, signal), queryKey: queryKeys.units.list(query) });
+export const listQueryOptions = (query: UnitListQuery) =>
+  queryOptions({ queryFn: ({ signal }) => list(query, signal), queryKey: queryKeys.units.list(query) });
 
 /** Mutation that creates a unit. */
-export const createUnitMutationOptions = () =>
+export const createMutationOptions = () =>
   mutationOptions({
-    mutationFn: (data: CreateUnitData) => createUnit(data),
+    mutationFn: (data: CreateUnitData) => create(data),
     onSuccess: (_data, { shareWithSpaceIds }, _result, { client }) =>
       invalidate(client, queryKeys.units.all, ...(shareWithSpaceIds ?? []).map(queryKeys.units.inSpace)),
   });
 
 /** Mutation that updates a unit. */
-export const updateUnitMutationOptions = () =>
+export const updateMutationOptions = () =>
   mutationOptions({
-    mutationFn: ({ data, id }: { data: UpdateUnitData; id: string }) => updateUnit(id, data),
+    mutationFn: ({ data, id }: { data: UpdateUnitData; id: string }) => update(id, data),
     // Resources and consumptions of every space the unit is shared with show its name and symbol.
     onSuccess: (_data, _variables, _result, { client }) =>
       Promise.all([
@@ -29,34 +29,42 @@ export const updateUnitMutationOptions = () =>
       ]),
   });
 
-/** Mutation that archives or restores a unit. */
-export const archiveUnitMutationOptions = () =>
+/** Mutation that archives a unit. */
+export const archiveMutationOptions = () =>
   mutationOptions({
-    mutationFn: ({ id, restore }: { id: string; restore?: boolean }) => archiveUnit(id, restore),
+    mutationFn: (id: string) => archive(id),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      Promise.all([invalidate(client, queryKeys.units.all), invalidateInEverySpace(client, 'units')]),
+  });
+
+/** Mutation that restores an archived unit. */
+export const restoreMutationOptions = () =>
+  mutationOptions({
+    mutationFn: (id: string) => restore(id),
     onSuccess: (_data, _variables, _result, { client }) =>
       Promise.all([invalidate(client, queryKeys.units.all), invalidateInEverySpace(client, 'units')]),
   });
 
 /** Mutation that deletes a unit. */
-export const deleteUnitMutationOptions = () =>
+export const deleteMutationOptions = () =>
   mutationOptions({
-    mutationFn: (id: string) => deleteUnit(id),
+    mutationFn: (id: string) => remove(id),
     onSuccess: (_data, _variables, _result, { client }) =>
       Promise.all([invalidate(client, queryKeys.units.all), invalidateInEverySpace(client, 'units')]),
   });
 
 /** Mutation that shares a unit with a space. */
-export const shareUnitMutationOptions = () =>
+export const shareWithSpaceMutationOptions = () =>
   mutationOptions({
-    mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => shareUnit(id, spaceId),
+    mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => shareWithSpace(id, spaceId),
     onSuccess: (_data, { spaceId }, _result, { client }) =>
       invalidate(client, queryKeys.units.all, queryKeys.units.inSpace(spaceId)),
   });
 
 /** Mutation that removes a unit from a space. */
-export const unshareUnitMutationOptions = () =>
+export const removeFromSpaceMutationOptions = () =>
   mutationOptions({
-    mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => unshareUnit(id, spaceId),
+    mutationFn: ({ spaceId, id }: { spaceId: string; id: string }) => removeFromSpace(id, spaceId),
     onSuccess: (_data, { spaceId }, _result, { client }) =>
       invalidate(client, queryKeys.units.all, queryKeys.units.inSpace(spaceId)),
   });

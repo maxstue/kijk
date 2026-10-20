@@ -1,4 +1,4 @@
-import { currentUserQueryOptions } from '@kijk/api/users/options';
+import * as usersOptions from '@kijk/api/users/options';
 import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 
@@ -10,7 +10,7 @@ export const Route = createFileRoute('/')({
     if (!(await authClient?.session?.getToken())) {
       return;
     }
-    const currentUser = await queryClient.query({ ...currentUserQueryOptions(), staleTime: 'static' });
+    const currentUser = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
     if (!isReadyCurrentUser(currentUser)) {
       throw redirect({ to: '/welcome', replace: true });
     }

@@ -1,5 +1,5 @@
 import '@kijk/ui/globals.css';
-import { categorizeImport } from '@kijk/api/imports/requests';
+import * as importsApi from '@kijk/api/imports/requests';
 import type { ImportJob } from '@kijk/api/imports/types';
 import { queryKeys } from '@kijk/api/query-keys';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
@@ -12,9 +12,9 @@ import { ImportAiCategorization } from './ai-preview';
 
 vi.mock('@kijk/api/imports/requests', { spy: true });
 
-afterEach(() => vi.mocked(categorizeImport).mockReset());
+afterEach(() => vi.mocked(importsApi.startCategorization).mockReset());
 
-type CategorizeResult = Awaited<ReturnType<typeof categorizeImport>>;
+type CategorizeResult = Awaited<ReturnType<typeof importsApi.startCategorization>>;
 
 const job = { aiCategorizationUnavailable: false, aiCategorizedCount: 0, id: 'import' } as unknown as ImportJob;
 
@@ -75,10 +75,10 @@ test('the preview lists exactly the selected texts and sends only those', async 
   await expect.element(screen.getByText(/2 texts for 3 rows · 1 rows withheld/)).toBeVisible();
   const deselected = screen.getByRole('checkbox', { name: 'Send this text to the AI' }).nth(2);
   await expect.element(deselected).not.toBeChecked();
-  vi.mocked(categorizeImport).mockResolvedValue({} as CategorizeResult);
+  vi.mocked(importsApi.startCategorization).mockResolvedValue({} as CategorizeResult);
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
   await vi.waitFor(() =>
-    expect(categorizeImport).toHaveBeenCalledWith('space', 'import', {
+    expect(importsApi.startCategorization).toHaveBeenCalledWith('space', 'import', {
       aiDataSharing: 'Strict',
       selectedTextKeys: ['a', 'b'],
     }),
@@ -133,9 +133,9 @@ test('returns to the transaction review only after the request succeeds', async 
     </QueryClientProvider>,
   );
   const { promise, resolve } = Promise.withResolvers<CategorizeResult>();
-  vi.mocked(categorizeImport).mockReturnValue(promise);
+  vi.mocked(importsApi.startCategorization).mockReturnValue(promise);
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
-  await vi.waitFor(() => expect(categorizeImport).toHaveBeenCalledOnce());
+  await vi.waitFor(() => expect(importsApi.startCategorization).toHaveBeenCalledOnce());
   expect(onStarted).not.toHaveBeenCalled();
   resolve({} as CategorizeResult);
   await vi.waitFor(() => expect(onStarted).toHaveBeenCalledOnce());
@@ -143,7 +143,7 @@ test('returns to the transaction review only after the request succeeds', async 
 });
 
 test('keeps checkbox changes local and submits the final selection once', async () => {
-  vi.mocked(categorizeImport).mockResolvedValue({} as CategorizeResult);
+  vi.mocked(importsApi.startCategorization).mockResolvedValue({} as CategorizeResult);
   const client = createClient(true, 'Strict');
   const invalidate = vi.spyOn(client, 'invalidateQueries');
   const screen = await render(
@@ -158,10 +158,10 @@ test('keeps checkbox changes local and submits the final selection once', async 
   await expect.element(checkboxes.nth(2)).toBeChecked();
   await expect.element(screen.getByText(/2 texts for 2 rows/)).toBeVisible();
   expect(invalidate).not.toHaveBeenCalled();
-  expect(categorizeImport).not.toHaveBeenCalled();
+  expect(importsApi.startCategorization).not.toHaveBeenCalled();
   await screen.getByRole('button', { name: 'Suggest categories' }).click();
   await vi.waitFor(() =>
-    expect(categorizeImport).toHaveBeenCalledExactlyOnceWith('space', 'import', {
+    expect(importsApi.startCategorization).toHaveBeenCalledExactlyOnceWith('space', 'import', {
       aiDataSharing: 'Strict',
       selectedTextKeys: ['b', 'c'],
     }),

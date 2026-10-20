@@ -1,5 +1,5 @@
-import { limitsQueryOptions } from '@kijk/api/limits/options';
-import { resourcesQueryOptions } from '@kijk/api/resources/options';
+import * as limitsOptions from '@kijk/api/limits/options';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { LimitsSection } from '@/app/limits/section';
@@ -10,8 +10,8 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/limits')({
   loader: async ({ params: { spaceId }, context: { queryClient } }) => {
     await Promise.all([
-      queryClient.query({ ...limitsQueryOptions(spaceId), staleTime: 'static' }),
-      queryClient.query({ ...resourcesQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...limitsOptions.listQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...resourcesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
     ]);
   },
   component: LimitsPage,

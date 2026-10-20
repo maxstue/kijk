@@ -2,14 +2,7 @@ import { invalidate } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { type QueryClient, keepPreviousData, mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import {
-  categorizeTransaction,
-  categorizeTransactions,
-  createTransaction,
-  deleteTransaction,
-  getTransactions,
-  updateTransaction,
-} from './requests';
+import { categorize, categorizeMany, record, remove, list, update } from './requests';
 import type {
   CategorizeTransactionData,
   CategorizeTransactionsRequest,
@@ -28,44 +21,44 @@ const invalidateFinances = (client: QueryClient, spaceId: string) =>
   );
 
 /** Query for a page of the transactions matching the filters. */
-export const transactionsQueryOptions = (spaceId: string, query: TransactionPageQuery) =>
+export const listQueryOptions = (spaceId: string, query: TransactionPageQuery) =>
   queryOptions({
     placeholderData: keepPreviousData,
-    queryFn: ({ signal }) => getTransactions(spaceId, query, signal),
+    queryFn: ({ signal }) => list(spaceId, query, signal),
     queryKey: queryKeys.transactions.list(spaceId, query),
   });
 
 /** Mutation that records a transaction. */
-export const createTransactionMutationOptions = (spaceId: string) =>
+export const recordMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CreateTransactionRequest) => createTransaction(spaceId, data),
+    mutationFn: (data: CreateTransactionRequest) => record(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that updates a transaction. */
-export const updateTransactionMutationOptions = (spaceId: string) =>
+export const updateMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: UpdateTransactionData) => updateTransaction(spaceId, data),
+    mutationFn: (data: UpdateTransactionData) => update(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that deletes a transaction. */
-export const deleteTransactionMutationOptions = (spaceId: string) =>
+export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (id: string) => deleteTransaction(spaceId, id),
+    mutationFn: (id: string) => remove(spaceId, id),
     onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that corrects the category of a transaction. */
-export const categorizeTransactionMutationOptions = (spaceId: string) =>
+export const categorizeMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CategorizeTransactionData) => categorizeTransaction(spaceId, data),
+    mutationFn: (data: CategorizeTransactionData) => categorize(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });
 
 /** Mutation that assigns one category to several transactions. */
-export const categorizeTransactionsMutationOptions = (spaceId: string) =>
+export const categorizeManyMutationOptions = (spaceId: string) =>
   mutationOptions({
-    mutationFn: (data: CategorizeTransactionsRequest) => categorizeTransactions(spaceId, data),
+    mutationFn: (data: CategorizeTransactionsRequest) => categorizeMany(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) => invalidateFinances(client, spaceId),
   });

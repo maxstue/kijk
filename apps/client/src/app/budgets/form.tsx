@@ -1,18 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { budgetsQueryOptions } from '@kijk/api/budgets/options';
-import { categoriesQueryOptions } from '@kijk/api/categories/options';
+import * as budgetsOptions from '@kijk/api/budgets/options';
+import * as categoriesOptions from '@kijk/api/categories/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { toMonthStart } from '@/app/budgets/helpers';
 import { budgetSchema } from '@/app/budgets/schemas';
 import type { BudgetFormValues } from '@/app/budgets/schemas';
-import { useSaveBudget } from '@/app/budgets/use-save-budget';
 import {
   Form,
   FormControl,
@@ -46,9 +46,8 @@ export function BudgetForm({ categoryId, initialAmount, initialVisibility, month
   const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.budgets.plan);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
-  const { data: categories } = useSuspenseQuery(categoriesQueryOptions(spaceId));
-  const { data: budgets } = useSuspenseQuery(budgetsQueryOptions(spaceId));
-  const saveMutation = useSaveBudget();
+  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
+  const saveMutation = useMutation(budgetsOptions.setFromMonthMutationOptions(spaceId));
   const expenseCategories = categories.filter((category) => category.kind === 'Expense');
   const monthLabel = formatMonthYear(year, month);
   const form = useForm<BudgetFormValues>({
@@ -63,7 +62,7 @@ export function BudgetForm({ categoryId, initialAmount, initialVisibility, month
 
   function onSubmit(values: BudgetFormValues) {
     saveMutation.mutate(
-      { budgets, month, values, year },
+      { ...values, validFrom: toMonthStart(year, month) },
       {
         onError: (error) => toast.error(error.name, { description: error.message }),
         onSuccess: () => {

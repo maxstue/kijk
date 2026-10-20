@@ -1,5 +1,5 @@
 import { queryKeys } from '@kijk/api/query-keys';
-import { categorizeTransaction } from '@kijk/api/transactions/requests';
+import * as transactionsApi from '@kijk/api/transactions/requests';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 
@@ -45,8 +45,8 @@ function renderSuggestions(canRecord = true) {
 }
 
 test('remembering a suggestion creates the rule from its latest correction', async () => {
-  vi.mocked(categorizeTransaction).mockResolvedValue({ appliedToOthers: 3 } as Awaited<
-    ReturnType<typeof categorizeTransaction>
+  vi.mocked(transactionsApi.categorize).mockResolvedValue({ appliedToOthers: 3 } as Awaited<
+    ReturnType<typeof transactionsApi.categorize>
   >);
   const screen = await renderSuggestions();
 
@@ -55,13 +55,13 @@ test('remembering a suggestion creates the rule from its latest correction', asy
   await screen.getByRole('button', { name: 'Remember' }).first().click();
 
   await vi.waitFor(() =>
-    expect(categorizeTransaction).toHaveBeenCalledWith('space', {
+    expect(transactionsApi.categorize).toHaveBeenCalledWith('space', {
       correction: { categoryId: 'groceries', remember: true },
       id: 'transaction-1',
     }),
   );
   await screen.unmount();
-  vi.mocked(categorizeTransaction).mockReset();
+  vi.mocked(transactionsApi.categorize).mockReset();
 });
 
 test('hidden suggestions stay hidden', async () => {

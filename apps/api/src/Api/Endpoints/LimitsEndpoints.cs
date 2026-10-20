@@ -3,7 +3,7 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Limits.Create;
 using Kijk.Application.Limits.Delete;
-using Kijk.Application.Limits.Get;
+using Kijk.Application.Limits.Queries;
 using Kijk.Application.Limits.Shared;
 using Kijk.Application.Limits.Update;
 using Kijk.Domain.Authorization;
@@ -24,59 +24,59 @@ public sealed class LimitsEndpoints : IEndpointGroup
             .WithTags("Consumption Limits")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
 
-        group.MapGet("/", GetAll).RequireSpacePermission(SpacePermissions.Limits.View).WithSummary("Gets consumption limits for the active space");
-        group.MapGet("/{id:guid}", GetById).RequireSpacePermission(SpacePermissions.Limits.View).WithName("GetLimitById").WithSummary("Gets a consumption limit by id");
-        group.MapPost("/", Create).RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<CreateLimitRequest>().WithSummary("Creates a consumption limit");
-        group.MapPut("/{id:guid}", Update).RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<UpdateLimitRequest>().WithSummary("Updates a consumption limit");
-        group.MapDelete("/{id:guid}", Delete).RequireSpacePermission(SpacePermissions.Limits.Plan).WithSummary("Deletes a consumption limit");
+        group.MapGet("/", List).WithName("Limits.List").RequireSpacePermission(SpacePermissions.Limits.View).WithSummary("Gets consumption limits for the active space");
+        group.MapGet("/{id:guid}", Details).WithName("Limits.Details").RequireSpacePermission(SpacePermissions.Limits.View).WithSummary("Gets a consumption limit by id");
+        group.MapPost("/", Create).WithName("Limits.Create").RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<CreateLimitRequest>().WithSummary("Creates a consumption limit");
+        group.MapPut("/{id:guid}", Update).WithName("Limits.Update").RequireSpacePermission(SpacePermissions.Limits.Plan).WithRequestValidation<UpdateLimitRequest>().WithSummary("Updates a consumption limit");
+        group.MapDelete("/{id:guid}", Delete).WithName("Limits.Delete").RequireSpacePermission(SpacePermissions.Limits.Plan).WithSummary("Deletes a consumption limit");
 
         return builder;
     }
 
-    private static async Task<Results<Ok<List<LimitResponse>>, ProblemHttpResult>> GetAll(
-        GetLimitsHandler handler,
+    private static async Task<Results<Ok<List<LimitResponse>>, ProblemHttpResult>> List(
+        QueriesHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.GetAllAsync(cancellationToken);
+        var result = await handler.ListAsync(cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
-    private static async Task<Results<Ok<LimitResponse>, ProblemHttpResult>> GetById(
+    private static async Task<Results<Ok<LimitResponse>, ProblemHttpResult>> Details(
         Guid id,
-        GetLimitsHandler handler,
+        QueriesHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.GetByIdAsync(id, cancellationToken);
+        var result = await handler.DetailsAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
     private static async Task<Results<CreatedAtRoute<LimitResponse>, ProblemHttpResult>> Create(
         CreateLimitRequest request,
-        CreateLimitHandler handler,
+        CreateHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.CreateAsync(request, cancellationToken);
+        var result = await handler.HandleAsync(request, cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
-            : TypedResults.CreatedAtRoute(result.Value, "GetLimitById", new { id = result.Value.Id });
+            : TypedResults.CreatedAtRoute(result.Value, "Limits.Details", new { id = result.Value.Id });
     }
 
     private static async Task<Results<NoContent, ProblemHttpResult>> Delete(
         Guid id,
-        DeleteLimitHandler handler,
+        DeleteHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.DeleteAsync(id, cancellationToken);
+        var result = await handler.HandleAsync(id, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 
     private static async Task<Results<Ok<LimitResponse>, ProblemHttpResult>> Update(
         Guid id,
         UpdateLimitRequest request,
-        UpdateLimitHandler handler,
+        UpdateHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.UpdateAsync(id, request, cancellationToken);
+        var result = await handler.HandleAsync(id, request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 }

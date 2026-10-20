@@ -9,7 +9,7 @@ import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
 import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
 import { ConsumptionExportButton } from '@/app/consumptions/export-button';
 import { LimitWarning } from '@/app/consumptions/limit-warning';
-import ConsumptionStats from '@/app/consumptions/stats';
+import ConsumptionStats from '@/app/consumptions/statistics';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/domain';

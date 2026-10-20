@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { consumptionYearsQueryOptions } from '@kijk/api/consumptions/options';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
 import { Button } from '@kijk/ui/components/button';
 import {
   Command,
@@ -47,7 +47,7 @@ export function ConsumptionYearSwitcher({ className }: YProps) {
   const searchParameters = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data } = useSuspenseQuery(consumptionYearsQueryOptions(spaceId));
+  const { data } = useSuspenseQuery(consumptionsOptions.yearsQueryOptions(spaceId));
   const queryClient = useQueryClient();
 
   const selectedYear = searchParameters.year;
@@ -153,13 +153,13 @@ function AddNewYearDialog({ onClose }: { onClose: () => void }) {
   });
 
   function handleSubmit(data: YearFormValues) {
-    const response = queryClient.getQueryData(consumptionYearsQueryOptions(spaceId).queryKey);
+    const response = queryClient.getQueryData(consumptionsOptions.yearsQueryOptions(spaceId).queryKey);
     if (response?.years.map(Number).includes(data.year)) {
       form.setError('year', { message: 'Year already exists' });
       return;
     }
 
-    queryClient.setQueryData(consumptionYearsQueryOptions(spaceId).queryKey, (old) => ({
+    queryClient.setQueryData(consumptionsOptions.yearsQueryOptions(spaceId).queryKey, (old) => ({
       years: [...(old?.years.map(Number) ?? []), data.year].sort((a, b) => b - a),
     }));
     navigate({
