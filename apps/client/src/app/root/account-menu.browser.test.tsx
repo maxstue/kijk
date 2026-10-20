@@ -1,7 +1,7 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { SidebarProvider } from '@kijk/ui/components/sidebar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { expect, test, vi } from 'vite-plus/test';
+import { expect, test, vi } from 'vitest';
 
 import { siteConfig } from '@/shared/config/site';
 import { render } from '@/test/render-space';

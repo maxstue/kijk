@@ -47,7 +47,7 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         [FromQuery] Guid[]? categoryIds,
         int? page,
         int? pageSize,
-        QueriesHandler handler,
+        [FromServices] QueriesHandler handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.ListAsync(

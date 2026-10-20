@@ -16,20 +16,18 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/')({
 
 function HomeIndexPage() {
   return (
-    <>
-      <div className='@container/main flex flex-1 flex-col gap-2'>
-        <div className='flex flex-col gap-4'>
-          <HomeSectionCards />
-          <div>
-            <Suspense fallback={<Loader className='h-6 w-6' />}>
-              <HomeChartArea />
-            </Suspense>
-          </div>
+    <div className='@container/main flex flex-1 flex-col gap-2'>
+      <div className='flex flex-col gap-4'>
+        <HomeSectionCards />
+        <div>
           <Suspense fallback={<Loader className='h-6 w-6' />}>
-            <HomeTable />
+            <HomeChartArea />
           </Suspense>
         </div>
+        <Suspense fallback={<Loader className='h-6 w-6' />}>
+          <HomeTable />
+        </Suspense>
       </div>
-    </>
+    </div>
   );
 }

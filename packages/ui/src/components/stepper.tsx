@@ -48,9 +48,13 @@ function useStepperItemContext() {
 /** Controlled, horizontal multi-step flow with an explicit step order. */
 function Stepper<TValue extends string>({ steps, value, onValueChange, className, ...props }: StepperProps<TValue>) {
   const id = React.useId();
+  const context = React.useMemo(
+    () => ({ id, value, steps, onValueChange: (nextValue: string) => onValueChange(nextValue as TValue) }),
+    [id, value, steps, onValueChange],
+  );
 
   return (
-    <StepperContext value={{ id, value, steps, onValueChange: (nextValue) => onValueChange(nextValue as TValue) }}>
+    <StepperContext value={context}>
       <div data-slot='stepper' className={cn('flex flex-col gap-6', className)} {...props} />
     </StepperContext>
   );
@@ -80,10 +84,14 @@ function StepperItem({
   const { steps, value: currentValue } = useStepperContext();
   const index = steps.findIndex((step) => step.value === value);
   const currentIndex = steps.findIndex((step) => step.value === currentValue);
-  const state = value === currentValue ? 'active' : completed ? 'completed' : 'inactive';
+  let state: StepperItemContextValue['state'] = completed ? 'completed' : 'inactive';
+  if (value === currentValue) {
+    state = 'active';
+  }
+  const context = React.useMemo(() => ({ value, index, state, disabled }), [value, index, state, disabled]);
 
   return (
-    <StepperItemContext value={{ value, index, state, disabled }}>
+    <StepperItemContext value={context}>
       <li
         data-slot='stepper-item'
         data-state={state}
@@ -146,12 +154,12 @@ function StepperTrigger({ className, disabled, onClick, onKeyDown, ...props }: R
             .querySelectorAll<HTMLButtonElement>('[data-slot="stepper-trigger"]:not(:disabled)'),
         );
         const currentIndex = triggers.indexOf(event.currentTarget);
-        const nextIndex =
-          event.key === 'Home'
-            ? 0
-            : event.key === 'End'
-              ? triggers.length - 1
-              : currentIndex + (event.key === 'ArrowRight' ? 1 : -1);
+        let nextIndex = currentIndex + (event.key === 'ArrowRight' ? 1 : -1);
+        if (event.key === 'Home') {
+          nextIndex = 0;
+        } else if (event.key === 'End') {
+          nextIndex = triggers.length - 1;
+        }
         const nextTrigger = triggers[nextIndex];
         if (nextTrigger) {
           event.preventDefault();
@@ -205,7 +213,7 @@ function StepperContent({
   preserveLayout = false,
   className,
   ...props
-}: React.ComponentProps<'div'> & { value: string; preserveLayout?: boolean }) {
+}: React.ComponentProps<'section'> & { value: string; preserveLayout?: boolean }) {
   const { id, steps, value: currentValue } = useStepperContext();
   const index = steps.findIndex((step) => step.value === value);
   const isActive = currentValue === value;
@@ -214,9 +222,8 @@ function StepperContent({
   }
 
   return (
-    <div
+    <section
       id={`${id}-content-${index}`}
-      role='region'
       aria-labelledby={`${id}-trigger-${index}`}
       aria-hidden={!isActive ? true : undefined}
       inert={!isActive}

@@ -35,27 +35,25 @@ export function LimitsSection() {
     <div className='space-y-6'>
       <PageToolbar
         actions={
-          <>
-            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <DialogTrigger
-                render={
-                  <PageAddButton
-                    disabled={!canPlan}
-                    title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
-                  />
-                }
-              >
-                Add limit
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create consumption limit</DialogTitle>
-                  <DialogDescription>Choose a resource, period and maximum consumption.</DialogDescription>
-                </DialogHeader>
-                <LimitForm onClose={() => setShowCreateDialog(false)} />
-              </DialogContent>
-            </Dialog>
-          </>
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger
+              render={
+                <PageAddButton
+                  disabled={!canPlan}
+                  title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
+                />
+              }
+            >
+              Add limit
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create consumption limit</DialogTitle>
+                <DialogDescription>Choose a resource, period and maximum consumption.</DialogDescription>
+              </DialogHeader>
+              <LimitForm onClose={() => setShowCreateDialog(false)} />
+            </DialogContent>
+          </Dialog>
         }
       />
       {data.length === 0 ? (

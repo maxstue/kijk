@@ -21,10 +21,12 @@ export function LimitWarning({ resourceId }: Props) {
 
   return (
     <Tooltip>
-      <TooltipTrigger
-        render={<span aria-label='Limit(s) exceeded' className='inline-flex shrink-0 cursor-help' role='img' />}
-      >
-        <TriangleAlert aria-hidden='true' className='size-4 text-amber-600 dark:text-amber-400' />
+      <TooltipTrigger render={<span className='inline-flex shrink-0 cursor-help' />}>
+        <TriangleAlert
+          aria-label='Limit(s) exceeded'
+          role='img'
+          className='size-4 text-amber-600 dark:text-amber-400'
+        />
       </TooltipTrigger>
       <TooltipContent className='flex flex-col items-start justify-start space-y-1'>
         <p className='font-bold'>Limit(s) exceeded</p>

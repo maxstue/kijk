@@ -29,12 +29,12 @@ import type {
   UpdateImportSettingsRequest,
 } from './types';
 
-const processingStatuses: ImportJobStatus[] = ['Pending', 'Analyzing', 'Reading', 'Categorizing'];
+const processingStatuses = new Set<ImportJobStatus>(['Pending', 'Analyzing', 'Reading', 'Categorizing']);
 const pollIntervalMs = 1500;
 
 /** Returns whether the import is processed in the background, so its state should be polled. */
 export const isProcessing = (status: ImportJobStatus | undefined) =>
-  status !== undefined && processingStatuses.includes(status);
+  status !== undefined && processingStatuses.has(status);
 
 /** Query for the latest imports of the active space. */
 export const listQueryOptions = (spaceId: string) =>

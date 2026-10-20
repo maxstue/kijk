@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vite-plus/test';
+import { expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 
 import type { Consumption } from '@/shared/types/domain';

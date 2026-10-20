@@ -26,6 +26,7 @@ export function CategoryForm({ initialData, onClose }: Props) {
   const createMutation = useMutation(categoriesOptions.createMutationOptions(spaceId));
   const updateMutation = useMutation(categoriesOptions.updateMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const submitLabel = initialData ? 'Update' : 'Add';
   const form = useForm<CategoryFormValues>({
     defaultValues: {
       color: initialData?.color ?? '#64748b',
@@ -102,7 +103,7 @@ export function CategoryForm({ initialData, onClose }: Props) {
           )}
         />
         <Button className='mt-6' disabled={isPending || (initialData && !form.formState.isDirty)} type='submit'>
-          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : initialData ? 'Update' : 'Add'}
+          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : submitLabel}
         </Button>
       </form>
     </Form>

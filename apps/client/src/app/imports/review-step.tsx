@@ -49,7 +49,7 @@ export function ImportReviewStep({
 
   const included = new Set(includedEdgeMonths);
   const months = new Set([...job.fullMonths, ...includedEdgeMonths]);
-  const selectedMonths = [...months].sort().join(',');
+  const selectedMonths = [...months].sort((left, right) => left.localeCompare(right)).join(',');
   const reviewQuery = useQuery({
     ...importsOptions.candidatesQueryOptions(spaceId, job.id, { months: selectedMonths, page }),
     enabled: stage === 'review',
@@ -104,7 +104,12 @@ export function ImportReviewStep({
       <section className='rounded-lg border' aria-label='Transactions to import'>
         <div className='flex flex-wrap items-center justify-between gap-3 p-4'>
           <div className='space-y-1'>
-            <h3 className='text-sm font-medium'>{[...months].sort().map(formatImportMonth).join(', ')}</h3>
+            <h3 className='text-sm font-medium'>
+              {[...months]
+                .sort((left, right) => left.localeCompare(right))
+                .map(formatImportMonth)
+                .join(', ')}
+            </h3>
             <p className='text-muted-foreground text-xs'>
               Untick a transaction to leave it out. Choose a category if needed.
             </p>
@@ -140,8 +145,7 @@ export function ImportReviewStep({
             </div>
           )}
           {job.status === 'Categorizing' && (
-            <div
-              role='status'
+            <output
               aria-label='Suggesting categories'
               className='bg-background/80 absolute inset-0 z-10 backdrop-blur-[1px]'
             >
@@ -152,7 +156,7 @@ export function ImportReviewStep({
                   Please wait. Your transactions will update automatically.
                 </p>
               </div>
-            </div>
+            </output>
           )}
         </div>
       </section>
@@ -276,10 +280,10 @@ function ReviewLoadingState({
   }
   if (isLoading) {
     return (
-      <div role='status' className='flex justify-center p-8'>
+      <output className='flex justify-center p-8'>
         <SpinnerIcon className='size-5 animate-spin' />
         Loading transactions…
-      </div>
+      </output>
     );
   }
   return null;
@@ -318,6 +322,7 @@ function MonthSelection({
   onCancel: () => void;
   onContinue: () => void;
 }) {
+  const monthLabel = months.size === 1 ? 'month' : 'months';
   return (
     <div className='space-y-6'>
       <section aria-label='Months to import' className='space-y-4'>
@@ -344,7 +349,7 @@ function MonthSelection({
         <p className='text-muted-foreground min-h-10 text-sm' aria-live='polite'>
           {months.size === 0
             ? 'Select at least one month to continue.'
-            : `${months.size} ${months.size === 1 ? 'month' : 'months'} selected. You can check the transactions next.`}
+            : `${months.size} ${monthLabel} selected. You can check the transactions next.`}
         </p>
       </section>
       <div className='flex items-center justify-between gap-3 border-t pt-5'>
@@ -388,7 +393,7 @@ function CardSettlements({ count, months, importId }: { count: number; months: s
             Retry card statements
           </Button>
         )}
-        {!data && !isError && <p role='status'>Loading card statements…</p>}
+        {!data && !isError && <output className='block'>Loading card statements…</output>}
         <div inert={isFetching} className='space-y-2'>
           {data?.items.map((statement) => (
             <CardSettlementOption key={statement.id} candidate={statement} importId={importId} />

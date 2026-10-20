@@ -13,6 +13,7 @@ using Kijk.Application.Units.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Kijk.Api.Endpoints;
 
@@ -42,7 +43,7 @@ public sealed class UnitsEndpoints : IEndpointGroup
     }
 
     private static async Task<Results<Ok<UnitPageResponse>, ProblemHttpResult>> List(
-        ListHandler handler,
+        [FromServices] ListHandler handler,
         CancellationToken cancellationToken,
         UnitScope scope = UnitScope.Space,
         Guid? spaceId = null,

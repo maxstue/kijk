@@ -77,12 +77,14 @@ jobs:
           lcov_paths="$(IFS=,; echo "${lcov_reports[*]}")"
           echo "JavaScript coverage reports: ${lcov_paths:-none}"
 
+          # openapi-typescript owns the generated declarations; analyze their source contracts and generator instead.
           "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin \
             /k:"maxstue_kijk" \
             /o:"maxstue" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.coverage.xml" \
             /d:sonar.javascript.lcov.reportPaths="$lcov_paths" \
+            /d:sonar.exclusions="packages/api/src/generated/kijk.ts" \
             /d:sonar.plsql.file.suffixes="tab,pkb" \
             /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
 

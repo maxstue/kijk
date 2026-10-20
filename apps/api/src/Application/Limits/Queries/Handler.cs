@@ -15,8 +15,7 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
     public async Task<Result<List<LimitResponse>>> ListAsync(CancellationToken cancellationToken)
     {
         var limits = await dbContext.Limits
-            .Include(item => item.Resource)
-            .ThenInclude(resource => resource.Unit)
+            .Include(item => item.Resource.Unit)
             .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
             .OrderBy(item => item.Resource.Name)
             .ThenBy(item => item.Period)
@@ -35,8 +34,7 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
     public async Task<Result<LimitResponse>> DetailsAsync(Guid id, CancellationToken cancellationToken)
     {
         var limit = await dbContext.Limits
-            .Include(item => item.Resource)
-            .ThenInclude(resource => resource.Unit)
+            .Include(item => item.Resource.Unit)
             .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (limit is null)

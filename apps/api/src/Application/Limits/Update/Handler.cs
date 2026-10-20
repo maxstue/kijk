@@ -20,8 +20,7 @@ public sealed class UpdateHandler(IAppDbContext dbContext, CurrentUser currentUs
         CancellationToken cancellationToken)
     {
         var limit = await dbContext.Limits
-            .Include(item => item.Resource)
-            .ThenInclude(resource => resource.Unit)
+            .Include(item => item.Resource.Unit)
             .FirstOrDefaultAsync(item => item.Id == id && item.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (limit is null)
         {

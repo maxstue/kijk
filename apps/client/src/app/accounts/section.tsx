@@ -17,8 +17,7 @@ import { accountDefaultSort, getAccountColumns } from '@/app/accounts/columns';
 import { AccountForm } from '@/app/accounts/form';
 import { DataTable } from '@/shared/components/data-table';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
-import { useSpaceId } from '@/shared/hooks/use-active-space';
-import { useActiveSpace } from '@/shared/hooks/use-active-space';
+import { useActiveSpace, useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 /**

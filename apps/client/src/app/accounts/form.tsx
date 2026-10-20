@@ -29,6 +29,7 @@ export function AccountForm({ canShare, initialData, onClose, showVisibility }: 
   const createMutation = useMutation(accountsOptions.createMutationOptions(spaceId));
   const updateMutation = useMutation(accountsOptions.updateMutationOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const submitLabel = initialData ? 'Update' : 'Add';
   const isCash = initialData?.kind === 'Cash';
   const form = useForm<AccountFormValues>({
     defaultValues: {
@@ -100,7 +101,7 @@ export function AccountForm({ canShare, initialData, onClose, showVisibility }: 
           />
         )}
         <Button className='mt-6' disabled={isPending || (initialData && !form.formState.isDirty)} type='submit'>
-          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : initialData ? 'Update' : 'Add'}
+          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : submitLabel}
         </Button>
       </form>
     </Form>

@@ -63,6 +63,12 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
   const confirmMutation = useMutation(importsOptions.confirmMappingMutationOptions(spaceId, job.id));
   const roles = getColumnRoles(mapping);
   const missing = getMissingMappingFields(mapping);
+  // CSV positions identify columns and records even when their contents are duplicated or remapped.
+  const columns = preview.headers.map((header, index) => ({ id: `column-${index}`, header, index }));
+  const rows = preview.rows.map((cells, index) => ({
+    id: `record-${Number(mapping.headerRowIndex) + index + 1}`,
+    cells,
+  }));
 
   function onConfirm() {
     confirmMutation.mutate(mapping, {
@@ -95,8 +101,8 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
           <Table>
             <TableHeader>
               <TableRow>
-                {preview.headers.map((header, column) => (
-                  <TableHead key={`${column}-${header}`} className='min-w-40 align-top'>
+                {columns.map(({ id, header, index: column }) => (
+                  <TableHead key={id} className='min-w-40 align-top'>
                     <ColumnRoleSelect
                       role={roles.get(column)}
                       onChange={(role) => onChange(assignColumnRole(mapping, column, role))}
@@ -109,11 +115,11 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
               </TableRow>
             </TableHeader>
             <TableBody>
-              {preview.rows.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {preview.headers.map((_, column) => (
-                    <TableCell key={column} className='max-w-60 truncate'>
-                      {row[column]}
+              {rows.map((row) => (
+                <TableRow key={row.id}>
+                  {columns.map((column) => (
+                    <TableCell key={column.id} className='max-w-60 truncate'>
+                      {row.cells[column.index]}
                     </TableCell>
                   ))}
                 </TableRow>

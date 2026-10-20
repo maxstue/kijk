@@ -54,7 +54,7 @@ const searchSchema = z.object({
   // Unknown sizes, e.g. from an edited URL, fall back to the default.
   pageSize: z
     .number()
-    .refine((value) => transactionPageSizes.some((size) => size === value))
+    .refine((value) => (transactionPageSizes as readonly number[]).includes(value))
     .optional()
     .catch(undefined),
   uncategorized: z.boolean().optional(),

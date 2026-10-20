@@ -24,8 +24,7 @@ import {
 } from '@/shared/components/form';
 import { FormSwitchItem } from '@/shared/components/form-switch-item';
 import { type Visibility, VisibilitySelect } from '@/shared/components/visibility-select';
-import { useSpaceId } from '@/shared/hooks/use-active-space';
-import { useActiveSpace } from '@/shared/hooks/use-active-space';
+import { useActiveSpace, useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatMonthYear } from '@/shared/utils/months';
 

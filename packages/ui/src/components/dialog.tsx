@@ -83,10 +83,10 @@ function DialogLoadingContent() {
     <>
       <DialogTitle className='sr-only'>Loading dialog</DialogTitle>
       <DialogDescription className='sr-only'>Please wait while the dialog loads.</DialogDescription>
-      <div role='status' className='flex min-h-64 items-center justify-center gap-2'>
+      <output className='flex min-h-64 items-center justify-center gap-2'>
         <SpinnerIcon className='size-5 animate-spin' />
         <span className='sr-only'>Loading dialog content</span>
-      </div>
+      </output>
     </>
   );
 }

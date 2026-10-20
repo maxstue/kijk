@@ -37,13 +37,11 @@ export const Route = createFileRoute('/_authenticated/_app/settings/$section')({
 function SettingsSectionPage() {
   const parameters = Route.useParams();
   return (
-    <>
-      <div className='space-y-6'>
-        {parameters.section === 'profile' && <ProfileSection />}
-        {parameters.section === 'appearance' && <AppearanceSection />}
-        {parameters.section === 'units' && <UnitsSection scope='personal' />}
-        {parameters.section === 'info' && <InfoSection />}
-      </div>
-    </>
+    <div className='space-y-6'>
+      {parameters.section === 'profile' && <ProfileSection />}
+      {parameters.section === 'appearance' && <AppearanceSection />}
+      {parameters.section === 'units' && <UnitsSection scope='personal' />}
+      {parameters.section === 'info' && <InfoSection />}
+    </div>
   );
 }

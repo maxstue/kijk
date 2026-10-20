@@ -39,7 +39,7 @@ export function ImportUploadForm() {
   const consentId = useId();
   const isPending = consentMutation.isPending || createMutation.isPending;
 
-  function onSubmit(event: React.FormEvent) {
+  function onSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!file || !accountId) {
       return;

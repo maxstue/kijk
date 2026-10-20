@@ -47,7 +47,9 @@ public sealed class ListHandler(IAppDbContext dbContext, CurrentUser currentUser
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var term = request.Search.Trim().ToLower();
+#pragma warning disable CA1862 // EF Core translates ToLower to SQL; StringComparison overloads cannot be translated.
             query = query.Where(unit => unit.Name.ToLower().Contains(term) || unit.Symbol.ToLower().Contains(term));
+#pragma warning restore CA1862
         }
 
         var totalCount = await query.CountAsync(cancellationToken);

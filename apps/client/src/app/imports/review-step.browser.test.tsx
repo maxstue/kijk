@@ -5,7 +5,7 @@ import type { ImportCandidate, ImportCandidatePage, ImportCandidatesQuery, Impor
 import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
-import { afterEach, expect, onTestFinished, test, vi } from 'vite-plus/test';
+import { afterEach, expect, onTestFinished, test, vi } from 'vitest';
 
 import { render } from '@/test/render-space';
 

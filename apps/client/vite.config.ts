@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
       }),
       tanstackRouter({
         autoCodeSplitting: true,
-        routeFileIgnorePattern: '\\.(test|spec)\\.[cm]?[jt]sx?$',
+        routeFileIgnorePattern: String.raw`\.(test|spec)\.[cm]?[jt]sx?$`,
         target: 'react',
       }),
       react(),
