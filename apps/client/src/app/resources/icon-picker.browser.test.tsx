@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from '@kijk/ui/components/dialog';
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import { ResourceIconPicker } from './icon-picker';

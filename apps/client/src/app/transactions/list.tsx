@@ -15,7 +15,6 @@ import {
 } from '@kijk/ui/components/alert-dialog';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
-import { Card, CardContent } from '@kijk/ui/components/card';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import {
   Dialog,
@@ -30,17 +29,20 @@ import { Separator } from '@kijk/ui/components/separator';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { Pencil, ReceiptText, Trash2, X } from 'lucide-react';
+import { Pencil, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { transactionPageSizes } from '@/app/transactions/constants';
+import { TransactionEmptyState } from '@/app/transactions/empty-state';
 import { TransactionForm } from '@/app/transactions/form';
 import { RememberDialog } from '@/app/transactions/remember-dialog';
 import { noneValue } from '@/app/transactions/schemas';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatStringToCurrency } from '@/shared/utils/format';
+
+type PageSize = (typeof transactionPageSizes)[number];
 
 /**
  * Table of one page of the transactions matching `query`, with inline categorizing, editing and deleting. `selectable`
@@ -53,7 +55,7 @@ export function TransactionList({
   selectable = false,
 }: {
   onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
+  onPageSizeChange: (pageSize: PageSize) => void;
   query: TransactionPageQuery;
   selectable?: boolean;
 }) {
@@ -78,21 +80,7 @@ export function TransactionList({
   }
 
   if (data.length === 0) {
-    let description = 'Record a transaction to fill your budget overview.';
-    if (query.uncategorized) {
-      description = 'All transactions of this month have a category.';
-    } else if (query.categoryIds?.length) {
-      description = 'No transactions in the selected categories this month.';
-    }
-    return (
-      <Card className='border-dashed'>
-        <CardContent className='flex flex-col items-center gap-2 py-12 text-center'>
-          <ReceiptText className='text-muted-foreground size-8' />
-          <p className='font-medium'>{query.uncategorized ? 'Everything is categorized' : 'No transactions'}</p>
-          <p className='text-muted-foreground text-sm'>{description}</p>
-        </CardContent>
-      </Card>
-    );
+    return <TransactionEmptyState query={query} />;
   }
 
   return (
@@ -205,7 +193,7 @@ function Pagination({
 }: {
   isPending: boolean;
   onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
+  onPageSizeChange: (pageSize: PageSize) => void;
   page: number;
   pageSize: number;
   totalCount: number;
@@ -221,7 +209,12 @@ function Pagination({
         <Select
           items={transactionPageSizes.map((size) => ({ label: `${size} per page`, value: String(size) }))}
           value={String(pageSize)}
-          onValueChange={(value) => onPageSizeChange(Number(value))}
+          onValueChange={(value) => {
+            const size = transactionPageSizes.find((size) => String(size) === value);
+            if (size !== undefined) {
+              onPageSizeChange(size);
+            }
+          }}
         >
           <SelectTrigger aria-label='Transactions per page' className='w-32' size='sm'>
             <SelectValue />

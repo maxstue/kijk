@@ -34,11 +34,9 @@ public sealed class UpdateHandler(IAppDbContext dbContext, CurrentUser currentUs
         }
 
         var normalizedName = request.Name.Trim().ToLowerInvariant();
-#pragma warning disable CA1862 // EF Core translates ToLower to SQL; StringComparison overloads cannot be translated.
         if (await dbContext.Units.AnyAsync(item => item.Id != id && item.OwnerUserId == currentUser.Id
                                                    && item.ArchivedAt == null
-                                                   && item.Name.Trim().ToLower() == normalizedName, cancellationToken))
-#pragma warning restore CA1862
+                                                   && EF.Property<string>(item, "NormalizedName") == normalizedName, cancellationToken))
         {
             return Error.Conflict("A unit with this name already exists");
         }

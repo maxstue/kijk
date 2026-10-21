@@ -4,7 +4,7 @@ import type { ImportJob } from '@kijk/api/imports/types';
 import { queryKeys } from '@kijk/api/query-keys';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { afterEach, expect, onTestFinished, test, vi } from 'vitest';
+import { afterEach, expect, onTestFinished, test, vi } from 'vite-plus/test';
 
 import { render } from '@/test/render-space';
 

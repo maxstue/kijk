@@ -48,13 +48,9 @@ function useStepperItemContext() {
 /** Controlled, horizontal multi-step flow with an explicit step order. */
 function Stepper<TValue extends string>({ steps, value, onValueChange, className, ...props }: StepperProps<TValue>) {
   const id = React.useId();
-  const context = React.useMemo(
-    () => ({ id, value, steps, onValueChange: (nextValue: string) => onValueChange(nextValue as TValue) }),
-    [id, value, steps, onValueChange],
-  );
 
   return (
-    <StepperContext value={context}>
+    <StepperContext value={{ id, value, steps, onValueChange: (nextValue) => onValueChange(nextValue as TValue) }}>
       <div data-slot='stepper' className={cn('flex flex-col gap-6', className)} {...props} />
     </StepperContext>
   );
@@ -88,10 +84,9 @@ function StepperItem({
   if (value === currentValue) {
     state = 'active';
   }
-  const context = React.useMemo(() => ({ value, index, state, disabled }), [value, index, state, disabled]);
 
   return (
-    <StepperItemContext value={context}>
+    <StepperItemContext value={{ value, index, state, disabled }}>
       <li
         data-slot='stepper-item'
         data-state={state}

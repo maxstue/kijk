@@ -2,8 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Kijk.Application.Categories.Create;
+using Kijk.Application.Categories.Shared;
+using Kijk.Application.Categories.Update;
+using Kijk.Application.Units.Create;
 using Kijk.Application.Units.List;
 using Kijk.Application.Units.Shared;
+using Kijk.Application.Units.Update;
 using Kijk.Application.Users.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
@@ -103,6 +108,96 @@ public class ApiPipelineHttpTests
         await Assert.That(personal.Page).IsEqualTo(2);
         await Assert.That(space!.TotalCount).IsEqualTo(system.TotalCount);
         await Assert.That(withoutSpace.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    [Arguments("BUCKET")]
+    [Arguments(" bucket ")]
+    public async Task UnitNamesUseNormalizedUniquenessForCreateAndUpdate(string duplicateName)
+    {
+        var user = await CreateUserAsync("actor", "Bucket");
+        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var referenceId = await dbContext.Units.Where(unit => unit.CreatorType == CreatorType.System)
+            .Select(unit => unit.Id).FirstAsync();
+
+        using var duplicate = await host.Client.PostAsJsonAsync("/api/units", new CreateUnitRequest(duplicateName, "b", referenceId, 1m, null), Json);
+        using var created = await host.Client.PostAsJsonAsync("/api/units", new CreateUnitRequest("Other", "o", referenceId, 1m, null), Json);
+        var other = await created.Content.ReadFromJsonAsync<UnitResponse>(Json);
+        using var update = await host.Client.PutAsJsonAsync($"/api/units/{other!.Id}", new UpdateUnitRequest(duplicateName, "o", referenceId, 1m), Json);
+        using var unchanged = await host.Client.PutAsJsonAsync($"/api/units/{other.Id}", new UpdateUnitRequest("OTHER", "o", referenceId, 1m), Json);
+
+        await Assert.That(duplicate.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        await Assert.That(created.StatusCode).IsEqualTo(HttpStatusCode.Created);
+        await Assert.That(update.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        await Assert.That(unchanged.StatusCode).IsEqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    [Arguments("TRAVEL")]
+    [Arguments(" travel ")]
+    public async Task CategoryNamesUseNormalizedUniquenessForCreateAndUpdate(string duplicateName)
+    {
+        var user = await CreateUserAsync("actor");
+        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var spaceId = await dbContext.UserSpaces.Where(link => link.UserId == user.Id).Select(link => link.SpaceId).SingleAsync();
+        var path = $"/api/spaces/{spaceId}/categories";
+
+        using var created = await host.Client.PostAsJsonAsync(path, new CreateCategoryRequest("Travel", "circle", "#112233", CategoryKind.Expense), Json);
+        var category = await created.Content.ReadFromJsonAsync<CategoryResponse>(Json);
+        using var duplicate = await host.Client.PostAsJsonAsync(path, new CreateCategoryRequest(duplicateName, "circle", "#112233", CategoryKind.Expense), Json);
+        using var systemDuplicate = await host.Client.PostAsJsonAsync(path, new CreateCategoryRequest(" gROCERIES ", "circle", "#112233", CategoryKind.Expense), Json);
+        using var otherCreated = await host.Client.PostAsJsonAsync(path, new CreateCategoryRequest("Custom test category", "circle", "#112233", CategoryKind.Expense), Json);
+        var other = await otherCreated.Content.ReadFromJsonAsync<CategoryResponse>(Json);
+        using var update = await host.Client.PutAsJsonAsync($"{path}/{other!.Id}", new UpdateCategoryRequest(duplicateName, "circle", "#112233", CategoryKind.Expense), Json);
+        using var unchanged = await host.Client.PutAsJsonAsync($"{path}/{category!.Id}", new UpdateCategoryRequest(duplicateName, "circle", "#112233", CategoryKind.Expense), Json);
+
+        await Assert.That(created.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(duplicate.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        await Assert.That(systemDuplicate.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        await Assert.That(otherCreated.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(update.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        await Assert.That(unchanged.StatusCode).IsEqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    [Arguments("%")]
+    [Arguments("_")]
+    [Arguments("\\")]
+    [Arguments("tAnK%_\\ä")]
+    public async Task UnitSearchTreatsPatternCharactersLiterallyAndIgnoresCase(string search)
+    {
+        var user = await CreateUserAsync("actor", "Tank%_\\Ä");
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        dbContext.Units.Add(new Unit
+        {
+            Name = "TankABCÄ",
+            Symbol = "tankabcä",
+            QuantityKey = "Custom:other",
+            CreatorType = CreatorType.User,
+            ConversionType = UnitConversionType.None,
+            OwnerUserId = user.Id
+        });
+        await dbContext.SaveChangesAsync();
+        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
+
+        var result = await host.Client.GetFromJsonAsync<UnitPageResponse>($"/api/units?scope=Personal&search={Uri.EscapeDataString(search)}", Json);
+
+        await Assert.That(result!.TotalCount).IsEqualTo(1);
+        await Assert.That(result.Items.Single().Name).IsEqualTo("Tank%_\\Ä");
+    }
+
+    [Test]
+    public async Task UnitSearchMatchesSymbolsIgnoringCase()
+    {
+        var user = await CreateUserAsync("actor");
+        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
+
+        var result = await host.Client.GetFromJsonAsync<UnitPageResponse>("/api/units?scope=System&search=KWH", Json);
+
+        await Assert.That(result!.TotalCount).IsEqualTo(1);
+        await Assert.That(result.Items.Single().Symbol).IsEqualTo("kWh");
     }
 
     [Test]

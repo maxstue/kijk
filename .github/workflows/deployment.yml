@@ -93,7 +93,7 @@ jobs:
     needs: [migrate-database, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    container: ghcr.io/railwayapp/cli:latest
+    container: ghcr.io/railwayapp/cli@sha256:68718943fa4570cecd64a16472d42039dd63c532684da314a27132b8ef4b2f76
     # The production environment binds the Infisical identity (OIDC subject) that may only read
     # prod /CI/Deploy and prod /CI/Database.
     environment:

@@ -1,5 +1,5 @@
+import { expect, test } from 'vite-plus/test';
 import { userEvent } from 'vite-plus/test/browser';
-import { expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';
 
 import { HomeChartArea } from './home-chart-area';

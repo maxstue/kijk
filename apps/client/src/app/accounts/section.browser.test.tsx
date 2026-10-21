@@ -2,7 +2,7 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { expect, test } from 'vitest';
+import { expect, test } from 'vite-plus/test';
 
 import { render } from '@/test/render-space';
 

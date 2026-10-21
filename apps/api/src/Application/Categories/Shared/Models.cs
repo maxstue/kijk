@@ -66,10 +66,8 @@ public static class CategoryHelpers
         CancellationToken cancellationToken)
     {
         var normalizedName = name.Trim().ToLowerInvariant();
-#pragma warning disable CA1862 // EF Core translates ToLower to SQL; StringComparison overloads cannot be translated.
         return categories.AnyAsync(
-            category => category.Name.Trim().ToLower() == normalizedName && category.Id != excludedCategoryId,
+            category => EF.Property<string>(category, "NormalizedName") == normalizedName && category.Id != excludedCategoryId,
             cancellationToken);
-#pragma warning restore CA1862
     }
 }

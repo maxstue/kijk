@@ -1,7 +1,7 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import * as transactionsApi from '@kijk/api/transactions/requests';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vite-plus/test';
 
 import { render } from '@/test/render-space';
 

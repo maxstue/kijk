@@ -52,11 +52,7 @@ const searchSchema = z.object({
     .default(new Date().getMonth() + 1),
   page: z.number().int().min(1).optional(),
   // Unknown sizes, e.g. from an edited URL, fall back to the default.
-  pageSize: z
-    .number()
-    .refine((value) => (transactionPageSizes as readonly number[]).includes(value))
-    .optional()
-    .catch(undefined),
+  pageSize: z.literal(transactionPageSizes).optional().catch(undefined),
   uncategorized: z.boolean().optional(),
   year: z.number().int().min(2000).max(9999).default(new Date().getFullYear()),
 });
