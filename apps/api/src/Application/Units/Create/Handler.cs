@@ -31,11 +31,11 @@ public sealed class CreateHandler(IAppDbContext dbContext, CurrentUser currentUs
             return Error.Validation("Reference unit must be a supported system unit");
         }
 
-        var normalizedName = request.Name.Trim().ToLowerInvariant();
+        var name = request.Name.Trim();
         if (await dbContext.Units.AnyAsync(
                 unit => unit.OwnerUserId == currentUser.Id
                         && unit.ArchivedAt == null
-                        && EF.Property<string>(unit, "NormalizedName") == normalizedName,
+                        && unit.Name == name,
                 cancellationToken))
         {
             return Error.Conflict("A unit with this name already exists");
@@ -53,7 +53,7 @@ public sealed class CreateHandler(IAppDbContext dbContext, CurrentUser currentUs
 
         var unit = new Unit
         {
-            Name = request.Name.Trim(),
+            Name = name,
             Symbol = request.Symbol.Trim(),
             CreatorType = CreatorType.User,
             ConversionType = UnitConversionType.Factor,

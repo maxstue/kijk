@@ -49,14 +49,14 @@ public class ResourcePersistenceTests
     }
 
     [Test]
-    public async Task SaveChangesWithEquivalentResourceNamesEnforcesNormalizedUniqueConstraint()
+    public async Task SaveChangesWithEquivalentResourceNamesEnforcesCaseInsensitiveUniqueConstraint()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var space = Space.Create("Integration space");
         var unit = CreateUnit("Kilowatt hour", "kWh", "Energy", "KilowattHour");
         dbContext.Resources.AddRange(
             CreateResource("Electricity", unit, space),
-            CreateResource(" electricity ", unit, space));
+            CreateResource("electricity", unit, space));
 
         var constraintWasEnforced = false;
         try

@@ -13,22 +13,19 @@ public sealed class UnitConfig : IEntityTypeConfiguration<Unit>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Unit> builder)
     {
+        builder.ToTable(table => table.HasCheckConstraint("ck_units_name_trimmed", "name = btrim(name)"));
         builder.HasKey(unit => unit.Id);
-        builder.Property(unit => unit.Name).HasMaxLength(50);
+        builder.Property(unit => unit.Name).HasMaxLength(50).UseCollation(AppDbContext.CaseInsensitiveCollation);
         builder.Property(unit => unit.Symbol).HasMaxLength(20);
         builder.Property(unit => unit.QuantityKey).HasMaxLength(100);
         builder.Property(unit => unit.UnitsNetUnitName).HasMaxLength(100);
         builder.Property(unit => unit.ConversionType).HasConversion<string>().HasMaxLength(16);
         builder.Property(unit => unit.ConversionFactor).HasPrecision(28, 12);
 
-        builder.Property<string>("NormalizedName")
-            .HasMaxLength(50)
-            .HasComputedColumnSql("lower(btrim(name))", stored: true);
-
         builder.HasIndex("QuantityKey", "UnitsNetUnitName")
             .IsUnique()
             .HasFilter("creator_type = 'system'");
-        builder.HasIndex("OwnerUserId", "NormalizedName")
+        builder.HasIndex(unit => new { unit.OwnerUserId, unit.Name })
             .IsUnique()
             .HasFilter("creator_type = 'user' AND archived_at IS NULL");
 

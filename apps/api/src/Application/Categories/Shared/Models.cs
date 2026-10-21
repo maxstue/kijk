@@ -65,9 +65,9 @@ public static class CategoryHelpers
         Guid? excludedCategoryId,
         CancellationToken cancellationToken)
     {
-        var normalizedName = name.Trim().ToLowerInvariant();
+        name = name.Trim();
         return categories.AnyAsync(
-            category => EF.Property<string>(category, "NormalizedName") == normalizedName && category.Id != excludedCategoryId,
+            category => category.Name == name && category.Id != excludedCategoryId,
             cancellationToken);
     }
 }

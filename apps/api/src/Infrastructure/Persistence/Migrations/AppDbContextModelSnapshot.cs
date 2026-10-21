@@ -19,6 +19,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
                 .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -204,14 +205,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("normalized_name")
-                        .HasComputedColumnSql("lower(btrim(name))", true);
+                        .HasColumnName("name")
+                        .UseCollation("case_insensitive");
 
                     b.Property<Guid?>("SpaceId")
                         .HasColumnType("uuid")
@@ -225,17 +220,20 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_categories");
 
-                    b.HasIndex("NormalizedName")
+                    b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_categories_normalized_name")
+                        .HasDatabaseName("ix_categories_name")
                         .HasFilter("space_id IS NULL");
 
-                    b.HasIndex("SpaceId", "NormalizedName")
+                    b.HasIndex("SpaceId", "Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_categories_space_id_normalized_name")
+                        .HasDatabaseName("ix_categories_space_id_name")
                         .HasFilter("space_id IS NOT NULL");
 
-                    b.ToTable("categories", (string)null);
+                    b.ToTable("categories", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_categories_name_trimmed", "name = btrim(name)");
+                        });
 
                     b.HasData(
                         new
@@ -1115,14 +1113,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("normalized_name")
-                        .HasComputedColumnSql("lower(btrim(name))", true);
+                        .HasColumnName("name")
+                        .UseCollation("case_insensitive");
 
                     b.Property<Guid?>("SpaceId")
                         .HasColumnType("uuid")
@@ -1145,17 +1137,20 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("UnitId")
                         .HasDatabaseName("ix_resources_unit_id");
 
-                    b.HasIndex("NormalizedName", "UnitId")
+                    b.HasIndex("Name", "UnitId")
                         .IsUnique()
-                        .HasDatabaseName("ix_resources_normalized_name_unit_id")
+                        .HasDatabaseName("ix_resources_name_unit_id")
                         .HasFilter("space_id IS NULL");
 
-                    b.HasIndex("SpaceId", "NormalizedName", "UnitId")
+                    b.HasIndex("SpaceId", "Name", "UnitId")
                         .IsUnique()
-                        .HasDatabaseName("ix_resources_space_id_normalized_name_unit_id")
+                        .HasDatabaseName("ix_resources_space_id_name_unit_id")
                         .HasFilter("space_id IS NOT NULL");
 
-                    b.ToTable("resources", (string)null);
+                    b.ToTable("resources", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_resources_name_trimmed", "name = btrim(name)");
+                        });
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Role", b =>
@@ -1430,14 +1425,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("normalized_name")
-                        .HasComputedColumnSql("lower(btrim(name))", true);
+                        .HasColumnName("name")
+                        .UseCollation("case_insensitive");
 
                     b.Property<Guid?>("OwnerUserId")
                         .HasColumnType("uuid")
@@ -1474,9 +1463,9 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("ReferenceUnitId")
                         .HasDatabaseName("ix_units_reference_unit_id");
 
-                    b.HasIndex("OwnerUserId", "NormalizedName")
+                    b.HasIndex("OwnerUserId", "Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_units_owner_user_id_normalized_name")
+                        .HasDatabaseName("ix_units_owner_user_id_name")
                         .HasFilter("creator_type = 'user' AND archived_at IS NULL");
 
                     b.HasIndex("QuantityKey", "UnitsNetUnitName")
@@ -1484,7 +1473,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_units_quantity_key_units_net_unit_name")
                         .HasFilter("creator_type = 'system'");
 
-                    b.ToTable("units", (string)null);
+                    b.ToTable("units", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_units_name_trimmed", "name = btrim(name)");
+                        });
 
                     b.HasData(
                         new

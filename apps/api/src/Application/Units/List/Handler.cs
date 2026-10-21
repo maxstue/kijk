@@ -46,12 +46,13 @@ public sealed class ListHandler(IAppDbContext dbContext, CurrentUser currentUser
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
+            // EF parameterizes the pattern; escaping keeps user-entered LIKE wildcards literal.
             var term = request.Search.Trim()
                 .Replace("\\", "\\\\", StringComparison.Ordinal)
                 .Replace("%", "\\%", StringComparison.Ordinal)
                 .Replace("_", "\\_", StringComparison.Ordinal);
             var pattern = $"%{term}%";
-            query = query.Where(unit => EF.Functions.ILike(unit.Name, pattern, "\\")
+            query = query.Where(unit => EF.Functions.Like(unit.Name, pattern, "\\")
                                        || EF.Functions.ILike(unit.Symbol, pattern, "\\"));
         }
 

@@ -12,8 +12,9 @@ public class CategoryConfig : IEntityTypeConfiguration<Category>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Category> builder)
     {
+        builder.ToTable(table => table.HasCheckConstraint("ck_categories_name_trimmed", "name = btrim(name)"));
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Name).HasMaxLength(50);
+        builder.Property(x => x.Name).HasMaxLength(50).UseCollation(AppDbContext.CaseInsensitiveCollation);
         builder.Property(x => x.Color).HasMaxLength(7);
         builder.Property(x => x.Icon).HasMaxLength(50);
 
@@ -25,13 +26,10 @@ public class CategoryConfig : IEntityTypeConfiguration<Category>
         builder.Property(m => m.UpdatedAt)
             .ValueGeneratedOnUpdate();
 
-        builder.Property<string>("NormalizedName")
-            .HasMaxLength(50)
-            .HasComputedColumnSql("lower(btrim(name))", stored: true);
-        builder.HasIndex("NormalizedName")
+        builder.HasIndex(category => category.Name)
             .IsUnique()
             .HasFilter("space_id IS NULL");
-        builder.HasIndex("SpaceId", "NormalizedName")
+        builder.HasIndex(category => new { category.SpaceId, category.Name })
             .IsUnique()
             .HasFilter("space_id IS NOT NULL");
 

@@ -9,6 +9,8 @@ namespace Kijk.Infrastructure.Persistence;
 /// <summary>The EF Core database context of Kijk (PostgreSQL).</summary>
 public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
 {
+    internal const string CaseInsensitiveCollation = "case_insensitive";
+
     /// <summary>Creates a context for tooling such as the EF migration bundle.</summary>
     public AppDbContext()
     {
@@ -78,6 +80,7 @@ public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasCollation(CaseInsensitiveCollation, locale: "und-u-ks-level2", provider: "icu", deterministic: false);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

@@ -33,15 +33,15 @@ public sealed class UpdateHandler(IAppDbContext dbContext, CurrentUser currentUs
             return Error.Validation("Reference unit must be a supported system unit");
         }
 
-        var normalizedName = request.Name.Trim().ToLowerInvariant();
+        var name = request.Name.Trim();
         if (await dbContext.Units.AnyAsync(item => item.Id != id && item.OwnerUserId == currentUser.Id
                                                    && item.ArchivedAt == null
-                                                   && EF.Property<string>(item, "NormalizedName") == normalizedName, cancellationToken))
+                                                   && item.Name == name, cancellationToken))
         {
             return Error.Conflict("A unit with this name already exists");
         }
 
-        unit.Name = request.Name.Trim();
+        unit.Name = name;
         unit.Symbol = request.Symbol.Trim();
         unit.ReferenceUnit = reference;
         unit.ConversionFactor = request.ConversionFactor;
