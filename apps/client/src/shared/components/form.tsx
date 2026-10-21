@@ -1,5 +1,6 @@
+import { mergeProps } from '@base-ui/react/merge-props';
+import { useRender } from '@base-ui/react/use-render';
 import { cn } from 'cn';
-import { Label, Slot } from 'radix-ui';
 import * as React from 'react';
 import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
@@ -68,11 +69,11 @@ function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 /** Label of the field; turns red when the field is invalid. */
-function FormLabel({ className, ...props }: React.ComponentProps<typeof Label.Root>) {
+function FormLabel({ className, ...props }: React.ComponentProps<'label'>) {
   const { error, formItemId } = useFormField();
 
   return (
-    <Label.Root
+    <label
       data-slot='form-label'
       data-error={Boolean(error)}
       className={cn('data-[error=true]:text-destructive', className)}
@@ -83,18 +84,28 @@ function FormLabel({ className, ...props }: React.ComponentProps<typeof Label.Ro
 }
 
 /** Passes id and ARIA attributes for description and error to the wrapped control. */
-function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
+function FormControl({
+  children,
+  ...props
+}: Omit<useRender.ComponentProps<'div'>, 'render' | 'children'> & {
+  children: React.ReactElement;
+}) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
-  return (
-    <Slot.Root
-      data-slot='form-control'
-      id={formItemId}
-      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
-      aria-invalid={Boolean(error)}
-      {...props}
-    />
-  );
+  return useRender({
+    render: children,
+    props: {
+      'data-slot': 'form-control',
+      ...mergeProps<'div'>(
+        {
+          id: formItemId,
+          'aria-describedby': !error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`,
+          'aria-invalid': Boolean(error),
+        },
+        props,
+      ),
+    },
+  });
 }
 
 /** Help text of the field. */

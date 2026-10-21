@@ -1,9 +1,10 @@
 import { useThemeStore, useThemeStoreActions } from '@kijk/core/stores/theme-store';
 import { Button } from '@kijk/ui/components/button';
 import { Label } from '@kijk/ui/components/label';
-import { Separator } from '@kijk/ui/components/separator';
 import { cn } from 'cn';
 import { MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
+
+import { PageHeader } from '@/shared/components/page-header';
 
 /** Settings section to choose the theme mode. */
 export function AppearanceSection() {
@@ -12,13 +13,10 @@ export function AppearanceSection() {
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h3 className='text-lg font-medium'>Appearance</h3>
-        <p className='text-muted-foreground text-sm'>
-          Customize the appearance of the app. Automatically switch between light and dark themes.
-        </p>
-      </div>
-      <Separator />
+      <PageHeader
+        title='Appearance'
+        description='Customize the appearance of the app. Automatically switch between light and dark themes.'
+      />
       <div className='flex flex-col gap-6'>
         <div className='flex flex-1 flex-col space-y-4 md:space-y-6'>
           <div className='space-y-1.5'>

@@ -1,4 +1,6 @@
 import { useAuth } from '@clerk/react';
+import type { components } from '@kijk/api/generated/kijk';
+import * as usersOptions from '@kijk/api/users/options';
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 import { Dialog } from '@kijk/ui/components/dialog';
 import {
@@ -13,33 +15,40 @@ import {
 import { LogoIcon } from '@kijk/ui/components/icons';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@kijk/ui/components/sidebar';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useRouter } from '@tanstack/react-router';
-import { ChevronsUpDown, ExternalLinkIcon, LogOut, SendIcon, SettingsIcon } from 'lucide-react';
+import { useNavigate, useParams, useRouter } from '@tanstack/react-router';
+import {
+  Check,
+  ChevronsUpDown,
+  ExternalLinkIcon,
+  LockIcon,
+  LogOut,
+  SendIcon,
+  SettingsIcon,
+  UsersIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { getInitialChars } from '@/app/root/helpers';
-import type { components } from '@/shared/api/generated/kijk';
-import { queryKeys } from '@/shared/api/query-keys';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { siteConfig } from '@/shared/config/site';
 
 /** Sidebar account menu: settings, feedback and sign-out. */
 export function AccountMenu() {
   const { signOut } = useAuth();
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/' });
   const router = useRouter();
   const { isMobile } = useSidebar();
   const [showFeedback, setShowFeedback] = useState(false);
-  const account = getAccountMenuData(currentAccount?.user);
+  const { spaceId } = useParams({ strict: false });
+  const account = getAccountMenuData(currentAccount?.user, spaceId);
 
-  const handleSignOut = (event: Event) => {
-    event.preventDefault();
+  const handleSignOut = () => {
     signOut()
-      .then(() => {
-        queryClient.removeQueries({ queryKey: queryKeys.users.me });
+      .then(async () => {
+        await queryClient.cancelQueries();
+        queryClient.clear();
         return router.invalidate();
       })
       .then(() => navigate({ replace: true, to: '/auth' }))
@@ -54,6 +63,7 @@ export function AccountMenu() {
         onNavigateToSettings={() => navigate({ to: '/settings' })}
         onOpenFeedback={() => setShowFeedback(true)}
         onSignOut={handleSignOut}
+        spaces={currentAccount?.user?.spaces ?? []}
       />
       <FeedbackDialog onClose={() => setShowFeedback(false)} />
     </Dialog>
@@ -65,19 +75,19 @@ type CurrentUser = components['schemas']['GetMeUserResponse'];
 interface AccountMenuData {
   displayName?: string | null;
   email?: string | null;
-  householdName: string;
+  spaceName: string;
   imageUrl?: string | null;
   initials: string;
 }
 
-function getAccountMenuData(user?: CurrentUser): AccountMenuData {
+function getAccountMenuData(user?: CurrentUser, spaceId?: string): AccountMenuData {
   const displayName = getDisplayName(user);
   const email = getEmail(user);
 
   return {
     displayName,
     email,
-    householdName: getActiveHouseholdName(user),
+    spaceName: getActiveSpaceName(user, spaceId),
     imageUrl: getImageUrl(user),
     initials: getInitialChars(getIdentityLabel(displayName, email)),
   };
@@ -99,16 +109,19 @@ function getIdentityLabel(displayName?: string | null, email?: string | null) {
   return displayName ?? email ?? undefined;
 }
 
-function getActiveHouseholdName(user?: CurrentUser) {
-  return user?.households?.find((household) => household.isActive)?.name ?? siteConfig.name;
+function getActiveSpaceName(user?: CurrentUser, spaceId?: string) {
+  return user?.spaces?.find((space) => space.id === spaceId)?.name ?? siteConfig.name;
 }
+
+type Space = NonNullable<CurrentUser['spaces']>[number];
 
 interface AccountMenuDropdownProps {
   account: AccountMenuData;
+  spaces: Space[];
   isMobile: boolean;
   onNavigateToSettings: () => void;
   onOpenFeedback: () => void;
-  onSignOut: (event: Event) => void;
+  onSignOut: () => void;
 }
 
 function AccountMenuDropdown({
@@ -117,28 +130,31 @@ function AccountMenuDropdown({
   onNavigateToSettings,
   onOpenFeedback,
   onSignOut,
+  spaces,
 }: AccountMenuDropdownProps) {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
-              tooltip={account.householdName}
-            >
-              <LogoIcon className='text-sidebar-foreground size-5 shrink-0' />
-              <span className='truncate font-medium'>{account.householdName}</span>
-              <ChevronsUpDown className='ml-auto size-3.5' />
-            </SidebarMenuButton>
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                className='data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground'
+                tooltip={account.spaceName}
+              />
+            }
+          >
+            <LogoIcon className='text-sidebar-foreground size-5 shrink-0' />
+            <span className='truncate font-medium'>{account.spaceName}</span>
+            <ChevronsUpDown className='ml-auto size-3.5' />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align='start'
-            className='w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg'
+            className='w-(--anchor-width) min-w-56 rounded-lg'
             side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
           >
-            <DropdownMenuLabel className='p-0 font-normal'>
+            <div className='p-0 font-normal'>
               <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
                 <UserSummary
                   displayName={account.displayName}
@@ -147,26 +163,30 @@ function AccountMenuDropdown({
                   initials={account.initials}
                 />
               </div>
-            </DropdownMenuLabel>
+            </div>
+            <DropdownMenuSeparator />
+            <SpaceSwitcher spaces={spaces} />
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onSelect={onNavigateToSettings}>
+              <DropdownMenuItem onClick={onNavigateToSettings}>
                 <SettingsIcon />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank'>
-                  <ExternalLinkIcon />
-                  Support
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onOpenFeedback}>
+              <DropdownMenuItem
+                render={
+                  <a href={siteConfig.links.support} rel='noopener noreferrer' target='_blank'>
+                    <ExternalLinkIcon />
+                    Support
+                  </a>
+                }
+              />
+              <DropdownMenuItem onClick={onOpenFeedback}>
                 <SendIcon />
                 Give feedback
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={onSignOut}>
+            <DropdownMenuItem onClick={onSignOut}>
               <LogOut />
               Log out
             </DropdownMenuItem>
@@ -196,5 +216,26 @@ function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProp
         <span className='text-muted-foreground truncate text-xs'>{email}</span>
       </div>
     </>
+  );
+}
+
+/** Lists the user's spaces, personal first, and switches the active one. */
+function SpaceSwitcher({ spaces }: { spaces: Space[] }) {
+  const navigate = useNavigate();
+  const { spaceId } = useParams({ strict: false });
+  const sorted = spaces.toSorted((a, b) => Number(b.isPersonal) - Number(a.isPersonal) || a.name.localeCompare(b.name));
+
+  return (
+    <DropdownMenuGroup>
+      <DropdownMenuLabel className='text-muted-foreground text-xs'>Spaces</DropdownMenuLabel>
+      {sorted.map((space) => (
+        <DropdownMenuItem key={space.id} onClick={() => navigate({ to: '/$spaceId', params: { spaceId: space.id } })}>
+          {space.isPersonal ? <LockIcon /> : <UsersIcon />}
+          <span className='min-w-0 flex-1 truncate'>{space.name}</span>
+          <span className='text-muted-foreground text-xs'>{space.isPersonal ? 'Private' : 'Shared'}</span>
+          {space.id === spaceId && <Check aria-label='Active space' className='size-4' />}
+        </DropdownMenuItem>
+      ))}
+    </DropdownMenuGroup>
   );
 }

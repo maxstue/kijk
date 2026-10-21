@@ -15,8 +15,6 @@
 /// </remarks>
 public readonly record struct ErrorCodes
 {
-    /// <summary>Generic error without a more specific code.</summary>
-    public const string DefaultError = "E0001";
     /// <summary>Unexpected error, typically an unhandled exception.</summary>
     public const string UnexpectedError = "E0002";
     /// <summary>The requested entity does not exist or is not visible to the user.</summary>

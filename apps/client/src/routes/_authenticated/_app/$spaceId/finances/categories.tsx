@@ -1,0 +1,54 @@
+import * as categoriesOptions from '@kijk/api/categories/options';
+import * as categoryRulesOptions from '@kijk/api/category-rules/options';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
+import { createFileRoute } from '@tanstack/react-router';
+import { Sparkles, Tags } from 'lucide-react';
+
+import { CategoryCreateButton } from '@/app/categories/create-button';
+import { CategoryRulesSection } from '@/app/categories/rules';
+import { CategoriesSection } from '@/app/categories/section';
+import { AppError } from '@/shared/components/errors/app-error';
+import { PageToolbar } from '@/shared/components/page-header';
+import { Loader } from '@/shared/components/ui/loaders/loader';
+
+/** The finances categories route, which shows the categories and categorization rules of the active space. */
+export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/categories')({
+  loader: async ({ params: { spaceId }, context: { queryClient } }) => {
+    await Promise.all([
+      queryClient.query({ ...categoriesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
+      queryClient.query({ ...categoryRulesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
+    ]);
+  },
+  component: CategoriesPage,
+  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  head: () => ({ meta: [{ title: 'Categories' }] }),
+  pendingComponent: () => <Loader className='h-6 w-6' />,
+});
+
+function CategoriesPage() {
+  return (
+    <div className='space-y-6 pt-6'>
+      <Tabs defaultValue='categories' className='gap-6'>
+        <PageToolbar
+          actions={<CategoryCreateButton />}
+          tabs={
+            <TabsList aria-label='Category management' className='w-full sm:w-fit'>
+              <TabsTrigger value='categories'>
+                <Tags /> Categories
+              </TabsTrigger>
+              <TabsTrigger value='rules'>
+                <Sparkles /> Categorization rules
+              </TabsTrigger>
+            </TabsList>
+          }
+        />
+        <TabsContent value='categories'>
+          <CategoriesSection />
+        </TabsContent>
+        <TabsContent value='rules'>
+          <CategoryRulesSection />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

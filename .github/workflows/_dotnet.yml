@@ -1,0 +1,81 @@
+name: .NET
+
+# Builds, format-checks, tests and audits the API. The coverage reports of the unit and integration tests are uploaded
+# as `coverage-dotnet` for `_sonar.yml`.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ./apps/api
+
+jobs:
+  build-and-test:
+    name: "🛠️ Build, format and test"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: "🔧 Set up .NET"
+        uses: ./.github/actions/setup-dotnet
+
+      - name: "📦 Restore dependencies"
+        run: dotnet restore Kijk.slnx --locked-mode
+
+      - name: "🧱 Build"
+        run: dotnet build Kijk.slnx --configuration Release --no-restore
+
+      - name: "🧹 Format"
+        run: dotnet format Kijk.slnx --no-restore --verify-no-changes --verbosity detailed --exclude '**/Migrations/**'
+
+      - name: "🧪 Tests and coverage"
+        run: |
+          dotnet test --project tests/Kijk.Api.SourceGenerators.Tests/Kijk.Api.SourceGenerators.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults
+          dotnet test --project tests/Kijk.ArchitectureTests/Kijk.ArchitectureTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults
+          dotnet test --project tests/Kijk.UnitTests/Kijk.UnitTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults \
+            --coverage \
+            --coverage-output unit.coverage.xml \
+            --coverage-output-format xml
+          dotnet test --project tests/Kijk.IntegrationTests/Kijk.IntegrationTests.csproj \
+            --configuration Release \
+            --no-build \
+            --results-directory TestResults \
+            --coverage \
+            --coverage-output integration.coverage.xml \
+            --coverage-output-format xml
+
+      - name: "📎 Upload coverage"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-dotnet
+          path: apps/api/TestResults/*.coverage.xml
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: "🔍 Audit"
+        run: |
+          dotnet list Kijk.slnx package --vulnerable --include-transitive --format=json > list.json
+          high_or_critical="$(jq '.projects | [.. | objects | .severity? // empty | select(. == "High" or . == "Critical")] | length' list.json)"
+          jq . list.json
+          if [ "$high_or_critical" -gt 0 ]; then
+            echo 'High or critical vulnerabilities found! Exiting...'
+            exit 1
+          else
+            echo 'No high or critical vulnerabilities found.'
+          fi

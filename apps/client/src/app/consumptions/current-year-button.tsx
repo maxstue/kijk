@@ -1,7 +1,7 @@
 import { Button } from '@kijk/ui/components/button';
 import { getRouteApi } from '@tanstack/react-router';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions');
+const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 /** Sets the selected year to the current year. */
 export function ConsumptionCurrentYearButton() {

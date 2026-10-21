@@ -21,8 +21,10 @@ public class ValidationFilter<T>(IValidator<T> validator) : IEndpointFilter wher
             return await next.Invoke(context);
         }
 
+        // Several rules can fail for the same property, so the errors are grouped instead of keyed by property.
         var problemDetails = validationResult.Errors
-            .ToDictionary(x => x.PropertyName, x => new[] { $"{x.ErrorCode}: {x.ErrorMessage} " });
+            .GroupBy(x => x.PropertyName)
+            .ToDictionary(group => group.Key, group => group.Select(x => $"{x.ErrorCode}: {x.ErrorMessage}").ToArray());
 
         return TypedResults.ValidationProblem(problemDetails);
     }

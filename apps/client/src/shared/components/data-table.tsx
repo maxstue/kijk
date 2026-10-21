@@ -9,6 +9,7 @@ import { cn } from 'cn';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { PageToolbar } from '@/shared/components/page-header';
 import { dataTableFeatures } from '@/shared/lib/table-features';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 
@@ -17,14 +18,24 @@ interface Props<TData extends RowData> {
   data: TData[];
   actions?: ReactNode;
   defaultSort?: ColumnSort;
+  /** Id of the column the filter input searches; defaults to `name`. */
+  filterColumn?: string;
+  filterPlaceholder?: string;
 }
 
 /**
- * Client-side table with name filter, sortable columns and pagination (10 rows per page).
+ * Client-side table with a text filter, sortable columns and pagination (10 rows per page).
  *
- * The filter input targets the column with id `name`.
+ * The filter input targets the column with id `filterColumn` (`name` by default).
  */
-export function DataTable<TData extends RowData>({ columns, data, actions, defaultSort }: Props<TData>) {
+export function DataTable<TData extends RowData>({
+  columns,
+  data,
+  actions,
+  defaultSort,
+  filterColumn = 'name',
+  filterPlaceholder = 'Filter name...',
+}: Props<TData>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useTable({
@@ -41,14 +52,15 @@ export function DataTable<TData extends RowData>({ columns, data, actions, defau
 
   return (
     <div>
-      <div className='my-4 flex items-center justify-between'>
-        <Input
-          className='w-1/2'
-          placeholder='Filter name...'
-          value={table.getColumn('name')?.getFilterValue() as string}
-          onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-        />
-        {actions}
+      <div className='my-4'>
+        <PageToolbar actions={actions}>
+          <Input
+            className='w-full sm:w-72'
+            placeholder={filterPlaceholder}
+            value={table.getColumn(filterColumn)?.getFilterValue() as string}
+            onChange={(event) => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
+          />
+        </PageToolbar>
       </div>
       <div className='h-full overflow-scroll rounded border'>
         <Table>

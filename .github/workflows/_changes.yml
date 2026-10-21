@@ -1,0 +1,56 @@
+name: Changes
+
+# Decides which parts of the repository a run has to check. Pull requests only check the parts they touch; pushes and
+# manual runs check everything, so the main branch always has complete results (and complete Sonar coverage).
+# Add a filter here when a new area gets its own building block.
+
+on:
+  workflow_call:
+    outputs:
+      js:
+        description: Whether the JavaScript workspaces (client and packages) have to be checked.
+        value: ${{ jobs.changes.outputs.js }}
+      dotnet:
+        description: Whether the .NET API has to be checked.
+        value: ${{ jobs.changes.outputs.dotnet }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: "🧭 Detect changes"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      js: ${{ github.event_name != 'pull_request' || steps.filter.outputs.js == 'true' }}
+      dotnet: ${{ github.event_name != 'pull_request' || steps.filter.outputs.dotnet == 'true' }}
+
+    steps:
+      - name: "🏖️ Checkout Repository"
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: "🧭 Filter changed paths"
+        id: filter
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            ci: &ci
+              - ".github/workflows/ci.yml"
+              - ".github/workflows/_changes.yml"
+            js:
+              - *ci
+              - ".github/actions/setup-js/**"
+              - ".github/workflows/_js-*.yml"
+              - "apps/client/**"
+              - "packages/**"
+              - "package.json"
+              - "pnpm-lock.yaml"
+              - "pnpm-workspace.yaml"
+            dotnet:
+              - *ci
+              - ".github/actions/setup-dotnet/**"
+              - ".github/workflows/_dotnet.yml"
+              - "apps/api/**"

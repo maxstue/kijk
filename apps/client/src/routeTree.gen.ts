@@ -12,25 +12,37 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ImprintRouteImport } from './routes/imprint'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
-import { Route as AuthenticatedAppConsumptionsRouteImport } from './routes/_authenticated/_app/consumptions'
-import { Route as AuthenticatedAppConsumptionsLimitsRouteImport } from './routes/_authenticated/_app/consumptions-limits'
-import { Route as AuthenticatedAppHomeRouteImport } from './routes/_authenticated/_app/home'
-import { Route as AuthenticatedAppResourcesRouteImport } from './routes/_authenticated/_app/resources'
-import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
+import { Route as AuthenticatedAppSpaceIdRouteRouteImport } from './routes/_authenticated/_app/$spaceId/route'
+import { Route as AuthenticatedAppSettingsRouteRouteImport } from './routes/_authenticated/_app/settings/route'
 import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
-import { Route as AuthenticatedAppConsumptionsConsumptionIdRouteImport } from './routes/_authenticated/_app/consumptions.$consumptionId'
-import { Route as AuthenticatedAppResourcesResourceIdRouteImport } from './routes/_authenticated/_app/resources.$resourceId'
-import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings.$section'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdRouteImport } from './routes/_authenticated/_app/settings.households.$householdId'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.index'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.general'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.members'
-import { Route as AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRouteImport } from './routes/_authenticated/_app/settings.households.$householdId.units'
+import { Route as AuthenticatedAppSpaceIdIndexRouteImport } from './routes/_authenticated/_app/$spaceId/index'
+import { Route as AuthenticatedAppSettingsSectionRouteImport } from './routes/_authenticated/_app/settings/$section'
+import { Route as AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteImport } from './routes/_authenticated/_app/$spaceId/consumptions/_overview/route'
+import { Route as AuthenticatedAppSpaceIdConsumptionsLimitsRouteImport } from './routes/_authenticated/_app/$spaceId/consumptions/limits'
+import { Route as AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteImport } from './routes/_authenticated/_app/$spaceId/consumptions/resources/route'
+import { Route as AuthenticatedAppSpaceIdFinancesIndexRouteImport } from './routes/_authenticated/_app/$spaceId/finances/index'
+import { Route as AuthenticatedAppSpaceIdFinancesAccountsRouteImport } from './routes/_authenticated/_app/$spaceId/finances/accounts'
+import { Route as AuthenticatedAppSpaceIdFinancesBudgetsRouteImport } from './routes/_authenticated/_app/$spaceId/finances/budgets'
+import { Route as AuthenticatedAppSpaceIdFinancesCategoriesRouteImport } from './routes/_authenticated/_app/$spaceId/finances/categories'
+import { Route as AuthenticatedAppSpaceIdFinancesTransactionsRouteImport } from './routes/_authenticated/_app/$spaceId/finances/transactions'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdRouteRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/route'
+import { Route as AuthenticatedAppSpaceIdConsumptionsOverviewIndexRouteImport } from './routes/_authenticated/_app/$spaceId/consumptions/_overview/index'
+import { Route as AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRouteImport } from './routes/_authenticated/_app/$spaceId/consumptions/_overview/$consumptionId'
+import { Route as AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRouteImport } from './routes/_authenticated/_app/$spaceId/consumptions/resources/$resourceId'
+import { Route as AuthenticatedAppSpaceIdFinancesImportsIndexRouteImport } from './routes/_authenticated/_app/$spaceId/finances/imports/index'
+import { Route as AuthenticatedAppSpaceIdFinancesImportsImportIdRouteImport } from './routes/_authenticated/_app/$spaceId/finances/imports/$importId'
+import { Route as AuthenticatedAppSpaceIdFinancesImportsNewRouteImport } from './routes/_authenticated/_app/$spaceId/finances/imports/new'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/index'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/general'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdImportsRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/imports'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/members'
+import { Route as AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/units'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -44,6 +56,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImprintRoute = ImprintRouteImport.update({
+  id: '/imprint',
+  path: '/imprint',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -70,31 +87,14 @@ const AuthenticatedOnboardingRouteRoute =
     id: '/_onboarding',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAppConsumptionsRoute =
-  AuthenticatedAppConsumptionsRouteImport.update({
-    id: '/consumptions',
-    path: '/consumptions',
+const AuthenticatedAppSpaceIdRouteRoute =
+  AuthenticatedAppSpaceIdRouteRouteImport.update({
+    id: '/$spaceId',
+    path: '/$spaceId',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAppConsumptionsLimitsRoute =
-  AuthenticatedAppConsumptionsLimitsRouteImport.update({
-    id: '/consumptions-limits',
-    path: '/consumptions-limits',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
-const AuthenticatedAppHomeRoute = AuthenticatedAppHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => AuthenticatedAppRouteRoute,
-} as any)
-const AuthenticatedAppResourcesRoute =
-  AuthenticatedAppResourcesRouteImport.update({
-    id: '/resources',
-    path: '/resources',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
-const AuthenticatedAppSettingsRoute =
-  AuthenticatedAppSettingsRouteImport.update({
+const AuthenticatedAppSettingsRouteRoute =
+  AuthenticatedAppSettingsRouteRouteImport.update({
     id: '/settings',
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRouteRoute,
@@ -105,193 +105,347 @@ const AuthenticatedOnboardingWelcomeRoute =
     path: '/welcome',
     getParentRoute: () => AuthenticatedOnboardingRouteRoute,
   } as any)
-const AuthenticatedAppConsumptionsConsumptionIdRoute =
-  AuthenticatedAppConsumptionsConsumptionIdRouteImport.update({
-    id: '/$consumptionId',
-    path: '/$consumptionId',
-    getParentRoute: () => AuthenticatedAppConsumptionsRoute,
-  } as any)
-const AuthenticatedAppResourcesResourceIdRoute =
-  AuthenticatedAppResourcesResourceIdRouteImport.update({
-    id: '/$resourceId',
-    path: '/$resourceId',
-    getParentRoute: () => AuthenticatedAppResourcesRoute,
+const AuthenticatedAppSpaceIdIndexRoute =
+  AuthenticatedAppSpaceIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
   } as any)
 const AuthenticatedAppSettingsSectionRoute =
   AuthenticatedAppSettingsSectionRouteImport.update({
     id: '/$section',
     path: '/$section',
-    getParentRoute: () => AuthenticatedAppSettingsRoute,
+    getParentRoute: () => AuthenticatedAppSettingsRouteRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdRouteImport.update({
-    id: '/households/$householdId',
-    path: '/households/$householdId',
-    getParentRoute: () => AuthenticatedAppSettingsRoute,
+const AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute =
+  AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteImport.update({
+    id: '/consumptions/_overview',
+    path: '/consumptions',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRouteImport.update({
+const AuthenticatedAppSpaceIdConsumptionsLimitsRoute =
+  AuthenticatedAppSpaceIdConsumptionsLimitsRouteImport.update({
+    id: '/consumptions/limits',
+    path: '/consumptions/limits',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdConsumptionsResourcesRouteRoute =
+  AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteImport.update({
+    id: '/consumptions/resources',
+    path: '/consumptions/resources',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesIndexRoute =
+  AuthenticatedAppSpaceIdFinancesIndexRouteImport.update({
+    id: '/finances/',
+    path: '/finances/',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesAccountsRoute =
+  AuthenticatedAppSpaceIdFinancesAccountsRouteImport.update({
+    id: '/finances/accounts',
+    path: '/finances/accounts',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesBudgetsRoute =
+  AuthenticatedAppSpaceIdFinancesBudgetsRouteImport.update({
+    id: '/finances/budgets',
+    path: '/finances/budgets',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesCategoriesRoute =
+  AuthenticatedAppSpaceIdFinancesCategoriesRouteImport.update({
+    id: '/finances/categories',
+    path: '/finances/categories',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesTransactionsRoute =
+  AuthenticatedAppSpaceIdFinancesTransactionsRouteImport.update({
+    id: '/finances/transactions',
+    path: '/finances/transactions',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSettingsSpacesSpaceIdRouteRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdRouteRouteImport.update({
+    id: '/spaces/$spaceId',
+    path: '/spaces/$spaceId',
+    getParentRoute: () => AuthenticatedAppSettingsRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute =
+  AuthenticatedAppSpaceIdConsumptionsOverviewIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRouteImport.update({
+const AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute =
+  AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRouteImport.update({
+    id: '/$consumptionId',
+    path: '/$consumptionId',
+    getParentRoute: () => AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute =
+  AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRouteImport.update({
+    id: '/$resourceId',
+    path: '/$resourceId',
+    getParentRoute: () =>
+      AuthenticatedAppSpaceIdConsumptionsResourcesRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesImportsIndexRoute =
+  AuthenticatedAppSpaceIdFinancesImportsIndexRouteImport.update({
+    id: '/finances/imports/',
+    path: '/finances/imports/',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesImportsImportIdRoute =
+  AuthenticatedAppSpaceIdFinancesImportsImportIdRouteImport.update({
+    id: '/finances/imports/$importId',
+    path: '/finances/imports/$importId',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSpaceIdFinancesImportsNewRoute =
+  AuthenticatedAppSpaceIdFinancesImportsNewRouteImport.update({
+    id: '/finances/imports/new',
+    path: '/finances/imports/new',
+    getParentRoute: () => AuthenticatedAppSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSettingsSpacesSpaceIdIndexRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport.update({
     id: '/general',
     path: '/general',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRouteRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRouteImport.update({
+const AuthenticatedAppSettingsSpacesSpaceIdImportsRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdImportsRouteImport.update({
+    id: '/imports',
+    path: '/imports',
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRouteRoute,
+  } as any)
+const AuthenticatedAppSettingsSpacesSpaceIdMembersRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport.update({
     id: '/members',
     path: '/members',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRouteRoute,
   } as any)
-const AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRouteImport.update({
+const AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute =
+  AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport.update({
     id: '/units',
     path: '/units',
-    getParentRoute: () => AuthenticatedAppSettingsHouseholdsHouseholdIdRoute,
+    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/imprint': typeof ImprintRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
-  '/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
-  '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
-  '/home': typeof AuthenticatedAppHomeRoute
-  '/resources': typeof AuthenticatedAppResourcesRouteWithChildren
-  '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
+  '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
-  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
-  '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
-  '/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
-  '/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  '/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  '/settings/households/$householdId/units': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  '/settings/households/$householdId/': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+  '/$spaceId/': typeof AuthenticatedAppSpaceIdIndexRoute
+  '/$spaceId/consumptions': typeof AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteWithChildren
+  '/$spaceId/consumptions/resources': typeof AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteWithChildren
+  '/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRouteWithChildren
+  '/$spaceId/consumptions/limits': typeof AuthenticatedAppSpaceIdConsumptionsLimitsRoute
+  '/$spaceId/finances/accounts': typeof AuthenticatedAppSpaceIdFinancesAccountsRoute
+  '/$spaceId/finances/budgets': typeof AuthenticatedAppSpaceIdFinancesBudgetsRoute
+  '/$spaceId/finances/categories': typeof AuthenticatedAppSpaceIdFinancesCategoriesRoute
+  '/$spaceId/finances/transactions': typeof AuthenticatedAppSpaceIdFinancesTransactionsRoute
+  '/$spaceId/finances/': typeof AuthenticatedAppSpaceIdFinancesIndexRoute
+  '/$spaceId/consumptions/$consumptionId': typeof AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute
+  '/$spaceId/consumptions/resources/$resourceId': typeof AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute
+  '/$spaceId/finances/imports/$importId': typeof AuthenticatedAppSpaceIdFinancesImportsImportIdRoute
+  '/$spaceId/finances/imports/new': typeof AuthenticatedAppSpaceIdFinancesImportsNewRoute
+  '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
+  '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  '/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  '/$spaceId/consumptions/': typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute
+  '/$spaceId/finances/imports/': typeof AuthenticatedAppSpaceIdFinancesImportsIndexRoute
+  '/settings/spaces/$spaceId/': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/imprint': typeof ImprintRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
-  '/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
-  '/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
-  '/home': typeof AuthenticatedAppHomeRoute
-  '/resources': typeof AuthenticatedAppResourcesRouteWithChildren
-  '/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
-  '/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
-  '/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
-  '/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  '/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  '/settings/households/$householdId/units': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  '/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+  '/$spaceId': typeof AuthenticatedAppSpaceIdIndexRoute
+  '/$spaceId/consumptions/resources': typeof AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteWithChildren
+  '/$spaceId/consumptions/limits': typeof AuthenticatedAppSpaceIdConsumptionsLimitsRoute
+  '/$spaceId/finances/accounts': typeof AuthenticatedAppSpaceIdFinancesAccountsRoute
+  '/$spaceId/finances/budgets': typeof AuthenticatedAppSpaceIdFinancesBudgetsRoute
+  '/$spaceId/finances/categories': typeof AuthenticatedAppSpaceIdFinancesCategoriesRoute
+  '/$spaceId/finances/transactions': typeof AuthenticatedAppSpaceIdFinancesTransactionsRoute
+  '/$spaceId/finances': typeof AuthenticatedAppSpaceIdFinancesIndexRoute
+  '/$spaceId/consumptions/$consumptionId': typeof AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute
+  '/$spaceId/consumptions/resources/$resourceId': typeof AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute
+  '/$spaceId/finances/imports/$importId': typeof AuthenticatedAppSpaceIdFinancesImportsImportIdRoute
+  '/$spaceId/finances/imports/new': typeof AuthenticatedAppSpaceIdFinancesImportsNewRoute
+  '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
+  '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  '/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  '/$spaceId/consumptions': typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute
+  '/$spaceId/finances/imports': typeof AuthenticatedAppSpaceIdFinancesImportsIndexRoute
+  '/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/imprint': typeof ImprintRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
-  '/_authenticated/_app/consumptions': typeof AuthenticatedAppConsumptionsRouteWithChildren
-  '/_authenticated/_app/consumptions-limits': typeof AuthenticatedAppConsumptionsLimitsRoute
-  '/_authenticated/_app/home': typeof AuthenticatedAppHomeRoute
-  '/_authenticated/_app/resources': typeof AuthenticatedAppResourcesRouteWithChildren
-  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/_authenticated/_app/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
+  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
-  '/_authenticated/_app/consumptions/$consumptionId': typeof AuthenticatedAppConsumptionsConsumptionIdRoute
-  '/_authenticated/_app/resources/$resourceId': typeof AuthenticatedAppResourcesResourceIdRoute
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
-  '/_authenticated/_app/settings/households/$householdId': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
-  '/_authenticated/_app/settings/households/$householdId/general': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  '/_authenticated/_app/settings/households/$householdId/members': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  '/_authenticated/_app/settings/households/$householdId/units': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  '/_authenticated/_app/settings/households/$householdId/': typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+  '/_authenticated/_app/$spaceId/': typeof AuthenticatedAppSpaceIdIndexRoute
+  '/_authenticated/_app/$spaceId/consumptions/_overview': typeof AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteWithChildren
+  '/_authenticated/_app/$spaceId/consumptions/resources': typeof AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteWithChildren
+  '/_authenticated/_app/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRouteWithChildren
+  '/_authenticated/_app/$spaceId/consumptions/limits': typeof AuthenticatedAppSpaceIdConsumptionsLimitsRoute
+  '/_authenticated/_app/$spaceId/finances/accounts': typeof AuthenticatedAppSpaceIdFinancesAccountsRoute
+  '/_authenticated/_app/$spaceId/finances/budgets': typeof AuthenticatedAppSpaceIdFinancesBudgetsRoute
+  '/_authenticated/_app/$spaceId/finances/categories': typeof AuthenticatedAppSpaceIdFinancesCategoriesRoute
+  '/_authenticated/_app/$spaceId/finances/transactions': typeof AuthenticatedAppSpaceIdFinancesTransactionsRoute
+  '/_authenticated/_app/$spaceId/finances/': typeof AuthenticatedAppSpaceIdFinancesIndexRoute
+  '/_authenticated/_app/$spaceId/consumptions/_overview/$consumptionId': typeof AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute
+  '/_authenticated/_app/$spaceId/consumptions/resources/$resourceId': typeof AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute
+  '/_authenticated/_app/$spaceId/finances/imports/$importId': typeof AuthenticatedAppSpaceIdFinancesImportsImportIdRoute
+  '/_authenticated/_app/$spaceId/finances/imports/new': typeof AuthenticatedAppSpaceIdFinancesImportsNewRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  '/_authenticated/_app/$spaceId/consumptions/_overview/': typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute
+  '/_authenticated/_app/$spaceId/finances/imports/': typeof AuthenticatedAppSpaceIdFinancesImportsIndexRoute
+  '/_authenticated/_app/settings/spaces/$spaceId/': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/imprint'
     | '/privacy'
     | '/sso-callback'
     | '/terms'
-    | '/consumptions'
-    | '/consumptions-limits'
-    | '/home'
-    | '/resources'
+    | '/$spaceId'
     | '/settings'
     | '/welcome'
-    | '/consumptions/$consumptionId'
-    | '/resources/$resourceId'
     | '/settings/$section'
-    | '/settings/households/$householdId'
-    | '/settings/households/$householdId/general'
-    | '/settings/households/$householdId/members'
-    | '/settings/households/$householdId/units'
-    | '/settings/households/$householdId/'
+    | '/$spaceId/'
+    | '/$spaceId/consumptions'
+    | '/$spaceId/consumptions/resources'
+    | '/settings/spaces/$spaceId'
+    | '/$spaceId/consumptions/limits'
+    | '/$spaceId/finances/accounts'
+    | '/$spaceId/finances/budgets'
+    | '/$spaceId/finances/categories'
+    | '/$spaceId/finances/transactions'
+    | '/$spaceId/finances/'
+    | '/$spaceId/consumptions/$consumptionId'
+    | '/$spaceId/consumptions/resources/$resourceId'
+    | '/$spaceId/finances/imports/$importId'
+    | '/$spaceId/finances/imports/new'
+    | '/settings/spaces/$spaceId/general'
+    | '/settings/spaces/$spaceId/imports'
+    | '/settings/spaces/$spaceId/members'
+    | '/settings/spaces/$spaceId/units'
+    | '/$spaceId/consumptions/'
+    | '/$spaceId/finances/imports/'
+    | '/settings/spaces/$spaceId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/imprint'
     | '/privacy'
     | '/sso-callback'
     | '/terms'
-    | '/consumptions'
-    | '/consumptions-limits'
-    | '/home'
-    | '/resources'
     | '/settings'
     | '/welcome'
-    | '/consumptions/$consumptionId'
-    | '/resources/$resourceId'
     | '/settings/$section'
-    | '/settings/households/$householdId/general'
-    | '/settings/households/$householdId/members'
-    | '/settings/households/$householdId/units'
-    | '/settings/households/$householdId'
+    | '/$spaceId'
+    | '/$spaceId/consumptions/resources'
+    | '/$spaceId/consumptions/limits'
+    | '/$spaceId/finances/accounts'
+    | '/$spaceId/finances/budgets'
+    | '/$spaceId/finances/categories'
+    | '/$spaceId/finances/transactions'
+    | '/$spaceId/finances'
+    | '/$spaceId/consumptions/$consumptionId'
+    | '/$spaceId/consumptions/resources/$resourceId'
+    | '/$spaceId/finances/imports/$importId'
+    | '/$spaceId/finances/imports/new'
+    | '/settings/spaces/$spaceId/general'
+    | '/settings/spaces/$spaceId/imports'
+    | '/settings/spaces/$spaceId/members'
+    | '/settings/spaces/$spaceId/units'
+    | '/$spaceId/consumptions'
+    | '/$spaceId/finances/imports'
+    | '/settings/spaces/$spaceId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/imprint'
     | '/privacy'
     | '/sso-callback'
     | '/terms'
     | '/_authenticated/_app'
     | '/_authenticated/_onboarding'
-    | '/_authenticated/_app/consumptions'
-    | '/_authenticated/_app/consumptions-limits'
-    | '/_authenticated/_app/home'
-    | '/_authenticated/_app/resources'
+    | '/_authenticated/_app/$spaceId'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_onboarding/welcome'
-    | '/_authenticated/_app/consumptions/$consumptionId'
-    | '/_authenticated/_app/resources/$resourceId'
     | '/_authenticated/_app/settings/$section'
-    | '/_authenticated/_app/settings/households/$householdId'
-    | '/_authenticated/_app/settings/households/$householdId/general'
-    | '/_authenticated/_app/settings/households/$householdId/members'
-    | '/_authenticated/_app/settings/households/$householdId/units'
-    | '/_authenticated/_app/settings/households/$householdId/'
+    | '/_authenticated/_app/$spaceId/'
+    | '/_authenticated/_app/$spaceId/consumptions/_overview'
+    | '/_authenticated/_app/$spaceId/consumptions/resources'
+    | '/_authenticated/_app/settings/spaces/$spaceId'
+    | '/_authenticated/_app/$spaceId/consumptions/limits'
+    | '/_authenticated/_app/$spaceId/finances/accounts'
+    | '/_authenticated/_app/$spaceId/finances/budgets'
+    | '/_authenticated/_app/$spaceId/finances/categories'
+    | '/_authenticated/_app/$spaceId/finances/transactions'
+    | '/_authenticated/_app/$spaceId/finances/'
+    | '/_authenticated/_app/$spaceId/consumptions/_overview/$consumptionId'
+    | '/_authenticated/_app/$spaceId/consumptions/resources/$resourceId'
+    | '/_authenticated/_app/$spaceId/finances/imports/$importId'
+    | '/_authenticated/_app/$spaceId/finances/imports/new'
+    | '/_authenticated/_app/settings/spaces/$spaceId/general'
+    | '/_authenticated/_app/settings/spaces/$spaceId/imports'
+    | '/_authenticated/_app/settings/spaces/$spaceId/members'
+    | '/_authenticated/_app/settings/spaces/$spaceId/units'
+    | '/_authenticated/_app/$spaceId/consumptions/_overview/'
+    | '/_authenticated/_app/$spaceId/finances/imports/'
+    | '/_authenticated/_app/settings/spaces/$spaceId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ImprintRoute: typeof ImprintRoute
   PrivacyRoute: typeof PrivacyRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
   TermsRoute: typeof TermsRoute
@@ -318,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imprint': {
+      id: '/imprint'
+      path: '/imprint'
+      fullPath: '/imprint'
+      preLoaderRoute: typeof ImprintRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -355,39 +516,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/_app/consumptions': {
-      id: '/_authenticated/_app/consumptions'
-      path: '/consumptions'
-      fullPath: '/consumptions'
-      preLoaderRoute: typeof AuthenticatedAppConsumptionsRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/_app/consumptions-limits': {
-      id: '/_authenticated/_app/consumptions-limits'
-      path: '/consumptions-limits'
-      fullPath: '/consumptions-limits'
-      preLoaderRoute: typeof AuthenticatedAppConsumptionsLimitsRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/_app/home': {
-      id: '/_authenticated/_app/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof AuthenticatedAppHomeRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/_app/resources': {
-      id: '/_authenticated/_app/resources'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof AuthenticatedAppResourcesRouteImport
+    '/_authenticated/_app/$spaceId': {
+      id: '/_authenticated/_app/$spaceId'
+      path: '/$spaceId'
+      fullPath: '/$spaceId'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdRouteRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/settings': {
       id: '/_authenticated/_app/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_onboarding/welcome': {
@@ -397,152 +537,297 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingWelcomeRouteImport
       parentRoute: typeof AuthenticatedOnboardingRouteRoute
     }
-    '/_authenticated/_app/consumptions/$consumptionId': {
-      id: '/_authenticated/_app/consumptions/$consumptionId'
-      path: '/$consumptionId'
-      fullPath: '/consumptions/$consumptionId'
-      preLoaderRoute: typeof AuthenticatedAppConsumptionsConsumptionIdRouteImport
-      parentRoute: typeof AuthenticatedAppConsumptionsRoute
-    }
-    '/_authenticated/_app/resources/$resourceId': {
-      id: '/_authenticated/_app/resources/$resourceId'
-      path: '/$resourceId'
-      fullPath: '/resources/$resourceId'
-      preLoaderRoute: typeof AuthenticatedAppResourcesResourceIdRouteImport
-      parentRoute: typeof AuthenticatedAppResourcesRoute
+    '/_authenticated/_app/$spaceId/': {
+      id: '/_authenticated/_app/$spaceId/'
+      path: '/'
+      fullPath: '/$spaceId/'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
     }
     '/_authenticated/_app/settings/$section': {
       id: '/_authenticated/_app/settings/$section'
       path: '/$section'
       fullPath: '/settings/$section'
       preLoaderRoute: typeof AuthenticatedAppSettingsSectionRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsRoute
+      parentRoute: typeof AuthenticatedAppSettingsRouteRoute
     }
-    '/_authenticated/_app/settings/households/$householdId': {
-      id: '/_authenticated/_app/settings/households/$householdId'
-      path: '/households/$householdId'
-      fullPath: '/settings/households/$householdId'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsRoute
+    '/_authenticated/_app/$spaceId/consumptions/_overview': {
+      id: '/_authenticated/_app/$spaceId/consumptions/_overview'
+      path: '/consumptions'
+      fullPath: '/$spaceId/consumptions'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/': {
-      id: '/_authenticated/_app/settings/households/$householdId/'
+    '/_authenticated/_app/$spaceId/consumptions/limits': {
+      id: '/_authenticated/_app/$spaceId/consumptions/limits'
+      path: '/consumptions/limits'
+      fullPath: '/$spaceId/consumptions/limits'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdConsumptionsLimitsRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/consumptions/resources': {
+      id: '/_authenticated/_app/$spaceId/consumptions/resources'
+      path: '/consumptions/resources'
+      fullPath: '/$spaceId/consumptions/resources'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/': {
+      id: '/_authenticated/_app/$spaceId/finances/'
+      path: '/finances'
+      fullPath: '/$spaceId/finances/'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/accounts': {
+      id: '/_authenticated/_app/$spaceId/finances/accounts'
+      path: '/finances/accounts'
+      fullPath: '/$spaceId/finances/accounts'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesAccountsRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/budgets': {
+      id: '/_authenticated/_app/$spaceId/finances/budgets'
+      path: '/finances/budgets'
+      fullPath: '/$spaceId/finances/budgets'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesBudgetsRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/categories': {
+      id: '/_authenticated/_app/$spaceId/finances/categories'
+      path: '/finances/categories'
+      fullPath: '/$spaceId/finances/categories'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/transactions': {
+      id: '/_authenticated/_app/$spaceId/finances/transactions'
+      path: '/finances/transactions'
+      fullPath: '/$spaceId/finances/transactions'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesTransactionsRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/settings/spaces/$spaceId': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId'
+      path: '/spaces/$spaceId'
+      fullPath: '/settings/spaces/$spaceId'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/consumptions/_overview/': {
+      id: '/_authenticated/_app/$spaceId/consumptions/_overview/'
       path: '/'
-      fullPath: '/settings/households/$householdId/'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/$spaceId/consumptions/'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/general': {
-      id: '/_authenticated/_app/settings/households/$householdId/general'
+    '/_authenticated/_app/$spaceId/consumptions/_overview/$consumptionId': {
+      id: '/_authenticated/_app/$spaceId/consumptions/_overview/$consumptionId'
+      path: '/$consumptionId'
+      fullPath: '/$spaceId/consumptions/$consumptionId'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/consumptions/resources/$resourceId': {
+      id: '/_authenticated/_app/$spaceId/consumptions/resources/$resourceId'
+      path: '/$resourceId'
+      fullPath: '/$spaceId/consumptions/resources/$resourceId'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdConsumptionsResourcesRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/imports/': {
+      id: '/_authenticated/_app/$spaceId/finances/imports/'
+      path: '/finances/imports'
+      fullPath: '/$spaceId/finances/imports/'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/imports/$importId': {
+      id: '/_authenticated/_app/$spaceId/finances/imports/$importId'
+      path: '/finances/imports/$importId'
+      fullPath: '/$spaceId/finances/imports/$importId'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesImportsImportIdRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/$spaceId/finances/imports/new': {
+      id: '/_authenticated/_app/$spaceId/finances/imports/new'
+      path: '/finances/imports/new'
+      fullPath: '/$spaceId/finances/imports/new'
+      preLoaderRoute: typeof AuthenticatedAppSpaceIdFinancesImportsNewRouteImport
+      parentRoute: typeof AuthenticatedAppSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/settings/spaces/$spaceId/': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/'
+      path: '/'
+      fullPath: '/settings/spaces/$spaceId/'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/settings/spaces/$spaceId/general': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/general'
       path: '/general'
-      fullPath: '/settings/households/$householdId/general'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/settings/spaces/$spaceId/general'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/members': {
-      id: '/_authenticated/_app/settings/households/$householdId/members'
+    '/_authenticated/_app/settings/spaces/$spaceId/imports': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/imports'
+      path: '/imports'
+      fullPath: '/settings/spaces/$spaceId/imports'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRoute
+    }
+    '/_authenticated/_app/settings/spaces/$spaceId/members': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/members'
       path: '/members'
-      fullPath: '/settings/households/$householdId/members'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/settings/spaces/$spaceId/members'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRoute
     }
-    '/_authenticated/_app/settings/households/$householdId/units': {
-      id: '/_authenticated/_app/settings/households/$householdId/units'
+    '/_authenticated/_app/settings/spaces/$spaceId/units': {
+      id: '/_authenticated/_app/settings/spaces/$spaceId/units'
       path: '/units'
-      fullPath: '/settings/households/$householdId/units'
-      preLoaderRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRoute
+      fullPath: '/settings/spaces/$spaceId/units'
+      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRoute
     }
   }
 }
 
-interface AuthenticatedAppConsumptionsRouteChildren {
-  AuthenticatedAppConsumptionsConsumptionIdRoute: typeof AuthenticatedAppConsumptionsConsumptionIdRoute
+interface AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteChildren {
+  AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute
+  AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute
 }
 
-const AuthenticatedAppConsumptionsRouteChildren: AuthenticatedAppConsumptionsRouteChildren =
+const AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteChildren: AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteChildren =
   {
-    AuthenticatedAppConsumptionsConsumptionIdRoute:
-      AuthenticatedAppConsumptionsConsumptionIdRoute,
+    AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute:
+      AuthenticatedAppSpaceIdConsumptionsOverviewConsumptionIdRoute,
+    AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute:
+      AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute,
   }
 
-const AuthenticatedAppConsumptionsRouteWithChildren =
-  AuthenticatedAppConsumptionsRoute._addFileChildren(
-    AuthenticatedAppConsumptionsRouteChildren,
+const AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteWithChildren =
+  AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute._addFileChildren(
+    AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteChildren,
   )
 
-interface AuthenticatedAppResourcesRouteChildren {
-  AuthenticatedAppResourcesResourceIdRoute: typeof AuthenticatedAppResourcesResourceIdRoute
+interface AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteChildren {
+  AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute: typeof AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute
 }
 
-const AuthenticatedAppResourcesRouteChildren: AuthenticatedAppResourcesRouteChildren =
+const AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteChildren: AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteChildren =
   {
-    AuthenticatedAppResourcesResourceIdRoute:
-      AuthenticatedAppResourcesResourceIdRoute,
+    AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute:
+      AuthenticatedAppSpaceIdConsumptionsResourcesResourceIdRoute,
   }
 
-const AuthenticatedAppResourcesRouteWithChildren =
-  AuthenticatedAppResourcesRoute._addFileChildren(
-    AuthenticatedAppResourcesRouteChildren,
+const AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteWithChildren =
+  AuthenticatedAppSpaceIdConsumptionsResourcesRouteRoute._addFileChildren(
+    AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteChildren,
   )
 
-interface AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren {
-  AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute
+interface AuthenticatedAppSpaceIdRouteRouteChildren {
+  AuthenticatedAppSpaceIdIndexRoute: typeof AuthenticatedAppSpaceIdIndexRoute
+  AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute: typeof AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteWithChildren
+  AuthenticatedAppSpaceIdConsumptionsResourcesRouteRoute: typeof AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteWithChildren
+  AuthenticatedAppSpaceIdConsumptionsLimitsRoute: typeof AuthenticatedAppSpaceIdConsumptionsLimitsRoute
+  AuthenticatedAppSpaceIdFinancesAccountsRoute: typeof AuthenticatedAppSpaceIdFinancesAccountsRoute
+  AuthenticatedAppSpaceIdFinancesBudgetsRoute: typeof AuthenticatedAppSpaceIdFinancesBudgetsRoute
+  AuthenticatedAppSpaceIdFinancesCategoriesRoute: typeof AuthenticatedAppSpaceIdFinancesCategoriesRoute
+  AuthenticatedAppSpaceIdFinancesTransactionsRoute: typeof AuthenticatedAppSpaceIdFinancesTransactionsRoute
+  AuthenticatedAppSpaceIdFinancesIndexRoute: typeof AuthenticatedAppSpaceIdFinancesIndexRoute
+  AuthenticatedAppSpaceIdFinancesImportsImportIdRoute: typeof AuthenticatedAppSpaceIdFinancesImportsImportIdRoute
+  AuthenticatedAppSpaceIdFinancesImportsNewRoute: typeof AuthenticatedAppSpaceIdFinancesImportsNewRoute
+  AuthenticatedAppSpaceIdFinancesImportsIndexRoute: typeof AuthenticatedAppSpaceIdFinancesImportsIndexRoute
 }
 
-const AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren: AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren =
+const AuthenticatedAppSpaceIdRouteRouteChildren: AuthenticatedAppSpaceIdRouteRouteChildren =
   {
-    AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdGeneralRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdMembersRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdUnitsRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdIndexRoute,
+    AuthenticatedAppSpaceIdIndexRoute: AuthenticatedAppSpaceIdIndexRoute,
+    AuthenticatedAppSpaceIdConsumptionsOverviewRouteRoute:
+      AuthenticatedAppSpaceIdConsumptionsOverviewRouteRouteWithChildren,
+    AuthenticatedAppSpaceIdConsumptionsResourcesRouteRoute:
+      AuthenticatedAppSpaceIdConsumptionsResourcesRouteRouteWithChildren,
+    AuthenticatedAppSpaceIdConsumptionsLimitsRoute:
+      AuthenticatedAppSpaceIdConsumptionsLimitsRoute,
+    AuthenticatedAppSpaceIdFinancesAccountsRoute:
+      AuthenticatedAppSpaceIdFinancesAccountsRoute,
+    AuthenticatedAppSpaceIdFinancesBudgetsRoute:
+      AuthenticatedAppSpaceIdFinancesBudgetsRoute,
+    AuthenticatedAppSpaceIdFinancesCategoriesRoute:
+      AuthenticatedAppSpaceIdFinancesCategoriesRoute,
+    AuthenticatedAppSpaceIdFinancesTransactionsRoute:
+      AuthenticatedAppSpaceIdFinancesTransactionsRoute,
+    AuthenticatedAppSpaceIdFinancesIndexRoute:
+      AuthenticatedAppSpaceIdFinancesIndexRoute,
+    AuthenticatedAppSpaceIdFinancesImportsImportIdRoute:
+      AuthenticatedAppSpaceIdFinancesImportsImportIdRoute,
+    AuthenticatedAppSpaceIdFinancesImportsNewRoute:
+      AuthenticatedAppSpaceIdFinancesImportsNewRoute,
+    AuthenticatedAppSpaceIdFinancesImportsIndexRoute:
+      AuthenticatedAppSpaceIdFinancesImportsIndexRoute,
   }
 
-const AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren =
-  AuthenticatedAppSettingsHouseholdsHouseholdIdRoute._addFileChildren(
-    AuthenticatedAppSettingsHouseholdsHouseholdIdRouteChildren,
+const AuthenticatedAppSpaceIdRouteRouteWithChildren =
+  AuthenticatedAppSpaceIdRouteRoute._addFileChildren(
+    AuthenticatedAppSpaceIdRouteRouteChildren,
   )
 
-interface AuthenticatedAppSettingsRouteChildren {
+interface AuthenticatedAppSettingsSpacesSpaceIdRouteRouteChildren {
+  AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
+  AuthenticatedAppSettingsSpacesSpaceIdImportsRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
+  AuthenticatedAppSettingsSpacesSpaceIdMembersRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
+  AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
+  AuthenticatedAppSettingsSpacesSpaceIdIndexRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
+}
+
+const AuthenticatedAppSettingsSpacesSpaceIdRouteRouteChildren: AuthenticatedAppSettingsSpacesSpaceIdRouteRouteChildren =
+  {
+    AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdImportsRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdImportsRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdMembersRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdMembersRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute,
+    AuthenticatedAppSettingsSpacesSpaceIdIndexRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdIndexRoute,
+  }
+
+const AuthenticatedAppSettingsSpacesSpaceIdRouteRouteWithChildren =
+  AuthenticatedAppSettingsSpacesSpaceIdRouteRoute._addFileChildren(
+    AuthenticatedAppSettingsSpacesSpaceIdRouteRouteChildren,
+  )
+
+interface AuthenticatedAppSettingsRouteRouteChildren {
   AuthenticatedAppSettingsSectionRoute: typeof AuthenticatedAppSettingsSectionRoute
-  AuthenticatedAppSettingsHouseholdsHouseholdIdRoute: typeof AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren
+  AuthenticatedAppSettingsSpacesSpaceIdRouteRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRouteWithChildren
 }
 
-const AuthenticatedAppSettingsRouteChildren: AuthenticatedAppSettingsRouteChildren =
+const AuthenticatedAppSettingsRouteRouteChildren: AuthenticatedAppSettingsRouteRouteChildren =
   {
     AuthenticatedAppSettingsSectionRoute: AuthenticatedAppSettingsSectionRoute,
-    AuthenticatedAppSettingsHouseholdsHouseholdIdRoute:
-      AuthenticatedAppSettingsHouseholdsHouseholdIdRouteWithChildren,
+    AuthenticatedAppSettingsSpacesSpaceIdRouteRoute:
+      AuthenticatedAppSettingsSpacesSpaceIdRouteRouteWithChildren,
   }
 
-const AuthenticatedAppSettingsRouteWithChildren =
-  AuthenticatedAppSettingsRoute._addFileChildren(
-    AuthenticatedAppSettingsRouteChildren,
+const AuthenticatedAppSettingsRouteRouteWithChildren =
+  AuthenticatedAppSettingsRouteRoute._addFileChildren(
+    AuthenticatedAppSettingsRouteRouteChildren,
   )
 
 interface AuthenticatedAppRouteRouteChildren {
-  AuthenticatedAppConsumptionsRoute: typeof AuthenticatedAppConsumptionsRouteWithChildren
-  AuthenticatedAppConsumptionsLimitsRoute: typeof AuthenticatedAppConsumptionsLimitsRoute
-  AuthenticatedAppHomeRoute: typeof AuthenticatedAppHomeRoute
-  AuthenticatedAppResourcesRoute: typeof AuthenticatedAppResourcesRouteWithChildren
-  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
+  AuthenticatedAppSpaceIdRouteRoute: typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
+  AuthenticatedAppSettingsRouteRoute: typeof AuthenticatedAppSettingsRouteRouteWithChildren
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
-  AuthenticatedAppConsumptionsRoute:
-    AuthenticatedAppConsumptionsRouteWithChildren,
-  AuthenticatedAppConsumptionsLimitsRoute:
-    AuthenticatedAppConsumptionsLimitsRoute,
-  AuthenticatedAppHomeRoute: AuthenticatedAppHomeRoute,
-  AuthenticatedAppResourcesRoute: AuthenticatedAppResourcesRouteWithChildren,
-  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
+  AuthenticatedAppSpaceIdRouteRoute:
+    AuthenticatedAppSpaceIdRouteRouteWithChildren,
+  AuthenticatedAppSettingsRouteRoute:
+    AuthenticatedAppSettingsRouteRouteWithChildren,
 }
 
 const AuthenticatedAppRouteRouteWithChildren =
@@ -582,6 +867,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ImprintRoute: ImprintRoute,
   PrivacyRoute: PrivacyRoute,
   SsoCallbackRoute: SsoCallbackRoute,
   TermsRoute: TermsRoute,

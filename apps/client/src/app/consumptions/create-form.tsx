@@ -1,6 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as consumptionsOptions from '@kijk/api/consumptions/options';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -18,16 +21,15 @@ import {
 } from '@/app/consumptions/form-fields';
 import type { ConsumptionCreateFormSchema } from '@/app/consumptions/schemas';
 import { consumptionCreateSchema } from '@/app/consumptions/schemas';
-import { useCreateConsumption } from '@/app/consumptions/use-create-consumption';
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
 import { Form, FormField } from '@/shared/components/form';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { useHouseholdPermission } from '@/shared/hooks/use-household-permission';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
+import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
-import { getMonthIndexFromString } from '@/shared/utils/months';
+import { getMonthNumber } from '@/shared/utils/months';
 
-const route = getRouteApi('/_authenticated/_app/consumptions');
+const route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 interface Props {
   consumptions: Consumption[];
@@ -36,11 +38,12 @@ interface Props {
 
 /** Form to record a consumption; `consumptions` are used to show the running meter total. */
 export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
-  const canRecord = useHouseholdPermission(HouseholdPermissions.consumptions.record);
-  const { isPending, mutate } = useCreateConsumption();
+  const spaceId = useSpaceId();
+  const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
+  const { isPending, mutate } = useMutation(consumptionsOptions.recordMutationOptions(spaceId));
   const { month, year } = route.useSearch();
 
-  const creationDate = new Date(`${Number(year)}-${getMonthIndexFromString(month)}-${new Date().getDate()}`);
+  const creationDate = new Date(`${Number(year)}-${getMonthNumber(month)}-${new Date().getDate()}`);
 
   const form = useForm({
     defaultValues: {
@@ -109,7 +112,7 @@ export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
           <Button
             className='mt-6'
             disabled={!canRecord || isPending}
-            title={canRecord ? undefined : 'Your household role does not allow recording consumptions'}
+            title={canRecord ? undefined : 'Your role in this space does not allow recording consumptions'}
             type='submit'
           >
             {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Add'}

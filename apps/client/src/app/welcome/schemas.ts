@@ -17,7 +17,7 @@ export const userStepSchema = z.object({
       return value;
     }),
   displayName: z.string().trim().min(2).max(100),
-  householdName: z.string().trim().min(2).max(100),
+  spaceName: z.string().trim().min(2).max(100),
   useDefaultResources: z.boolean(),
   useExternalProfile: z
     .boolean()

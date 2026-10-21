@@ -1,0 +1,423 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Kijk.Application.Accounts.Create;
+using Kijk.Application.Budgets.SetFromMonth;
+using Kijk.Application.Budgets.Shared;
+using Kijk.Application.Budgets.Statistics;
+using Kijk.Application.Categories.Create;
+using Kijk.Application.Transactions.Categorize;
+using Kijk.Application.Transactions.CategorizeMany;
+using Kijk.Application.Transactions.Record;
+using Kijk.Application.Transactions.Shared;
+using Kijk.Application.Transactions.Update;
+using Kijk.Domain.Authorization;
+using Kijk.Domain.Catalogs;
+using Kijk.Domain.Entities;
+using Kijk.Domain.ValueObjects;
+using Kijk.IntegrationTests.Persistence;
+using Kijk.Shared;
+using Microsoft.EntityFrameworkCore;
+
+namespace Kijk.IntegrationTests.Http;
+
+[NotInParallel]
+public class FinancePermissionHttpTests
+{
+    private static readonly Guid GroceriesId = SystemCategories.All.Single(category => category.Name == "Groceries").Id;
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+    private static readonly decimal[] OctoberSpending = [0m, 0m, 42.5m, 0m];
+    private static readonly Guid IncomeId = SystemCategories.All.Single(category => category.Name == "Income").Id;
+
+    [Before(Class)]
+    public static Task StartDatabase() => PostgreSqlTestDatabase.StartAsync();
+
+    [Before(Test)]
+    public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
+
+    [Test]
+    [Arguments("Admin")]
+    [Arguments("Member")]
+    [Arguments("Viewer")]
+    public async Task EveryRoleCanReadFinanceData(string role)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+
+        foreach (var path in new[] { $"/api/spaces/{fixture.Account.SpaceId}/categories", $"/api/spaces/{fixture.Account.SpaceId}/accounts", $"/api/spaces/{fixture.Account.SpaceId}/budgets", $"/api/spaces/{fixture.Account.SpaceId}/budgets/overview?year=2026&month=10", $"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2026&month=10", $"/api/spaces/{fixture.Account.SpaceId}/transactions/{fixture.Transaction.Id}" })
+        {
+            using var response = await host.Client.GetAsync(path);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new InvalidOperationException($"{path}: {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+            }
+            await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        }
+    }
+
+    [Test]
+    [Arguments("Admin", HttpStatusCode.Created)]
+    [Arguments("Member", HttpStatusCode.Created)]
+    [Arguments("Viewer", HttpStatusCode.Forbidden)]
+    public async Task RecordingTransactionsRequiresRecordPermission(string role, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions",
+            new CreateTransactionRequest(new DateOnly(2026, 10, 2), -9.99m, "Bakery", null, TransactionStatus.Booked, false, fixture.Account.Id, GroceriesId));
+
+        await Assert.That(response.StatusCode).IsEqualTo(expected);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.Transactions.CountAsync()).IsEqualTo(expected == HttpStatusCode.Created ? 2 : 1);
+    }
+
+    [Test]
+    [Arguments("Admin", HttpStatusCode.OK)]
+    [Arguments("Member", HttpStatusCode.Forbidden)]
+    [Arguments("Viewer", HttpStatusCode.Forbidden)]
+    public async Task PlanningBudgetsRequiresPlanPermission(string role, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new SetBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 11, 15), true));
+
+        await Assert.That(response.StatusCode).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments("Admin", HttpStatusCode.OK)]
+    [Arguments("Member", HttpStatusCode.Forbidden)]
+    [Arguments("Viewer", HttpStatusCode.Forbidden)]
+    public async Task ConfiguringCategoriesAndAccountsRequiresConfigurePermission(string role, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var category = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/categories", new CreateCategoryRequest("Gifts", "gift", "#aa7744", CategoryKind.Expense));
+        using var account = await host.Client.PostAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/accounts", new CreateAccountRequest("Savings", "9876"));
+
+        await Assert.That(category.StatusCode).IsEqualTo(expected);
+        await Assert.That(account.StatusCode).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task SystemCategoriesCannotBeChanged()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.DeleteAsync($"/api/spaces/{fixture.Account.SpaceId}/categories/{GroceriesId}");
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+    }
+
+    [Test]
+    [Arguments(Visibility.Shared)]
+    [Arguments(Visibility.Private)]
+    public async Task SettingBudgetUpdatesTheSameMonthAndPreservesOtherVersions(Visibility visibility)
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var path = $"/api/spaces/{fixture.Account.SpaceId}/budgets";
+        using var first = await host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 10, 15), true, visibility), Json);
+        first.EnsureSuccessStatusCode();
+        var created = (await first.Content.ReadFromJsonAsync<BudgetResponse>(Json))!;
+        using var future = await host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 600m, new DateOnly(2026, 11, 1), true, visibility), Json);
+        future.EnsureSuccessStatusCode();
+        using var repeat = await host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 450m, new DateOnly(2026, 10, 31), false, visibility), Json);
+        repeat.EnsureSuccessStatusCode();
+        var updated = (await repeat.Content.ReadFromJsonAsync<BudgetResponse>(Json))!;
+
+        await Assert.That(updated.Id).IsEqualTo(created.Id);
+        await Assert.That(updated.ValidFrom).IsEqualTo(new DateOnly(2026, 10, 1));
+        await Assert.That(updated.Amount).IsEqualTo(450m);
+        await Assert.That(updated.Active).IsFalse();
+        await Assert.That(updated.Visibility).IsEqualTo(visibility);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var versions = await verification.Budgets.Where(item => item.SpaceId == fixture.Account.SpaceId).OrderBy(item => item.ValidFrom).ToListAsync();
+        await Assert.That(versions.Count).IsEqualTo(3);
+        await Assert.That(versions[0].Amount).IsEqualTo(300m);
+        await Assert.That(versions[2].Amount).IsEqualTo(600m);
+    }
+
+    [Test]
+    public async Task ConcurrentBudgetSavesCannotCreateDuplicateVersions()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var path = $"/api/spaces/{fixture.Account.SpaceId}/budgets";
+        var responses = await Task.WhenAll(
+            host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 400m, new DateOnly(2026, 10, 1), true), Json),
+            host.Client.PutAsJsonAsync(path, new SetBudgetRequest(GroceriesId, 500m, new DateOnly(2026, 10, 1), true), Json));
+        try
+        {
+            await Assert.That(responses.Any(response => response.StatusCode == HttpStatusCode.OK)).IsTrue();
+            await Assert.That(responses.All(response => response.StatusCode is HttpStatusCode.OK or HttpStatusCode.Conflict)).IsTrue();
+            await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+            await Assert.That(await verification.Budgets.CountAsync(item => item.SpaceId == fixture.Account.SpaceId && item.ValidFrom.Month == 10)).IsEqualTo(1);
+        }
+        finally
+        {
+            foreach (var response in responses)
+            {
+                response.Dispose();
+            }
+        }
+    }
+
+    [Test]
+    public async Task BudgetsCanOnlyBeSetForExpenseCategories()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets", new SetBudgetRequest(IncomeId, 100m, new DateOnly(2026, 10, 1), true));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task OverviewEvaluatesTheBudgetOfTheMonth()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+
+        var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{fixture.Account.SpaceId}/budgets/overview?year=2026&month=10", Json);
+
+        var groceries = overview!.Categories.Single(item => item.CategoryId == GroceriesId);
+        await Assert.That(groceries.Budget).IsEqualTo(300m);
+        await Assert.That(groceries.Spent).IsEqualTo(42.5m);
+        await Assert.That(groceries.Remaining).IsEqualTo(257.5m);
+    }
+
+    [Test]
+    public async Task ChangingTheCategoryMarksItAsManual()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var leisureId = SystemCategories.All.Single(category => category.Name == "Leisure").Id;
+
+        using var response = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/{fixture.Transaction.Id}",
+            new UpdateTransactionRequest(new DateOnly(2026, 10, 5), -42.5m, "Supermarket", null, TransactionStatus.Booked, false, fixture.Account.Id, leisureId));
+        var updated = await response.Content.ReadFromJsonAsync<TransactionResponse>(Json);
+
+        await Assert.That(updated!.CategoryId).IsEqualTo(leisureId);
+        await Assert.That(updated.CategorySource).IsEqualTo(CategorySource.Manual);
+    }
+
+    [Test]
+    public async Task TransactionsOfAMonthArePagedNewestFirst()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            dbContext.AddRange(Enumerable.Range(1, 3).Select(day =>
+                Transaction.Create(new TransactionDetails(new DateTime(2025, 1, day, 0, 0, 0, DateTimeKind.Utc), -day, $"Shop {day}", null, TransactionStatus.Booked, false), account, user, account.Space)));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var first = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=1&pageSize=2", Json))!;
+        var second = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=1&page=2&pageSize=2", Json))!;
+        // A page past the end, e.g. after categorizing the last page empty, returns the last page.
+        var pastEnd = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=1&page=9&pageSize=2", Json))!;
+
+        await Assert.That(first.TotalCount).IsEqualTo(3);
+        // The totals cover all pages: -1 -2 -3.
+        await Assert.That(first.Outgoing).IsEqualTo(-6m);
+        await Assert.That(first.Incoming).IsEqualTo(0m);
+        await Assert.That(string.Join(", ", first.Items.Select(item => item.Counterparty))).IsEqualTo("Shop 3, Shop 2");
+        await Assert.That(second.Page).IsEqualTo(2);
+        await Assert.That(string.Join(", ", second.Items.Select(item => item.Counterparty))).IsEqualTo("Shop 1");
+        await Assert.That(pastEnd.Page).IsEqualTo(2);
+        await Assert.That(string.Join(", ", pastEnd.Items.Select(item => item.Counterparty))).IsEqualTo("Shop 1");
+    }
+
+    [Test]
+    public async Task TransactionsAndTheExportCanBeFilteredByCategories()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            var groceries = await dbContext.Categories.SingleAsync(item => item.Id == GroceriesId);
+            var bakery = Transaction.Create(new TransactionDetails(new DateTime(2025, 2, 3, 0, 0, 0, DateTimeKind.Utc), -4m, "Bakery", null, TransactionStatus.Booked, false), account, user, account.Space);
+            bakery.AssignCategoryManually(groceries);
+            dbContext.AddRange(
+                bakery,
+                Transaction.Create(new TransactionDetails(new DateTime(2025, 2, 4, 0, 0, 0, DateTimeKind.Utc), -6m, "Kiosk", null, TransactionStatus.Booked, false), account, user, account.Space));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var filtered = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=2&categoryIds={GroceriesId}", Json))!;
+        var all = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?year=2025&month=2", Json))!;
+        var export = await host.Client.GetStringAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/export?year=2025&month=2&categoryIds={GroceriesId}");
+
+        await Assert.That(filtered.TotalCount).IsEqualTo(1);
+        await Assert.That(filtered.Items.Single().Counterparty).IsEqualTo("Bakery");
+        await Assert.That(all.TotalCount).IsEqualTo(2);
+        await Assert.That(export).Contains("Bakery");
+        await Assert.That(export).DoesNotContain("Kiosk");
+    }
+
+    [Test]
+    public async Task SeveralTransactionsCanBeCategorizedAtOnceWithinTheSpaceOnly()
+    {
+        var fixture = await CreateFixtureAsync("Member");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            dbContext.AddRange(
+                Transaction.Create(new TransactionDetails(new DateTime(2024, 3, 1, 0, 0, 0, DateTimeKind.Utc), -5m, "Old shop", null, TransactionStatus.Booked, false), account, user, account.Space),
+                Transaction.Create(new TransactionDetails(new DateTime(2026, 10, 9, 0, 0, 0, DateTimeKind.Utc), -7m, "New shop", null, TransactionStatus.Booked, false), account, user, account.Space));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        // Without a period the list holds uncategorized transactions of all months.
+        var open = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?uncategorized=true", Json))!.Items;
+        await Assert.That(open.Count).IsEqualTo(2);
+
+        using var assigned = await host.Client.PutAsJsonAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/category", new CategorizeTransactionsRequest([.. open.Select(item => item.Id)], GroceriesId), Json);
+        var result = await assigned.Content.ReadFromJsonAsync<CategorizeTransactionsResponse>(Json);
+        await Assert.That(result!.Updated).IsEqualTo(2);
+        var remaining = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{fixture.Account.SpaceId}/transactions?uncategorized=true", Json))!.Items;
+        await Assert.That(remaining).IsEmpty();
+
+        var (outsider, outsiderSpaceId) = await CreateOutsiderAsync();
+        await using var outsiderHost = await SpaceApiHost.StartAsync(outsider.AuthId);
+        using var foreign = await outsiderHost.Client.PutAsJsonAsync($"/api/spaces/{outsiderSpaceId}/transactions/category", new CategorizeTransactionsRequest([fixture.Transaction.Id], null), Json);
+        await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    [Arguments("Admin", HttpStatusCode.OK)]
+    [Arguments("Member", HttpStatusCode.OK)]
+    [Arguments("Viewer", HttpStatusCode.Forbidden)]
+    public async Task ExportingTransactionsRequiresExportPermission(string role, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+
+        using var response = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/export?year=2026&month=10");
+
+        await Assert.That(response.StatusCode).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task ExportedTransactionsAreReadableAndCannotInjectFormulas()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            dbContext.Add(Transaction.Create(
+                new TransactionDetails(new DateTime(2026, 10, 7, 0, 0, 0, DateTimeKind.Utc), 19.99m, "=HYPERLINK(\"x\")", "Erstattung, Bäckerei", TransactionStatus.Booked, false),
+                account, user, account.Space));
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var response = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions/export?year=2026&month=10");
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        var csv = System.Text.Encoding.UTF8.GetString(bytes);
+
+        await Assert.That(response.Content.Headers.ContentDisposition!.FileName).Matches(@"transactions-2026-10-\d{8}-\d{6}\.csv");
+        await Assert.That(bytes.Take(3)).IsEquivalentTo(new byte[] { 0xEF, 0xBB, 0xBF });
+        var lines = csv.TrimStart('\uFEFF').Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+        await Assert.That(lines[0]).IsEqualTo("Date,Account,Counterparty,Purpose,Amount,Currency,Category,CategorySource,Status,IsTransfer");
+        await Assert.That(lines[1]).IsEqualTo("2026-10-05,Checking,Supermarket,,-42.50,EUR,Groceries,Manual,Booked,false");
+        await Assert.That(lines[2]).StartsWith("2026-10-07,Checking,\"'=HYPERLINK(\"\"x\"\")\",\"Erstattung, Bäckerei\",19.99,EUR,,");
+    }
+
+    [Test]
+    public async Task StatisticsShowTheSpendingPerCategoryOverMonths()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+
+        var statistics = (await host.Client.GetFromJsonAsync<BudgetStatisticsResponse>($"/api/spaces/{fixture.Account.SpaceId}/budgets/statistics?year=2026&month=11&months=4", Json))!;
+        using var invalid = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/budgets/statistics?year=2026&month=11&months=25");
+
+        await Assert.That(statistics.Months).IsEquivalentTo(new[] { new DateOnly(2026, 8, 1), new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1), new DateOnly(2026, 11, 1) });
+        var groceries = statistics.Categories.Single(item => item.CategoryId == GroceriesId);
+        await Assert.That(groceries.Spent).IsEquivalentTo(OctoberSpending);
+        // The budget applies from September on.
+        await Assert.That(groceries.Budget).IsEquivalentTo(new decimal?[] { null, 300m, 300m, 300m });
+        await Assert.That(statistics.TotalSpent).IsEquivalentTo(OctoberSpending);
+        await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task SpacesCannotSeeOrUseEachOthersFinanceData()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        var (outsider, outsiderSpaceId) = await CreateOutsiderAsync();
+        await using var host = await SpaceApiHost.StartAsync(outsider.AuthId);
+
+        using var transaction = await host.Client.GetAsync($"/api/spaces/{outsiderSpaceId}/transactions/{fixture.Transaction.Id}");
+        var transactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{outsiderSpaceId}/transactions", Json))!.Items;
+        var overview = await host.Client.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{outsiderSpaceId}/budgets/overview?year=2026&month=10", Json);
+        var budgets = await host.Client.GetFromJsonAsync<List<BudgetResponse>>($"/api/spaces/{outsiderSpaceId}/budgets", Json);
+        using var foreignAccount = await host.Client.PostAsJsonAsync($"/api/spaces/{outsiderSpaceId}/transactions",
+            new CreateTransactionRequest(new DateOnly(2026, 10, 2), -1m, null, null, TransactionStatus.Booked, false, fixture.Account.Id, null));
+        using var foreignCategory = await host.Client.PostAsJsonAsync($"/api/spaces/{outsiderSpaceId}/transactions",
+            new CreateTransactionRequest(new DateOnly(2026, 10, 2), -1m, null, null, TransactionStatus.Booked, false, null, fixture.CustomCategory.Id));
+        using var foreignBudget = await host.Client.DeleteAsync($"/api/spaces/{outsiderSpaceId}/budgets/{fixture.Budget.Id}");
+        using var foreignSpace = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/transactions");
+
+        await Assert.That(foreignSpace.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(transaction.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(transactions).IsEmpty();
+        await Assert.That(overview!.TotalSpent).IsEqualTo(0m);
+        await Assert.That(budgets!).IsEmpty();
+        await Assert.That(foreignAccount.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(foreignCategory.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(foreignBudget.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+    }
+
+    private static async Task<Fixture> CreateFixtureAsync(string roleName)
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var space = Space.Create("Shared space");
+        var role = await dbContext.Roles.SingleAsync(item => item.Name == roleName);
+        var user = CreateUser("actor");
+        user.UserSpaces.Add(UserSpace.Create(user, space, role));
+        var groceries = await dbContext.Categories.SingleAsync(item => item.Id == GroceriesId);
+        var customCategory = Category.Create("Pets", "paw-print", "#aa7744", CategoryKind.Expense, space);
+        var account = Account.Create("Checking", "1234", space);
+        var budget = Budget.Create(300m, new MonthYear(new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc)), true, groceries, user, space);
+        var transaction = Transaction.Create(
+            new TransactionDetails(new DateTime(2026, 10, 5, 0, 0, 0, DateTimeKind.Utc), -42.5m, "Supermarket", null, TransactionStatus.Booked, false),
+            account, user, space);
+        transaction.AssignCategoryManually(groceries);
+        dbContext.AddRange(user, customCategory, account, budget, transaction);
+        await dbContext.SaveChangesAsync();
+        return new(user, account, customCategory, budget, transaction);
+    }
+
+    private static async Task<(User User, Guid SpaceId)> CreateOutsiderAsync()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var space = Space.Create("Other space");
+        var admin = await dbContext.Roles.SingleAsync(item => item.Id == SpaceRoles.Admin.Id);
+        var user = CreateUser("outsider");
+        user.UserSpaces.Add(UserSpace.Create(user, space, admin));
+        dbContext.Add(user);
+        await dbContext.SaveChangesAsync();
+        return (user, space.Id);
+    }
+
+    private static User CreateUser(string name)
+    {
+        var user = User.Init($"{name}-auth", name, $"{name}@example.test");
+        user.CompleteOnboarding(name, AnalyticsConsent.Declined, DateTime.UtcNow);
+        return user;
+    }
+
+    private sealed record Fixture(User User, Account Account, Category CustomCategory, Budget Budget, Transaction Transaction);
+}

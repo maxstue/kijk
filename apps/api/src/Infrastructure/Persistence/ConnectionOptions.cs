@@ -1,13 +1,16 @@
-﻿using Kijk.Shared;
+﻿using Kijk.Infrastructure.Configuration;
 
 namespace Kijk.Infrastructure.Persistence;
 
 /// <summary>
-/// Binds the DefaultConnection configuration section to the ConnectionOptions class.
+/// PostgreSQL connection settings from the ConnectionStrings section.
 /// </summary>
-public class ConnectionOptions : IConfigOptions
+public class ConnectionOptions
 {
-    /// <inheritdoc />
-    public static string SectionName => "DefaultConnection";
+    /// <summary>Gets the configuration section name.</summary>
+    public static string SectionName => "ConnectionStrings";
 
+    /// <summary>Gets or sets the PostgreSQL connection string.</summary>
+    [PostgresConnectionString]
+    public string DefaultConnection { get; set; } = string.Empty;
 }

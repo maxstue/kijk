@@ -1,33 +1,30 @@
 import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { themeStorageKey } from '@kijk/core/lib/constants';
-import { createStoreFactory } from '@kijk/core/utils/store';
-import type { ToasterProps } from 'sonner';
-import type { StoreApi, UseBoundStore } from 'zustand';
+import { create } from 'zustand';
+
+type ThemeMode = 'light' | 'dark' | 'system';
 
 interface Storage {
-  mode: ToasterProps['theme'];
+  mode: ThemeMode;
 }
 
 interface State {
-  mode: ToasterProps['theme'];
+  mode: ThemeMode;
   actions: {
-    setMode: (mode: ToasterProps['theme']) => void;
+    setMode: (mode: ThemeMode) => void;
   };
 }
 
-const themeStore = createStoreFactory<State>('theme-store', (set) => ({
+/** Store with the theme mode (light, dark or system), persisted in browser storage. */
+export const useThemeStore = create<State>((set) => ({
   mode: browserStorage.getItem<Storage>(themeStorageKey)?.mode ?? 'system',
   actions: {
     setMode(mode) {
-      set((state) => {
-        state.mode = mode;
-        browserStorage.setItem(themeStorageKey, { mode: state.mode });
-      });
+      browserStorage.setItem(themeStorageKey, { mode });
+      set({ mode });
     },
   },
 }));
 
-/** Store with the theme mode (light, dark or system), persisted in browser storage. */
-export const useThemeStore = themeStore as UseBoundStore<StoreApi<Omit<State, 'actions'>>>;
 /** Returns the actions of the theme store. */
-export const useThemeStoreActions = () => themeStore((state: State) => state.actions);
+export const useThemeStoreActions = () => useThemeStore((state) => state.actions);

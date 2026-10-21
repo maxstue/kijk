@@ -1,0 +1,81 @@
+name: CI
+
+# Composes the checks of the repository from the reusable `_*.yml` building blocks. This file only decides what runs
+# when; how a check works lives in its building block. Jobs without a `needs` relation run in parallel.
+#
+#   changes ─┬─ js-quality ─┬─ js-e2e
+#            ├─ js-tests ───┤
+#            │              └─ sonar
+#            └─ dotnet ─────┘
+#
+# `ci-result` is the only check that branch protection has to require.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main", "develop"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    uses: ./.github/workflows/_changes.yml
+
+  js-quality:
+    needs: [changes]
+    if: needs.changes.outputs.js == 'true'
+    uses: ./.github/workflows/_js-quality.yml
+
+  js-tests:
+    needs: [changes]
+    if: needs.changes.outputs.js == 'true'
+    uses: ./.github/workflows/_js-tests.yml
+
+  js-e2e:
+    needs: [js-quality, js-tests]
+    uses: ./.github/workflows/_js-e2e.yml
+    permissions:
+      contents: read
+      id-token: write
+
+  dotnet:
+    needs: [changes]
+    if: needs.changes.outputs.dotnet == 'true'
+    uses: ./.github/workflows/_dotnet.yml
+
+  # Runs whenever the checks it collects coverage from did not fail, also if some of them were skipped. Dependabot
+  # and pull requests from forks have no access to the Sonar token.
+  sonar:
+    needs: [js-tests, dotnet]
+    if: >-
+      !cancelled() && !failure() &&
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    uses: ./.github/workflows/_sonar.yml
+    permissions:
+      contents: read
+      id-token: write
+
+  ci-result:
+    name: "✅ CI result"
+    needs: [changes, js-quality, js-tests, js-e2e, dotnet, sonar]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: "✅ Require all checks to pass or be skipped"
+        env:
+          FAILED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: |
+          if [ "$FAILED" = "true" ]; then
+            echo "::error title=CI failed::At least one check failed or was cancelled."
+            exit 1
+          fi

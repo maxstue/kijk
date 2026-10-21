@@ -16,17 +16,17 @@ CREATE TRIGGER "UpdateTimestamp"
     FOR EACH ROW
 EXECUTE FUNCTION "Update_DateTime_Function"();
 
--- Add Trigger to the consumptions_limits table
+-- Add Trigger to the limits table
 CREATE TRIGGER "UpdateTimestamp"
     BEFORE UPDATE
-    ON "consumptions_limits"
+    ON "limits"
     FOR EACH ROW
 EXECUTE FUNCTION "Update_DateTime_Function"();
 
--- Add Trigger to the households table
+-- Add Trigger to the spaces table
 CREATE TRIGGER "UpdateTimestamp"
     BEFORE UPDATE
-    ON "households"
+    ON "spaces"
     FOR EACH ROW
 EXECUTE FUNCTION "Update_DateTime_Function"();
 
@@ -51,10 +51,10 @@ CREATE TRIGGER "UpdateTimestamp"
     FOR EACH ROW
 EXECUTE FUNCTION "Update_DateTime_Function"();
 
--- Add Trigger to the user_households table
+-- Add Trigger to the user_spaces table
 CREATE TRIGGER "UpdateTimestamp"
     BEFORE UPDATE
-    ON "user_households"
+    ON "user_spaces"
     FOR EACH ROW
 EXECUTE FUNCTION "Update_DateTime_Function"();
 

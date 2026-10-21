@@ -11,7 +11,7 @@ public static class ConsumptionTimelineCalculator
     /// <summary>
     /// Calculates the effective meter reading after every entry in a single resource timeline.
     /// </summary>
-    /// <param name="consumptions">The complete timeline for one household and resource.</param>
+    /// <param name="consumptions">The complete timeline for one space and resource.</param>
     /// <returns>A meter reading for each entry, or <see langword="null"/> until an absolute baseline exists.</returns>
     public static IReadOnlyDictionary<Guid, decimal?> CalculateMeterReadings(IEnumerable<Consumption> consumptions)
     {
@@ -35,7 +35,7 @@ public static class ConsumptionTimelineCalculator
     /// <summary>
     /// Recalculates every entry in chronological order.
     /// </summary>
-    /// <param name="consumptions">The complete timeline for one household and resource.</param>
+    /// <param name="consumptions">The complete timeline for one space and resource.</param>
     /// <returns>A successful result, or a validation error for a decreasing absolute reading.</returns>
     public static Result<bool> Recalculate(IEnumerable<Consumption> consumptions)
     {
@@ -66,7 +66,7 @@ public static class ConsumptionTimelineCalculator
     /// Existing entries on the same day are treated as preceding the new entry.
     /// </summary>
     /// <param name="consumption">The entry being inserted.</param>
-    /// <param name="existingConsumptions">Existing entries for the same household and resource.</param>
+    /// <param name="existingConsumptions">Existing entries for the same space and resource.</param>
     /// <returns>The calculated entry, or a validation error for a decreasing absolute reading.</returns>
     public static Result<Consumption> CalculateInsertion(
         Consumption consumption,

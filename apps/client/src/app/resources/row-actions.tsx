@@ -3,6 +3,7 @@ import { Button } from '@kijk/ui/components/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -16,6 +17,7 @@ import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ResourceTypeDeleteContent } from '@/app/resources/delete-content';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 import { CreatorTypes, type CreatorType, type Resource } from '@/shared/types/domain';
 
@@ -26,6 +28,7 @@ interface DataTableRowActionsProps {
 
 /** Row menu of the resource table: copy name, edit and delete. System resources and missing permissions disable editing. */
 export function ResourceTypeRowActions({ canManage, row }: DataTableRowActionsProps) {
+  const spaceId = useSpaceId();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
   const resourceType = row.original;
@@ -42,35 +45,35 @@ export function ResourceTypeRowActions({ canManage, row }: DataTableRowActionsPr
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className='h-8 w-8 p-0' variant='ghost'>
-            <span className='sr-only'>Open menu</span>
-            <MoreHorizontal className='h-4 w-4' />
-          </Button>
+        <DropdownMenuTrigger render={<Button className='h-8 w-8 p-0' variant='ghost' />}>
+          <span className='sr-only'>Open menu</span>
+          <MoreHorizontal className='h-4 w-4' />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
-          <ResourceManagementMenuItem
-            disabled={managementActionsDisabled}
-            label='Update'
-            tooltip={managementRestriction ?? 'Update resource'}
-            onSelect={() =>
-              navigate({
-                to: '/resources/$resourceId',
-                params: { resourceId: resourceType.id },
-                search: (previous) => previous,
-              })
-            }
-          />
-          <DropdownMenuSeparator />
-          <ResourceManagementMenuItem
-            disabled={managementActionsDisabled}
-            label='Delete'
-            tooltip={managementRestriction ?? 'Delete resource'}
-            variant='destructive'
-            onSelect={() => setShowDeleteDialog(true)}
-          />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={handleCopyName}>Copy Name</DropdownMenuItem>
+            <ResourceManagementMenuItem
+              disabled={managementActionsDisabled}
+              label='Update'
+              tooltip={managementRestriction ?? 'Update resource'}
+              onClick={() =>
+                navigate({
+                  to: '/$spaceId/consumptions/resources/$resourceId',
+                  params: { spaceId: spaceId, resourceId: resourceType.id },
+                  search: (previous) => previous,
+                })
+              }
+            />
+            <DropdownMenuSeparator />
+            <ResourceManagementMenuItem
+              disabled={managementActionsDisabled}
+              label='Delete'
+              tooltip={managementRestriction ?? 'Delete resource'}
+              variant='destructive'
+              onClick={() => setShowDeleteDialog(true)}
+            />
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -86,27 +89,25 @@ function getManagementRestriction(creatorType: CreatorType, canManage: boolean) 
   }
 
   if (!canManage) {
-    return 'Your household role does not allow managing resources.';
+    return 'Your role in this space does not allow managing resources.';
   }
 }
 
 interface ResourceManagementMenuItemProps {
   disabled: boolean;
   label: string;
-  onSelect: () => void;
+  onClick: () => void;
   tooltip: string;
   variant?: 'default' | 'destructive';
 }
 
-function ResourceManagementMenuItem({ disabled, label, onSelect, tooltip, variant }: ResourceManagementMenuItemProps) {
+function ResourceManagementMenuItem({ disabled, label, onClick, tooltip, variant }: ResourceManagementMenuItemProps) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <div className={disabled ? 'cursor-not-allowed' : undefined}>
-          <DropdownMenuItem disabled={disabled} variant={variant} onSelect={onSelect}>
-            {label}
-          </DropdownMenuItem>
-        </div>
+      <TooltipTrigger render={<div className={disabled ? 'cursor-not-allowed' : undefined} />}>
+        <DropdownMenuItem disabled={disabled} variant={variant} onClick={onClick}>
+          {label}
+        </DropdownMenuItem>
       </TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>

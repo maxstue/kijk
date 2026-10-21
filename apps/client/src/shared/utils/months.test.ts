@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vite-plus/test';
 
-import { formatMonth, getMonthFromDate, getMonthFromIndex, getMonthIndexFromString } from './months';
+import { formatMonth, getMonthFromDate, getMonthFromIndex, getMonthNumber, shiftMonth } from './months';
 
 describe('month utilities', () => {
   test('maps zero-based date indexes to domain month values', () => {
@@ -9,8 +9,8 @@ describe('month utilities', () => {
   });
 
   test('maps domain month values to one-based API indexes', () => {
-    expect(getMonthIndexFromString('january')).toBe(1);
-    expect(getMonthIndexFromString('december')).toBe(12);
+    expect(getMonthNumber('january')).toBe(1);
+    expect(getMonthNumber('december')).toBe(12);
   });
 
   test('formats a month using the requested locale', () => {
@@ -19,6 +19,13 @@ describe('month utilities', () => {
 
   test('rejects invalid month values', () => {
     expect(() => getMonthFromIndex(12)).toThrow('Invalid month index: 12');
-    expect(() => getMonthIndexFromString('smarch')).toThrow('is not a valid month');
+    expect(() => getMonthNumber('smarch')).toThrow('is not a valid month');
+  });
+});
+
+describe('shiftMonth', () => {
+  test('moves across year boundaries', () => {
+    expect(shiftMonth(2026, 1, -1)).toEqual({ month: 12, year: 2025 });
+    expect(shiftMonth(2026, 12, 1)).toEqual({ month: 1, year: 2027 });
   });
 });

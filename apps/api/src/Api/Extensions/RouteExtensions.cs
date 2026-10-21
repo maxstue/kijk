@@ -15,5 +15,5 @@ public static class RouteExtensions
     /// <returns>The validated route handler.</returns>
     public static RouteHandlerBuilder WithRequestValidation<TRequest>(this RouteHandlerBuilder builder) where TRequest : class => builder
         .AddEndpointFilter<ValidationFilter<TRequest>>()
-        .Produces(StatusCodes.Status400BadRequest);
+        .ProducesValidationProblem();
 }

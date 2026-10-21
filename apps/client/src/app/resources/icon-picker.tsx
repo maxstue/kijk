@@ -3,7 +3,7 @@ import { Command, CommandInput } from '@kijk/ui/components/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronsUpDown } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import { formatResourceIconName, resourceIconNames } from '@/shared/lib/resource-icons';
@@ -21,7 +21,6 @@ export function ResourceIconPicker({ onChange, value }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const selectedIcon = value || 'circle';
 
   const matchingIcons = useMemo(() => {
@@ -42,20 +41,16 @@ export function ResourceIconPicker({ onChange, value }: Props) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button ref={triggerRef} className='w-full justify-between font-normal' type='button' variant='outline'>
-          <span className='flex items-center gap-2'>
-            <ResourceIcon className='size-4' name={selectedIcon} />
-            {formatResourceIconName(selectedIcon)}
-          </span>
-          <ChevronsUpDown className='text-muted-foreground size-4' />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align='start'
-        className='w-(--radix-popover-trigger-width) p-0'
-        container={triggerRef.current?.closest<HTMLElement>('[data-slot="dialog-content"]')}
+      <PopoverTrigger
+        render={<Button className='w-full justify-between font-normal' type='button' variant='outline' />}
       >
+        <span className='flex items-center gap-2'>
+          <ResourceIcon className='size-4' name={selectedIcon} />
+          {formatResourceIconName(selectedIcon)}
+        </span>
+        <ChevronsUpDown className='text-muted-foreground size-4' />
+      </PopoverTrigger>
+      <PopoverContent align='start' className='w-(--anchor-width) p-0'>
         <Command shouldFilter={false}>
           <CommandInput
             placeholder='Search Lucide icons…'

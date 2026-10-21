@@ -1,17 +1,18 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as usersOptions from '@kijk/api/users/options';
+import { useMutation } from '@tanstack/react-query';
 
-import { currentUserQueryOptions, welcomeUserMutationOptions } from '@/shared/api/users/options';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 /** Completes onboarding, stores the analytics consent and caches the returned account. */
 export const useWelcomeUser = () => {
-  const queryClient = useQueryClient();
+  const options = usersOptions.completeOnboardingMutationOptions();
 
   return useMutation({
-    ...welcomeUserMutationOptions(),
-    onSuccess(data) {
+    ...options,
+    async onSuccess(...args) {
+      const [data] = args;
       AnalyticsService.setCookieConsent(data.user!.analyticsConsent === 'Accepted' ? 'accepted' : 'declined');
-      queryClient.setQueryData(currentUserQueryOptions().queryKey, data);
+      await options.onSuccess?.(...args);
     },
   });
 };

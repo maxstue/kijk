@@ -1,11 +1,14 @@
+import type { Unit } from '@kijk/api/units/types';
 import { SelectGroup, SelectItem, SelectLabel, SelectSeparator } from '@kijk/ui/components/select';
 import { Fragment } from 'react';
-
-import type { Unit } from '@/shared/api/units/types';
 
 interface Props {
   units: Unit[];
 }
+
+/** Labels of the units for the `items` of a select, so the selected unit shows its name instead of its id. */
+export const unitSelectItems = (units: Unit[]) =>
+  units.map((unit) => ({ label: `${unit.name} (${unit.symbol})`, value: unit.id }));
 
 /** Select options for convertible, non-archived units, grouped by quantity. */
 export function UnitSelectOptions({ units }: Props) {

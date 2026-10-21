@@ -1,3 +1,4 @@
+vi.mock('@/shared/hooks/use-active-space', () => ({ useSpaceId: () => 'space' }));
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
@@ -35,9 +36,9 @@ test('update action navigates to the canonical resource path and preserves searc
   await screen.getByText('Update', { exact: true }).click();
 
   expect(navigate).toHaveBeenCalledWith({
-    params: { resourceId: 'resource-7' },
+    params: { spaceId: 'space', resourceId: 'resource-7' },
     search: expect.any(Function),
-    to: '/resources/$resourceId',
+    to: '/$spaceId/consumptions/resources/$resourceId',
   });
   const searchUpdater = navigate.mock.calls[0]?.[0].search as (previous: object) => object;
   const previousSearch = { filter: 'active' };

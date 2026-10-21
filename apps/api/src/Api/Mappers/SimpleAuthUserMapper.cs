@@ -9,22 +9,23 @@ namespace Kijk.Api.Mappers;
 public static class SimpleAuthUserMapper
 {
     /// <summary>
-    /// Projects user entities to authenticated users, including the role and permissions of the active household.
+    /// Projects user entities to authenticated users, including the role and permissions in the requested space.
     /// </summary>
     /// <param name="source">The user query.</param>
-    /// <returns>The projected authenticated-user query.</returns>
-    public static IQueryable<SimpleAuthUser> ToSimpleAuthUser(this IQueryable<User> source) =>
+    /// <param name="spaceId">The space of the request, or <see langword="null" /> for requests without a space.</param>
+    /// <returns>The projected authenticated-user query; without a membership in the space it has no space.</returns>
+    public static IQueryable<SimpleAuthUser> ToSimpleAuthUser(this IQueryable<User> source, Guid? spaceId) =>
         source.Select(user => new SimpleAuthUser(
             user.Id,
             user.AuthId,
-            user.UserHouseholds.Where(link => link.IsActive).Select(link => (Guid?)link.HouseholdId).SingleOrDefault(),
+            user.UserSpaces.Where(link => link.SpaceId == spaceId).Select(link => (Guid?)link.SpaceId).SingleOrDefault(),
             user.Name,
             user.Email,
             user.OnboardingCompletedAt != null)
         {
-            HouseholdRole = user.UserHouseholds.Where(link => link.IsActive).Select(link => link.Role.Name).SingleOrDefault(),
-            HouseholdPermissions = user.UserHouseholds
-                .Where(link => link.IsActive)
+            SpaceRole = user.UserSpaces.Where(link => link.SpaceId == spaceId).Select(link => link.Role.Name).SingleOrDefault(),
+            SpacePermissions = user.UserSpaces
+                .Where(link => link.SpaceId == spaceId)
                 .SelectMany(link => link.Role.Permissions.Select(permission => permission.Name))
                 .ToList()
         });

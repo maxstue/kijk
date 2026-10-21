@@ -1,32 +1,35 @@
+import type { Unit } from '@kijk/api/units/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import type { ReactNode } from 'react';
 
-import type { Unit } from '@/shared/api/units/types';
+import { PageToolbar } from '@/shared/components/page-header';
 
 import { UnitRowActions } from './row-actions';
 
 interface Props {
-  householdId?: string;
-  /** Households in which the user's role allows sharing units. */
-  shareableHouseholds: Array<{ id: string; name: string }>;
+  actions?: ReactNode;
+  spaceId?: string;
+  /** Spaces in which the user's role allows sharing units. */
+  shareableSpaces: Array<{ id: string; name: string }>;
   isPending: boolean;
   items: Unit[];
   page: number;
   pageSize: number;
-  scope: 'household' | 'personal';
+  scope: 'space' | 'personal';
   search: string;
   setPage: (page: number) => void;
   setSearch: (search: string) => void;
-  systemUnits: Unit[];
   totalCount: number;
 }
 
 /** Paginated, searchable unit table. */
 export function UnitTable({
-  householdId,
-  shareableHouseholds,
+  actions,
+  spaceId,
+  shareableSpaces,
   isPending,
   items,
   page,
@@ -35,7 +38,6 @@ export function UnitTable({
   search,
   setPage,
   setSearch,
-  systemUnits,
   totalCount,
 }: Props) {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -43,15 +45,17 @@ export function UnitTable({
   return (
     <div className='min-w-0'>
       <div className='my-4'>
-        <Input
-          className='w-full sm:max-w-xs'
-          placeholder='Filter name or symbol...'
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
-        />
+        <PageToolbar actions={actions}>
+          <Input
+            className='w-full sm:w-72'
+            placeholder='Filter name or symbol...'
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+          />
+        </PageToolbar>
       </div>
       <div className='w-full overflow-x-auto rounded border'>
         <Table className='min-w-[600px]'>
@@ -94,13 +98,7 @@ export function UnitTable({
                   </TableCell>
                   <TableCell>{unit.isArchived ? 'Archived' : 'Active'}</TableCell>
                   <TableCell>
-                    <UnitRowActions
-                      householdId={householdId}
-                      shareableHouseholds={shareableHouseholds}
-                      scope={scope}
-                      systemUnits={systemUnits}
-                      unit={unit}
-                    />
+                    <UnitRowActions spaceId={spaceId} shareableSpaces={shareableSpaces} scope={scope} unit={unit} />
                   </TableCell>
                 </TableRow>
               ))

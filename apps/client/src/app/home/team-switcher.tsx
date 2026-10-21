@@ -66,23 +66,25 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            aria-expanded={open}
-            aria-label='Select a team'
-            className={cn('w-[200px] justify-between', className)}
-            role='combobox'
-            aria-controls='team-switcher-popover'
-            size='sm'
-            variant='ghost'
-          >
-            <Avatar className='mr-2 h-5 w-5'>
-              <AvatarImage alt={selectedTeam.label} src={`https://avatar.vercel.sh/${selectedTeam.value}.png`} />
-              <AvatarFallback>SC</AvatarFallback>
-            </Avatar>
-            {selectedTeam.label}
-            <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              aria-expanded={open}
+              aria-label='Select a team'
+              className={cn('w-[200px] justify-between', className)}
+              role='combobox'
+              aria-controls='team-switcher-popover'
+              size='sm'
+              variant='ghost'
+            />
+          }
+        >
+          <Avatar className='mr-2 h-5 w-5'>
+            <AvatarImage alt={selectedTeam.label} src={`https://avatar.vercel.sh/${selectedTeam.value}.png`} />
+            <AvatarFallback>SC</AvatarFallback>
+          </Avatar>
+          {selectedTeam.label}
+          <ChevronsUpDown className='ml-auto h-4 w-4 shrink-0 opacity-50' />
         </PopoverTrigger>
         <PopoverContent className='w-[200px] p-0'>
           <Command>

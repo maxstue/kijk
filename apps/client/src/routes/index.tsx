@@ -1,7 +1,27 @@
-import { Link, createFileRoute } from '@tanstack/react-router';
+import * as usersOptions from '@kijk/api/users/options';
+import { isReadyCurrentUser } from '@kijk/api/users/types';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+
+import { getStartSpace } from '@/shared/lib/spaces';
 
 /** `/`: public landing page. */
-export const Route = createFileRoute('/')({ component: PublicHomePage });
+export const Route = createFileRoute('/')({
+  beforeLoad: async ({ context: { authClient, queryClient } }) => {
+    if (!(await authClient?.session?.getToken())) {
+      return;
+    }
+    const currentUser = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
+    if (!isReadyCurrentUser(currentUser)) {
+      throw redirect({ to: '/welcome', replace: true });
+    }
+    const space = getStartSpace(currentUser.user);
+    if (space) {
+      throw redirect({ to: '/$spaceId', params: { spaceId: space.id }, replace: true });
+    }
+    throw redirect({ to: '/welcome', replace: true });
+  },
+  component: PublicHomePage,
+});
 
 function PublicHomePage() {
   return (
@@ -16,12 +36,11 @@ function PublicHomePage() {
       </header>
       <main className='mx-auto flex w-full max-w-6xl flex-1 items-center px-6 py-16'>
         <section className='max-w-2xl space-y-6'>
-          <p className='text-muted-foreground text-sm font-medium'>Household management</p>
-          <h1 className='text-4xl font-semibold tracking-tight sm:text-6xl'>
-            Keep your household information in one place.
-          </h1>
+          <p className='text-muted-foreground text-sm font-medium'>Resources and budgets</p>
+          <h1 className='text-4xl font-semibold tracking-tight sm:text-6xl'>Understand and plan what you use.</h1>
           <p className='text-muted-foreground max-w-xl text-lg'>
-            Kijk helps households organize and review shared information about their resources, units, and consumption.
+            Track any resource you measure, such as electricity, water or fuel, with limits, and your money with budgets
+            – privately for yourself and together in shared spaces with your household, flatmates or partner.
           </p>
           <Link
             className='bg-primary text-primary-foreground hover:bg-primary/90 inline-flex min-h-10 items-center justify-center rounded-md px-5 py-2 text-sm font-medium'
@@ -32,13 +51,16 @@ function PublicHomePage() {
         </section>
       </main>
       <footer className='mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-6 text-sm'>
-        <span className='text-muted-foreground'>Kijk household management</span>
+        <span className='text-muted-foreground'>Kijk – resources and budgets</span>
         <nav aria-label='Legal information' className='flex gap-5'>
           <Link className='underline-offset-4 hover:underline' to='/privacy'>
             Privacy Policy
           </Link>
           <Link className='underline-offset-4 hover:underline' to='/terms'>
             Terms of Service
+          </Link>
+          <Link className='underline-offset-4 hover:underline' to='/imprint'>
+            Imprint
           </Link>
         </nav>
       </footer>

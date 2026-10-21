@@ -1,20 +1,26 @@
-﻿using Kijk.Application.Users.Update;
-using Kijk.Application.Users.Welcome;
+using Kijk.Application.Users.CompleteOnboarding;
+using Kijk.Application.Users.Delete;
+using Kijk.Application.Users.Me;
+using Kijk.Application.Users.RequestDeletion;
+using Kijk.Application.Users.SetDefaultSpace;
+using Kijk.Application.Users.Update;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.Application.Users;
 
-/// <summary>
-/// Module for users.
-/// <inheritdoc cref="IModule"/>
-/// </summary>
-public class ModuleService : IModule
+/// <summary>Registers the handlers and services owned by the Users feature.</summary>
+public sealed class ModuleService : IModule
 {
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        services.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
-        services.AddScoped<IValidator<WelcomeUserRequest>, WelcomeUserRequestValidator>();
+        services.AddScoped<AccountEraser>();
+        services.AddScoped<RequestDeletionHandler>();
+        services.AddScoped<SetDefaultSpaceHandler>();
+        services.AddScoped<MeHandler>();
+        services.AddScoped<UpdateHandler>();
+        services.AddScoped<CompleteOnboardingHandler>();
+
         return services;
     }
 }

@@ -1,3 +1,4 @@
+import * as resourcesOptions from '@kijk/api/resources/options';
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -8,9 +9,10 @@ import {
   AlertDialogTitle,
 } from '@kijk/ui/components/alert-dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { useDeleteResource } from '@/app/resources/use-delete-resource';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Resource } from '@/shared/types/domain';
 
 interface Props {
@@ -20,7 +22,8 @@ interface Props {
 
 /** Confirmation dialog content for deleting a resource. */
 export function ResourceTypeDeleteContent({ onClose, resourceType }: Props) {
-  const { isPending, mutate } = useDeleteResource();
+  const spaceId = useSpaceId();
+  const { isPending, mutate } = useMutation(resourcesOptions.deleteMutationOptions(spaceId));
 
   const handleDelete = () => {
     mutate(

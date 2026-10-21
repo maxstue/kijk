@@ -1,0 +1,51 @@
+name: Setup JavaScript
+description: Set up Vite+, install the workspace dependencies and optionally the cached Playwright browser.
+
+inputs:
+  playwright:
+    description: Install Chromium for Playwright E2E and Vitest browser tests.
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: "🔧 Set up Vite+"
+      uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
+      with:
+        version-file: package.json
+        node-version: "26"
+        cache: true
+        run-install: false
+
+    - name: "📦 Install dependencies"
+      shell: bash
+      run: vp install --frozen-lockfile
+
+    - name: "🔎 Resolve Playwright version"
+      id: playwright
+      if: inputs.playwright == 'true'
+      shell: bash
+      working-directory: apps/client
+      run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+    # The browser binaries only change with the Playwright version; the system dependencies are not cached and are
+    # installed on every run.
+    - name: "🗄️ Cache Playwright browser"
+      id: playwright-cache
+      if: inputs.playwright == 'true'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
+
+    - name: "🌐 Install Playwright browser"
+      if: inputs.playwright == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: apps/client
+      run: pnpm exec playwright install --with-deps chromium
+
+    - name: "🌐 Install Playwright system dependencies"
+      if: inputs.playwright == 'true' && steps.playwright-cache.outputs.cache-hit == 'true'
+      shell: bash
+      working-directory: apps/client
+      run: pnpm exec playwright install-deps chromium

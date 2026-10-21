@@ -35,7 +35,7 @@ internal static class ResourceHelpers
     }
 
     /// <summary>
-    /// Determines whether a resource with the same normalized name and unit exists in the active household or in the
+    /// Determines whether a resource with the same normalized name and unit exists in the active space or in the
     /// global system resource catalog.
     /// </summary>
     /// <param name="dbContext">The application database context.</param>
@@ -47,10 +47,10 @@ internal static class ResourceHelpers
     /// <returns><see langword="true"/> when a conflicting resource exists; otherwise <see langword="false"/>.</returns>
     internal static Task<bool> HasConflictAsync(IAppDbContext dbContext, CurrentUser currentUser, string name, Guid unitId, Guid? excludedResourceId, CancellationToken cancellationToken)
     {
-        var normalizedName = name.Trim().ToLowerInvariant();
+        name = name.Trim();
         var resources = dbContext.Resources.Where(resource =>
-            (resource.CreatorType == CreatorType.System || resource.HouseholdId == currentUser.ActiveHouseholdId)
-            && resource.Name.Trim().ToLower() == normalizedName
+            (resource.CreatorType == CreatorType.System || resource.SpaceId == currentUser.ActiveSpaceId)
+            && resource.Name == name
             && resource.UnitId == unitId);
 
         if (excludedResourceId.HasValue)

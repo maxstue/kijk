@@ -1,0 +1,95 @@
+name: SonarQube Cloud
+
+# Analyzes the whole repository with SonarQube Cloud. The tests do not run again here: the coverage reports come from
+# the `coverage-js-*` and `coverage-dotnet` artifacts of the same run, so jobs skipped by `_changes.yml` simply
+# contribute no report. The .NET scanner has to wrap a build, so the API is built (not tested) between begin and end.
+# The calling job must grant `id-token: write` for the Infisical OIDC login.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: '🔎 Analyze repository'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
+    # dev /CI/E2e and prod /CI/Sonar.
+    # deployment: false uses the environment for its variables and OIDC subject without creating a deployment entry.
+    environment:
+      name: ci
+      deployment: false
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: '🏖️ Checkout Repository'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: '🔧 Set up .NET'
+        uses: ./.github/actions/setup-dotnet
+
+      # Installed so the JavaScript analysis can resolve the TypeScript configs and type information.
+      - name: '🔧 Set up JavaScript'
+        uses: ./.github/actions/setup-js
+
+      - name: '📊 Download JavaScript coverage'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: coverage-js-*
+          path: coverage-reports
+
+      - name: '📊 Download .NET coverage'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: coverage-dotnet
+          path: apps/api/TestResults
+          merge-multiple: true
+
+      - name: '📦 Restore .NET dependencies'
+        run: dotnet restore apps/api/Kijk.slnx --locked-mode
+
+      - name: '📦 Install SonarScanner for .NET'
+        run: dotnet tool install dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
+
+      - name: '🔐 Load SonarQube token'
+        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
+        with:
+          method: oidc
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
+          domain: https://eu.infisical.com
+          env-slug: prod
+          secret-path: /CI/Sonar
+
+      - name: '🔎 Begin SonarQube Cloud analysis'
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+        run: |
+          shopt -s nullglob
+          lcov_reports=(coverage-reports/*/lcov.info)
+          lcov_paths="$(IFS=,; echo "${lcov_reports[*]}")"
+          echo "JavaScript coverage reports: ${lcov_paths:-none}"
+
+          "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin \
+            /k:"maxstue_kijk" \
+            /o:"maxstue" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.coverage.xml" \
+            /d:sonar.javascript.lcov.reportPaths="$lcov_paths" \
+            /d:sonar.plsql.file.suffixes="tab,pkb" \
+            /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
+
+      - name: '🧱 Build API'
+        run: dotnet build apps/api/Kijk.slnx --configuration Release --no-restore
+
+      - name: '🔎 Complete SonarQube Cloud analysis'
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+        run: '"${{ runner.temp }}/scanner/dotnet-sonarscanner" end /d:sonar.token="$SONAR_TOKEN"'

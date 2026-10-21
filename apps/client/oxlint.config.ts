@@ -18,7 +18,7 @@ export default defineConfig({
     builtin: true,
   },
   extends: [baseConfig],
-  ignorePatterns: [...sharedIgnorePatterns, 'src/shared/api/generated/**'],
+  ignorePatterns: [...sharedIgnorePatterns],
   jsPlugins: [
     reactHooksJsPlugin,
     tanstackRouterJsPlugin,
@@ -33,6 +33,12 @@ export default defineConfig({
     typeCheck: true,
   },
   plugins: ['react', 'react-perf'],
+  overrides: [
+    {
+      files: ['**/*.test.{ts,tsx}', 'e2e/**/*.ts'],
+      rules: { 'typescript/no-floating-promises': 'error' },
+    },
+  ],
   rules: {
     ...reactHooksRules,
     ...tanstackRouterRules,

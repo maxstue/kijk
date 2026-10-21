@@ -1,5 +1,4 @@
 ﻿using Kijk.Shared;
-using Kijk.Shared.Exceptions;
 
 namespace Kijk.Domain.Entities;
 
@@ -34,21 +33,28 @@ public sealed class User : BaseEntity
     /// </summary>
     public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
 
-    /// <summary>Gets the user's household memberships.</summary>
-    public ICollection<UserHousehold> UserHouseholds { get; init; } = new List<UserHousehold>();
+    /// <summary>
+    /// Gets whether the user turned the AI features on. Off by default, because they rely on the user's consent; when
+    /// off, no AI call is made for this user.
+    /// </summary>
+    public bool AiEnabled { get; private set; }
+
+    /// <summary>
+    /// Gets when the user explicitly consented (GDPR Article 9(2)(a)) to Kijk processing bank transactions that may
+    /// reveal special categories of personal data (UTC), or <see langword="null" /> without that consent.
+    /// </summary>
+    public DateTime? SensitiveDataConsentAt { get; private set; }
+
+    /// <summary>Gets when the user asked to delete their account and all their data (UTC), while it is in progress.</summary>
+    public DateTime? DeletionRequestedAt { get; private set; }
+
+    /// <summary>Gets the user's space memberships.</summary>
+    public ICollection<UserSpace> UserSpaces { get; init; } = new List<UserSpace>();
 
     /// <summary>
     /// Units created by this user.
     /// </summary>
     public ICollection<Unit> Units { get; init; } = new List<Unit>();
-
-    /// <summary>
-    /// Returns the active household id for the user.
-    /// It should never be null as it is set when the user is created.
-    /// </summary>
-    /// <returns>The active household id.</returns>
-    /// <exception cref="NullException">The user has no active household.</exception>
-    public Guid GetActiveHouseHoldId() => UserHouseholds.SingleOrDefault(x => x.IsActive)?.HouseholdId ?? throw new NullException("Active household not found");
 
     private readonly List<Resource> _resources = [];
     /// <summary>Gets the resources the user has enabled.</summary>
@@ -108,9 +114,23 @@ public sealed class User : BaseEntity
     }
 
     /// <summary>
-    /// Resets onboarding when the user no longer belongs to a household.
+    /// Resets onboarding when the user no longer belongs to a space.
     /// </summary>
     public void ResetOnboarding() => OnboardingCompletedAt = null;
+
+    /// <summary>Records that the user asked to delete their account and all their data.</summary>
+    /// <param name="utcNow">The current time.</param>
+    public void RequestDeletion(DateTime utcNow) => DeletionRequestedAt ??= utcNow;
+
+    /// <summary>Turns the AI features on or off for this user.</summary>
+    /// <param name="enabled">Whether AI features are allowed.</param>
+    public void SetAiEnabled(bool enabled) => AiEnabled = enabled;
+
+    /// <summary>Gives or withdraws the consent to process bank transactions that may reveal sensitive data.</summary>
+    /// <param name="consented">Whether the user consents.</param>
+    /// <param name="utcNow">The current time.</param>
+    public void SetSensitiveDataConsent(bool consented, DateTime utcNow) =>
+        SensitiveDataConsentAt = consented ? SensitiveDataConsentAt ?? utcNow : null;
 
     /// <summary>Changes the analytics preference.</summary>
     /// <param name="analyticsConsent">The new preference.</param>

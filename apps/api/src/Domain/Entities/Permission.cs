@@ -1,7 +1,7 @@
 namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// A permission granted by household roles. Permissions are seeded from <see cref="Authorization.HouseholdPermissions"/>.
+/// A permission granted by space roles. Permissions are seeded from <see cref="Authorization.SpacePermissions"/>.
 /// </summary>
 public class Permission : BaseEntity
 {

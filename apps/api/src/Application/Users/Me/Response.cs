@@ -1,0 +1,106 @@
+using Kijk.Shared;
+
+namespace Kijk.Application.Users.Me;
+
+/// <summary>
+/// Describes the account state for the authenticated Clerk identity.
+/// </summary>
+public enum CurrentUserStatus
+{
+    /// <summary>The identity must complete onboarding before it can use Kijk.</summary>
+    OnboardingRequired,
+
+    /// <summary>The identity has a complete Kijk user and can use the application.</summary>
+    Ready,
+}
+
+/// <summary>
+/// Represents the current account while preventing invalid account-state combinations.
+/// </summary>
+public sealed record CurrentUserResponse
+{
+    private CurrentUserResponse(CurrentUserStatus status, GetMeUserResponse? user, ExternalIdentityResponse identity)
+    {
+        Status = status;
+        User = user;
+        Identity = identity;
+    }
+
+    /// <summary>Gets the current account state.</summary>
+    public CurrentUserStatus Status { get; }
+
+    /// <summary>Gets the persisted Kijk user when the account is ready.</summary>
+    public GetMeUserResponse? User { get; }
+
+    /// <summary>Gets the authenticated provider identity.</summary>
+    public ExternalIdentityResponse Identity { get; }
+
+    /// <summary>Creates an onboarding-required response.</summary>
+    public static CurrentUserResponse OnboardingRequired(ExternalIdentityResponse identity) => new(CurrentUserStatus.OnboardingRequired, null, identity);
+
+    /// <summary>Creates a ready response.</summary>
+    public static CurrentUserResponse Ready(GetMeUserResponse user, ExternalIdentityResponse identity) => new(CurrentUserStatus.Ready, user, identity);
+}
+
+/// <summary>
+/// Represents the persisted Kijk user data for a ready account.
+/// </summary>
+public record GetMeUserResponse(
+    Guid Id,
+    string? AuthId,
+    string? Name,
+    string? Email,
+    AnalyticsConsent? AnalyticsConsent,
+    DateTime? AnalyticsConsentUpdatedAt,
+    DateTime? OnboardingCompletedAt,
+    bool AiEnabled,
+    DateTime? SensitiveDataConsentAt,
+    IEnumerable<UserSpaceResponse>? Spaces,
+    IEnumerable<UserResourceResponse>? Resources)
+{
+    /// <summary>
+    /// Gets whether the user has completed onboarding.
+    /// </summary>
+    public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
+
+    /// <summary>
+    /// Gets whether Kijk may use the external full name and profile image.
+    /// </summary>
+    public bool? UseExternalProfile { get; init; }
+
+    /// <summary>
+    /// Gets identity data supplied by the authentication provider.
+    /// </summary>
+    public ExternalIdentityResponse? ExternalIdentity { get; init; }
+}
+
+/// <summary>
+/// Identity data owned by the authentication provider and exposed according to the user's preference.
+/// </summary>
+/// <param name="FullName">The full name, or null when its use is disabled.</param>
+/// <param name="Email">The primary sign-in email address.</param>
+/// <param name="ImageUrl">The profile image URL, or null when its use is disabled.</param>
+public record ExternalIdentityResponse(string? FullName, string? Email, string? ImageUrl);
+
+/// <summary>A space membership of the current user.</summary>
+/// <param name="Id">The space id.</param>
+/// <param name="Name">The space name.</param>
+/// <param name="Description">An optional description.</param>
+/// <param name="Role">The user's role in the space.</param>
+/// <param name="IsDefault">Whether the user chose this space as the one the app opens first.</param>
+/// <param name="IsPersonal">Whether this is the user's personal space, which is never shared.</param>
+public record UserSpaceResponse(Guid Id, string Name, string? Description, UserSpaceRoleResponse Role, bool IsDefault, bool IsPersonal);
+
+/// <summary>The user's role in a space.</summary>
+/// <param name="Id">The role id.</param>
+/// <param name="Name">The role name.</param>
+/// <param name="Permissions">The permissions the role grants.</param>
+public record UserSpaceRoleResponse(Guid Id, string Name, IList<string> Permissions);
+
+/// <summary>A resource the user has enabled.</summary>
+/// <param name="Id">The resource id.</param>
+/// <param name="Name">The resource name.</param>
+/// <param name="Unit">The unit symbol.</param>
+/// <param name="Color">The display color.</param>
+/// <param name="CreatorType">Whether it is a system or a custom resource.</param>
+public record UserResourceResponse(Guid Id, string Name, string Unit, string Color, CreatorType CreatorType);

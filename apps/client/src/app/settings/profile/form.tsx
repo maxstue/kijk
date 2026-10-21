@@ -1,17 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as usersOptions from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { ConnectedSignInMethods } from '@/app/settings/profile/providers';
 import type { UserUpdateFormValues } from '@/app/settings/profile/schemas';
 import { userUpdateSchema } from '@/app/settings/profile/schemas';
-import { useUpdateUser } from '@/app/settings/profile/use-update-user';
-import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import {
   Form,
@@ -23,20 +21,19 @@ import {
   FormMessage,
 } from '@/shared/components/form';
 
-/** Form for the display name, active household name, default resources and profile usage. */
-export function ProfileForm() {
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const currentUser = currentAccount?.user;
-  const activeHousehold = currentUser?.households?.find((household) => household.isActive);
-  const externalIdentity = currentUser?.externalIdentity;
-  const canRenameHousehold = hasHouseholdPermission(activeHousehold, HouseholdPermissions.household.configure);
+import { DefaultSpaceSelect } from './default-space-select';
 
-  const { mutate } = useUpdateUser();
+/** Form for the display name, default space, default resources and profile usage. */
+export function ProfileForm() {
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
+  const currentUser = currentAccount?.user;
+  const externalIdentity = currentUser?.externalIdentity;
+
+  const { mutate } = useMutation(usersOptions.updateMutationOptions());
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
-      householdName: activeHousehold?.name ?? '',
       useDefaultResources: currentUser?.resources?.some((resource) => resource.creatorType === 'System') ?? false,
       useExternalProfile: currentUser?.useExternalProfile ?? false,
       userName: currentUser?.name ?? '',
@@ -95,24 +92,7 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name='householdName'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Household name</FormLabel>
-              <FormControl>
-                <Input disabled={!canRenameHousehold} placeholder='My household' {...field} />
-              </FormControl>
-              <FormDescription>
-                {canRenameHousehold
-                  ? 'The name of your active household.'
-                  : 'Your household role does not allow renaming the household.'}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <DefaultSpaceSelect spaces={currentUser?.spaces ?? []} />
         <div className='flex w-full items-center'>
           <FormField
             control={form.control}

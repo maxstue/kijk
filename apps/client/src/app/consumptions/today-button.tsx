@@ -3,7 +3,7 @@ import { getRouteApi } from '@tanstack/react-router';
 
 import { getMonthFromDate } from '@/shared/utils/months';
 
-const Route = getRouteApi('/_authenticated/_app/consumptions');
+const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 /** Sets the selected year and month to today. */
 export function ConsumptionTodayButton() {

@@ -20,7 +20,7 @@ test('shows the terms of service', async ({ page }) => {
 
 test('redirects an unauthenticated user from a protected route', async ({ page }) => {
   await setupClerkTestingToken({ page });
-  await page.goto('/home');
+  await page.goto('/11111111-1111-4111-8111-111111111111');
 
   await expect(page).toHaveURL(/\/auth\?from=/);
   await expect(page.getByText('Welcome back', { exact: true })).toBeVisible();

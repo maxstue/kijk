@@ -12,6 +12,7 @@ COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
 COPY ["src/Domain/Domain.csproj", "src/Domain/"]
 COPY ["src/Shared/Shared.csproj", "src/Shared/"]
 COPY ["src/Application/Application.csproj", "src/Application/"]
+COPY ["src/Api.SourceGenerators/Api.SourceGenerators.csproj", "src/Api.SourceGenerators/"]
 COPY ["./.editorconfig", "./"]
 COPY ["./Directory.Build.props", "./"]
 COPY ["./Directory.Build.Release.props", "./"]
@@ -22,6 +23,7 @@ COPY ["src/Application/", "src/Application/"]
 COPY ["src/Domain/", "src/Domain/"]
 COPY ["src/Infrastructure/", "src/Infrastructure/"]
 COPY ["src/Shared/", "src/Shared/"]
+COPY ["src/Api.SourceGenerators/", "src/Api.SourceGenerators/"]
 WORKDIR "/src/src/Api"
 
 FROM build AS publish

@@ -7,7 +7,7 @@ namespace Kijk.Application.Users.Shared;
 /// <summary>
 /// Maps user entities to API responses.
 /// </summary>
-[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+[Mapper]
 public static partial class UserResponseMapper
 {
     /// <summary>

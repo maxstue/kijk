@@ -12,6 +12,7 @@ setup('configure Clerk testing', async () => {
 });
 
 setup('authenticate the E2E user', async ({ page }) => {
+  setup.setTimeout(60_000);
   const emailAddress = process.env.E2E_CLERK_USER_EMAIL;
   if (!emailAddress) {
     throw new Error('E2E_CLERK_USER_EMAIL must contain the email address of a Clerk test user.');
@@ -19,9 +20,9 @@ setup('authenticate the E2E user', async ({ page }) => {
 
   await page.goto('/privacy');
   await clerk.signIn({ emailAddress, page });
-  await page.goto('/home');
+  await page.goto('/');
 
-  await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible({ timeout: 15_000 });
   await mkdir('playwright/.clerk', { recursive: true });
   await page.context().storageState({ path: authFile });
 });

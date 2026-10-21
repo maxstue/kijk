@@ -7,6 +7,7 @@
         <LangVersion>preview</LangVersion>
         <ImplicitUsings>true</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     </PropertyGroup>
@@ -23,10 +24,9 @@
         <NoWarn>$(NoWarn);NU1103,AD0001</NoWarn>
     </PropertyGroup>
 
-    <!-- Every public member of the production projects must be documented (CS1591); tests are exempt. -->
+    <!-- Keep XML output for OpenAPI; .editorconfig requires documentation only in API contract files. -->
     <PropertyGroup Condition="'$(IsTestProject)' != 'true' And !$(MSBuildProjectName.EndsWith('Tests'))">
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
     </PropertyGroup>
     <PropertyGroup Condition="'$(IsTestProject)' == 'true' Or $(MSBuildProjectName.EndsWith('Tests'))">
         <NoWarn>$(NoWarn);CS1591</NoWarn>

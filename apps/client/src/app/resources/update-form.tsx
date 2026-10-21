@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -12,8 +14,8 @@ import {
 } from '@/app/resources/form-fields';
 import type { ResourceFormValues } from '@/app/resources/schemas';
 import { resourceSchema } from '@/app/resources/schemas';
-import { useUpdateResource } from '@/app/resources/use-update-resource';
 import { Form, FormField } from '@/shared/components/form';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Resource } from '@/shared/types/domain';
 
 interface Props {
@@ -25,7 +27,8 @@ const handleSubmitError = () => toast.error('Resource could not be updated');
 
 /** Form to edit a custom resource, prefilled with `initialData`. */
 export function ResourceTypeUpdateForm({ initialData, onClose }: Props) {
-  const { isPending, mutate } = useUpdateResource();
+  const spaceId = useSpaceId();
+  const { isPending, mutate } = useMutation(resourcesOptions.updateMutationOptions(spaceId));
 
   const form = useForm({
     defaultValues: {

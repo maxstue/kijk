@@ -1,4 +1,6 @@
-import { Button } from '@kijk/ui/components/button';
+import * as resourcesOptions from '@kijk/api/resources/options';
+import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
+import * as usersOptions from '@kijk/api/users/options';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -8,54 +10,46 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
-import { Separator } from '@kijk/ui/components/separator';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useState } from 'react';
 
 import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/columns';
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
-import { HouseholdPermissions, hasHouseholdPermission } from '@/shared/api/households/permissions';
-import { resourcesQueryOptions } from '@/shared/api/resources/options';
-import { currentUserQueryOptions } from '@/shared/api/users/options';
 import { DataTable } from '@/shared/components/data-table';
+import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { CreatorTypes } from '@/shared/types/domain';
 import type { Resource } from '@/shared/types/domain';
 
 /** Resources page: statistics, the resource table and the create dialog. */
 export function ResourceTypesSection() {
+  const spaceId = useSpaceId();
   const [showDialog, setShowDialog] = useState(false);
-  const { data } = useSuspenseQuery(resourcesQueryOptions());
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const activeHousehold = currentAccount?.user?.households?.find((household) => household.isActive);
-  const canManage = hasHouseholdPermission(activeHousehold, HouseholdPermissions.resources.configure);
+  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
+  const activeSpace = currentAccount?.user?.spaces?.find((space) => space.id === spaceId);
+  const canManage = hasSpacePermission(activeSpace, SpacePermissions.resources.configure);
   const columns = getResourceTypeColumns(canManage);
 
   const handleClose = () => setShowDialog(false);
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h3 className='text-lg font-medium'>Resource types</h3>
-        <p className='text-muted-foreground text-sm'>Manage your Resource types. Create, update or delete them.</p>
-      </div>
-      <Separator />
-      <div className='grid gap-4 lg:grid-cols-2'>
-        <ResourceTypeStatistics resources={data} />
-      </div>
-      <div className='w-full'>
-        <div className='flex justify-end'>
+      <PageToolbar
+        actions={
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
-            <DialogTrigger asChild>
-              <Button
-                disabled={!canManage}
-                title={canManage ? undefined : 'Your household role does not allow managing resources'}
-                variant='outline'
-              >
-                Create
-              </Button>
+            <DialogTrigger
+              render={
+                <PageAddButton
+                  disabled={!canManage}
+                  title={canManage ? undefined : 'Your role in this space does not allow managing resources'}
+                />
+              }
+            >
+              Add resource
             </DialogTrigger>
-            <DialogContent className='sm:max-w-lg'>
+            <DialogContent>
               <div className='max-h-[calc(100vh-5rem)] space-y-6 overflow-y-auto'>
                 <DialogHeader>
                   <DialogTitle>Create Resource</DialogTitle>
@@ -65,7 +59,10 @@ export function ResourceTypesSection() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
+        }
+      />
+      <div className='grid gap-4 lg:grid-cols-2'>
+        <ResourceTypeStatistics resources={data} />
       </div>
       <div className='w-full'>
         <Card className='min-w-32'>

@@ -4,6 +4,7 @@
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./src/*"],
+      "@kijk/api/*": ["../../packages/api/src/*"],
       "@kijk/ui/*": ["../../packages/ui/src/*"],
       "@kijk/core/*": ["../../packages/core/src/*"],
       "@kijk/config/*": ["../../packages/config/src/*"]

@@ -2,9 +2,9 @@
   "name": "@kijk/core",
   "version": "0.0.1",
   "private": true,
+  "license": "SEE LICENSE IN ../../LICENSE",
   "type": "module",
   "exports": {
-    "./utils/*": "./src/utils/*.ts",
     "./lib/*": "./src/lib/*.ts",
     "./hooks/*": "./src/hooks/*.ts",
     "./stores/*": "./src/stores/*.ts"
@@ -14,12 +14,12 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt --check",
-    "fmt:fix": "oxfmt"
+    "fmt:fix": "oxfmt",
+    "test": "vp test run",
+    "test:coverage": "vp test run --coverage"
   },
   "dependencies": {
-    "immer": "catalog:",
     "react": "catalog:",
-    "sonner": "catalog:",
     "zod": "catalog:",
     "zustand": "catalog:"
   },
@@ -32,6 +32,8 @@
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "@vitest/coverage-v8": "catalog:"
   }
 }

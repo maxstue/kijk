@@ -1,3 +1,4 @@
+import * as usersOptions from '@kijk/api/users/options';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -8,26 +9,25 @@ import {
 } from '@kijk/ui/components/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ArrowLeftIcon, HouseIcon } from 'lucide-react';
+import { ArrowLeftIcon, LockIcon, UsersIcon } from 'lucide-react';
 
-import { currentUserQueryOptions } from '@/shared/api/users/options';
+import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 import { settingsNavGroups } from '@/shared/navigation/settings';
 
-/** Sidebar navigation of the settings pages, including one entry per household. */
+/** Sidebar navigation of the settings pages, including one entry per space. */
 export function SettingsNav() {
-  const { data: currentAccount } = useQuery(currentUserQueryOptions());
-  const households = currentAccount?.user?.households ?? [];
+  const spaceId = useNavigationSpaceId();
+  const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
+  const spaces = currentAccount?.user?.spaces ?? [];
   return (
     <>
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link to='/home'>
-                  <ArrowLeftIcon />
-                  <span>Back to app</span>
-                </Link>
+              <SidebarMenuButton render={spaceId ? <Link to='/$spaceId' params={{ spaceId }} /> : <Link to='/' />}>
+                <ArrowLeftIcon />
+                <span>Back to app</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -36,21 +36,23 @@ export function SettingsNav() {
 
       {settingsNavGroups.map((group) => (
         <SidebarGroup key={group.label}>
-          <SidebarGroupLabel>{group.label === 'Household' ? 'Households' : group.label}</SidebarGroupLabel>
+          <SidebarGroupLabel>{group.label === 'Space' ? 'Spaces' : group.label}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {group.label === 'Household'
-                ? households.map((household) => (
-                    <SidebarMenuItem key={household.id}>
-                      <SidebarMenuButton asChild>
-                        <Link
-                          activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' }}
-                          params={{ householdId: household.id }}
-                          to='/settings/households/$householdId'
-                        >
-                          <HouseIcon />
-                          <span>{household.name}</span>
-                        </Link>
+              {group.label === 'Space'
+                ? spaces.map((space) => (
+                    <SidebarMenuItem key={space.id}>
+                      <SidebarMenuButton
+                        render={
+                          <Link
+                            activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' }}
+                            params={{ spaceId: space.id }}
+                            to='/settings/spaces/$spaceId'
+                          />
+                        }
+                      >
+                        {space.isPersonal ? <LockIcon /> : <UsersIcon />}
+                        <span>{space.name}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))
@@ -59,16 +61,20 @@ export function SettingsNav() {
 
                     return (
                       <SidebarMenuItem key={item.to}>
-                        <SidebarMenuButton asChild>
-                          <Link
-                            activeOptions={{ exact: true }}
-                            activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' }}
-                            params={{ section: item.to }}
-                            to='/settings/$section'
-                          >
-                            <Icon />
-                            <span>{item.label}</span>
-                          </Link>
+                        <SidebarMenuButton
+                          render={
+                            <Link
+                              activeOptions={{ exact: true }}
+                              activeProps={{
+                                className: 'bg-sidebar-accent text-sidebar-accent-foreground font-medium',
+                              }}
+                              params={{ section: item.to }}
+                              to='/settings/$section'
+                            />
+                          }
+                        >
+                          <Icon />
+                          <span>{item.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     );

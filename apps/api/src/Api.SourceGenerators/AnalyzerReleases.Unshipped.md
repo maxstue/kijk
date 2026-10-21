@@ -6,3 +6,4 @@ KIJKSG001 | Kijk.Api.SourceGenerators | Error | Endpoint groups must have an acc
 KIJKSG002 | Kijk.Api.SourceGenerators | Error | Endpoint groups cannot be generic.
 KIJKSG003 | Kijk.Api.SourceGenerators | Error | Application modules must have a public parameterless constructor.
 KIJKSG004 | Kijk.Api.SourceGenerators | Error | Application registration types cannot be generic.
+KIJKSG005 | Kijk.Api.SourceGenerators | Error | Request types cannot have more than one validator.

@@ -16,7 +16,7 @@ public class PermissionConfig : IEntityTypeConfiguration<Permission>
 
         builder.Property(x => x.Name).HasMaxLength(100);
 
-        builder.HasData(HouseholdPermissions.All.Select(permission => new
+        builder.HasData(SpacePermissions.All.Select(permission => new
         {
             permission.Id,
             permission.Name,

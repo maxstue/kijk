@@ -36,7 +36,7 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+    <DialogContent>
       <DialogHeader>
         <DialogTitle className='flex items-center gap-1'>
           Give us Feedback <LucideHeart className='h-4 text-red-500' />

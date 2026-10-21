@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using NetEscapades.EnumGenerators;
-
-namespace Kijk.Shared;
+﻿namespace Kijk.Shared;
 
 /// <summary>
 /// Error types.
 /// </summary>
-[EnumExtensions]
 public enum ErrorType
 {
     /// <summary>The request is invalid (HTTP 400).</summary>
@@ -97,16 +93,4 @@ public readonly record struct Error
     /// <param name="code">The unique error code.</param>
     /// <param name="description">The error description.</param>
     public static Error Custom(ErrorType type, string code, string description) => new(code, description, type);
-
-
-    /// <summary>Creates an <see cref="Error" /> for an HTTP status code produced outside of a handler.</summary>
-    /// <param name="statusCode">The HTTP status code.</param>
-    /// <returns>An authentication or authorization error for 401/403, otherwise an unexpected error.</returns>
-    public static Error FromStatusCode(int statusCode) =>
-        statusCode switch
-        {
-            StatusCodes.Status401Unauthorized => Custom(ErrorType.Authentication, ErrorCodes.AuthenticationError, "You are not authenticated"),
-            StatusCodes.Status403Forbidden => Custom(ErrorType.Authorization, ErrorCodes.AuthorizationError, "You are not authorized"),
-            _ => Unexpected(description: "Unexpected error")
-        };
 }

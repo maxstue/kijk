@@ -14,7 +14,7 @@ public static class ResourceQueryExtensions
     {
         /// <summary>
         /// Returns resources available to the current user: enabled system resources and custom resources owned by the
-        /// active household.
+        /// active space.
         /// </summary>
         /// <param name="currentUser">The current authenticated user.</param>
         /// <returns>A query containing the resources available to the current user.</returns>
@@ -27,7 +27,7 @@ public static class ResourceQueryExtensions
                 .Select(resource => resource.Id);
 
             return dbContext.Resources.Where(resource =>
-                resource.HouseholdId == currentUser.ActiveHouseholdId
+                resource.SpaceId == currentUser.ActiveSpaceId
                 || resource.CreatorType == CreatorType.System && enabledSystemResourceIds.Contains(resource.Id));
         }
     }

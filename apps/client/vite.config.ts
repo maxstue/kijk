@@ -12,12 +12,26 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: env.SENTRY_ENABLE === 'true',
     },
+    optimizeDeps: {
+      include: [
+        '@tanstack/charts',
+        '@tanstack/charts/react',
+        '@tanstack/charts/scales/band',
+        '@tanstack/charts/scales/linear',
+        '@tanstack/charts/tooltip',
+        'd3-shape',
+      ],
+    },
     plugins: lazyPlugins(() => [
       // ViteDevTools({ builtinDevTools: false }),
       tanstackDevtools({
         removeDevtoolsOnBuild: true,
       }),
-      tanstackRouter({ autoCodeSplitting: true, target: 'react' }),
+      tanstackRouter({
+        autoCodeSplitting: true,
+        routeFileIgnorePattern: String.raw`\.(test|spec)\.[cm]?[jt]sx?$`,
+        target: 'react',
+      }),
       react(),
       babel({ presets: [reactCompilerPreset()] }),
       tailwindcss(),

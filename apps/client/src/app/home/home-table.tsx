@@ -110,11 +110,17 @@ const columns: Array<ColumnDef<typeof features, DataFile>> = [
   {
     cell: () => (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className='data-[state=open]:bg-muted text-muted-foreground flex size-8' size='icon' variant='ghost'>
-            <EllipsisVerticalIcon />
-            <span className='sr-only'>Open menu</span>
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              className='data-popup-open:bg-muted text-muted-foreground flex size-8'
+              size='icon'
+              variant='ghost'
+            />
+          }
+        >
+          <EllipsisVerticalIcon />
+          <span className='sr-only'>Open menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-32'>
           <DropdownMenuItem>Edit</DropdownMenuItem>
@@ -165,7 +171,14 @@ export function HomeTable() {
         <Label className='sr-only' htmlFor='view-selector'>
           View
         </Label>
-        <Select defaultValue='outline'>
+        <Select
+          defaultValue='outline'
+          items={[
+            { label: 'Outline', value: 'outline' },
+            { label: 'Past Performance', value: 'past-performance' },
+            { label: 'Key Personnel', value: 'key-personnel' },
+          ]}
+        >
           <SelectTrigger className='flex w-fit @4xl/main:hidden' id='view-selector' size='sm'>
             <SelectValue placeholder='Select a view' />
           </SelectTrigger>
@@ -183,13 +196,11 @@ export function HomeTable() {
         </TabsList>
         <div className='flex items-center gap-2'>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size='sm' variant='outline'>
-                <Columns3Icon />
-                <span className='hidden lg:inline'>Customize Columns</span>
-                <span className='lg:hidden'>Columns</span>
-                <ChevronDownIcon />
-              </Button>
+            <DropdownMenuTrigger render={<Button size='sm' variant='outline' />}>
+              <Columns3Icon />
+              <span className='hidden lg:inline'>Customize Columns</span>
+              <span className='lg:hidden'>Columns</span>
+              <ChevronDownIcon />
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='w-56'>
               {table

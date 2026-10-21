@@ -1,13 +1,16 @@
 ﻿using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Kijk.Infrastructure.Persistence;
 
 /// <summary>The EF Core database context of Kijk (PostgreSQL).</summary>
-public class AppDbContext : DbContext, IAppDbContext
+public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
 {
+    internal const string CaseInsensitiveCollation = "case_insensitive";
+
     /// <summary>Creates a context for tooling such as the EF migration bundle.</summary>
     public AppDbContext()
     {
@@ -20,21 +23,42 @@ public class AppDbContext : DbContext, IAppDbContext
     }
 
     /// <inheritdoc />
-    public DbSet<Household> Households { get; set; }
+    public DbSet<Space> Spaces { get; set; }
     /// <inheritdoc />
-    public DbSet<UserHousehold> UserHouseholds { get; set; }
+    public DbSet<UserSpace> UserSpaces { get; set; }
     /// <inheritdoc />
     public DbSet<Consumption> Consumptions { get; set; }
     /// <inheritdoc />
-    public DbSet<ConsumptionLimit> ConsumptionsLimits { get; set; }
+    public DbSet<Limit> Limits { get; set; }
     /// <inheritdoc />
     public DbSet<Resource> Resources { get; set; }
     /// <inheritdoc />
     public DbSet<Unit> Units { get; set; }
     /// <inheritdoc />
-    public DbSet<UnitHousehold> UnitHouseholds { get; set; }
+    public DbSet<UnitSpace> UnitSpaces { get; set; }
     /// <inheritdoc />
     public DbSet<User> Users { get; set; }
+    /// <inheritdoc />
+    public DbSet<Category> Categories { get; set; }
+    /// <inheritdoc />
+    public DbSet<Budget> Budgets { get; set; }
+    /// <inheritdoc />
+    public DbSet<Account> Accounts { get; set; }
+    /// <inheritdoc />
+    public DbSet<Transaction> Transactions { get; set; }
+    /// <inheritdoc />
+    public DbSet<CategoryRule> CategoryRules { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportJob> ImportJobs { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportFile> ImportFiles { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportCandidate> ImportCandidates { get; set; }
+    /// <inheritdoc />
+    public DbSet<ImportProfile> ImportProfiles { get; set; }
+
+    /// <inheritdoc />
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     /// <inheritdoc />
     public DbSet<Role> Roles { get; set; }
@@ -56,6 +80,7 @@ public class AppDbContext : DbContext, IAppDbContext
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasCollation(CaseInsensitiveCollation, locale: "und-u-ks-level2", provider: "icu", deterministic: false);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

@@ -8,8 +8,8 @@ import { Suspense } from 'react';
 import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
 import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
 import { ConsumptionExportButton } from '@/app/consumptions/export-button';
-import { ConsumptionLimitWarning } from '@/app/consumptions/limit-warning';
-import ConsumptionStats from '@/app/consumptions/stats';
+import { LimitWarning } from '@/app/consumptions/limit-warning';
+import ConsumptionStats from '@/app/consumptions/statistics';
 import { ResourceUnit } from '@/shared/components/resources-unit';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/domain';
@@ -54,7 +54,7 @@ export function ConsumptionMonthView({ consumptions, month, year }: Props) {
                   <div className='space-y-2'>
                     <CardTitle className='flex items-center gap-2'>
                       {item.name}
-                      <ConsumptionLimitWarning resourceId={item.resource.id} />
+                      <LimitWarning resourceId={item.resource.id} />
                     </CardTitle>
                     <div className='flex items-center gap-2'>
                       {item.startsNewMeterSegment ? (
@@ -67,13 +67,15 @@ export function ConsumptionMonthView({ consumptions, month, year }: Props) {
                         {item.valueType === ValueTypes.ABSOLUTE ? 'Meter reading' : 'Direct consumption entry'}
                       </Badge>
                       <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type='button'
-                            aria-label={`Explain ${item.valueType === ValueTypes.ABSOLUTE ? 'meter reading' : 'direct consumption entry'}`}
-                          >
-                            <InfoIcon className='text-muted-foreground size-4' />
-                          </button>
+                        <TooltipTrigger
+                          render={
+                            <button
+                              type='button'
+                              aria-label={`Explain ${item.valueType === ValueTypes.ABSOLUTE ? 'meter reading' : 'direct consumption entry'}`}
+                            />
+                          }
+                        >
+                          <InfoIcon className='text-muted-foreground size-4' />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className='max-w-72 text-sm'>

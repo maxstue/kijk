@@ -8,4 +8,4 @@ public sealed record CreateUnitRequest(
     string Symbol,
     Guid ReferenceUnitId,
     decimal ConversionFactor,
-    IReadOnlyList<Guid>? ShareWithHouseholdIds);
+    IReadOnlyList<Guid>? ShareWithSpaceIds);

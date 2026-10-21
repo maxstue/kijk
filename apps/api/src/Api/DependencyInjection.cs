@@ -3,10 +3,7 @@ using Humanizer;
 using Kijk.Api.Extensions;
 using Kijk.Api.Extensions.OpenApi;
 using Kijk.Api.Middleware;
-using Kijk.Infrastructure.Auth;
 using Kijk.Shared;
-using Kijk.Shared.Exceptions;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 
 namespace Kijk.Api;
@@ -16,25 +13,23 @@ public static class DependencyInjection
 {
     /// <summary>Registers problem details, JSON options, validation, compression, middlewares, rate limiting and OpenAPI.</summary>
     /// <param name="services">The service collection.</param>
-    /// <param name="configuration">The application configuration.</param>
     /// <returns>The service collection.</returns>
-    public static IServiceCollection AddApi(this IServiceCollection services, IConfiguration configuration) =>
+    public static IServiceCollection AddApi(this IServiceCollection services) =>
         services
             .AddProblemDetail()
-            .AddControllerOptions()
+            .AddJsonOptions()
             .AddValidation()
             .AddCompression()
             .AddMiddlewares()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddHttpClient()
             .AddRateLimitPolicy()
-            .AddOpenApiInternal(configuration);
+            .AddOpenApiInternal();
 
     private static IServiceCollection AddMiddlewares(this IServiceCollection services)
     {
-        services.AddTransient<ExtendRequestLoggingMiddleware>();
+        services.AddTransient<CorrelationIdMiddleware>();
         services.AddTransient<CurrentUserMiddleware>();
-        services.AddTransient<TelemetryMiddleware>();
         return services;
     }
 
@@ -43,9 +38,7 @@ public static class DependencyInjection
         {
             context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
             context.ProblemDetails.Extensions.TryAdd("timestamp", DateTime.UtcNow);
-
-            var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
-            context.ProblemDetails.Extensions.TryAdd("correlationId", activity?.Id ?? context.HttpContext.TraceIdentifier);
+            context.ProblemDetails.Extensions.TryAdd("correlationId", CorrelationIdMiddleware.Get(context.HttpContext));
 
             context.ProblemDetails.Extensions["errorType"] = GetErrorType(context);
         });
@@ -60,14 +53,8 @@ public static class DependencyInjection
             _ => context.ProblemDetails.Extensions.TryGetValue("errorType", out var errorType) ? errorType : ErrorType.Unexpected
         };
 
-    private static IServiceCollection AddOpenApiInternal(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddOpenApiInternal(this IServiceCollection services)
     {
-        var appSettings = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
-        if (appSettings is null)
-        {
-            throw new NullException($"No AuthSettings found, {appSettings}");
-        }
-
         services.AddOpenApi("openapi", opt =>
         {
             opt.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
@@ -77,6 +64,7 @@ public static class DependencyInjection
             opt.AddDocumentTransformer<ComponentResponseTransformer>();
 
             opt.AddOperationTransformer<OperationResponseTransformer>();
+            opt.AddOperationTransformer<SpaceRouteParameterTransformer>();
         });
         return services;
     }
@@ -99,10 +87,9 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddControllerOptions(this IServiceCollection services)
+    private static IServiceCollection AddJsonOptions(this IServiceCollection services)
     {
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-        services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         return services;
     }
 }

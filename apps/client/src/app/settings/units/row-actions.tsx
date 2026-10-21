@@ -1,88 +1,74 @@
+import * as unitsOptions from '@kijk/api/units/options';
+import type { Unit } from '@kijk/api/units/types';
 import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@kijk/ui/components/dropdown-menu';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-import { queryKeys } from '@/shared/api/query-keys';
-import {
-  archiveUnitMutationOptions,
-  shareUnitMutationOptions,
-  unshareUnitMutationOptions,
-} from '@/shared/api/units/options';
-import type { Unit } from '@/shared/api/units/types';
 
 import { UnitDeleteContent } from './delete-content';
 import { UnitUpdateForm } from './update-form';
 
 interface Props {
-  householdId?: string;
-  /** Households in which the user's role allows sharing units. */
-  shareableHouseholds: Array<{ id: string; name: string }>;
-  scope: 'household' | 'personal';
-  systemUnits: Unit[];
+  spaceId?: string;
+  /** Spaces in which the user's role allows sharing units. */
+  shareableSpaces: Array<{ id: string; name: string }>;
+  scope: 'space' | 'personal';
   unit: Unit;
 }
 
-/** Row menu of the unit table: edit, share, archive or restore, remove from household and delete. */
-export function UnitRowActions({ householdId, scope, shareableHouseholds, systemUnits, unit }: Props) {
+/** Row menu of the unit table: edit, share, archive or restore, remove from space and delete. */
+export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const queryClient = useQueryClient();
-  const archiveMutation = useMutation(archiveUnitMutationOptions());
-  const shareMutation = useMutation(shareUnitMutationOptions());
-  const unshareMutation = useMutation(unshareUnitMutationOptions());
-  const canDelete = Number(unit.resourceCount) === 0 && unit.householdIds.length === 0;
-  const canUnshare =
-    scope === 'household' && unit.isOwner && shareableHouseholds.some((household) => household.id === householdId);
+  const restoreMutation = useMutation(unitsOptions.restoreMutationOptions());
+  const shareMutation = useMutation(unitsOptions.shareWithSpaceMutationOptions());
+  const unshareMutation = useMutation(unitsOptions.removeFromSpaceMutationOptions());
+  const canDelete = Number(unit.resourceCount) === 0 && unit.spaceIds.length === 0;
+  const canUnshare = scope === 'space' && unit.isOwner && shareableSpaces.some((space) => space.id === spaceId);
 
   function restore() {
-    archiveMutation.mutate(
-      { id: unit.id, restore: true },
-      {
-        onError: (error) => toast.error(error.message),
-        onSuccess: () => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
-          toast.success('Unit restored');
-        },
+    restoreMutation.mutate(unit.id, {
+      onError: (error) => toast.error(error.message),
+      onSuccess: () => {
+        toast.success('Unit restored');
       },
-    );
+    });
   }
 
-  function share(targetHouseholdId: string) {
+  function share(targetSpaceId: string) {
     shareMutation.mutate(
-      { householdId: targetHouseholdId, id: unit.id },
+      { spaceId: targetSpaceId, id: unit.id },
       {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
-          toast.success('Unit shared with household');
+          toast.success('Unit shared with space');
         },
       },
     );
   }
 
   function unshare() {
-    if (!householdId) {
+    if (!spaceId) {
       return;
     }
     unshareMutation.mutate(
-      { householdId, id: unit.id },
+      { spaceId, id: unit.id },
       {
         onError: (error) => toast.error(error.message),
         onSuccess: () => {
-          void queryClient.invalidateQueries({ queryKey: queryKeys.units.all });
-          toast.success('Unit removed from household');
+          toast.success('Unit removed from space');
         },
       },
     );
@@ -97,57 +83,50 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
           </Button>
         )}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className='h-8 w-8 p-0' variant='ghost'>
-              <span className='sr-only'>Open menu</span>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
+          <DropdownMenuTrigger render={<Button className='h-8 w-8 p-0' variant='ghost' />}>
+            <span className='sr-only'>Open menu</span>
+            <MoreHorizontal className='h-4 w-4' />
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                void navigator.clipboard.writeText(unit.name);
-                toast(`Successfully copied: ${unit.name}`);
-              }}
-            >
-              Copy Name
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled={!unit.isOwner} onSelect={() => setShowUpdateDialog(true)}>
-              {unit.conversionType === 'None' ? 'Convert legacy unit' : 'Update'}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {scope === 'personal' &&
-              unit.isOwner &&
-              !unit.isArchived &&
-              shareableHouseholds
-                .filter((household) => !unit.householdIds.includes(household.id))
-                .map((household) => (
-                  <DropdownMenuItem
-                    key={household.id}
-                    disabled={shareMutation.isPending}
-                    onSelect={() => share(household.id)}
-                  >
-                    Share with {household.name}
-                  </DropdownMenuItem>
-                ))}
-            {unit.isArchived && unit.isOwner && (
-              <DropdownMenuItem disabled={archiveMutation.isPending} onSelect={restore}>
-                Restore
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  void navigator.clipboard.writeText(unit.name);
+                  toast(`Successfully copied: ${unit.name}`);
+                }}
+              >
+                Copy Name
               </DropdownMenuItem>
-            )}
-            {scope === 'household' && (
-              <DropdownMenuItem disabled={!canUnshare || unshareMutation.isPending} onSelect={unshare}>
-                Remove from household
+              <DropdownMenuItem disabled={!unit.isOwner} onClick={() => setShowUpdateDialog(true)}>
+                {unit.conversionType === 'None' ? 'Convert legacy unit' : 'Update'}
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
-              disabled={!unit.isOwner || !canDelete}
-              variant='destructive'
-              onSelect={() => setShowDeleteDialog(true)}
-            >
-              Delete
-            </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <UnitSharingActions
+                unit={unit}
+                scope={scope}
+                shareableSpaces={shareableSpaces}
+                isPending={shareMutation.isPending}
+                onShare={share}
+              />
+              {unit.isArchived && unit.isOwner && (
+                <DropdownMenuItem disabled={restoreMutation.isPending} onClick={restore}>
+                  Restore
+                </DropdownMenuItem>
+              )}
+              {scope === 'space' && (
+                <DropdownMenuItem disabled={!canUnshare || unshareMutation.isPending} onClick={unshare}>
+                  Remove from space
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                disabled={!unit.isOwner || !canDelete}
+                variant='destructive'
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -157,9 +136,7 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
             <DialogTitle>Update Unit</DialogTitle>
             <DialogDescription>Update the unit and its conversion definition.</DialogDescription>
           </DialogHeader>
-          {showUpdateDialog && (
-            <UnitUpdateForm systemUnits={systemUnits} unit={unit} onClose={() => setShowUpdateDialog(false)} />
-          )}
+          {showUpdateDialog && <UnitUpdateForm unit={unit} onClose={() => setShowUpdateDialog(false)} />}
         </DialogContent>
       </Dialog>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -167,4 +144,24 @@ export function UnitRowActions({ householdId, scope, shareableHouseholds, system
       </AlertDialog>
     </>
   );
+}
+
+function UnitSharingActions({
+  scope,
+  shareableSpaces,
+  unit,
+  isPending,
+  onShare,
+}: Omit<Props, 'spaceId'> & { isPending: boolean; onShare: (spaceId: string) => void }) {
+  if (scope !== 'personal' || !unit.isOwner || unit.isArchived) {
+    return null;
+  }
+  const sharedSpaceIds = new Set(unit.spaceIds);
+  return shareableSpaces
+    .filter((space) => !sharedSpaceIds.has(space.id))
+    .map((space) => (
+      <DropdownMenuItem key={space.id} disabled={isPending} onClick={() => onShare(space.id)}>
+        Share with {space.name}
+      </DropdownMenuItem>
+    ));
 }

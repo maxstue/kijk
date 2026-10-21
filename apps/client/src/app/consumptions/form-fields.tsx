@@ -1,3 +1,4 @@
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
@@ -9,12 +10,17 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 
 import type { ConsumptionCreateFormSchema, ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
-import { resourcesQueryOptions } from '@/shared/api/resources/options';
 import { DatePicker } from '@/shared/components/date-picker';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { ResourceUnit } from '@/shared/components/resources-unit';
+import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
+
+const valueTypeItems = [
+  { label: 'Meter reading', value: ValueTypes.ABSOLUTE },
+  { label: 'Consumption since previous reading', value: ValueTypes.RELATIVE },
+];
 
 type ConsumptionFormValues = ConsumptionCreateFormSchema | ConsumptionUpdateFormSchema;
 type ConsumptionFieldPath<
@@ -34,12 +40,13 @@ interface RunningTotalProps {
 
 /** Shows the meter total the entered value results in, based on the previous reading of the resource. */
 export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTotalProps) {
+  const spaceId = useSpaceId();
   const { control } = useFormContext<ConsumptionFormValues>();
   const date = useWatch({ control, name: 'date' });
   const resourceId = useWatch({ control, name: 'resourceId' });
   const value = useWatch({ control, name: 'value' });
   const valueType = useWatch({ control, name: 'valueType' });
-  const { data: resources } = useSuspenseQuery(resourcesQueryOptions());
+  const { data: resources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const resource = resources.find((item) => item.id === resourceId);
   const entryDate = date instanceof Date ? format(date, 'yyyy-MM-dd') : '';
   const previousEntry = consumptions.find(
@@ -88,10 +95,11 @@ export function ConsumptionValueField<TFormValues extends ConsumptionFormValues>
   className,
   field,
 }: FieldProps<TFormValues, 'value'>) {
+  const spaceId = useSpaceId();
   const { control } = useFormContext<TFormValues>();
   const resourceId = useWatch<TFormValues>({ control, name: 'resourceId' as FieldPath<TFormValues> });
   const valueType = useWatch<TFormValues>({ control, name: 'valueType' as FieldPath<TFormValues> });
-  const { data } = useSuspenseQuery(resourcesQueryOptions());
+  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const resource = data.find((item) => item.id === resourceId);
 
   return (
@@ -125,10 +133,8 @@ export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormVal
       <FormLabel className='flex items-center gap-2'>
         Entry type
         <Tooltip>
-          <TooltipTrigger asChild>
-            <button type='button' aria-label='Explain entry type'>
-              <InfoIcon className='text-muted-foreground size-4' />
-            </button>
+          <TooltipTrigger render={<button type='button' aria-label='Explain entry type' />}>
+            <InfoIcon className='text-muted-foreground size-4' />
           </TooltipTrigger>
           <TooltipContent>
             <p className='max-w-64 text-sm'>
@@ -140,15 +146,22 @@ export function ConsumptionValueTypeField<TFormValues extends ConsumptionFormVal
         </Tooltip>
       </FormLabel>
 
-      <Select value={field.value} onValueChange={field.onChange}>
+      <Select<ConsumptionCreateFormSchema['valueType']>
+        items={valueTypeItems}
+        value={field.value}
+        onValueChange={field.onChange}
+      >
         <FormControl>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
         </FormControl>
         <SelectContent>
-          <SelectItem value={ValueTypes.ABSOLUTE}>Meter reading</SelectItem>
-          <SelectItem value={ValueTypes.RELATIVE}>Consumption since previous reading</SelectItem>
+          {valueTypeItems.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </FormItem>
@@ -160,12 +173,17 @@ export function ConsumptionResourceField<TFormValues extends ConsumptionFormValu
   className,
   field,
 }: FieldProps<TFormValues, 'resourceId'>) {
-  const { data } = useSuspenseQuery(resourcesQueryOptions());
+  const spaceId = useSpaceId();
+  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
 
   return (
     <FormItem className={className}>
       <FormLabel>Resource</FormLabel>
-      <Select defaultValue={field.value} onValueChange={field.onChange}>
+      <Select<string>
+        value={field.value}
+        items={data.map((item) => ({ label: `${item.name} (${item.unit})`, value: item.id }))}
+        onValueChange={field.onChange}
+      >
         <FormControl>
           <SelectTrigger>
             <SelectValue placeholder='Select an energy type' />

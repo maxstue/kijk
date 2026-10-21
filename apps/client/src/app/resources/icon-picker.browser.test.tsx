@@ -26,7 +26,7 @@ test('searches the complete Lucide catalog and selects an icon', async () => {
   expect(onChange).toHaveBeenCalledWith('zodiac-taurus');
 });
 
-test('renders the scrollable icon list inside its parent dialog', async () => {
+test('keeps the icon picker usable while its parent dialog is modal', async () => {
   const screen = await render(
     <Dialog open>
       <DialogContent>
@@ -37,8 +37,10 @@ test('renders the scrollable icon list inside its parent dialog', async () => {
   );
 
   await screen.getByRole('button', { name: /Circle/ }).click();
-  const iconList = screen.getByRole('listbox').element();
-  const dialogContent = iconList.closest<HTMLElement>('[data-slot="dialog-content"]');
-  expect(dialogContent).not.toBeNull();
-  expect(window.getComputedStyle(dialogContent!).overflowY).toBe('visible');
+  await expect.element(screen.getByRole('listbox')).toBeVisible();
+  await screen.getByPlaceholder('Search Lucide icons…').fill('zodiac-taurus');
+  await screen.getByRole('option', { name: 'Zodiac Taurus' }).click();
+  await expect.element(screen.getByRole('heading', { name: 'Choose an icon' })).toBeVisible();
+  await expect.element(screen.getByRole('listbox')).not.toBeInTheDocument();
+  await screen.getByRole('button', { name: 'Close', exact: true }).click();
 });

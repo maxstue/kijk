@@ -53,9 +53,6 @@ public readonly record struct Result<TValue>
     /// </summary>
     public static implicit operator Result<TValue>(TValue value) => new(value);
 
-    /// <summary>Creates a successful <see cref="Result{TValue}" /> from the first item of a tuple; the message is ignored.</summary>
-    public static implicit operator Result<TValue>(Tuple<TValue, string> tuple) => new(tuple.Item1);
-
     /// <summary>
     /// Creates an <see cref="Result{TValue}" /> from an error.
     /// </summary>

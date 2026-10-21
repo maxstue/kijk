@@ -1,7 +1,7 @@
 namespace Kijk.Domain.Entities;
 
 /// <summary>
-/// A household role that bundles permissions. Roles are seeded from <see cref="Authorization.HouseholdRoles"/>.
+/// A space role that bundles permissions. Roles are seeded from <see cref="Authorization.SpaceRoles"/>.
 /// </summary>
 public class Role : BaseEntity
 {
@@ -11,7 +11,7 @@ public class Role : BaseEntity
     /// <summary>Gets or sets the permissions granted by the role.</summary>
     public required ICollection<Permission> Permissions { get; set; } = [];
     /// <summary>Gets or sets the memberships that have this role.</summary>
-    public ICollection<UserHousehold>? UserHouseholds { get; set; } = [];
+    public ICollection<UserSpace>? UserSpaces { get; set; } = [];
 
     /// <summary>
     /// Determines whether the role grants the given permission.

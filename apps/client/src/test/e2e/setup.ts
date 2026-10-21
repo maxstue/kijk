@@ -1,16 +1,16 @@
+import type { ResourceData } from '@kijk/api/resources/types';
+import { SpacePermissions } from '@kijk/api/spaces/permissions';
+import type { Unit } from '@kijk/api/units/types';
+import type { CurrentUser } from '@kijk/api/users/types';
 import { HttpResponse, http } from 'msw';
 import { setupWorker } from 'msw/browser';
 
-import { HouseholdPermissions } from '@/shared/api/households/permissions';
-import type { ResourceData } from '@/shared/api/resources/types';
-import type { Unit } from '@/shared/api/units/types';
-import type { CurrentUser } from '@/shared/api/users/types';
 import type { Resource } from '@/shared/types/domain';
 
 const unitId = '00000000-0000-4000-8000-000000000002';
 
-/** The E2E user administrates its household, so it gets every household permission. */
-const adminPermissions = Object.values(HouseholdPermissions).flatMap((group) => Object.values(group));
+/** The E2E user administrates its space, so it gets every space permission. */
+const adminPermissions = Object.values(SpacePermissions).flatMap((group) => Object.values(group));
 
 const units: Unit[] = [
   {
@@ -25,14 +25,14 @@ const units: Unit[] = [
     conversionFactor: null,
     ownerUserId: null,
     isOwner: false,
-    isAvailableInActiveHousehold: true,
+    isAvailableInActiveSpace: true,
     isArchived: false,
     resourceCount: 0,
-    householdIds: [],
+    spaceIds: [],
   },
 ];
 
-const resources: Resource[] = [];
+const resources = new Map<string, Resource[]>();
 
 const currentUser = {
   status: 'Ready',
@@ -41,20 +41,31 @@ const currentUser = {
     authId: 'e2e-mock-user',
     name: 'E2E User',
     email: 'e2e@example.test',
+    aiEnabled: true,
     analyticsConsent: 'Declined',
     analyticsConsentUpdatedAt: null,
     onboardingCompletedAt: '2026-01-01T00:00:00Z',
-    households: [
+    sensitiveDataConsentAt: '2026-01-01T00:00:00Z',
+    spaces: [
       {
         id: '00000000-0000-4000-8000-000000000003',
-        name: 'E2E Household',
+        name: 'E2E Space',
         description: null,
         role: {
           id: '00000000-0000-4000-8000-000000000004',
           name: 'Admin',
           permissions: adminPermissions,
         },
-        isActive: true,
+        isDefault: true,
+        isPersonal: false,
+      },
+      {
+        id: '00000000-0000-4000-8000-000000000005',
+        name: 'Personal',
+        description: null,
+        role: { id: '00000000-0000-4000-8000-000000000004', name: 'Admin', permissions: adminPermissions },
+        isDefault: false,
+        isPersonal: true,
       },
     ],
     resources: [],
@@ -64,10 +75,29 @@ const currentUser = {
   },
 } satisfies CurrentUser;
 
+let defaultSpaceId: string | null = currentUser.user.spaces[0]!.id;
+const getCurrentUser = () => ({
+  ...currentUser,
+  user: {
+    ...currentUser.user,
+    spaces: currentUser.user.spaces.map((space) => ({ ...space, isDefault: space.id === defaultSpaceId })),
+  },
+});
+
 const worker = setupWorker(
-  http.get('*/api/users/me', () => HttpResponse.json(currentUser)),
-  http.get('*/api/resources', () => HttpResponse.json(resources)),
-  http.post('*/api/resources', async ({ request }) => {
+  http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
+  http.put('*/api/users/default-space', async ({ request }) => {
+    const { spaceId } = (await request.json()) as { spaceId: string | null };
+    if (spaceId !== null && !currentUser.user.spaces.some((space) => space.id === spaceId)) {
+      return HttpResponse.json({ title: 'Space not found' }, { status: 404 });
+    }
+    defaultSpaceId = spaceId;
+    return HttpResponse.json(getCurrentUser());
+  }),
+  http.get('*/api/spaces/:spaceId/resources', ({ params }) =>
+    HttpResponse.json(resources.get(String(params.spaceId)) ?? []),
+  ),
+  http.post('*/api/spaces/:spaceId/resources', async ({ request, params }) => {
     const data = (await request.json()) as ResourceData;
     const unit = units.find((candidate) => candidate.id === data.unitId);
     if (!unit || !data.name.trim()) {
@@ -82,10 +112,19 @@ const worker = setupWorker(
       quantityKey: unit.quantityKey,
       creatorType: 'User',
     };
-    resources.push(resource);
+    const spaceId = String(params.spaceId);
+    resources.set(spaceId, [...(resources.get(spaceId) ?? []), resource]);
     return HttpResponse.json(resource, { status: 201 });
   }),
-  http.get('*/api/units', () => HttpResponse.json(units)),
+  http.get('*/api/units', () =>
+    HttpResponse.json({
+      customCount: units.filter((unit) => unit.creatorType === 'User').length,
+      items: units,
+      page: 1,
+      pageSize: Math.max(units.length, 1),
+      totalCount: units.length,
+    }),
+  ),
 );
 
 await worker.start({

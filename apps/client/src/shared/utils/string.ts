@@ -24,7 +24,7 @@ const message = `
 
 01001011 01001001 01001010 01001011
 
-Welcome to Kijk, your household app.
+Welcome to Kijk, your space app.
 Feedback, bug reports and suggestions are welcome on GitHub: https://github.com/maxstue/kijk/discussions
 `;
 
