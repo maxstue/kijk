@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   analyze:
-    name: "🔎 Analyze repository"
+    name: '🔎 Analyze repository'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
@@ -27,38 +27,38 @@ jobs:
       id-token: write
 
     steps:
-      - name: "🏖️ Checkout Repository"
+      - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - name: "🔧 Set up .NET"
+      - name: '🔧 Set up .NET'
         uses: ./.github/actions/setup-dotnet
 
       # Installed so the JavaScript analysis can resolve the TypeScript configs and type information.
-      - name: "🔧 Set up JavaScript"
+      - name: '🔧 Set up JavaScript'
         uses: ./.github/actions/setup-js
 
-      - name: "📊 Download JavaScript coverage"
+      - name: '📊 Download JavaScript coverage'
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: coverage-js-*
           path: coverage-reports
 
-      - name: "📊 Download .NET coverage"
+      - name: '📊 Download .NET coverage'
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: coverage-dotnet
           path: apps/api/TestResults
           merge-multiple: true
 
-      - name: "📦 Restore .NET dependencies"
+      - name: '📦 Restore .NET dependencies'
         run: dotnet restore apps/api/Kijk.slnx --locked-mode
 
-      - name: "📦 Install SonarScanner for .NET"
+      - name: '📦 Install SonarScanner for .NET'
         run: dotnet tool install dotnet-sonarscanner --tool-path "${{ runner.temp }}/scanner"
 
-      - name: "🔐 Load SonarQube token"
+      - name: '🔐 Load SonarQube token'
         uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
         with:
           method: oidc
@@ -68,7 +68,7 @@ jobs:
           env-slug: prod
           secret-path: /CI/Sonar
 
-      - name: "🔎 Begin SonarQube Cloud analysis"
+      - name: '🔎 Begin SonarQube Cloud analysis'
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: |
@@ -77,21 +77,21 @@ jobs:
           lcov_paths="$(IFS=,; echo "${lcov_reports[*]}")"
           echo "JavaScript coverage reports: ${lcov_paths:-none}"
 
-          # openapi-typescript owns the generated declarations; analyze their source contracts and generator instead.
+          # Generators own these artifacts; analyze their source contracts, routes and configuration instead.
           "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin \
             /k:"maxstue_kijk" \
             /o:"maxstue" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.coverage.xml" \
             /d:sonar.javascript.lcov.reportPaths="$lcov_paths" \
-            /d:sonar.exclusions="packages/api/src/generated/kijk.ts" \
+            /d:sonar.exclusions="packages/api/src/generated/kijk.ts,apps/client/src/routeTree.gen.ts" \
             /d:sonar.plsql.file.suffixes="tab,pkb" \
             /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
 
-      - name: "🧱 Build API"
+      - name: '🧱 Build API'
         run: dotnet build apps/api/Kijk.slnx --configuration Release --no-restore
 
-      - name: "🔎 Complete SonarQube Cloud analysis"
+      - name: '🔎 Complete SonarQube Cloud analysis'
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: '"${{ runner.temp }}/scanner/dotnet-sonarscanner" end /d:sonar.token="$SONAR_TOKEN"'
