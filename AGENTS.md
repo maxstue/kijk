@@ -121,11 +121,11 @@ dotnet ef database update                   # creates/updates DB schema
 ## CI (GitHub Actions)
 
 - **Entry workflows** (`ci.yml`, `deployment.yml`) only define triggers and compose building blocks; they contain no check logic.
-- **Reusable workflows** (`.github/workflows/_*.yml`) are the building blocks, one per area: `_changes` (path filter, PRs only), `_js-quality`, `_js-tests` (one parallel job per workspace), `_js-e2e`, `_dotnet`, `_sonar` (reuses the coverage artifacts of the same run).
+- **Reusable workflows** (`.github/workflows/_*.yml`) are the building blocks, one per area: `_changes` (path filter, PRs only), `_js-workspace` (one JavaScript app or package), `_dotnet` (one .NET app), `_js-audit`, `_sonar` (reuses the coverage artifacts of the same run). `ci.yml` calls `_js-workspace` and `_dotnet` once per app or package, so each is its own block in the checks list and graph, with one job per check inside: lint & format, build (or typecheck), test, and E2E or audit where they apply.
 - **Composite actions** (`.github/actions/*`) hold shared steps: `setup-js` (Vite+, install, cached Playwright), `setup-dotnet`, `deploy-railway`, `migrate-database`, `create-release`.
 - `ci-result` is the only required status check.
-- New JavaScript workspace with tests: add it to the matrix in `_js-tests.yml`; Sonar picks up its coverage automatically.
-- Order inside a quality job: build → format → lint → audit.
+- New app or package: add an `apps-<name>` or `packages-<name>` job in `ci.yml` that calls `_js-workspace.yml` (inputs `workspace`, `directory`, optionally `build`, `test`, `browser`, `e2e*`) or `_dotnet.yml` (inputs `workspace`, `directory`, `solution`, optionally `format-exclude`), and add it to the `needs` lists of `sonar` and `ci-result`; Sonar picks up its coverage automatically. A JavaScript workspace needs the scripts `fmt`, `lint`, `typecheck` (plus `build` / `test:coverage` if enabled). Only a caller whose E2E tests load Infisical secrets grants `id-token: write`; the E2E job inherits the caller's permissions, all other jobs reduce them to read access.
+- The check jobs of a block run in parallel; E2E only waits for the build of its block. On pull requests, `_changes` selects the affected JavaScript workspaces (changed ones plus their dependents, via pnpm) and the other blocks are skipped; changes to shared files (root manifests, lockfile, JavaScript CI) check all of them.
 
 ## Key Dependencies
 

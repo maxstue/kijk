@@ -3,10 +3,15 @@ name: CI
 # Composes the checks of the repository from the reusable `_*.yml` building blocks. This file only decides what runs
 # when; how a check works lives in its building block. Jobs without a `needs` relation run in parallel.
 #
-#   changes ─┬─ js-quality ─┬─ js-e2e
-#            ├─ js-tests ───┤
-#            │              └─ sonar
-#            └─ dotnet ─────┘
+# Every app and package is its own parallel block ("Apps: client", "Apps: api", "Packages: ui", ...) in the checks list
+# and the graph, with one job per check inside (lint & format, build or typecheck, test, and E2E or audit where they
+# apply). A new app or package gets its own job here and in the `needs` lists. On pull requests, `changes` selects the
+# JavaScript workspaces that changed or depend on a change; the blocks of all others are skipped.
+#
+#   changes ─┬─ Apps: client (lint, test, build → E2E) ─┐
+#            ├─ Packages: api|core|ui|... (lint, ...) ──┼─ sonar
+#            ├─ Apps: api (lint, build, test, audit) ───┘
+#            └─ audit
 #
 # `ci-result` is the only check that branch protection has to require.
 
@@ -28,32 +33,96 @@ jobs:
   changes:
     uses: ./.github/workflows/_changes.yml
 
-  js-quality:
+  apps-client:
+    name: "🖥️ Apps: client"
     needs: [changes]
-    if: needs.changes.outputs.js == 'true'
-    uses: ./.github/workflows/_js-quality.yml
-
-  js-tests:
-    needs: [changes]
-    if: needs.changes.outputs.js == 'true'
-    uses: ./.github/workflows/_js-tests.yml
-
-  js-e2e:
-    needs: [js-quality, js-tests]
-    uses: ./.github/workflows/_js-e2e.yml
+    if: contains(fromJSON(needs.changes.outputs.js-workspaces), 'apps/client')
+    uses: ./.github/workflows/_js-workspace.yml
+    # id-token is only used by the E2E job, to load its secrets from Infisical.
     permissions:
       contents: read
       id-token: write
+    with:
+      workspace: client
+      directory: apps/client
+      build: true
+      test: true
+      browser: true
+      e2e: true
+      e2e-secrets-env: dev
+      e2e-secrets-path: /CI/E2e
 
-  dotnet:
+  apps-api:
+    name: "🧩 Apps: api"
     needs: [changes]
     if: needs.changes.outputs.dotnet == 'true'
     uses: ./.github/workflows/_dotnet.yml
+    with:
+      workspace: api
+      directory: apps/api
+      solution: Kijk.slnx
+      format-exclude: "**/Migrations/**"
+
+  packages-api:
+    name: "📦 Packages: api"
+    needs: [changes]
+    if: contains(fromJSON(needs.changes.outputs.js-workspaces), 'packages/api')
+    uses: ./.github/workflows/_js-workspace.yml
+    with:
+      workspace: api
+      directory: packages/api
+      test: true
+
+  packages-core:
+    name: "📦 Packages: core"
+    needs: [changes]
+    if: contains(fromJSON(needs.changes.outputs.js-workspaces), 'packages/core')
+    uses: ./.github/workflows/_js-workspace.yml
+    with:
+      workspace: core
+      directory: packages/core
+      test: true
+
+  packages-ui:
+    name: "📦 Packages: ui"
+    needs: [changes]
+    if: contains(fromJSON(needs.changes.outputs.js-workspaces), 'packages/ui')
+    uses: ./.github/workflows/_js-workspace.yml
+    with:
+      workspace: ui
+      directory: packages/ui
+      test: true
+      browser: true
+
+  packages-config:
+    name: "📦 Packages: config"
+    needs: [changes]
+    if: contains(fromJSON(needs.changes.outputs.js-workspaces), 'packages/config')
+    uses: ./.github/workflows/_js-workspace.yml
+    with:
+      workspace: config
+      directory: packages/config
+
+  packages-oxlint-plugin-boundaries:
+    name: "📦 Packages: oxlint-plugin-boundaries"
+    needs: [changes]
+    if: contains(fromJSON(needs.changes.outputs.js-workspaces), 'packages/oxlint-plugin-boundaries')
+    uses: ./.github/workflows/_js-workspace.yml
+    with:
+      workspace: oxlint-plugin-boundaries
+      directory: packages/oxlint-plugin-boundaries
+
+  audit:
+    name: Audit
+    needs: [changes]
+    if: needs.changes.outputs.js == 'true'
+    uses: ./.github/workflows/_js-audit.yml
 
   # Runs whenever the checks it collects coverage from did not fail, also if some of them were skipped. Dependabot
   # and pull requests from forks have no access to the Sonar token.
   sonar:
-    needs: [js-tests, dotnet]
+    name: Sonar
+    needs: [apps-client, packages-api, packages-core, packages-ui, packages-config, packages-oxlint-plugin-boundaries, apps-api]
     if: >-
       !cancelled() && !failure() &&
       github.actor != 'dependabot[bot]' &&
@@ -65,7 +134,7 @@ jobs:
 
   ci-result:
     name: "✅ CI result"
-    needs: [changes, js-quality, js-tests, js-e2e, dotnet, sonar]
+    needs: [changes, apps-client, packages-api, packages-core, packages-ui, packages-config, packages-oxlint-plugin-boundaries, apps-api, audit, sonar]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5

@@ -1,7 +1,7 @@
 name: SonarQube Cloud
 
 # Analyzes the whole repository with SonarQube Cloud. The tests do not run again here: the coverage reports come from
-# the `coverage-js-*` and `coverage-dotnet` artifacts of the same run, so jobs skipped by `_changes.yml` simply
+# the `coverage-js-*` and `coverage-dotnet-*` artifacts of the same run, so jobs skipped by `_changes.yml` simply
 # contribute no report. The .NET scanner has to wrap a build, so the API is built (not tested) between begin and end.
 # The calling job must grant `id-token: write` for the Infisical OIDC login.
 
@@ -48,7 +48,7 @@ jobs:
       - name: '📊 Download .NET coverage'
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          pattern: coverage-dotnet
+          pattern: coverage-dotnet-*
           path: apps/api/TestResults
           merge-multiple: true
 
@@ -81,7 +81,7 @@ jobs:
             /k:"maxstue_kijk" \
             /o:"maxstue" \
             /d:sonar.token="$SONAR_TOKEN" \
-            /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.coverage.xml" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.xml" \
             /d:sonar.javascript.lcov.reportPaths="$lcov_paths" \
             /d:sonar.plsql.file.suffixes="tab,pkb" \
             /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
