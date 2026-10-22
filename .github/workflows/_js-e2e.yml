@@ -1,0 +1,83 @@
+name: JavaScript E2E tests
+
+# Runs the E2E tests (Playwright by default) of one JavaScript app. `ci.yml` calls it after the checks of the app, so
+# a broken app does not also cost an E2E run, and a flaky run can be repeated alone. The command, timeout and the
+# Infisical secrets it loads are inputs. The calling job must grant `id-token: write` for the Infisical OIDC login.
+
+on:
+  workflow_call:
+    inputs:
+      workspace:
+        description: Short workspace name, used for the artifact of the test results.
+        type: string
+        required: true
+      directory:
+        description: Directory of the app.
+        type: string
+        required: true
+      command:
+        description: Command that runs the E2E tests in the app directory.
+        type: string
+        default: pnpm exec playwright test
+      timeout:
+        description: Timeout of the job in minutes.
+        type: number
+        default: 20
+      secrets-env:
+        description: Infisical environment slug to load the secrets from.
+        type: string
+        default: dev
+      secrets-path:
+        description: Infisical secret path to load; empty loads no secrets.
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: "🎭 E2E"
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout }}
+    # The ci environment binds the shared CI identity in Infisical (OIDC subject), which may only read
+    # dev /CI/E2e and prod /CI/Sonar.
+    # deployment: false uses the environment for its variables and OIDC subject without creating a deployment entry.
+    environment:
+      name: ci
+      deployment: false
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: "🔧 Set up JavaScript"
+        uses: ./.github/actions/setup-js
+        with:
+          playwright: true
+
+      - name: "🔐 Load E2E secrets"
+        if: inputs.secrets-path != ''
+        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
+        with:
+          method: oidc
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
+          domain: https://eu.infisical.com
+          env-slug: ${{ inputs.secrets-env }}
+          secret-path: ${{ inputs.secrets-path }}
+
+      - name: "🎭 E2E tests"
+        working-directory: ${{ inputs.directory }}
+        run: ${{ inputs.command }}
+
+      - name: "📎 Upload Playwright results"
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-results-${{ inputs.workspace }}
+          path: ${{ inputs.directory }}/test-results
+          retention-days: 7

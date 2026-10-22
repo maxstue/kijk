@@ -1,13 +1,8 @@
 name: .NET
 
-# Checks one .NET app. `ci.yml` calls it once per app, so every app is its own block in the checks list and in the
-# graph, with one job per check inside; the jobs run in parallel:
-#
-# - `lint`: `dotnet format` (whitespace, code style and analyzers). It needs no build: loading the solution builds the
-#   source generators it depends on.
-# - `build`: Release build of the solution.
-# - `test`: all test projects of the solution with coverage, uploaded as `coverage-dotnet-<workspace>` for `_sonar.yml`.
-# - `audit`: fails on vulnerable NuGet packages with high or critical severity.
+# Checks one .NET app in one job: restore, format, Release build, tests with coverage, then NuGet audit.
+# `ci.yml` calls this building block once per app; the app jobs run independently in parallel.
+# Setup and restore run once. Coverage is uploaded as `coverage-dotnet-<workspace>` for `_sonar.yml`.
 
 on:
   workflow_call:
@@ -33,10 +28,10 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    name: "🧹 Lint & format"
+  checks:
+    name: "✅ Checks"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ${{ inputs.directory }}
@@ -59,50 +54,15 @@ jobs:
           if [ -n "$FORMAT_EXCLUDE" ]; then exclude=(--exclude "$FORMAT_EXCLUDE"); fi
           dotnet format "${{ inputs.solution }}" --no-restore --verify-no-changes --verbosity detailed "${exclude[@]}"
 
-  build:
-    name: "🧱 Build"
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: ${{ inputs.directory }}
-
-    steps:
-      - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: "🔧 Set up .NET"
-        uses: ./.github/actions/setup-dotnet
-
-      - name: "📦 Restore dependencies"
-        run: dotnet restore "${{ inputs.solution }}" --locked-mode
-
       - name: "🧱 Build"
         run: dotnet build "${{ inputs.solution }}" --configuration Release --no-restore
-
-  test:
-    name: "🧪 Test"
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: ${{ inputs.directory }}
-
-    steps:
-      - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: "🔧 Set up .NET"
-        uses: ./.github/actions/setup-dotnet
-
-      - name: "📦 Restore dependencies"
-        run: dotnet restore "${{ inputs.solution }}" --locked-mode
 
       # Microsoft.Testing.Platform writes one `<guid>.xml` coverage report per test project.
       - name: "🧪 Tests and coverage"
         run: |
           dotnet test --solution "${{ inputs.solution }}" \
             --configuration Release \
+            --no-build \
             --results-directory TestResults \
             --coverage \
             --coverage-output-format xml
@@ -114,24 +74,6 @@ jobs:
           path: ${{ inputs.directory }}/TestResults/*.xml
           if-no-files-found: error
           retention-days: 7
-
-  audit:
-    name: "🔍 Audit"
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: ${{ inputs.directory }}
-
-    steps:
-      - name: "🏖️ Checkout Repository"
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: "🔧 Set up .NET"
-        uses: ./.github/actions/setup-dotnet
-
-      - name: "📦 Restore dependencies"
-        run: dotnet restore "${{ inputs.solution }}" --locked-mode
 
       - name: "🔍 Audit"
         run: |
