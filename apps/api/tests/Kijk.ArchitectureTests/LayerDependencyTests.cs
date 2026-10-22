@@ -17,17 +17,25 @@ public class LayerDependencyTests
             typeof(Shared.AppConstants).Assembly)
         .Build();
 
+    // Code coverage instruments every assembly with a tracker type of the same full name. ArchUnit resolves all of
+    // them to one assembly, so the layers exclude it; otherwise every layer would seem to depend on the API layer.
+    private const string CoverageTracker = "Microsoft.CodeCoverage.Instrumentation.Static.Tracker";
+
     private static readonly IObjectProvider<IType> ApiLayer =
-        Types().That().ResideInAssembly(typeof(Api.DependencyInjection).Assembly).As("API layer");
+        Types().That().ResideInAssembly(typeof(Api.DependencyInjection).Assembly)
+            .And().DoNotResideInNamespace(CoverageTracker).As("API layer");
 
     private static readonly IObjectProvider<IType> ApplicationLayer =
-        Types().That().ResideInAssembly(typeof(Application.DependencyInjection).Assembly).As("Application layer");
+        Types().That().ResideInAssembly(typeof(Application.DependencyInjection).Assembly)
+            .And().DoNotResideInNamespace(CoverageTracker).As("Application layer");
 
     private static readonly IObjectProvider<IType> DomainLayer =
-        Types().That().ResideInAssembly(typeof(Domain.BaseEntity).Assembly).As("Domain layer");
+        Types().That().ResideInAssembly(typeof(Domain.BaseEntity).Assembly)
+            .And().DoNotResideInNamespace(CoverageTracker).As("Domain layer");
 
     private static readonly IObjectProvider<IType> InfrastructureLayer =
-        Types().That().ResideInAssembly(typeof(Infrastructure.DependencyInjection).Assembly).As("Infrastructure layer");
+        Types().That().ResideInAssembly(typeof(Infrastructure.DependencyInjection).Assembly)
+            .And().DoNotResideInNamespace(CoverageTracker).As("Infrastructure layer");
 
     [Test]
     public void DomainDoesNotDependOnOuterLayers()
