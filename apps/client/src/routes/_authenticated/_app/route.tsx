@@ -15,6 +15,8 @@ export const Route = createFileRoute('/_authenticated/_app')({
     if (!isReadyCurrentUser(currentUser)) {
       throw redirect({ replace: true, to: '/welcome' });
     }
+    // Known before the first render, so switched-off parts never flash up; a failed request leaves them visible.
+    await queryClient.prefetchQuery(usersOptions.featuresQueryOptions());
   },
   component: AppLayout,
   pendingComponent: InitLoader,

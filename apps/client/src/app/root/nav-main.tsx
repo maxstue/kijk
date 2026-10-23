@@ -10,12 +10,13 @@ import { Link } from '@tanstack/react-router';
 import { cn } from 'cn';
 
 import { CommandMenu } from '@/app/root/command-menu';
-import { mainNavGroups } from '@/app/root/constants';
+import { useNavGroups } from '@/app/root/use-nav-groups';
 import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 
 /** Main navigation of the sidebar: the command menu followed by one group per area. */
 export function NavMain() {
   const spaceId = useNavigationSpaceId();
+  const navGroups = useNavGroups();
   return (
     <>
       <SidebarGroup>
@@ -28,7 +29,7 @@ export function NavMain() {
         </SidebarGroupContent>
       </SidebarGroup>
 
-      {mainNavGroups.map((group) => (
+      {navGroups.map((group) => (
         <SidebarGroup key={group.label}>
           <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
           <SidebarGroupContent>

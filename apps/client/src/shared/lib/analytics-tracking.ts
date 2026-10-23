@@ -1,55 +1,32 @@
 import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { posthog } from 'posthog-js';
-import type { CaptureOptions, PostHogConfig, Properties } from 'posthog-js';
+import type { CaptureOptions, Properties } from 'posthog-js';
 
 import { config } from '@/shared/config';
-import { ErrorService } from '@/shared/lib/error-tracking';
+import { getCookieConsent } from '@/shared/lib/cookie-consent';
+import { TracingService } from '@/shared/lib/tracing';
 import type { CookieConsent } from '@/shared/types/analytics';
 import { COOKIE_CONSENT_KEY, LEGACY_CORRELATION_ID_KEY } from '@/shared/types/analytics';
 
-/** AnalyticsService is a wrapper around the Posthog analytics library. */
+let initialized = false;
+let enabled = false;
+
+/** Starts optional analytics only after consent and stops capture immediately when it is withdrawn. */
 const AnalyticsService = {
   captureEvent: (event_name: string, properties?: Properties | null, options?: CaptureOptions) => {
-    posthog.capture(event_name, properties, options);
-  },
-
-  getCookieConsent() {
-    if (browserStorage.hasItem(COOKIE_CONSENT_KEY)) {
-      return browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY)!;
+    if (enabled) {
+      posthog.capture(event_name, properties, options);
     }
-    return 'undecided';
   },
 
-  getInstance: () => posthog,
+  getCookieConsent,
 
   init: () => {
     browserStorage.removeItem(LEGACY_CORRELATION_ID_KEY);
-    if (!config.PosthogKey || !config.PosthogUrl) {
-      return;
-    }
-    posthog.init(config.PosthogKey, {
-      api_host: config.PosthogUrl,
-      autocapture: false,
-      capture_pageview: false,
-      opt_out_capturing_by_default: true,
-      persistence: 'memory',
-      person_profiles: 'identified_only',
-    });
-    posthog.opt_out_capturing();
   },
-
-  options: () =>
-    ({
-      api_host: config.PosthogUrl,
-      autocapture: false,
-      capture_pageview: false,
-      opt_out_capturing_by_default: true,
-      persistence: 'memory',
-      person_profiles: 'identified_only',
-    }) satisfies Partial<PostHogConfig>,
   setCookieConsent: (consent: CookieConsent) => {
     browserStorage.setItem(COOKIE_CONSENT_KEY, consent);
-    ErrorService.setPerformanceConsent(consent);
+    TracingService.setConsent(consent);
     if (!config.PosthogKey || !config.PosthogUrl) {
       return;
     }
@@ -64,19 +41,40 @@ const AnalyticsService = {
 export { AnalyticsService };
 
 function enableAnalytics() {
-  AnalyticsService.getInstance().set_config({
-    autocapture: true,
-    capture_pageview: true,
-    persistence: 'localStorage+cookie',
-  });
-  AnalyticsService.getInstance().opt_in_capturing();
+  if (enabled) {
+    return;
+  }
+  if (!initialized) {
+    posthog.init(config.PosthogKey!, {
+      // Feature switches come from the API. Project settings must never enable extra browser collection.
+      advanced_disable_flags: true,
+      api_host: config.PosthogUrl,
+      autocapture: false,
+      capture_exceptions: false,
+      capture_performance: false,
+      capture_heatmaps: false,
+      capture_dead_clicks: false,
+      capture_pageview: false,
+      capture_pageleave: false,
+      disable_session_recording: true,
+      disable_surveys: true,
+      opt_out_capturing_by_default: true,
+      opt_out_capturing_persistence_type: 'localStorage',
+      persistence: 'memory',
+      person_profiles: 'never',
+    });
+    initialized = true;
+  }
+  posthog.set_config({ persistence: 'localStorage+cookie' });
+  posthog.opt_in_capturing({ captureEventName: false });
+  enabled = true;
 }
 
 function disableAnalytics() {
-  AnalyticsService.getInstance().opt_out_capturing();
-  AnalyticsService.getInstance().set_config({
-    autocapture: false,
-    capture_pageview: false,
-    persistence: 'memory',
-  });
+  enabled = false;
+  if (!initialized) {
+    return;
+  }
+  posthog.opt_out_capturing();
+  posthog.set_config({ persistence: 'memory' });
 }

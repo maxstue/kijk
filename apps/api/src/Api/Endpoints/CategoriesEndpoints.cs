@@ -22,7 +22,8 @@ public sealed class CategoriesEndpoints : IEndpointGroup
     {
         var group = builder.MapSpaceGroup("categories")
             .WithTags("Categories")
-            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .RequireFeature(AppConstants.Features.Finances);
 
         group.MapGet("/", List).WithName("Categories.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the categories available to the active space");
         group.MapPost("/", Create).WithName("Categories.Create").RequireSpacePermission(SpacePermissions.Finances.Configure).WithRequestValidation<CreateCategoryRequest>().WithSummary("Creates a custom category");

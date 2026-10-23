@@ -20,6 +20,7 @@ try
 
     builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
 
+    // Sentry hooks into the web host; PostHog and the traces of both tools are registered by AddInfrastructure.
     builder.AddTelemetryTracking();
 
     builder.Services
@@ -30,6 +31,9 @@ try
 
     // ##### Configure the HTTP request pipeline. #####
     var app = builder.Build();
+
+    // Initialize Sentry before workers or requests can log their first exception.
+    _ = app.Services.GetRequiredService<IHub>();
 
     app.MapHealthCheck()
         .MapOpenApi()

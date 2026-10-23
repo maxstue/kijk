@@ -1,40 +1,36 @@
-import { browserStorage } from '@kijk/core/lib/browser-storage';
 import * as Sentry from '@sentry/react';
+import { posthog } from 'posthog-js';
+import type { PostHog } from 'posthog-js';
 
-import type { AppRouter } from '@/router';
 import { config } from '@/shared/config';
-import { scrubErrorEvent, scrubPerformanceSpan, scrubPerformanceTransaction } from '@/shared/lib/error-event-scrubber';
-import type { CookieConsent } from '@/shared/types/analytics';
-import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
+import { scrubErrorEvent, scrubPosthogEvent } from '@/shared/lib/error-event-scrubber';
 
-const performanceSampleRate = 0.1;
+/** Name of the PostHog instance that only reports errors; analytics starts separately after consent. */
+const ERRORS_INSTANCE = 'errors';
 
-interface ErrorTrackingService {
-  captureException(error: unknown): void;
-  init(router: AppRouter): void;
-  setPerformanceConsent(consent: CookieConsent): void;
-}
-
-class SentryErrorTrackingService implements ErrorTrackingService {
-  private router?: AppRouter;
-  private routerTracingInstalled = false;
+/**
+ * Provider-neutral entry point for privacy-preserving error reporting. Sentry and PostHog are set up the same way: both
+ * capture unhandled errors and rejections on their own, both receive manual captures from here, and both reduce every
+ * error to type and stack frames before it leaves the browser. Errors carry no user data, so they do not depend on the
+ * analytics consent.
+ */
+class ErrorTrackingService {
+  private posthogErrors?: PostHog;
 
   captureException(error: unknown) {
     Sentry.captureException(error);
+    this.posthogErrors?.captureException(error);
   }
 
-  init(router: AppRouter) {
-    this.router = router;
+  init() {
     Sentry.init({
       dsn: config.SentryDsn,
       environment: config.Mode,
-      integrations: [Sentry.browserSessionIntegration({ lifecycle: 'route' })],
+      integrations: (defaults) => defaults.filter((integration) => integration.name !== 'BrowserSession'),
       attachStacktrace: false,
       maxBreadcrumbs: 0,
       beforeBreadcrumb: () => null,
       beforeSend: scrubErrorEvent,
-      beforeSendSpan: Sentry.withStaticSpan(scrubPerformanceSpan),
-      beforeSendTransaction: (event) => (hasPerformanceConsent() ? scrubPerformanceTransaction(event) : null),
       dataCollection: {
         userInfo: false,
         cookies: false,
@@ -48,53 +44,46 @@ class SentryErrorTrackingService implements ErrorTrackingService {
         databaseQueryData: false,
         graphQL: { document: false, variables: false },
       },
-      // Static transactions keep the consent check above able to discard a trace after consent is withdrawn.
-      traceLifecycle: 'static',
-      tracePropagationTargets: [],
-      tracesSampler: () => (hasPerformanceConsent() ? performanceSampleRate : 0),
     });
 
-    this.enableRouterTracing(getPerformanceConsent());
+    this.initPosthog();
   }
 
-  setPerformanceConsent(consent: CookieConsent) {
-    this.enableRouterTracing(consent);
-  }
-
-  private enableRouterTracing(consent: CookieConsent) {
-    if (consent !== 'accepted' || this.routerTracingInstalled || !this.router) {
+  private initPosthog() {
+    if (!config.PosthogKey || !config.PosthogUrl) {
       return;
     }
 
-    Sentry.addIntegration(
-      Sentry.tanstackRouterBrowserTracingIntegration(this.router, {
-        enableHTTPTimings: false,
-        webVitals: { ignore: ['inp'] },
-        enableLongAnimationFrame: false,
-        enableLongTask: false,
-        instrumentBfcacheRestore: false,
-        instrumentNavigation: true,
-        instrumentPageLoad: true,
-        linkPreviousTrace: 'off',
-        traceFetch: false,
-        traceXHR: false,
-      }),
+    this.posthogErrors = posthog.init(
+      config.PosthogKey,
+      {
+        api_host: config.PosthogUrl,
+        autocapture: false,
+        before_send: scrubPosthogEvent,
+        capture_exceptions: {
+          capture_console_errors: false,
+          capture_unhandled_errors: true,
+          capture_unhandled_rejections: true,
+        },
+        capture_pageleave: false,
+        capture_pageview: false,
+        capture_performance: false,
+        capture_heatmaps: false,
+        capture_dead_clicks: false,
+        // The default consent key is shared by project token, even between named instances.
+        consent_persistence_name: 'kijk_errors_consent',
+        disable_persistence: true,
+        disable_session_recording: true,
+        disable_surveys: true,
+        advanced_disable_flags: true,
+        person_profiles: 'never',
+      },
+      ERRORS_INSTANCE,
     );
-    this.routerTracingInstalled = true;
   }
 }
 
-function getPerformanceConsent() {
-  return browserStorage.hasItem(COOKIE_CONSENT_KEY)
-    ? browserStorage.getItem<CookieConsent>(COOKIE_CONSENT_KEY)!
-    : 'undecided';
-}
-
-function hasPerformanceConsent() {
-  return getPerformanceConsent() === 'accepted';
-}
-
-/** Provider-neutral entry point for privacy-preserving error and performance reporting. */
-const ErrorService = new SentryErrorTrackingService();
+/** Provider-neutral entry point for privacy-preserving error reporting. */
+const ErrorService = new ErrorTrackingService();
 
 export { ErrorService };

@@ -32,6 +32,19 @@ public static class AppConstants
             policy?.StartsWith(SpacePermissionPrefix, StringComparison.Ordinal) is true;
     }
 
+    /// <summary>
+    /// The keys of the PostHog feature flags that switch optional parts of Kijk on or off. Create a boolean flag with the
+    /// same key in PostHog; a flag that exists but is off for a user hides the part from them.
+    /// </summary>
+    public static class Features
+    {
+        /// <summary>The whole finance area: accounts, transactions, budgets, categories and imports.</summary>
+        public const string Finances = "finances";
+
+        /// <summary>The AI assistance of the bank import, in addition to the server-side AI kill switch.</summary>
+        public const string AiImport = "ai-import";
+    }
+
     /// <summary>The response header carrying the request correlation id.</summary>
     public const string CorrelationId = "X-Correlation-Id";
 

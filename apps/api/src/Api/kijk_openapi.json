@@ -5192,6 +5192,95 @@
         ]
       }
     },
+    "/api/users/me/features": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Gets the parts of Kijk that are switched on for the current user",
+        "operationId": "Users.Features",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeaturesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/users/me/feedback": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Submits feedback independently of optional analytics consent",
+        "operationId": "Users.Feedback",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/users/default-space": {
       "put": {
         "tags": [
@@ -6942,6 +7031,37 @@
           }
         },
         "description": "Identity data owned by the authentication provider and exposed according to the user's preference."
+      },
+      "FeaturesResponse": {
+        "required": [
+          "finances",
+          "aiImport"
+        ],
+        "type": "object",
+        "properties": {
+          "finances": {
+            "type": "boolean",
+            "description": "Whether the finance area (accounts, transactions, budgets, categories, imports) is available."
+          },
+          "aiImport": {
+            "type": "boolean",
+            "description": "Whether the AI assistance of the bank import is available. It lives inside the finance area and is off whenever that is.\nThe server-side AI kill switch and the member's own AI setting apply in addition."
+          }
+        },
+        "description": "The parts of Kijk that are switched on for the current user. The client hides what is off; the API enforces the\nsame decisions, so both always agree."
+      },
+      "FeedbackRequest": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "The feedback text, between 2 and 4000 characters; do not include financial or account details."
+          }
+        },
+        "description": "Feedback voluntarily submitted to help improve Kijk."
       },
       "GetMeUserResponse": {
         "required": [

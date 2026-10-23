@@ -29,4 +29,7 @@ public readonly record struct ErrorCodes
     public const string AuthorizationError = "E0006";
     /// <summary>The request conflicts with the current state, e.g. a duplicate.</summary>
     public const string ConflictError = "E0007";
+
+    /// <summary>The requested part of Kijk is switched off for the user by a feature flag.</summary>
+    public const string FeatureDisabled = "E0008";
 }

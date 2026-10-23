@@ -10,7 +10,7 @@ function PrivacyPolicy() {
     <main className='mx-auto max-w-3xl space-y-8 px-4 py-12'>
       <header className='space-y-2'>
         <h1 className='text-3xl font-semibold'>Privacy Policy</h1>
-        <p className='text-muted-foreground'>Last updated: 7 October 2026</p>
+        <p className='text-muted-foreground'>Last updated: 22 October 2026</p>
       </header>
 
       <section className='space-y-3'>
@@ -105,9 +105,9 @@ function PrivacyPolicy() {
         <p>
           Kijk does not request access to Gmail, Google Drive, Calendar, Contacts, or other Google services. We do not
           sell Google account information, use it for advertising, or use it to train AI or machine-learning models. We
-          share Google sign-in information with Clerk to provide authentication. If you consent to optional product
-          analytics, PostHog receives a pseudonymous Kijk account identifier and app usage events as described below. We
-          do not provide Google passwords or Google API access tokens to PostHog.
+          share Google sign-in information with Clerk to provide authentication. PostHog receives no Google account
+          information; what it receives is described below. We do not provide Google passwords or Google API access
+          tokens to PostHog.
         </p>
         <p>
           The Google identity connection is kept while your Kijk account is active. When you delete your account in
@@ -130,7 +130,7 @@ function PrivacyPolicy() {
         </p>
         <p>
           Reports may contain an event time, app version, operating environment, error type, scrubbed technical stack
-          locations, HTTP status and a short-lived request correlation ID. They do not intentionally contain account or
+          locations and a short-lived request correlation ID. They do not intentionally contain account or
           authentication identifiers, names, email addresses, cookies, authorization headers, query values, submitted
           form data, request or response bodies, uploaded files, or space, resource, consumption, budget or transaction
           values.
@@ -140,11 +140,42 @@ function PrivacyPolicy() {
       <section className='space-y-3'>
         <h2 className='text-xl font-semibold'>Optional analytics and performance tracing</h2>
         <p>
-          With your consent, Kijk enables product analytics with PostHog and Sentry router tracing. PostHog receives a
-          pseudonymous Kijk account identifier and app usage events. Router tracing samples 10% of navigations and sends
-          sanitized route templates and timing information. Concrete route parameters, query values, request tracing and
-          user identifiers are excluded. You can withdraw consent in Settings at any time; no new analytics events or
-          performance traces are then sent.
+          With your consent, Kijk enables product analytics with PostHog and router tracing, which Sentry and PostHog
+          both receive. PostHog receives app usage events with a random identifier that PostHog stores in your browser;
+          it is not linked to your Kijk account. Router tracing samples 10% of navigations and sends sanitized route
+          templates and timing information. Concrete route parameters, query values, request tracing and user
+          identifiers are excluded. You can withdraw consent in Settings at any time; no new analytics events or
+          performance traces are then sent. Analytics initializes only after consent. We disable automatic click and
+          text capture, session replay, heatmaps, surveys, automatic analytics exceptions and additional performance
+          collection in the browser configuration.
+        </p>
+        <p>
+          Independent of this consent, Sentry and PostHog receive minimal technical error reports with the error type,
+          the code location and a short-lived request correlation ID, but without error messages, account identifiers or
+          the values you enter. Our server also sends anonymous traces of a sample of requests (route template, status
+          code and duration) to both tools; they contain no account, space or user identifiers.
+        </p>
+      </section>
+
+      <section className='space-y-3'>
+        <h2 className='text-xl font-semibold'>Voluntary feedback</h2>
+        <p>
+          When you send feedback, our server forwards only your message and a fresh random submission identifier to
+          PostHog in the European Union. We do not attach your account identity or link the message to your analytics
+          identifier. This happens only when you submit the feedback form and is independent of optional analytics
+          consent. Please do not include personal or financial details in your message. We process your message to
+          respond to your request and improve Kijk based on our legitimate interest (Article 6(1)(f)).
+        </p>
+      </section>
+
+      <section className='space-y-3'>
+        <h2 className='text-xl font-semibold'>Feature switches</h2>
+        <p>
+          Some parts of Kijk, such as the finance area and the AI import, can be switched on or off with feature
+          switches, for example to make them available or to turn them off when they fail. These switches apply to
+          everyone equally. Our server downloads their settings from PostHog and reads them on our own server. PostHog
+          receives no data about you for this: no account ID, no pseudonym, no IP address of your device and no usage
+          data. Your browser does not contact PostHog for this either; it receives the decision from our server.
         </p>
       </section>
 
@@ -179,8 +210,13 @@ function PrivacyPolicy() {
         <ul className='list-disc space-y-2 pl-6'>
           <li>Clerk for authentication.</li>
           <li>Railway for hosting the application, its database and its backups.</li>
-          <li>Sentry for technical error reports and, with your consent, performance tracing.</li>
-          <li>PostHog for product analytics, only with your consent.</li>
+          <li>
+            Sentry for technical error reports, anonymous server traces and, with your consent, performance tracing.
+          </li>
+          <li>
+            PostHog for technical error reports, anonymous server traces, voluntary feedback and the settings of feature
+            switches, and, only with your consent, product analytics and performance tracing.
+          </li>
           <li>Mistral AI for the optional AI features, in the European Union.</li>
         </ul>
         <p>

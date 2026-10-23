@@ -32,7 +32,8 @@ public sealed class ImportsEndpoints : IEndpointGroup
     {
         var group = builder.MapSpaceGroup("imports")
             .WithTags("Imports")
-            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .RequireFeature(AppConstants.Features.Finances);
 
         group.MapGet("/", List).WithName("Imports.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the latest imports of the active space");
         group.MapGet("/{id:guid}", Details).WithName("Imports.Details").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets an import by id");
@@ -48,8 +49,8 @@ public sealed class ImportsEndpoints : IEndpointGroup
             .WithSummary("Uploads a bank export and starts its import");
         group.MapPost("/{id:guid}/mapping", ConfirmMapping).WithName("Imports.ConfirmMapping").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Confirms the column mapping and starts reading the file");
         group.MapPut("/{id:guid}/candidates/{candidateId:guid}", UpdateCandidate).WithName("Imports.UpdateCandidate").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Changes the category or exclusion of a row during the review");
-        group.MapGet("/{id:guid}/ai-preview", AiDataPreview).WithName("Imports.AiDataPreview").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Gets exactly the texts the AI categorization would send");
-        group.MapPost("/{id:guid}/categorize", StartCategorization).WithName("Imports.StartCategorization").RequireSpacePermission(SpacePermissions.Finances.Import).WithRequestValidation<CategorizeImportRequest>().WithSummary("Proposes categories with the AI for the rows that have none");
+        group.MapGet("/{id:guid}/ai-preview", AiDataPreview).WithName("Imports.AiDataPreview").RequireSpacePermission(SpacePermissions.Finances.Import).RequireFeature(AppConstants.Features.AiImport).WithSummary("Gets exactly the texts the AI categorization would send");
+        group.MapPost("/{id:guid}/categorize", StartCategorization).WithName("Imports.StartCategorization").RequireSpacePermission(SpacePermissions.Finances.Import).RequireFeature(AppConstants.Features.AiImport).WithRequestValidation<CategorizeImportRequest>().WithSummary("Proposes categories with the AI for the rows that have none");
         group.MapPost("/{id:guid}/commit", Commit).WithName("Imports.Commit").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Replaces the account's transactions in the covered months with the reviewed rows");
         group.MapPost("/{id:guid}/cancel", Cancel).WithName("Imports.Cancel").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Cancels an open import and deletes its file");
         group.MapGet("/settings", Settings).WithName("Imports.Settings").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the import settings of the active space");

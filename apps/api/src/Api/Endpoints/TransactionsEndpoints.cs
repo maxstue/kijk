@@ -26,7 +26,8 @@ public sealed class TransactionsEndpoints : IEndpointGroup
     {
         var group = builder.MapSpaceGroup("transactions")
             .WithTags("Transactions")
-            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .RequireFeature(AppConstants.Features.Finances);
 
         group.MapGet("/", List).WithName("Transactions.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets a page of transactions of the active space, optionally by year, month, categories or without category");
         group.MapGet("/export", Export).WithName("Transactions.Export").RequireSpacePermission(SpacePermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month, categories or without category");

@@ -21,7 +21,8 @@ public sealed class CategoryRulesEndpoints : IEndpointGroup
     {
         var group = builder.MapSpaceGroup("category-rules")
             .WithTags("Category Rules")
-            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .RequireFeature(AppConstants.Features.Finances);
 
         group.MapGet("/", List).WithName("CategoryRules.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the remembered category corrections of the active space");
         group.MapGet("/suggestions", Suggestions).WithName("CategoryRules.Suggestions").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule");

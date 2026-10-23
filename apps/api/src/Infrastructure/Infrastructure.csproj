@@ -26,10 +26,17 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <!-- Telemetry -->
         <PackageReference Include="Sentry" />
         <PackageReference Include="Sentry.AspNetCore" />
-        <!-- Telemetry -->
-        <PackageReference Include="Sentry.Serilog"/>
+        <PackageReference Include="Sentry.Serilog" />
+        <PackageReference Include="Sentry.OpenTelemetry.Exporter" />
+        <PackageReference Include="PostHog" />
+        <PackageReference Include="OpenTelemetry" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
         <!-- Logging -->
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Expressions"/>

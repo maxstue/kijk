@@ -7,7 +7,7 @@ public interface IAiGate
 {
     /// <summary>
     /// Returns whether AI may be used for the space by the user right now: the server-side switch is on, a
-    /// provider is configured, the user is a member and has not turned AI off.
+    /// provider is configured, the <c>ai-import</c> feature flag is on, the user is a member and has not turned AI off.
     /// </summary>
     /// <param name="spaceId">The space the data belongs to.</param>
     /// <param name="userId">The user the call is made for.</param>

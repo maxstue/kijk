@@ -58,7 +58,7 @@ public class CompleteOnboardingHandler(
             var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Id == SpaceRoles.Admin.Id, cancellationToken);
             if (adminRole is null)
             {
-                logger.LogError("Admin role was not found");
+                logger.LogError(new InvalidOperationException("Admin role was not found"), "Onboarding could not create the first space");
                 return Error.Unexpected("Role was not found");
             }
 

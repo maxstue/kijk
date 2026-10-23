@@ -1,7 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as usersOptions from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { Textarea } from '@kijk/ui/components/textarea';
+import { useMutation } from '@tanstack/react-query';
 import { LucideHeart } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -9,8 +11,6 @@ import { toast } from 'sonner';
 import type { FeedbackFormValues } from '@/app/root/schemas';
 import { feedbackSchema } from '@/app/root/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { config } from '@/shared/config';
-import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 const onInvalid = () => {
   toast('Invalid form', { description: 'Something went wrong. Please try again later ' });
@@ -18,6 +18,7 @@ const onInvalid = () => {
 
 /** Dialog that sends user feedback as a PostHog survey response. */
 export function FeedbackDialog({ onClose }: { onClose: () => void }) {
+  const { mutate, isPending } = useMutation(usersOptions.feedbackMutationOptions());
   const form = useForm({
     defaultValues: {
       message: '',
@@ -26,13 +27,16 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
   });
 
   const onSubmit = (data: FeedbackFormValues) => {
-    AnalyticsService.getInstance().capture('survey sent', {
-      $survey_id: config.PosthogSurveyId,
-      $survey_response: data.message,
+    mutate(data, {
+      onSuccess() {
+        toast('Feedback sent', { description: 'Thank you for your feedback!' });
+        form.reset();
+        onClose();
+      },
+      onError() {
+        toast('Feedback could not be sent', { description: 'Your message is still here. Please try again later.' });
+      },
     });
-    toast('Feedback sent', { description: 'Thank you for your feedback!' });
-    form.reset();
-    onClose();
   };
 
   return (
@@ -41,7 +45,10 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
         <DialogTitle className='flex items-center gap-1'>
           Give us Feedback <LucideHeart className='h-4 text-red-500' />
         </DialogTitle>
-        <DialogDescription>Sending us any feedback will improve this app for everyone.</DialogDescription>
+        <DialogDescription>
+          Your message is sent to PostHog in the EU to improve Kijk, independently of your analytics settings. We do not
+          attach your account identity. Please leave out personal and financial details.
+        </DialogDescription>
       </DialogHeader>
       <Form {...form}>
         <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
@@ -52,13 +59,15 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
               <FormItem>
                 <FormLabel>Message</FormLabel>
                 <FormControl>
-                  <Textarea placeholder='Help us improve our app...' {...field} />
+                  <Textarea placeholder='Help us improve our app...' maxLength={4000} disabled={isPending} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type='submit'>Send</Button>
+          <Button type='submit' disabled={isPending}>
+            {isPending ? 'Sending…' : 'Send'}
+          </Button>
         </form>
       </Form>
     </DialogContent>

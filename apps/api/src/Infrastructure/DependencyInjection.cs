@@ -7,6 +7,7 @@ using Kijk.Domain.Authorization;
 using Kijk.Infrastructure.Ai;
 using Kijk.Infrastructure.Auth;
 using Kijk.Infrastructure.Configuration;
+using Kijk.Infrastructure.FeatureFlags;
 using Kijk.Infrastructure.Imports;
 using Kijk.Infrastructure.Jobs;
 using Kijk.Infrastructure.Persistence;
@@ -37,18 +38,13 @@ public static class DependencyInjection
                 .AddDatabase()
                 .AddHealthCheck()
                 .AddCorsPolicy(configuration)
-                .AddTelemetry()
+                .AddTelemetry(configuration)
+                .AddFeatureFlags()
                 .AddLogging(configuration)
                 .AddClerkBackendApi()
                 .AddAuth()
                 .AddImports()
                 .AddAi();
-
-        private IServiceCollection AddTelemetry()
-        {
-            services.AddSingleton<ITelemetryService, TelemetryService>();
-            return services;
-        }
 
         private IServiceCollection AddDatabase()
         {
@@ -171,8 +167,7 @@ public static class DependencyInjection
         }
 
         /// <summary>
-        /// Adds logging integration to the WebApplicationBuilder.
-        /// This includes Serilog.
+        /// Adds Serilog and the sinks that turn logged exceptions into error reports for Sentry and, when configured, PostHog.
         /// </summary>
         /// <returns>The service collection.</returns>
         private IServiceCollection AddLogging(IConfiguration configuration)
@@ -182,7 +177,14 @@ public static class DependencyInjection
                 lc
                     .ReadFrom.Configuration(configuration)
                     .ReadFrom.Services(sp)
-                    .WriteTo.Sentry();
+                    .WriteTo.Logger(errors => errors
+                        .Filter.ByIncludingOnly(logEvent => logEvent.Exception is not null)
+                        .WriteTo.Sentry());
+
+                if (sp.GetService<ErrorTrackingSerilogSink>() is { } postHogErrors)
+                {
+                    lc.WriteTo.Sink(postHogErrors);
+                }
             });
 
             return services;
