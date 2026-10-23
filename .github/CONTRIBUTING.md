@@ -117,10 +117,13 @@ To add a JavaScript app or package:
 2. Add an `apps-<name>` or `packages-<name>` caller of `_js-workspace.yml` in `ci.yml`, with `workspace` and
    `directory`. Enable `build`, `test` and `browser` as needed. Use the same `changes.outputs.js-workspaces`
    condition as the existing callers; change detection includes new workspaces and their dependents automatically.
+   Browser setup uses the workspace directory by default. If another workspace provides the Playwright CLI, set
+   `browser-directory` to that directory (as the UI package does).
 3. Add the caller to both `sonar.needs` and `ci-result.needs`. Coverage artifacts are discovered automatically.
 4. If the app needs E2E, add a caller of `_js-e2e.yml` with `needs: [apps-<name>]` and include it in
    `ci-result.needs`. Configure `command`, `timeout`, `secrets-env` and `secrets-path` as needed; grant
    `contents: read` and `id-token: write` for Infisical OIDC.
+   The app's `directory` must provide the Playwright CLI; it is used for both browser setup and test execution.
 
 For a .NET app, call `_dotnet.yml` with `workspace`, `directory`, `solution` and optionally `format-exclude`.
 Add its paths to `_changes.yml` and its caller to `sonar.needs` and `ci-result.needs`.

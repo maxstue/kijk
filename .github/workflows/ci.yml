@@ -98,6 +98,8 @@ jobs:
       directory: packages/ui
       test: true
       browser: true
+      # The Playwright CLI is declared by the client; UI browser tests share its browser installation.
+      browser-directory: apps/client
 
   packages-config:
     name: "📦 Packages: config"

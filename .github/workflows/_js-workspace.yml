@@ -29,6 +29,10 @@ on:
         description: Install Chromium for Vitest browser tests.
         type: boolean
         default: false
+      browser-directory:
+        description: Directory containing the Playwright CLI; defaults to the workspace directory.
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -50,6 +54,7 @@ jobs:
         uses: ./.github/actions/setup-js
         with:
           playwright: ${{ inputs.test && inputs.browser }}
+          playwright-directory: ${{ inputs.browser-directory || inputs.directory }}
 
       - name: "🧹 Format"
         run: pnpm fmt

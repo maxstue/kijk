@@ -58,6 +58,7 @@ jobs:
         uses: ./.github/actions/setup-js
         with:
           playwright: true
+          playwright-directory: ${{ inputs.directory }}
 
       - name: "🔐 Load E2E secrets"
         if: inputs.secrets-path != ''

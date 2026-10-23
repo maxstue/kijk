@@ -5,6 +5,9 @@ inputs:
   playwright:
     description: Install Chromium for Playwright E2E and Vitest browser tests.
     default: "false"
+  playwright-directory:
+    description: Directory containing the Playwright CLI, relative to the repository root.
+    default: "."
 
 runs:
   using: composite
@@ -25,7 +28,7 @@ runs:
       id: playwright
       if: inputs.playwright == 'true'
       shell: bash
-      working-directory: apps/client
+      working-directory: ${{ inputs.playwright-directory }}
       run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
 
     # The browser binaries only change with the Playwright version; the system dependencies are not cached and are
@@ -41,11 +44,11 @@ runs:
     - name: "🌐 Install Playwright browser"
       if: inputs.playwright == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
       shell: bash
-      working-directory: apps/client
+      working-directory: ${{ inputs.playwright-directory }}
       run: pnpm exec playwright install --with-deps chromium
 
     - name: "🌐 Install Playwright system dependencies"
       if: inputs.playwright == 'true' && steps.playwright-cache.outputs.cache-hit == 'true'
       shell: bash
-      working-directory: apps/client
+      working-directory: ${{ inputs.playwright-directory }}
       run: pnpm exec playwright install-deps chromium
