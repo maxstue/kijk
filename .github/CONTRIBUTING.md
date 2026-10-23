@@ -105,3 +105,29 @@ overrides instead of a committed file.
    - or start the docker service with a tool of your liking
 2. Run `pnpm dev` from the project root to start the API and client with their Infisical configuration.
    - Use `pnpm dev:api` or `pnpm dev:client` to start only one application.
+
+## CI building blocks
+
+`ci.yml` composes reusable workflows. Each app or package has one independent job; its checks run as sequential
+steps with one setup. E2E is a separate job after the app checks. `ci-result` is the required status check.
+
+To add a JavaScript app or package:
+
+1. Provide `fmt`, `lint` and `typecheck` scripts, plus `build` or `test:coverage` when enabled.
+2. Add an `apps-<name>` or `packages-<name>` caller of `_js-workspace.yml` in `ci.yml`, with `workspace` and
+   `directory`. Enable `build`, `test` and `browser` as needed. Use the same `changes.outputs.js-workspaces`
+   condition as the existing callers; change detection includes new workspaces and their dependents automatically.
+   Browser setup uses the workspace directory by default. If another workspace provides the Playwright CLI, set
+   `browser-directory` to that directory (as the UI package does).
+3. Add the caller to both `sonar.needs` and `ci-result.needs`. Coverage artifacts are discovered automatically.
+4. If the app needs E2E, add a caller of `_js-e2e.yml` with `needs: [apps-<name>]` and include it in
+   `ci-result.needs`. Configure `command`, `timeout`, `secrets-env` and `secrets-path` as needed; grant
+   `contents: read` and `id-token: write` for Infisical OIDC.
+   The app's `directory` must provide the Playwright CLI; it is used for both browser setup and test execution.
+
+For a .NET app, call `_dotnet.yml` with `workspace`, `directory`, `solution` and optionally `format-exclude`.
+Add its paths to `_changes.yml` and its caller to `sonar.needs` and `ci-result.needs`.
+
+Shared setup stays in `.github/actions/setup-js` and `.github/actions/setup-dotnet`; entry workflows contain no
+check implementation. `_js-audit.yml` handles the repository-wide JavaScript dependency audit, and `_sonar.yml`
+collects coverage from the same run without repeating tests.

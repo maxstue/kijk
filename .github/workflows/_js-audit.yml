@@ -1,0 +1,27 @@
+name: JavaScript audit
+
+# Audits the dependencies of all JavaScript workspaces. It belongs to no single workspace, so it has its own job.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: "🔍 Dependency audit"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: "🔧 Set up JavaScript"
+        uses: ./.github/actions/setup-js
+
+      - name: "🔍 Audit"
+        # Unpatched braces is only reached by shadcn's CLI glob parser; Kijk imports shadcn/tailwind.css only.
+        # Keep this single exception visible and remove it when upstream ships a fix. Other High/Critical findings fail CI.
+        run: pnpm audit --audit-level high --ignore GHSA-vfj7-8cjw-p6xm

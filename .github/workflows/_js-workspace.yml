@@ -1,0 +1,87 @@
+name: JavaScript workspace
+
+# Checks one JavaScript app or package in one job: format, lint, build or typecheck, then optional tests.
+# `ci.yml` calls this building block once per workspace; the workspace jobs run independently in parallel.
+# Setup runs once. Coverage is uploaded as `coverage-js-<workspace>` for `_sonar.yml`.
+# The workspace needs `fmt`, `lint`, `typecheck` and, if enabled, `build` and `test:coverage` scripts.
+# E2E is a separate building block (`_js-e2e.yml`) called only for apps that need it.
+
+on:
+  workflow_call:
+    inputs:
+      workspace:
+        description: Short workspace name, used for the coverage artifact.
+        type: string
+        required: true
+      directory:
+        description: Directory of the workspace.
+        type: string
+        required: true
+      build:
+        description: Run the `build` script instead of the `typecheck` script.
+        type: boolean
+        default: false
+      test:
+        description: Run the `test:coverage` script and upload the coverage.
+        type: boolean
+        default: false
+      browser:
+        description: Install Chromium for Vitest browser tests.
+        type: boolean
+        default: false
+      browser-directory:
+        description: Directory containing the Playwright CLI; defaults to the workspace directory.
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: "✅ Checks"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ${{ inputs.directory }}
+
+    steps:
+      - name: "🏖️ Checkout Repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: "🔧 Set up JavaScript"
+        uses: ./.github/actions/setup-js
+        with:
+          playwright: ${{ inputs.test && inputs.browser }}
+          playwright-directory: ${{ inputs.browser-directory || inputs.directory }}
+
+      - name: "🧹 Format"
+        run: pnpm fmt
+
+      - name: "🔍 Lint"
+        run: pnpm lint
+
+      # The client build runs `tsc` itself, so a separate typecheck would only repeat it.
+      - name: "🧪 Typecheck"
+        if: "!inputs.build"
+        run: pnpm typecheck
+
+      # The build only checks that the client compiles. The Clerk publishable key is validated at runtime and
+      # Railway builds the deployed client with its own variables, so no secrets are needed here.
+      - name: "🧱 Build"
+        if: inputs.build
+        run: pnpm build
+
+      - name: "📊 Tests and coverage"
+        if: inputs.test
+        run: pnpm test:coverage
+
+      - name: "📎 Upload coverage"
+        if: inputs.test
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-js-${{ inputs.workspace }}
+          path: ${{ inputs.directory }}/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7
