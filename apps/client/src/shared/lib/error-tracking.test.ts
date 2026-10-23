@@ -1,56 +1,48 @@
 import * as Sentry from '@sentry/react';
+import { posthog } from 'posthog-js';
+import type { PostHog } from 'posthog-js';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 
-import type { AppRouter } from '@/router';
-import { COOKIE_CONSENT_KEY } from '@/shared/types/analytics';
+import { config } from '@/shared/config';
 
-const storage = vi.hoisted(() => ({
-  hasItem: vi.fn<(key: string) => boolean>(),
-  getItem: vi.fn<(key: string) => unknown>(),
-}));
-const sdk = vi.hoisted(() => ({
+const sentry = vi.hoisted(() => ({
   init: vi.fn<typeof Sentry.init>(),
   captureException: vi.fn<typeof Sentry.captureException>(),
-  addIntegration: vi.fn<typeof Sentry.addIntegration>(),
-  browserSessionIntegration: vi.fn<typeof Sentry.browserSessionIntegration>(() => ({ name: 'BrowserSession' })),
-  tanstackRouterBrowserTracingIntegration: vi.fn<typeof Sentry.tanstackRouterBrowserTracingIntegration>(() => ({
-    name: 'router',
-  })),
-  withStaticSpan: vi.fn<(callback: unknown) => unknown>((callback) => callback),
 }));
-vi.mock('@kijk/core/lib/browser-storage', () => ({ browserStorage: storage }));
-vi.mock('@/shared/config', () => ({ config: { SentryDsn: '', Mode: 'test' } }));
-vi.mock('@sentry/react', () => sdk);
+const errors = vi.hoisted(() => ({ captureException: vi.fn<PostHog['captureException']>() }));
+const posthogSdk = vi.hoisted(() => ({ init: vi.fn<typeof posthog.init>() }));
+vi.mock('@/shared/config', () => ({
+  config: { Mode: 'test', PosthogKey: 'phc_public', PosthogUrl: 'https://eu.i.posthog.example', SentryDsn: '' },
+}));
+vi.mock('@sentry/react', () => sentry);
+vi.mock('posthog-js', () => ({ posthog: posthogSdk }));
 
 let service: (typeof import('./error-tracking'))['ErrorService'];
-const router = {} as AppRouter;
 
 beforeEach(async () => {
   vi.resetModules();
   vi.clearAllMocks();
-  storage.hasItem.mockReturnValue(false);
+  config.PosthogKey = 'phc_public';
+  config.PosthogUrl = 'https://eu.i.posthog.example';
+  posthogSdk.init.mockReturnValue(errors as unknown as PostHog);
   service = (await import('./error-tracking')).ErrorService;
 });
 
-function initOptions() {
-  service.init(router);
-  return sdk.init.mock.calls[0]![0]!;
-}
-
-test('keeps minimal error reporting enabled but suppresses breadcrumbs and unconsented traces', () => {
-  const options = initOptions();
+test('keeps minimal Sentry error reporting without breadcrumbs or tracing', () => {
+  service.init();
+  const options = sentry.init.mock.calls[0]![0]!;
+  const integrations = options.integrations as (defaults: Array<{ name: string }>) => Array<{ name: string }>;
+  expect(integrations([{ name: 'BrowserSession' }, { name: 'GlobalHandlers' }])).toEqual([{ name: 'GlobalHandlers' }]);
   expect(options.attachStacktrace).toBe(false);
   expect(options.maxBreadcrumbs).toBe(0);
   expect(options.beforeBreadcrumb?.({}, {})).toBeNull();
-  expect(options.tracePropagationTargets).toEqual([]);
-  expect(options.tracesSampler?.({} as Parameters<NonNullable<typeof options.tracesSampler>>[0])).toBe(0);
-  expect(options.beforeSendTransaction?.({ type: 'transaction', transaction: '/' }, {})).toBeNull();
-  expect(sdk.addIntegration).not.toHaveBeenCalled();
-  expect(storage.hasItem).toHaveBeenCalledWith(COOKIE_CONSENT_KEY);
+  expect(options).not.toHaveProperty('tracesSampler');
+  expect(options).not.toHaveProperty('tracePropagationTargets');
 });
 
-test('filters personal error data independently of optional analytics consent', () => {
-  const options = initOptions();
+test('filters personal error data in Sentry independently of optional analytics consent', () => {
+  service.init();
+  const options = sentry.init.mock.calls[0]![0]!;
   const result = options.beforeSend?.(
     {
       type: undefined,
@@ -65,52 +57,43 @@ test('filters personal error data independently of optional analytics consent', 
   expect(result).not.toHaveProperty('message');
 });
 
-test('enables sanitized router traces only for stored acceptance', () => {
-  storage.hasItem.mockReturnValue(true);
-  storage.getItem.mockReturnValue('accepted');
-  const options = initOptions();
-  expect(sdk.tanstackRouterBrowserTracingIntegration).toHaveBeenCalledWith(
-    router,
-    expect.objectContaining({ traceFetch: false, traceXHR: false, enableHTTPTimings: false }),
-  );
-  expect(sdk.addIntegration).toHaveBeenCalledOnce();
-  expect(options.tracesSampler?.({} as Parameters<NonNullable<typeof options.tracesSampler>>[0])).toBe(0.1);
-  expect(
-    options.beforeSendTransaction?.(
-      { type: 'transaction', transaction: '/resources/$resourceId?name=private', user: { id: 'synthetic-user' } },
-      {},
-    ),
-  ).toMatchObject({ transaction: '/resources/:parameter', user: undefined });
+test('PostHog reports errors from its own anonymous instance that ignores the analytics opt-out', () => {
+  service.init();
+  const [key, options, name] = posthogSdk.init.mock.calls[0]!;
+  expect(key).toBe('phc_public');
+  expect(name).toBe('errors');
+  expect(options).toMatchObject({
+    advanced_disable_flags: true,
+    autocapture: false,
+    capture_exceptions: { capture_unhandled_errors: true, capture_unhandled_rejections: true },
+    capture_pageview: false,
+    disable_persistence: true,
+    disable_session_recording: true,
+    person_profiles: 'never',
+  });
+  expect(options).not.toHaveProperty('opt_out_capturing_by_default');
+  expect(typeof options?.before_send).toBe('function');
 });
 
-test('installs the tracing integration only once after a later acceptance', () => {
-  initOptions();
-  service.setPerformanceConsent('declined');
-  expect(sdk.addIntegration).not.toHaveBeenCalled();
-  service.setPerformanceConsent('accepted');
-  service.setPerformanceConsent('accepted');
-  expect(sdk.addIntegration).toHaveBeenCalledOnce();
+test.each(['PosthogKey', 'PosthogUrl'] as const)('does not start PostHog error reporting without %s', (field) => {
+  config[field] = '';
+  service.init();
+  expect(posthogSdk.init).not.toHaveBeenCalled();
 });
 
-test('discards an already started transaction when consent is withdrawn', () => {
-  storage.hasItem.mockReturnValue(true);
-  storage.getItem.mockReturnValue('accepted');
-  const options = initOptions();
-  storage.getItem.mockReturnValue('declined');
-  service.setPerformanceConsent('declined');
-  expect(options.tracesSampler?.({} as Parameters<NonNullable<typeof options.tracesSampler>>[0])).toBe(0);
-  expect(options.beforeSendTransaction?.({ type: 'transaction', transaction: '/' }, {})).toBeNull();
-});
-
-test('does not install tracing before the router exists', () => {
-  service.setPerformanceConsent('accepted');
-  expect(sdk.addIntegration).not.toHaveBeenCalled();
-  initOptions();
-  expect(sdk.addIntegration).not.toHaveBeenCalled();
-});
-
-test('forwards technical errors to Sentry', () => {
+test('forwards technical errors to Sentry and PostHog', () => {
   const error = new Error('Synthetic failure');
+  service.init();
   service.captureException(error);
-  expect(sdk.captureException).toHaveBeenCalledWith(error);
+  expect(sentry.captureException).toHaveBeenCalledWith(error);
+  expect(errors.captureException).toHaveBeenCalledWith(error);
+});
+
+test('still reports to Sentry when PostHog is not configured', () => {
+  config.PosthogKey = '';
+  const error = new Error('Synthetic failure');
+  service.init();
+  service.captureException(error);
+  expect(sentry.captureException).toHaveBeenCalledWith(error);
+  expect(errors.captureException).not.toHaveBeenCalled();
 });

@@ -11,6 +11,8 @@ import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useId } from 'react';
 import { toast } from 'sonner';
 
+import { useFeature } from '@/shared/hooks/use-feature';
+
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
 
@@ -27,7 +29,8 @@ export function SpaceImportSettings() {
   const retentionId = useId();
   const sharingId = useId();
   const minimizeId = useId();
-  const aiEnabled = currentUser?.user?.aiEnabled ?? false;
+  const aiImport = useFeature('aiImport');
+  const aiEnabled = aiImport && (currentUser?.user?.aiEnabled ?? false);
 
   function save(change: Partial<Pick<ImportSettings, 'aiDataSharing' | 'minimizeData' | 'purposeRetention'>>) {
     updateMutation.mutate(

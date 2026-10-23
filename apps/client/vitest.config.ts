@@ -46,7 +46,6 @@ export default defineConfig({
           include: [
             '@clerk/react',
             '@hookform/resolvers/zod',
-            '@posthog/react',
             '@sentry/react',
             '@tanstack/charts',
             '@tanstack/charts/react',

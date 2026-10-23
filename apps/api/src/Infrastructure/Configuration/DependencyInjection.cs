@@ -1,9 +1,11 @@
 using System.Reflection;
 using Kijk.Infrastructure.Ai;
 using Kijk.Infrastructure.Auth;
+using Kijk.Infrastructure.FeatureFlags;
 using Kijk.Infrastructure.Imports;
 using Kijk.Infrastructure.Jobs;
 using Kijk.Infrastructure.Persistence;
+using Kijk.Infrastructure.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -25,6 +27,8 @@ internal static class ConfigurationDependencyInjection
         var fingerprint = services.AddOptions<FingerprintOptions>().Bind(configuration.GetSection(FingerprintOptions.SectionName));
         var keyRing = services.AddOptions<KeyRingOptions>().Bind(configuration.GetSection(KeyRingOptions.SectionName));
         var jobs = services.AddOptions<JobsOptions>().Bind(configuration.GetSection(JobsOptions.SectionName));
+        var telemetry = services.AddOptions<TelemetryOptions>().Bind(configuration.GetSection(TelemetryOptions.SectionName));
+        var featureFlags = services.AddOptions<FeatureFlagsOptions>().Bind(configuration.GetSection(FeatureFlagsOptions.SectionName));
 
         services.AddSingleton<IValidateOptions<AuthOptions>, InfrastructureOptionsValidator>();
         services.AddSingleton<IValidateOptions<ConnectionOptions>, InfrastructureOptionsValidator>();
@@ -33,6 +37,8 @@ internal static class ConfigurationDependencyInjection
         services.AddSingleton<IValidateOptions<FingerprintOptions>, InfrastructureOptionsValidator>();
         services.AddSingleton<IValidateOptions<KeyRingOptions>, InfrastructureOptionsValidator>();
         services.AddSingleton<IValidateOptions<JobsOptions>, InfrastructureOptionsValidator>();
+        services.AddSingleton<IValidateOptions<TelemetryOptions>, InfrastructureOptionsValidator>();
+        services.AddSingleton<IValidateOptions<FeatureFlagsOptions>, InfrastructureOptionsValidator>();
 
         if (!IsGeneratingOpenApiDocument)
         {
@@ -43,6 +49,8 @@ internal static class ConfigurationDependencyInjection
             fingerprint.ValidateOnStart();
             keyRing.ValidateOnStart();
             jobs.ValidateOnStart();
+            telemetry.ValidateOnStart();
+            featureFlags.ValidateOnStart();
         }
 
         return services;

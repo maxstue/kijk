@@ -34,13 +34,21 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Sentry" Version="6.10.0" />
-    <PackageVersion Include="Sentry.AspNetCore" Version="6.10.0" />
     <!-- Logging -->
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Expressions" Version="5.0.0" />
-    <!-- Telemetry -->
-    <PackageVersion Include="Sentry.Serilog" Version="6.10.0" />
+    <!-- Telemetry: Sentry and PostHog receive the same traces (OTLP) and the same scrubbed errors. The OpenTelemetry
+         packages are pinned above the 1.12 line that Sentry.OpenTelemetry.Exporter references (known advisories). -->
+    <PackageVersion Include="Sentry" Version="6.12.1" />
+    <PackageVersion Include="Sentry.AspNetCore" Version="6.12.1" />
+    <PackageVersion Include="Sentry.Serilog" Version="6.12.1" />
+    <PackageVersion Include="Sentry.OpenTelemetry.Exporter" Version="6.12.1" />
+    <PackageVersion Include="PostHog" Version="2.15.8" />
+    <PackageVersion Include="OpenTelemetry" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.20.1" />
     <!-- Linting -->
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.33.0.1635">
       <PrivateAssets>all</PrivateAssets>

@@ -86,6 +86,7 @@ const getCurrentUser = () => ({
 
 const worker = setupWorker(
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
+  http.get('*/api/users/me/features', () => HttpResponse.json({ aiImport: true, finances: true })),
   http.put('*/api/users/default-space', async ({ request }) => {
     const { spaceId } = (await request.json()) as { spaceId: string | null };
     if (spaceId !== null && !currentUser.user.spaces.some((space) => space.id === spaceId)) {

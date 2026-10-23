@@ -2,6 +2,8 @@ import type { components } from '@kijk/api/generated/kijk';
 
 /** The current account state. */
 export type CurrentUser = components['schemas']['CurrentUserResponse'];
+/** The parts of Kijk that are switched on for the current user. */
+export type Features = components['schemas']['FeaturesResponse'];
 /** A user who completed onboarding. */
 export type ReadyCurrentUser = components['schemas']['GetMeUserResponse'];
 

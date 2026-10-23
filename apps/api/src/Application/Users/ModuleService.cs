@@ -1,5 +1,6 @@
 using Kijk.Application.Users.CompleteOnboarding;
 using Kijk.Application.Users.Delete;
+using Kijk.Application.Users.Features;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.RequestDeletion;
 using Kijk.Application.Users.SetDefaultSpace;
@@ -18,6 +19,7 @@ public sealed class ModuleService : IModule
         services.AddScoped<RequestDeletionHandler>();
         services.AddScoped<SetDefaultSpaceHandler>();
         services.AddScoped<MeHandler>();
+        services.AddScoped<FeaturesHandler>();
         services.AddScoped<UpdateHandler>();
         services.AddScoped<CompleteOnboardingHandler>();
 

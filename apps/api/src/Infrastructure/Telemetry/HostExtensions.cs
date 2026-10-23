@@ -10,8 +10,9 @@ namespace Kijk.Infrastructure.Telemetry;
 public static class HostExtensions
 {
     /// <summary>
-    /// Adds telemetry tracking to the application.
-    /// This includes error reporting to Sentry.
+    /// Adds Sentry error tracking to the application. It is set up here and not with the other telemetry because
+    /// <c>UseSentry</c> hooks into the web host. PostHog and the traces of both tools are registered in
+    /// <c>TelemetryDependencyInjection.AddTelemetry</c>; traces reach Sentry over OTLP, the same way they reach PostHog.
     /// </summary>
     /// <param name="builder">The web application builder.</param>
     /// <returns>The web application builder.</returns>
@@ -24,8 +25,11 @@ public static class HostExtensions
             options.MinimumBreadcrumbLevel = LogLevel.Error;
             options.MaxBreadcrumbs = 0;
             options.IncludeActivityData = false;
-            options.TracesSampleRate = 0;
+            options.AutoSessionTracking = false;
             options.EnableLogs = false;
+            options.AddInAppInclude("Kijk");
+            // Links errors to the OpenTelemetry trace and turns off Sentry's own tracing.
+            options.UseOtlp();
             options.SetBeforeSend(TelemetryEventScrubber.Scrub);
         });
         return builder;

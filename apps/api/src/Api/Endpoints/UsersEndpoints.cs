@@ -3,6 +3,8 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Users.CompleteOnboarding;
 using Kijk.Application.Users.Delete;
+using Kijk.Application.Users.Features;
+using Kijk.Application.Users.Feedback;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.RequestDeletion;
 using Kijk.Application.Users.SetDefaultSpace;
@@ -31,6 +33,17 @@ public class UsersEndpoints : IEndpointGroup
         group.MapGet("/me", Me).WithName("Users.Me")
             .WithoutSpacePermission(CurrentUserOnly)
             .WithSummary("Gets me");
+
+        group.MapGet("/me/features", Features).WithName("Users.Features")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission(CurrentUserOnly)
+            .WithSummary("Gets the parts of Kijk that are switched on for the current user");
+
+        group.MapPost("/me/feedback", Feedback).WithName("Users.Feedback")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission("Voluntary feedback is sent without account or space identifiers.")
+            .WithRequestValidation<FeedbackRequest>()
+            .WithSummary("Submits feedback independently of optional analytics consent");
 
         group.MapPut("/me", Update).WithName("Users.Update")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
@@ -68,6 +81,15 @@ public class UsersEndpoints : IEndpointGroup
     }
 
     /// <summary>
+    /// Gets the parts of Kijk that are switched on for the current user, as the API enforces them.
+    /// </summary>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The switched-on parts.</returns>
+    private static async Task<Ok<FeaturesResponse>> Features(FeaturesHandler handler, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await handler.HandleAsync(cancellationToken));
+
+    /// <summary>
     /// Updates the current user.
     /// </summary>
     /// <param name="request">The request body.</param>
@@ -102,6 +124,12 @@ public class UsersEndpoints : IEndpointGroup
         var result = await handler.HandleAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
+
+    private static async Task<Results<NoContent, ProblemHttpResult>> Feedback(
+        FeedbackRequest request, [FromServices] IFeedbackSender sender, CancellationToken cancellationToken) =>
+        await sender.SendAsync(request.Message, cancellationToken)
+            ? TypedResults.NoContent()
+            : TypedResults.Problem(statusCode: StatusCodes.Status503ServiceUnavailable, title: "Feedback could not be delivered. Please try again later.");
 
     private static async Task<Results<Accepted, ProblemHttpResult>> RequestDeletion(RequestDeletionHandler handler, CancellationToken cancellationToken)
     {

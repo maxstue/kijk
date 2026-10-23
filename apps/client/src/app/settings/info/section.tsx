@@ -67,12 +67,12 @@ export function InfoSection() {
                   <div className='space-y-0.5'>
                     <FormLabel className='text-base'>Share analytics and performance data</FormLabel>
                     <FormDescription>
-                      Optional product analytics and sanitized Sentry router tracing help us understand feature usage
-                      and navigation performance. Tracing starts only after consent, samples 10% of navigations, and
-                      excludes route parameters and request tracing. Turning this off stops new performance traces.
-                      Minimal technical error reports are separate and remain active so we can detect and fix problems.
-                      They contain scrubbed diagnostics and a short-lived request correlation ID, not account IDs or
-                      submitted space, resource or consumption values.{' '}
+                      Optional product analytics and sanitized router tracing (Sentry and PostHog) help us understand
+                      feature usage and navigation performance. Tracing starts only after consent, samples 10% of
+                      navigations, and excludes route parameters and request tracing. Turning this off stops new
+                      performance traces. Minimal technical error reports are separate and remain active so we can
+                      detect and fix problems. They contain scrubbed diagnostics and a short-lived request correlation
+                      ID, not account IDs or submitted space, resource or consumption values.{' '}
                       <a
                         className='text-foreground underline underline-offset-4'
                         href='/privacy'
