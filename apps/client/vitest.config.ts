@@ -65,6 +65,7 @@ export default defineConfig({
             'msw/browser',
             '@kijk/api > openapi-fetch',
             'posthog-js',
+            'posthog-js/dist/exception-autocapture.js',
             'react',
             'react-dom/client',
             'react-error-boundary',

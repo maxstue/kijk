@@ -145,21 +145,28 @@ describe('router tracing', () => {
     expect(sentry![0]!.spanContext().traceId).toBe(posthog![0]!.spanContext().traceId);
   });
 
-  test('traces the first page load only while the router has not resolved yet', async () => {
+  test('keeps the first page load through initial navigation and traces later navigations separately', async () => {
     const { emit, router } = createRouter(false);
     const stop = startTracing({ ...options, hasConsent: () => true, router });
 
+    emit('onBeforeNavigate');
+    emit('onResolved');
+    emit('onBeforeNavigate');
     emit('onResolved');
     await stop();
 
     const spans = exporters[0]!.spans as ReadableSpan[];
-    expect(spans.map((span) => span.name)).toEqual(['pageload /:parameter/finances/budgets']);
+    expect(spans.map((span) => span.name)).toEqual([
+      'pageload /:parameter/finances/budgets',
+      'navigation /:parameter/finances/budgets',
+    ]);
   });
 
   test('reports the web vitals of the first page load into its trace for both tools', async () => {
     const { emit, router } = createRouter(false);
     const stop = startTracing({ ...options, hasConsent: () => true, router });
 
+    emit('onBeforeNavigate');
     emit('onResolved');
     vitals.callbacks.get('LCP')!({ name: 'LCP', rating: 'good', value: 1200 });
     vitals.callbacks.get('CLS')!({ name: 'CLS', rating: 'needs-improvement', value: 0.12 });

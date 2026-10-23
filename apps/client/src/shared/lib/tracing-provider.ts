@@ -93,6 +93,10 @@ function traceRouter(tracer: Tracer, router: AppRouter) {
       };
 
   const unsubscribeStart = router.subscribe('onBeforeNavigate', () => {
+    // The initial load emits this event too; keep its pageload span until the first resolution.
+    if (active?.kind === 'pageload') {
+      return;
+    }
     active?.span.end();
     active = {
       kind: 'navigation',

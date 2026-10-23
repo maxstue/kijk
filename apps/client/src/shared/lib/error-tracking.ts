@@ -70,6 +70,8 @@ class ErrorTrackingService {
         capture_performance: false,
         capture_heatmaps: false,
         capture_dead_clicks: false,
+        // The default consent key is shared by project token, even between named instances.
+        consent_persistence_name: 'kijk_errors_consent',
         disable_persistence: true,
         disable_session_recording: true,
         disable_surveys: true,
