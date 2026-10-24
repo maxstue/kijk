@@ -1,6 +1,22 @@
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
 import { expect, test } from '@playwright/test';
 
+test('public pages deliver their content before JavaScript runs', async ({ request }) => {
+  for (const [path, content] of [
+    ['/', 'Understand and plan what you use.'],
+    ['/privacy', 'Privacy Policy'],
+    ['/terms', 'Terms of Service'],
+    ['/imprint', 'Imprint'],
+  ]) {
+    const response = await request.get(path);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('text/html');
+    expect(await response.text()).toContain(content);
+  }
+  expect((await request.get('/not/a/real/route')).status()).toBe(404);
+  expect((await request.get('/health')).status()).toBe(200);
+});
+
 test('shows the privacy policy', async ({ page }) => {
   await setupClerkTestingToken({ page });
   await page.goto('/privacy');

@@ -1,29 +1,45 @@
 import * as usersOptions from '@kijk/api/users/options';
 import { isReadyCurrentUser } from '@kijk/api/users/types';
-import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
 
 import { getStartSpace } from '@/shared/lib/spaces';
+import { useAppAuth } from '@/shared/runtime/auth';
 
 /** `/`: public landing page. */
 export const Route = createFileRoute('/')({
-  beforeLoad: async ({ context: { authClient, queryClient } }) => {
-    if (!(await authClient?.session?.getToken())) {
-      return;
-    }
-    const currentUser = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
-    if (!isReadyCurrentUser(currentUser)) {
-      throw redirect({ to: '/welcome', replace: true });
-    }
-    const space = getStartSpace(currentUser.user);
-    if (space) {
-      throw redirect({ to: '/$spaceId', params: { spaceId: space.id }, replace: true });
-    }
-    throw redirect({ to: '/welcome', replace: true });
-  },
   component: PublicHomePage,
 });
 
 function PublicHomePage() {
+  const { auth, queryClient } = Route.useRouteContext();
+  const navigate = useNavigate();
+  const { isLoaded, isSignedIn } = useAppAuth();
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) {
+      return;
+    }
+    let active = true;
+    async function resumeSession() {
+      if (!(await auth.getSession()) || !active) {
+        return;
+      }
+      const currentUser = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
+      if (!active) {
+        return;
+      }
+      const space = isReadyCurrentUser(currentUser) ? getStartSpace(currentUser.user) : undefined;
+      if (space) {
+        await navigate({ to: '/$spaceId', params: { spaceId: space.id }, replace: true });
+      } else {
+        await navigate({ to: '/welcome', replace: true });
+      }
+    }
+    void resumeSession().catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [auth, queryClient, navigate, isLoaded, isSignedIn]);
   return (
     <div className='bg-background flex min-h-screen flex-col'>
       <header className='mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5'>

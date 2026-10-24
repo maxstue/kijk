@@ -1,11 +1,10 @@
 import '@kijk/ui/globals.css';
+import { configureApiClient } from '@kijk/api/client';
 import { afterAll, afterEach, beforeAll } from 'vite-plus/test';
-
-import { setupApiClient } from '@/shared/lib/api-client';
 
 import { worker } from './mocks/browser';
 
-setupApiClient();
+configureApiClient({ baseUrl: 'http://localhost:5000' });
 
 beforeAll(() =>
   worker.start({

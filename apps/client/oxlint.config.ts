@@ -35,6 +35,39 @@ export default defineConfig({
   plugins: ['react', 'react-perf'],
   overrides: [
     {
+      files: ['src/app/**/*.{ts,tsx}', 'src/shared/**/*.{ts,tsx}'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['@tanstack/react-start', '@tanstack/react-start/*', '@clerk/*', '@/server/*', '@/platform/*'],
+                message:
+                  'Shared features use runtime contracts; web and server integrations belong to the entry point.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ['src/app/auth/**/*.{ts,tsx}'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['@tanstack/react-start', '@tanstack/react-start/*', '@/server/*'],
+                message: 'Login UI must not import server code.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       files: ['**/*.test.{ts,tsx}', 'e2e/**/*.ts'],
       rules: { 'typescript/no-floating-promises': 'error' },
     },

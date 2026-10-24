@@ -12,12 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as ImprintRouteImport } from './routes/imprint'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
+import { Route as ApiSessionRouteImport } from './routes/api/session'
 import { Route as AuthenticatedAppSpaceIdRouteRouteImport } from './routes/_authenticated/_app/$spaceId/route'
 import { Route as AuthenticatedAppSettingsRouteRouteImport } from './routes/_authenticated/_app/settings/route'
 import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
@@ -59,6 +62,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImprintRoute = ImprintRouteImport.update({
   id: '/imprint',
   path: '/imprint',
@@ -88,6 +96,16 @@ const AuthenticatedOnboardingRouteRoute =
     id: '/_onboarding',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSessionRoute = ApiSessionRouteImport.update({
+  id: '/api/session',
+  path: '/api/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppSpaceIdRouteRoute =
   AuthenticatedAppSpaceIdRouteRouteImport.update({
     id: '/$spaceId',
@@ -249,10 +267,13 @@ const AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/health': typeof HealthRoute
   '/imprint': typeof ImprintRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
+  '/api/$': typeof ApiSplatRoute
+  '/api/session': typeof ApiSessionRoute
   '/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
@@ -283,10 +304,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/health': typeof HealthRoute
   '/imprint': typeof ImprintRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
+  '/api/$': typeof ApiSplatRoute
+  '/api/session': typeof ApiSessionRoute
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
@@ -315,12 +339,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/health': typeof HealthRoute
   '/imprint': typeof ImprintRoute
   '/privacy': typeof PrivacyRoute
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
+  '/api/$': typeof ApiSplatRoute
+  '/api/session': typeof ApiSessionRoute
   '/_authenticated/_app/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
@@ -353,10 +380,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/health'
     | '/imprint'
     | '/privacy'
     | '/sso-callback'
     | '/terms'
+    | '/api/$'
+    | '/api/session'
     | '/$spaceId'
     | '/settings'
     | '/welcome'
@@ -387,10 +417,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/health'
     | '/imprint'
     | '/privacy'
     | '/sso-callback'
     | '/terms'
+    | '/api/$'
+    | '/api/session'
     | '/settings'
     | '/welcome'
     | '/settings/$section'
@@ -418,12 +451,15 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/health'
     | '/imprint'
     | '/privacy'
     | '/sso-callback'
     | '/terms'
     | '/_authenticated/_app'
     | '/_authenticated/_onboarding'
+    | '/api/$'
+    | '/api/session'
     | '/_authenticated/_app/$spaceId'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_onboarding/welcome'
@@ -456,10 +492,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  HealthRoute: typeof HealthRoute
   ImprintRoute: typeof ImprintRoute
   PrivacyRoute: typeof PrivacyRoute
   SsoCallbackRoute: typeof SsoCallbackRoute
   TermsRoute: typeof TermsRoute
+  ApiSplatRoute: typeof ApiSplatRoute
+  ApiSessionRoute: typeof ApiSessionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -483,6 +522,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/imprint': {
@@ -526,6 +572,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/session': {
+      id: '/api/session'
+      path: '/api/session'
+      fullPath: '/api/session'
+      preLoaderRoute: typeof ApiSessionRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app/$spaceId': {
       id: '/_authenticated/_app/$spaceId'
@@ -900,11 +960,24 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  HealthRoute: HealthRoute,
   ImprintRoute: ImprintRoute,
   PrivacyRoute: PrivacyRoute,
   SsoCallbackRoute: SsoCallbackRoute,
   TermsRoute: TermsRoute,
+  ApiSplatRoute: ApiSplatRoute,
+  ApiSessionRoute: ApiSessionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

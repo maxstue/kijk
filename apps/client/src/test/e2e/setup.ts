@@ -85,6 +85,13 @@ const getCurrentUser = () => ({
 });
 
 const worker = setupWorker(
+  http.get('*/api/session', () => {
+    const session = (globalThis as { Clerk?: { session?: { id: string; user?: { id: string } } } }).Clerk?.session;
+    const hasSession = session || document.cookie.split(';').some((cookie) => cookie.trim().startsWith('__session='));
+    return hasSession
+      ? HttpResponse.json({ id: session?.id ?? 'test-session', userId: session?.user?.id ?? 'user' })
+      : new HttpResponse(null, { status: 401 });
+  }),
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
   http.get('*/api/users/me/features', () => HttpResponse.json({ aiImport: true, finances: true })),
   http.put('*/api/users/default-space', async ({ request }) => {

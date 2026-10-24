@@ -8,14 +8,15 @@ const envSchema = z.object({
   // Base
   Mode: z.enum(['development', 'production', 'test']).default('development'),
   // App
-  BaseApiUrl: z.url(),
-  ApiUrl: z.url(),
   Commit: z.string(),
   Version: z.string(),
   // Devtools
-  DevToolsLogger: z.string().transform((x) => x === 'true'),
+  DevToolsLogger: z
+    .string()
+    .optional()
+    .transform((x) => x === 'true'),
   // Auth
-  AuthPublishableKey: z.string().trim().min(1),
+  AuthPublishableKey: z.string().optional(),
   // Sentry
   SentryDsn: z.string().optional(),
   // Posthog
@@ -26,8 +27,6 @@ const envSchema = z.object({
 const envParse = envSchema.safeParse({
   Mode: import.meta.env.MODE,
   // App
-  BaseApiUrl: import.meta.env.VITE_BASE_API_URL,
-  ApiUrl: import.meta.env.VITE_API_URL,
   Commit: releaseMetadata.commit,
   Version: releaseMetadata.version,
   // Devtools

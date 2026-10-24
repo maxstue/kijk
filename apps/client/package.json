@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "infisical run --project-config-dir=../.. --path=/Client -- vp dev",
-    "build": "tsc && vp build",
+    "build": "tsc && vp build && pnpm check:desktop",
     "preview": "vp preview",
     "test": "vp test run",
     "test:watch": "vp test",
@@ -20,8 +20,10 @@
     "lint:fix": "pnpm oxlint --fix",
     "fmt": "oxfmt --check",
     "fmt:fix": "oxfmt",
-    "clean": "rimraf ./dist",
-    "clean:dedupe": "pnpm dedupe --check"
+    "clean": "rimraf ./dist ./.output ./.tanstack",
+    "clean:dedupe": "pnpm dedupe --check",
+    "start": "node .output/server/index.mjs",
+    "check:desktop": "vp build --config desktop-check/vite.config.ts"
   },
   "dependencies": {
     "@clerk/clerk-js": "catalog:",
@@ -56,7 +58,10 @@
     "sonner": "catalog:",
     "web-vitals": "catalog:",
     "zod": "catalog:",
-    "zustand": "catalog:"
+    "zustand": "catalog:",
+    "@tanstack/react-start": "catalog:",
+    "@clerk/tanstack-react-start": "catalog:",
+    "@sentry/node": "catalog:"
   },
   "devDependencies": {
     "@clerk/shared": "catalog:",
@@ -97,7 +102,8 @@
     "vite": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:",
-    "vitest-browser-react": "catalog:"
+    "vitest-browser-react": "catalog:",
+    "nitro": "catalog:"
   },
   "msw": {
     "workerDirectory": [

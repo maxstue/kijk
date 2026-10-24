@@ -1,6 +1,7 @@
-import { useUser } from '@clerk/react';
 import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from '@kijk/ui/components/popover';
 import { Info } from 'lucide-react';
+
+import { useAppAuth } from '@/shared/runtime/auth';
 
 const providerLabels: Record<string, string> = {
   github: 'GitHub',
@@ -9,21 +10,21 @@ const providerLabels: Record<string, string> = {
 
 /** Lists the external sign-in methods connected to the account. */
 export function ConnectedSignInMethods() {
-  const { isLoaded, user } = useUser();
+  const { isLoaded, identity } = useAppAuth();
 
-  if (!isLoaded || !user) {
+  if (!isLoaded || !identity) {
     return null;
   }
 
   const providers = new Map<string, string>();
-  for (const { provider } of user.externalAccounts) {
+  for (const provider of identity.externalProviders) {
     const key = provider.toLowerCase().replace(/^oauth_/, '');
     const label = providerLabels[key] ?? key.replace(/[_-]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
     providers.set(key, label);
   }
 
   const methods = [
-    ...(user.passwordEnabled ? ['Email and password'] : []),
+    ...(identity.passwordEnabled ? ['Email and password'] : []),
     ...[...providers.entries()].sort(([, first], [, second]) => first.localeCompare(second)).map(([, label]) => label),
   ];
 

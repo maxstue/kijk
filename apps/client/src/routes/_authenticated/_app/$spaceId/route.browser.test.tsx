@@ -1,18 +1,18 @@
-import type { LoadedClerk } from '@clerk/react/types';
 import { queryKeys } from '@kijk/api/query-keys';
 import { expect, test, vi } from 'vite-plus/test';
 
+import type { AuthGateway } from '@/shared/runtime/auth';
 import { renderRoute } from '@/test/render-route';
 
 import { Route } from './route';
 
-const authClient = { session: { getToken: async () => 'test-token' } } as unknown as LoadedClerk;
+const auth: AuthGateway = { getSession: async () => ({ id: 'session', userId: 'user' }) };
 
 test('a direct space URL wins over the account default', async () => {
   const { router } = await renderRoute({
     initialEntry: '/shared',
     overviewRoute: Route,
-    authClient,
+    auth,
     seedQueryClient(client) {
       client.setQueryData(queryKeys.users.me, {
         status: 'Ready',
@@ -35,7 +35,7 @@ test('an unknown membership redirects through root to the default space', async 
   const { router } = await renderRoute({
     initialEntry: '/unknown',
     overviewRoute: Route,
-    authClient,
+    auth,
     seedQueryClient(client) {
       client.setQueryData(queryKeys.users.me, {
         status: 'Ready',

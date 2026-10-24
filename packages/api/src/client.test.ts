@@ -1,10 +1,32 @@
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 
 import * as accountsApi from './accounts/requests';
-import { configureApiClient } from './client';
+import { configureApiClient, createApiClient } from './client';
 import { ApiError } from './errors';
 
 afterEach(() => vi.unstubAllGlobals());
+
+test('isolated API clients never share authentication callbacks', async () => {
+  const tokens: Array<string | null> = [];
+  const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (input) => {
+    tokens.push((input as Request).headers.get('Authorization'));
+    return Response.json({ status: 'Ready' });
+  });
+  const alice = createApiClient({ baseUrl: 'https://api.example.test', fetch, getAuthToken: () => 'alice' });
+  const bob = createApiClient({ baseUrl: 'https://api.example.test', fetch, getAuthToken: () => 'bob' });
+  await Promise.all([alice.GET('/api/users/me'), bob.GET('/api/users/me')]);
+  expect(tokens.toSorted((left, right) => (left ?? '').localeCompare(right ?? ''))).toEqual([
+    'Bearer alice',
+    'Bearer bob',
+  ]);
+});
+
+test('the same-origin BFF transport does not add a bearer header', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json({ status: 'Ready' }));
+  const browser = createApiClient({ baseUrl: 'https://app.example.test', fetch });
+  await browser.GET('/api/users/me');
+  expect((fetch.mock.calls[0][0] as Request).headers.has('Authorization')).toBe(false);
+});
 
 function respond(response: Response) {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));

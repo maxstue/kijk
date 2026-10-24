@@ -4,7 +4,7 @@
 
 **pnpm monorepo** with app and package workspaces:
 
-- `apps/` — api (dotnet), client (React/Vite)
+- `apps/` — api (dotnet), client (React/TanStack Start)
 - `packages/` — `@kijk/api` (typed API client, query keys, query/mutation options), `@kijk/ui` (shared components), `@kijk/core` (utilities, stores, hooks), `@kijk/config` (shared tsconfig/lint/format configs), `@kijk/openapi-codegen` (generates the API types)
 
 ## Developer Commands
@@ -25,7 +25,8 @@ pnpm release      # auto-changelog + GitHub release (CalVer: yyyy.mm.minor)
 
 ```bash
 pnpm dev          # Vite+ dev server via Infisical
-pnpm build        # tsc && vp build
+pnpm build        # typecheck, Start/Nitro build, static desktop reuse check
+pnpm start        # production Node server (.output/server/index.mjs)
 pnpm lint         # oxlint
 pnpm fmt          # oxfmt --check
 pnpm fmt:fix     # oxfmt
@@ -43,7 +44,7 @@ dotnet ef database update
 
 ## Package Structure
 
-- **`@kijk/api`** — Typed client for the Kijk API: generated OpenAPI types, requests, query keys, `queryOptions` and `mutationOptions`; apps call `configureApiClient()` once at startup
+- **`@kijk/api`** — Typed client for the Kijk API: generated OpenAPI types, requests, query keys, `queryOptions` and `mutationOptions`; browser apps call `configureApiClient()` once at startup. Use `createApiClient()` for isolated transports; never share user authentication through a global server client.
 - **`@kijk/ui`** — UI components (buttons, dialogs, etc.) using Base UI (`@base-ui/react`)
 - **`@kijk/core`** — Zustand stores, hooks (use-mobile), browser-storage, logger
 - **`@kijk/config`** — Shared lint/format config exports (oxlint/oxfmt)
@@ -79,6 +80,9 @@ dotnet ef database update                   # creates/updates DB schema
 ## Architecture Notes
 
 - **Client**: TanStack Router auto-generates `src/routeTree.gen.ts` — do not edit manually
+- **Client rendering**: `apps/client` is the single TanStack Start web app. Public pages render on the server; `/_authenticated` uses `ssr: false`. Create the router and QueryClient per request. Browser initialization belongs in `src/client.tsx` or browser-guarded router setup.
+- **Client platform boundary**: reusable features depend on `shared/runtime` contracts; web adapters live in `platform/web`, server code in `server`. Keep Clerk/Start/server imports out of features and shared code, apart from the web login UI in `app/auth`. `desktop-check` verifies one real feature can build without these dependencies; it is not a second deployed app or an offline implementation.
+- **Web BFF**: the browser calls same-origin `/api/*`; Start validates Clerk authentication and relays only `server/api-operations.ts` operations to server-only `API_ORIGIN`. Keep the allowlist aligned after API changes. .NET remains responsible for all domain authorization. `APP_ORIGIN` defines the canonical origin behind hosting proxies; writes require same-origin CSRF checks. See `apps/client/README.md` for deployment and authentication limits.
 - **Client feature boundaries**: `routes/*` defines route context and page structure (search validation, loaders, pending/error states, layout shell, and feature composition); `app/<feature>/*` owns feature components, forms, sections, hooks, schemas, and feature logic; `app/<feature>/*` must not import another feature folder directly; `shared/*` must not import from `app/*`; enforced by `@kijk/oxlint-plugin-boundaries`
 - **Client feature file naming**: feature folders act as namespaces. Inside `app/<feature>`, omit the feature name from file names when the folder already provides that context. Prefer reserved feature-local names like `constants.ts`, `types.ts`, `schemas.ts`, `helpers.ts`, `utils.ts`, `columns.tsx`, and `options.ts`. Component files stay kebab-case, while exported React components stay PascalCase and should remain understandable outside their file.
 - **Client data access**: reusable API calls, query keys, `queryOptions`, and `mutationOptions` live in `packages/api` (`@kijk/api`); keep feature form schemas inside their feature folders. Regenerate the API types with `pnpm api:generate` after API changes

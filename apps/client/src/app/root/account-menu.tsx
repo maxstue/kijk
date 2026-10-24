@@ -1,4 +1,3 @@
-import { useAuth } from '@clerk/react';
 import type { components } from '@kijk/api/generated/kijk';
 import * as usersOptions from '@kijk/api/users/options';
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
@@ -31,10 +30,11 @@ import { useState } from 'react';
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { getInitialChars } from '@/app/root/helpers';
 import { siteConfig } from '@/shared/config/site';
+import { useAppAuth } from '@/shared/runtime/auth';
 
 /** Sidebar account menu: settings, feedback and sign-out. */
 export function AccountMenu() {
-  const { signOut } = useAuth();
+  const { signOut } = useAppAuth();
   const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/' });

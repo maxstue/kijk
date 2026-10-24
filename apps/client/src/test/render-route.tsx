@@ -1,4 +1,3 @@
-import type { LoadedClerk } from '@clerk/react/types';
 import { queryKeys } from '@kijk/api/query-keys';
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,12 +8,14 @@ import { render } from 'vitest-browser-react';
 import { Route as appRoute } from '@/routes/_authenticated/_app/route';
 import { Route as authenticatedRoute } from '@/routes/_authenticated/route';
 import { routeTree } from '@/routeTree.gen';
+import type { AuthGateway } from '@/shared/runtime/auth';
+import { AppAuthContext } from '@/shared/runtime/auth';
 
 interface RenderRouteOptions {
   initialEntry: string;
   overviewRoute: AnyRoute;
   seedQueryClient: (queryClient: QueryClient) => void;
-  authClient?: LoadedClerk;
+  auth?: AuthGateway;
   bypassAuth?: boolean;
   stubOverviewLoader?: boolean;
 }
@@ -27,7 +28,7 @@ export async function renderRoute({
   initialEntry,
   overviewRoute,
   seedQueryClient,
-  authClient,
+  auth = { getSession: async () => ({ id: 'session', userId: 'user' }) },
   bypassAuth = true,
   stubOverviewLoader = true,
 }: RenderRouteOptions) {
@@ -63,6 +64,7 @@ export async function renderRoute({
   onTestFinished(cleanup);
 
   routeTree.update({ component: Outlet });
+  Object.assign(routeTree.options, { shellComponent: undefined });
   Object.assign(authenticatedRoute.options, {
     ...(bypassAuth ? { beforeLoad: undefined } : {}),
     component: Outlet,
@@ -74,14 +76,16 @@ export async function renderRoute({
   });
 
   const router = createRouter({
-    context: { authClient, queryClient },
+    context: { auth, queryClient },
     history: createMemoryHistory({ initialEntries: [initialEntry] }),
     routeTree,
   });
   screen = await render(
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <RouterProvider router={router} />
+        <AppAuthContext value={{ isLoaded: true, isSignedIn: true, signOut: async () => {} }}>
+          <RouterProvider router={router} />
+        </AppAuthContext>
       </TooltipProvider>
     </QueryClientProvider>,
   );

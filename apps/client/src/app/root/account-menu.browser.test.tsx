@@ -8,7 +8,7 @@ import { render } from '@/test/render-space';
 
 import { AccountMenu } from './account-menu';
 
-vi.mock('@clerk/react', () => ({ useAuth: () => ({ signOut: async () => {} }) }));
+vi.mock('@/shared/runtime/auth', () => ({ useAppAuth: () => ({ signOut: async () => {} }) }));
 vi.mock('./feedback-dialog', () => ({ FeedbackDialog: () => null }));
 
 test('the support menu item is a named link to the support page', async () => {

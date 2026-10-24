@@ -1,15 +1,15 @@
-import { useAuth } from '@clerk/react';
 import * as usersOptions from '@kijk/api/users/options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { useAppAuth } from '@/shared/runtime/auth';
 import type { CookieConsent } from '@/shared/types/analytics';
 
 /** Reads and updates the analytics consent: stored on the account for signed-in users, otherwise in the browser. */
 export function useAnalyticsConsent() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAppAuth();
   const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const currentUser = currentAccount?.user;
   const [anonymousConsent, setAnonymousConsent] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());

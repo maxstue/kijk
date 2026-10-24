@@ -5,6 +5,7 @@ import { AppBrand } from '@/shared/components/app-brand';
 
 /** `/sso-callback`: completes an OAuth sign-in. */
 export const Route = createFileRoute('/sso-callback')({
+  ssr: false,
   // Handle the redirect flow by rendering the
   // Prebuilt AuthenticateWithRedirectCallback component.
   // This is the final step in the custom OAuth flow

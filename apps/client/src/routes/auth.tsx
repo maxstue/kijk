@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Login } from '@/app/auth/login';
 import { SignUp } from '@/app/auth/sign-up';
 import { AppBrand } from '@/shared/components/app-brand';
+import { safeRedirect } from '@/shared/lib/safe-redirect';
 
 const authSearchSchema = z.object({
   from: z.string().optional(),
@@ -13,21 +14,23 @@ const authSearchSchema = z.object({
 /** `/auth`: sign-in and sign-up; signed-in users are sent to `from` or `/`. */
 export const Route = createFileRoute('/auth')({
   validateSearch: authSearchSchema,
+  ssr: false,
   component: AuthPage,
-  beforeLoad: async ({ search, context: { authClient } }) => {
-    const session = authClient?.session;
+  beforeLoad: async ({ search, context: { auth } }) => {
+    const session = await auth.getSession();
 
-    if (!(await session?.getToken())) {
+    if (!session) {
       return;
     }
 
-    throw redirect({ to: search.from ?? '/' });
+    throw redirect({ to: safeRedirect(search.from) });
   },
 });
 
 function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
-  const { from = '/' } = Route.useSearch();
+  const search = Route.useSearch();
+  const from = safeRedirect(search.from);
 
   return (
     <div className='bg-muted flex h-full flex-col gap-6 p-6'>

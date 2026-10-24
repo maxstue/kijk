@@ -8,7 +8,7 @@ let dismissAnimationFrame: number | undefined;
 let removeTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
 
 function getBootstrapLoader() {
-  return globalThis.document?.getElementById(BOOTSTRAP_LOADER_ID);
+  return globalThis.document?.getElementById(BOOTSTRAP_LOADER_ID) ?? null;
 }
 
 function cancelDismissal() {
