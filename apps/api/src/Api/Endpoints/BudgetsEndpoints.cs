@@ -24,7 +24,8 @@ public sealed class BudgetsEndpoints : IEndpointGroup
     {
         var group = builder.MapSpaceGroup("budgets")
             .WithTags("Budgets")
-            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .RequireFeature(AppConstants.Features.Finances);
 
         group.MapGet("/", ListVersions).WithName("Budgets.ListVersions").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets all budget versions of the active space");
         group.MapGet("/statistics", Statistics).WithName("Budgets.Statistics").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the spending per category over several months");

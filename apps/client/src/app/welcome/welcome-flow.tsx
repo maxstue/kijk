@@ -315,10 +315,10 @@ function PrivacyStep({ control }: { control: ReturnType<typeof useForm<UserStepF
             <FormLabel>Help improve Kijk</FormLabel>
             <FormDescription>
               Usage and route-performance data is optional and helps us understand which features are useful and where
-              Kijk can be improved. Sentry router tracing starts only after you accept and uses a 10% sample without
-              route parameters or request tracing. Minimal technical error reports are processed separately and remain
-              active so we can detect and fix problems. They contain scrubbed diagnostics and a short-lived request
-              correlation ID, not account IDs or submitted space, resource or consumption values.{' '}
+              Kijk can be improved. Router tracing (Sentry and PostHog) starts only after you accept and uses a 10%
+              sample without route parameters or request tracing. Minimal technical error reports are processed
+              separately and remain active so we can detect and fix problems. They contain scrubbed diagnostics and a
+              short-lived request correlation ID, not account IDs or submitted space, resource or consumption values.{' '}
               <a
                 className='text-foreground underline underline-offset-4'
                 href='/privacy'

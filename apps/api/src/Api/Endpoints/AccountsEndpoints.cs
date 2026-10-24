@@ -22,7 +22,8 @@ public sealed class AccountsEndpoints : IEndpointGroup
     {
         var group = builder.MapSpaceGroup("accounts")
             .WithTags("Accounts")
-            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .RequireFeature(AppConstants.Features.Finances);
 
         group.MapGet("/", List).WithName("Accounts.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the accounts of the active space");
         group.MapPost("/", Create).WithName("Accounts.Create").RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account; shared accounts additionally require finances:configure");

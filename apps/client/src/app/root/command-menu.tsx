@@ -16,7 +16,7 @@ import { cn } from 'cn';
 import { Laptop, Moon, SunMedium } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { mainNavGroups } from '@/app/root/constants';
+import { useNavGroups } from '@/app/root/use-nav-groups';
 import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 import { settingsNav } from '@/shared/navigation/settings';
 
@@ -27,6 +27,7 @@ interface Props {
 /** Command palette (⌘K) to navigate the app. */
 export function CommandMenu({ ...props }: Props) {
   const spaceId = useNavigationSpaceId();
+  const navGroups = useNavGroups();
   const navigate = useNavigate({ from: '/' });
   const [open, setOpen] = useState(false);
   const { setMode } = useThemeStoreActions();
@@ -92,7 +93,7 @@ export function CommandMenu({ ...props }: Props) {
           <CommandInput placeholder='Search...' />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            {mainNavGroups.map((group) => (
+            {navGroups.map((group) => (
               <CommandGroup key={group.label} heading={group.label}>
                 {group.items
                   .filter((item) => item.isActive)

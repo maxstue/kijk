@@ -21,7 +21,6 @@ const envSchema = z.object({
   // Posthog
   PosthogKey: z.string().optional(),
   PosthogUrl: z.string().optional(),
-  PosthogSurveyId: z.string().optional(),
 });
 
 const envParse = envSchema.safeParse({
@@ -39,7 +38,6 @@ const envParse = envSchema.safeParse({
   // Posthog
   PosthogKey: import.meta.env.VITE_POSTHOG_KEY,
   PosthogUrl: import.meta.env.VITE_POSTHOG_URL,
-  PosthogSurveyId: import.meta.env.VITE_POSTHOG_SURVEY_ID,
 });
 
 if (!envParse.success) {

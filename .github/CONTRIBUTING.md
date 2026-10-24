@@ -86,10 +86,22 @@ Than you need to run `dotnet ef database update --project Kijk.Api/Kijk.Api.cspr
 
 > Before you can update the database you need to [start](#starting-everything) the `docker-compose.yml` file from the project root.
 
-### Sentry
+### Telemetry and feature flags
 
-This project uses [Sentry](https://sentry.io/welcome/) for error tracking.
-For local development, the Sentry values in Infisical may be empty.
+Sentry and PostHog currently receive the same scrubbed errors and OTLP traces for comparison. The long-term split
+is still open; PostHog surveys/feedback and global feature flags remain required. Browser analytics and tracing
+require consent; minimal error reporting is separate. Unconfigured telemetry destinations are skipped locally.
+
+Optional configuration in Infisical:
+
+- **API:** `Sentry__Dsn`, `PostHog__ProjectToken`, `PostHog__HostUrl` (EU ingestion host).
+- **Client:** `VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY`, `VITE_POSTHOG_URL`.
+- **Feedback:** move the former `VITE_POSTHOG_SURVEY_ID` value to API setting `Telemetry__FeedbackSurveyId`.
+- **Flags:** `FeatureFlags__SecretApiKey` stays API-only. Use global boolean `finances` / `ai-import` flags with
+  0% or 100%, no targeting or variants, and server evaluation. The client reads the API decision.
+
+Configuration details, failure behavior, operating checks and the comparison decision live in the
+[Linear ADR](https://linear.app/justmax/document/adr-sentry-und-posthog-parallel-vergleichen-0831d0ff9a64).
 
 ### Clerk
 

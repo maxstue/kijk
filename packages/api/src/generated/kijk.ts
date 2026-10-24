@@ -828,6 +828,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/users/me/features': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the parts of Kijk that are switched on for the current user */
+    get: operations['Users.Features'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/users/me/feedback': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Submits feedback independently of optional analytics consent */
+    post: operations['Users.Feedback'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/users/default-space': {
     parameters: {
       query?: never;
@@ -1669,6 +1703,24 @@ export interface components {
       email: null | string;
       /** The profile image URL, or null when its use is disabled. */
       imageUrl: null | string;
+    };
+    /**
+     * The parts of Kijk that are switched on for the current user. The client hides what is off; the API enforces the
+     * same decisions, so both always agree.
+     */
+    FeaturesResponse: {
+      /** Whether the finance area (accounts, transactions, budgets, categories, imports) is available. */
+      finances: boolean;
+      /**
+       * Whether the AI assistance of the bank import is available. It lives inside the finance area and is off whenever
+       * that is. The server-side AI kill switch and the member's own AI setting apply in addition.
+       */
+      aiImport: boolean;
+    };
+    /** Feedback voluntarily submitted to help improve Kijk. */
+    FeedbackRequest: {
+      /** The feedback text, between 2 and 4000 characters; do not include financial or account details. */
+      message: string;
     };
     /** Represents the persisted Kijk user data for a ready account. */
     GetMeUserResponse: {
@@ -5373,6 +5425,65 @@ export interface operations {
         content: {
           'application/json': components['schemas']['UserResponse'];
         };
+      };
+      /** Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['HttpValidationProblemDetails'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.Features': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FeaturesResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.Feedback': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FeedbackRequest'];
+      };
+    };
+    responses: {
+      /** No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** Bad Request */
       400: {

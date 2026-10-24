@@ -17,6 +17,7 @@ import { ImportAiCategorization } from '@/app/imports/ai-preview';
 import { ImportCandidatePagination, ImportCandidateTable } from '@/app/imports/candidate-table';
 import { formatImportMonth } from '@/app/imports/helpers';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
+import { useFeature } from '@/shared/hooks/use-feature';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
 /** Step that shows what the import will change and commits it. */
@@ -44,6 +45,7 @@ export function ImportReviewStep({
   const [page, setPage] = useState(1);
   const [acceptErrors, setAcceptErrors] = useState(false);
   const [showAiPreview, setShowAiPreview] = useState(false);
+  const aiImport = useFeature('aiImport');
   const commitMutation = useMutation(importsOptions.commitMutationOptions(spaceId, job.id));
   const cancelMutation = useMutation(importsOptions.cancelMutationOptions(spaceId, job.id));
 
@@ -114,9 +116,11 @@ export function ImportReviewStep({
               Untick a transaction to leave it out. Choose a category if needed.
             </p>
           </div>
-          <Button size='sm' variant='outline' disabled={isPending} onClick={() => setShowAiPreview(true)}>
-            <Sparkles className='size-4' /> Suggest categories
-          </Button>
+          {aiImport && (
+            <Button size='sm' variant='outline' disabled={isPending} onClick={() => setShowAiPreview(true)}>
+              <Sparkles className='size-4' /> Suggest categories
+            </Button>
+          )}
         </div>
         <UnreadableRows
           review={review}

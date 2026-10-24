@@ -3,9 +3,19 @@ import { unwrapApiResponse } from '@kijk/api/http';
 
 import type { UpdateUserData, WelcomeUserData } from './types';
 
+/** Submits voluntary feedback and rejects if delivery failed. */
+export async function sendFeedback(data: { message: string }) {
+  await apiClient().POST('/api/users/me/feedback', { body: data });
+}
+
 /** Loads the current account state. */
 export async function getMe(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient().GET('/api/users/me', { signal }));
+}
+
+/** Loads the parts of Kijk that are switched on for the current user, as the API enforces them. */
+export async function getFeatures(signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().GET('/api/users/me/features', { signal }));
 }
 
 /** Updates the user's settings; omitted values stay unchanged. */

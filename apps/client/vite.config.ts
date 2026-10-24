@@ -1,3 +1,4 @@
+import posthogRollupPlugin from '@posthog/rollup-plugin';
 import babel from '@rolldown/plugin-babel';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
@@ -8,9 +9,11 @@ import { defineConfig, loadEnv, lazyPlugins } from 'vite-plus';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const sentryUpload = env.SENTRY_ENABLE === 'true';
+  const posthogUpload = env.POSTHOG_ENABLE === 'true';
   return {
     build: {
-      sourcemap: env.SENTRY_ENABLE === 'true',
+      sourcemap: sentryUpload || posthogUpload ? 'hidden' : false,
     },
     optimizeDeps: {
       include: [
@@ -35,6 +38,13 @@ export default defineConfig(({ mode }) => {
       react(),
       babel({ presets: [reactCompilerPreset()] }),
       tailwindcss(),
+      // Both tools get the same source maps. PostHog runs first; the last uploader deletes the maps from the build.
+      posthogRollupPlugin({
+        host: env.POSTHOG_HOST,
+        personalApiKey: env.POSTHOG_API_KEY ?? '',
+        projectId: env.POSTHOG_PROJECT_ID,
+        sourcemaps: { deleteAfterUpload: !sentryUpload, enabled: posthogUpload },
+      }),
       sentryVitePlugin({
         authToken: env.SENTRY_AUTH_TOKEN,
         disable: env.SENTRY_ENABLE !== 'true',

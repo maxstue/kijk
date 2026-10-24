@@ -3,11 +3,21 @@ using Sentry.Protocol;
 namespace Kijk.Infrastructure.Telemetry;
 
 /// <summary>
-/// Removes application and user data from an error event immediately before transmission.
+/// Removes application and user data from a Sentry error event immediately before transmission.
+/// <see cref="PostHogEventScrubber" /> applies the same rules to PostHog, so both tools receive the same information.
 /// </summary>
 public static class TelemetryEventScrubber
 {
-    private static readonly HashSet<string> AllowedTags = ["correlation_id", "error_code", "error_type", "http_status"];
+    /// <summary>The tag that carries the correlation id of the failing request.</summary>
+    internal const string CorrelationIdTag = "correlation_id";
+
+    /// <summary>The tag that carries the id of the trace the error occurred in.</summary>
+    internal const string TraceIdTag = "trace_id";
+
+    /// <summary>The value that replaces every exception message.</summary>
+    internal const string FilteredValue = "[Filtered]";
+
+    private static readonly HashSet<string> AllowedTags = [CorrelationIdTag, TraceIdTag];
 
     /// <summary>
     /// Reduces an event to technical diagnostics and explicitly allowlisted tags.
@@ -18,31 +28,40 @@ public static class TelemetryEventScrubber
     {
         sentryEvent.User = new();
         sentryEvent.Request = new();
-        sentryEvent.Message = sentryEvent.Exception is null
-            ? $"API problem [{GetTag(sentryEvent, "http_status")}/{GetTag(sentryEvent, "error_type")}/{GetTag(sentryEvent, "error_code")}]"
-            : null;
+        sentryEvent.Message = null;
         sentryEvent.ServerName = string.Empty;
         sentryEvent.TransactionName = string.Empty;
 
-        if (sentryEvent.Extra is IDictionary<string, object> extras)
+        // The SDK hands out read-only arrays for empty collections, which cannot be cleared and hold nothing to remove.
+        if (sentryEvent.Extra is IDictionary<string, object> { IsReadOnly: false } extras)
         {
             extras.Clear();
         }
 
-        if (sentryEvent.Breadcrumbs is ICollection<Breadcrumb> breadcrumbs)
+        if (sentryEvent.Breadcrumbs is ICollection<Breadcrumb> { IsReadOnly: false } breadcrumbs)
         {
             breadcrumbs.Clear();
         }
 
+        // The trace context is the only context that survives: it links the error to the trace in the same tool.
+        var trace = sentryEvent.Contexts.TryGetValue(Trace.Type, out var context) ? context as Trace : null;
+        var traceId = trace?.TraceId;
+        var spanId = trace?.SpanId;
         sentryEvent.Contexts.Clear();
-        sentryEvent.Modules.Clear();
-
-        if (sentryEvent.Fingerprint is ICollection<string> fingerprint)
+        if (traceId is { } linkedTrace && linkedTrace != SentryId.Empty && spanId is { } linkedSpan)
         {
-            fingerprint.Clear();
+            sentryEvent.Contexts.Trace.TraceId = linkedTrace;
+            sentryEvent.Contexts.Trace.SpanId = linkedSpan;
         }
 
-        if (sentryEvent.SentryThreads is ICollection<SentryThread> threads)
+        sentryEvent.Modules.Clear();
+
+        if (sentryEvent.Fingerprint is { Count: > 0 })
+        {
+            sentryEvent.SetFingerprint();
+        }
+
+        if (sentryEvent.SentryThreads is ICollection<SentryThread> { IsReadOnly: false } threads)
         {
             threads.Clear();
         }
@@ -56,7 +75,7 @@ public static class TelemetryEventScrubber
 
         foreach (var exception in sentryEvent.SentryExceptions ?? [])
         {
-            exception.Value = "[Filtered]";
+            exception.Value = FilteredValue;
             exception.Mechanism = null;
 
             foreach (var frame in exception.Stacktrace?.Frames ?? [])
@@ -72,6 +91,4 @@ public static class TelemetryEventScrubber
         return sentryEvent;
     }
 
-    private static string GetTag(SentryEvent sentryEvent, string key)
-        => sentryEvent.Tags.TryGetValue(key, out var value) ? value : "unknown";
 }

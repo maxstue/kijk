@@ -14,11 +14,13 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { useSpaceId } from '@/shared/hooks/use-active-space';
+import { useFeature } from '@/shared/hooks/use-feature';
 
 /** Lets the user check and exclude shared texts before requesting category suggestions. */
 export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
   const { data: currentUser } = useQuery(usersOptions.meQueryOptions());
-  if (!currentUser?.user) {
+  const aiImport = useFeature('aiImport');
+  if (!currentUser?.user || !aiImport) {
     return null;
   }
   if (!currentUser.user.aiEnabled) {
