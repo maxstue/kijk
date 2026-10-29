@@ -4,9 +4,10 @@ import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 
 import { App } from '@/app';
+import { WebAuthProvider } from '@/app/root/auth-provider';
 import { RootDevtools } from '@/app/root/devtools';
 import { Favicon } from '@/app/root/favicon';
-import { themeScript } from '@/platform/web/theme-script';
+import { themeScript } from '@/app/root/theme-script';
 import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import type { AuthGateway } from '@/shared/runtime/auth';
@@ -48,7 +49,7 @@ function RootDocument({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
-        {children}
+        <WebAuthProvider>{children}</WebAuthProvider>
         <Scripts />
       </body>
     </html>

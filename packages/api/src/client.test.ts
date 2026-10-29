@@ -28,6 +28,20 @@ test('the same-origin BFF transport does not add a bearer header', async () => {
   expect((fetch.mock.calls[0][0] as Request).headers.has('Authorization')).toBe(false);
 });
 
+test('default headers accompany reads, mutations and downloads', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async () => Response.json({}));
+  const browser = createApiClient({ baseUrl: 'https://app.example.test', fetch, headers: { 'X-CSRF': '1' } });
+  await browser.GET('/api/users/me');
+  await browser.GET('/api/spaces/{spaceId}/consumptions/export', {
+    params: { path: { spaceId: 'space' }, query: { year: 2026, month: 'january' } },
+    parseAs: 'blob',
+  });
+  await browser.DELETE('/api/spaces/{spaceId}/accounts/{id}', {
+    params: { path: { spaceId: 'space', id: 'account' } },
+  });
+  expect(fetch.mock.calls.map(([request]) => (request as Request).headers.get('X-CSRF'))).toEqual(['1', '1', '1']);
+});
+
 function respond(response: Response) {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
   configureApiClient({ baseUrl: 'https://api.example.test', getAuthToken: () => null });

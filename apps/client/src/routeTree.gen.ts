@@ -20,7 +20,6 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
-import { Route as ApiSessionRouteImport } from './routes/api/session'
 import { Route as AuthenticatedAppSpaceIdRouteRouteImport } from './routes/_authenticated/_app/$spaceId/route'
 import { Route as AuthenticatedAppSettingsRouteRouteImport } from './routes/_authenticated/_app/settings/route'
 import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
@@ -99,11 +98,6 @@ const AuthenticatedOnboardingRouteRoute =
 const ApiSplatRoute = ApiSplatRouteImport.update({
   id: '/api/$',
   path: '/api/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiSessionRoute = ApiSessionRouteImport.update({
-  id: '/api/session',
-  path: '/api/session',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppSpaceIdRouteRoute =
@@ -273,7 +267,6 @@ export interface FileRoutesByFullPath {
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
   '/api/$': typeof ApiSplatRoute
-  '/api/session': typeof ApiSessionRoute
   '/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
@@ -310,7 +303,6 @@ export interface FileRoutesByTo {
   '/sso-callback': typeof SsoCallbackRoute
   '/terms': typeof TermsRoute
   '/api/$': typeof ApiSplatRoute
-  '/api/session': typeof ApiSessionRoute
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
@@ -347,7 +339,6 @@ export interface FileRoutesById {
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/_onboarding': typeof AuthenticatedOnboardingRouteRouteWithChildren
   '/api/$': typeof ApiSplatRoute
-  '/api/session': typeof ApiSessionRoute
   '/_authenticated/_app/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
@@ -386,7 +377,6 @@ export interface FileRouteTypes {
     | '/sso-callback'
     | '/terms'
     | '/api/$'
-    | '/api/session'
     | '/$spaceId'
     | '/settings'
     | '/welcome'
@@ -423,7 +413,6 @@ export interface FileRouteTypes {
     | '/sso-callback'
     | '/terms'
     | '/api/$'
-    | '/api/session'
     | '/settings'
     | '/welcome'
     | '/settings/$section'
@@ -459,7 +448,6 @@ export interface FileRouteTypes {
     | '/_authenticated/_app'
     | '/_authenticated/_onboarding'
     | '/api/$'
-    | '/api/session'
     | '/_authenticated/_app/$spaceId'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_onboarding/welcome'
@@ -498,7 +486,6 @@ export interface RootRouteChildren {
   SsoCallbackRoute: typeof SsoCallbackRoute
   TermsRoute: typeof TermsRoute
   ApiSplatRoute: typeof ApiSplatRoute
-  ApiSessionRoute: typeof ApiSessionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -578,13 +565,6 @@ declare module '@tanstack/react-router' {
       path: '/api/$'
       fullPath: '/api/$'
       preLoaderRoute: typeof ApiSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/session': {
-      id: '/api/session'
-      path: '/api/session'
-      fullPath: '/api/session'
-      preLoaderRoute: typeof ApiSessionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app/$spaceId': {
@@ -966,7 +946,6 @@ const rootRouteChildren: RootRouteChildren = {
   SsoCallbackRoute: SsoCallbackRoute,
   TermsRoute: TermsRoute,
   ApiSplatRoute: ApiSplatRoute,
-  ApiSessionRoute: ApiSessionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -8,7 +8,7 @@ const { authenticateWithRedirect } = vi.hoisted(() => ({
   authenticateWithRedirect: vi.fn<(params: unknown) => Promise<void>>(),
 }));
 
-vi.mock('@clerk/react/legacy', () => ({
+vi.mock('@clerk/tanstack-react-start/legacy', () => ({
   useSignIn: () => ({ isLoaded: true, signIn: { authenticateWithRedirect } }),
 }));
 vi.mock('sonner', { spy: true });

@@ -39,7 +39,6 @@ public class OptionsTests
         {
             ["Auth:Authority"] = "https://identity.example.test",
             ["Auth:ClockSkewInSeconds"] = "30",
-            ["Cors:0"] = "https://client.example.test"
         }).Build();
         using var services = new ServiceCollection().AddInfrastructure(configuration).BuildServiceProvider();
         var jwt = services.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>().Get(JwtBearerDefaults.AuthenticationScheme);

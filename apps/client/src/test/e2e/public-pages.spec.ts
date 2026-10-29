@@ -1,5 +1,6 @@
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
-import { expect, test } from '@playwright/test';
+
+import { expect, test } from './fixtures';
 
 test('public pages deliver their content before JavaScript runs', async ({ request }) => {
   for (const [path, content] of [

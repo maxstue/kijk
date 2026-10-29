@@ -1,10 +1,10 @@
 import { auth } from '@clerk/tanstack-react-start/server';
 
-import { apiProblem, forwardApiRequest, isSameOriginWrite } from './api-relay';
+import { apiProblem, forwardApiRequest, hasBffRequestHeader } from './api-relay';
 
-/** Verifies each request independently before resolving an upstream token. */
+/** Verifies each request independently before resolving an upstream token; origin checks run in `start.ts`. */
 export async function relayApiRequest(request: Request) {
-  if (!isSameOriginWrite(request, process.env.APP_ORIGIN)) {
+  if (!hasBffRequestHeader(request)) {
     return apiProblem(403, 'Cross-origin request rejected');
   }
   if (!process.env.CLERK_SECRET_KEY) {
@@ -22,16 +22,5 @@ export async function relayApiRequest(request: Request) {
   if (!apiOrigin) {
     return apiProblem(503, 'The API is not configured');
   }
-  return forwardApiRequest(request, { apiOrigin, token, webOrigin: process.env.APP_ORIGIN });
-}
-
-/** Minimal routing identity. No token or profile is serialized to the browser. */
-export async function getSessionIdentity() {
-  if (!process.env.CLERK_SECRET_KEY) {
-    return apiProblem(503, 'Authentication is not configured');
-  }
-  const session = await auth();
-  return session.userId && session.sessionId
-    ? Response.json({ id: session.sessionId, userId: session.userId }, { headers: { 'Cache-Control': 'no-store' } })
-    : apiProblem(401, 'Authentication required');
+  return forwardApiRequest(request, { apiOrigin, token });
 }

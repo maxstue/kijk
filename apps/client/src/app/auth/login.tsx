@@ -1,4 +1,4 @@
-import { useSignIn } from '@clerk/react/legacy';
+import { useSignIn } from '@clerk/tanstack-react-start/legacy';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Link, useNavigate } from '@tanstack/react-router';

@@ -42,9 +42,8 @@ export default defineConfig({
           {
             patterns: [
               {
-                group: ['@tanstack/react-start', '@tanstack/react-start/*', '@clerk/*', '@/server/*', '@/platform/*'],
-                message:
-                  'Shared features use runtime contracts; web and server integrations belong to the entry point.',
+                group: ['@tanstack/react-start', '@tanstack/react-start/*', '@clerk/*', '@/server/*'],
+                message: 'Features use shared auth contracts; SDK integrations belong to the root provider.',
               },
             ],
           },
@@ -68,7 +67,29 @@ export default defineConfig({
       },
     },
     {
-      files: ['**/*.test.{ts,tsx}', 'e2e/**/*.ts'],
+      files: ['src/app/root/auth-provider.tsx'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: [
+                  '@tanstack/react-start',
+                  '@tanstack/react-start/*',
+                  '@clerk/*/server',
+                  '@clerk/*/server/*',
+                  '@/server/*',
+                ],
+                message: 'The root auth provider integrates the client SDK and must not import server code.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ['**/*.test.{ts,tsx}', 'src/test/e2e/**/*.ts'],
       rules: { 'typescript/no-floating-promises': 'error' },
     },
   ],

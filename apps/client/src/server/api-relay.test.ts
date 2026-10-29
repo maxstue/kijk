@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vite-plus/test';
 
-import { forwardApiRequest, isAllowedApiOperation } from './api-relay';
+import { forwardApiRequest, hasBffRequestHeader, matchApiOperation } from './api-relay';
 
 function write(path = '/api/spaces/space/resources', options: RequestInit = {}) {
   return new Request(`https://app.example.test${path}`, {
@@ -10,27 +10,18 @@ function write(path = '/api/spaces/space/resources', options: RequestInit = {}) 
   });
 }
 
-test('forwards only the explicit API operation allowlist', () => {
-  expect(isAllowedApiOperation('/api/spaces/space/resources', 'POST')).toBe(true);
-  expect(isAllowedApiOperation('/api/spaces/space/resources', 'PATCH')).toBe(false);
-  expect(isAllowedApiOperation('/api/admin', 'GET')).toBe(false);
-  expect(isAllowedApiOperation('/api/spaces/a%2Fb/resources', 'GET')).toBe(false);
+test('forwards only operations declared in the OpenAPI document', () => {
+  expect(matchApiOperation('/api/spaces/space/resources', 'POST')).toBe('/api/spaces/{spaceId}/resources');
+  expect(matchApiOperation('/api/spaces/space/resources', 'PATCH')).toBeUndefined();
+  expect(matchApiOperation('/api/admin', 'GET')).toBeUndefined();
+  expect(matchApiOperation('/api/spaces/a%2Fb/resources', 'GET')).toBeUndefined();
 });
 
-test.each(['https://attacker.example', undefined])(
-  'rejects an unsafe cookie-authenticated write: %s',
-  async (origin) => {
-    const fetch = vi.fn<typeof globalThis.fetch>();
-    const request = write(undefined, { headers: origin ? { origin } : {} });
-    const response = await forwardApiRequest(request, {
-      apiOrigin: 'https://api.example.test',
-      token: 'server-token',
-      fetch,
-    });
-    expect(response.status).toBe(403);
-    expect(fetch).not.toHaveBeenCalled();
-  },
-);
+test('requires the CSRF header that only the same-origin API client sends', () => {
+  expect(hasBffRequestHeader(write(undefined, { headers: { 'X-CSRF': '1' } }))).toBe(true);
+  expect(hasBffRequestHeader(write())).toBe(false);
+  expect(hasBffRequestHeader(write(undefined, { headers: { 'X-CSRF': 'yes' } }))).toBe(false);
+});
 
 test('replaces client credentials and preserves multipart uploads exactly', async () => {
   const form = new FormData();
@@ -46,20 +37,25 @@ test('replaces client credentials and preserves multipart uploads exactly', asyn
     },
   });
   const expectedBody = await request.clone().text();
-  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json({ id: 'import' }, { status: 202 }));
+  let forwardedBody = '';
+  const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (_target, options) => {
+    forwardedBody = await new Response(options?.body).text();
+    return Response.json({ id: 'import' }, { status: 202 });
+  });
   const response = await forwardApiRequest(request, {
     apiOrigin: 'https://api.example.test',
     token: 'verified',
     fetch,
   });
   const [target, options] = fetch.mock.calls[0];
+  expect(options).toMatchObject({ duplex: 'half' });
   expect((target as URL).href).toBe('https://api.example.test/api/spaces/space/imports');
   const headers = new Headers(options?.headers);
   expect(headers.get('Authorization')).toBe('Bearer verified');
   expect(headers.get('content-type')).toContain('multipart/form-data; boundary=');
   expect(headers.has('cookie')).toBe(false);
   expect(headers.has('X-User-Id')).toBe(false);
-  expect(new TextDecoder().decode(options?.body as Uint8Array)).toBe(expectedBody);
+  expect(forwardedBody).toBe(expectedBody);
   expect(response.status).toBe(202);
   expect(response.headers.get('Cache-Control')).toBe('no-store');
 });
@@ -115,15 +111,27 @@ test('does not leak upstream errors or retry mutations', async () => {
   expect(fetch).toHaveBeenCalledOnce();
 });
 
-test('enforces the upload limit even without Content-Length', async () => {
+test('rejects a declared oversized upload before contacting the API', async () => {
   const fetch = vi.fn<typeof globalThis.fetch>();
+  const response = await forwardApiRequest(
+    write(undefined, { body: 'x', headers: { 'Content-Length': String(16 * 1024 * 1024 + 1) } }),
+    { apiOrigin: 'https://api.example.test', token: 'verified', fetch },
+  );
+  expect(response.status).toBe(413);
+  expect(fetch).not.toHaveBeenCalled();
+});
+
+test('aborts a streamed upload that exceeds the limit without Content-Length', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (_target, options) => {
+    await new Response(options?.body).arrayBuffer();
+    return new Response(null, { status: 202 });
+  });
   const response = await forwardApiRequest(write(undefined, { body: new Uint8Array(16 * 1024 * 1024 + 1) }), {
     apiOrigin: 'https://api.example.test',
     token: 'verified',
     fetch,
   });
   expect(response.status).toBe(413);
-  expect(fetch).not.toHaveBeenCalled();
 });
 
 test('concurrent requests keep user credentials isolated', async () => {
@@ -145,20 +153,4 @@ test('concurrent requests keep user credentials isolated', async () => {
     { auth: 'Bearer alice' },
     { auth: 'Bearer bob' },
   ]);
-});
-
-test('checks the configured public origin behind a trusted hosting proxy', async () => {
-  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(null, { status: 204 }));
-  const request = new Request('http://internal:8080/api/spaces/space/resources', {
-    method: 'POST',
-    headers: { origin: 'https://app.example.test' },
-  });
-  const response = await forwardApiRequest(request, {
-    apiOrigin: 'http://api.internal:8080',
-    webOrigin: 'https://app.example.test',
-    token: 'verified',
-    fetch,
-  });
-  expect(response.status).toBe(204);
-  expect(fetch).toHaveBeenCalledOnce();
 });

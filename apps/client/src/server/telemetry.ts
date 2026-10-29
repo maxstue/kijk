@@ -8,8 +8,7 @@ import release from '@/release-metadata.json';
 import { scrubErrorEvent } from '@/shared/lib/error-event-scrubber';
 import { posthogDestination, sentryDestination } from '@/shared/lib/otlp-destinations';
 
-import { allowedApiOperations } from './api-operations';
-import { isAllowedApiOperation } from './api-relay';
+import { matchApiOperation } from './api-relay';
 
 let provider: TracerProvider | undefined;
 let errorsInitialized = false;
@@ -17,21 +16,10 @@ let errorsInitialized = false;
 /** Keeps route identifiers and arbitrary request input out of server traces. */
 export function serverRouteTemplate(request: Request) {
   const path = new URL(request.url).pathname;
-  if (['/', '/privacy', '/terms', '/imprint', '/auth', '/sso-callback', '/health', '/api/session'].includes(path)) {
+  if (['/', '/privacy', '/terms', '/imprint', '/auth', '/sso-callback', '/health'].includes(path)) {
     return path;
   }
-  if (isAllowedApiOperation(path, request.method)) {
-    const segments = path.split('/');
-    return (
-      allowedApiOperations.find(
-        ([pattern, methods]) =>
-          methods.includes(request.method.toLowerCase()) &&
-          pattern.split('/').length === segments.length &&
-          pattern.split('/').every((segment, index) => segment.startsWith('{') || segment === segments[index]),
-      )?.[0] ?? '/api'
-    );
-  }
-  return path.startsWith('/api/') ? '/api' : '/app';
+  return matchApiOperation(path, request.method) ?? (path.startsWith('/api/') ? '/api' : '/app');
 }
 
 function getProvider() {

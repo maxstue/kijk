@@ -1,4 +1,4 @@
-import { AuthenticateWithRedirectCallback } from '@clerk/react';
+import { AuthenticateWithRedirectCallback } from '@clerk/tanstack-react-start';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { AppBrand } from '@/shared/components/app-brand';

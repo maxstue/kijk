@@ -19,9 +19,8 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: [
         '@clerk/tanstack-react-start',
-        '@clerk/react',
-        '@clerk/react/legacy',
-        '@clerk/react/internal',
+        '@clerk/tanstack-react-start/legacy',
+        '@clerk/tanstack-react-start > @clerk/react/internal',
         '@tanstack/charts',
         '@tanstack/charts/react',
         '@tanstack/charts/scales/band',
@@ -63,7 +62,7 @@ export default defineConfig(({ mode }) => {
       }),
     ]),
     resolve: {
-      dedupe: ['react', 'react-dom', '@clerk/react', '@clerk/shared'],
+      dedupe: ['react', 'react-dom', '@clerk/shared'],
       tsconfigPaths: true,
     },
     server: {

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "infisical run --project-config-dir=../.. --path=/Client -- vp dev",
-    "build": "tsc && vp build && pnpm check:desktop",
+    "build": "tsc && vp build",
     "preview": "vp preview",
     "test": "vp test run",
     "test:watch": "vp test",
@@ -22,12 +22,9 @@
     "fmt:fix": "oxfmt",
     "clean": "rimraf ./dist ./.output ./.tanstack",
     "clean:dedupe": "pnpm dedupe --check",
-    "start": "node .output/server/index.mjs",
-    "check:desktop": "vp build --config desktop-check/vite.config.ts"
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "@clerk/clerk-js": "catalog:",
-    "@clerk/react": "catalog:",
     "@hookform/resolvers": "catalog:",
     "@kijk/api": "workspace:*",
     "@kijk/core": "workspace:*",

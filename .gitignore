@@ -2,7 +2,6 @@
 node_modules
 .output/
 .tanstack/
-dist-desktop-check/
 **/lint-results.sarif
 **/coverage/
 
