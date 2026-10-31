@@ -217,16 +217,25 @@ function CandidateCategory({
         <div>{categories.find((category) => category.id === candidate.categoryId)?.name ?? 'Uncategorized'}</div>
       )}
       <div className='mt-1 flex h-6 items-center'>
-        {candidate.excluded ? (
-          <span className='text-xs'>Not imported</span>
-        ) : candidate.categorySource === 'Ai' ? (
-          <Badge variant='outline'>
-            <Sparkles className='size-3' /> AI suggestion
-          </Badge>
-        ) : candidate.categoryId && candidate.categorySource === 'Manual' ? (
-          <Badge variant='outline'>Manual override</Badge>
-        ) : null}
+        <CandidateCategoryStatus candidate={candidate} />
       </div>
     </>
   );
+}
+
+function CandidateCategoryStatus({ candidate }: { candidate: ImportCandidate }) {
+  if (candidate.excluded) {
+    return <span className='text-xs'>Not imported</span>;
+  }
+  if (candidate.categorySource === 'Ai') {
+    return (
+      <Badge variant='outline'>
+        <Sparkles className='size-3' /> AI suggestion
+      </Badge>
+    );
+  }
+  if (candidate.categoryId && candidate.categorySource === 'Manual') {
+    return <Badge variant='outline'>Manual override</Badge>;
+  }
+  return null;
 }

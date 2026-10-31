@@ -38,6 +38,11 @@ test('a social sign-in failure re-enables the form and reports the error', async
   const screen = await render(<UserAuthForm btnLabel='Login' redirectTo='/' onSubmit={async () => {}} />);
   try {
     await screen.getByRole('button', { name: 'Google' }).click();
+    expect(authenticateWithRedirect).toHaveBeenCalledExactlyOnceWith({
+      redirectUrl: '/sso-callback',
+      redirectUrlComplete: '/auth?from=%2F',
+      strategy: 'oauth_google',
+    });
     await expect
       .element(screen.getByRole('alert'))
       .toHaveTextContent('Google sign-in could not be started. Please try again or choose another sign-in method.');

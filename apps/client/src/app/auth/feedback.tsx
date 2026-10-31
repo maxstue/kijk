@@ -14,7 +14,7 @@ export function AuthPending() {
   return (
     <main className='flex min-h-full flex-col items-center justify-center gap-6 p-6'>
       <AppBrand />
-      <p role='status'>Checking your sign-in and loading your Kijk account…</p>
+      <output>Checking your sign-in and loading your Kijk account…</output>
     </main>
   );
 }
@@ -37,9 +37,8 @@ export function AuthError({ error }: ErrorComponentProps) {
       await router.invalidate();
     } catch {
       setActionError('We could not retry your sign-in. Please reload the page.');
-    } finally {
-      setBusy(false);
     }
+    setBusy(false);
   }
 
   async function leave() {
@@ -51,9 +50,8 @@ export function AuthError({ error }: ErrorComponentProps) {
       await router.invalidate();
     } catch {
       setActionError('Sign-out could not be completed. Please try again.');
-    } finally {
-      setBusy(false);
     }
+    setBusy(false);
   }
 
   return (

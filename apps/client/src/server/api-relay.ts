@@ -48,28 +48,13 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
     return apiProblem(request, 401, 'Your session could not be verified. Please sign in again.');
   }
 
-  let target: URL;
-  try {
-    target = new URL(options.apiUrl);
-    if (
-      !['http:', 'https:'].includes(target.protocol) ||
-      target.username ||
-      target.password ||
-      target.pathname !== '/' ||
-      target.search ||
-      target.hash
-    ) {
-      throw new Error('Invalid API_URL');
-    }
-  } catch {
+  const target = createApiTarget(options.apiUrl, url);
+  if (!target) {
     console.error(
       'BFF configuration error: API_URL must be an HTTP(S) origin without credentials, a path, query parameters or a fragment.',
     );
     return apiProblem(request, 503, 'Your account is temporarily unavailable. Please try again later.');
   }
-  target.pathname = url.pathname;
-  target.search = url.search;
-  target.hash = '';
 
   const headers = new Headers({ Authorization: `Bearer ${options.token}` });
   for (const name of forwardedRequestHeaders) {
@@ -127,5 +112,27 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
       return apiProblem(request, 504, 'The service did not respond in time. Please try again shortly.');
     }
     return apiProblem(request, 502, 'We could not reach the service. Please try again shortly.');
+  }
+}
+
+function createApiTarget(apiUrl: string, requestUrl: URL): URL | undefined {
+  try {
+    const target = new URL(apiUrl);
+    if (
+      !['http:', 'https:'].includes(target.protocol) ||
+      target.username ||
+      target.password ||
+      target.pathname !== '/' ||
+      target.search ||
+      target.hash
+    ) {
+      return undefined;
+    }
+    target.pathname = requestUrl.pathname;
+    target.search = requestUrl.search;
+    target.hash = '';
+    return target;
+  } catch {
+    return undefined;
   }
 }

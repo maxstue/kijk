@@ -19,7 +19,11 @@ let upstreamRequests: UpstreamRequest[] = [];
 async function toRequest(message: IncomingMessage) {
   const headers = new Headers();
   for (const [name, value] of Object.entries(message.headers)) {
-    for (const item of Array.isArray(value) ? value : value === undefined ? [] : [value]) {
+    if (value === undefined) {
+      continue;
+    }
+    const values = Array.isArray(value) ? value : [value];
+    for (const item of values) {
       headers.append(name, item);
     }
   }

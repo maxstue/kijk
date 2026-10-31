@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/node';
 import release from '@/release-metadata.json';
 import { scrubErrorEvent } from '@/shared/lib/error-event-scrubber';
 import { posthogDestination, sentryDestination } from '@/shared/lib/otlp-destinations';
+import { trimTrailingSlashes } from '@/shared/utils/url';
 
 import { matchApiOperation } from './api-relay';
 
@@ -86,7 +87,7 @@ export function captureServerError(error: unknown) {
   const key = process.env.VITE_POSTHOG_KEY;
   const host = process.env.VITE_POSTHOG_URL;
   if (key && host) {
-    void fetch(`${host.replace(/\/+$/, '')}/i/v0/e/`, {
+    void fetch(`${trimTrailingSlashes(host)}/i/v0/e/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

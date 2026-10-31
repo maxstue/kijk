@@ -1,3 +1,5 @@
+import { trimTrailingSlashes } from '@/shared/utils/url';
+
 export interface OtlpDestination {
   headers: Record<string, string>;
   url: string;
@@ -22,5 +24,5 @@ export function sentryDestination(dsn: string): OtlpDestination | undefined {
 
 /** Derives the OTLP traces endpoint from the PostHog ingestion host and authenticates with the public project token. */
 export function posthogDestination(key: string, url: string): OtlpDestination {
-  return { headers: { Authorization: `Bearer ${key}` }, url: `${url.replace(/\/+$/, '')}/i/v1/traces` };
+  return { headers: { Authorization: `Bearer ${key}` }, url: `${trimTrailingSlashes(url)}/i/v1/traces` };
 }

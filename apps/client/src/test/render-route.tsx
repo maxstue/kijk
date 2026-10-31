@@ -28,7 +28,7 @@ export async function renderRoute({
   initialEntry,
   overviewRoute,
   seedQueryClient,
-  auth = { getSession: async () => ({ id: 'session', userId: 'user' }) },
+  auth = { getSession: () => Promise.resolve({ id: 'session', userId: 'user' }) },
   bypassAuth = true,
   stubOverviewLoader = true,
 }: RenderRouteOptions) {

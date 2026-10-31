@@ -234,11 +234,11 @@ function AiSuggestionsAction({
     return null;
   }
   return (
-    <div role='region' aria-label='AI category suggestions' className='flex flex-wrap items-center gap-3'>
+    <section aria-label='AI category suggestions' className='flex flex-wrap items-center gap-3'>
       <Button size='sm' variant='outline' disabled={disabled} onClick={onOpen}>
         <Sparkles data-icon='inline-start' /> Suggest categories
       </Button>
-    </div>
+    </section>
   );
 }
 
