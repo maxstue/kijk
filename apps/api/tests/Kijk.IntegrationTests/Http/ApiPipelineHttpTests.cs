@@ -83,8 +83,8 @@ public class ApiPipelineHttpTests
         var firstId = firstResponse.Headers.GetValues(AppConstants.CorrelationId).Single();
         var secondId = secondResponse.Headers.GetValues(AppConstants.CorrelationId).Single();
 
-        await Assert.That(firstId).IsNotEqualTo("client-id");
-        await Assert.That(secondId).IsNotEqualTo(firstId);
+        await Assert.That(firstId).IsNotEqualTo<string>("client-id");
+        await Assert.That(secondId).IsNotEqualTo<string>(firstId);
     }
 
     [Test]

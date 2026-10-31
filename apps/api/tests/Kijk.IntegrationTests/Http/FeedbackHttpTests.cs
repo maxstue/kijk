@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Kijk.Domain.Entities;
-using Kijk.Domain.ValueObjects;
 using Kijk.IntegrationTests.Persistence;
 using Kijk.Shared;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +13,8 @@ namespace Kijk.IntegrationTests.Http;
 [NotInParallel]
 public class FeedbackHttpTests
 {
+    private const string FeedbackEndpoint = "/api/users/me/feedback";
+
     [Before(Class)]
     public static Task StartDatabase() => PostgreSqlTestDatabase.StartAsync();
 
@@ -40,7 +41,7 @@ public class FeedbackHttpTests
             });
 
         using var activity = new Activity("private-request").Start();
-        using var response = await host.Client.PostAsJsonAsync("/api/users/me/feedback", new { message = " Please add a dark theme " });
+        using var response = await host.Client.PostAsJsonAsync(FeedbackEndpoint, new { message = " Please add a dark theme " });
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.NoContent);
         using var body = JsonDocument.Parse(receiver.Body!);
         var properties = body.RootElement.GetProperty("properties");
@@ -55,21 +56,23 @@ public class FeedbackHttpTests
         var firstId = body.RootElement.GetProperty("distinct_id").GetString();
 
         receiver.Status = HttpStatusCode.ServiceUnavailable;
-        using var failed = await host.Client.PostAsJsonAsync("/api/users/me/feedback", new { message = "Try again" });
+        using var failed = await host.Client.PostAsJsonAsync(FeedbackEndpoint, new { message = "Try again" });
         await Assert.That(failed.StatusCode).IsEqualTo(HttpStatusCode.ServiceUnavailable);
         using var secondBody = JsonDocument.Parse(receiver.Body ?? throw new InvalidOperationException("The receiver did not record a request"));
-        await Assert.That(secondBody.RootElement.GetProperty("distinct_id").GetString()).IsNotEqualTo(firstId);
+        await Assert.That<string?>(secondBody.RootElement.GetProperty("distinct_id").GetString()).IsNotEqualTo(firstId);
 
         var sent = receiver.Calls;
-        foreach (var message in new string?[] { null, " ", new('a', 4001) })
+        foreach (var message in new[] { null, " ", new('a', 4001) })
         {
-            using var invalid = await host.Client.PostAsJsonAsync("/api/users/me/feedback", new { message });
+            using var invalid = await host.Client.PostAsJsonAsync(FeedbackEndpoint, new { message });
             await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         }
+
         await Assert.That(receiver.Calls).IsEqualTo(sent);
 
-        using var anonymous = new HttpClient { BaseAddress = host.Client.BaseAddress };
-        using var unauthorized = await anonymous.PostAsJsonAsync("/api/users/me/feedback", new { message = "Not signed in" });
+        using var anonymous = new HttpClient();
+        anonymous.BaseAddress = host.Client.BaseAddress;
+        using var unauthorized = await anonymous.PostAsJsonAsync(FeedbackEndpoint, new { message = "Not signed in" });
         await Assert.That(unauthorized.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
     }
 
@@ -80,7 +83,7 @@ public class FeedbackHttpTests
         public string[] Headers { get; private set; } = [];
         public int Calls { get; private set; }
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Calls++;
             Body = request.Content is { } content ? await content.ReadAsStringAsync(cancellationToken) : string.Empty;

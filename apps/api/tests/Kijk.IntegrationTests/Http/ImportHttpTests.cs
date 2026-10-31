@@ -728,8 +728,8 @@ public class ImportHttpTests
         var key = pseudonymizer.Compute(first, "iban", "DE89370400440532013000");
 
         await Assert.That(pseudonymizer.Compute(first, "iban", "DE89370400440532013000")).IsEqualTo(key);
-        await Assert.That(pseudonymizer.Compute(second, "iban", "DE89370400440532013000")).IsNotEqualTo(key);
-        await Assert.That(pseudonymizer.Compute(first, "booking", "DE89370400440532013000")).IsNotEqualTo(key);
+        await Assert.That(pseudonymizer.Compute(second, "iban", "DE89370400440532013000")).IsNotEqualTo<string>(key);
+        await Assert.That(pseudonymizer.Compute(first, "booking", "DE89370400440532013000")).IsNotEqualTo<string>(key);
         await Assert.That(key.Contains("DE89", StringComparison.Ordinal)).IsFalse();
     }
 
