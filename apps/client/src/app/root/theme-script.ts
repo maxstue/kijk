@@ -1,0 +1,3 @@
+/** Applied before paint; reads only the local theme preference. */
+export const themeScript =
+  "(() => {\n        const systemTheme = globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';\n        let theme = systemTheme;\n\n        try {\n          const storedTheme = JSON.parse(globalThis.localStorage.getItem('kijk-theme'))?.mode;\n\n          if (storedTheme === 'light' || storedTheme === 'dark') {\n            theme = storedTheme;\n          }\n        } catch {\n          // Keep the system theme when browser storage is unavailable or invalid.\n        }\n\n        document.documentElement.classList.add(theme);\n        document.documentElement.style.colorScheme = theme;\n      })();";

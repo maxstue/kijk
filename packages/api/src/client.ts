@@ -8,7 +8,11 @@ export interface ApiClientOptions {
   /** Base URL of the Kijk API, without the `/api` prefix. */
   baseUrl: string;
   /** Returns the bearer token of the signed-in user, or nothing while signed out. */
-  getAuthToken: () => Promise<string | null | undefined> | string | null | undefined;
+  getAuthToken?: () => Promise<string | null | undefined> | string | null | undefined;
+  /** Fetch implementation supplied by a browser, native runtime, or isolated server request. */
+  fetch?: typeof globalThis.fetch;
+  /** Headers sent with every request, such as the CSRF marker a backend for frontend requires. */
+  headers?: Record<string, string>;
 }
 
 let client: Client<paths> | undefined;
@@ -18,8 +22,17 @@ let client: Client<paths> | undefined;
  * from the generated API types file.
  */
 export function configureApiClient(options: ApiClientOptions) {
-  client = createClient<paths>({ baseUrl: options.baseUrl });
-  client.use(createAuthMiddleware(options.getAuthToken), apiResponseMiddleware);
+  client = createApiClient(options);
+}
+
+/** Creates an isolated client; server requests must use their own instance rather than the browser default. */
+export function createApiClient(options: ApiClientOptions) {
+  const instance = createClient<paths>({ baseUrl: options.baseUrl, fetch: options.fetch, headers: options.headers });
+  if (options.getAuthToken) {
+    instance.use(createAuthMiddleware(options.getAuthToken));
+  }
+  instance.use(apiResponseMiddleware);
+  return instance;
 }
 
 /** Returns the API client configured with {@link configureApiClient}. */
@@ -33,11 +46,14 @@ export function apiClient() {
 
 // ##### Middlewares #####
 
-function createAuthMiddleware(getAuthToken: ApiClientOptions['getAuthToken']): Middleware {
+function createAuthMiddleware(getAuthToken: NonNullable<ApiClientOptions['getAuthToken']>): Middleware {
   return {
     async onRequest({ request }) {
       const headers = new Headers(request.headers);
-      headers.set('Authorization', `Bearer ${(await getAuthToken()) ?? ''}`);
+      const token = await getAuthToken();
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
 
       if (request.body && !headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');

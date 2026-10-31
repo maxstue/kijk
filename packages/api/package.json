@@ -9,7 +9,7 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "generate": "pnpm --filter @kijk/openapi-codegen generate && oxfmt src/generated/kijk.ts",
+    "generate": "pnpm --filter @kijk/openapi-codegen generate && oxfmt src/generated",
     "test": "vp test run",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",

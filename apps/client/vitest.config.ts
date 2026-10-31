@@ -39,12 +39,24 @@ export default defineConfig({
       {
         extends: true,
         plugins: [tailwindcss()],
+        resolve: {
+          alias: [
+            {
+              find: '@/app/root/auth-provider',
+              replacement: fileURLToPath(new URL('./src/test/web-auth-provider.tsx', import.meta.url)),
+            },
+            {
+              find: /^@clerk\/tanstack-react-start$/,
+              replacement: fileURLToPath(new URL('./src/test/clerk-sdk.tsx', import.meta.url)),
+            },
+          ],
+        },
         // Pre-bundle the runtime dependencies up front. Otherwise Vite discovers some of them while the first test
         // files run, re-optimizes and reloads the page, which fails in-flight test imports on slow CI runners
         // ("Failed to fetch dynamically imported module").
         optimizeDeps: {
           include: [
-            '@clerk/react',
+            '@clerk/tanstack-react-start/legacy',
             '@hookform/resolvers/zod',
             '@sentry/react',
             '@tanstack/charts',

@@ -1,4 +1,4 @@
-import { useSignUp } from '@clerk/react/legacy';
+import { useSignUp } from '@clerk/tanstack-react-start/legacy';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';

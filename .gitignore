@@ -1,5 +1,7 @@
 # Build output
 node_modules
+.output/
+.tanstack/
 **/lint-results.sarif
 **/coverage/
 

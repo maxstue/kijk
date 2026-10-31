@@ -35,7 +35,61 @@ export default defineConfig({
   plugins: ['react', 'react-perf'],
   overrides: [
     {
-      files: ['**/*.test.{ts,tsx}', 'e2e/**/*.ts'],
+      files: ['src/app/**/*.{ts,tsx}', 'src/shared/**/*.{ts,tsx}'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['@tanstack/react-start', '@tanstack/react-start/*', '@clerk/*', '@/server/*'],
+                message: 'Features use shared auth contracts; SDK integrations belong to the root provider.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ['src/app/auth/**/*.{ts,tsx}'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['@tanstack/react-start', '@tanstack/react-start/*', '@/server/*'],
+                message: 'Login UI must not import server code.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ['src/app/root/auth-provider.tsx'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: [
+                  '@tanstack/react-start',
+                  '@tanstack/react-start/*',
+                  '@clerk/*/server',
+                  '@clerk/*/server/*',
+                  '@/server/*',
+                ],
+                message: 'The root auth provider integrates the client SDK and must not import server code.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ['**/*.test.{ts,tsx}', 'src/test/e2e/**/*.ts'],
       rules: { 'typescript/no-floating-promises': 'error' },
     },
   ],

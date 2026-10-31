@@ -3,7 +3,6 @@ import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import type { Unit } from '@kijk/api/units/types';
 import type { CurrentUser } from '@kijk/api/users/types';
 import { HttpResponse, http } from 'msw';
-import { setupWorker } from 'msw/browser';
 
 import type { Resource } from '@/shared/types/domain';
 
@@ -75,7 +74,8 @@ const currentUser = {
   },
 } satisfies CurrentUser;
 
-let defaultSpaceId: string | null = currentUser.user.spaces[0]!.id;
+const initialDefaultSpaceId = currentUser.user.spaces[0]!.id;
+let defaultSpaceId: string | null = initialDefaultSpaceId;
 const getCurrentUser = () => ({
   ...currentUser,
   user: {
@@ -84,7 +84,14 @@ const getCurrentUser = () => ({
   },
 });
 
-const worker = setupWorker(
+/** Restores the initial data so that every test starts from the same state. */
+export function resetMockApi() {
+  resources.clear();
+  defaultSpaceId = initialDefaultSpaceId;
+}
+
+/** Fake responses of the .NET API, served behind the BFF by `server.ts`. */
+export const handlers = [
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
   http.get('*/api/users/me/features', () => HttpResponse.json({ aiImport: true, finances: true })),
   http.put('*/api/users/default-space', async ({ request }) => {
@@ -117,6 +124,23 @@ const worker = setupWorker(
     resources.set(spaceId, [...(resources.get(spaceId) ?? []), resource]);
     return HttpResponse.json(resource, { status: 201 });
   }),
+  http.post('*/api/spaces/:spaceId/imports', async ({ request }) => {
+    const file = (await request.formData()).get('file');
+    return file instanceof File
+      ? HttpResponse.json({ fileName: file.name, size: file.size }, { status: 202 })
+      : HttpResponse.json({ title: 'File required' }, { status: 400 });
+  }),
+  http.get(
+    '*/api/spaces/:spaceId/consumptions/export',
+    () =>
+      new HttpResponse('date,value\n', {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': 'attachment; filename="readings.csv"',
+          'Set-Cookie': 'upstream=secret',
+        },
+      }),
+  ),
   http.get('*/api/units', () =>
     HttpResponse.json({
       customCount: units.filter((unit) => unit.creatorType === 'User').length,
@@ -126,14 +150,4 @@ const worker = setupWorker(
       totalCount: units.length,
     }),
   ),
-);
-
-await worker.start({
-  onUnhandledRequest(request, print) {
-    if (new URL(request.url).pathname.startsWith('/api/')) {
-      print.error();
-    }
-  },
-  quiet: true,
-  serviceWorker: { url: '/mockServiceWorker.js' },
-});
+];

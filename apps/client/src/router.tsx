@@ -1,38 +1,45 @@
+import { hydrateTheme } from '@kijk/core/stores/theme-store';
 import { createRouter } from '@tanstack/react-router';
 
 import { routeTree } from '@/routeTree.gen';
+import { serverAuth } from '@/server/session';
 import { AppError } from '@/shared/components/errors/app-error';
 import { NotFound } from '@/shared/components/not-found';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { queryClient } from '@/shared/lib/query-client';
+import { AnalyticsService } from '@/shared/lib/analytics-tracking';
+import { setupApiClient } from '@/shared/lib/api-client';
+import { ErrorService } from '@/shared/lib/error-tracking';
+import { createQueryClient } from '@/shared/lib/query-client';
+import { TracingService } from '@/shared/lib/tracing';
 
-// Create a new router instance
-/** The app router with the generated route tree. */
-export const router = createRouter({
-  context: {
-    authClient: undefined!,
-    queryClient, // This will be set in the RouterProvider
-  },
-  defaultErrorComponent: AppError,
-  defaultNotFoundComponent: NotFound,
-  defaultPendingComponent: () => <Loader className='h-6 w-6' />,
-  defaultPreload: 'intent',
-  defaultPreloadStaleTime: 0,
-  defaultStructuralSharing: true,
-  routeTree,
-  scrollRestoration: true,
-});
+/** Creates an isolated router and query cache for every server request. */
+export function getRouter() {
+  const router = createRouter({
+    context: { auth: serverAuth, queryClient: createQueryClient() },
+    defaultErrorComponent: AppError,
+    defaultNotFoundComponent: NotFound,
+    defaultPendingComponent: () => <Loader className='h-6 w-6' />,
+    defaultPreload: 'intent',
+    defaultPreloadStaleTime: 0,
+    defaultStructuralSharing: true,
+    routeTree,
+    scrollRestoration: true,
+  });
+  if (!import.meta.env.SSR) {
+    setupApiClient();
+    hydrateTheme();
+    ErrorService.init();
+    AnalyticsService.init();
+    TracingService.init(router);
+  }
+  return router;
+}
 
-/**
- * The type of the router instance. This is used for type safety when using the router in other parts of the
- * application.
- */
-/** Type of {@link router}. */
-export type AppRouter = typeof router;
+/** Router type shared with browser tracing. */
+export type AppRouter = ReturnType<typeof getRouter>;
 
-// Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
-    router: typeof router;
+    router: AppRouter;
   }
 }
