@@ -26,6 +26,7 @@ export const apiOperations = {
   '/api/spaces/{spaceId}/imports/{id}/candidates': ['get'],
   '/api/spaces/{spaceId}/imports/{id}/mapping': ['post'],
   '/api/spaces/{spaceId}/imports/{id}/candidates/{candidateId}': ['put'],
+  '/api/spaces/{spaceId}/imports/{id}/category-overrides': ['delete'],
   '/api/spaces/{spaceId}/imports/{id}/ai-preview': ['get'],
   '/api/spaces/{spaceId}/imports/{id}/categorize': ['post'],
   '/api/spaces/{spaceId}/imports/{id}/commit': ['post'],

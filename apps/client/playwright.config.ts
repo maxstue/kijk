@@ -30,8 +30,8 @@ export default defineConfig({
     {
       command: 'vp build && node .output/server/index.mjs',
       env: {
-        API_ORIGIN: mockApiOrigin,
-        APP_ORIGIN: appOrigin,
+        API_URL: mockApiOrigin,
+        APP_URL: appOrigin,
         HOST: new URL(appOrigin).hostname,
         PORT: new URL(appOrigin).port,
       },

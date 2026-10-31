@@ -2,16 +2,13 @@ import { apiOperations } from '@kijk/api/generated/operations';
 
 import { bffRequestHeader } from '@/shared/lib/api-client';
 
+import { apiProblem } from './problem';
+
 const maxUploadBytes = 16 * 1024 * 1024;
 const readMethods = new Set(['GET', 'HEAD']);
 const forwardedRequestHeaders = ['accept', 'content-type'];
 const forwardedResponseHeaders = ['content-type', 'content-disposition', 'retry-after'];
 const operations = Object.entries(apiOperations) as Array<[string, readonly string[]]>;
-
-/** Produces an uncached response without exposing upstream details. */
-export function apiProblem(status: number, title: string) {
-  return Response.json({ status, title }, { status, headers: { 'Cache-Control': 'no-store' } });
-}
 
 /** Checks the CSRF marker that the browser API client sends with every request. */
 export function hasBffRequestHeader(request: Request) {
@@ -36,7 +33,7 @@ export function matchApiOperation(path: string, method: string) {
 }
 
 interface RelayOptions {
-  apiOrigin: string;
+  apiUrl: string;
   token: string;
   fetch?: typeof globalThis.fetch;
 }
@@ -45,15 +42,30 @@ interface RelayOptions {
 export async function forwardApiRequest(request: Request, options: RelayOptions) {
   const url = new URL(request.url);
   if (!matchApiOperation(url.pathname, request.method)) {
-    return apiProblem(404, 'Not found');
+    return apiProblem(request, 404, 'This API path and HTTP method are not available through the web application.');
   }
   if (!options.token.trim()) {
-    return apiProblem(401, 'Authentication required');
+    return apiProblem(request, 401, 'Your session could not be verified. Please sign in again.');
   }
 
-  const target = new URL(options.apiOrigin);
-  if (!['http:', 'https:'].includes(target.protocol) || target.username || target.password) {
-    throw new Error('API_ORIGIN must be an HTTP origin without credentials.');
+  let target: URL;
+  try {
+    target = new URL(options.apiUrl);
+    if (
+      !['http:', 'https:'].includes(target.protocol) ||
+      target.username ||
+      target.password ||
+      target.pathname !== '/' ||
+      target.search ||
+      target.hash
+    ) {
+      throw new Error('Invalid API_URL');
+    }
+  } catch {
+    console.error(
+      'BFF configuration error: API_URL must be an HTTP(S) origin without credentials, a path, query parameters or a fragment.',
+    );
+    return apiProblem(request, 503, 'Your account is temporarily unavailable. Please try again later.');
   }
   target.pathname = url.pathname;
   target.search = url.search;
@@ -71,7 +83,7 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
   let body: ReadableStream<Uint8Array> | undefined;
   if (!readMethods.has(request.method) && request.body) {
     if (Number(request.headers.get('content-length')) > maxUploadBytes) {
-      return apiProblem(413, 'Upload too large');
+      return apiProblem(request, 413, 'The upload exceeds the 16 MiB request limit. Please choose a smaller file.');
     }
     let length = 0;
     body = request.body.pipeThrough(
@@ -89,6 +101,7 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
     );
   }
 
+  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(60_000)]);
   try {
     const response = await (options.fetch ?? globalThis.fetch)(target, {
       method: request.method,
@@ -96,7 +109,7 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
       body,
       duplex: 'half',
       redirect: 'error',
-      signal: AbortSignal.any([request.signal, AbortSignal.timeout(60_000)]),
+      signal,
     } as RequestInit);
     const responseHeaders = new Headers({ 'Cache-Control': 'no-store' });
     for (const name of forwardedResponseHeaders) {
@@ -107,6 +120,12 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
     }
     return new Response(response.body, { status: response.status, headers: responseHeaders });
   } catch {
-    return tooLarge ? apiProblem(413, 'Upload too large') : apiProblem(502, 'The API is currently unavailable');
+    if (tooLarge) {
+      return apiProblem(request, 413, 'The upload exceeds the 16 MiB request limit. Please choose a smaller file.');
+    }
+    if (signal.aborted && !request.signal.aborted) {
+      return apiProblem(request, 504, 'The service did not respond in time. Please try again shortly.');
+    }
+    return apiProblem(request, 502, 'We could not reach the service. Please try again shortly.');
   }
 }

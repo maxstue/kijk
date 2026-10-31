@@ -1,4 +1,4 @@
-// Fake .NET API for E2E tests. The built web app relays to it through `API_ORIGIN`, so every browser request passes
+// Fake .NET API for E2E tests. The built web app relays to it through `API_URL`, so every browser request passes
 // the real BFF. Runs with Node's type stripping: `node src/test/e2e/mock-api/server.ts`.
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 

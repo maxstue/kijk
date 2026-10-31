@@ -61,12 +61,13 @@ function getStepPresentation(status: ImportJob['status'], stage: 'months' | 'rev
       return stage === 'months'
         ? {
             title: 'Which months do you want to import?',
-            description: 'Confirm that your bank export covers each selected month in full.',
+            description: 'Choose the months to import. Partial months need your confirmation.',
             currentStep: 2,
           }
         : {
             title: 'Check and save your transactions',
-            description: 'This is the final step. Nothing is saved until you select Save import.',
+            description:
+              'Your import is ready. Select Start import to apply these transactions, or leave and return to finish later.',
             currentStep: 3,
           };
     case 'NeedsMapping':

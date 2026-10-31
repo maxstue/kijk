@@ -1,28 +1,31 @@
 import { useSignIn } from '@clerk/tanstack-react-start/legacy';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { useCallback } from 'react';
+import { Link, useRouter } from '@tanstack/react-router';
+import { useCallback, useState } from 'react';
 import type { Dispatch } from 'react';
-import { toast } from 'sonner';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
+import { authErrorMessage } from '@/app/auth/helpers';
 
 interface Props {
   goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>>;
   redirectTo: string;
 }
 
-/** Sign-in view (email, Google or GitHub); navigates to `redirectTo` on success. */
+/** Sign-in view; rechecks the auth route after Clerk activates the session. */
 export function Login({ goto, redirectTo }: Props) {
   const { isLoaded, signIn, setActive } = useSignIn();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const handleLogin = useCallback(
     async (email: string, password: string) => {
       if (!isLoaded) {
+        setErrorMessage('Sign-in is still loading. Please wait a moment and try again.');
         return;
       }
+      setErrorMessage(undefined);
       try {
         const completeLogin = await signIn.create({
           identifier: email,
@@ -30,23 +33,22 @@ export function Login({ goto, redirectTo }: Props) {
         });
 
         if (completeLogin.status !== 'complete') {
-          toast.error('Your login request failed. Please try again.', {
-            description: <div>{JSON.stringify(completeLogin, undefined, 2)}</div>,
-          });
+          setErrorMessage(
+            'Your sign-in requires additional verification and could not be completed here. Try another sign-in method or contact support.',
+          );
         }
 
         if (completeLogin.status === 'complete') {
           await setActive({ session: completeLogin.createdSessionId });
-          navigate({ params: true, to: redirectTo });
+          await router.invalidate();
         }
-      } catch (error_) {
-        const error = error_ as { errors: Array<{ message: string }> };
-        toast.error('Your login request failed. Please try again.', {
-          description: <div>{error.errors[0]?.message}</div>,
-        });
+      } catch (error) {
+        setErrorMessage(
+          authErrorMessage(error, 'Sign-in could not be completed. Please check your connection and try again.'),
+        );
       }
     },
-    [isLoaded, navigate, redirectTo, setActive, signIn],
+    [isLoaded, router, setActive, signIn],
   );
 
   const handleGoToSignUp = useCallback(() => {
@@ -62,6 +64,11 @@ export function Login({ goto, redirectTo }: Props) {
         </CardHeader>
         <CardContent>
           <div className='grid gap-6'>
+            {errorMessage && (
+              <p role='alert' className='text-destructive text-sm'>
+                {errorMessage}
+              </p>
+            )}
             <UserAuthForm btnLabel='Login' redirectTo={redirectTo} onSubmit={handleLogin} />
             <div className='text-center text-sm'>
               <Button variant='link' onClick={handleGoToSignUp}>

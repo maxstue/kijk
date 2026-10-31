@@ -1,4 +1,3 @@
-import { toast } from 'sonner';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
@@ -11,7 +10,6 @@ const { authenticateWithRedirect } = vi.hoisted(() => ({
 vi.mock('@clerk/tanstack-react-start/legacy', () => ({
   useSignIn: () => ({ isLoaded: true, signIn: { authenticateWithRedirect } }),
 }));
-vi.mock('sonner', { spy: true });
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -40,9 +38,28 @@ test('a social sign-in failure re-enables the form and reports the error', async
   const screen = await render(<UserAuthForm btnLabel='Login' redirectTo='/' onSubmit={async () => {}} />);
   try {
     await screen.getByRole('button', { name: 'Google' }).click();
-    await vi.waitFor(() => expect(toast.error).toHaveBeenCalledWith('Google sign-in failed. Please try again.'));
+    await expect
+      .element(screen.getByRole('alert'))
+      .toHaveTextContent('Google sign-in could not be started. Please try again or choose another sign-in method.');
     await expect.element(screen.getByRole('button', { name: 'Login', exact: true })).toBeEnabled();
     await expect.element(screen.getByRole('button', { name: 'Google' })).toBeEnabled();
+  } finally {
+    await screen.unmount();
+  }
+});
+
+test('social sign-in returns to auth so the Kijk account is checked before navigation', async () => {
+  authenticateWithRedirect.mockResolvedValueOnce(undefined);
+  const screen = await render(
+    <UserAuthForm btnLabel='Login' redirectTo='/space/consumptions?year=2026' onSubmit={async () => {}} />,
+  );
+  try {
+    await screen.getByRole('button', { name: 'Google' }).click();
+    expect(authenticateWithRedirect).toHaveBeenCalledExactlyOnceWith({
+      redirectUrl: '/sso-callback',
+      redirectUrlComplete: '/auth?from=%2Fspace%2Fconsumptions%3Fyear%3D2026',
+      strategy: 'oauth_google',
+    });
   } finally {
     await screen.unmount();
   }

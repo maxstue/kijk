@@ -13,34 +13,14 @@ import { Skeleton } from '@kijk/ui/components/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
 import { PanelLeftIcon } from 'lucide-react';
 
+import { SidebarContext, useSidebar, type SidebarContextProps } from '@kijk/ui/lib/sidebar-context';
+
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
 const SIDEBAR_WIDTH_ICON = '3rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
-
-type SidebarContextProps = {
-  state: 'expanded' | 'collapsed';
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  openMobile: boolean;
-  setOpenMobile: (open: boolean) => void;
-  isMobile: boolean;
-  toggleSidebar: () => void;
-};
-
-const SidebarContext = React.createContext<SidebarContextProps | null>(null);
-
-/** Returns the sidebar state and toggles; use inside a `SidebarProvider`. */
-function useSidebar() {
-  const context = React.useContext(SidebarContext);
-  if (!context) {
-    throw new Error('useSidebar must be used within a SidebarProvider.');
-  }
-
-  return context;
-}
 
 /** Provides the sidebar state; persists it in a cookie and toggles it with ⌘/Ctrl+B. */
 function SidebarProvider({

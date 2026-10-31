@@ -53,7 +53,6 @@ try
         .UseMiddleware<CorrelationIdMiddleware>()
         .UseRequestLogging()
         .UseForwardedHeaders(new() { ForwardedHeaders = ForwardedHeaders.All })
-        .UseHttpsRedirection()
         .UseAuthentication()
         .UseRateLimiter();
 

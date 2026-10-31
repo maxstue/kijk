@@ -129,6 +129,66 @@ public class ImportHttpTests
     }
 
     [Test]
+    public async Task ResetOverridesClearsEveryManualRowButPreservesAutomaticCategoriesAndSelections()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        var job = await UploadAndReadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id);
+        Guid automaticId;
+        Guid excludedId;
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            await dbContext.ImportCandidates.Where(item => item.ImportJobId == job.Id).ExecuteDeleteAsync();
+            var rows = Enumerable.Range(1, 205).Select(number =>
+            {
+                var row = ImportCandidate.CreateValid(job.Id, number, new ImportCandidateValues(
+                    (number > 100 ? November : October).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+                    -12m, "Merchant", null, TransactionStatus.Booked, true, $"booking-{number}", null));
+                row.ChooseCategory(GroceriesId);
+                return row;
+            }).ToList();
+            rows[0].ProposeCategory(HousingId, CategorySource.Ai);
+            rows[1].ProposeCategory(GroceriesId, CategorySource.Rule);
+            rows[^1].SetExcluded(true);
+            dbContext.ImportCandidates.AddRange(rows);
+            await dbContext.SaveChangesAsync();
+            automaticId = rows[0].Id;
+            excludedId = rows[^1].Id;
+        }
+
+        using var response = await host.Client.DeleteAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/category-overrides");
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(await response.Content.ReadFromJsonAsync<int>()).IsEqualTo(203);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var stored = await verification.ImportCandidates.Where(item => item.ImportJobId == job.Id).ToListAsync();
+        await Assert.That(stored.Count(item => item.CategoryId is null && item.CategorySource is null)).IsEqualTo(203);
+        await Assert.That(stored.Single(item => item.Id == automaticId).CategoryId).IsEqualTo(HousingId);
+        await Assert.That(stored.Count(item => item.CategorySource == CategorySource.Rule)).IsEqualTo(1);
+        await Assert.That(stored.Single(item => item.Id == excludedId).Excluded).IsTrue();
+        using var missing = await host.Client.DeleteAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{Guid.NewGuid()}/category-overrides");
+        await Assert.That(missing.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    public async Task ResetOverridesRequiresReviewAndImportPermission()
+    {
+        var fixture = await CreateFixtureAsync("Admin");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
+        var job = await UploadAsync(host.Client, fixture.Account.SpaceId, fixture.Account.Id, "dkb-synthetic.csv");
+        job = await WaitForAsync(host.Client, fixture.Account.SpaceId, job.Id, ImportJobStatus.NeedsMapping);
+        using var response = await host.Client.DeleteAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/category-overrides");
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
+        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var membership = await dbContext.UserSpaces.SingleAsync(item => item.UserId == fixture.User.Id && item.SpaceId == fixture.Account.SpaceId);
+            membership.ChangeRole(await dbContext.Roles.SingleAsync(item => item.Name == "Viewer"));
+            await dbContext.SaveChangesAsync();
+        }
+        using var forbidden = await host.Client.DeleteAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/category-overrides");
+        await Assert.That(forbidden.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
+    }
+
+    [Test]
     public async Task ImportReplacesCoveredMonthsAndKeepsFilesOnlyUntilCommitted()
     {
         var fixture = await CreateFixtureAsync("Admin");

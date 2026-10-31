@@ -41,10 +41,11 @@ test('account settings can clear the default and return to the last visited spac
   const defaultSpace = page.getByRole('combobox', { name: 'Default space' });
   await expect(defaultSpace).toHaveText('E2E Space');
   await defaultSpace.click();
+  await page.getByRole('option', { name: 'None — use the last visited space' }).click();
   const saved = page.waitForResponse(
     (response) => response.url().endsWith('/api/users/default-space') && response.ok(),
   );
-  await page.getByRole('option', { name: 'None — use the last visited space' }).click();
+  await page.getByRole('button', { name: 'Update profile' }).click();
   await saved;
   await expect(page).toHaveURL(/\/settings\/profile$/);
   await page.getByRole('link', { name: 'Back to app' }).click();

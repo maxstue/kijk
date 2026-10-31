@@ -23,6 +23,8 @@ test('updates the area chart time range and shows individual values rather than 
   await expect.element(tooltip.getByText('530', { exact: true })).toBeVisible();
   await expect.element(tooltip.getByText('Desktop', { exact: true })).toBeVisible();
   await expect.element(tooltip.getByText('480', { exact: true })).toBeVisible();
+  const swatches = tooltip.element().querySelectorAll<HTMLElement>('.ts-chart-tooltip__swatch');
+  expect([...swatches].map((swatch) => swatch.style.background).some((paint) => paint.includes('url('))).toBe(false);
 
   await userEvent.keyboard('{Escape}');
   await screen.getByRole('button', { name: 'Last 30 days', exact: true }).click();

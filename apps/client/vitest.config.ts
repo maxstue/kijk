@@ -56,6 +56,7 @@ export default defineConfig({
         // ("Failed to fetch dynamically imported module").
         optimizeDeps: {
           include: [
+            '@base-ui/react/collapsible',
             '@clerk/tanstack-react-start/legacy',
             '@hookform/resolvers/zod',
             '@sentry/react',

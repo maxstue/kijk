@@ -192,7 +192,7 @@ export function HomeChartArea() {
           rows: points.map((point) => ({
             label: point.groupLabel,
             value: point.datum.value.toLocaleString(),
-            color: point.color,
+            color: 'var(--primary)',
           })),
         }),
       },

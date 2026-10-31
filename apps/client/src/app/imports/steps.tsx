@@ -6,7 +6,7 @@ const steps = ['File', 'Columns', 'Months', 'Review', 'Done'];
 /** Shared orientation across the upload and import detail pages. */
 export function ImportSteps({ currentStep }: { currentStep: number }) {
   return (
-    <nav aria-label='Import progress'>
+    <nav aria-label='Import progress' className='relative isolate z-0'>
       <ol className='grid grid-cols-5 gap-2'>
         {steps.map((label, index) => (
           <li

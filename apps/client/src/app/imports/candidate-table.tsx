@@ -8,6 +8,7 @@ import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { cn } from 'cn';
 import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -22,11 +23,13 @@ export function ImportCandidateTable({
   importId,
   isFetching,
   onPageChange,
+  manualOverrides = false,
 }: {
   data: ImportCandidatePage;
   importId: string;
   isFetching: boolean;
   onPageChange: (page: number) => void;
+  manualOverrides?: boolean;
 }) {
   const spaceId = useSpaceId();
   const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
@@ -44,7 +47,13 @@ export function ImportCandidateTable({
         </TableHeader>
         <TableBody>
           {data.items.map((candidate) => (
-            <CandidateRow key={candidate.id} candidate={candidate} categories={categories} importId={importId} />
+            <CandidateRow
+              key={candidate.id}
+              candidate={candidate}
+              categories={categories}
+              importId={importId}
+              manualOverrides={manualOverrides}
+            />
           ))}
         </TableBody>
       </Table>
@@ -106,10 +115,12 @@ function CandidateRow({
   candidate,
   categories,
   importId,
+  manualOverrides,
 }: {
   candidate: ImportCandidate;
   categories: Category[];
   importId: string;
+  manualOverrides: boolean;
 }) {
   const spaceId = useSpaceId();
   const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId));
@@ -126,7 +137,10 @@ function CandidateRow({
   }
 
   return (
-    <TableRow>
+    <TableRow
+      data-excluded={candidate.excluded || undefined}
+      className={cn(candidate.excluded && 'bg-muted/30 text-muted-foreground [&>td:not(:first-child)]:opacity-50')}
+    >
       <TableCell>
         <Checkbox
           aria-label='Import this row'
@@ -149,14 +163,43 @@ function CandidateRow({
         )}
       </TableCell>
       <TableCell>
+        <CandidateCategory
+          candidate={candidate}
+          categories={categories}
+          editable={manualOverrides}
+          disabled={updateMutation.isPending || candidate.excluded}
+          onChange={(categoryId) => update({ categoryId })}
+        />
+      </TableCell>
+      <TableCell className='text-right whitespace-nowrap'>{formatStringToCurrency(candidate.amount ?? 0)}</TableCell>
+    </TableRow>
+  );
+}
+
+function CandidateCategory({
+  candidate,
+  categories,
+  editable,
+  disabled,
+  onChange,
+}: {
+  candidate: ImportCandidate;
+  categories: Category[];
+  editable: boolean;
+  disabled: boolean;
+  onChange: (categoryId: string | null) => void;
+}) {
+  return (
+    <>
+      {editable ? (
         <Select
-          disabled={updateMutation.isPending}
+          disabled={disabled}
           items={[
             { label: 'Uncategorized', value: uncategorized },
             ...categories.map((category) => ({ label: category.name, value: category.id })),
           ]}
           value={candidate.categoryId ?? uncategorized}
-          onValueChange={(value) => update({ categoryId: value === uncategorized ? null : value })}
+          onValueChange={(value) => onChange(value === uncategorized ? null : value)}
         >
           <SelectTrigger aria-label='Category' className='w-44' size='sm'>
             <SelectValue />
@@ -170,13 +213,20 @@ function CandidateRow({
             ))}
           </SelectContent>
         </Select>
-        {candidate.categorySource === 'Ai' && (
-          <Badge className='mt-1' variant='outline'>
+      ) : (
+        <div>{categories.find((category) => category.id === candidate.categoryId)?.name ?? 'Uncategorized'}</div>
+      )}
+      <div className='mt-1 flex h-6 items-center'>
+        {candidate.excluded ? (
+          <span className='text-xs'>Not imported</span>
+        ) : candidate.categorySource === 'Ai' ? (
+          <Badge variant='outline'>
             <Sparkles className='size-3' /> AI suggestion
           </Badge>
-        )}
-      </TableCell>
-      <TableCell className='text-right whitespace-nowrap'>{formatStringToCurrency(candidate.amount ?? 0)}</TableCell>
-    </TableRow>
+        ) : candidate.categoryId && candidate.categorySource === 'Manual' ? (
+          <Badge variant='outline'>Manual override</Badge>
+        ) : null}
+      </div>
+    </>
   );
 }

@@ -4,9 +4,6 @@ interface ImportMetaEnv {
   // VITE
   DEV: boolean;
   PROD: boolean;
-  // Base
-  VITE_BASE_API_URL: string;
-  VITE_API_URL: string;
   // Devtools
   VITE_DEVTOOLS_LOGGER: string;
   // Auth

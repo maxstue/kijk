@@ -1,14 +1,17 @@
-import * as usersOptions from '@kijk/api/users/options';
 import type { ReadyCurrentUser } from '@kijk/api/users/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { useMutation } from '@tanstack/react-query';
 import { useId } from 'react';
-import { toast } from 'sonner';
+
+interface Props {
+  spaces: NonNullable<ReadyCurrentUser['spaces']>;
+  value: string | null;
+  onChange: (spaceId: string | null) => void;
+  disabled?: boolean;
+}
 
 /** Selects the account-wide default, independently of the space being viewed. */
-export function DefaultSpaceSelect({ spaces }: { spaces: NonNullable<ReadyCurrentUser['spaces']> }) {
+export function DefaultSpaceSelect({ spaces, value, onChange, disabled }: Props) {
   const selectId = useId();
-  const defaultMutation = useMutation(usersOptions.setDefaultSpaceMutationOptions());
   return (
     <div className='space-y-2'>
       <label htmlFor={selectId} id={`${selectId}-label`} className='text-sm font-medium'>
@@ -19,16 +22,13 @@ export function DefaultSpaceSelect({ spaces }: { spaces: NonNullable<ReadyCurren
           ['none', 'None — use the last visited space'],
           ...spaces.map((space) => [space.id, space.name]),
         ])}
-        value={spaces.find((space) => space.isDefault)?.id ?? 'none'}
-        disabled={defaultMutation.isPending}
+        value={value ?? 'none'}
+        disabled={disabled}
         onValueChange={(value) => {
           if (value === null) {
             return;
           }
-          defaultMutation.mutate(value === 'none' ? null : value, {
-            onError: (error) => toast.error(error.message),
-            onSuccess: () => toast.success('Default space updated'),
-          });
+          onChange(value === 'none' ? null : value);
         }}
       >
         <SelectTrigger id={selectId} aria-labelledby={`${selectId}-label`}>

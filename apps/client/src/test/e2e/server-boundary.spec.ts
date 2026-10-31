@@ -79,7 +79,14 @@ test('rejects cross-site requests before contacting the API', async ({ playwrigh
       data: { message: 'Must never reach the API' },
     });
     expect(response.status()).toBe(403);
-    expect(await response.text()).toBe('Forbidden');
+    expect(response.headers()['content-type']).toBe('application/problem+json');
+    expect(await response.json()).toEqual({
+      type: 'about:blank',
+      title: 'Forbidden',
+      status: 403,
+      detail: 'Your request could not be verified. Reload the application and try again.',
+      instance: '/api/users/me/feedback',
+    });
     expect(await upstreamRequests()).toEqual([]);
   } finally {
     await client.dispose();

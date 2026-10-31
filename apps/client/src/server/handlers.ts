@@ -1,26 +1,29 @@
 import { auth } from '@clerk/tanstack-react-start/server';
 
-import { apiProblem, forwardApiRequest, hasBffRequestHeader } from './api-relay';
+import { forwardApiRequest, hasBffRequestHeader } from './api-relay';
+import { apiProblem } from './problem';
 
 /** Verifies each request independently before resolving an upstream token; origin checks run in `start.ts`. */
 export async function relayApiRequest(request: Request) {
   if (!hasBffRequestHeader(request)) {
-    return apiProblem(403, 'Cross-origin request rejected');
+    return apiProblem(request, 403, 'Your request could not be verified. Reload the application and try again.');
   }
   if (!process.env.CLERK_SECRET_KEY) {
-    return apiProblem(503, 'Authentication is not configured');
+    console.error('BFF configuration error: CLERK_SECRET_KEY is missing.');
+    return apiProblem(request, 503, 'Sign-in is temporarily unavailable. Please try again later.');
   }
   const session = await auth();
   if (!session.userId) {
-    return apiProblem(401, 'Authentication required');
+    return apiProblem(request, 401, 'You are not signed in or your session has expired. Please sign in again.');
   }
   const token = await session.getToken();
   if (!token) {
-    return apiProblem(401, 'Authentication required');
+    return apiProblem(request, 401, 'Your session could not be verified. Please sign in again.');
   }
-  const apiOrigin = process.env.API_ORIGIN;
-  if (!apiOrigin) {
-    return apiProblem(503, 'The API is not configured');
+  const apiUrl = process.env.API_URL;
+  if (!apiUrl?.trim()) {
+    console.error('BFF configuration error: API_URL is missing.');
+    return apiProblem(request, 503, 'You are signed in, but your account could not be loaded. Please try again later.');
   }
-  return forwardApiRequest(request, { apiOrigin, token });
+  return forwardApiRequest(request, { apiUrl, token });
 }

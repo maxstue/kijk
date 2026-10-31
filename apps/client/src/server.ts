@@ -1,6 +1,7 @@
 import { createStartHandler, defaultStreamHandler, handleStartError } from '@tanstack/react-start/server';
 import { createServerEntry } from '@tanstack/react-start/server-entry';
 
+import { apiProblem } from './server/problem';
 import { captureServerError, startServerSpan } from './server/telemetry';
 
 const handleRequest = createStartHandler(defaultStreamHandler);
@@ -18,6 +19,9 @@ export default createServerEntry({
     } catch (error) {
       span?.setAttribute('http.response.status_code', 500);
       captureServerError(error);
+      if (new URL(request.url).pathname.startsWith('/api/')) {
+        return apiProblem(request, 500, 'We could not complete your request. Please try again shortly.');
+      }
       return handleStartError(error);
     } finally {
       span?.end();

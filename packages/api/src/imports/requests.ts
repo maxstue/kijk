@@ -135,3 +135,12 @@ export async function getAiDataPreview(spaceId: string, id: string, signal?: Abo
     }),
   );
 }
+
+/** Clears every manual category choice in the import, across all pages and months. */
+export async function resetOverrides(spaceId: string, id: string) {
+  return unwrapApiResponse(
+    await apiClient().DELETE('/api/spaces/{spaceId}/imports/{id}/category-overrides', {
+      params: { path: { spaceId, id } },
+    }),
+  );
+}

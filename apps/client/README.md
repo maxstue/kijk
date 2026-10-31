@@ -18,16 +18,24 @@ Development and local E2E commands load the existing `/Client` configuration fro
 
 ## Web authentication and BFF
 
-The browser sends same-origin requests to `/api/*`. Start verifies the Clerk session and forwards only the operations declared in the API's OpenAPI document to the fixed `API_ORIGIN`, using a token obtained on the server. Route guards resolve the session through the `getSession` server function. The .NET API still checks feature flags, Space permissions, private finance visibility and per-user rate limits.
+The browser sends same-origin requests to `/api/*`. Start verifies the Clerk session and forwards only the operations declared in the API's OpenAPI document to the fixed `API_URL`, using a token obtained on the server. Route guards resolve the session through the `getSession` server function. The .NET API still checks feature flags, Space permissions, private finance visibility and per-user rate limits.
+
+After password or OAuth sign-in, `/auth` verifies the server session and loads the Kijk account before navigating to the requested page, start Space or onboarding. While this runs, the page shows progress. A failure stays on `/auth` with an explanation and retry/sign-out actions; it is not silently swallowed on the landing page. Credential, provider and email-verification errors remain visible in their forms.
 
 Required web configuration:
 
 - `VITE_CLERK_PUBLISHABLE_KEY`: public key included in the browser build.
 - `CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`: matching server-side Clerk configuration. Secret values are runtime-only and must never use the `VITE_` prefix.
-- `API_ORIGIN`: server-only API origin: the Railway API service's private HTTP address and port. The API has no CORS policy; browsers never call it directly.
-- `APP_ORIGIN`: canonical public HTTPS origin, used for CSRF and Clerk authorized-party checks behind the hosting proxy. Local development falls back to the request origin.
+- `API_URL`: server-only backend URL, including its port, without an API path or credentials. Locally use `http://localhost:5140`; on Railway use the API service's private HTTP address and port. The API has no CORS policy; browsers never call it directly.
+- `APP_URL`: canonical web application URL, used for CSRF and Clerk authorized-party checks behind the hosting proxy. Locally use `http://localhost:5004`; production uses the public HTTPS URL. Local development falls back to the request origin when unset.
+
+For local development, put these variables in Infisical environment `dev`, folder `/Client`, then restart `pnpm dev:client` after changing them. `API_URL` replaces the former browser-side `VITE_BASE_API_URL` setting and the former server-side `API_ORIGIN` name; `APP_URL` replaces `APP_ORIGIN`. Backend URLs and Clerk secrets must not use a `VITE_` prefix. `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are not read by this client: Google sign-in is handled by Clerk. `E2E_CLERK_USER_EMAIL` is needed only for E2E tests.
 
 The Relay preserves JSON/ProblemDetails, multipart uploads and CSV downloads. Request bodies are streamed and limited to 16 MiB; upstream requests time out after 60 seconds and are not retried automatically. Only `Accept` and `Content-Type` are forwarded upstream and only `Content-Type`, `Content-Disposition` and `Retry-After` come back. Unknown operations, anonymous data requests and requests that fail the CSRF checks are rejected: `start.ts` accepts only same-origin requests for server functions and `/api/*`, and the relay additionally requires the `X-CSRF: 1` header that the browser API client sends. Dynamic responses are not publicly cached. `/health` returns a direct HTTP 200 for readiness checks.
+
+BFF-generated API errors and CSRF rejections use [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457.html) with `Content-Type: application/problem+json`, `type: about:blank`, the HTTP status title, `status`, an actionable `detail`, and the request path as `instance`. Query strings, credentials, environment variable names, backend addresses and internal exception messages are not included. Configuration diagnostics stay in server logs. Missing or invalid server configuration returns 503; a missing session or token returns 401; upstream failures return 502 and upstream timeouts return 504. Problem Details from the .NET API pass through unchanged.
+
+The private .NET API accepts HTTP directly and does not redirect to HTTPS. HTTPS terminates at the public web application's hosting proxy. API redirects are deliberately not followed by the BFF; keeping HTTPS redirection in the API would turn local HTTP calls into 502 responses.
 
 This is a same-origin BFF, not a claim that Clerk's browser session token is inaccessible to JavaScript. The standard Clerk browser integration still uses its documented token model. A fully server-held authentication session would need a separately verified authentication design.
 
@@ -62,7 +70,7 @@ Configure the existing Client service through the Railway UI. Keep the repositor
 - Existing domain target port: 80; runtime `PORT=80`.
 - `RAILPACK_NODE_VERSION=26.12.1`.
 
-Remove the former `RAILPACK_SPA_OUTPUT_DIR` setting when switching to the Node server. Keep the domain target port aligned with `PORT`. Set `API_ORIGIN` to the private API address only after verifying the service's internal domain and listening port. Once the deployed client relays through `API_ORIGIN`, remove the API service's public domain in the Railway UI: the API exposes no anonymous endpoints or callbacks, and without CORS browsers can no longer use it directly.
+Remove the former `RAILPACK_SPA_OUTPUT_DIR` setting when switching to the Node server. Keep the domain target port aligned with `PORT`. Set `API_URL` to the private API address only after verifying the service's internal domain and listening port. Once the deployed client relays through `API_URL`, remove the API service's public domain in the Railway UI: the API exposes no anonymous endpoints or callbacks, and without CORS browsers can no longer use it directly.
 
 Optional `VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY` and `VITE_POSTHOG_URL` configure both browser and web-server reporting. The server exports the same sampled anonymous HTTP spans to both providers; error events retain only type and stack frames. Browser analytics and performance tracing retain their existing consent behavior. Sourcemap upload credentials remain build-only secrets. When `POSTHOG_ENABLE=true`, `POSTHOG_API_KEY` must be a PostHog personal API key (`phx_`), separate from the public ingestion key in `VITE_POSTHOG_KEY`.
 

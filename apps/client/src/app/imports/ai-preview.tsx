@@ -70,9 +70,10 @@ function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => v
           <Sparkles className='size-4' /> What the AI would see
         </CardTitle>
         <CardDescription>
-          The AI suggests categories for uncategorized transactions. Check the texts below before sharing them. IBANs,
-          reference numbers, e-mail addresses and names of private persons are replaced; amounts, dates and accounts
-          stay here. Names cannot be recognized with certainty, so deselect anything you want to keep private.
+          The AI suggests categories for uncategorized transactions. You do not need to assign categories first. Your
+          manual choices stay unchanged. Check the texts below before sharing them. IBANs, reference numbers, e-mail
+          addresses and names of private persons are replaced; amounts, dates and accounts stay here. Names cannot be
+          recognized with certainty, so deselect anything you want to keep private.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -114,7 +115,7 @@ function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => v
           size='sm'
           onClick={onSend}
         >
-          {categorizeMutation.isPending ? <SpinnerIcon className='size-4 animate-spin' /> : 'Suggest categories'}
+          {categorizeMutation.isPending ? <SpinnerIcon className='size-4 animate-spin' /> : 'Use suggestions'}
         </Button>
       </CardFooter>
     </Card>

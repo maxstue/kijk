@@ -43,7 +43,7 @@ test('replaces client credentials and preserves multipart uploads exactly', asyn
     return Response.json({ id: 'import' }, { status: 202 });
   });
   const response = await forwardApiRequest(request, {
-    apiOrigin: 'https://api.example.test',
+    apiUrl: 'https://api.example.test',
     token: 'verified',
     fetch,
   });
@@ -74,7 +74,7 @@ test('preserves file contents and filename but never upstream cookies or caching
   const response = await forwardApiRequest(
     new Request('https://app.example.test/api/spaces/space/consumptions/export?year=2026'),
     {
-      apiOrigin: 'https://api.example.test',
+      apiUrl: 'https://api.example.test',
       token: 'verified',
       fetch,
     },
@@ -88,34 +88,76 @@ test('preserves file contents and filename but never upstream cookies or caching
 });
 
 test('keeps API permission failures and ProblemDetails unchanged', async () => {
-  const problem = { status: 403, title: 'Forbidden' };
-  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json(problem, { status: 403 }));
+  const problem = { type: 'about:blank', status: 403, title: 'Forbidden', detail: 'No access to this space.' };
+  const fetch = vi
+    .fn<typeof globalThis.fetch>()
+    .mockResolvedValue(
+      Response.json(problem, { status: 403, headers: { 'Content-Type': 'application/problem+json' } }),
+    );
   const response = await forwardApiRequest(new Request('https://app.example.test/api/users/me'), {
-    apiOrigin: 'https://api.example.test',
+    apiUrl: 'https://api.example.test',
     token: 'verified',
     fetch,
   });
   expect(response.status).toBe(403);
+  expect(response.headers.get('content-type')).toBe('application/problem+json');
   expect(await response.json()).toEqual(problem);
 });
 
 test('does not leak upstream errors or retry mutations', async () => {
   const fetch = vi.fn<typeof globalThis.fetch>().mockRejectedValue(new Error('sensitive upstream information'));
   const response = await forwardApiRequest(write(), {
-    apiOrigin: 'https://api.example.test',
+    apiUrl: 'https://api.example.test',
     token: 'verified',
     fetch,
   });
   expect(response.status).toBe(502);
-  expect(await response.text()).not.toContain('sensitive');
+  expect(response.headers.get('content-type')).toBe('application/problem+json');
+  expect(await response.json()).toEqual({
+    type: 'about:blank',
+    title: 'Bad Gateway',
+    status: 502,
+    detail: 'We could not reach the service. Please try again shortly.',
+    instance: '/api/spaces/space/resources',
+  });
   expect(fetch).toHaveBeenCalledOnce();
+});
+
+test.each(['not-a-url', 'file:///backend', 'https://api.example.test/path', 'https://api.example.test/?key=private'])(
+  'reports invalid API_URL without leaking its value: %s',
+  async (apiUrl) => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetch = vi.fn<typeof globalThis.fetch>();
+    const response = await forwardApiRequest(new Request('https://app.example.test/api/users/me?private=query'), {
+      apiUrl,
+      token: 'verified',
+      fetch,
+    });
+    expect(response.status).toBe(503);
+    const problem = await response.json();
+    expect(problem.detail).toBe('Your account is temporarily unavailable. Please try again later.');
+    expect(problem.instance).toBe('/api/users/me');
+    expect(JSON.stringify(problem)).not.toContain(apiUrl);
+    expect(JSON.stringify(problem)).not.toContain('private');
+    expect(JSON.stringify(problem)).not.toContain('API_URL');
+    expect(log).toHaveBeenCalledOnce();
+    expect(fetch).not.toHaveBeenCalled();
+  },
+);
+
+test('reports backend timeouts separately from connection failures', async () => {
+  vi.spyOn(AbortSignal, 'timeout').mockReturnValue(AbortSignal.abort());
+  const fetch = vi.fn<typeof globalThis.fetch>().mockRejectedValue(new Error('internal timeout details'));
+  const response = await forwardApiRequest(write(), { apiUrl: 'https://api.example.test', token: 'verified', fetch });
+  expect(response.status).toBe(504);
+  expect((await response.json()).detail).toBe('The service did not respond in time. Please try again shortly.');
 });
 
 test('rejects a declared oversized upload before contacting the API', async () => {
   const fetch = vi.fn<typeof globalThis.fetch>();
   const response = await forwardApiRequest(
     write(undefined, { body: 'x', headers: { 'Content-Length': String(16 * 1024 * 1024 + 1) } }),
-    { apiOrigin: 'https://api.example.test', token: 'verified', fetch },
+    { apiUrl: 'https://api.example.test', token: 'verified', fetch },
   );
   expect(response.status).toBe(413);
   expect(fetch).not.toHaveBeenCalled();
@@ -127,7 +169,7 @@ test('aborts a streamed upload that exceeds the limit without Content-Length', a
     return new Response(null, { status: 202 });
   });
   const response = await forwardApiRequest(write(undefined, { body: new Uint8Array(16 * 1024 * 1024 + 1) }), {
-    apiOrigin: 'https://api.example.test',
+    apiUrl: 'https://api.example.test',
     token: 'verified',
     fetch,
   });
@@ -143,7 +185,7 @@ test('concurrent requests keep user credentials isolated', async () => {
   const responses = await Promise.all(
     ['alice', 'bob'].map((token) =>
       forwardApiRequest(new Request('https://app.example.test/api/users/me'), {
-        apiOrigin: 'https://api.example.test',
+        apiUrl: 'https://api.example.test',
         token,
         fetch,
       }),
