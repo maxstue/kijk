@@ -318,6 +318,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/spaces/{spaceId}/dashboard/budgets': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['Dashboard.Budgets'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/spaces/{spaceId}/dashboard/consumptions': {
     parameters: {
       query?: never;
@@ -1771,6 +1787,23 @@ export interface components {
      * @enum {unknown}
      */
     CurrentUserStatus: 'OnboardingRequired' | 'Ready';
+    /** A shared monthly EUR budget evaluated against shared booked transactions only. */
+    DashboardBudget: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      currency: string;
+      /** Format: double */
+      amount: number | string;
+      /** Format: double */
+      spent: number | string;
+      /** Format: double */
+      remaining: number | string;
+      /** Format: double */
+      overrun: number | string;
+      /** Format: double */
+      percentage: null | number | string;
+    };
     /** A limit evaluated using its current definition; a zero threshold has no percentage. */
     DashboardLimit: {
       /** Format: uuid */
@@ -3820,6 +3853,45 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['FinanceMonth'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Dashboard.Budgets': {
+    parameters: {
+      query: {
+        year: number | string;
+        month: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DashboardBudget'][];
         };
       };
       401: components['responses']['401'];

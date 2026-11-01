@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
 import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@kijk/ui/components/card';
 import { Skeleton } from '@kijk/ui/components/skeleton';
 import type { ReactNode } from 'react';
 
@@ -13,18 +14,16 @@ interface Props {
   size?: 'overview' | 'finance';
 }
 
-/** The section keeps the same footprint for loading, empty, failed and loaded data. */
+/** Reserve space while loading and let content grow without an inner scroll area. */
 export function Section({ title, description, pending, error, retry, children, size = 'overview' }: Props) {
   return (
-    <section aria-label={title} className='flex min-w-0 flex-col gap-4'>
-      <header className='flex h-16 flex-col gap-1'>
-        <h2 className='text-base font-semibold tracking-tight'>{title}</h2>
-        {description && <p className='text-muted-foreground text-sm'>{description}</p>}
-      </header>
-      <div
-        className={`${size === 'finance' ? 'h-[480px] @xl/home:h-[370px]' : 'h-[540px]'} [scrollbar-gutter:stable] overflow-auto overscroll-contain`}
-      >
-        <div className='flex min-w-0 flex-col gap-5 pr-2'>
+    <Card role='region' aria-label={title} className='min-w-0 gap-4 self-start shadow-xs'>
+      <CardHeader className='min-h-16'>
+        <CardTitle>{title}</CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
+      </CardHeader>
+      <CardContent className={size === 'finance' ? 'min-h-36' : 'min-h-[540px]'}>
+        <div className='flex min-w-0 flex-col gap-5'>
           {pending ? (
             <div role='status' className='flex flex-col gap-5'>
               <span className='sr-only'>Loading…</span>
@@ -36,7 +35,7 @@ export function Section({ title, description, pending, error, retry, children, s
                   </div>
                 ))}
               </div>
-              <Skeleton className='h-60 w-full' />
+              {size !== 'finance' && <Skeleton className='h-60 w-full' />}
             </div>
           ) : error ? (
             <Alert variant='destructive'>
@@ -51,7 +50,7 @@ export function Section({ title, description, pending, error, retry, children, s
             children
           )}
         </div>
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

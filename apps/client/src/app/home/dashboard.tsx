@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { MonthSwitcher } from '@/shared/components/month-switcher';
 
+import { Budgets } from './budgets';
 import { months } from './constants';
 import { Consumptions } from './consumptions';
 import { Finances } from './finances';
@@ -26,11 +27,11 @@ export function Dashboard({ spaceId, year, month, onChange }: Props) {
           <h1 className='text-2xl font-semibold tracking-tight'>
             Space overview · {months[month - 1]} {year}
           </h1>
-          <p className='text-muted-foreground text-sm'>Your shared household, one month at a time.</p>
+          <p className='text-muted-foreground text-sm'>Your household consumption, at a glance.</p>
         </div>
         <MonthSwitcher year={year} month={month} onChange={onChange} />
       </header>
-      <div className='grid min-w-0 gap-8 border-b pb-8 @4xl/home:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]'>
+      <div className='grid min-w-0 gap-5 @4xl/home:grid-cols-[minmax(0,2.3fr)_minmax(0,1fr)]'>
         <Consumptions spaceId={spaceId} year={year} month={month} />
         <Limits spaceId={spaceId} year={year} month={month} />
       </div>
@@ -46,7 +47,10 @@ export function Dashboard({ spaceId, year, month, onChange }: Props) {
           {null}
         </Section>
       ) : features.data?.finances ? (
-        <Finances spaceId={spaceId} year={year} month={month} />
+        <div className='grid min-w-0 items-start gap-5 @4xl/home:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]'>
+          <Budgets spaceId={spaceId} year={year} month={month} />
+          <Finances spaceId={spaceId} year={year} month={month} />
+        </div>
       ) : null}
     </div>
   );

@@ -36,6 +36,38 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             })).ToList();
     }
 
+    /// <summary>Gets the five shared monthly budgets closest to or beyond their limit.</summary>
+    /// <param name="year">The selected year.</param>
+    /// <param name="month">The selected month.</param>
+    /// <param name="cancellationToken">Request cancellation.</param>
+    /// <returns>Shared EUR budgets at or above 80 percent, ordered by urgency.</returns>
+    public async Task<Result<List<DashboardBudget>>> BudgetsAsync(int year, int month, CancellationToken cancellationToken)
+    {
+        if (year is < 2000 or > 9998 || month is < 1 or > 12)
+        {
+            return Error.Validation("Year or month is invalid");
+        }
+        var start = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var end = start.AddMonths(1);
+        var categories = await dbContext.GetAvailableCategories(currentUser).AsNoTracking().ToListAsync(cancellationToken);
+        var budgets = await dbContext.GetVisibleBudgets(currentUser)
+            .Where(item => item.OwnerId == null && item.ValidFrom <= start)
+            .AsNoTracking().ToListAsync(cancellationToken);
+        var transactions = await dbContext.GetSharedTransactions(currentUser)
+            .Where(item => item.BookingDate >= start && item.BookingDate < end && item.Currency == "EUR")
+            .AsNoTracking().ToListAsync(cancellationToken);
+        var summary = BudgetCalculator.Calculate(new MonthYear(start), categories, budgets, transactions);
+        return summary.Categories
+            .Where(item => item.Budget != null && (item.UtilizationPercentage >= 80 || item.Spent >= item.Budget.Amount))
+            .OrderByDescending(item => item.Budget!.Amount == 0 && item.Spent > 0 ? decimal.MaxValue : item.UtilizationPercentage ?? 0)
+            .ThenBy(item => item.Category.Name, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(item => item.Budget!.Id)
+            .Take(5)
+            .Select(item => new DashboardBudget(item.Budget!.Id, item.Category.Name, "EUR", item.Budget.Amount,
+                item.Spent, Math.Max(0, item.Remaining ?? 0), Math.Max(0, item.Spent - item.Budget.Amount), item.UtilizationPercentage))
+            .ToList();
+    }
+
     /// <summary>Gets monthly consumption aggregates by resource and unit for a calendar year.</summary>
     /// <param name="year">The calendar year.</param>
     /// <param name="cancellationToken">Request cancellation.</param>
@@ -91,3 +123,7 @@ public sealed record ConsumptionMonth(int Month, Guid ResourceId, string Name, s
 /// <summary>A limit evaluated using its current definition; a zero threshold has no percentage.</summary>
 public sealed record DashboardLimit(Guid Id, string Name, string Unit, decimal Threshold, decimal ActualValue,
     decimal Remaining, decimal Overrun, decimal? Percentage, DateTime PeriodStart, DateTime PeriodEnd);
+
+/// <summary>A shared monthly EUR budget evaluated against shared booked transactions only.</summary>
+public sealed record DashboardBudget(Guid Id, string Name, string Currency, decimal Amount, decimal Spent,
+    decimal Remaining, decimal Overrun, decimal? Percentage);

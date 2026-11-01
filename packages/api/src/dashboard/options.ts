@@ -39,3 +39,16 @@ export const limitsQueryOptions = (spaceId: string, year: number, month: number)
         }),
       ),
   });
+
+/** The five shared monthly budgets at or above 80 percent utilization. */
+export const budgetsQueryOptions = (spaceId: string, year: number, month: number) =>
+  queryOptions({
+    queryKey: queryKeys.dashboard.budgets(spaceId, year, month),
+    queryFn: async ({ signal }) =>
+      unwrapApiResponse(
+        await apiClient().GET('/api/spaces/{spaceId}/dashboard/budgets', {
+          params: { path: { spaceId }, query: { year, month } },
+          signal,
+        }),
+      ),
+  });

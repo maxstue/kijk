@@ -10,12 +10,16 @@ test('shows real annual series, selected month totals and limit boundary states'
   page,
   upstreamRequests,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 1200 });
   await page.goto(`/${sharedId}?year=2025&month=9`);
   const finances = page.getByRole('region', { name: 'Finances', exact: true });
   const consumptions = page.getByRole('region', { name: 'Consumptions', exact: true });
   const limits = page.getByRole('region', { name: 'Limits', exact: true });
   await expect(finances.getByText('1,008 EUR', { exact: true })).toBeVisible();
   await expect(consumptions.getByText('18 kWh', { exact: true })).toBeVisible();
+  const plotBox = await consumptions.getByRole('img').boundingBox();
+  const sectionBox = await consumptions.boundingBox();
+  expect(plotBox!.width).toBeGreaterThan(sectionBox!.width * 0.8);
   await consumptions.getByText('Monthly values · 2025', { exact: true }).click();
   const table = consumptions.getByRole('table');
   await expect(table.getByRole('row')).toHaveCount(13);
@@ -63,9 +67,11 @@ test('changes month and year consistently and restores the period after reload',
   await expect(
     page.getByRole('region', { name: 'Finances', exact: true }).getByText('1,001 EUR', { exact: true }),
   ).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Limits', exact: true })).toContainText('2026-01-01 – 2026-01-31');
+  await expect(
+    page.getByRole('region', { name: 'Limits', exact: true }).getByText('Monthly electricity', { exact: true }),
+  ).toHaveCount(0);
   const requests = await upstreamRequests();
-  for (const section of ['finances', 'consumptions', 'limits']) {
+  for (const section of ['finances', 'budgets', 'consumptions', 'limits']) {
     expect(
       requests.some(
         (item) =>
@@ -105,7 +111,7 @@ test('does not request finance aggregates when the finance module is disabled', 
     page.getByRole('region', { name: 'Limits', exact: true }).getByText('Monthly electricity', { exact: true }),
   ).toBeVisible();
   await expect(page.getByRole('region', { name: 'Finances', exact: true })).toHaveCount(0);
-  expect((await upstreamRequests()).filter((item) => item.path.endsWith('/dashboard/finances'))).toEqual([]);
+  expect((await upstreamRequests()).filter((item) => /\/dashboard\/(finances|budgets)$/.test(item.path))).toEqual([]);
 });
 
 test('shows empty sections without demo values on a narrow screen', async ({ page, request }) => {
@@ -114,7 +120,7 @@ test('shows empty sections without demo values on a narrow screen', async ({ pag
   await page.goto(`/${sharedId}?year=2025&month=9`);
   await expect(page.getByText('No shared financial data for this year.', { exact: true })).toBeVisible();
   await expect(page.getByText('No consumption data for this year.', { exact: true })).toBeVisible();
-  await expect(page.getByText('No active limits.', { exact: true })).toBeVisible();
+  await expect(page.getByText('No monthly limits close to their threshold.', { exact: true })).toBeVisible();
   await expect(page.getByRole('img', { name: /January to December/ })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Next month', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -187,7 +193,7 @@ test('keeps section geometry stable as delayed consumption data replaces its ske
   expect(
     (
       await request.post(`${mockApiOrigin}/__e2e/dashboard`, {
-        data: { multipleResources: true, consumptionDelayMs: 2500 },
+        data: { consumptionDelayMs: 2500 },
       })
     ).status(),
   ).toBe(204);
@@ -225,7 +231,7 @@ test('keeps section geometry stable as delayed consumption data replaces its ske
     Reflect.set(window, 'dashboardLayoutObserver', observer);
   });
   await expect(consumption.getByText('18 kWh', { exact: true })).toBeVisible();
-  await expect(consumption.getByRole('img')).toHaveCount(2);
+  await expect(consumption.getByRole('img')).toHaveCount(1);
   await page.evaluate(
     () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
   );
@@ -237,4 +243,46 @@ test('keeps section geometry stable as delayed consumption data replaces its ske
   expect(await geometry()).toEqual(before);
   expect(await page.evaluate(() => Number(Reflect.get(window, 'dashboardLayoutShift')))).toBeLessThan(0.01);
   await page.evaluate(() => (Reflect.get(window, 'dashboardLayoutObserver') as PerformanceObserver).disconnect());
+});
+
+test('shows only five critical consumption limits and budgets without inner scrolling', async ({ page, request }) => {
+  expect(
+    (
+      await request.post(`${mockApiOrigin}/__e2e/dashboard`, {
+        data: { manyThresholds: true, multipleResources: true },
+      })
+    ).status(),
+  ).toBe(204);
+  await page.goto(`/${sharedId}?year=2025&month=9`);
+  const limits = page.getByRole('region', { name: 'Limits', exact: true });
+  const budgets = page.getByRole('region', { name: 'Budgets', exact: true });
+  await expect(limits.getByRole('article')).toHaveCount(5);
+  await expect(budgets.getByRole('article')).toHaveCount(5);
+  await expect(limits.getByRole('heading', { level: 3 })).toHaveText([
+    'Consumption limit 130',
+    'Consumption limit 120',
+    'Consumption limit 110',
+    'Consumption limit 100',
+    'Consumption limit 90',
+  ]);
+  await expect(page.getByRole('region', { name: 'Finances', exact: true }).getByRole('img')).toHaveCount(0);
+  const consumption = page.getByRole('region', { name: 'Consumptions', exact: true });
+  await expect(consumption.getByRole('img')).toHaveCount(2);
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    for (const details of await consumption.locator('details').all()) {
+      await details.locator('summary').click();
+    }
+    const scrollers = await page.getByRole('region').evaluateAll((regions) =>
+      regions
+        .flatMap((region) => [region, ...region.querySelectorAll('*')])
+        .filter((element) => {
+          const style = getComputedStyle(element);
+          return /auto|scroll/.test(style.overflowY) && element.scrollHeight > element.clientHeight + 1;
+        })
+        .map((element) => element.className),
+    );
+    expect(scrollers).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
 });

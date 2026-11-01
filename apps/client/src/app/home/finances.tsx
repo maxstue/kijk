@@ -4,8 +4,6 @@ import { Link } from '@tanstack/react-router';
 
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
-import { AnnualChart } from './annual-chart';
-import { months } from './constants';
 import { Section } from './section';
 
 interface Props {
@@ -37,7 +35,7 @@ export function Finances({ spaceId, year, month }: Props) {
             <div key={currency} className='flex min-w-0 flex-col gap-4'>
               <h3 className='sr-only'>{currency}</h3>
               {selected?.hasData ? (
-                <dl className='grid grid-cols-3 divide-x border-b pb-4'>
+                <dl className='grid grid-cols-1 gap-4 @sm/home:grid-cols-3 @sm/home:divide-x'>
                   {[
                     { label: 'Income', value: selected.income },
                     { label: 'Expenses', value: selected.expenses },
@@ -54,42 +52,6 @@ export function Finances({ spaceId, year, month }: Props) {
               ) : (
                 <p className='text-muted-foreground'>No bookings for the selected month.</p>
               )}
-              <div className='flex flex-wrap items-center justify-between gap-3 pt-2'>
-                <h4 className='text-sm font-medium'>Income &amp; expenses · {year}</h4>
-                <div className='text-muted-foreground flex gap-4 text-xs'>
-                  <span className='flex items-center gap-1.5'>
-                    <span className='size-2 rounded-full bg-teal-500' />
-                    Income
-                  </span>
-                  <span className='flex items-center gap-1.5'>
-                    <span className='size-2 rounded-full bg-blue-400' />
-                    Expenses
-                  </span>
-                </div>
-              </div>
-              <AnnualChart
-                year={year}
-                month={month}
-                unit={currency ?? ''}
-                series={[
-                  {
-                    label: 'Income',
-                    color: 'var(--color-teal-500)',
-                    values: months.map((_, index) => {
-                      const row = rows.find((item) => item.month === index + 1);
-                      return row?.hasData ? Number(row.income) : null;
-                    }),
-                  },
-                  {
-                    label: 'Expenses',
-                    color: 'var(--color-blue-400)',
-                    values: months.map((_, index) => {
-                      const row = rows.find((item) => item.month === index + 1);
-                      return row?.hasData ? Number(row.expenses) : null;
-                    }),
-                  },
-                ]}
-              />
             </div>
           );
         })

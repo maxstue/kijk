@@ -21,6 +21,7 @@ export const apiOperations = {
   '/api/spaces/{spaceId}/consumptions/statistics': ['get'],
   '/api/spaces/{spaceId}/consumptions/years': ['get'],
   '/api/spaces/{spaceId}/dashboard/finances': ['get'],
+  '/api/spaces/{spaceId}/dashboard/budgets': ['get'],
   '/api/spaces/{spaceId}/dashboard/consumptions': ['get'],
   '/api/spaces/{spaceId}/dashboard/limits': ['get'],
   '/api/spaces/{spaceId}/imports': ['get', 'post'],

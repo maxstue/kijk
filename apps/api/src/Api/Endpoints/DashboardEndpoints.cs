@@ -18,6 +18,9 @@ public sealed class DashboardEndpoints : IEndpointGroup
         group.MapGet("/finances", Finances).WithName("Dashboard.Finances")
             .WithoutSpacePermission("Every space member may read shared dashboard aggregates")
             .RequireFeature(AppConstants.Features.Finances);
+        group.MapGet("/budgets", Budgets).WithName("Dashboard.Budgets")
+            .WithoutSpacePermission("Every space member may read shared dashboard aggregates")
+            .RequireFeature(AppConstants.Features.Finances);
         group.MapGet("/consumptions", Consumptions).WithName("Dashboard.Consumptions")
             .WithoutSpacePermission("Every space member may read shared dashboard aggregates");
         group.MapGet("/limits", Limits).WithName("Dashboard.Limits")
@@ -28,6 +31,12 @@ public sealed class DashboardEndpoints : IEndpointGroup
     private static async Task<Results<Ok<List<FinanceMonth>>, ProblemHttpResult>> Finances(int year, QueriesHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.FinancesAsync(year, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<List<DashboardBudget>>, ProblemHttpResult>> Budgets(int year, int month, QueriesHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.BudgetsAsync(year, month, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

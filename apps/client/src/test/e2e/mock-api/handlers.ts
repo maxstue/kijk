@@ -91,6 +91,7 @@ export interface DashboardScenario {
   consumptionError: boolean;
   consumptionDelayMs: number;
   multipleResources: boolean;
+  manyThresholds: boolean;
 }
 let dashboardScenario: DashboardScenario = {
   finances: true,
@@ -98,6 +99,7 @@ let dashboardScenario: DashboardScenario = {
   consumptionError: false,
   consumptionDelayMs: 0,
   multipleResources: false,
+  manyThresholds: false,
 };
 export function configureDashboard(scenario: Partial<DashboardScenario>) {
   dashboardScenario = { ...dashboardScenario, ...scenario };
@@ -112,6 +114,7 @@ export function resetMockApi() {
     consumptionError: false,
     consumptionDelayMs: 0,
     multipleResources: false,
+    manyThresholds: false,
   };
   defaultSpaceId = initialDefaultSpaceId;
 }
@@ -140,6 +143,25 @@ export const handlers = [
         balance: (personal ? 100 : 900) + index + year - 2025,
         hasData: true,
       })),
+    );
+  }),
+  http.get('*/api/spaces/:spaceId/dashboard/budgets', () => {
+    if (!dashboardScenario.finances) {
+      return HttpResponse.json({ title: 'Disabled' }, { status: 404 });
+    }
+    return HttpResponse.json(
+      dashboardScenario.empty
+        ? []
+        : (dashboardScenario.manyThresholds ? [150, 140, 130, 120, 110] : [90]).map((percentage) => ({
+            id: `budget-${percentage}`,
+            name: `Household budget ${percentage}`,
+            currency: 'EUR',
+            amount: 100,
+            spent: percentage,
+            remaining: Math.max(0, 100 - percentage),
+            overrun: Math.max(0, percentage - 100),
+            percentage,
+          })),
     );
   }),
   http.get('*/api/spaces/:spaceId/dashboard/consumptions', async ({ request, params }) => {
@@ -185,6 +207,22 @@ export const handlers = [
     const month = Number(url.searchParams.get('month'));
     const periodStart = new Date(Date.UTC(year, month - 1, 1)).toISOString();
     const periodEnd = new Date(Date.UTC(year, month, 1)).toISOString();
+    if (dashboardScenario.manyThresholds) {
+      return HttpResponse.json(
+        [70, 80, 90, 100, 110, 120, 130].map((percentage) => ({
+          id: `limit-${percentage}`,
+          name: `Consumption limit ${percentage}`,
+          unit: 'kWh',
+          threshold: 100,
+          actualValue: percentage,
+          remaining: Math.max(0, 100 - percentage),
+          overrun: Math.max(0, percentage - 100),
+          percentage,
+          periodStart,
+          periodEnd,
+        })),
+      );
+    }
     return HttpResponse.json([
       {
         id: 'monthly',

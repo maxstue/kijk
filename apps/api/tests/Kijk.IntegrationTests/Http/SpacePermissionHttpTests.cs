@@ -491,6 +491,8 @@ public class SpacePermissionHttpTests
         var root = $"/api/spaces/{fixture.Space.Id}/dashboard";
         using var finances = await host.Client.GetAsync($"{root}/finances?year=2026");
         await Assert.That(finances.IsSuccessStatusCode).IsFalse();
+        using var budgets = await host.Client.GetAsync($"{root}/budgets?year=2026&month=9");
+        await Assert.That(budgets.IsSuccessStatusCode).IsFalse();
         var consumption = await host.Client.GetFromJsonAsync<List<ConsumptionMonth>>($"{root}/consumptions?year=2026");
         await Assert.That(consumption!.Single().Value).IsEqualTo(10m);
         var limits = await host.Client.GetFromJsonAsync<List<DashboardLimit>>($"{root}/limits?year=2026&month=9");
@@ -518,6 +520,46 @@ public class SpacePermissionHttpTests
         var data = await host.Client.GetFromJsonAsync<List<DashboardLimit>>($"/api/spaces/{fixture.Space.Id}/dashboard/limits?year=2026&month=9");
         await Assert.That(data!.Single().Overrun).IsEqualTo((decimal)overrun);
         await Assert.That(data!.Single().Percentage).IsEqualTo(percentage == -1 ? (decimal?)null : percentage);
+    }
+
+    [Test]
+    public async Task DashboardBudgetsUseSharedBookingsAndVersionsAndReturnOnlyFiveCriticalBudgets()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using (var db = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var user = await db.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            var space = await db.Spaces.SingleAsync(item => item.Id == fixture.Space.Id);
+            var privateAccount = Account.Create("Private", null, space);
+            privateAccount.SetOwner(user.Id);
+            var date = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+            foreach (var spent in new[] { 70, 80, 90, 100, 110, 120, 130 })
+            {
+                var category = Category.Create($"Category {spent}", "house", "#334455", CategoryKind.Expense, space);
+                var shared = Budget.Create(100, new MonthYear(date), true, category, user, space);
+                var privateBudget = Budget.Create(1, new MonthYear(date), true, category, user, space, Visibility.Private);
+                var booking = Transaction.Create(new(date, -spent, null, null, TransactionStatus.Booked, false), null, user, space);
+                booking.AssignCategoryManually(category);
+                var privateBooking = Transaction.Create(new(date, -999, null, null, TransactionStatus.Booked, false), privateAccount, user, space);
+                privateBooking.AssignCategoryManually(category);
+                var pending = Transaction.Create(new(date, -999, null, null, TransactionStatus.Pending, false), null, user, space);
+                pending.AssignCategoryManually(category);
+                var future = Budget.Create(1000, new MonthYear(date.AddMonths(1)), true, category, user, space);
+                db.AddRange(category, shared, privateBudget, booking, privateBooking, pending, future);
+            }
+            await db.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId,
+            configureServices: services => services.AddSingleton<IFeatureFlags>(new DashboardFlags(true)));
+        var path = $"/api/spaces/{fixture.Space.Id}/dashboard/budgets?year=2026&month=9";
+        var data = await host.Client.GetFromJsonAsync<List<DashboardBudget>>(path);
+        await Assert.That(data!.Select(item => item.Spent).ToArray()).IsEquivalentTo(new decimal[] { 130, 120, 110, 100, 90 });
+        await Assert.That(data![0].Spent).IsEqualTo(130m);
+        await Assert.That(data.All(item => item.Amount == 100m)).IsTrue();
+        using var other = host.CreateClient(fixture.OtherUser.AuthId);
+        await Assert.That(await other.GetStringAsync(path)).IsEqualTo(await host.Client.GetStringAsync(path));
+        using var invalid = await host.Client.GetAsync($"/api/spaces/{fixture.Space.Id}/dashboard/budgets?year=2026&month=13");
+        await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
 
     private sealed class DashboardFlags(bool enabled) : IFeatureFlags
