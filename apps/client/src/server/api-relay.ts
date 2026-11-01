@@ -115,7 +115,7 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
   }
 }
 
-function createApiTarget(apiUrl: string, requestUrl: URL): URL | undefined {
+function createApiTarget(apiUrl: string, requestUrl: URL) {
   try {
     const target = new URL(apiUrl);
     if (
