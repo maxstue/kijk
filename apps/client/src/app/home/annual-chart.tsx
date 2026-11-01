@@ -1,7 +1,7 @@
 import { Chart } from '@kijk/ui/components/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { chartTheme } from '@kijk/ui/lib/chart';
-import { areaY, defineChart, dot, d3Curve } from '@tanstack/charts';
+import { areaY, defineChart, dot, d3Curve, lineY } from '@tanstack/charts';
 import { scaleLinear } from '@tanstack/charts/scales/linear';
 import { tooltip } from '@tanstack/charts/tooltip';
 import { curveMonotoneX } from 'd3-shape';
@@ -48,15 +48,41 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
       });
     });
     return defineChart({
-      marks: groups.flatMap((group) => {
+      gradients: groups.map((group, index) => ({
+        id: `consumption-fill-${index}`,
+        x1: 0,
+        y1: 0,
+        x2: 0,
+        y2: 1,
+        stops: [
+          { offset: 0, color: group.color, opacity: 0.55 },
+          { offset: 1, color: group.color, opacity: 0.05 },
+        ],
+      })),
+      marks: groups.flatMap((group, index) => {
         const points = data.filter((row) => row.series === group.label);
         const isolated = points.filter((row) => group.values[row.month - 2] == null && group.values[row.month] == null);
         const isolatedSet = new Set(isolated);
+        const connected = points.filter((row) => !isolatedSet.has(row));
         return [
-          areaY(
-            points.filter((row) => !isolatedSet.has(row)),
-            { x: 'month', y: 'value', z: 'segment', color: 'series', fillOpacity: 0.12, stroke: group.color, curve },
-          ),
+          areaY(connected, {
+            x: 'month',
+            y: 'value',
+            z: 'segment',
+            color: 'series',
+            fill: `url(#consumption-fill-${index})`,
+            stroke: 'none',
+            curve,
+          }),
+          lineY(connected, {
+            x: 'month',
+            y: 'value',
+            z: 'segment',
+            color: 'series',
+            stroke: group.color,
+            strokeWidth: 2,
+            curve,
+          }),
           dot(isolated, { x: 'month', y: 'value', color: 'series', r: 3 }),
         ];
       }),
@@ -83,11 +109,15 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
         use: tooltip,
         content: (points) => ({
           title: points[0] ? `${months[points[0].datum.month - 1]} ${year}` : undefined,
-          rows: points.map((point) => ({
-            label: point.datum.series,
-            value: `${point.datum.value.toLocaleString()} ${unit}`,
-            color: point.datum.color,
-          })),
+          rows: points
+            .filter(
+              (point, index, items) => items.findIndex((candidate) => candidate.datum.id === point.datum.id) === index,
+            )
+            .map((point) => ({
+              label: point.datum.series,
+              value: `${point.datum.value.toLocaleString()} ${unit}`,
+              color: point.datum.color,
+            })),
         }),
       },
     });

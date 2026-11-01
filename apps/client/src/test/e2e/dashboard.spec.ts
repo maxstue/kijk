@@ -17,6 +17,9 @@ test('shows real annual series, selected month totals and limit boundary states'
   const limits = page.getByRole('region', { name: 'Limits', exact: true });
   await expect(finances.getByText('1,008 EUR', { exact: true })).toBeVisible();
   await expect(consumptions.getByText('18 kWh', { exact: true })).toBeVisible();
+  await expect(consumptions.locator('linearGradient')).toHaveCount(1);
+  await expect(consumptions.locator('linearGradient stop')).toHaveCount(2);
+  await expect(consumptions.locator('path[fill*="url("]')).toHaveCount(1);
   const plotBox = await consumptions.getByRole('img').boundingBox();
   const sectionBox = await consumptions.boundingBox();
   expect(plotBox!.width).toBeGreaterThan(sectionBox!.width * 0.8);
