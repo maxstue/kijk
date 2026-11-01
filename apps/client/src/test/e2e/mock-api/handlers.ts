@@ -2,7 +2,7 @@ import type { ResourceData } from '@kijk/api/resources/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import type { Unit } from '@kijk/api/units/types';
 import type { CurrentUser } from '@kijk/api/users/types';
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, delay, http } from 'msw';
 
 import type { Resource } from '@/shared/types/domain';
 
@@ -84,16 +84,112 @@ const getCurrentUser = () => ({
   },
 });
 
+/** Controls only the fake upstream; production authentication and the BFF remain unchanged. */
+export interface DashboardScenario {
+  finances: boolean;
+  empty: boolean;
+  consumptionError: boolean;
+  consumptionDelayMs: number;
+}
+let dashboardScenario: DashboardScenario = {
+  finances: true,
+  empty: false,
+  consumptionError: false,
+  consumptionDelayMs: 0,
+};
+export function configureDashboard(scenario: Partial<DashboardScenario>) {
+  dashboardScenario = { ...dashboardScenario, ...scenario };
+}
+
 /** Restores the initial data so that every test starts from the same state. */
 export function resetMockApi() {
   resources.clear();
+  dashboardScenario = { finances: true, empty: false, consumptionError: false, consumptionDelayMs: 0 };
   defaultSpaceId = initialDefaultSpaceId;
 }
 
 /** Fake responses of the .NET API, served behind the BFF by `server.ts`. */
 export const handlers = [
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
-  http.get('*/api/users/me/features', () => HttpResponse.json({ aiImport: true, finances: true })),
+  http.get('*/api/users/me/features', () =>
+    HttpResponse.json({ aiImport: true, finances: dashboardScenario.finances }),
+  ),
+  http.get('*/api/spaces/:spaceId/dashboard/finances', ({ request, params }) => {
+    if (!dashboardScenario.finances) {
+      return HttpResponse.json({ title: 'Disabled' }, { status: 404 });
+    }
+    if (dashboardScenario.empty) {
+      return HttpResponse.json([]);
+    }
+    const year = Number(new URL(request.url).searchParams.get('year'));
+    const personal = params.spaceId === '00000000-0000-4000-8000-000000000005';
+    return HttpResponse.json(
+      Array.from({ length: 12 }, (_, index) => ({
+        month: index + 1,
+        currency: 'EUR',
+        income: (personal ? 200 : 1000) + index + year - 2025,
+        expenses: 100,
+        balance: (personal ? 100 : 900) + index + year - 2025,
+        hasData: true,
+      })),
+    );
+  }),
+  http.get('*/api/spaces/:spaceId/dashboard/consumptions', async ({ request, params }) => {
+    await delay(dashboardScenario.consumptionDelayMs);
+    if (dashboardScenario.consumptionError) {
+      return HttpResponse.json({ title: 'Consumption unavailable' }, { status: 503 });
+    }
+    if (dashboardScenario.empty) {
+      return HttpResponse.json([]);
+    }
+    const year = Number(new URL(request.url).searchParams.get('year'));
+    const personal = params.spaceId === '00000000-0000-4000-8000-000000000005';
+    return HttpResponse.json(
+      Array.from({ length: 12 }, (_, index) => ({
+        month: index + 1,
+        resourceId: personal ? 'personal-energy' : 'shared-energy',
+        name: personal ? 'Personal electricity' : 'Shared electricity',
+        unit: 'kWh',
+        value: index === 0 ? 0 : (personal ? 200 : 10) + index + year - 2025,
+      })),
+    );
+  }),
+  http.get('*/api/spaces/:spaceId/dashboard/limits', ({ request }) => {
+    if (dashboardScenario.empty) {
+      return HttpResponse.json([]);
+    }
+    const url = new URL(request.url);
+    const year = Number(url.searchParams.get('year'));
+    const month = Number(url.searchParams.get('month'));
+    const periodStart = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+    const periodEnd = new Date(Date.UTC(year, month, 1)).toISOString();
+    return HttpResponse.json([
+      {
+        id: 'monthly',
+        name: 'Monthly electricity',
+        unit: 'kWh',
+        threshold: 100,
+        actualValue: month * 10,
+        remaining: Math.max(0, 100 - month * 10),
+        overrun: Math.max(0, month * 10 - 100),
+        percentage: month * 10,
+        periodStart,
+        periodEnd,
+      },
+      {
+        id: 'zero',
+        name: 'Zero allowance',
+        unit: 'kWh',
+        threshold: 0,
+        actualValue: 5,
+        remaining: 0,
+        overrun: 5,
+        percentage: null,
+        periodStart,
+        periodEnd,
+      },
+    ]);
+  }),
   http.put('*/api/users/default-space', async ({ request }) => {
     const { spaceId } = (await request.json()) as { spaceId: string | null };
     if (spaceId !== null && !currentUser.user.spaces.some((space) => space.id === spaceId)) {

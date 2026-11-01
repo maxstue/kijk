@@ -5,12 +5,13 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { getResponse } from 'msw';
 
 import { mockApiOrigin } from './config.ts';
-import { handlers, resetMockApi } from './handlers.ts';
+import { configureDashboard, handlers, resetMockApi } from './handlers.ts';
 
 /** A request as the BFF sent it upstream; the bearer token itself is never recorded. */
 export interface UpstreamRequest {
   method: string;
   path: string;
+  search: string;
   headers: Record<string, string>;
 }
 
@@ -49,6 +50,10 @@ async function handle(request: Request) {
     upstreamRequests = [];
     return new Response(null, { status: 204 });
   }
+  if (pathname === '/__e2e/dashboard' && request.method === 'POST') {
+    configureDashboard(await request.json());
+    return new Response(null, { status: 204 });
+  }
   if (pathname === '/__e2e/requests') {
     return Response.json(upstreamRequests);
   }
@@ -56,6 +61,7 @@ async function handle(request: Request) {
   upstreamRequests.push({
     method: request.method,
     path: pathname,
+    search: new URL(request.url).search,
     headers: Object.fromEntries(
       [...request.headers].map(([name, value]) => [name, name === 'authorization' ? value.split(' ')[0] : value]),
     ),

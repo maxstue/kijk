@@ -22,7 +22,7 @@ setup('authenticate the E2E user', async ({ page }) => {
   await clerk.signIn({ emailAddress, page });
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toBeVisible({ timeout: 15_000 });
   await mkdir('playwright/.clerk', { recursive: true });
   await page.context().storageState({ path: authFile });
 });

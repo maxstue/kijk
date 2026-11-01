@@ -93,6 +93,13 @@ const units = {
 
 /** Query keys for the API queries and mutations. */
 export const queryKeys = {
+  dashboard: {
+    all: (spaceId: string) => [...space(spaceId), 'dashboard'] as const,
+    finances: (spaceId: string, year: number) => [...space(spaceId), 'dashboard', 'finances', year] as const,
+    consumptions: (spaceId: string, year: number) => [...space(spaceId), 'dashboard', 'consumptions', year] as const,
+    limits: (spaceId: string, year: number, month: number) =>
+      [...space(spaceId), 'dashboard', 'limits', year, month] as const,
+  },
   accounts,
   budgets,
   categories,
