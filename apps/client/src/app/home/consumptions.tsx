@@ -19,7 +19,13 @@ export function Consumptions({ spaceId, year, month }: Props) {
   const canView = useSpacePermission('consumptions:view');
   const resources = [...new Set(query.data?.map((item) => item.resourceId) ?? [])];
   return (
-    <Section title='Consumptions' pending={query.isPending} error={query.isError} retry={() => void query.refetch()}>
+    <Section
+      title='Consumptions'
+      description='Keep an eye on your household usage throughout the year.'
+      pending={query.isPending}
+      error={query.isError}
+      retry={() => void query.refetch()}
+    >
       {resources.length === 0 ? (
         <p>No consumption data for this year.</p>
       ) : (
@@ -27,11 +33,11 @@ export function Consumptions({ spaceId, year, month }: Props) {
           const rows = query.data?.filter((item) => item.resourceId === resourceId) ?? [];
           const selected = rows.find((item) => item.month === month);
           return (
-            <div key={resourceId}>
-              <h3 className='font-medium'>
+            <div key={resourceId} className='flex min-w-0 flex-col gap-4'>
+              <h3 className='text-muted-foreground text-sm font-medium'>
                 {rows[0]?.name} · {rows[0]?.unit}
               </h3>
-              <p>
+              <p className='text-3xl font-semibold tracking-tight tabular-nums'>
                 {selected
                   ? `${selected.value?.toLocaleString()} ${selected.unit}`
                   : 'No readings for the selected month.'}
@@ -50,7 +56,11 @@ export function Consumptions({ spaceId, year, month }: Props) {
         })
       )}
       {canView && (
-        <Link className='underline' to='/$spaceId/consumptions' params={{ spaceId }}>
+        <Link
+          className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+          to='/$spaceId/consumptions'
+          params={{ spaceId }}
+        >
           View consumptions
         </Link>
       )}

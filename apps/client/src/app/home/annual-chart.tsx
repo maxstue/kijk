@@ -1,95 +1,129 @@
-import { useState } from 'react';
+import { Chart } from '@kijk/ui/components/chart';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import { chartTheme } from '@kijk/ui/lib/chart';
+import { areaY, defineChart, d3Curve } from '@tanstack/charts';
+import { scaleLinear } from '@tanstack/charts/scales/linear';
+import { tooltip } from '@tanstack/charts/tooltip';
+import { curveMonotoneX } from 'd3-shape';
+import { useMemo, useState } from 'react';
 
 import { months } from './constants';
 
-interface Props {
+export interface AnnualSeries {
+  label: string;
+  color: string;
   values: Array<number | null>;
+}
+interface Props {
+  values?: Array<number | null>;
+  series?: AnnualSeries[];
   year: number;
   month: number;
   unit: string;
 }
+const curve = d3Curve(curveMonotoneX);
 
-/** Twelve calendar months. Missing and future values remain gaps rather than zero bars. */
-export function AnnualChart({ values, year, month, unit }: Props) {
-  const maximum = Math.max(1, ...values.map((value) => Math.abs(value ?? 0)));
+/** Calendar-year area chart. Missing readings split the series instead of inventing a connecting curve. */
+export function AnnualChart({ values, series, year, month, unit }: Props) {
   const [now] = useState(() => new Date());
+  const definition = useMemo(() => {
+    const groups = series ?? [{ label: unit, color: 'var(--color-teal-500)', values: values ?? [] }];
+    const data = groups.flatMap((group) => {
+      return months.flatMap((_, index) => {
+        const future = year > now.getFullYear() || (year === now.getFullYear() && index > now.getMonth());
+        const value = group.values[index];
+        if (future || value == null) {
+          return [];
+        }
+        return [
+          {
+            id: `${group.label}-${index}`,
+            month: index + 1,
+            value,
+            series: group.label,
+            color: group.color,
+            segment: `${group.label}-${group.values.slice(0, index).filter((value) => value == null).length}`,
+          },
+        ];
+      });
+    });
+    return defineChart({
+      marks: groups.map((group) =>
+        areaY(
+          data.filter((row) => row.series === group.label),
+          { x: 'month', y: 'value', z: 'segment', color: 'series', fillOpacity: 0.12, stroke: group.color, curve },
+        ),
+      ),
+      scales: {
+        x: {
+          scale: scaleLinear,
+          domain: [1, 12],
+          axis: {
+            line: false,
+            ticks: {
+              size: 0,
+              padding: 12,
+              spacing: 42,
+              format: (value) => (Number.isInteger(Number(value)) ? (months[Number(value) - 1] ?? '') : ''),
+            },
+          },
+        },
+        y: { scale: scaleLinear, nice: true, grid: true, axis: { line: false, ticks: { size: 0, padding: 8 } } },
+      },
+      color: { domain: groups.map((group) => group.label), range: groups.map((group) => group.color) },
+      theme: chartTheme,
+      focus: 'group-x',
+      tooltip: {
+        use: tooltip,
+        content: (points) => ({
+          title: points[0] ? `${months[points[0].datum.month - 1]} ${year}` : undefined,
+          rows: points.map((point) => ({
+            label: point.datum.series,
+            value: `${point.datum.value.toLocaleString()} ${unit}`,
+            color: point.datum.color,
+          })),
+        }),
+      },
+    });
+  }, [series, values, year, unit, now]);
+  const groups = series ?? [{ label: unit, color: 'var(--color-teal-500)', values: values ?? [] }];
   return (
-    <div className='overflow-x-auto'>
-      <svg
-        viewBox='0 0 600 160'
-        className='w-full min-w-96'
-        role='img'
-        aria-label={`January to December ${year}, ${unit}`}
-      >
-        <line x1='0' y1='75' x2='600' y2='75' stroke='currentColor' opacity='.2' />
-        {months.map((label, index) => {
-          const future = year > now.getFullYear() || (year === now.getFullYear() && index > now.getMonth());
-          const value = future ? null : (values[index] ?? null);
-          const height = (Math.abs(value ?? 0) / maximum) * 60;
-          return (
-            <g key={label} opacity={index + 1 === month ? 1 : 0.6}>
-              <title>
-                {label}: {future ? 'Upcoming' : value === null ? 'No data' : `${value.toLocaleString()} ${unit}`}
-              </title>
-              {value !== null && (
-                <rect
-                  x={index * 50 + 12}
-                  y={value >= 0 ? 75 - height : 75}
-                  width='26'
-                  height={Math.max(1, height)}
-                  fill='currentColor'
-                  className='text-primary'
-                />
-              )}
-              <text x={index * 50 + 25} y='150' textAnchor='middle' fill='currentColor' fontSize='11'>
-                {label}
-              </text>
-              {value === null && (
-                <text x={index * 50 + 25} y='80' textAnchor='middle' fill='currentColor' fontSize='12'>
-                  –
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-      <details>
-        <summary className='cursor-pointer text-sm underline'>Monthly values · {year}</summary>
-        <table className='w-full text-sm'>
-          <caption className='sr-only'>
-            January to December {year}, {unit}
-          </caption>
-          <thead>
-            <tr>
-              <th scope='col' className='text-left'>
-                Month
-              </th>
-              <th scope='col' className='text-right'>
-                Value ({unit})
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {months.map((label, index) => {
-              const future = year > now.getFullYear() || (year === now.getFullYear() && index > now.getMonth());
-              const value = values[index];
-              return (
-                <tr key={label}>
-                  <th scope='row' className='text-left'>
-                    {label}
-                  </th>
-                  <td className='text-right'>
-                    {future ? 'Upcoming' : value == null ? 'No data' : value.toLocaleString()}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+    <div className='flex min-w-0 flex-col gap-4'>
+      <Chart ariaLabel={`January to December ${year}, ${unit}`} definition={definition} height={260} />
+      <details className='group text-muted-foreground rounded-lg border border-dashed px-3 py-2 text-xs'>
+        <summary className='cursor-pointer font-medium'>Monthly values · {year}</summary>
+        <Table className='mt-3 text-xs'>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Month</TableHead>
+              {groups.map((group) => (
+                <TableHead key={group.label} className='text-right'>
+                  {group.label} ({unit})
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {months.map((label, index) => (
+              <TableRow key={label} className={index + 1 === month ? 'bg-muted/60' : ''}>
+                <TableHead scope='row'>{label}</TableHead>
+                {groups.map((group) => {
+                  const future = year > now.getFullYear() || (year === now.getFullYear() && index > now.getMonth());
+                  return (
+                    <TableCell key={group.label} className='text-right tabular-nums'>
+                      {future
+                        ? 'Upcoming'
+                        : group.values[index] == null
+                          ? 'No data'
+                          : group.values[index]?.toLocaleString()}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </details>
-      <p className='text-muted-foreground text-xs'>
-        Dashes indicate missing or upcoming months. Values are available on each bar.
-      </p>
     </div>
   );
 }
