@@ -562,6 +562,50 @@ public class SpacePermissionHttpTests
         await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
     }
 
+    [Test]
+    public async Task DashboardConsumptionMeterReadingsUseHistoricalBaselineRelativeEntriesAndMeterResets()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using (var db = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var resource = await db.Resources.Include(item => item.Unit).SingleAsync(item => item.Id == fixture.Resource.Id);
+            var space = await db.Spaces.SingleAsync(item => item.Id == fixture.Space.Id);
+            var entries = new[]
+            {
+                (2025, 12, 1, 1000m, ConsumptionValueType.Absolute, 0m, false),
+                (2026, 1, 1, 10m, ConsumptionValueType.Relative, 10m, false),
+                (2026, 2, 1, 1040m, ConsumptionValueType.Absolute, 30m, false),
+                (2026, 2, 2, 5m, ConsumptionValueType.Relative, 5m, false),
+                (2026, 4, 1, 100m, ConsumptionValueType.Absolute, 0m, true),
+                (2026, 4, 2, 7m, ConsumptionValueType.Relative, 7m, false)
+            };
+            foreach (var (year, month, day, value, type, consumption, reset) in entries)
+            {
+                db.Add(Consumption.Create("Reading", resource, space, new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc),
+                    new ConsumptionReading(value, type, consumption, reset)));
+            }
+            var relativeOnly = new Resource { Name = "Relative only", Unit = resource.Unit, Color = "#334455", Icon = "flame", CreatorType = CreatorType.User, Space = space };
+            db.Add(Consumption.Create("No baseline", relativeOnly, space, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                new ConsumptionReading(15, ConsumptionValueType.Relative, 15)));
+            var otherSpace = Space.Create("Other space");
+            db.Add(Consumption.Create("Other meter", resource, otherSpace, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                new ConsumptionReading(99999, ConsumptionValueType.Absolute, 0)));
+            await db.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var data = await host.Client.GetFromJsonAsync<List<ConsumptionMonth>>($"/api/spaces/{fixture.Space.Id}/dashboard/consumptions?year=2026");
+        var readings = data!.Where(item => item.ResourceId == fixture.Resource.Id).ToDictionary(item => item.Month);
+        await Assert.That(readings.Count).IsEqualTo(4);
+        await Assert.That(readings[1].Value).IsEqualTo(10m);
+        await Assert.That(readings[1].MeterReading).IsEqualTo(1010m);
+        await Assert.That(readings[2].Value).IsEqualTo(35m);
+        await Assert.That(readings[2].MeterReading).IsEqualTo(1045m);
+        await Assert.That(readings[4].Value).IsEqualTo(7m);
+        await Assert.That(readings[4].MeterReading).IsEqualTo(107m);
+        await Assert.That(readings[9].MeterReading).IsEqualTo(117m);
+        await Assert.That(data!.Single(item => item.Name == "Relative only").MeterReading).IsNull();
+    }
+
     private sealed class DashboardFlags(bool enabled) : IFeatureFlags
     {
         public Task<bool> IsEnabledAsync(string feature, CancellationToken cancellationToken) => Task.FromResult(enabled);

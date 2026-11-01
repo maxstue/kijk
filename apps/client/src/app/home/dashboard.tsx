@@ -24,7 +24,7 @@ export function Dashboard({ spaceId, year, month, onChange }: Props) {
       <div className='flex justify-start'>
         <MonthSwitcher year={year} month={month} onChange={onChange} />
       </div>
-      <Consumptions spaceId={spaceId} year={year} month={month} />
+      <Consumptions spaceId={spaceId} month={month} />
       <div className='grid min-w-0 items-stretch gap-5 @3xl/home:grid-cols-2'>
         <Limits spaceId={spaceId} year={year} month={month} />
         {features.data?.finances && <Budgets spaceId={spaceId} year={year} month={month} />}

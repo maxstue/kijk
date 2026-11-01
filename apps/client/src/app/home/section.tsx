@@ -1,12 +1,13 @@
 import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
 import { Button } from '@kijk/ui/components/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@kijk/ui/components/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '@kijk/ui/components/card';
 import { Skeleton } from '@kijk/ui/components/skeleton';
 import type { ReactNode } from 'react';
 
 interface Props {
   title: string;
   description?: string;
+  action?: ReactNode;
   pending: boolean;
   error: boolean;
   retry: () => void;
@@ -19,6 +20,7 @@ interface Props {
 export function Section({
   title,
   description,
+  action,
   pending,
   error,
   retry,
@@ -28,9 +30,14 @@ export function Section({
 }: Props) {
   return (
     <Card role='region' aria-label={title} aria-busy={updating} className='min-w-0 gap-4 shadow-xs'>
-      <CardHeader className='min-h-16'>
+      <CardHeader className='min-h-16 has-data-[slot=card-action]:grid-cols-1 @lg/home:has-data-[slot=card-action]:grid-cols-[1fr_auto]'>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
+        {action && (
+          <CardAction className='col-start-1 row-start-3 justify-self-start @lg/home:col-start-2 @lg/home:row-start-1 @lg/home:justify-self-end'>
+            {action}
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent className={size === 'finance' ? 'min-h-28' : size === 'list' ? 'min-h-0' : 'min-h-[360px]'}>
         <div className='flex min-w-0 flex-col gap-5'>

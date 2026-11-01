@@ -56,7 +56,7 @@ test('shows only the three most urgent monthly limits, excluding safe and quarte
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
   client.setQueryData(queryKeys.users.me, { user: { spaces: [{ id: 'space', role: { permissions: [] } }] } });
   client.setQueryData(queryKeys.users.features, { finances: false });
-  client.setQueryData(queryKeys.dashboard.consumptions('space', 2025), []);
+  client.setQueryData(queryKeys.dashboard.consumptions('space', new Date().getFullYear()), []);
   const period = { periodStart: '2025-09-01T00:00:00Z', periodEnd: '2025-10-01T00:00:00Z' };
   const limits = [70, 80, 90, 100, 110, 120].map((percentage) => ({
     id: String(percentage),

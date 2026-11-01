@@ -1,5 +1,7 @@
 import * as dashboardOptions from '@kijk/api/dashboard/options';
+import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import { AnnualChart, type AnnualSeries } from './annual-chart';
 import { months } from './constants';
@@ -7,7 +9,6 @@ import { Section } from './section';
 
 interface Props {
   spaceId: string;
-  year: number;
   month: number;
 }
 const colors = [
@@ -19,7 +20,9 @@ const colors = [
 ];
 
 /** All recorded resources are shown. Each unit has its own scale; values are never added across resources. */
-export function Consumptions({ spaceId, year, month }: Props) {
+export function Consumptions({ spaceId, month }: Props) {
+  const [year] = useState(() => new Date().getFullYear());
+  const [mode, setMode] = useState<'absolute' | 'difference'>('difference');
   const query = useQuery(dashboardOptions.consumptionsQueryOptions(spaceId, year));
   const resources = [
     ...new Map(
@@ -36,13 +39,32 @@ export function Consumptions({ spaceId, year, month }: Props) {
     label: resource.name,
     values: months.map((_, monthIndex) => {
       const row = query.data?.find((item) => item.resourceId === resource.id && item.month === monthIndex + 1);
-      return row ? Number(row.value) : null;
+      const value = mode === 'absolute' ? row?.meterReading : row?.value;
+      return value == null ? null : Number(value);
     }),
   }));
   return (
     <Section
       title='Consumptions'
-      description={`January–December ${year}`}
+      description={`January–December ${year} · ${mode === 'absolute' ? 'Month-end meter reading' : 'Monthly consumption'}`}
+      action={
+        <ToggleGroup
+          variant='outline'
+          size='sm'
+          spacing={0}
+          value={[mode]}
+          aria-label='Consumption values'
+          onValueChange={(values) => {
+            const selected = values[0];
+            if (selected === 'absolute' || selected === 'difference') {
+              setMode(selected);
+            }
+          }}
+        >
+          <ToggleGroupItem value='absolute'>Meter reading</ToggleGroupItem>
+          <ToggleGroupItem value='difference'>Consumption (diff)</ToggleGroupItem>
+        </ToggleGroup>
+      }
       pending={query.isPending}
       updating={query.isPlaceholderData}
       error={query.isError}

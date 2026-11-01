@@ -6658,7 +6658,8 @@
           "resourceId",
           "name",
           "unit",
-          "value"
+          "value",
+          "meterReading"
         ],
         "type": "object",
         "properties": {
@@ -6687,9 +6688,18 @@
               "string"
             ],
             "format": "double"
+          },
+          "meterReading": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
           }
         },
-        "description": "Recorded consumption for one resource and calendar month."
+        "description": "Monthly consumption and the final effective meter reading; the reading is null until an absolute baseline exists."
       },
       "ConsumptionResourceResponse": {
         "required": [

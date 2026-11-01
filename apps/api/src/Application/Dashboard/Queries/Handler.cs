@@ -80,10 +80,23 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
         }
         var start = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var end = start.AddYears(1);
-        return await dbContext.Consumptions.Where(item => item.SpaceId == currentUser.ActiveSpaceId && item.Date >= start && item.Date < end)
-            .GroupBy(item => new { item.ResourceId, item.Resource.Name, item.Resource.Unit.Symbol, item.Date.Month })
-            .Select(group => new ConsumptionMonth(group.Key.Month, group.Key.ResourceId, group.Key.Name, group.Key.Symbol,
-                group.Sum(item => item.CalculatedConsumption))).ToListAsync(cancellationToken);
+        var activeResources = dbContext.Consumptions
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId && item.Date >= start && item.Date < end)
+            .Select(item => item.ResourceId);
+        var timeline = await dbContext.Consumptions
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId && item.Date < end && activeResources.Contains(item.ResourceId))
+            .Include(item => item.Resource.Unit)
+            .AsNoTracking().ToListAsync(cancellationToken);
+        return timeline.GroupBy(item => item.ResourceId).SelectMany(resource =>
+        {
+            var meterReadings = ConsumptionTimelineCalculator.CalculateMeterReadings(resource);
+            return resource.Where(item => item.Date >= start).GroupBy(item => item.Date.Month).Select(month =>
+            {
+                var last = month.OrderBy(item => item.Date).ThenBy(item => item.CreatedAt).ThenBy(item => item.Id).Last();
+                return new ConsumptionMonth(month.Key, last.ResourceId, last.Resource.Name, last.Resource.Unit.Symbol,
+                    month.Sum(item => item.CalculatedConsumption), meterReadings[last.Id]);
+            });
+        }).ToList();
     }
 
     /// <summary>Evaluates today's active limit definitions for the period containing the selected month.</summary>
@@ -118,8 +131,8 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
 
 /// <summary>Monthly finance totals; HasData distinguishes a zero result from missing bookings.</summary>
 public sealed record FinanceMonth(int Month, string Currency, decimal Income, decimal Expenses, decimal Balance, bool HasData);
-/// <summary>Recorded consumption for one resource and calendar month.</summary>
-public sealed record ConsumptionMonth(int Month, Guid ResourceId, string Name, string Unit, decimal Value);
+/// <summary>Monthly consumption and the final effective meter reading; the reading is null until an absolute baseline exists.</summary>
+public sealed record ConsumptionMonth(int Month, Guid ResourceId, string Name, string Unit, decimal Value, decimal? MeterReading);
 /// <summary>A limit evaluated using its current definition; a zero threshold has no percentage.</summary>
 public sealed record DashboardLimit(Guid Id, string Name, string Unit, decimal Threshold, decimal ActualValue,
     decimal Remaining, decimal Overrun, decimal? Percentage, DateTime PeriodStart, DateTime PeriodEnd);

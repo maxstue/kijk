@@ -93,14 +93,14 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
       ],
       scales: {
         x: {
-          scale: scaleLinear,
-          domain: [1, 12],
+          scale: scaleLinear().domain([1, 12]),
           axis: {
             line: false,
+            tickLabels: { thin: false, fontSize: 10 },
             ticks: {
               size: 0,
               padding: 12,
-              spacing: 42,
+              values: months.map((_, index) => index + 1),
               format: (value) => (Number.isInteger(Number(value)) ? (months[Number(value) - 1] ?? '') : ''),
             },
           },

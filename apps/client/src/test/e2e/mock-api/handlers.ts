@@ -92,6 +92,7 @@ export interface DashboardScenario {
   consumptionDelayMs: number;
   periodDelayMs: number;
   multipleResources: boolean;
+  sparseReadings: boolean;
   manyThresholds: boolean;
 }
 let dashboardScenario: DashboardScenario = {
@@ -101,6 +102,7 @@ let dashboardScenario: DashboardScenario = {
   consumptionDelayMs: 0,
   periodDelayMs: 0,
   multipleResources: false,
+  sparseReadings: false,
   manyThresholds: false,
 };
 export function configureDashboard(scenario: Partial<DashboardScenario>) {
@@ -117,6 +119,7 @@ export function resetMockApi() {
     consumptionDelayMs: 0,
     periodDelayMs: 0,
     multipleResources: false,
+    sparseReadings: false,
     manyThresholds: false,
   };
   defaultSpaceId = initialDefaultSpaceId;
@@ -185,20 +188,31 @@ export const handlers = [
       name: personal ? 'Personal electricity' : 'Shared electricity',
       unit: 'kWh',
       value: index === 0 ? 0 : (personal ? 200 : 10) + index + year - 2025,
+      meterReading: 1000 + index * 10 + (personal ? 1000 : 0),
     }));
+    if (dashboardScenario.sparseReadings) {
+      return HttpResponse.json(readings.filter((row) => row.month >= 8 && row.month <= 10));
+    }
     return HttpResponse.json(
       dashboardScenario.multipleResources
         ? [
             ...readings,
-            ...readings.map((row) => ({ ...row, resourceId: 'solar', name: 'Solar energy', value: row.value / 2 })),
+            ...readings.map((row) => ({
+              ...row,
+              resourceId: 'solar',
+              name: 'Solar energy',
+              value: row.value / 2,
+              meterReading: row.meterReading / 2,
+            })),
             ...readings.map((row) => ({
               ...row,
               resourceId: 'water',
               name: 'Water',
               unit: 'm³',
               value: row.month / 3,
+              meterReading: 100 + row.month / 3,
             })),
-            { month: 5, resourceId: 'rainwater', name: 'Rainwater', unit: 'm³', value: 7 },
+            { month: 5, resourceId: 'rainwater', name: 'Rainwater', unit: 'm³', value: 7, meterReading: null },
           ]
         : readings,
     );

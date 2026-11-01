@@ -1398,7 +1398,7 @@ export interface components {
       /** Confirms committing although many rows could not be parsed. */
       acceptErrors: boolean;
     };
-    /** Recorded consumption for one resource and calendar month. */
+    /** Monthly consumption and the final effective meter reading; the reading is null until an absolute baseline exists. */
     ConsumptionMonth: {
       /** Format: int32 */
       month: number | string;
@@ -1408,6 +1408,8 @@ export interface components {
       unit: string;
       /** Format: double */
       value: number | string;
+      /** Format: double */
+      meterReading: null | number | string;
     };
     /** The resource of a consumption entry. */
     ConsumptionResourceResponse: {
