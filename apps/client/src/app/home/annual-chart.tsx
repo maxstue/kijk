@@ -1,7 +1,7 @@
 import { Chart } from '@kijk/ui/components/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { chartTheme } from '@kijk/ui/lib/chart';
-import { areaY, defineChart, d3Curve } from '@tanstack/charts';
+import { areaY, defineChart, dot, d3Curve } from '@tanstack/charts';
 import { scaleLinear } from '@tanstack/charts/scales/linear';
 import { tooltip } from '@tanstack/charts/tooltip';
 import { curveMonotoneX } from 'd3-shape';
@@ -48,12 +48,18 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
       });
     });
     return defineChart({
-      marks: groups.map((group) =>
-        areaY(
-          data.filter((row) => row.series === group.label),
-          { x: 'month', y: 'value', z: 'segment', color: 'series', fillOpacity: 0.12, stroke: group.color, curve },
-        ),
-      ),
+      marks: groups.flatMap((group) => {
+        const points = data.filter((row) => row.series === group.label);
+        const isolated = points.filter((row) => group.values[row.month - 2] == null && group.values[row.month] == null);
+        const isolatedSet = new Set(isolated);
+        return [
+          areaY(
+            points.filter((row) => !isolatedSet.has(row)),
+            { x: 'month', y: 'value', z: 'segment', color: 'series', fillOpacity: 0.12, stroke: group.color, curve },
+          ),
+          dot(isolated, { x: 'month', y: 'value', color: 'series', r: 3 }),
+        ];
+      }),
       scales: {
         x: {
           scale: scaleLinear,
@@ -89,8 +95,8 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
   const groups = series ?? [{ label: unit, color: 'var(--color-teal-500)', values: values ?? [] }];
   return (
     <div className='flex min-w-0 flex-col gap-4'>
-      <Chart ariaLabel={`January to December ${year}, ${unit}`} definition={definition} height={260} />
-      <details className='group text-muted-foreground rounded-lg border border-dashed px-3 py-2 text-xs'>
+      <Chart ariaLabel={`January to December ${year}, ${unit}`} definition={definition} height={220} />
+      <details className='group text-muted-foreground text-xs'>
         <summary className='cursor-pointer font-medium'>Monthly values · {year}</summary>
         <Table className='mt-3 text-xs'>
           <TableHeader>

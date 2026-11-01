@@ -1,8 +1,6 @@
 import * as dashboardOptions from '@kijk/api/dashboard/options';
-import { Card, CardHeader } from '@kijk/ui/components/card';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ArrowDownLeft, ArrowUpRight, Wallet } from 'lucide-react';
 
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -23,7 +21,8 @@ export function Finances({ spaceId, year, month }: Props) {
   return (
     <Section
       title='Finances'
-      description='Your shared money, month by month. Balance is income minus expenses.'
+      size='finance'
+      description='Shared income and spending. Balance = income − expenses.'
       pending={query.isPending}
       error={query.isError}
       retry={() => void query.refetch()}
@@ -38,23 +37,18 @@ export function Finances({ spaceId, year, month }: Props) {
             <div key={currency} className='flex min-w-0 flex-col gap-4'>
               <h3 className='sr-only'>{currency}</h3>
               {selected?.hasData ? (
-                <dl className='grid gap-4 @xl/home:grid-cols-3'>
+                <dl className='grid grid-cols-3 divide-x border-b pb-4'>
                   {[
-                    { label: 'Income', value: selected.income, icon: ArrowDownLeft },
-                    { label: 'Expenses', value: selected.expenses, icon: ArrowUpRight },
-                    { label: 'Balance', value: selected.balance, icon: Wallet },
+                    { label: 'Income', value: selected.income },
+                    { label: 'Expenses', value: selected.expenses },
+                    { label: 'Balance', value: selected.balance },
                   ].map((metric) => (
-                    <Card key={metric.label} size='sm' className='bg-muted/25 shadow-none ring-0'>
-                      <CardHeader>
-                        <dt className='flex items-center justify-between'>
-                          {metric.label}
-                          <metric.icon className='text-muted-foreground size-4' aria-hidden='true' />
-                        </dt>
-                        <dd className='text-3xl font-semibold tracking-tight tabular-nums'>
-                          {metric.value?.toLocaleString()} {currency}
-                        </dd>
-                      </CardHeader>
-                    </Card>
+                    <div key={metric.label} className='flex min-w-0 flex-col gap-2 px-3 first:pl-0'>
+                      <dt className='text-muted-foreground text-xs'>{metric.label}</dt>
+                      <dd className='text-base font-semibold tracking-tight tabular-nums @xl/home:text-2xl'>
+                        {metric.value?.toLocaleString()} {currency}
+                      </dd>
+                    </div>
                   ))}
                 </dl>
               ) : (

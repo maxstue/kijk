@@ -20,12 +20,12 @@ export function Limits({ spaceId, year, month }: Props) {
   return (
     <Section
       title='Limits'
-      description='A little perspective on your household usage.'
+      description='See what is left, reached or over the limit.'
       pending={query.isPending}
       error={query.isError}
       retry={() => void query.refetch()}
     >
-      <p className='text-muted-foreground text-sm'>Current active limit definitions applied to the selected period.</p>
+      <p className='text-muted-foreground text-xs'>Current limits, evaluated for their full month, quarter or year.</p>
       {query.data?.length === 0 ? (
         <p>No active limits.</p>
       ) : (
@@ -59,11 +59,10 @@ export function Limits({ spaceId, year, month }: Props) {
             )}
             <p>
               {Number(item.overrun) > 0
-                ? `Exceeded by ${item.overrun?.toLocaleString()}`
+                ? `Exceeded by ${item.overrun?.toLocaleString()} ${item.unit}`
                 : Number(item.remaining) === 0
                   ? 'Limit reached'
-                  : `${item.remaining?.toLocaleString()} remaining`}{' '}
-              {item.unit}
+                  : `${item.remaining?.toLocaleString()} ${item.unit} remaining`}
             </p>
           </article>
         ))

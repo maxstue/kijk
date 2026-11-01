@@ -90,12 +90,14 @@ export interface DashboardScenario {
   empty: boolean;
   consumptionError: boolean;
   consumptionDelayMs: number;
+  multipleResources: boolean;
 }
 let dashboardScenario: DashboardScenario = {
   finances: true,
   empty: false,
   consumptionError: false,
   consumptionDelayMs: 0,
+  multipleResources: false,
 };
 export function configureDashboard(scenario: Partial<DashboardScenario>) {
   dashboardScenario = { ...dashboardScenario, ...scenario };
@@ -104,7 +106,13 @@ export function configureDashboard(scenario: Partial<DashboardScenario>) {
 /** Restores the initial data so that every test starts from the same state. */
 export function resetMockApi() {
   resources.clear();
-  dashboardScenario = { finances: true, empty: false, consumptionError: false, consumptionDelayMs: 0 };
+  dashboardScenario = {
+    finances: true,
+    empty: false,
+    consumptionError: false,
+    consumptionDelayMs: 0,
+    multipleResources: false,
+  };
   defaultSpaceId = initialDefaultSpaceId;
 }
 
@@ -144,14 +152,28 @@ export const handlers = [
     }
     const year = Number(new URL(request.url).searchParams.get('year'));
     const personal = params.spaceId === '00000000-0000-4000-8000-000000000005';
+    const readings = Array.from({ length: 12 }, (_, index) => ({
+      month: index + 1,
+      resourceId: personal ? 'personal-energy' : 'shared-energy',
+      name: personal ? 'Personal electricity' : 'Shared electricity',
+      unit: 'kWh',
+      value: index === 0 ? 0 : (personal ? 200 : 10) + index + year - 2025,
+    }));
     return HttpResponse.json(
-      Array.from({ length: 12 }, (_, index) => ({
-        month: index + 1,
-        resourceId: personal ? 'personal-energy' : 'shared-energy',
-        name: personal ? 'Personal electricity' : 'Shared electricity',
-        unit: 'kWh',
-        value: index === 0 ? 0 : (personal ? 200 : 10) + index + year - 2025,
-      })),
+      dashboardScenario.multipleResources
+        ? [
+            ...readings,
+            ...readings.map((row) => ({ ...row, resourceId: 'solar', name: 'Solar energy', value: row.value / 2 })),
+            ...readings.map((row) => ({
+              ...row,
+              resourceId: 'water',
+              name: 'Water',
+              unit: 'm³',
+              value: row.month / 3,
+            })),
+            { month: 5, resourceId: 'rainwater', name: 'Rainwater', unit: 'm³', value: 7 },
+          ]
+        : readings,
     );
   }),
   http.get('*/api/spaces/:spaceId/dashboard/limits', ({ request }) => {

@@ -80,12 +80,12 @@ test('changes month and year consistently and restores the period after reload',
 
 test('switches spaces without displaying the previous space data', async ({ page, upstreamRequests }) => {
   await page.goto(`/${sharedId}?year=2025&month=9`);
-  await expect(page.getByRole('heading', { name: 'Shared electricity · kWh' })).toBeVisible();
+  await expect(page.getByRole('term').filter({ hasText: 'Shared electricity' })).toBeVisible();
   await page.getByRole('button', { name: 'E2E Space', exact: true }).click();
   await page.getByRole('menuitem', { name: /Personal/ }).click();
   await expect(page).toHaveURL(new RegExp(`/${personalId}`));
-  await expect(page.getByRole('heading', { name: 'Personal electricity · kWh' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Shared electricity · kWh' })).toHaveCount(0);
+  await expect(page.getByRole('term').filter({ hasText: 'Personal electricity' })).toBeVisible();
+  await expect(page.getByRole('term').filter({ hasText: 'Shared electricity' })).toHaveCount(0);
   expect(
     (await upstreamRequests()).some((item) => item.path === `/api/spaces/${personalId}/dashboard/consumptions`),
   ).toBe(true);
@@ -149,4 +149,92 @@ test.describe('section failures', () => {
     await expect(consumptions.getByText('18 kWh', { exact: true })).toBeVisible();
     await expect(consumptions.getByRole('alert')).toHaveCount(0);
   });
+});
+
+test('plots every recorded resource, grouped by unit, including resources without readings in the selected month', async ({
+  page,
+  request,
+}) => {
+  expect((await request.post(`${mockApiOrigin}/__e2e/dashboard`, { data: { multipleResources: true } })).status()).toBe(
+    204,
+  );
+  await page.goto(`/${sharedId}?year=2025&month=9`);
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  const section = page.getByRole('region', { name: 'Consumptions', exact: true });
+  for (const name of ['Shared electricity', 'Solar energy', 'Water', 'Rainwater']) {
+    await expect(section.getByRole('term').filter({ hasText: new RegExp(`^${name}$`) })).toHaveCount(1);
+  }
+  await expect(section.getByText('18 kWh', { exact: true })).toBeVisible();
+  await expect(section.getByText('9 kWh', { exact: true })).toBeVisible();
+  await expect(section.getByText('3 m³', { exact: true })).toBeVisible();
+  await expect(section.getByText('No readings this month', { exact: true })).toBeVisible();
+  const energy = section.getByRole('group', { name: 'Consumption history in kWh', exact: true });
+  const water = section.getByRole('group', { name: 'Consumption history in m³', exact: true });
+  await expect(energy.getByRole('img')).toHaveCount(1);
+  await expect(water.getByRole('img')).toHaveCount(1);
+  await page.setViewportSize({ width: 390, height: 1000 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await energy.getByText('Monthly values · 2025', { exact: true }).click();
+  await expect(energy.getByRole('columnheader', { name: 'Shared electricity (kWh)' })).toBeVisible();
+  await expect(energy.getByRole('columnheader', { name: 'Solar energy (kWh)' })).toBeVisible();
+  await water.getByText('Monthly values · 2025', { exact: true }).click();
+  await expect(water.getByRole('columnheader', { name: 'Rainwater (m³)' })).toBeVisible();
+  await expect(water.getByRole('columnheader', { name: 'Water (m³)', exact: true })).toBeVisible();
+});
+
+test('keeps section geometry stable as delayed consumption data replaces its skeleton', async ({ page, request }) => {
+  expect(
+    (
+      await request.post(`${mockApiOrigin}/__e2e/dashboard`, {
+        data: { multipleResources: true, consumptionDelayMs: 2500 },
+      })
+    ).status(),
+  ).toBe(204);
+  await page.goto(`/${sharedId}?year=2025&month=9`);
+  const consumption = page.getByRole('region', { name: 'Consumptions', exact: true });
+  await expect(consumption.getByRole('status')).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'Finances', exact: true }).getByText('1,008 EUR', { exact: true }),
+  ).toBeVisible();
+  const geometry = () =>
+    page.getByRole('region').evaluateAll((nodes) =>
+      nodes.map((node) => ({
+        name: node.getAttribute('aria-label'),
+        top: (node as HTMLElement).offsetTop,
+        height: node.getBoundingClientRect().height,
+      })),
+    );
+  const before = await geometry();
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    Reflect.set(window, 'dashboardLayoutShift', 0);
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const shift = entry as PerformanceEntry & { value: number; hadRecentInput: boolean };
+        if (!shift.hadRecentInput) {
+          Reflect.set(
+            window,
+            'dashboardLayoutShift',
+            Number(Reflect.get(window, 'dashboardLayoutShift')) + shift.value,
+          );
+        }
+      }
+    });
+    observer.observe({ type: 'layout-shift' });
+    Reflect.set(window, 'dashboardLayoutObserver', observer);
+  });
+  await expect(consumption.getByText('18 kWh', { exact: true })).toBeVisible();
+  await expect(consumption.getByRole('img')).toHaveCount(2);
+  await page.evaluate(
+    () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+  );
+  expect(await geometry()).toEqual(before);
+  await page.getByRole('button', { name: 'Next month', exact: true }).click();
+  await expect(
+    page.getByRole('region', { name: 'Limits', exact: true }).getByText('100 %', { exact: true }),
+  ).toBeVisible();
+  expect(await geometry()).toEqual(before);
+  expect(await page.evaluate(() => Number(Reflect.get(window, 'dashboardLayoutShift')))).toBeLessThan(0.01);
+  await page.evaluate(() => (Reflect.get(window, 'dashboardLayoutObserver') as PerformanceObserver).disconnect());
 });
