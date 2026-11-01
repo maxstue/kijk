@@ -6658,6 +6658,7 @@
           "resourceId",
           "name",
           "unit",
+          "color",
           "value",
           "meterReading"
         ],
@@ -6679,6 +6680,9 @@
             "type": "string"
           },
           "unit": {
+            "type": "string"
+          },
+          "color": {
             "type": "string"
           },
           "value": {

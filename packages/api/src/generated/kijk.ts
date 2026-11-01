@@ -1406,6 +1406,7 @@ export interface components {
       resourceId: string;
       name: string;
       unit: string;
+      color: string;
       /** Format: double */
       value: number | string;
       /** Format: double */

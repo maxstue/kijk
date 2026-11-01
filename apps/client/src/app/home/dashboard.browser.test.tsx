@@ -11,13 +11,21 @@ test('disabled finances stay unmounted while consumption zero and empty limits r
   client.setQueryData(queryKeys.users.me, { user: { spaces: [{ id: 'space', role: { permissions: [] } }] } });
   client.setQueryData(queryKeys.users.features, { finances: false });
   client.setQueryData(queryKeys.dashboard.consumptions('space', 2026), [
-    { resourceId: 'energy', name: 'Electricity', unit: 'kWh', month: 9, value: 0 },
+    { resourceId: 'energy', name: 'Electricity', unit: 'kWh', month: 9, value: 0, meterReading: 0 },
   ]);
   client.setQueryData(queryKeys.dashboard.limits('space', 2026, 9), []);
   const change = vi.fn<(period: { year: number; month: number }) => void>();
   const screen = await render(
     <QueryClientProvider client={client}>
-      <Dashboard spaceId='space' year={2026} month={9} onChange={change} />
+      <Dashboard
+        view='meter'
+        onResourceChange={() => undefined}
+        onViewChange={() => undefined}
+        spaceId='space'
+        year={2026}
+        month={9}
+        onChange={change}
+      />
     </QueryClientProvider>,
   );
   await expect.element(screen.getByRole('figure', { name: 'Sep 2026 highlighted in kWh' })).toBeVisible();
@@ -43,7 +51,15 @@ test('a failed section leaves other sections usable and does not appear empty', 
     .catch(() => undefined);
   const screen = await render(
     <QueryClientProvider client={client}>
-      <Dashboard spaceId='space' year={2026} month={9} onChange={() => undefined} />
+      <Dashboard
+        view='meter'
+        onResourceChange={() => undefined}
+        onViewChange={() => undefined}
+        spaceId='space'
+        year={2026}
+        month={9}
+        onChange={() => undefined}
+      />
     </QueryClientProvider>,
   );
   await expect.element(screen.getByRole('alert')).toBeVisible();
@@ -56,7 +72,7 @@ test('shows only the three most urgent monthly limits, excluding safe and quarte
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
   client.setQueryData(queryKeys.users.me, { user: { spaces: [{ id: 'space', role: { permissions: [] } }] } });
   client.setQueryData(queryKeys.users.features, { finances: false });
-  client.setQueryData(queryKeys.dashboard.consumptions('space', new Date().getFullYear()), []);
+  client.setQueryData(queryKeys.dashboard.consumptions('space', 2025), []);
   const period = { periodStart: '2025-09-01T00:00:00Z', periodEnd: '2025-10-01T00:00:00Z' };
   const limits = [70, 80, 90, 100, 110, 120].map((percentage) => ({
     id: String(percentage),
@@ -86,7 +102,15 @@ test('shows only the three most urgent monthly limits, excluding safe and quarte
   ]);
   const screen = await render(
     <QueryClientProvider client={client}>
-      <Dashboard spaceId='space' year={2025} month={9} onChange={() => undefined} />
+      <Dashboard
+        view='meter'
+        onResourceChange={() => undefined}
+        onViewChange={() => undefined}
+        spaceId='space'
+        year={2025}
+        month={9}
+        onChange={() => undefined}
+      />
     </QueryClientProvider>,
   );
   for (const name of ['Zero allowance', 'Usage 120', 'Usage 110']) {

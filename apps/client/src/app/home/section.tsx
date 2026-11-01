@@ -30,11 +30,11 @@ export function Section({
 }: Props) {
   return (
     <Card role='region' aria-label={title} aria-busy={updating} className='min-w-0 gap-4 shadow-xs'>
-      <CardHeader className='min-h-16 has-data-[slot=card-action]:grid-cols-1 @lg/home:has-data-[slot=card-action]:grid-cols-[1fr_auto]'>
+      <CardHeader className='min-h-16 has-data-[slot=card-action]:grid-cols-1 @3xl/home:has-data-[slot=card-action]:grid-cols-[1fr_auto]'>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
         {action && (
-          <CardAction className='col-start-1 row-start-3 justify-self-start @lg/home:col-start-2 @lg/home:row-start-1 @lg/home:justify-self-end'>
+          <CardAction className='col-start-1 row-start-3 justify-self-start @3xl/home:col-start-2 @3xl/home:row-start-1 @3xl/home:justify-self-end'>
             {action}
           </CardAction>
         )}
@@ -42,7 +42,7 @@ export function Section({
       <CardContent className={size === 'finance' ? 'min-h-28' : size === 'list' ? 'min-h-0' : 'min-h-[360px]'}>
         <div className='flex min-w-0 flex-col gap-5'>
           {pending ? (
-            <div role='status' className='flex flex-col gap-5'>
+            <div key='loading' role='status' className='flex flex-col gap-5'>
               <span className='sr-only'>Loading…</span>
               <div className='grid grid-cols-3 gap-4'>
                 {[0, 1, 2].map((index) => (

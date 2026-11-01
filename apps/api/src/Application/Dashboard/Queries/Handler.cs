@@ -93,7 +93,7 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             return resource.Where(item => item.Date >= start).GroupBy(item => item.Date.Month).Select(month =>
             {
                 var last = month.OrderBy(item => item.Date).ThenBy(item => item.CreatedAt).ThenBy(item => item.Id).Last();
-                return new ConsumptionMonth(month.Key, last.ResourceId, last.Resource.Name, last.Resource.Unit.Symbol,
+                return new ConsumptionMonth(month.Key, last.ResourceId, last.Resource.Name, last.Resource.Unit.Symbol, last.Resource.Color,
                     month.Sum(item => item.CalculatedConsumption), meterReadings[last.Id]);
             });
         }).ToList();
@@ -132,7 +132,7 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
 /// <summary>Monthly finance totals; HasData distinguishes a zero result from missing bookings.</summary>
 public sealed record FinanceMonth(int Month, string Currency, decimal Income, decimal Expenses, decimal Balance, bool HasData);
 /// <summary>Monthly consumption and the final effective meter reading; the reading is null until an absolute baseline exists.</summary>
-public sealed record ConsumptionMonth(int Month, Guid ResourceId, string Name, string Unit, decimal Value, decimal? MeterReading);
+public sealed record ConsumptionMonth(int Month, Guid ResourceId, string Name, string Unit, string Color, decimal Value, decimal? MeterReading);
 /// <summary>A limit evaluated using its current definition; a zero threshold has no percentage.</summary>
 public sealed record DashboardLimit(Guid Id, string Name, string Unit, decimal Threshold, decimal ActualValue,
     decimal Remaining, decimal Overrun, decimal? Percentage, DateTime PeriodStart, DateTime PeriodEnd);

@@ -88,6 +88,7 @@ const getCurrentUser = () => ({
 export interface DashboardScenario {
   finances: boolean;
   empty: boolean;
+  emptyConsumptionYears: number[];
   consumptionError: boolean;
   consumptionDelayMs: number;
   periodDelayMs: number;
@@ -98,6 +99,7 @@ export interface DashboardScenario {
 let dashboardScenario: DashboardScenario = {
   finances: true,
   empty: false,
+  emptyConsumptionYears: [],
   consumptionError: false,
   consumptionDelayMs: 0,
   periodDelayMs: 0,
@@ -115,6 +117,7 @@ export function resetMockApi() {
   dashboardScenario = {
     finances: true,
     empty: false,
+    emptyConsumptionYears: [],
     consumptionError: false,
     consumptionDelayMs: 0,
     periodDelayMs: 0,
@@ -177,7 +180,10 @@ export const handlers = [
     if (dashboardScenario.consumptionError) {
       return HttpResponse.json({ title: 'Consumption unavailable' }, { status: 503 });
     }
-    if (dashboardScenario.empty) {
+    if (
+      dashboardScenario.empty ||
+      dashboardScenario.emptyConsumptionYears.includes(Number(new URL(request.url).searchParams.get('year')))
+    ) {
       return HttpResponse.json([]);
     }
     const year = Number(new URL(request.url).searchParams.get('year'));
@@ -186,6 +192,7 @@ export const handlers = [
       month: index + 1,
       resourceId: personal ? 'personal-energy' : 'shared-energy',
       name: personal ? 'Personal electricity' : 'Shared electricity',
+      color: '#2563eb',
       unit: 'kWh',
       value: index === 0 ? 0 : (personal ? 200 : 10) + index + year - 2025,
       meterReading: 1000 + index * 10 + (personal ? 1000 : 0),
@@ -201,6 +208,7 @@ export const handlers = [
               ...row,
               resourceId: 'solar',
               name: 'Solar energy',
+              color: '#16a34a',
               value: row.value / 2,
               meterReading: row.meterReading / 2,
             })),
@@ -208,11 +216,20 @@ export const handlers = [
               ...row,
               resourceId: 'water',
               name: 'Water',
+              color: '#06b6d4',
               unit: 'm³',
               value: row.month / 3,
               meterReading: 100 + row.month / 3,
             })),
-            { month: 5, resourceId: 'rainwater', name: 'Rainwater', unit: 'm³', value: 7, meterReading: null },
+            {
+              month: 5,
+              resourceId: 'rainwater',
+              name: 'Rainwater',
+              color: '#8b5cf6',
+              unit: 'm³',
+              value: 7,
+              meterReading: null,
+            },
           ]
         : readings,
     );

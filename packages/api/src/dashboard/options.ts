@@ -28,8 +28,6 @@ export const consumptionsQueryOptions = (spaceId: string, year: number) =>
           signal,
         }),
       ),
-    placeholderData: (previousData, previousQuery) =>
-      previousQuery?.queryKey[1] === spaceId ? previousData : undefined,
   });
 /** Current active limit definitions evaluated for the selected calendar period. */
 export const limitsQueryOptions = (spaceId: string, year: number, month: number) =>

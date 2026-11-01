@@ -9,6 +9,8 @@ import { AppError } from '@/shared/components/errors/app-error';
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/')({
   validateSearch: z.object({
     year: z.coerce.number().int().min(2000).max(9998).optional().catch(undefined),
+    resource: z.string().min(1).optional().catch(undefined),
+    view: z.enum(['meter', 'consumption']).default('meter').catch('meter'),
     month: z.coerce.number().int().min(1).max(12).optional().catch(undefined),
   }),
   head: () => ({ meta: [{ title: 'Space overview' }] }),
@@ -26,7 +28,11 @@ function HomeIndexPage() {
       spaceId={spaceId}
       year={search.year ?? now.getFullYear()}
       month={search.month ?? now.getMonth() + 1}
-      onChange={(period) => void navigate({ search: period })}
+      resourceId={search.resource}
+      view={search.view}
+      onResourceChange={(resource) => void navigate({ search: (previous) => ({ ...previous, resource }) })}
+      onViewChange={(view) => void navigate({ search: (previous) => ({ ...previous, view }) })}
+      onChange={(period) => void navigate({ search: (previous) => ({ ...previous, ...period }) })}
     />
   );
 }

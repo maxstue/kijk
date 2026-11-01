@@ -8,23 +8,36 @@ import { Consumptions } from './consumptions';
 import { Finances } from './finances';
 import { Limits } from './limits';
 import { Section } from './section';
+import type { ConsumptionView } from './types';
 
 interface Props {
   spaceId: string;
   year: number;
   month: number;
+  resourceId?: string;
+  view: ConsumptionView;
+  onResourceChange: (resourceId: string) => void;
+  onViewChange: (view: ConsumptionView) => void;
   onChange: (period: { year: number; month: number }) => void;
 }
 
 /** Common space overview with independent loading and failure states. */
-export function Dashboard({ spaceId, year, month, onChange }: Props) {
+export function Dashboard({ spaceId, year, month, resourceId, view, onResourceChange, onViewChange, onChange }: Props) {
   const features = useQuery(usersOptions.featuresQueryOptions());
   return (
     <div className='@container/home mx-auto flex w-full max-w-7xl flex-col gap-8 pb-6'>
       <div className='flex justify-start'>
         <MonthSwitcher year={year} month={month} onChange={onChange} />
       </div>
-      <Consumptions spaceId={spaceId} month={month} />
+      <Consumptions
+        spaceId={spaceId}
+        year={year}
+        month={month}
+        resourceId={resourceId}
+        view={view}
+        onResourceChange={onResourceChange}
+        onViewChange={onViewChange}
+      />
       <div className='grid min-w-0 items-stretch gap-5 @3xl/home:grid-cols-2'>
         <Limits spaceId={spaceId} year={year} month={month} />
         {features.data?.finances && <Budgets spaceId={spaceId} year={year} month={month} />}

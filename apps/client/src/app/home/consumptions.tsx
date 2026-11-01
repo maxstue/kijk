@@ -1,108 +1,120 @@
 import * as dashboardOptions from '@kijk/api/dashboard/options';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 
 import { AnnualChart, type AnnualSeries } from './annual-chart';
 import { months } from './constants';
 import { Section } from './section';
+import type { ConsumptionView } from './types';
 
 interface Props {
   spaceId: string;
+  year: number;
   month: number;
+  resourceId?: string;
+  view: ConsumptionView;
+  onResourceChange: (resourceId: string) => void;
+  onViewChange: (view: ConsumptionView) => void;
 }
-const colors = [
-  'var(--color-blue-400)',
-  'var(--color-blue-600)',
-  'var(--color-violet-500)',
-  'var(--color-amber-500)',
-  'var(--color-rose-500)',
-];
-
-/** All recorded resources are shown. Each unit has its own scale; values are never added across resources. */
-export function Consumptions({ spaceId, month }: Props) {
-  const [year] = useState(() => new Date().getFullYear());
-  const [mode, setMode] = useState<'absolute' | 'difference'>('difference');
+/** One full-width chart for the selected resource, preserving its unit and configured color. */
+export function Consumptions({ spaceId, year, month, resourceId, view, onResourceChange, onViewChange }: Props) {
   const query = useQuery(dashboardOptions.consumptionsQueryOptions(spaceId, year));
   const resources = [
     ...new Map(
       query.data?.map((item) => [
         item.resourceId,
-        { id: item.resourceId, name: item.name ?? '', unit: item.unit ?? '' },
+        { id: item.resourceId, name: item.name ?? '', unit: item.unit ?? '', color: item.color ?? 'var(--primary)' },
       ]) ?? [],
     ).values(),
   ].sort((left, right) => left.name.localeCompare(right.name) || String(left.id).localeCompare(String(right.id)));
-  const units = [...new Set(resources.map((resource) => resource.unit))];
-  const series = resources.map((resource, index) => ({
-    ...resource,
-    color: colors[index % colors.length],
-    label: resource.name,
-    values: months.map((_, monthIndex) => {
-      const row = query.data?.find((item) => item.resourceId === resource.id && item.month === monthIndex + 1);
-      const value = mode === 'absolute' ? row?.meterReading : row?.value;
-      return value == null ? null : Number(value);
-    }),
-  }));
+  const selected = resources.find((resource) => resource.id === resourceId) ?? resources[0];
+  const series: AnnualSeries[] = selected
+    ? [
+        {
+          label: selected.name,
+          color: selected.color,
+          values: months.map((_, monthIndex) => {
+            const row = query.data?.find((item) => item.resourceId === selected.id && item.month === monthIndex + 1);
+            const value = view === 'meter' ? row?.meterReading : row?.value;
+            return value == null ? null : Number(value);
+          }),
+        },
+      ]
+    : [];
   return (
     <Section
       title='Consumptions'
-      description={`January–December ${year} · ${mode === 'absolute' ? 'Month-end meter reading' : 'Monthly consumption'}`}
+      description={`January–December ${year} · ${view === 'meter' ? 'Month-end meter reading' : 'Monthly consumption'}`}
       action={
-        <ToggleGroup
-          variant='outline'
-          size='sm'
-          spacing={0}
-          value={[mode]}
-          aria-label='Consumption values'
-          onValueChange={(values) => {
-            const selected = values[0];
-            if (selected === 'absolute' || selected === 'difference') {
-              setMode(selected);
-            }
-          }}
-        >
-          <ToggleGroupItem value='absolute'>Meter reading</ToggleGroupItem>
-          <ToggleGroupItem value='difference'>Consumption (diff)</ToggleGroupItem>
-        </ToggleGroup>
+        <div className='flex flex-wrap items-center gap-2'>
+          <Select
+            value={selected?.id ?? null}
+            disabled={resources.length === 0}
+            onValueChange={(resourceId) => {
+              if (resourceId) {
+                onResourceChange(resourceId);
+              }
+            }}
+          >
+            <SelectTrigger size='sm' className='w-48 max-w-full' aria-label='Resource'>
+              <span
+                className='size-2 shrink-0 rounded-full'
+                style={{ backgroundColor: selected?.color ?? 'transparent' }}
+              />
+              <SelectValue className='min-w-0 truncate'>
+                {selected ? `${selected.name} (${selected.unit})` : 'Resource'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {resources.map((resource) => (
+                  <SelectItem key={resource.id} value={resource.id}>
+                    <span className='size-2 shrink-0 rounded-full' style={{ backgroundColor: resource.color }} />
+                    {resource.name} ({resource.unit})
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <ToggleGroup
+            variant='outline'
+            size='sm'
+            spacing={0}
+            value={[view]}
+            aria-label='Consumption values'
+            onValueChange={(values) => {
+              const selected = values[0];
+              if (selected === 'meter' || selected === 'consumption') {
+                onViewChange(selected);
+              }
+            }}
+          >
+            <ToggleGroupItem value='meter'>Meter reading</ToggleGroupItem>
+            <ToggleGroupItem value='consumption'>Consumption (diff)</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
       }
       pending={query.isPending}
       updating={query.isPlaceholderData}
       error={query.isError}
       retry={() => void query.refetch()}
     >
-      {resources.length === 0 ? (
+      {!selected ? (
         <p className='text-muted-foreground'>No consumption data for this year.</p>
       ) : (
-        <>
-          <div className={units.length > 1 ? 'grid min-w-0 gap-6 @3xl/home:grid-cols-2' : 'grid min-w-0 gap-6'}>
-            {units.map((unit) => (
-              <div
-                key={unit}
-                className='flex min-w-0 flex-col gap-3'
-                role='group'
-                aria-label={`Consumption history in ${unit}`}
-              >
-                <AnnualChart
-                  year={year}
-                  month={month}
-                  unit={unit}
-                  series={series.filter((resource) => resource.unit === unit) satisfies AnnualSeries[]}
-                />
-                <div className='text-muted-foreground flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs'>
-                  {series
-                    .filter((resource) => resource.unit === unit)
-                    .map((resource) => (
-                      <span key={resource.id} className='flex items-center gap-1.5'>
-                        <span className='size-2 rounded-sm' style={{ background: resource.color }} />
-                        <span>{resource.name}</span>
-                        <span>({resource.unit})</span>
-                      </span>
-                    ))}
-                </div>
-              </div>
-            ))}
+        <div
+          className='flex min-w-0 flex-col gap-3'
+          role='group'
+          aria-label={`Consumption history for ${selected.name}`}
+        >
+          <AnnualChart year={year} month={month} unit={selected.unit} series={series} />
+          <div className='text-muted-foreground flex justify-center gap-1.5 text-xs'>
+            <span className='mt-1 size-2 rounded-sm' style={{ backgroundColor: selected.color }} />
+            <span>{selected.name}</span>
+            <span>({selected.unit})</span>
           </div>
-        </>
+        </div>
       )}
     </Section>
   );

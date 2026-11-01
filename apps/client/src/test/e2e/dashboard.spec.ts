@@ -6,7 +6,7 @@ const personalId = '00000000-0000-4000-8000-000000000005';
 
 test.use({ storageState: 'playwright/.clerk/user.json' });
 
-// Keep the current chart year deterministic while navigating selected periods.
+// Keep future-month visibility deterministic while navigating selected periods.
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2025-12-31T12:00:00Z'));
 });
@@ -30,6 +30,11 @@ test('shows annual area series with selected month highlighting and limit bounda
   const plotBox = await consumptions.getByRole('img').boundingBox();
   const sectionBox = await consumptions.boundingBox();
   expect(plotBox!.width).toBeGreaterThan(sectionBox!.width * 0.8);
+  await expect(consumptions.getByRole('button', { name: 'Meter reading', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await consumptions.getByRole('button', { name: 'Consumption (diff)', exact: true }).click();
   const table = consumptions.getByRole('table');
   await expect(table.getByRole('row')).toHaveCount(13);
   await expect(
@@ -72,7 +77,7 @@ test('changes month and year consistently and restores the period after reload',
   await expect(page).toHaveURL(/year=2026/);
   await expect(page).toHaveURL(/month=1(?:&|$)/);
   await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toHaveCount(0);
-  await expect(consumptions.getByRole('figure', { name: 'Jan 2025 highlighted in kWh' })).toBeVisible();
+  await expect(consumptions.getByRole('figure', { name: 'Jan 2026 highlighted in kWh' })).toBeVisible();
   await expect(
     page.getByRole('region', { name: 'Finances', exact: true }).getByText('1,001 EUR', { exact: true }),
   ).toBeVisible();
@@ -80,7 +85,7 @@ test('changes month and year consistently and restores the period after reload',
     page.getByRole('region', { name: 'Limits', exact: true }).getByText('Monthly electricity', { exact: true }),
   ).toHaveCount(0);
   const requests = await upstreamRequests();
-  for (const section of ['finances', 'budgets', 'limits']) {
+  for (const section of ['finances', 'budgets', 'consumptions', 'limits']) {
     expect(
       requests.some(
         (item) =>
@@ -90,7 +95,7 @@ test('changes month and year consistently and restores the period after reload',
   }
   await page.reload();
   await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toHaveCount(0);
-  await expect(consumptions.getByRole('figure', { name: 'Jan 2025 highlighted in kWh' })).toBeVisible();
+  await expect(consumptions.getByRole('figure', { name: 'Jan 2026 highlighted in kWh' })).toBeVisible();
 });
 
 test('switches spaces without displaying the previous space data', async ({ page, upstreamRequests }) => {
@@ -174,31 +179,49 @@ test.describe('section failures', () => {
   });
 });
 
-test('plots every recorded resource, grouped by unit, including resources without readings in the selected month', async ({
+test('selects each resource in a full-width chart using its own color and unit without fetching again', async ({
   page,
   request,
+  upstreamRequests,
 }) => {
   expect((await request.post(`${mockApiOrigin}/__e2e/dashboard`, { data: { multipleResources: true } })).status()).toBe(
     204,
   );
   await page.goto(`/${sharedId}?year=2025&month=9`);
-  await page.setViewportSize({ width: 1440, height: 1100 });
   const section = page.getByRole('region', { name: 'Consumptions', exact: true });
-  for (const name of ['Shared electricity', 'Solar energy', 'Water', 'Rainwater']) {
-    await expect(section.getByText(name, { exact: true })).toHaveCount(1);
+  await section.getByRole('button', { name: 'Meter reading', exact: true }).click();
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 1100 });
+    for (const [name, unit, color] of [
+      ['Shared electricity', 'kWh', '#2563eb'],
+      ['Solar energy', 'kWh', '#16a34a'],
+      ['Water', 'm³', '#06b6d4'],
+      ['Rainwater', 'm³', '#8b5cf6'],
+    ]) {
+      await section.getByRole('combobox', { name: 'Resource', exact: true }).click();
+      await page.getByRole('option', { name: `${name} (${unit})`, exact: true }).click();
+      await expect(section.getByRole('img')).toHaveCount(1);
+      const chart = section.getByRole('img', { name: `January to December 2025, ${unit}` });
+      await expect(chart).toBeVisible();
+      await expect(section.getByRole('columnheader', { name: `${name} (${unit})`, exact: true })).toHaveCount(1);
+      await expect(section.getByRole('button', { name: 'Meter reading', exact: true })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      if (name !== 'Rainwater') {
+        await expect(chart.locator(`path[stroke="${color}"]`)).toHaveCount(1);
+        await expect(chart.locator(`linearGradient stop[stop-color="${color}"]`)).toHaveCount(2);
+      }
+      const plot = (await chart.boundingBox())!;
+      const bounds = (await section.boundingBox())!;
+      expect(plot.width).toBeGreaterThan(bounds.width * 0.8);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
   }
-  await expect(section.getByRole('term')).toHaveCount(0);
-  const energy = section.getByRole('group', { name: 'Consumption history in kWh', exact: true });
-  const water = section.getByRole('group', { name: 'Consumption history in m³', exact: true });
-  await expect(energy.getByRole('img')).toHaveCount(1);
-  await expect(water.getByRole('img')).toHaveCount(1);
-  await page.setViewportSize({ width: 390, height: 1000 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.setViewportSize({ width: 1440, height: 1100 });
-  await expect(energy.getByRole('columnheader', { name: 'Shared electricity (kWh)' })).toBeVisible();
-  await expect(energy.getByRole('columnheader', { name: 'Solar energy (kWh)' })).toBeVisible();
-  await expect(water.getByRole('columnheader', { name: 'Rainwater (m³)' })).toBeVisible();
-  await expect(water.getByRole('columnheader', { name: 'Water (m³)', exact: true })).toBeVisible();
+  const calls = (await upstreamRequests()).filter((item) => item.path.endsWith('/dashboard/consumptions'));
+  expect(calls).toHaveLength(1);
+  await section.getByRole('button', { name: 'Consumption (diff)', exact: true }).click();
+  await expect(section.getByRole('cell', { name: '7', exact: true })).toHaveCount(1);
 });
 
 test('keeps section geometry stable as delayed consumption data replaces its skeleton', async ({ page, request }) => {
@@ -227,10 +250,24 @@ test('keeps section geometry stable as delayed consumption data replaces its ske
   await page.evaluate(async () => {
     await document.fonts.ready;
     Reflect.set(window, 'dashboardLayoutShift', 0);
+    Reflect.set(window, 'dashboardShiftSources', []);
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         const shift = entry as PerformanceEntry & { value: number; hadRecentInput: boolean };
         if (!shift.hadRecentInput) {
+          const sources = (
+            entry as PerformanceEntry & {
+              sources: Array<{ node?: Element; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly }>;
+            }
+          ).sources;
+          (Reflect.get(window, 'dashboardShiftSources') as unknown[]).push(
+            sources.map((source) => ({
+              tag: source.node?.tagName,
+              slot: source.node?.getAttribute('data-slot'),
+              before: source.previousRect.toJSON(),
+              after: source.currentRect.toJSON(),
+            })),
+          );
           Reflect.set(
             window,
             'dashboardLayoutShift',
@@ -253,7 +290,10 @@ test('keeps section geometry stable as delayed consumption data replaces its ske
     page.getByRole('region', { name: 'Limits', exact: true }).getByText('100 %', { exact: true }),
   ).toBeVisible();
   expect(await geometry()).toEqual(before);
-  expect(await page.evaluate(() => Number(Reflect.get(window, 'dashboardLayoutShift')))).toBeLessThan(0.01);
+  expect(
+    await page.evaluate(() => Number(Reflect.get(window, 'dashboardLayoutShift'))),
+    JSON.stringify(await page.evaluate(() => Reflect.get(window, 'dashboardShiftSources'))),
+  ).toBeLessThan(0.01);
   await page.evaluate(() => (Reflect.get(window, 'dashboardLayoutObserver') as PerformanceObserver).disconnect());
 });
 
@@ -277,7 +317,7 @@ test('shows only three ranked consumption limits and budgets without inner scrol
   ]);
   await expect(page.getByRole('region', { name: 'Finances', exact: true }).getByRole('img')).toHaveCount(0);
   const consumption = page.getByRole('region', { name: 'Consumptions', exact: true });
-  await expect(consumption.getByRole('img')).toHaveCount(2);
+  await expect(consumption.getByRole('img')).toHaveCount(1);
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     const scrollers = await page.getByRole('region').evaluateAll((regions) =>
@@ -348,28 +388,19 @@ test('keeps month navigation free of skeleton flashes and aligns the lower cards
   await expect(limits.getByText('110 %', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Next month', exact: true }).click();
   await expect(limits.getByText('120 %', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Next month', exact: true }).click();
-  await expect(consumption).toHaveAttribute('aria-busy', 'false');
-  await expect(consumption.getByRole('img', { name: 'January to December 2025, kWh' })).toBeVisible();
-  await expect(
-    page.getByRole('region', { name: 'Finances', exact: true }).getByText('1,001 EUR', { exact: true }),
-  ).toBeVisible();
-  await expect(consumption).toHaveAttribute('aria-busy', 'false');
   expect(await page.evaluate(() => Number(Reflect.get(window, 'skeletonFlashes')))).toBe(0);
   await page.evaluate(() => (Reflect.get(window, 'skeletonObserver') as MutationObserver).disconnect());
 });
 
-test('switches between meter readings and monthly consumption without replacing the graph or fetching another year', async ({
+test('switches between meter readings and monthly consumption without fetching again', async ({
   page,
   upstreamRequests,
 }) => {
-  await page.goto(`/${sharedId}?year=2024&month=9`);
+  await page.goto(`/${sharedId}?year=2025&month=9`);
   const section = page.getByRole('region', { name: 'Consumptions', exact: true });
   await expect(section.getByRole('img', { name: 'January to December 2025, kWh' })).toBeVisible();
   const september = section.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Sep', exact: true }) });
   const january = section.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Jan', exact: true }) });
-  await expect(september.getByRole('cell')).toHaveText('18');
-  await section.getByRole('button', { name: 'Meter reading', exact: true }).click();
   await expect(section.getByRole('button', { name: 'Meter reading', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',
@@ -421,4 +452,79 @@ test('keeps January through December visible when readings exist only from Augus
   }
   const january = section.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Jan', exact: true }) });
   await expect(january.getByRole('cell')).toHaveText('No data');
+});
+
+test('never displays another year while loading an empty selected year', async ({
+  page,
+  request,
+  upstreamRequests,
+}) => {
+  expect(
+    (await request.post(`${mockApiOrigin}/__e2e/dashboard`, { data: { emptyConsumptionYears: [2024] } })).status(),
+  ).toBe(204);
+  await page.goto(`/${sharedId}?year=2025&month=1`);
+  const section = page.getByRole('region', { name: 'Consumptions', exact: true });
+  await expect(section.getByRole('img', { name: 'January to December 2025, kWh' })).toBeVisible();
+  expect((await request.post(`${mockApiOrigin}/__e2e/dashboard`, { data: { periodDelayMs: 1000 } })).status()).toBe(
+    204,
+  );
+  await page.getByRole('button', { name: 'Previous month', exact: true }).click();
+  await expect(page).toHaveURL(/year=2024/);
+  await expect(section.getByRole('img', { name: 'January to December 2025, kWh' })).toHaveCount(0);
+  await expect(section.getByText('No consumption data for this year.', { exact: true })).toBeVisible();
+  await expect(section.getByRole('img')).toHaveCount(0);
+  await expect(section.getByRole('combobox', { name: 'Resource', exact: true })).toBeDisabled();
+  await expect(section.getByText(/January–December 2024/)).toBeVisible();
+  await page.getByRole('button', { name: 'Next month', exact: true }).click();
+  await expect(section.getByRole('img', { name: 'January to December 2025, kWh' })).toBeVisible();
+  expect(
+    (await upstreamRequests()).some(
+      (item) =>
+        item.path.endsWith('/dashboard/consumptions') && new URLSearchParams(item.search).get('year') === '2024',
+    ),
+  ).toBe(true);
+});
+
+test('stores resource and view in the URL and restores all filters on reload and history navigation', async ({
+  page,
+  request,
+}) => {
+  expect((await request.post(`${mockApiOrigin}/__e2e/dashboard`, { data: { multipleResources: true } })).status()).toBe(
+    204,
+  );
+  await page.goto(`/${sharedId}?year=2025&month=9&resource=water&view=consumption`);
+  const section = page.getByRole('region', { name: 'Consumptions', exact: true });
+  const resource = section.getByRole('combobox', { name: 'Resource', exact: true });
+  await expect(resource).toContainText('Water (m³)');
+  await expect(section.getByRole('button', { name: 'Consumption (diff)', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await resource.click();
+  await page.getByRole('option', { name: 'Solar energy (kWh)', exact: true }).click();
+  await expect(page).toHaveURL(/resource=solar/);
+  await expect(page).toHaveURL(/view=consumption/);
+  await section.getByRole('button', { name: 'Meter reading', exact: true }).click();
+  await expect(page).toHaveURL(/view=meter/);
+  await page.getByRole('button', { name: 'Next month', exact: true }).click();
+  await expect(page).toHaveURL(/month=10/);
+  await expect(page).toHaveURL(/resource=solar/);
+  await expect(page).toHaveURL(/view=meter/);
+  await page.reload();
+  await expect(resource).toContainText('Solar energy (kWh)');
+  await expect(section.getByRole('button', { name: 'Meter reading', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(section.getByRole('figure', { name: 'Oct 2025 highlighted in kWh' })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/month=9/);
+  await page.goBack();
+  await expect(section.getByRole('button', { name: 'Consumption (diff)', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.goBack();
+  await expect(resource).toContainText('Water (m³)');
+  await expect(section.getByRole('img', { name: 'January to December 2025, m³' })).toBeVisible();
 });

@@ -596,6 +596,7 @@ public class SpacePermissionHttpTests
         var data = await host.Client.GetFromJsonAsync<List<ConsumptionMonth>>($"/api/spaces/{fixture.Space.Id}/dashboard/consumptions?year=2026");
         var readings = data!.Where(item => item.ResourceId == fixture.Resource.Id).ToDictionary(item => item.Month);
         await Assert.That(readings.Count).IsEqualTo(4);
+        await Assert.That(readings[1].Color).IsEqualTo("#334455");
         await Assert.That(readings[1].Value).IsEqualTo(10m);
         await Assert.That(readings[1].MeterReading).IsEqualTo(1010m);
         await Assert.That(readings[2].Value).IsEqualTo(35m);
