@@ -1,9 +1,5 @@
 import * as dashboardOptions from '@kijk/api/dashboard/options';
-import { Card, CardHeader } from '@kijk/ui/components/card';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
-
-import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 import { AnnualChart, type AnnualSeries } from './annual-chart';
 import { months } from './constants';
@@ -15,8 +11,8 @@ interface Props {
   month: number;
 }
 const colors = [
-  'var(--color-teal-500)',
-  'var(--color-blue-500)',
+  'var(--color-blue-400)',
+  'var(--color-blue-600)',
   'var(--color-violet-500)',
   'var(--color-amber-500)',
   'var(--color-rose-500)',
@@ -25,7 +21,6 @@ const colors = [
 /** All recorded resources are shown. Each unit has its own scale; values are never added across resources. */
 export function Consumptions({ spaceId, year, month }: Props) {
   const query = useQuery(dashboardOptions.consumptionsQueryOptions(spaceId, year));
-  const canView = useSpacePermission('consumptions:view');
   const resources = [
     ...new Map(
       query.data?.map((item) => [
@@ -47,8 +42,9 @@ export function Consumptions({ spaceId, year, month }: Props) {
   return (
     <Section
       title='Consumptions'
-      description='All resources. Monthly totals and yearly trends.'
+      description={`January–December ${year}`}
       pending={query.isPending}
+      updating={query.isPlaceholderData}
       error={query.isError}
       retry={() => void query.refetch()}
     >
@@ -56,33 +52,6 @@ export function Consumptions({ spaceId, year, month }: Props) {
         <p className='text-muted-foreground'>No consumption data for this year.</p>
       ) : (
         <>
-          <dl className='grid grid-cols-2 gap-3 @xl/home:grid-cols-3'>
-            {series.map((resource) => (
-              <Card key={resource.id} size='sm' className='bg-muted/20 min-w-0 shadow-none ring-0'>
-                <CardHeader>
-                  <dt className='text-muted-foreground flex items-center gap-2 text-xs'>
-                    <span className='size-2 shrink-0 rounded-full' style={{ background: resource.color }} />
-                    {resource.name}
-                  </dt>
-                  <dd
-                    className={
-                      resource.values[month - 1] == null
-                        ? 'text-muted-foreground text-sm'
-                        : 'text-2xl font-semibold tracking-tight tabular-nums'
-                    }
-                  >
-                    {resource.values[month - 1] == null
-                      ? 'No readings this month'
-                      : `${resource.values[month - 1]?.toLocaleString()} ${resource.unit}`}
-                  </dd>
-                  <p className='text-muted-foreground text-xs'>
-                    {months[month - 1]} {year}
-                  </p>
-                </CardHeader>
-              </Card>
-            ))}
-          </dl>
-          <h3 className='text-sm font-medium'>Consumption over the year</h3>
           <div className={units.length > 1 ? 'grid min-w-0 gap-6 @3xl/home:grid-cols-2' : 'grid min-w-0 gap-6'}>
             {units.map((unit) => (
               <div
@@ -91,40 +60,27 @@ export function Consumptions({ spaceId, year, month }: Props) {
                 role='group'
                 aria-label={`Consumption history in ${unit}`}
               >
-                <div className='flex flex-wrap items-center justify-between gap-2'>
-                  <h3 className='text-sm font-medium'>
-                    {year} · {unit}
-                  </h3>
-                  <div className='text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs'>
-                    {series
-                      .filter((resource) => resource.unit === unit)
-                      .map((resource) => (
-                        <span key={resource.id} className='flex items-center gap-1.5'>
-                          <span className='size-2 rounded-full' style={{ background: resource.color }} />
-                          {resource.name}
-                        </span>
-                      ))}
-                  </div>
-                </div>
                 <AnnualChart
                   year={year}
                   month={month}
                   unit={unit}
                   series={series.filter((resource) => resource.unit === unit) satisfies AnnualSeries[]}
                 />
+                <div className='text-muted-foreground flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs'>
+                  {series
+                    .filter((resource) => resource.unit === unit)
+                    .map((resource) => (
+                      <span key={resource.id} className='flex items-center gap-1.5'>
+                        <span className='size-2 rounded-sm' style={{ background: resource.color }} />
+                        <span>{resource.name}</span>
+                        <span>({resource.unit})</span>
+                      </span>
+                    ))}
+                </div>
               </div>
             ))}
           </div>
         </>
-      )}
-      {canView && (
-        <Link
-          className='text-muted-foreground hover:text-foreground text-sm font-medium'
-          to='/$spaceId/consumptions'
-          params={{ spaceId }}
-        >
-          View consumptions →
-        </Link>
       )}
     </Section>
   );

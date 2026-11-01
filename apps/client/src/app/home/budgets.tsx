@@ -19,15 +19,16 @@ export function Budgets({ spaceId, year, month }: Props) {
   return (
     <Section
       title='Budgets'
-      description='Top 5 shared monthly budgets at 80% or above.'
-      size='finance'
+      description='Top 3 shared monthly budgets by utilization.'
+      size='list'
       pending={query.isPending}
+      updating={query.isPlaceholderData}
       error={query.isError}
       retry={() => void query.refetch()}
     >
       {query.data?.length ? (
         query.data
-          .slice(0, 5)
+          .slice(0, 3)
           .map((item) => (
             <ThresholdItem
               key={item.id}
@@ -41,7 +42,7 @@ export function Budgets({ spaceId, year, month }: Props) {
             />
           ))
       ) : (
-        <p>No monthly budgets close to their threshold.</p>
+        <p>No shared budgets for this month.</p>
       )}
       {canView && (
         <Link

@@ -36,11 +36,11 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             })).ToList();
     }
 
-    /// <summary>Gets the five shared monthly budgets closest to or beyond their limit.</summary>
+    /// <summary>Gets the three shared monthly budgets closest to or beyond their limit.</summary>
     /// <param name="year">The selected year.</param>
     /// <param name="month">The selected month.</param>
     /// <param name="cancellationToken">Request cancellation.</param>
-    /// <returns>Shared EUR budgets at or above 80 percent, ordered by urgency.</returns>
+    /// <returns>Up to three shared EUR budgets, ordered by utilization.</returns>
     public async Task<Result<List<DashboardBudget>>> BudgetsAsync(int year, int month, CancellationToken cancellationToken)
     {
         if (year is < 2000 or > 9998 || month is < 1 or > 12)
@@ -58,11 +58,11 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             .AsNoTracking().ToListAsync(cancellationToken);
         var summary = BudgetCalculator.Calculate(new MonthYear(start), categories, budgets, transactions);
         return summary.Categories
-            .Where(item => item.Budget != null && (item.UtilizationPercentage >= 80 || item.Spent >= item.Budget.Amount))
+            .Where(item => item.Budget != null)
             .OrderByDescending(item => item.Budget!.Amount == 0 && item.Spent > 0 ? decimal.MaxValue : item.UtilizationPercentage ?? 0)
             .ThenBy(item => item.Category.Name, StringComparer.OrdinalIgnoreCase)
             .ThenBy(item => item.Budget!.Id)
-            .Take(5)
+            .Take(3)
             .Select(item => new DashboardBudget(item.Budget!.Id, item.Category.Name, "EUR", item.Budget.Amount,
                 item.Spent, Math.Max(0, item.Remaining ?? 0), Math.Max(0, item.Spent - item.Budget.Amount), item.UtilizationPercentage))
             .ToList();

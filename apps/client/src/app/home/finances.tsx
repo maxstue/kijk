@@ -22,6 +22,7 @@ export function Finances({ spaceId, year, month }: Props) {
       size='finance'
       description='Shared income and spending. Balance = income − expenses.'
       pending={query.isPending}
+      updating={query.isPlaceholderData}
       error={query.isError}
       retry={() => void query.refetch()}
     >

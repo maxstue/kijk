@@ -6,7 +6,7 @@ test('allows an authenticated user to open the protected application', async ({ 
   await page.goto('/');
 
   await expect(page).not.toHaveURL(/\/auth(?:\?|$)/);
-  await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Consumptions', exact: true })).toBeVisible();
 });
 
 const sharedId = '00000000-0000-4000-8000-000000000003';
@@ -24,7 +24,7 @@ test('switches by URL and keeps another tab in its own space', async ({ page, co
   await expect(page).toHaveURL(new RegExp(`/${sharedId}$`));
   const otherTab = await context.newPage();
   await otherTab.goto(`/${sharedId}`, { waitUntil: 'domcontentloaded' });
-  await expect(otherTab.getByRole('heading', { name: /^Space overview ·/ })).toBeVisible();
+  await expect(otherTab.getByRole('region', { name: 'Consumptions', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'E2E Space', exact: true }).click();
   await page.getByRole('menuitem', { name: /Personal/ }).click();
   await expect(page).toHaveURL(new RegExp(`/${personalId}$`));
@@ -36,7 +36,7 @@ test('switches by URL and keeps another tab in its own space', async ({ page, co
 test('account settings can clear the default and return to the last visited space', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto(`/${personalId}`);
-  await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Consumptions', exact: true })).toBeVisible();
   await page.goto('/settings/profile', { waitUntil: 'domcontentloaded' });
   const defaultSpace = page.getByRole('combobox', { name: 'Default space' });
   await expect(defaultSpace).toHaveText('E2E Space');

@@ -11,18 +11,28 @@ interface Props {
   error: boolean;
   retry: () => void;
   children: ReactNode;
-  size?: 'overview' | 'finance';
+  updating?: boolean;
+  size?: 'overview' | 'list' | 'finance';
 }
 
 /** Reserve space while loading and let content grow without an inner scroll area. */
-export function Section({ title, description, pending, error, retry, children, size = 'overview' }: Props) {
+export function Section({
+  title,
+  description,
+  pending,
+  error,
+  retry,
+  children,
+  updating = false,
+  size = 'overview',
+}: Props) {
   return (
-    <Card role='region' aria-label={title} className='min-w-0 gap-4 self-start shadow-xs'>
+    <Card role='region' aria-label={title} aria-busy={updating} className='min-w-0 gap-4 shadow-xs'>
       <CardHeader className='min-h-16'>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
-      <CardContent className={size === 'finance' ? 'min-h-36' : 'min-h-[540px]'}>
+      <CardContent className={size === 'finance' ? 'min-h-28' : size === 'list' ? 'min-h-0' : 'min-h-[360px]'}>
         <div className='flex min-w-0 flex-col gap-5'>
           {pending ? (
             <div role='status' className='flex flex-col gap-5'>
@@ -35,7 +45,7 @@ export function Section({ title, description, pending, error, retry, children, s
                   </div>
                 ))}
               </div>
-              {size !== 'finance' && <Skeleton className='h-60 w-full' />}
+              {size !== 'finance' && <Skeleton className={size === 'list' ? 'h-48 w-full' : 'h-[280px] w-full'} />}
             </div>
           ) : error ? (
             <Alert variant='destructive'>

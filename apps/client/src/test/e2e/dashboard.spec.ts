@@ -6,7 +6,7 @@ const personalId = '00000000-0000-4000-8000-000000000005';
 
 test.use({ storageState: 'playwright/.clerk/user.json' });
 
-test('shows real annual series, selected month totals and limit boundary states', async ({
+test('shows annual area series with selected month highlighting and limit boundary states', async ({
   page,
   upstreamRequests,
 }) => {
@@ -16,14 +16,15 @@ test('shows real annual series, selected month totals and limit boundary states'
   const consumptions = page.getByRole('region', { name: 'Consumptions', exact: true });
   const limits = page.getByRole('region', { name: 'Limits', exact: true });
   await expect(finances.getByText('1,008 EUR', { exact: true })).toBeVisible();
-  await expect(consumptions.getByText('18 kWh', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toHaveCount(0);
+  expect((await page.getByRole('button', { name: 'Next month', exact: true }).boundingBox())!.x).toBeLessThan(700);
+  await expect(consumptions.getByRole('img')).toBeVisible();
   await expect(consumptions.locator('linearGradient')).toHaveCount(1);
   await expect(consumptions.locator('linearGradient stop')).toHaveCount(2);
   await expect(consumptions.locator('path[fill*="url("]')).toHaveCount(1);
   const plotBox = await consumptions.getByRole('img').boundingBox();
   const sectionBox = await consumptions.boundingBox();
   expect(plotBox!.width).toBeGreaterThan(sectionBox!.width * 0.8);
-  await consumptions.getByText('Monthly values · 2025', { exact: true }).click();
   const table = consumptions.getByRole('table');
   await expect(table.getByRole('row')).toHaveCount(13);
   await expect(
@@ -61,12 +62,12 @@ test('shows real annual series, selected month totals and limit boundary states'
 test('changes month and year consistently and restores the period after reload', async ({ page, upstreamRequests }) => {
   await page.goto(`/${sharedId}?year=2025&month=12`);
   const consumptions = page.getByRole('region', { name: 'Consumptions', exact: true });
-  await expect(consumptions.getByText('21 kWh', { exact: true })).toBeVisible();
+  await expect(consumptions.getByRole('figure', { name: 'Dec 2025 highlighted in kWh' })).toBeVisible();
   await page.getByRole('button', { name: 'Next month', exact: true }).click();
   await expect(page).toHaveURL(/year=2026/);
   await expect(page).toHaveURL(/month=1(?:&|$)/);
-  await expect(page.getByRole('heading', { name: 'Space overview · Jan 2026' })).toBeVisible();
-  await expect(consumptions.getByText('0 kWh', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toHaveCount(0);
+  await expect(consumptions.getByRole('figure', { name: 'Jan 2026 highlighted in kWh' })).toBeVisible();
   await expect(
     page.getByRole('region', { name: 'Finances', exact: true }).getByText('1,001 EUR', { exact: true }),
   ).toBeVisible();
@@ -83,18 +84,24 @@ test('changes month and year consistently and restores the period after reload',
     ).toBe(true);
   }
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Space overview · Jan 2026' })).toBeVisible();
-  await expect(consumptions.getByText('0 kWh', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Space overview ·/ })).toHaveCount(0);
+  await expect(consumptions.getByRole('figure', { name: 'Jan 2026 highlighted in kWh' })).toBeVisible();
 });
 
 test('switches spaces without displaying the previous space data', async ({ page, upstreamRequests }) => {
   await page.goto(`/${sharedId}?year=2025&month=9`);
-  await expect(page.getByRole('term').filter({ hasText: 'Shared electricity' })).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'Consumptions', exact: true }).getByText('Shared electricity', { exact: true }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'E2E Space', exact: true }).click();
   await page.getByRole('menuitem', { name: /Personal/ }).click();
   await expect(page).toHaveURL(new RegExp(`/${personalId}`));
-  await expect(page.getByRole('term').filter({ hasText: 'Personal electricity' })).toBeVisible();
-  await expect(page.getByRole('term').filter({ hasText: 'Shared electricity' })).toHaveCount(0);
+  await expect(
+    page.getByRole('region', { name: 'Consumptions', exact: true }).getByText('Personal electricity', { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'Consumptions', exact: true }).getByText('Shared electricity', { exact: true }),
+  ).toHaveCount(0);
   expect(
     (await upstreamRequests()).some((item) => item.path === `/api/spaces/${personalId}/dashboard/consumptions`),
   ).toBe(true);
@@ -107,9 +114,7 @@ test('does not request finance aggregates when the finance module is disabled', 
 }) => {
   expect((await request.post(`${mockApiOrigin}/__e2e/dashboard`, { data: { finances: false } })).status()).toBe(204);
   await page.goto(`/${sharedId}?year=2025&month=9`);
-  await expect(
-    page.getByRole('region', { name: 'Consumptions', exact: true }).getByText('18 kWh', { exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Consumptions', exact: true }).getByRole('img')).toBeVisible();
   await expect(
     page.getByRole('region', { name: 'Limits', exact: true }).getByText('Monthly electricity', { exact: true }),
   ).toBeVisible();
@@ -124,6 +129,10 @@ test('shows empty sections without demo values on a narrow screen', async ({ pag
   await expect(page.getByText('No shared financial data for this year.', { exact: true })).toBeVisible();
   await expect(page.getByText('No consumption data for this year.', { exact: true })).toBeVisible();
   await expect(page.getByText('No monthly limits close to their threshold.', { exact: true })).toBeVisible();
+  await expect(page.getByText('No shared budgets for this month.', { exact: true })).toBeVisible();
+  for (const name of ['Limits', 'Budgets']) {
+    expect((await page.getByRole('region', { name, exact: true }).boundingBox())!.height).toBeLessThan(250);
+  }
   await expect(page.getByRole('img', { name: /January to December/ })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Next month', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -155,7 +164,7 @@ test.describe('section failures', () => {
       ).status(),
     ).toBe(204);
     await consumptions.getByRole('button', { name: 'Try again', exact: true }).click();
-    await expect(consumptions.getByText('18 kWh', { exact: true })).toBeVisible();
+    await expect(consumptions.getByRole('img')).toBeVisible();
     await expect(consumptions.getByRole('alert')).toHaveCount(0);
   });
 });
@@ -171,12 +180,9 @@ test('plots every recorded resource, grouped by unit, including resources withou
   await page.setViewportSize({ width: 1440, height: 1100 });
   const section = page.getByRole('region', { name: 'Consumptions', exact: true });
   for (const name of ['Shared electricity', 'Solar energy', 'Water', 'Rainwater']) {
-    await expect(section.getByRole('term').filter({ hasText: new RegExp(`^${name}$`) })).toHaveCount(1);
+    await expect(section.getByText(name, { exact: true })).toHaveCount(1);
   }
-  await expect(section.getByText('18 kWh', { exact: true })).toBeVisible();
-  await expect(section.getByText('9 kWh', { exact: true })).toBeVisible();
-  await expect(section.getByText('3 m³', { exact: true })).toBeVisible();
-  await expect(section.getByText('No readings this month', { exact: true })).toBeVisible();
+  await expect(section.getByRole('term')).toHaveCount(0);
   const energy = section.getByRole('group', { name: 'Consumption history in kWh', exact: true });
   const water = section.getByRole('group', { name: 'Consumption history in m³', exact: true });
   await expect(energy.getByRole('img')).toHaveCount(1);
@@ -184,10 +190,8 @@ test('plots every recorded resource, grouped by unit, including resources withou
   await page.setViewportSize({ width: 390, height: 1000 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.setViewportSize({ width: 1440, height: 1100 });
-  await energy.getByText('Monthly values · 2025', { exact: true }).click();
   await expect(energy.getByRole('columnheader', { name: 'Shared electricity (kWh)' })).toBeVisible();
   await expect(energy.getByRole('columnheader', { name: 'Solar energy (kWh)' })).toBeVisible();
-  await water.getByText('Monthly values · 2025', { exact: true }).click();
   await expect(water.getByRole('columnheader', { name: 'Rainwater (m³)' })).toBeVisible();
   await expect(water.getByRole('columnheader', { name: 'Water (m³)', exact: true })).toBeVisible();
 });
@@ -233,7 +237,7 @@ test('keeps section geometry stable as delayed consumption data replaces its ske
     observer.observe({ type: 'layout-shift' });
     Reflect.set(window, 'dashboardLayoutObserver', observer);
   });
-  await expect(consumption.getByText('18 kWh', { exact: true })).toBeVisible();
+  await expect(consumption.getByRole('figure')).toBeVisible();
   await expect(consumption.getByRole('img')).toHaveCount(1);
   await page.evaluate(
     () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
@@ -248,7 +252,7 @@ test('keeps section geometry stable as delayed consumption data replaces its ske
   await page.evaluate(() => (Reflect.get(window, 'dashboardLayoutObserver') as PerformanceObserver).disconnect());
 });
 
-test('shows only five critical consumption limits and budgets without inner scrolling', async ({ page, request }) => {
+test('shows only three ranked consumption limits and budgets without inner scrolling', async ({ page, request }) => {
   expect(
     (
       await request.post(`${mockApiOrigin}/__e2e/dashboard`, {
@@ -259,23 +263,18 @@ test('shows only five critical consumption limits and budgets without inner scro
   await page.goto(`/${sharedId}?year=2025&month=9`);
   const limits = page.getByRole('region', { name: 'Limits', exact: true });
   const budgets = page.getByRole('region', { name: 'Budgets', exact: true });
-  await expect(limits.getByRole('article')).toHaveCount(5);
-  await expect(budgets.getByRole('article')).toHaveCount(5);
+  await expect(limits.getByRole('article')).toHaveCount(3);
+  await expect(budgets.getByRole('article')).toHaveCount(3);
   await expect(limits.getByRole('heading', { level: 3 })).toHaveText([
     'Consumption limit 130',
     'Consumption limit 120',
     'Consumption limit 110',
-    'Consumption limit 100',
-    'Consumption limit 90',
   ]);
   await expect(page.getByRole('region', { name: 'Finances', exact: true }).getByRole('img')).toHaveCount(0);
   const consumption = page.getByRole('region', { name: 'Consumptions', exact: true });
   await expect(consumption.getByRole('img')).toHaveCount(2);
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
-    for (const details of await consumption.locator('details').all()) {
-      await details.locator('summary').click();
-    }
     const scrollers = await page.getByRole('region').evaluateAll((regions) =>
       regions
         .flatMap((region) => [region, ...region.querySelectorAll('*')])
@@ -288,4 +287,69 @@ test('shows only five critical consumption limits and budgets without inner scro
     expect(scrollers).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
+});
+
+test('keeps month navigation free of skeleton flashes and aligns the lower cards', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto(`/${sharedId}?year=2025&month=9`);
+  const limits = page.getByRole('region', { name: 'Limits', exact: true });
+  const budgets = page.getByRole('region', { name: 'Budgets', exact: true });
+  const consumption = page.getByRole('region', { name: 'Consumptions', exact: true });
+  await expect(limits.getByRole('article')).toHaveCount(2);
+  await expect(budgets.getByRole('article')).toHaveCount(3);
+  await expect(budgets.getByRole('heading', { level: 3 })).toHaveText([
+    'Household budget 70',
+    'Household budget 60',
+    'Household budget 50',
+  ]);
+  const limitBox = (await limits.boundingBox())!;
+  const budgetBox = (await budgets.boundingBox())!;
+  expect(limitBox.y).toBe(budgetBox.y);
+  expect(limitBox.height).toBe(budgetBox.height);
+  expect(limitBox.height).toBeLessThan(520);
+  expect(Math.abs(limitBox.width - budgetBox.width)).toBeLessThan(1);
+  const chartBox = (await consumption.boundingBox())!;
+  expect(chartBox.y + chartBox.height).toBeLessThan(limitBox.y);
+  const band = consumption.locator('[stroke-width="28"]');
+  const before = await band.boundingBox();
+  expect((await request.post(`${mockApiOrigin}/__e2e/dashboard`, { data: { periodDelayMs: 1500 } })).status()).toBe(
+    204,
+  );
+  await page.evaluate(() => {
+    Reflect.set(window, 'skeletonFlashes', 0);
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (
+            node instanceof Element &&
+            (node.matches('[data-slot="skeleton"]') || node.querySelector('[data-slot="skeleton"]'))
+          ) {
+            Reflect.set(window, 'skeletonFlashes', Number(Reflect.get(window, 'skeletonFlashes')) + 1);
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    Reflect.set(window, 'skeletonObserver', observer);
+  });
+  await page.getByRole('button', { name: 'Next month', exact: true }).click();
+  await expect(limits).toHaveAttribute('aria-busy', 'true');
+  await expect(limits.getByText('90 %', { exact: true })).toBeVisible();
+  await expect(consumption.getByRole('figure', { name: 'Oct 2025 highlighted in kWh' })).toBeVisible();
+  expect((await band.boundingBox())!.x).toBeGreaterThan(before!.x);
+  await expect(limits.getByText('100 %', { exact: true })).toBeVisible();
+  await expect(limits).toHaveAttribute('aria-busy', 'false');
+  await page.getByRole('button', { name: 'Next month', exact: true }).click();
+  await expect(limits.getByText('110 %', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Next month', exact: true }).click();
+  await expect(limits.getByText('120 %', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Next month', exact: true }).click();
+  await expect(consumption).toHaveAttribute('aria-busy', 'true');
+  await expect(consumption.getByRole('img')).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'Finances', exact: true }).getByText('1,001 EUR', { exact: true }),
+  ).toBeVisible();
+  await expect(consumption).toHaveAttribute('aria-busy', 'false');
+  expect(await page.evaluate(() => Number(Reflect.get(window, 'skeletonFlashes')))).toBe(0);
+  await page.evaluate(() => (Reflect.get(window, 'skeletonObserver') as MutationObserver).disconnect());
 });

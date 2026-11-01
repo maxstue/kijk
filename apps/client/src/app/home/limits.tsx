@@ -19,12 +19,17 @@ export function Limits({ spaceId, year, month }: Props) {
   const start = new Date(Date.UTC(year, month - 1, 1)).getTime();
   const end = new Date(Date.UTC(year, month, 1)).getTime();
   const critical = (query.data ?? [])
-    .filter(
-      (item) =>
-        new Date(item.periodStart ?? '').getTime() === start &&
-        new Date(item.periodEnd ?? '').getTime() === end &&
-        (Number(item.percentage) >= 80 || Number(item.overrun) > 0 || Number(item.remaining) === 0),
-    )
+    .filter((item) => {
+      const periodStart = new Date(item.periodStart ?? '');
+      const periodEnd = new Date(item.periodEnd ?? '').getTime();
+      const monthlyEnd = Date.UTC(periodStart.getUTCFullYear(), periodStart.getUTCMonth() + 1, 1);
+      const matchesMonth = query.isPlaceholderData || (periodStart.getTime() === start && periodEnd === end);
+      return (
+        periodEnd === monthlyEnd &&
+        matchesMonth &&
+        (Number(item.percentage) >= 80 || Number(item.overrun) > 0 || Number(item.remaining) === 0)
+      );
+    })
     .sort((left, right) => {
       const urgency = (item: typeof left) =>
         Number(item.threshold) === 0 && Number(item.actualValue) > 0
@@ -36,13 +41,15 @@ export function Limits({ spaceId, year, month }: Props) {
         String(left.id).localeCompare(String(right.id))
       );
     })
-    .slice(0, 5);
+    .slice(0, 3);
 
   return (
     <Section
       title='Limits'
-      description='Top 5 monthly consumption limits at 80% or above.'
+      description='Top 3 monthly consumption limits at 80% or above.'
+      size='list'
       pending={query.isPending}
+      updating={query.isPlaceholderData}
       error={query.isError}
       retry={() => void query.refetch()}
     >

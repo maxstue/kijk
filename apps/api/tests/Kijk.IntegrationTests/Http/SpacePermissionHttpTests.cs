@@ -523,7 +523,7 @@ public class SpacePermissionHttpTests
     }
 
     [Test]
-    public async Task DashboardBudgetsUseSharedBookingsAndVersionsAndReturnOnlyFiveCriticalBudgets()
+    public async Task DashboardBudgetsUseSharedBookingsAndVersionsAndReturnTopThreeBudgets()
     {
         var fixture = await CreateFixtureAsync("Viewer");
         await using (var db = PostgreSqlTestDatabase.CreateDbContext())
@@ -533,7 +533,7 @@ public class SpacePermissionHttpTests
             var privateAccount = Account.Create("Private", null, space);
             privateAccount.SetOwner(user.Id);
             var date = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
-            foreach (var spent in new[] { 70, 80, 90, 100, 110, 120, 130 })
+            foreach (var spent in new[] { 10, 20, 30, 40, 50, 60, 70 })
             {
                 var category = Category.Create($"Category {spent}", "house", "#334455", CategoryKind.Expense, space);
                 var shared = Budget.Create(100, new MonthYear(date), true, category, user, space);
@@ -553,8 +553,8 @@ public class SpacePermissionHttpTests
             configureServices: services => services.AddSingleton<IFeatureFlags>(new DashboardFlags(true)));
         var path = $"/api/spaces/{fixture.Space.Id}/dashboard/budgets?year=2026&month=9";
         var data = await host.Client.GetFromJsonAsync<List<DashboardBudget>>(path);
-        await Assert.That(data!.Select(item => item.Spent).ToArray()).IsEquivalentTo(new decimal[] { 130, 120, 110, 100, 90 });
-        await Assert.That(data![0].Spent).IsEqualTo(130m);
+        await Assert.That(data!.Select(item => item.Spent).ToArray()).IsEquivalentTo(new decimal[] { 70, 60, 50 });
+        await Assert.That(data![0].Spent).IsEqualTo(70m);
         await Assert.That(data.All(item => item.Amount == 100m)).IsTrue();
         using var other = host.CreateClient(fixture.OtherUser.AuthId);
         await Assert.That(await other.GetStringAsync(path)).IsEqualTo(await host.Client.GetStringAsync(path));

@@ -20,7 +20,8 @@ test('disabled finances stay unmounted while consumption zero and empty limits r
       <Dashboard spaceId='space' year={2026} month={9} onChange={change} />
     </QueryClientProvider>,
   );
-  await expect.element(screen.getByText('0 kWh', { exact: true })).toBeVisible();
+  await expect.element(screen.getByRole('figure', { name: 'Sep 2026 highlighted in kWh' })).toBeVisible();
+  await expect.element(screen.getByRole('cell', { name: '0', exact: true })).toBeInTheDocument();
   await expect.element(screen.getByText('No monthly limits close to their threshold.')).toBeVisible();
   expect(client.getQueryState(queryKeys.dashboard.finances('space', 2026))).toBeUndefined();
   await screen.getByRole('button', { name: 'Previous month' }).click();
@@ -51,7 +52,7 @@ test('a failed section leaves other sections usable and does not appear empty', 
   client.clear();
 });
 
-test('shows only the five most urgent monthly limits, excluding safe and quarterly limits', async () => {
+test('shows only the three most urgent monthly limits, excluding safe and quarterly limits', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
   client.setQueryData(queryKeys.users.me, { user: { spaces: [{ id: 'space', role: { permissions: [] } }] } });
   client.setQueryData(queryKeys.users.features, { finances: false });
@@ -88,10 +89,10 @@ test('shows only the five most urgent monthly limits, excluding safe and quarter
       <Dashboard spaceId='space' year={2025} month={9} onChange={() => undefined} />
     </QueryClientProvider>,
   );
-  for (const name of ['Zero allowance', 'Usage 120', 'Usage 110', 'Usage 100', 'Usage 90']) {
+  for (const name of ['Zero allowance', 'Usage 120', 'Usage 110']) {
     await expect.element(screen.getByText(name, { exact: true })).toBeVisible();
   }
-  for (const name of ['Usage 80', 'Usage 70', 'Quarterly']) {
+  for (const name of ['Usage 100', 'Usage 90', 'Usage 80', 'Usage 70', 'Quarterly']) {
     await expect.element(screen.getByText(name, { exact: true })).not.toBeInTheDocument();
   }
   await screen.unmount();

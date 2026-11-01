@@ -1,7 +1,7 @@
 import { Chart } from '@kijk/ui/components/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { chartTheme } from '@kijk/ui/lib/chart';
-import { areaY, defineChart, dot, d3Curve, lineY } from '@tanstack/charts';
+import { areaY, defineChart, dot, d3Curve, lineY, ruleX } from '@tanstack/charts';
 import { scaleLinear } from '@tanstack/charts/scales/linear';
 import { tooltip } from '@tanstack/charts/tooltip';
 import { curveMonotoneX } from 'd3-shape';
@@ -59,33 +59,38 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
           { offset: 1, color: group.color, opacity: 0.05 },
         ],
       })),
-      marks: groups.flatMap((group, index) => {
-        const points = data.filter((row) => row.series === group.label);
-        const isolated = points.filter((row) => group.values[row.month - 2] == null && group.values[row.month] == null);
-        const isolatedSet = new Set(isolated);
-        const connected = points.filter((row) => !isolatedSet.has(row));
-        return [
-          areaY(connected, {
-            x: 'month',
-            y: 'value',
-            z: 'segment',
-            color: 'series',
-            fill: `url(#consumption-fill-${index})`,
-            stroke: 'none',
-            curve,
-          }),
-          lineY(connected, {
-            x: 'month',
-            y: 'value',
-            z: 'segment',
-            color: 'series',
-            stroke: group.color,
-            strokeWidth: 2,
-            curve,
-          }),
-          dot(isolated, { x: 'month', y: 'value', color: 'series', r: 3 }),
-        ];
-      }),
+      marks: [
+        ruleX([month], { id: 'selected-month', stroke: 'var(--foreground)', strokeOpacity: 0.06, strokeWidth: 28 }),
+        ...groups.flatMap((group, index) => {
+          const points = data.filter((row) => row.series === group.label);
+          const isolated = points.filter(
+            (row) => group.values[row.month - 2] == null && group.values[row.month] == null,
+          );
+          const isolatedSet = new Set(isolated);
+          const connected = points.filter((row) => !isolatedSet.has(row));
+          return [
+            areaY(connected, {
+              x: 'month',
+              y: 'value',
+              z: 'segment',
+              color: 'series',
+              fill: `url(#consumption-fill-${index})`,
+              stroke: 'none',
+              curve,
+            }),
+            lineY(connected, {
+              x: 'month',
+              y: 'value',
+              z: 'segment',
+              color: 'series',
+              stroke: group.color,
+              strokeWidth: 2,
+              curve,
+            }),
+            dot(isolated, { x: 'month', y: 'value', color: 'series', r: 3 }),
+          ];
+        }),
+      ],
       scales: {
         x: {
           scale: scaleLinear,
@@ -121,14 +126,14 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
         }),
       },
     });
-  }, [series, values, year, unit, now]);
+  }, [series, values, year, month, unit, now]);
   const groups = series ?? [{ label: unit, color: 'var(--color-teal-500)', values: values ?? [] }];
   return (
-    <div className='flex min-w-0 flex-col gap-4'>
-      <Chart ariaLabel={`January to December ${year}, ${unit}`} definition={definition} height={220} />
-      <details className='group text-muted-foreground text-xs'>
-        <summary className='cursor-pointer font-medium'>Monthly values · {year}</summary>
+    <figure className='flex min-w-0 flex-col gap-4' aria-label={`${months[month - 1]} ${year} highlighted in ${unit}`}>
+      <Chart ariaLabel={`January to December ${year}, ${unit}`} definition={definition} height={300} />
+      <div className='sr-only'>
         <Table className='mt-3 text-xs'>
+          <caption>Monthly values · {year}</caption>
           <TableHeader>
             <TableRow>
               <TableHead>Month</TableHead>
@@ -159,7 +164,7 @@ export function AnnualChart({ values, series, year, month, unit }: Props) {
             ))}
           </TableBody>
         </Table>
-      </details>
-    </div>
+      </div>
+    </figure>
   );
 }

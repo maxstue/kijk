@@ -90,6 +90,7 @@ export interface DashboardScenario {
   empty: boolean;
   consumptionError: boolean;
   consumptionDelayMs: number;
+  periodDelayMs: number;
   multipleResources: boolean;
   manyThresholds: boolean;
 }
@@ -98,6 +99,7 @@ let dashboardScenario: DashboardScenario = {
   empty: false,
   consumptionError: false,
   consumptionDelayMs: 0,
+  periodDelayMs: 0,
   multipleResources: false,
   manyThresholds: false,
 };
@@ -113,6 +115,7 @@ export function resetMockApi() {
     empty: false,
     consumptionError: false,
     consumptionDelayMs: 0,
+    periodDelayMs: 0,
     multipleResources: false,
     manyThresholds: false,
   };
@@ -125,7 +128,8 @@ export const handlers = [
   http.get('*/api/users/me/features', () =>
     HttpResponse.json({ aiImport: true, finances: dashboardScenario.finances }),
   ),
-  http.get('*/api/spaces/:spaceId/dashboard/finances', ({ request, params }) => {
+  http.get('*/api/spaces/:spaceId/dashboard/finances', async ({ request, params }) => {
+    await delay(dashboardScenario.periodDelayMs);
     if (!dashboardScenario.finances) {
       return HttpResponse.json({ title: 'Disabled' }, { status: 404 });
     }
@@ -145,14 +149,15 @@ export const handlers = [
       })),
     );
   }),
-  http.get('*/api/spaces/:spaceId/dashboard/budgets', () => {
+  http.get('*/api/spaces/:spaceId/dashboard/budgets', async () => {
+    await delay(dashboardScenario.periodDelayMs);
     if (!dashboardScenario.finances) {
       return HttpResponse.json({ title: 'Disabled' }, { status: 404 });
     }
     return HttpResponse.json(
       dashboardScenario.empty
         ? []
-        : (dashboardScenario.manyThresholds ? [150, 140, 130, 120, 110] : [90]).map((percentage) => ({
+        : (dashboardScenario.manyThresholds ? [150, 140, 130] : [70, 60, 50]).map((percentage) => ({
             id: `budget-${percentage}`,
             name: `Household budget ${percentage}`,
             currency: 'EUR',
@@ -165,7 +170,7 @@ export const handlers = [
     );
   }),
   http.get('*/api/spaces/:spaceId/dashboard/consumptions', async ({ request, params }) => {
-    await delay(dashboardScenario.consumptionDelayMs);
+    await delay(dashboardScenario.consumptionDelayMs + dashboardScenario.periodDelayMs);
     if (dashboardScenario.consumptionError) {
       return HttpResponse.json({ title: 'Consumption unavailable' }, { status: 503 });
     }
@@ -198,7 +203,8 @@ export const handlers = [
         : readings,
     );
   }),
-  http.get('*/api/spaces/:spaceId/dashboard/limits', ({ request }) => {
+  http.get('*/api/spaces/:spaceId/dashboard/limits', async ({ request }) => {
+    await delay(dashboardScenario.periodDelayMs);
     if (dashboardScenario.empty) {
       return HttpResponse.json([]);
     }

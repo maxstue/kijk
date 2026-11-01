@@ -14,6 +14,8 @@ export const financesQueryOptions = (spaceId: string, year: number) =>
           signal,
         }),
       ),
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === spaceId ? previousData : undefined,
   });
 /** Monthly resource totals for January through December. */
 export const consumptionsQueryOptions = (spaceId: string, year: number) =>
@@ -26,6 +28,8 @@ export const consumptionsQueryOptions = (spaceId: string, year: number) =>
           signal,
         }),
       ),
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === spaceId ? previousData : undefined,
   });
 /** Current active limit definitions evaluated for the selected calendar period. */
 export const limitsQueryOptions = (spaceId: string, year: number, month: number) =>
@@ -38,9 +42,11 @@ export const limitsQueryOptions = (spaceId: string, year: number, month: number)
           signal,
         }),
       ),
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === spaceId ? previousData : undefined,
   });
 
-/** The five shared monthly budgets at or above 80 percent utilization. */
+/** The three shared monthly budgets with the highest utilization. */
 export const budgetsQueryOptions = (spaceId: string, year: number, month: number) =>
   queryOptions({
     queryKey: queryKeys.dashboard.budgets(spaceId, year, month),
@@ -51,4 +57,6 @@ export const budgetsQueryOptions = (spaceId: string, year: number, month: number
           signal,
         }),
       ),
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === spaceId ? previousData : undefined,
   });
