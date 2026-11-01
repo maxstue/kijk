@@ -15,8 +15,9 @@ the API and regenerate the types:
 pnpm api:generate
 ```
 
-This builds the API and runs this package's `generate` script, which writes `packages/api/src/generated/kijk.ts`, and
-formats the file afterwards. Commit the generated file and never edit it by hand.
+This builds the API and runs this package's `generate` script, which writes `packages/api/src/generated/kijk.ts` and
+`packages/api/src/generated/operations.ts`, and formats both files afterwards. `operations.ts` lists every HTTP operation
+of the document; the web BFF relays only these. Commit the generated files and never edit them by hand.
 
 When openapi-typescript supports TypeScript 7, this package can be removed and the generator can run in `@kijk/api`
 directly.

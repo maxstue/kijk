@@ -42,7 +42,7 @@ Feel free to explore the codebase to get inspiration or help with this project �
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-If you want to use the live production app go to this [link](https://kijk-client.vercel.app/) and feel free to leave some feedback on our [discussion board](https://github.com/maxstue/kijk/discussions).
+If you want to use the live production app go to this [link](https://kijk-app.justmax.xyz/) and feel free to leave some feedback on our [discussion board](https://github.com/maxstue/kijk/discussions).
 And if you are a developer and want to contribute to this project please go [here](#developer-guide) for more information.
 
 ## 🖥️ Developer Guide <a name = "developer-guide"></a>
@@ -53,9 +53,12 @@ Please refer to the contributing [guide](./.github/CONTRIBUTING.md) for how to i
 
 Deployment is handled through the repository's GitHub Actions workflows.
 
+The single [web application](./apps/client/README.md) uses TanStack Start and a Nitro Node server on Railway. It serves both the public website and the client-rendered signed-in application, with a same-origin BFF to the .NET API.
+
 ## ⛏️ Built Using <a name = "built_using"></a>
 
 - [React](https://react.dev/) - Frontend Library
+- [TanStack Start](https://tanstack.com/start) - Web framework and BFF
 - [Vite+](https://viteplus.dev/) - Frontend toolchain
 - [Tailwind](https://tailwindcss.com/) - Styling
 - [dotnet](https://dotnet.microsoft.com/en-us/) - Server Framework

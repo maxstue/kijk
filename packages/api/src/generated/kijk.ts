@@ -405,6 +405,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/spaces/{spaceId}/imports/{id}/category-overrides': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Clears all manual category choices of an import awaiting review */
+    delete: operations['Imports.ResetOverrides'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/spaces/{spaceId}/imports/{id}/ai-preview': {
     parameters: {
       query?: never;
@@ -3956,6 +3973,43 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ImportCandidateResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Imports.ResetOverrides': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': number | string;
         };
       };
       401: components['responses']['401'];

@@ -23,7 +23,7 @@ type Frame = Record<string, unknown>;
  */
 export function scrubErrorEvent(event: ErrorEvent): ErrorEvent {
   const exception = event.exception?.values?.map((value) => ({
-    module: value.module,
+    module: stripUrlData(value.module),
     stacktrace: value.stacktrace
       ? {
           frames: value.stacktrace.frames?.map((frame) => ({
@@ -32,7 +32,7 @@ export function scrubErrorEvent(event: ErrorEvent): ErrorEvent {
             function: frame.function,
             in_app: frame.in_app,
             lineno: frame.lineno,
-            module: frame.module,
+            module: stripUrlData(frame.module),
           })),
         }
       : undefined,
@@ -92,7 +92,7 @@ function scrubPosthogFrame(frame: Frame) {
     function: frame.function,
     in_app: frame.in_app,
     lineno: frame.lineno,
-    module: frame.module,
+    module: stripUrlData(frame.module as string | undefined),
     platform: frame.platform,
   };
 }

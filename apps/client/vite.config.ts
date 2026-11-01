@@ -3,8 +3,9 @@ import babel from '@rolldown/plugin-babel';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite';
-import { tanstackRouter } from '@tanstack/router-plugin/vite';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import { nitro } from 'nitro/vite';
 import { defineConfig, loadEnv, lazyPlugins } from 'vite-plus';
 
 export default defineConfig(({ mode }) => {
@@ -17,6 +18,9 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       include: [
+        '@clerk/tanstack-react-start',
+        '@clerk/tanstack-react-start/legacy',
+        '@clerk/tanstack-react-start > @clerk/react/internal',
         '@tanstack/charts',
         '@tanstack/charts/react',
         '@tanstack/charts/scales/band',
@@ -30,10 +34,11 @@ export default defineConfig(({ mode }) => {
       tanstackDevtools({
         removeDevtoolsOnBuild: true,
       }),
-      tanstackRouter({
-        autoCodeSplitting: true,
-        routeFileIgnorePattern: String.raw`\.(test|spec)\.[cm]?[jt]sx?$`,
-        target: 'react',
+      nitro(),
+      tanstackStart({
+        router: {
+          routeFileIgnorePattern: String.raw`\.(test|spec)\.[cm]?[jt]sx?$`,
+        },
       }),
       react(),
       babel({ presets: [reactCompilerPreset()] }),
@@ -51,12 +56,13 @@ export default defineConfig(({ mode }) => {
         org: 'maxstue',
         project: 'kijk-client',
         sourcemaps: {
-          filesToDeleteAfterUpload: ['./dist/**/*.map'],
+          filesToDeleteAfterUpload: ['./dist/**/*.map', './.output/**/*.map'],
         },
         telemetry: env.SENTRY_ENABLE_TELEMETRY === 'true',
       }),
     ]),
     resolve: {
+      dedupe: ['react', 'react-dom', '@clerk/shared'],
       tsconfigPaths: true,
     },
     server: {

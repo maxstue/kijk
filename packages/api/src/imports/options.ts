@@ -4,6 +4,7 @@ import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import {
   cancel,
+  resetOverrides,
   startCategorization,
   commit,
   confirmMapping,
@@ -25,6 +26,7 @@ import type {
   ImportJobStatus,
   ImportCandidatesQuery,
   ImportPreviewParams,
+  ImportJob,
   UpdateImportCandidateData,
   UpdateImportSettingsRequest,
 } from './types';
@@ -43,10 +45,17 @@ export const listQueryOptions = (spaceId: string) =>
     queryKey: queryKeys.imports.list(spaceId),
   });
 
-/** Query for an import; polls while the background job works on it. */
+/** Polls a processing import and reloads its review rows when categorization finishes. */
 export const detailsQueryOptions = (spaceId: string, id: string) =>
   queryOptions({
-    queryFn: ({ signal }) => getDetails(spaceId, id, signal),
+    queryFn: async ({ signal, client }) => {
+      const job = await getDetails(spaceId, id, signal);
+      const previous = client.getQueryData<ImportJob>(queryKeys.imports.detail(spaceId, id));
+      if (previous?.status === 'Categorizing' && job.status !== 'Categorizing') {
+        await invalidate(client, queryKeys.imports.candidates(spaceId, id), queryKeys.imports.aiPreview(spaceId, id));
+      }
+      return job;
+    },
     queryKey: queryKeys.imports.detail(spaceId, id),
     refetchInterval: (query) => (isProcessing(query.state.data?.status) ? pollIntervalMs : false),
   });
@@ -143,5 +152,16 @@ export const updateSettingsMutationOptions = (spaceId: string) =>
 export const startCategorizationMutationOptions = (spaceId: string, id: string) =>
   mutationOptions({
     mutationFn: (data: CategorizeImportRequest) => startCategorization(spaceId, id, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.imports.detail(spaceId, id)),
+    onSuccess: (job, _variables, _result, { client }) => {
+      client.setQueryData(queryKeys.imports.detail(spaceId, id), job);
+      return invalidate(client, queryKeys.imports.detail(spaceId, id));
+    },
+  });
+
+/** Clears manual choices and refreshes every candidate page and the AI sharing preview. */
+export const resetOverridesMutationOptions = (spaceId: string, id: string) =>
+  mutationOptions({
+    mutationFn: () => resetOverrides(spaceId, id),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.imports.candidates(spaceId, id), queryKeys.imports.aiPreview(spaceId, id)),
   });

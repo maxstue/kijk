@@ -56,7 +56,6 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
             ["Fingerprint:MasterKey"] = TestFingerprintKey,
             ["DataProtection:KeyEncryptionKey"] = "ZmVkY2JhOTg3NjU0MzIxMGZlZGNiYTk4NzY1NDMyMTA=",
             ["Jobs:DurabilityMode"] = "Solo",
-            ["Cors:0"] = "http://localhost",
             ["Serilog:WriteTo:0:Name"] = "Console",
             ["Serilog:MinimumLevel:Default"] = "Warning"
         });

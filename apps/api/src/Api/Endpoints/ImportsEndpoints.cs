@@ -7,6 +7,7 @@ using Kijk.Application.Imports.Commit;
 using Kijk.Application.Imports.ConfirmMapping;
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Queries;
+using Kijk.Application.Imports.ResetOverrides;
 using Kijk.Application.Imports.Settings;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Imports.Start;
@@ -49,6 +50,7 @@ public sealed class ImportsEndpoints : IEndpointGroup
             .WithSummary("Uploads a bank export and starts its import");
         group.MapPost("/{id:guid}/mapping", ConfirmMapping).WithName("Imports.ConfirmMapping").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Confirms the column mapping and starts reading the file");
         group.MapPut("/{id:guid}/candidates/{candidateId:guid}", UpdateCandidate).WithName("Imports.UpdateCandidate").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Changes the category or exclusion of a row during the review");
+        group.MapDelete("/{id:guid}/category-overrides", ResetOverrides).WithName("Imports.ResetOverrides").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Clears all manual category choices of an import awaiting review");
         group.MapGet("/{id:guid}/ai-preview", AiDataPreview).WithName("Imports.AiDataPreview").RequireSpacePermission(SpacePermissions.Finances.Import).RequireFeature(AppConstants.Features.AiImport).WithSummary("Gets exactly the texts the AI categorization would send");
         group.MapPost("/{id:guid}/categorize", StartCategorization).WithName("Imports.StartCategorization").RequireSpacePermission(SpacePermissions.Finances.Import).RequireFeature(AppConstants.Features.AiImport).WithRequestValidation<CategorizeImportRequest>().WithSummary("Proposes categories with the AI for the rows that have none");
         group.MapPost("/{id:guid}/commit", Commit).WithName("Imports.Commit").RequireSpacePermission(SpacePermissions.Finances.Import).WithSummary("Replaces the account's transactions in the covered months with the reviewed rows");
@@ -57,6 +59,12 @@ public sealed class ImportsEndpoints : IEndpointGroup
         group.MapPut("/settings", UpdateSettings).WithName("Imports.UpdateSettings").RequireSpacePermission(SpacePermissions.Finances.Configure).WithRequestValidation<UpdateImportSettingsRequest>().WithSummary("Changes the import settings of the active space");
 
         return builder;
+    }
+
+    private static async Task<Results<Ok<int>, ProblemHttpResult>> ResetOverrides(Guid id, ResetOverridesHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(id, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
     private static async Task<Results<Ok<List<ImportJobResponse>>, ProblemHttpResult>> List(QueriesHandler handler, CancellationToken cancellationToken)

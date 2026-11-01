@@ -7,6 +7,7 @@ using Kijk.Application.Imports.ConfirmMapping;
 using Kijk.Application.Imports.Detection;
 using Kijk.Application.Imports.Processing;
 using Kijk.Application.Imports.Queries;
+using Kijk.Application.Imports.ResetOverrides;
 using Kijk.Application.Imports.Settings;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Imports.Start;
@@ -33,6 +34,7 @@ public sealed class ModuleService : IModule
         services.AddScoped<ImportCategorizationProcessor>();
         services.AddScoped<ImportJobProcessor>();
         services.AddScoped<UpdateCandidateHandler>();
+        services.AddScoped<ResetOverridesHandler>();
         services.AddScoped<SettingsHandler>();
         services.AddScoped<ImportFileReader>();
         services.AddScoped<ICsvFormatDetector, AiCsvFormatDetector>();

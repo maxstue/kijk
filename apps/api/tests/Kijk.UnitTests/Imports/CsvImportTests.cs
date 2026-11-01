@@ -138,8 +138,8 @@ public class CsvImportTests
         var first = HeaderFingerprint.Compute(["Datum", " Betrag "], ";", CsvDecoder.Utf8);
 
         await Assert.That(HeaderFingerprint.Compute(["datum", "betrag"], ";", CsvDecoder.Utf8)).IsEqualTo(first);
-        await Assert.That(HeaderFingerprint.Compute(["datum", "betrag"], ",", CsvDecoder.Utf8)).IsNotEqualTo(first);
-        await Assert.That(HeaderFingerprint.Compute(["datum", "betrag"], ";", CsvDecoder.Windows1252)).IsNotEqualTo(first);
+        await Assert.That(HeaderFingerprint.Compute(["datum", "betrag"], ",", CsvDecoder.Utf8)).IsNotEqualTo<string>(first);
+        await Assert.That(HeaderFingerprint.Compute(["datum", "betrag"], ";", CsvDecoder.Windows1252)).IsNotEqualTo<string>(first);
     }
 
     [Test]

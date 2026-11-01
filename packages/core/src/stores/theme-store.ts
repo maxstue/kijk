@@ -17,7 +17,7 @@ interface State {
 
 /** Store with the theme mode (light, dark or system), persisted in browser storage. */
 export const useThemeStore = create<State>((set) => ({
-  mode: browserStorage.getItem<Storage>(themeStorageKey)?.mode ?? 'system',
+  mode: 'system',
   actions: {
     setMode(mode) {
       browserStorage.setItem(themeStorageKey, { mode });
@@ -25,6 +25,15 @@ export const useThemeStore = create<State>((set) => ({
     },
   },
 }));
+
+/** Reads this device's preference after hydration, without sharing browser state with SSR requests. */
+export function hydrateTheme() {
+  try {
+    useThemeStore.setState({ mode: browserStorage.getItem<Storage>(themeStorageKey)?.mode ?? 'system' });
+  } catch {
+    // An unavailable or corrupt preference must not prevent the app from starting.
+  }
+}
 
 /** Returns the actions of the theme store. */
 export const useThemeStoreActions = () => useThemeStore((state) => state.actions);

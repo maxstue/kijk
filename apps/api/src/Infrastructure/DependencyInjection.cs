@@ -37,7 +37,6 @@ public static class DependencyInjection
             services.AddConfigurationOptions(configuration)
                 .AddDatabase()
                 .AddHealthCheck()
-                .AddCorsPolicy(configuration)
                 .AddTelemetry(configuration)
                 .AddFeatureFlags()
                 .AddLogging(configuration)
@@ -74,23 +73,6 @@ public static class DependencyInjection
             services.AddHealthChecks().AddNpgSql(
                 sp => sp.GetRequiredService<IOptions<ConnectionOptions>>().Value.DefaultConnection,
                 tags: ["database", "postgresql"]);
-
-            return services;
-        }
-
-        private IServiceCollection AddCorsPolicy(IConfiguration configuration)
-        {
-            var allowedOrigins = configuration.GetSection("Cors").Get<string[]>();
-            if (allowedOrigins is null)
-            {
-                throw new ArgumentNullException($"{allowedOrigins}", "Cors appsettings is null");
-            }
-
-            services.AddCors(options => options.AddPolicy(
-                AppConstants.Cors, builder => builder.WithOrigins(allowedOrigins)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .WithExposedHeaders(AppConstants.CorrelationId)));
 
             return services;
         }

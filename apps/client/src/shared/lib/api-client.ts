@@ -1,9 +1,12 @@
 import { configureApiClient } from '@kijk/api/client';
 
-import { config } from '@/shared/config';
-import { getAuthToken } from '@/shared/lib/auth-client';
+/** Required on every relayed request; cross-site pages cannot set a custom header without a CORS preflight. */
+export const bffRequestHeader = { name: 'X-CSRF', value: '1' } as const;
 
-/** Points the shared API client at the configured backend and authenticates requests with the Clerk session. */
+/** Uses the web app's same-origin BFF; credentials and upstream tokens are handled by the server. */
 export function setupApiClient() {
-  configureApiClient({ baseUrl: config.BaseApiUrl, getAuthToken });
+  configureApiClient({
+    baseUrl: globalThis.location.origin,
+    headers: { [bffRequestHeader.name]: bffRequestHeader.value },
+  });
 }

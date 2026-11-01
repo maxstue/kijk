@@ -1,43 +1,75 @@
-import type { LoadedClerk } from '@clerk/react/types';
 import type { QueryClient } from '@tanstack/react-query';
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
+import { ClientOnly, HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
+import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 
+import { App } from '@/app';
+import { WebAuthProvider } from '@/app/root/auth-provider';
 import { RootDevtools } from '@/app/root/devtools';
 import { Favicon } from '@/app/root/favicon';
+import { themeScript } from '@/app/root/theme-script';
 import { AnalyticsTracker } from '@/shared/components/analytics-tracker';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
+import type { AuthGateway } from '@/shared/runtime/auth';
+
+import appCss from '@kijk/ui/globals.css?url';
 
 interface RootRouteContext {
   queryClient: QueryClient;
-  authClient: LoadedClerk | undefined;
-  // TODO add posthog and sentry clients here
+  auth: AuthGateway;
 }
 
-/**
- * Root route: favicon handling, page tracking, devtools and the loading fallback; provides the query and auth clients
- * as context.
- */
+/** One web app: an SSR document around public routes and the client-rendered private application. */
 export const Route = createRootRouteWithContext<RootRouteContext>()({
+  head: () => ({
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Kijk – resources and budgets' },
+      { name: 'description', content: 'Track resources and plan budgets, privately or together in shared spaces.' },
+      { name: 'color-scheme', content: 'light dark' },
+    ],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'manifest', href: '/app.webmanifest' },
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+      { rel: 'apple-touch-icon', href: '/light/apple-touch-icon.png' },
+    ],
+  }),
+  shellComponent: RootDocument,
   component: RootPage,
   pendingComponent: InitLoader,
 });
 
-function RootPage() {
+function RootDocument({ children }: { children: ReactNode }) {
   return (
-    <>
-      <Favicon />
-      <div className='flex h-screen flex-1 flex-col gap-4'>
-        <Suspense fallback={<InitLoader />}>
-          <Outlet />
-        </Suspense>
+    <html lang='en' suppressHydrationWarning>
+      <head>
+        <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body>
+        <WebAuthProvider>{children}</WebAuthProvider>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function RootPage() {
+  const { queryClient } = Route.useRouteContext();
+  return (
+    <App queryClient={queryClient}>
+      <div className='flex min-h-svh flex-1 flex-col'>
+        <Outlet />
       </div>
-      <Suspense>
-        <RootDevtools />
-      </Suspense>
-      <Suspense>
+      <ClientOnly>
+        <Favicon />
+        <Suspense>
+          <RootDevtools />
+        </Suspense>
         <AnalyticsTracker />
-      </Suspense>
-    </>
+      </ClientOnly>
+    </App>
   );
 }

@@ -26,7 +26,6 @@ public class ApplicationRegistrationTests
         {
             ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=kijk-registration-tests",
             ["Auth:Authority"] = "https://identity.example.test",
-            ["Cors:0"] = "http://localhost",
             ["Fingerprint:MasterKey"] = Convert.ToBase64String(new byte[32]),
             ["DataProtection:KeyEncryptionKey"] = Convert.ToBase64String(new byte[32])
         });

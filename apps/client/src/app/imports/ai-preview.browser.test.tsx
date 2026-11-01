@@ -76,7 +76,7 @@ test('the preview lists exactly the selected texts and sends only those', async 
   const deselected = screen.getByRole('checkbox', { name: 'Send this text to the AI' }).nth(2);
   await expect.element(deselected).not.toBeChecked();
   vi.mocked(importsApi.startCategorization).mockResolvedValue({} as CategorizeResult);
-  await screen.getByRole('button', { name: 'Suggest categories' }).click();
+  await screen.getByRole('button', { name: 'Use suggestions' }).click();
   await vi.waitFor(() =>
     expect(importsApi.startCategorization).toHaveBeenCalledWith('space', 'import', {
       aiDataSharing: 'Strict',
@@ -112,13 +112,13 @@ test.each([360, 768])('keeps a long AI preview inside a %i px dialog', async (wi
       </Dialog>
     </QueryClientProvider>,
   );
-  await expect.element(screen.getByRole('button', { name: 'Suggest categories' })).toBeInTheDocument();
+  await expect.element(screen.getByRole('button', { name: 'Use suggestions' })).toBeInTheDocument();
   const dialog = document.querySelector<HTMLElement>('[role="dialog"]')!;
   const tableContainer = dialog.querySelector<HTMLElement>('[data-slot="table-container"]')!;
   expect(dialog.scrollWidth).toBeLessThanOrEqual(dialog.clientWidth);
   expect(tableContainer.scrollWidth).toBeGreaterThan(tableContainer.clientWidth);
   const send = Array.from(dialog.querySelectorAll('button')).find(
-    (button) => button.textContent === 'Suggest categories',
+    (button) => button.textContent === 'Use suggestions',
   )!;
   expect(send.getBoundingClientRect().right).toBeLessThanOrEqual(dialog.getBoundingClientRect().right);
   expect(tableContainer.getBoundingClientRect().right).toBeLessThanOrEqual(dialog.getBoundingClientRect().right);
@@ -134,7 +134,7 @@ test('returns to the transaction review only after the request succeeds', async 
   );
   const { promise, resolve } = Promise.withResolvers<CategorizeResult>();
   vi.mocked(importsApi.startCategorization).mockReturnValue(promise);
-  await screen.getByRole('button', { name: 'Suggest categories' }).click();
+  await screen.getByRole('button', { name: 'Use suggestions' }).click();
   await vi.waitFor(() => expect(importsApi.startCategorization).toHaveBeenCalledOnce());
   expect(onStarted).not.toHaveBeenCalled();
   resolve({} as CategorizeResult);
@@ -159,7 +159,7 @@ test('keeps checkbox changes local and submits the final selection once', async 
   await expect.element(screen.getByText(/2 texts for 2 rows/)).toBeVisible();
   expect(invalidate).not.toHaveBeenCalled();
   expect(importsApi.startCategorization).not.toHaveBeenCalled();
-  await screen.getByRole('button', { name: 'Suggest categories' }).click();
+  await screen.getByRole('button', { name: 'Use suggestions' }).click();
   await vi.waitFor(() =>
     expect(importsApi.startCategorization).toHaveBeenCalledExactlyOnceWith('space', 'import', {
       aiDataSharing: 'Strict',

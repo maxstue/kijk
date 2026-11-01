@@ -2522,6 +2522,80 @@
         ]
       }
     },
+    "/api/spaces/{spaceId}/imports/{id}/category-overrides": {
+      "delete": {
+        "tags": [
+          "Imports"
+        ],
+        "summary": "Clears all manual category choices of an import awaiting review",
+        "operationId": "Imports.ResetOverrides",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "in": "path",
+            "description": "The space the request works on.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "pattern": "^-?(?:0|[1-9]\\d*)$",
+                  "type": [
+                    "integer",
+                    "string"
+                  ],
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/spaces/{spaceId}/imports/{id}/ai-preview": {
       "get": {
         "tags": [

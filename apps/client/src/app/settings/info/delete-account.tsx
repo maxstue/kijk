@@ -1,4 +1,3 @@
-import { useAuth } from '@clerk/react';
 import * as usersOptions from '@kijk/api/users/options';
 import {
   AlertDialog,
@@ -19,6 +18,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { useId, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useAppAuth } from '@/shared/runtime/auth';
+
 const confirmationWord = 'DELETE';
 
 /**
@@ -26,7 +27,7 @@ const confirmationWord = 'DELETE';
  * user is signed out right away.
  */
 export function DeleteAccount() {
-  const { signOut } = useAuth();
+  const { signOut } = useAppAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [confirmation, setConfirmation] = useState('');

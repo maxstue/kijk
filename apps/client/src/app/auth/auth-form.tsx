@@ -1,4 +1,4 @@
-import { useSignIn } from '@clerk/react/legacy';
+import { useSignIn } from '@clerk/tanstack-react-start/legacy';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { GitHubIcon, GoogleIcon, SpinnerIcon } from '@kijk/ui/components/icons';
@@ -7,7 +7,6 @@ import { cn } from 'cn';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import type { AuthSchema } from '@/app/auth/schemas';
 import { authSchema } from '@/app/auth/schemas';
@@ -34,6 +33,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
   });
   const isLoading = form.formState.isSubmitting;
   const [loadingProvider, setLoadingProvider] = useState<AllowedProviders | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const { isLoaded, signIn } = useSignIn();
 
@@ -48,16 +48,17 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
       }
 
       setLoadingProvider(provider);
+      setErrorMessage(undefined);
 
       try {
         await signIn.authenticateWithRedirect({
           redirectUrl: '/sso-callback',
-          redirectUrlComplete: redirectTo,
+          redirectUrlComplete: `/auth?from=${encodeURIComponent(redirectTo)}`,
           strategy: Auth_Provider_Strategies[provider],
         });
       } catch {
         setLoadingProvider(null);
-        toast.error(`${provider} sign-in failed. Please try again.`);
+        setErrorMessage(`${provider} sign-in could not be started. Please try again or choose another sign-in method.`);
       }
     },
     [isLoaded, isLoading, loadingProvider, redirectTo, signIn],
@@ -67,6 +68,11 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
 
   return (
     <div className={cn('grid gap-6', className)}>
+      {errorMessage && (
+        <p role='alert' className='text-destructive text-sm'>
+          {errorMessage}
+        </p>
+      )}
       <Form {...form}>
         <form className='space-y-8' onSubmit={form.handleSubmit(handleEmailSubmit)}>
           <div className='grid gap-6'>

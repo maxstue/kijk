@@ -29,23 +29,38 @@ export function ProfileForm() {
   const currentUser = currentAccount?.user;
   const externalIdentity = currentUser?.externalIdentity;
 
-  const { mutate } = useMutation(usersOptions.updateMutationOptions());
+  const profileMutation = useMutation(usersOptions.updateMutationOptions());
+  const defaultSpaceMutation = useMutation(usersOptions.setDefaultSpaceMutationOptions());
 
   const form = useForm({
     resolver: zodResolver(userUpdateSchema),
     values: {
+      defaultSpaceId: currentUser?.spaces?.find((space) => space.isDefault)?.id ?? null,
       useDefaultResources: currentUser?.resources?.some((resource) => resource.creatorType === 'System') ?? false,
       useExternalProfile: currentUser?.useExternalProfile ?? false,
       userName: currentUser?.name ?? '',
     },
+    resetOptions: { keepDirtyValues: true },
   });
+  const { dirtyFields, isDirty, isSubmitting } = form.formState;
 
-  function onSubmit(data: UserUpdateFormValues) {
-    if (currentUser?.id) {
-      mutate(data, {
-        onSuccess() {
-          toast('Successfully updated');
-        },
+  async function onSubmit(data: UserUpdateFormValues) {
+    if (!currentUser?.id) {
+      return;
+    }
+    const { defaultSpaceId, ...profile } = data;
+    try {
+      if (dirtyFields.userName || dirtyFields.useDefaultResources || dirtyFields.useExternalProfile) {
+        await profileMutation.mutateAsync(profile);
+      }
+      if (dirtyFields.defaultSpaceId) {
+        await defaultSpaceMutation.mutateAsync(defaultSpaceId);
+      }
+      form.reset(data);
+      toast.success('Profile updated');
+    } catch (error) {
+      toast.error('Your changes could not all be saved. Please try again.', {
+        description: error instanceof Error ? error.message : undefined,
       });
     }
   }
@@ -53,65 +68,86 @@ export function ProfileForm() {
   return (
     <Form {...form}>
       <form className='space-y-8' onSubmit={form.handleSubmit(onSubmit)}>
-        <AuthIdentitySummary
-          email={externalIdentity?.email}
-          fullName={externalIdentity?.fullName}
-          imageUrl={externalIdentity?.imageUrl}
-          profileEnabled={currentUser?.useExternalProfile ?? false}
-        />
-        <ConnectedSignInMethods />
-        <FormField
-          control={form.control}
-          name='useExternalProfile'
-          render={({ field }) => (
-            <FormItem className='flex items-start gap-3 rounded-lg border p-4'>
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className='space-y-1'>
-                <FormLabel>Use sign-in profile</FormLabel>
-                <FormDescription>
-                  Show the full name and profile image from your sign-in account in Kijk.
-                </FormDescription>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='userName'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder='max' {...field} />
-              </FormControl>
-              <FormDescription>This is how your name appears in Kijk. It does not affect sign-in.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <DefaultSpaceSelect spaces={currentUser?.spaces ?? []} />
-        <div className='flex w-full items-center'>
+        <fieldset disabled={isSubmitting || !currentUser?.id} className='space-y-8'>
+          <AuthIdentitySummary
+            email={externalIdentity?.email}
+            fullName={externalIdentity?.fullName}
+            imageUrl={externalIdentity?.imageUrl}
+            profileEnabled={currentUser?.useExternalProfile ?? false}
+          />
+          <ConnectedSignInMethods />
           <FormField
             control={form.control}
-            name='useDefaultResources'
+            name='useExternalProfile'
             render={({ field }) => (
-              <FormItem className='flex w-full items-end justify-start gap-2'>
-                <FormLabel>Use default resource types</FormLabel>
+              <FormItem className='flex items-start gap-3 rounded-lg border p-4'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox
+                    checked={field.value}
+                    disabled={isSubmitting || !currentUser?.id}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
+                <div className='space-y-1'>
+                  <FormLabel>Use sign-in profile</FormLabel>
+                  <FormDescription>
+                    Show the full name and profile image from your sign-in account in Kijk.
+                  </FormDescription>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+          <FormField
+            control={form.control}
+            name='userName'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input placeholder='max' {...field} />
+                </FormControl>
+                <FormDescription>This is how your name appears in Kijk. It does not affect sign-in.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='defaultSpaceId'
+            render={({ field }) => (
+              <DefaultSpaceSelect
+                spaces={currentUser?.spaces ?? []}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={isSubmitting || !currentUser?.id}
+              />
+            )}
+          />
+          <div className='flex w-full items-center'>
+            <FormField
+              control={form.control}
+              name='useDefaultResources'
+              render={({ field }) => (
+                <FormItem className='flex w-full items-end justify-start gap-2'>
+                  <FormLabel>Use default resource types</FormLabel>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      disabled={isSubmitting || !currentUser?.id}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <Button disabled={!form.formState.isDirty} type='submit'>
-          Update profile
-        </Button>
+          <Button disabled={!isDirty || isSubmitting} type='submit'>
+            {isSubmitting ? 'Saving…' : 'Update profile'}
+          </Button>
+        </fieldset>
       </form>
     </Form>
   );

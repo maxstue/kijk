@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 /** Validation of the profile form. */
 export const userUpdateSchema = z.object({
+  defaultSpaceId: z.string().nullable(),
   useDefaultResources: z.boolean().optional().default(false),
   useExternalProfile: z.boolean().optional().default(false),
   userName: z.string().trim().min(2).max(100),

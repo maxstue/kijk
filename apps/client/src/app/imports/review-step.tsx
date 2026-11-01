@@ -1,16 +1,16 @@
 import * as importsOptions from '@kijk/api/imports/options';
 import type { ImportCandidate, ImportCandidatePage, ImportJob } from '@kijk/api/imports/types';
-import { queryKeys } from '@kijk/api/query-keys';
 import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
 import { Button } from '@kijk/ui/components/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kijk/ui/components/dialog';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Label } from '@kijk/ui/components/label';
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { CreditCard, Sparkles, TriangleAlert } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { CreditCard, SlidersHorizontal, Sparkles, TriangleAlert, X } from 'lucide-react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
 import { ImportAiCategorization } from '@/app/imports/ai-preview';
@@ -31,22 +31,14 @@ export function ImportReviewStep({
   onStageChange: (stage: 'months' | 'review') => void;
 }) {
   const spaceId = useSpaceId();
-  const queryClient = useQueryClient();
-  const previousStatus = useRef(job.status);
-  useEffect(() => {
-    if (previousStatus.current === 'Categorizing' && job.status === 'NeedsReview') {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.candidates(spaceId, job.id) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.imports.aiPreview(spaceId, job.id) });
-    }
-    previousStatus.current = job.status;
-  }, [job.id, job.status, queryClient, spaceId]);
-
   const [includedEdgeMonths, setIncludedEdgeMonths] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [acceptErrors, setAcceptErrors] = useState(false);
   const [showAiPreview, setShowAiPreview] = useState(false);
+  const [showFloatingActions, setShowFloatingActions] = useState(false);
   const aiImport = useFeature('aiImport');
   const commitMutation = useMutation(importsOptions.commitMutationOptions(spaceId, job.id));
+  const resetMutation = useMutation(importsOptions.resetOverridesMutationOptions(spaceId, job.id));
   const cancelMutation = useMutation(importsOptions.cancelMutationOptions(spaceId, job.id));
 
   const included = new Set(includedEdgeMonths);
@@ -59,7 +51,8 @@ export function ImportReviewStep({
   });
   const review = reviewQuery.data;
   const importedCount = review?.includedCount ?? 0;
-  const isPending = commitMutation.isPending || cancelMutation.isPending || job.status === 'Categorizing';
+  const isPending =
+    commitMutation.isPending || cancelMutation.isPending || resetMutation.isPending || job.status === 'Categorizing';
   const isReviewLoading = !review || reviewQuery.isFetching || reviewQuery.isError;
   const cannotCommit = (job.hasHighErrorRate && !acceptErrors) || months.size === 0;
 
@@ -78,6 +71,21 @@ export function ImportReviewStep({
     );
   }
 
+  const actionProps: ReviewActionProps = {
+    accountName: job.accountName,
+    months: [...months]
+      .sort((left, right) => left.localeCompare(right))
+      .map(formatImportMonth)
+      .join(', '),
+    importedCount: Number(importedCount),
+    hint: getReviewHint(job, acceptErrors),
+    isPending,
+    isSaving: commitMutation.isPending,
+    cannotSave: isPending || cannotCommit || isReviewLoading,
+    onBack: () => onStageChange('months'),
+    onCommit,
+  };
+
   if (stage === 'months') {
     return (
       <MonthSelection
@@ -93,84 +101,70 @@ export function ImportReviewStep({
   }
 
   return (
-    <div className='space-y-4'>
-      <ReviewActions
-        importedCount={Number(importedCount)}
-        hint={getReviewHint(job, acceptErrors)}
-        isPending={isPending}
-        isSaving={commitMutation.isPending}
-        cannotSave={isPending || cannotCommit || isReviewLoading}
-        onBack={() => onStageChange('months')}
-        onCommit={onCommit}
+    <div className='flex flex-col gap-4'>
+      <ReviewActions {...actionProps} onVisibilityChange={setShowFloatingActions} />
+      <UnreadableRows
+        review={review}
+        requiresConfirmation={job.hasHighErrorRate}
+        accepted={acceptErrors}
+        onAccept={setAcceptErrors}
       />
-      <section className='rounded-lg border' aria-label='Transactions to import'>
-        <div className='flex flex-wrap items-center justify-between gap-3 p-4'>
-          <div className='space-y-1'>
-            <h3 className='text-sm font-medium'>
-              {[...months]
-                .sort((left, right) => left.localeCompare(right))
-                .map(formatImportMonth)
-                .join(', ')}
-            </h3>
-            <p className='text-muted-foreground text-xs'>
-              Untick a transaction to leave it out. Choose a category if needed.
+      <ReviewLoadingState
+        isError={reviewQuery.isError}
+        isLoading={!review}
+        onRetry={() => void reviewQuery.refetch()}
+      />
+      <ReviewAdjustments>
+        <CardContent className='flex flex-col gap-4 px-0'>
+          <div className='flex flex-col gap-4 px-(--card-spacing)'>
+            <div className='flex flex-wrap items-center gap-3'>
+              <h3 className='flex-1 font-medium'>Transactions to import</h3>
+              <AiSuggestionsAction enabled={aiImport} disabled={isPending} onOpen={() => setShowAiPreview(true)} />
+              <Button
+                variant='ghost'
+                size='sm'
+                disabled={isPending}
+                title='Clears every manual category in this import to Uncategorized. Automatic categories and import selections are kept.'
+                onClick={() =>
+                  resetMutation.mutate(undefined, {
+                    onSuccess: (count) => toast.success(`${count} manual overrides reset`),
+                    onError: (error) => toast.error(error.name, { description: error.message }),
+                  })
+                }
+              >
+                Reset overrides <X data-icon='inline-end' />
+              </Button>
+            </div>
+            <p className='text-muted-foreground text-sm'>
+              Choose a category to override it, or untick a transaction to leave it out. AI suggestions keep your manual
+              choices.
             </p>
           </div>
-          {aiImport && (
-            <Button size='sm' variant='outline' disabled={isPending} onClick={() => setShowAiPreview(true)}>
-              <Sparkles className='size-4' /> Suggest categories
-            </Button>
-          )}
-        </div>
-        <UnreadableRows
-          review={review}
-          requiresConfirmation={job.hasHighErrorRate}
-          accepted={acceptErrors}
-          onAccept={setAcceptErrors}
-        />
-        <div className='relative' aria-busy={job.status === 'Categorizing'}>
-          <ReviewLoadingState
-            isError={reviewQuery.isError}
-            isLoading={!review}
-            onRetry={() => void reviewQuery.refetch()}
-          />
-          {review && (
-            <div
-              inert={job.status === 'Categorizing' || reviewQuery.isPlaceholderData}
-              aria-busy={reviewQuery.isFetching}
-            >
-              <CardSettlements count={Number(review.cardSettlementCount)} months={selectedMonths} importId={job.id} />
-              <ImportCandidateTable
-                data={review}
-                importId={job.id}
-                isFetching={reviewQuery.isFetching}
-                onPageChange={setPage}
-              />
-            </div>
-          )}
-          {job.status === 'Categorizing' && (
-            <output
-              aria-label='Suggesting categories'
-              className='bg-background/80 absolute inset-0 z-10 backdrop-blur-[1px]'
-            >
-              <div className='bg-popover sticky top-40 mx-auto flex w-fit max-w-[calc(100%-2rem)] flex-col items-center gap-2 rounded-lg border p-5 text-center shadow-sm'>
-                <SpinnerIcon className='size-6 animate-spin' />
-                <p className='text-sm font-medium'>Suggesting categories…</p>
-                <p className='text-muted-foreground text-xs'>
-                  Please wait. Your transactions will update automatically.
-                </p>
+          <div className='relative' aria-busy={job.status === 'Categorizing'}>
+            {review && (
+              <div inert={isPending || reviewQuery.isPlaceholderData} aria-busy={reviewQuery.isFetching}>
+                <CardSettlements count={Number(review.cardSettlementCount)} months={selectedMonths} importId={job.id} />
+                <ImportCandidateTable
+                  data={review}
+                  importId={job.id}
+                  isFetching={reviewQuery.isFetching}
+                  manualOverrides
+                  onPageChange={setPage}
+                />
               </div>
-            </output>
-          )}
-        </div>
-      </section>
+            )}
+            <CategorizationProgress active={job.status === 'Categorizing'} />
+          </div>
+        </CardContent>
+      </ReviewAdjustments>
+      {showFloatingActions && <ReviewActions {...actionProps} floating />}
       <Dialog open={showAiPreview} onOpenChange={setShowAiPreview}>
         <DialogContent className='sm:max-w-3xl'>
           <DialogHeader>
             <DialogTitle>Suggest categories automatically</DialogTitle>
             <DialogDescription>
-              Check the shared texts, then start. The suggestions will appear in your transaction list for you to
-              review.
+              Choose which uncategorized transactions the AI may process. Your category choices stay unchanged and are
+              not sent as examples. Review the suggestions in the transaction list afterwards.
             </DialogDescription>
           </DialogHeader>
           <ImportAiCategorization job={job} onStarted={() => setShowAiPreview(false)} />
@@ -180,15 +174,77 @@ export function ImportReviewStep({
   );
 }
 
-function ReviewActions({
-  importedCount,
-  hint,
-  isPending,
-  isSaving,
-  cannotSave,
-  onBack,
-  onCommit,
+function CategorizationProgress({ active }: { active: boolean }) {
+  if (!active) {
+    return null;
+  }
+  return (
+    <output aria-label='Suggesting categories' className='bg-background/80 absolute inset-0 z-10 backdrop-blur-[1px]'>
+      <div className='bg-popover sticky top-40 mx-auto flex w-fit max-w-[calc(100%-2rem)] flex-col items-center gap-2 rounded-lg border p-5 text-center shadow-sm'>
+        <SpinnerIcon className='size-6 animate-spin' />
+        <p className='text-sm font-medium'>Suggesting categories…</p>
+        <p className='text-muted-foreground text-xs'>Please wait. Your transactions will update automatically.</p>
+      </div>
+    </output>
+  );
+}
+
+function ReviewAdjustments({ children }: { children: ReactNode }) {
+  const [expanded, setExpanded] = useState(false);
+  const contentId = useId();
+  return (
+    <Card role='region' aria-label='Review and adjust'>
+      <CardHeader className='flex flex-wrap items-center justify-between gap-4'>
+        <div className='flex flex-col gap-1'>
+          <CardTitle>Review &amp; adjust</CardTitle>
+          <CardDescription>Optional: suggest categories, change them manually or exclude transactions.</CardDescription>
+        </div>
+        <Button
+          variant='outline'
+          aria-expanded={expanded}
+          aria-controls={contentId}
+          onClick={() => setExpanded((previous) => !previous)}
+        >
+          <SlidersHorizontal data-icon='inline-start' />
+          <span className='grid'>
+            <span className='invisible col-start-1 row-start-1' aria-hidden='true'>
+              Adjust transactions
+            </span>
+            <span className='col-start-1 row-start-1'>{expanded ? 'Hide transactions' : 'Adjust transactions'}</span>
+          </span>
+        </Button>
+      </CardHeader>
+      <div id={contentId} hidden={!expanded}>
+        {expanded && children}
+      </div>
+    </Card>
+  );
+}
+
+function AiSuggestionsAction({
+  enabled,
+  disabled,
+  onOpen,
 }: {
+  enabled: boolean;
+  disabled: boolean;
+  onOpen: () => void;
+}) {
+  if (!enabled) {
+    return null;
+  }
+  return (
+    <section aria-label='AI category suggestions' className='flex flex-wrap items-center gap-3'>
+      <Button size='sm' variant='outline' disabled={disabled} onClick={onOpen}>
+        <Sparkles data-icon='inline-start' /> Suggest categories
+      </Button>
+    </section>
+  );
+}
+
+type ReviewActionProps = {
+  accountName: string;
+  months: string;
   importedCount: number;
   hint: string;
   isPending: boolean;
@@ -196,27 +252,72 @@ function ReviewActions({
   cannotSave: boolean;
   onBack: () => void;
   onCommit: () => void;
-}) {
+};
+
+function ReviewActions({
+  accountName,
+  months,
+  importedCount,
+  hint,
+  isPending,
+  isSaving,
+  cannotSave,
+  onBack,
+  onCommit,
+  floating = false,
+  onVisibilityChange,
+}: ReviewActionProps & { floating?: boolean; onVisibilityChange?: (hidden: boolean) => void }) {
+  const actions = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const element = actions.current;
+    if (!element || !onVisibilityChange) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        onVisibilityChange(!entry.isIntersecting && entry.boundingClientRect.bottom <= (entry.rootBounds?.top ?? 48));
+      },
+      { rootMargin: '-48px 0px 0px 0px' },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [onVisibilityChange]);
   return (
-    <div aria-label='Import actions' className='bg-background @container sticky top-12 z-20 border-b py-3 shadow-sm'>
-      <div className='grid items-center gap-3 @lg:grid-cols-[minmax(0,1fr)_auto]'>
-        <div className='min-w-0 space-y-1' aria-live='polite'>
-          <p className='text-sm font-medium'>
-            <span className='inline-block min-w-[4ch] tabular-nums'>{importedCount}</span> transactions ready to import
+    <section
+      ref={actions}
+      role={floating ? 'toolbar' : undefined}
+      aria-label={floating ? 'Import actions while scrolling' : 'Import actions'}
+      className={cn(
+        '@container flex flex-col gap-3',
+        floating
+          ? 'bg-popover sticky bottom-4 z-10 mx-auto w-full max-w-xl min-w-0 flex-wrap rounded-lg border p-2 shadow-lg @lg:flex-row @lg:items-center'
+          : 'border-b pb-4',
+      )}
+    >
+      <div className={cn('flex min-w-0 flex-1 flex-col gap-1', floating && 'px-2')}>
+        {floating && <p className='text-muted-foreground text-xs'>Step 4 of 5 · Review &amp; save</p>}
+        <p className='text-sm font-medium' aria-live='polite'>
+          {importedCount} transactions ready to import
+        </p>
+        <p className='text-muted-foreground truncate text-xs' title={`${accountName} · ${months}`}>
+          {accountName} · {months}
+        </p>
+        {!floating && (
+          <p className='text-muted-foreground min-h-12 text-sm' aria-live='polite'>
+            {hint}
           </p>
-          <p className='text-muted-foreground min-h-8 text-xs leading-4'>{hint}</p>
-        </div>
-        <div className='flex gap-2'>
-          <Button disabled={isPending} variant='outline' onClick={onBack}>
-            Back
-          </Button>
-          <Button className='flex-1 @lg:flex-none' disabled={cannotSave} onClick={onCommit}>
-            {isSaving && <SpinnerIcon className='size-5 animate-spin' />}
-            {isSaving ? 'Saving import…' : 'Save import'}
-          </Button>
-        </div>
+        )}
       </div>
-    </div>
+      <div className='flex shrink-0 justify-end gap-2'>
+        <Button disabled={isPending} variant='outline' onClick={onBack}>
+          Back
+        </Button>
+        <Button disabled={cannotSave} onClick={onCommit}>
+          {isSaving && <SpinnerIcon className='animate-spin' data-icon='inline-start' />}
+          {isSaving ? 'Starting import…' : 'Start import'}
+        </Button>
+      </div>
+    </section>
   );
 }
 
@@ -328,7 +429,7 @@ function MonthSelection({
 }) {
   const monthLabel = months.size === 1 ? 'month' : 'months';
   return (
-    <div className='space-y-6'>
+    <div className='flex flex-col gap-6'>
       <section aria-label='Months to import' className='space-y-4'>
         <p className='text-muted-foreground text-sm'>
           Saving replaces previously imported transactions in the selected months. Manually added transactions stay.
@@ -467,17 +568,17 @@ function EdgeMonth({
       )}
     >
       <Checkbox
-        aria-label={`Confirm complete export for ${formatImportMonth(month)}`}
+        aria-label={`Import partial month ${formatImportMonth(month)} anyway`}
         checked={checked}
         id={id}
         onCheckedChange={(value) => onCheckedChange(value === true)}
       />
       <span className='space-y-1'>
         <span className='block'>
-          {formatImportMonth(month)} <span className='text-muted-foreground font-normal'>· needs confirmation</span>
+          {formatImportMonth(month)} <span className='text-muted-foreground font-normal'>· partial month</span>
         </span>
         <span className='text-muted-foreground block text-xs font-normal'>
-          I confirm the export covers the complete month
+          The export does not appear to cover this entire month. Import these transactions anyway?
         </span>
       </span>
     </Label>

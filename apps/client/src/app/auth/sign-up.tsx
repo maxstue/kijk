@@ -1,16 +1,16 @@
-import { useSignUp } from '@clerk/react/legacy';
+import { useSignUp } from '@clerk/tanstack-react-start/legacy';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Input } from '@kijk/ui/components/input';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useRouter } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import type { Dispatch } from 'react';
 import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
+import { authErrorMessage } from '@/app/auth/helpers';
 import type { AuthCodeSchema } from '@/app/auth/schemas';
 import { authCodeSchema } from '@/app/auth/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
@@ -20,16 +20,19 @@ interface Props {
   redirectTo: string;
 }
 
-/** Sign-up view (email, Google or GitHub); email sign-ups confirm a code. Navigates to `redirectTo` on success. */
+/** Sign-up view; email verification completes the session before the auth route loads the account. */
 export function SignUp({ goto, redirectTo }: Props) {
   const [verify, setVerify] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
   const { isLoaded, signUp } = useSignUp();
 
   const handleRegister = useCallback(
     async (email: string, password: string) => {
       if (!isLoaded) {
+        setErrorMessage('Sign-up is still loading. Please wait a moment and try again.');
         return;
       }
+      setErrorMessage(undefined);
 
       try {
         await signUp.create({
@@ -38,12 +41,9 @@ export function SignUp({ goto, redirectTo }: Props) {
         });
         await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
         setVerify(true);
-      } catch (error_) {
+      } catch (error) {
         setVerify(false);
-        const error = error_ as { errors: Array<{ message: string }> };
-        toast.error('Your sign in request failed. Please try again.', {
-          description: <div>{error.errors[0]?.message}</div>,
-        });
+        setErrorMessage(authErrorMessage(error, 'Your account could not be created. Please try again.'));
       }
     },
     [isLoaded, signUp],
@@ -63,10 +63,15 @@ export function SignUp({ goto, redirectTo }: Props) {
         <CardContent>
           <>
             <div className='grid gap-6'>
+              {errorMessage && (
+                <p role='alert' className='text-destructive text-sm'>
+                  {errorMessage}
+                </p>
+              )}
               {verify ? (
                 <div className='flex min-h-[336px] w-full flex-col'>
                   <p className='text-primary text-lg'>Please insert the code we&apos;ve send to your email.</p>
-                  <Verify redirectTo={redirectTo} />
+                  <Verify />
                 </div>
               ) : (
                 <UserAuthForm btnLabel='Sign Up' redirectTo={redirectTo} onSubmit={handleRegister} />
@@ -88,9 +93,10 @@ export function SignUp({ goto, redirectTo }: Props) {
   );
 }
 
-function Verify({ redirectTo }: { redirectTo: string }) {
+function Verify() {
   const { isLoaded, signUp, setActive } = useSignUp();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const form = useForm({
     defaultValues: {
@@ -103,8 +109,10 @@ function Verify({ redirectTo }: { redirectTo: string }) {
   const handleVerify = useCallback(
     async (data: AuthCodeSchema) => {
       if (!isLoaded) {
+        setErrorMessage('Email verification is still loading. Please wait a moment and try again.');
         return;
       }
+      setErrorMessage(undefined);
 
       try {
         const completeSignUp = await signUp.attemptEmailAddressVerification({
@@ -112,34 +120,40 @@ function Verify({ redirectTo }: { redirectTo: string }) {
         });
 
         if (completeSignUp.status !== 'complete') {
-          toast.error('Your sign up request failed. Please try again.', {
-            description: <div>{JSON.stringify(completeSignUp, undefined, 2)}</div>,
-          });
+          setErrorMessage(
+            'Your email was checked, but account setup is not complete. Please contact support or try another sign-in method.',
+          );
         }
 
         if (completeSignUp.status === 'complete') {
           await setActive({ session: completeSignUp.createdSessionId });
-          navigate({ replace: true, to: redirectTo });
+          await router.invalidate();
         }
-      } catch (error_) {
-        const error = error_ as { errors: Array<{ message: string }> };
-        toast.error('Your sign up request failed. Please try again.', {
-          description: <div>{error.errors[0]?.message}</div>,
-        });
+      } catch (error) {
+        setErrorMessage(
+          authErrorMessage(error, 'The verification code could not be confirmed. Check the code and try again.'),
+        );
       }
     },
-    [isLoaded, navigate, redirectTo, setActive, signUp],
+    [isLoaded, router, setActive, signUp],
   );
 
   return (
     <div className='mt-6 grid gap-6'>
+      {errorMessage && (
+        <p role='alert' className='text-destructive text-sm'>
+          {errorMessage}
+        </p>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleVerify)}>
           <div className='grid gap-6'>
             <div className='grid gap-1'>
               <FormField control={form.control} name='code' render={CodeField} />
             </div>
-            <Button type='submit'>Verify Email</Button>
+            <Button type='submit' disabled={form.formState.isSubmitting}>
+              Verify Email
+            </Button>
           </div>
         </form>
       </Form>

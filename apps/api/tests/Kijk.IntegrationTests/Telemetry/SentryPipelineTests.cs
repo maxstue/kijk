@@ -26,7 +26,6 @@ public class SentryPipelineTests
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Sentry:Dsn"] = "https://publickey@o1.ingest.sentry.io/1",
-            ["Cors:0"] = "http://localhost"
         });
         builder.AddTelemetryTracking();
         builder.Services.AddInfrastructure(builder.Configuration);

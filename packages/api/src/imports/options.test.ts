@@ -2,9 +2,15 @@ import { QueryClient, QueryObserver } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { candidatesQueryOptions, updateCandidateMutationOptions } from './options';
-import { updateCandidate } from './requests';
-import type { ImportCandidate, ImportCandidatePage } from './types';
+import {
+  candidatesQueryOptions,
+  resetOverridesMutationOptions,
+  detailsQueryOptions,
+  startCategorizationMutationOptions,
+  updateCandidateMutationOptions,
+} from './options';
+import { getDetails, resetOverrides, startCategorization, updateCandidate } from './requests';
+import type { ImportCandidate, ImportCandidatePage, ImportJob } from './types';
 
 vi.mock('./requests', { spy: true });
 
@@ -64,6 +70,61 @@ test('editing a row reloads active pages and totals from the server and marks ot
   }
 });
 
+test.each([false, true])(
+  'AI completion reloads candidates without relying on a rendered intermediate status (polling: %s)',
+  async (needsPolling) => {
+    const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
+    const accepted = { id: 'import', status: 'Categorizing', aiCategorizedCount: 0 } as ImportJob;
+    const completed = { ...accepted, status: 'NeedsReview', aiCategorizedCount: 1 } as ImportJob;
+    const detail = detailsQueryOptions('space', 'import');
+    const first = candidatesQueryOptions('space', 'import', { page: 1 });
+    const second = candidatesQueryOptions('space', 'import', { page: 2 });
+    const other = candidatesQueryOptions('space', 'other-import');
+    const otherSpace = candidatesQueryOptions('other-space', 'import');
+    const initialPage = cachedPage([{ ...row('row'), categoryId: null }]);
+    for (const key of [first.queryKey, second.queryKey, other.queryKey, otherSpace.queryKey]) {
+      client.setQueryData(key, initialPage);
+    }
+    client.setQueryData(detail.queryKey, { ...completed, aiCategorizedCount: 0 });
+    const preview = queryKeys.imports.aiPreview('space', 'import');
+    client.setQueryData(preview, { items: [] });
+    const updatedPage = cachedPage([{ ...row('row'), categoryId: 'food', categorySource: 'Ai' }]);
+    const loadPage = vi.fn<() => Promise<ImportCandidatePage>>().mockResolvedValue(updatedPage);
+    const pageObserver = new QueryObserver(client, { ...first, queryFn: loadPage });
+    const detailObserver = new QueryObserver(client, detail);
+    const unsubscribePage = pageObserver.subscribe(() => {});
+    const unsubscribeDetail = detailObserver.subscribe(() => {});
+    vi.mocked(startCategorization).mockResolvedValue(accepted);
+    vi.mocked(getDetails)
+      .mockResolvedValueOnce(needsPolling ? accepted : completed)
+      .mockResolvedValue(completed);
+    try {
+      await client
+        .getMutationCache()
+        .build(client, startCategorizationMutationOptions('space', 'import'))
+        .execute({ aiDataSharing: 'Strict', selectedTextKeys: ['text'] });
+      expect(client.getQueryData<ImportJob>(detail.queryKey)?.status).toBe(
+        needsPolling ? 'Categorizing' : 'NeedsReview',
+      );
+      expect(loadPage).toHaveBeenCalledTimes(needsPolling ? 0 : 1);
+      if (needsPolling) {
+        await detailObserver.refetch();
+      }
+      expect(loadPage).toHaveBeenCalledOnce();
+      expect(client.getQueryData(first.queryKey)).toEqual(updatedPage);
+      expect(client.getQueryData(detail.queryKey)).toEqual(completed);
+      expect(client.getQueryState(second.queryKey)?.isInvalidated).toBe(true);
+      expect(client.getQueryState(preview)?.isInvalidated).toBe(true);
+      expect(client.getQueryState(other.queryKey)?.isInvalidated).toBe(false);
+      expect(client.getQueryState(otherSpace.queryKey)?.isInvalidated).toBe(false);
+    } finally {
+      unsubscribePage();
+      unsubscribeDetail();
+      client.clear();
+    }
+  },
+);
+
 test('excluding a card statement reloads the server page including any replacement row', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
   const candidate = { ...row('card'), isCardSettlement: true };
@@ -86,6 +147,34 @@ test('excluding a card statement reloads the server page including any replaceme
     expect(client.getQueryData(options.queryKey)).toEqual(serverPage);
   } finally {
     unsubscribe();
+    client.clear();
+  }
+});
+
+test('resetting manual overrides invalidates all pages and the sharing preview of only that import', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  const keys = [
+    candidatesQueryOptions('space', 'import', { page: 1 }).queryKey,
+    candidatesQueryOptions('space', 'import', { page: 2, months: '2026-11-01' }).queryKey,
+    queryKeys.imports.aiPreview('space', 'import'),
+  ];
+  const other = candidatesQueryOptions('other-space', 'import').queryKey;
+  for (const key of [...keys, other]) {
+    client.setQueryData(key, {});
+  }
+  vi.mocked(resetOverrides).mockResolvedValue(123);
+  try {
+    const count = await client
+      .getMutationCache()
+      .build(client, resetOverridesMutationOptions('space', 'import'))
+      .execute(undefined);
+    expect(count).toBe(123);
+    expect(resetOverrides).toHaveBeenCalledWith('space', 'import');
+    for (const key of keys) {
+      expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    }
+    expect(client.getQueryState(other)?.isInvalidated).toBe(false);
+  } finally {
     client.clear();
   }
 });

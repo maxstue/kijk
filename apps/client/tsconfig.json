@@ -10,5 +10,12 @@
       "@kijk/config/*": ["../../packages/config/src/*"]
     }
   },
-  "include": ["src/**/*", "e2e/**/*", "playwright.config.ts", "vite.config.ts", "vitest.config.ts"]
+  "include": [
+    "src/**/*",
+    "e2e/**/*",
+    "playwright.config.ts",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "desktop-check/**/*"
+  ]
 }
