@@ -105,7 +105,13 @@ export function BudgetOverview({ month, view = 'budgets', year }: Props) {
   );
 }
 
-function SummaryCard({ description, title, value }: { description: string; title: string; value: number | string }) {
+interface SummaryCardProps {
+  description: string;
+  title: string;
+  value: number | string;
+}
+
+function SummaryCard({ description, title, value }: SummaryCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -117,7 +123,13 @@ function SummaryCard({ description, title, value }: { description: string; title
   );
 }
 
-function CategoryCard({ category, month, year }: { category: BudgetCategory; month: number; year: number }) {
+interface CategoryCardProps {
+  category: BudgetCategory;
+  month: number;
+  year: number;
+}
+
+function CategoryCard({ category, month, year }: CategoryCardProps) {
   const hasBudget = category.budget !== null && category.budget !== undefined;
   const utilization = toAmount(category.utilizationPercentage);
   const pending = toAmount(category.pending);
@@ -165,8 +177,14 @@ function CategoryCard({ category, month, year }: { category: BudgetCategory; mon
   );
 }
 
+interface EditBudgetButtonProps {
+  category: BudgetCategory;
+  month: number;
+  year: number;
+}
+
 /** Opens the budget form of a category; members without budgets:plan may still set private budgets. */
-function EditBudgetButton({ category, month, year }: { category: BudgetCategory; month: number; year: number }) {
+function EditBudgetButton({ category, month, year }: EditBudgetButtonProps) {
   const canPlan = useSpacePermission(SpacePermissions.budgets.plan);
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const canEdit = canPlan || canRecord;

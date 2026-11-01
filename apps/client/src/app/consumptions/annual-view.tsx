@@ -1,5 +1,6 @@
 import { Badge } from '@kijk/ui/components/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   createExpandedRowModel,
   flexRender,
@@ -7,7 +8,6 @@ import {
   tableFeatures,
   useTable,
 } from '@tanstack/react-table';
-import type { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { ChevronDown, RefreshCcw } from 'lucide-react';
 import { Fragment, useState } from 'react';
@@ -140,7 +140,11 @@ const entryColumns: Array<ColumnDef<typeof entryFeatures, Consumption>> = [
   },
 ];
 
-function AnnualEntriesTable({ entries }: { entries: Consumption[] }) {
+interface AnnualEntriesTableProps {
+  entries: Consumption[];
+}
+
+function AnnualEntriesTable({ entries }: AnnualEntriesTableProps) {
   'use no memo';
 
   const table = useTable({
@@ -175,7 +179,11 @@ function AnnualEntriesTable({ entries }: { entries: Consumption[] }) {
   );
 }
 
-function AnnualSummaryTable({ summaries }: { summaries: AnnualResourceSummary[] }) {
+interface AnnualSummaryTableProps {
+  summaries: AnnualResourceSummary[];
+}
+
+function AnnualSummaryTable({ summaries }: AnnualSummaryTableProps) {
   'use no memo';
 
   const table = useTable({

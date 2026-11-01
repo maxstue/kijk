@@ -17,6 +17,14 @@ import { formatStringToCurrency } from '@/shared/utils/format';
 
 const uncategorized = 'none';
 
+interface ImportCandidateTableProps {
+  data: ImportCandidatePage;
+  importId: string;
+  isFetching: boolean;
+  onPageChange: (page: number) => void;
+  manualOverrides?: boolean;
+}
+
 /** Paged transaction review with row-level editing. */
 export function ImportCandidateTable({
   data,
@@ -24,13 +32,7 @@ export function ImportCandidateTable({
   isFetching,
   onPageChange,
   manualOverrides = false,
-}: {
-  data: ImportCandidatePage;
-  importId: string;
-  isFetching: boolean;
-  onPageChange: (page: number) => void;
-  manualOverrides?: boolean;
-}) {
+}: ImportCandidateTableProps) {
   const spaceId = useSpaceId();
   const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   return (
@@ -62,18 +64,20 @@ export function ImportCandidateTable({
   );
 }
 
+interface ImportCandidatePaginationProps {
+  data: ImportCandidatePage;
+  isFetching: boolean;
+  onPageChange: (page: number) => void;
+  label?: string;
+}
+
 /** Navigation for a server-provided candidate page. */
 export function ImportCandidatePagination({
   data,
   isFetching,
   onPageChange,
   label = 'Transaction pages',
-}: {
-  data: ImportCandidatePage;
-  isFetching: boolean;
-  onPageChange: (page: number) => void;
-  label?: string;
-}) {
+}: ImportCandidatePaginationProps) {
   const page = Number(data.page);
   const pageSize = Number(data.pageSize);
   const totalCount = Number(data.totalCount);
@@ -111,17 +115,14 @@ export function ImportCandidatePagination({
   );
 }
 
-function CandidateRow({
-  candidate,
-  categories,
-  importId,
-  manualOverrides,
-}: {
+interface CandidateRowProps {
   candidate: ImportCandidate;
   categories: Category[];
   importId: string;
   manualOverrides: boolean;
-}) {
+}
+
+function CandidateRow({ candidate, categories, importId, manualOverrides }: CandidateRowProps) {
   const spaceId = useSpaceId();
   const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId));
 
@@ -176,19 +177,15 @@ function CandidateRow({
   );
 }
 
-function CandidateCategory({
-  candidate,
-  categories,
-  editable,
-  disabled,
-  onChange,
-}: {
+interface CandidateCategoryProps {
   candidate: ImportCandidate;
   categories: Category[];
   editable: boolean;
   disabled: boolean;
   onChange: (categoryId: string | null) => void;
-}) {
+}
+
+function CandidateCategory({ candidate, categories, editable, disabled, onChange }: CandidateCategoryProps) {
   return (
     <>
       {editable ? (
@@ -223,7 +220,11 @@ function CandidateCategory({
   );
 }
 
-function CandidateCategoryStatus({ candidate }: { candidate: ImportCandidate }) {
+interface CandidateCategoryStatusProps {
+  candidate: ImportCandidate;
+}
+
+function CandidateCategoryStatus({ candidate }: CandidateCategoryStatusProps) {
   if (candidate.excluded) {
     return <span className='text-xs'>Not imported</span>;
   }

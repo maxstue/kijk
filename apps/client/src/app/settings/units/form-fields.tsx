@@ -11,8 +11,12 @@ import { UnitSelectOptions, unitSelectItems } from '@/shared/components/unit-sel
 
 import type { CreateUnitFormValues } from './schemas';
 
+interface UnitFormFieldsProps {
+  control: Control<CreateUnitFormValues>;
+}
+
 /** Shared fields of the unit forms: name, symbol, reference unit and factor. */
-export function UnitFormFields({ control }: { control: Control<CreateUnitFormValues> }) {
+export function UnitFormFields({ control }: UnitFormFieldsProps) {
   const { data } = useQuery(unitsOptions.listQueryOptions({ scope: 'System' }));
   const systemUnits = data?.items ?? [];
 

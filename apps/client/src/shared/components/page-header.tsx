@@ -14,16 +14,14 @@ export function PageAddButton({
   );
 }
 
-/** Compact heading for settings sections and detail pages. */
-export function PageHeader({
-  title,
-  description,
-  actions,
-}: {
+interface PageHeaderProps {
   title: ReactNode;
   description: ReactNode;
   actions?: ReactNode;
-}) {
+}
+
+/** Compact heading for settings sections and detail pages. */
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
     <div className='grid grid-cols-1 items-start gap-3 sm:grid-cols-[minmax(0,1fr)_auto]'>
       <div className={`min-w-0 space-y-1 ${actions ? 'row-start-2 sm:row-start-1' : ''}`}>
@@ -37,16 +35,14 @@ export function PageHeader({
   );
 }
 
-/** Responsive row for tabs, filters and controls that change the current view. */
-export function PageToolbar({
-  children,
-  actions,
-  tabs,
-}: {
+interface PageToolbarProps {
   children?: ReactNode;
   actions?: ReactNode;
   tabs?: ReactNode;
-}) {
+}
+
+/** Responsive row for tabs, filters and controls that change the current view. */
+export function PageToolbar({ children, actions, tabs }: PageToolbarProps) {
   return (
     <div className='@container/toolbar'>
       <div className='grid grid-cols-1 items-start gap-4 sm:grid-cols-[minmax(0,1fr)_auto]'>

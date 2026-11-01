@@ -9,13 +9,13 @@ import { Input } from '@kijk/ui/components/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { getCreateDefaultValues, toFormValues, toRequest } from '@/app/transactions/helpers';
-import { noneValue, transactionSchema } from '@/app/transactions/schemas';
 import type { TransactionFormValues } from '@/app/transactions/schemas';
+import { noneValue, transactionSchema } from '@/app/transactions/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
 import { FormSwitchItem } from '@/shared/components/form-switch-item';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
@@ -256,12 +256,13 @@ function AccountField({ form }: FormComponentProps) {
   );
 }
 
-function SwitchField({
-  description,
-  form,
-  label,
-  name,
-}: FormComponentProps & { description: string; label: string; name: 'isTransfer' | 'pending' }) {
+interface SwitchFieldProps extends FormComponentProps {
+  description: string;
+  label: string;
+  name: 'isTransfer' | 'pending';
+}
+
+function SwitchField({ description, form, label, name }: SwitchFieldProps) {
   return (
     <FormField
       control={form.control}

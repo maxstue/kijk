@@ -2,8 +2,8 @@ import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { cn } from 'cn';
 import * as React from 'react';
-import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
+import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';
 
 // TODO refactor using tanstack-form and use shadcn Field component as base
 
@@ -83,13 +83,12 @@ function FormLabel({ className, ...props }: React.ComponentProps<'label'>) {
   );
 }
 
-/** Passes id and ARIA attributes for description and error to the wrapped control. */
-function FormControl({
-  children,
-  ...props
-}: Omit<useRender.ComponentProps<'div'>, 'render' | 'children'> & {
+interface FormControlProps extends Omit<useRender.ComponentProps<'div'>, 'render' | 'children'> {
   children: React.ReactElement;
-}) {
+}
+
+/** Passes id and ARIA attributes for description and error to the wrapped control. */
+function FormControl({ children, ...props }: FormControlProps) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return useRender({
@@ -147,4 +146,4 @@ function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+export { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField };

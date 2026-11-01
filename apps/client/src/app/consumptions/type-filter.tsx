@@ -70,7 +70,13 @@ export function ConsumptionTypeFilter({ onSelect, resources, value }: Props) {
   );
 }
 
-function TypeOption({ label, onSelect, selected }: { label: string; onSelect: () => void; selected: boolean }) {
+interface TypeOptionProps {
+  label: string;
+  onSelect: () => void;
+  selected: boolean;
+}
+
+function TypeOption({ label, onSelect, selected }: TypeOptionProps) {
   return (
     <CommandItem value={label} onSelect={onSelect}>
       <Check className={cn('mr-2 size-4', selected ? 'opacity-100' : 'opacity-0')} />

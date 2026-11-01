@@ -25,8 +25,8 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import type { ComponentPropsWithoutRef } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -142,7 +142,11 @@ const yearSchema = z.object({
 
 type YearFormValues = z.infer<typeof yearSchema>;
 
-function AddNewYearDialog({ onClose }: { onClose: () => void }) {
+interface AddNewYearDialogProps {
+  onClose: () => void;
+}
+
+function AddNewYearDialog({ onClose }: AddNewYearDialogProps) {
   const spaceId = useSpaceId();
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();

@@ -146,13 +146,12 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props)
   );
 }
 
-function UnitSharingActions({
-  scope,
-  shareableSpaces,
-  unit,
-  isPending,
-  onShare,
-}: Omit<Props, 'spaceId'> & { isPending: boolean; onShare: (spaceId: string) => void }) {
+interface UnitSharingActionsProps extends Omit<Props, 'spaceId'> {
+  isPending: boolean;
+  onShare: (spaceId: string) => void;
+}
+
+function UnitSharingActions({ scope, shareableSpaces, unit, isPending, onShare }: UnitSharingActionsProps) {
   if (scope !== 'personal' || !unit.isOwner || unit.isArchived) {
     return null;
   }

@@ -75,7 +75,12 @@ export function LimitsSection() {
   );
 }
 
-function LimitCard({ limit, canPlan }: { limit: Limit; canPlan: boolean }) {
+interface LimitCardProps {
+  limit: Limit;
+  canPlan: boolean;
+}
+
+function LimitCard({ limit, canPlan }: LimitCardProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isExceeded = limit.isExceeded && limit.active;
@@ -157,7 +162,12 @@ function LimitCard({ limit, canPlan }: { limit: Limit; canPlan: boolean }) {
   );
 }
 
-function LimitStatus({ active, exceeded }: { active: boolean; exceeded: boolean }) {
+interface LimitStatusProps {
+  active: boolean;
+  exceeded: boolean;
+}
+
+function LimitStatus({ active, exceeded }: LimitStatusProps) {
   if (!active) {
     return <Badge variant='secondary'>Paused</Badge>;
   }
@@ -167,7 +177,11 @@ function LimitStatus({ active, exceeded }: { active: boolean; exceeded: boolean 
   return <Badge variant='secondary'>Active</Badge>;
 }
 
-function UsageProgress({ limit }: { limit: Limit }) {
+interface UsageProgressProps {
+  limit: Limit;
+}
+
+function UsageProgress({ limit }: UsageProgressProps) {
   const percentage = Number(limit.utilizationPercentage);
   const displayPercentage = Math.min(100, Math.max(0, percentage));
 

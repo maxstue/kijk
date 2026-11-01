@@ -102,8 +102,13 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
   );
 }
 
+interface CreateUnitDialogProps {
+  canCreate: boolean;
+  spaceId?: string;
+}
+
 /** "Add unit" button with the create dialog; a new unit is shared with `spaceId` when given. */
-function CreateUnitDialog({ canCreate, spaceId }: { canCreate: boolean; spaceId?: string }) {
+function CreateUnitDialog({ canCreate, spaceId }: CreateUnitDialogProps) {
   const [showDialog, setShowDialog] = useState(false);
 
   return (
@@ -129,7 +134,13 @@ function CreateUnitDialog({ canCreate, spaceId }: { canCreate: boolean; spaceId?
   );
 }
 
-function UnitStatistic({ icon, label, value }: { icon: 'custom' | 'overall'; label: string; value: number }) {
+interface UnitStatisticProps {
+  icon: 'custom' | 'overall';
+  label: string;
+  value: number;
+}
+
+function UnitStatistic({ icon, label, value }: UnitStatisticProps) {
   const Icon = icon === 'overall' ? Hash : BarChart3;
   return (
     <Card>

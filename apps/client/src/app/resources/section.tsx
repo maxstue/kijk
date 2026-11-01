@@ -19,8 +19,8 @@ import { ResourceTypeCreateForm } from '@/app/resources/create-form';
 import { DataTable } from '@/shared/components/data-table';
 import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
-import { CreatorTypes } from '@/shared/types/domain';
 import type { Resource } from '@/shared/types/domain';
+import { CreatorTypes } from '@/shared/types/domain';
 
 /** Resources page: statistics, the resource table and the create dialog. */
 export function ResourceTypesSection() {
@@ -81,7 +81,11 @@ export function ResourceTypesSection() {
   );
 }
 
-function ResourceTypeStatistics({ resources }: { resources: Resource[] }) {
+interface ResourceTypeStatisticsProps {
+  resources: Resource[];
+}
+
+function ResourceTypeStatistics({ resources }: ResourceTypeStatisticsProps) {
   const dataCount = resources.length;
   const customCount = resources.filter((resource) => resource.creatorType === CreatorTypes.USER).length;
 

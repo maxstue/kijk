@@ -1,6 +1,6 @@
 import * as spacesOptions from '@kijk/api/spaces/options';
-import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@kijk/api/spaces/permissions';
 import type { SpacePermission } from '@kijk/api/spaces/permissions';
+import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@kijk/api/spaces/permissions';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
@@ -75,7 +75,11 @@ export function SpaceMembers() {
   );
 }
 
-function PermissionList({ permissions }: { permissions: readonly string[] }) {
+interface PermissionListProps {
+  permissions: readonly string[];
+}
+
+function PermissionList({ permissions }: PermissionListProps) {
   return (
     <ul className='space-y-1.5 text-sm'>
       {permissions.map((permission) => (

@@ -219,8 +219,12 @@ function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProp
   );
 }
 
+interface SpaceSwitcherProps {
+  spaces: Space[];
+}
+
 /** Lists the user's spaces, personal first, and switches the active one. */
-function SpaceSwitcher({ spaces }: { spaces: Space[] }) {
+function SpaceSwitcher({ spaces }: SpaceSwitcherProps) {
   const navigate = useNavigate();
   const { spaceId } = useParams({ strict: false });
   const sorted = spaces.toSorted((a, b) => Number(b.isPersonal) - Number(a.isPersonal) || a.name.localeCompare(b.name));

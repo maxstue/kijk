@@ -16,8 +16,12 @@ const onInvalid = () => {
   toast('Invalid form', { description: 'Something went wrong. Please try again later ' });
 };
 
+interface FeedbackDialogProps {
+  onClose: () => void;
+}
+
 /** Dialog that sends user feedback as a PostHog survey response. */
-export function FeedbackDialog({ onClose }: { onClose: () => void }) {
+export function FeedbackDialog({ onClose }: FeedbackDialogProps) {
   const { mutate, isPending } = useMutation(usersOptions.feedbackMutationOptions());
   const form = useForm({
     defaultValues: {

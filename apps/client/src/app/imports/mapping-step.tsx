@@ -23,14 +23,13 @@ const proposalDescriptions: Record<NonNullable<ImportJob['proposedMappingSource'
   Suggestion: 'Kijk suggested a mapping from the column names. Check it against the first rows before importing.',
 };
 
-/** Step that lets the user check and correct the column mapping against the first rows of the file. */
-export function ImportMappingStep({
-  initialMapping,
-  job,
-}: {
+interface ImportMappingStepProps {
   initialMapping: CsvImportMapping | null;
   job: ImportJob;
-}) {
+}
+
+/** Step that lets the user check and correct the column mapping against the first rows of the file. */
+export function ImportMappingStep({ initialMapping, job }: ImportMappingStepProps) {
   const spaceId = useSpaceId();
   // A draft the user edits; it starts from the proposal and is sent only when confirmed.
   const [mapping, setMapping] = useState<CsvImportMapping | null>(initialMapping);
@@ -138,13 +137,12 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
   );
 }
 
-function ColumnRoleSelect({
-  onChange,
-  role,
-}: {
+interface ColumnRoleSelectProps {
   role: ColumnRole | undefined;
   onChange: (role: ColumnRole | undefined) => void;
-}) {
+}
+
+function ColumnRoleSelect({ onChange, role }: ColumnRoleSelectProps) {
   return (
     <Select
       items={[

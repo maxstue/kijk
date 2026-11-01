@@ -27,8 +27,13 @@ interface Trend {
   budget: Array<number | null>;
 }
 
+interface BudgetStatisticsProps {
+  month: number;
+  year: number;
+}
+
 /** Spending per category over the last twelve months up to the given month, as small multiples or table. */
-export function BudgetStatistics({ month, year }: { month: number; year: number }) {
+export function BudgetStatistics({ month, year }: BudgetStatisticsProps) {
   const spaceId = useSpaceId();
   const { data } = useQuery(budgetsOptions.statisticsQueryOptions(spaceId, year, month, monthsShown));
   if (!data) {
@@ -115,7 +120,12 @@ export function BudgetStatistics({ month, year }: { month: number; year: number 
   );
 }
 
-function TrendChart({ labels, trend }: { labels: string[]; trend: Trend }) {
+interface TrendChartProps {
+  labels: string[];
+  trend: Trend;
+}
+
+function TrendChart({ labels, trend }: TrendChartProps) {
   const definition = useMemo(() => {
     const data = labels.map((label, index) => ({
       budget: trend.budget[index],

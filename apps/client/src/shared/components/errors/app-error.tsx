@@ -48,7 +48,11 @@ export function AppError({ error, resetErrorBoundary }: Props) {
   );
 }
 
-const ShowMore = (props: { error?: unknown }) => {
+interface ShowMoreProps {
+  error?: unknown;
+}
+
+const ShowMore = (props: ShowMoreProps) => {
   const [showMore, setShowMore] = useState(false);
 
   const handleToggleMore = () => {
@@ -76,7 +80,11 @@ const ShowMore = (props: { error?: unknown }) => {
   );
 };
 
-const ErrorTitle = (props: { error?: unknown }) => (
+interface ErrorTitleProps {
+  error?: unknown;
+}
+
+const ErrorTitle = (props: ErrorTitleProps) => (
   <div className='flex flex-col justify-center gap-2'>
     <div className='flex justify-center gap-2'>
       {props.error instanceof Error ? (

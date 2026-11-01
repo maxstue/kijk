@@ -10,12 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@kijk/ui/components/switch';
 import { Textarea } from '@kijk/ui/components/textarea';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { limitSchema, periods } from '@/app/limits/schemas';
 import type { LimitFormValues } from '@/app/limits/schemas';
+import { limitSchema, periods } from '@/app/limits/schemas';
 import {
   Form,
   FormControl,
@@ -107,7 +107,11 @@ interface FormComponentProps {
   form: UseFormReturn<LimitFormValues>;
 }
 
-function NameField({ field }: { field: ControllerRenderProps<LimitFormValues, 'name'> }) {
+interface NameFieldProps {
+  field: ControllerRenderProps<LimitFormValues, 'name'>;
+}
+
+function NameField({ field }: NameFieldProps) {
   return (
     <FormItem>
       <FormLabel>Name</FormLabel>
@@ -119,11 +123,12 @@ function NameField({ field }: { field: ControllerRenderProps<LimitFormValues, 'n
   );
 }
 
-function ResourceField({
-  disabled,
-  form,
-  resources,
-}: FormComponentProps & { disabled: boolean; resources: Resource[] }) {
+interface ResourceFieldProps extends FormComponentProps {
+  disabled: boolean;
+  resources: Resource[];
+}
+
+function ResourceField({ disabled, form, resources }: ResourceFieldProps) {
   return (
     <FormField
       control={form.control}
@@ -248,7 +253,12 @@ function ActiveField({ form }: FormComponentProps) {
   );
 }
 
-function SubmitButton({ form, isEditing, isPending }: FormComponentProps & { isEditing: boolean; isPending: boolean }) {
+interface SubmitButtonProps extends FormComponentProps {
+  isEditing: boolean;
+  isPending: boolean;
+}
+
+function SubmitButton({ form, isEditing, isPending }: SubmitButtonProps) {
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
   const label = isEditing ? 'Update limit' : 'Create limit';
 

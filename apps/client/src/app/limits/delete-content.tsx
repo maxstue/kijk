@@ -15,8 +15,13 @@ import { toast } from 'sonner';
 
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 
+interface LimitDeleteContentProps {
+  limit: Limit;
+  onClose: () => void;
+}
+
 /** Confirmation dialog content for deleting a consumption limit. */
-export function LimitDeleteContent({ limit, onClose }: { limit: Limit; onClose: () => void }) {
+export function LimitDeleteContent({ limit, onClose }: LimitDeleteContentProps) {
   const spaceId = useSpaceId();
   const { isPending, mutate } = useMutation(limitsOptions.deleteMutationOptions(spaceId));
 
