@@ -5,7 +5,7 @@ import { unwrapApiResponse } from '@kijk/api/http';
 import type { ConsumptionData } from './types';
 
 // Readings belong to a calendar day; converting local midnight to UTC would shift that day.
-function serializeConsumptionDate(date: Date): string {
+function serializeConsumptionDate(date: Date) {
   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
 }
 
