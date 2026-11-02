@@ -4,6 +4,11 @@ import { unwrapApiResponse } from '@kijk/api/http';
 
 import type { ConsumptionData } from './types';
 
+// Readings belong to a calendar day; converting local midnight to UTC would shift that day.
+function serializeConsumptionDate(date: Date): string {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
+}
+
 /** A downloaded CSV file. */
 export type { CsvDownload } from '@kijk/api/download';
 
@@ -72,7 +77,7 @@ export async function record(spaceId: string, data: ConsumptionData, signal?: Ab
     await apiClient().POST('/api/spaces/{spaceId}/consumptions', {
       params: { path: { spaceId } },
       body: {
-        date: data.date.toISOString(),
+        date: serializeConsumptionDate(data.date),
         name: data.name,
         resourceId: data.resourceId,
         value: data.value,
@@ -89,7 +94,7 @@ export async function update(spaceId: string, id: string, data: Partial<Consumpt
   return unwrapApiResponse(
     await apiClient().PUT('/api/spaces/{spaceId}/consumptions/{id}', {
       body: {
-        date: data.date?.toISOString() ?? null,
+        date: data.date ? serializeConsumptionDate(data.date) : null,
         name: data.name ?? null,
         resourceId: data.resourceId ?? null,
         value: data.value ?? null,
