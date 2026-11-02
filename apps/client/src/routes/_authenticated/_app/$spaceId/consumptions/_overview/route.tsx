@@ -106,9 +106,14 @@ function UsagePage() {
           </TabsList>
         </Tabs>
         <Suspense>
-          <ConsumptionCurrentPeriodButton view={view} />
-          <ConsumptionYearSwitcher className='w-auto min-w-28' />
-          {view === 'month' && <ConsumptionMonthNav className='w-auto min-w-36' />}
+          {view === 'month' ? (
+            <ConsumptionMonthNav />
+          ) : (
+            <>
+              <ConsumptionCurrentPeriodButton view={view} />
+              <ConsumptionYearSwitcher className='w-auto min-w-28' />
+            </>
+          )}
         </Suspense>
       </PageToolbar>
       <LimitWarnings />
