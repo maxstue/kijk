@@ -1,5 +1,38 @@
 import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
 import { cn } from 'cn';
+import { useState, type ReactElement } from 'react';
+
+interface OverflowTooltipProps {
+  children: ReactElement;
+}
+
+/** Reveals clipped labels without adding another focusable element. */
+function OverflowTooltip({ children }: OverflowTooltipProps) {
+  const [text, setText] = useState('');
+
+  return (
+    <Tooltip
+      onOpenChange={(open, details) => {
+        if (!open) {
+          return;
+        }
+        const clipped = Array.from(details.trigger?.querySelectorAll<HTMLElement>('.truncate') ?? []).find(
+          (element) => element.scrollWidth > element.clientWidth,
+        );
+        if (!clipped) {
+          details.cancel();
+          return;
+        }
+        setText(clipped.textContent ?? '');
+      }}
+    >
+      <TooltipTrigger render={children} />
+      <TooltipContent role='tooltip' className='max-w-[min(24rem,calc(100vw-1rem))] wrap-anywhere'>
+        {text}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 /** Provides shared tooltip settings like the open delay. */
 function TooltipProvider({ ...props }: TooltipPrimitive.Provider.Props) {
@@ -52,4 +85,4 @@ function TooltipContent({
   );
 }
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, OverflowTooltip };

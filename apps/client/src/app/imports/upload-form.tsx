@@ -76,7 +76,7 @@ export function ImportUploadForm() {
   }
 
   return (
-    <Card>
+    <Card className='max-w-2xl'>
       <CardContent className='pt-6'>
         {bankAccounts.length === 0 ? (
           <p className='text-muted-foreground text-sm'>
