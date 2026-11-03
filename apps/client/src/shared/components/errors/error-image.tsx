@@ -1,5 +1,5 @@
-/** Illustration shown on error pages. */
-export function ErrorImage(props: React.SVGProps<SVGSVGElement>) {
+interface ErrorImageProps extends React.SVGProps<SVGSVGElement> {} /** Illustration shown on error pages. */
+export function ErrorImage(props: ErrorImageProps) {
   return (
     <svg viewBox='0 0 400 300' {...props} xmlns='http://www.w3.org/2000/svg'>
       <rect fill='#fff' height='139.36' rx='5.54' width='118.53' x='141.8' y='81.93' />

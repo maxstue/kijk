@@ -20,7 +20,8 @@ import { useState } from 'react';
 
 import { LimitDeleteContent } from '@/app/limits/delete-content';
 import { LimitForm } from '@/app/limits/form';
-import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { PageAddButton } from '@/shared/components/page-header';
+import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -33,8 +34,8 @@ export function LimitsSection() {
 
   return (
     <div className='space-y-6'>
-      <PageToolbar
-        actions={
+      <PageToolbar>
+        <PageToolbarActions>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger
               render={
@@ -54,8 +55,8 @@ export function LimitsSection() {
               <LimitForm onClose={() => setShowCreateDialog(false)} />
             </DialogContent>
           </Dialog>
-        }
-      />
+        </PageToolbarActions>
+      </PageToolbar>
       {data.length === 0 ? (
         <Card className='border-dashed'>
           <CardContent className='flex flex-col items-center gap-2 py-12 text-center'>

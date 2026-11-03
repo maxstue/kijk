@@ -1,12 +1,12 @@
 import { Button } from '@kijk/ui/components/button';
+import { cn } from 'cn';
 import { Plus } from 'lucide-react';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps } from 'react';
+
+interface PageAddButtonProps extends Omit<ComponentProps<typeof Button>, 'variant' | 'size' | 'render'> {}
 
 /** Primary create action shared by page toolbars. */
-export function PageAddButton({
-  children,
-  ...props
-}: Omit<ComponentProps<typeof Button>, 'variant' | 'size' | 'render'>) {
+export function PageAddButton({ children, ...props }: PageAddButtonProps) {
   return (
     <Button {...props} variant='default' size='default'>
       <Plus /> {children}
@@ -14,50 +14,53 @@ export function PageAddButton({
   );
 }
 
-interface PageHeaderProps {
-  title: ReactNode;
-  description: ReactNode;
-  actions?: ReactNode;
-}
+interface PageHeaderProps extends ComponentProps<'div'> {}
+interface PageHeaderContentProps extends ComponentProps<'div'> {}
+interface PageHeaderTitleProps extends ComponentProps<'h2'> {}
+interface PageHeaderDescriptionProps extends ComponentProps<'p'> {}
+interface PageHeaderActionsProps extends ComponentProps<'div'> {}
 
-/** Compact heading for settings sections and detail pages. */
-export function PageHeader({ title, description, actions }: PageHeaderProps) {
+function PageHeader({ className, ...props }: PageHeaderProps) {
   return (
-    <div className='grid grid-cols-1 items-start gap-3 sm:grid-cols-[minmax(0,1fr)_auto]'>
-      <div className={`min-w-0 space-y-1 ${actions ? 'row-start-2 sm:row-start-1' : ''}`}>
-        <h2 className='text-lg font-semibold tracking-tight'>{title}</h2>
-        <p className='text-muted-foreground text-sm'>{description}</p>
-      </div>
-      {actions && (
-        <div className='col-start-1 row-start-1 flex items-center gap-2 justify-self-end sm:col-start-2'>{actions}</div>
+    <div
+      data-slot='page-header'
+      className={cn(
+        'group/page-header grid grid-cols-1 items-start gap-3 sm:grid-cols-[minmax(0,1fr)_auto]',
+        className,
       )}
-    </div>
+      {...props}
+    />
   );
 }
-
-interface PageToolbarProps {
-  children?: ReactNode;
-  actions?: ReactNode;
-  tabs?: ReactNode;
-}
-
-/** Responsive row for tabs, filters and controls that change the current view. */
-export function PageToolbar({ children, actions, tabs }: PageToolbarProps) {
+function PageHeaderContent({ className, ...props }: PageHeaderContentProps) {
   return (
-    <div className='@container/toolbar'>
-      <div className='grid grid-cols-1 items-start gap-4 sm:grid-cols-[minmax(0,1fr)_auto]'>
-        {(tabs || children) && (
-          <div className={`flex min-w-0 flex-wrap items-center gap-2 ${actions ? 'row-start-2 sm:row-start-1' : ''}`}>
-            {tabs}
-            {children}
-          </div>
-        )}
-        {actions && (
-          <div className='col-start-1 row-start-1 flex items-center gap-2 justify-self-end sm:col-start-2'>
-            {actions}
-          </div>
-        )}
-      </div>
-    </div>
+    <div
+      data-slot='page-header-content'
+      className={cn(
+        'min-w-0 space-y-1 max-sm:group-has-data-[slot=page-header-actions]/page-header:row-start-2',
+        className,
+      )}
+      {...props}
+    />
   );
 }
+function PageHeaderTitle({ className, ...props }: PageHeaderTitleProps) {
+  return (
+    <h2 data-slot='page-header-title' className={cn('text-lg font-semibold tracking-tight', className)} {...props} />
+  );
+}
+function PageHeaderDescription({ className, ...props }: PageHeaderDescriptionProps) {
+  return (
+    <p data-slot='page-header-description' className={cn('text-muted-foreground text-sm', className)} {...props} />
+  );
+}
+function PageHeaderActions({ className, ...props }: PageHeaderActionsProps) {
+  return (
+    <div
+      data-slot='page-header-actions'
+      className={cn('col-start-1 row-start-1 flex items-center gap-2 justify-self-end sm:col-start-2', className)}
+      {...props}
+    />
+  );
+}
+export { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription, PageHeaderActions };

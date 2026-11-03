@@ -5,9 +5,7 @@ import { AlertDialog } from '@kijk/ui/components/alert-dialog';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
-import { Input } from '@kijk/ui/components/input';
 import { Separator } from '@kijk/ui/components/separator';
-import { Textarea } from '@kijk/ui/components/textarea';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -16,20 +14,13 @@ import { toast } from 'sonner';
 
 import { spaceUpdateSchema } from '@/app/settings/spaces/schemas';
 import type { SpaceUpdateFormValues } from '@/app/settings/spaces/schemas';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/shared/components/form';
-import { PageHeader } from '@/shared/components/page-header';
+import { Form } from '@/shared/components/form';
+import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
 import { SpaceDeleteContent } from './delete-content';
+import { SpaceGeneralFields } from './general-fields';
 
 /** General space settings: editable details and deletion, depending on the user's permissions. */
 export function SpaceGeneral() {
@@ -79,39 +70,17 @@ export function SpaceGeneral() {
   return (
     <div className='mx-auto w-full max-w-4xl space-y-6'>
       <SpaceBackLink />
-      <PageHeader title='General' description={<> Basic information about {space.name}. </>} />
+      <PageHeader>
+        <PageHeaderContent>
+          <PageHeaderTitle>General</PageHeaderTitle>
+          <PageHeaderDescription>{<> Basic information about {space.name}. </>}</PageHeaderDescription>
+        </PageHeaderContent>
+      </PageHeader>
 
       {canConfigure ? (
         <Form {...form}>
           <form className='space-y-6' noValidate onSubmit={form.handleSubmit(onSubmit)}>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Space name</FormLabel>
-                  <FormControl>
-                    <Input maxLength={100} {...field} />
-                  </FormControl>
-                  <FormDescription>This name is visible to everyone in the space.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea maxLength={250} rows={4} {...field} />
-                  </FormControl>
-                  <FormDescription>Optional details about this space. Maximum 250 characters.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <SpaceGeneralFields control={form.control} />
             <Button disabled={updateMutation.isPending || !form.formState.isDirty} type='submit'>
               {updateMutation.isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Save changes'}
             </Button>

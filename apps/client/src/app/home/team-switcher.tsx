@@ -9,22 +9,13 @@ import {
   CommandList,
   CommandSeparator,
 } from '@kijk/ui/components/command';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@kijk/ui/components/dialog';
-import { Input } from '@kijk/ui/components/input';
-import { Label } from '@kijk/ui/components/label';
+import { Dialog, DialogTrigger } from '@kijk/ui/components/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { cn } from 'cn';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
+
+import { CreateTeamDialog } from './create-team-dialog';
 
 const groups = [
   {
@@ -53,9 +44,7 @@ const groups = [
 
 type Team = (typeof groups)[number]['teams'][number];
 
-type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>;
-
-type TeamSwitcherProps = PopoverTriggerProps;
+interface TeamSwitcherProps extends React.ComponentPropsWithoutRef<typeof PopoverTrigger> {}
 
 /** Team selection popover (static demo data). */
 export function TeamSwitcher({ className }: TeamSwitcherProps) {
@@ -137,49 +126,7 @@ export function TeamSwitcher({ className }: TeamSwitcherProps) {
           </Command>
         </PopoverContent>
       </Popover>
-      <DialogContent title='Create team'>
-        <DialogHeader>
-          <DialogTitle>Create team</DialogTitle>
-          <DialogDescription>Add a new team to manage products and customers.</DialogDescription>
-        </DialogHeader>
-        <div>
-          <div className='space-y-4 py-2 pb-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='name'>Team name</Label>
-              <Input id='name' placeholder='Acme Inc.' />
-            </div>
-            <div className='space-y-2'>
-              <Label htmlFor='plan'>Subscription plan</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder='Select a plan' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='free'>
-                    <span className='font-medium'>Free</span> -{' '}
-                    <span className='text-muted-foreground'>Trial for two weeks</span>
-                  </SelectItem>
-                  <SelectItem value='pro'>
-                    <span className='font-medium'>Pro</span> -{' '}
-                    <span className='text-muted-foreground'>$9/month per user</span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button
-            variant='outline'
-            onClick={() => {
-              setShowNewTeamDialog(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button type='submit'>Continue</Button>
-        </DialogFooter>
-      </DialogContent>
+      <CreateTeamDialog onClose={() => setShowNewTeamDialog(false)} />
     </Dialog>
   );
 }

@@ -17,7 +17,8 @@ import { useState } from 'react';
 import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/columns';
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
 import { DataTable } from '@/shared/components/data-table';
-import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { PageAddButton } from '@/shared/components/page-header';
+import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Resource } from '@/shared/types/domain';
 import { CreatorTypes } from '@/shared/types/domain';
@@ -36,8 +37,8 @@ export function ResourceTypesSection() {
 
   return (
     <div className='space-y-6'>
-      <PageToolbar
-        actions={
+      <PageToolbar>
+        <PageToolbarActions>
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger
               render={
@@ -59,8 +60,8 @@ export function ResourceTypesSection() {
               </div>
             </DialogContent>
           </Dialog>
-        }
-      />
+        </PageToolbarActions>
+      </PageToolbar>
       <div className='grid gap-4 lg:grid-cols-2'>
         <ResourceTypeStatistics resources={data} />
       </div>

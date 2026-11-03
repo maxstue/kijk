@@ -1,33 +1,26 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as limitsOptions from '@kijk/api/limits/options';
 import type { Limit } from '@kijk/api/limits/types';
-import * as resourcesOptions from '@kijk/api/resources/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
-import { Button } from '@kijk/ui/components/button';
-import { SpinnerIcon } from '@kijk/ui/components/icons';
-import { Input } from '@kijk/ui/components/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { Switch } from '@kijk/ui/components/switch';
-import { Textarea } from '@kijk/ui/components/textarea';
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import type { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import type { LimitFormValues } from '@/app/limits/schemas';
-import { limitSchema, periods } from '@/app/limits/schemas';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/shared/components/form';
+import { limitSchema } from '@/app/limits/schemas';
+import { Form } from '@/shared/components/form';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
-import type { Resource } from '@/shared/types/domain';
+
+import {
+  NameField,
+  ResourceField,
+  LimitField,
+  PeriodField,
+  DescriptionField,
+  ActiveField,
+  SubmitButton,
+} from './form-fields';
 
 interface Props {
   initialData?: Limit;
@@ -49,7 +42,6 @@ export function LimitForm({ initialData, onClose }: Props) {
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
   const createMutation = useMutation(limitsOptions.createMutationOptions(spaceId));
   const updateMutation = useMutation(limitsOptions.updateMutationOptions(spaceId));
-  const { data: resources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const isPending = createMutation.isPending || updateMutation.isPending;
   const form = useForm<LimitFormValues>({
     defaultValues: initialData ? getUpdateDefaultValues(initialData) : createDefaultValues,
@@ -78,15 +70,15 @@ export function LimitForm({ initialData, onClose }: Props) {
   return (
     <Form {...form}>
       <form className='grid gap-4' onSubmit={form.handleSubmit(onSubmit)} noValidate>
-        <FormField control={form.control} name='name' render={({ field }) => <NameField field={field} />} />
-        <ResourceField disabled={Boolean(initialData)} form={form} resources={resources} />
+        <NameField />
+        <ResourceField disabled={Boolean(initialData)} />
         <div className='grid gap-4 sm:grid-cols-2'>
-          <LimitField form={form} />
-          <PeriodField form={form} />
+          <LimitField />
+          <PeriodField />
         </div>
-        <DescriptionField form={form} />
-        <ActiveField form={form} />
-        <SubmitButton form={form} isEditing={Boolean(initialData)} isPending={isPending} />
+        <DescriptionField />
+        <ActiveField />
+        <SubmitButton isEditing={Boolean(initialData)} isPending={isPending} />
       </form>
     </Form>
   );
@@ -101,175 +93,4 @@ function getUpdateDefaultValues(initialData: Limit): LimitFormValues {
     period: initialData.period,
     resourceId: initialData.resource.id,
   };
-}
-
-interface FormComponentProps {
-  form: UseFormReturn<LimitFormValues>;
-}
-
-interface NameFieldProps {
-  field: ControllerRenderProps<LimitFormValues, 'name'>;
-}
-
-function NameField({ field }: NameFieldProps) {
-  return (
-    <FormItem>
-      <FormLabel>Name</FormLabel>
-      <FormControl>
-        <Input maxLength={100} placeholder='Monthly electricity target' {...field} />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  );
-}
-
-interface ResourceFieldProps extends FormComponentProps {
-  disabled: boolean;
-  resources: Resource[];
-}
-
-function ResourceField({ disabled, form, resources }: ResourceFieldProps) {
-  return (
-    <FormField
-      control={form.control}
-      name='resourceId'
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Resource</FormLabel>
-          <Select
-            disabled={disabled}
-            items={resources.map((resource) => ({ label: `${resource.name} (${resource.unit})`, value: resource.id }))}
-            value={field.value}
-            onValueChange={field.onChange}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder='Select an energy type' />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {resources.map((resource) => (
-                <SelectItem key={resource.id} value={resource.id}>
-                  {resource.name} ({resource.unit})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function LimitField({ form }: FormComponentProps) {
-  return (
-    <FormField
-      control={form.control}
-      name='limit'
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Limit</FormLabel>
-          <FormControl>
-            <Input
-              min='0'
-              step='any'
-              type='number'
-              {...field}
-              onChange={(event) => field.onChange(event.target.valueAsNumber)}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function PeriodField({ form }: FormComponentProps) {
-  return (
-    <FormField
-      control={form.control}
-      name='period'
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Period</FormLabel>
-          <Select value={field.value} onValueChange={field.onChange}>
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {periods.map((period) => (
-                <SelectItem key={period} value={period}>
-                  {period}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function DescriptionField({ form }: FormComponentProps) {
-  return (
-    <FormField
-      control={form.control}
-      name='description'
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Description</FormLabel>
-          <FormControl>
-            <Textarea maxLength={250} placeholder='Optional note about this limit' {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function ActiveField({ form }: FormComponentProps) {
-  return (
-    <FormField
-      control={form.control}
-      name='active'
-      render={({ field }) => (
-        <FormItem className='flex items-center justify-between rounded-md border p-3'>
-          <div>
-            <FormLabel>Active</FormLabel>
-            <FormDescription>Include this limit in consumption warnings.</FormDescription>
-          </div>
-          <FormControl>
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  );
-}
-
-interface SubmitButtonProps extends FormComponentProps {
-  isEditing: boolean;
-  isPending: boolean;
-}
-
-function SubmitButton({ form, isEditing, isPending }: SubmitButtonProps) {
-  const canPlan = useSpacePermission(SpacePermissions.limits.plan);
-  const label = isEditing ? 'Update limit' : 'Create limit';
-
-  return (
-    <Button
-      className='mt-2'
-      disabled={!canPlan || isPending || (isEditing && !form.formState.isDirty)}
-      title={canPlan ? undefined : 'Your role in this space does not allow planning limits'}
-      type='submit'
-    >
-      {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : label}
-    </Button>
-  );
 }

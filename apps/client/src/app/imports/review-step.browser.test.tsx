@@ -12,10 +12,19 @@ import { render } from '@/test/render-space';
 import { ImportReviewStep } from './review-step';
 import { ImportSteps } from './steps';
 
+interface ImportAiCategorizationProps {
+  onStarted?: () => void;
+}
+
+interface ReviewHarnessProps {
+  job: ImportJob;
+  initialStage: 'months' | 'review';
+}
+
 vi.mock('@kijk/api/imports/requests', { spy: true });
 
 vi.mock('@/app/imports/ai-preview', () => ({
-  ImportAiCategorization: ({ onStarted }: { onStarted?: () => void }) => (
+  ImportAiCategorization: ({ onStarted }: ImportAiCategorizationProps) => (
     <>
       <p>Preview of texts to send</p>
       <button onClick={onStarted}>Start suggestions</button>
@@ -31,7 +40,7 @@ afterEach(() => {
   vi.mocked(importsApi.resetOverrides).mockReset();
 });
 
-function ReviewHarness({ job, initialStage }: { job: ImportJob; initialStage: 'months' | 'review' }) {
+function ReviewHarness({ job, initialStage }: ReviewHarnessProps) {
   const [stage, setStage] = useState(initialStage);
   return <ImportReviewStep job={job} stage={stage} onStageChange={setStage} />;
 }
@@ -619,5 +628,17 @@ test('stepper circles stay below the app header when scrolling', async () => {
   const header = screen.getByRole('banner', { name: 'App header' }).element();
   const hit = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + 5);
   expect(header.contains(hit)).toBe(true);
+  await screen.unmount();
+});
+
+test('keeps the current page when adjustments unmount and reopen', async () => {
+  const screen = await renderReview({ fullMonths: ['2026-09-01'], edgeMonths: [] }, 960, 'review', 201);
+  await screen.getByRole('button', { name: 'Next rows' }).click();
+  await expect.element(screen.getByText('Merchant 101', { exact: true })).toBeVisible();
+  await screen.getByRole('button', { name: 'Hide transactions' }).click();
+  await expect.element(screen.getByText('Merchant 101', { exact: true })).not.toBeInTheDocument();
+  await screen.getByRole('button', { name: 'Adjust transactions' }).click();
+  await expect.element(screen.getByText('Merchant 101', { exact: true })).toBeVisible();
+  await expect.element(screen.getByRole('button', { name: 'Previous rows' })).toBeEnabled();
   await screen.unmount();
 });

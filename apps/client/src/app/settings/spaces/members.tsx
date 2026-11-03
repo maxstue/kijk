@@ -5,7 +5,7 @@ import { Card, CardContent } from '@kijk/ui/components/card';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 
-import { PageHeader } from '@/shared/components/page-header';
+import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
@@ -21,7 +21,12 @@ export function SpaceMembers() {
   return (
     <div className='mx-auto w-full max-w-4xl space-y-6'>
       <SpaceBackLink />
-      <PageHeader title='Members' description={<> People in {space.name} and their roles. </>} />
+      <PageHeader>
+        <PageHeaderContent>
+          <PageHeaderTitle>Members</PageHeaderTitle>
+          <PageHeaderDescription>{<> People in {space.name} and their roles. </>}</PageHeaderDescription>
+        </PageHeaderContent>
+      </PageHeader>
 
       <Card className='gap-0 py-0'>
         {members.map((member) => (

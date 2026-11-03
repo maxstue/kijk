@@ -5,7 +5,11 @@ import { render } from 'vitest-browser-react';
 
 import { PageAddButton } from './page-header';
 
-function DeferredDialogContent({ data }: { data: Promise<string> }) {
+interface DeferredDialogContentProps {
+  data: Promise<string>;
+}
+
+function DeferredDialogContent({ data }: DeferredDialogContentProps) {
   const value = use(data);
   return (
     <>

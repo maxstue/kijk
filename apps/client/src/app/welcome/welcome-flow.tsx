@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ApiError } from '@kijk/api/errors';
 import { Button } from '@kijk/ui/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import { Card, CardContent } from '@kijk/ui/components/card';
 import {
   Stepper,
   StepperContent,
@@ -15,7 +15,6 @@ import {
 } from '@kijk/ui/components/stepper';
 import { LoaderCircle } from 'lucide-react';
 import { useState } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -30,16 +29,8 @@ import { PrivacyStep } from './privacy-step';
 import { ProfileStep } from './profile-step';
 import { ReviewStep } from './review-step';
 import { SpaceStep } from './space-step';
-
-const steps = [
-  { label: 'Profile', value: 'profile' },
-  { label: 'Space', value: 'space' },
-  { label: 'Privacy', value: 'privacy' },
-  { label: 'Review', value: 'review' },
-] as const;
-const stepOrder = steps.map(({ value }) => ({ value }));
-
-type StepValue = (typeof steps)[number]['value'];
+import { WelcomeStepHeader } from './step-header';
+import { steps, stepOrder, type StepValue, validateStep } from './steps';
 
 interface WelcomeFlowProps {
   email?: string | null;
@@ -103,23 +94,7 @@ export function WelcomeFlow({
         </div>
 
         <Card>
-          <div className='grid'>
-            {steps.map((step, index) => {
-              const isActive = currentStep === step.value;
-
-              return (
-                <CardHeader
-                  key={step.value}
-                  aria-hidden={!isActive}
-                  className={`col-start-1 row-start-1 ${isActive ? '' : 'invisible'}`}
-                  inert={!isActive}
-                >
-                  <CardTitle>{stepTitle(index)}</CardTitle>
-                  <CardDescription>{stepDescription(index)}</CardDescription>
-                </CardHeader>
-              );
-            })}
-          </div>
+          <WelcomeStepHeader currentStep={currentStep} />
           <CardContent>
             <Form {...form}>
               <form className='space-y-6' onSubmit={form.handleSubmit(submit)}>
@@ -168,28 +143,4 @@ export function WelcomeFlow({
       </Stepper>
     </main>
   );
-}
-
-function stepTitle(step: number) {
-  return ['Welcome to Kijk', 'Set up your space', 'Choose your privacy settings', 'Review your setup'][step];
-}
-
-function stepDescription(step: number) {
-  return [
-    'Confirm the profile information connected to your account.',
-    'Choose a name and whether to add all default resource types.',
-    'Choose whether to share optional usage and route-performance data to help improve Kijk.',
-    'Everything can be changed later in settings.',
-  ][step];
-}
-
-function validateStep(form: UseFormReturn<UserStepFormDraft, unknown, UserStepFormValues>, currentStep: number) {
-  const fieldsByStep = [
-    ['displayName', 'useExternalProfile'],
-    ['spaceName', 'useDefaultResources'],
-    ['analyticsConsent'],
-  ] satisfies Array<Array<keyof UserStepFormDraft>>;
-  const fields = fieldsByStep[currentStep];
-
-  return form.trigger(fields, { shouldFocus: true });
 }

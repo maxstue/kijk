@@ -1,4 +1,3 @@
-import type { components } from '@kijk/api/generated/kijk';
 import * as usersOptions from '@kijk/api/users/options';
 import { Avatar, AvatarFallback, AvatarImage } from '@kijk/ui/components/avatar';
 import { Dialog } from '@kijk/ui/components/dialog';
@@ -28,9 +27,10 @@ import {
 import { useState } from 'react';
 
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
-import { getInitialChars } from '@/app/root/helpers';
 import { siteConfig } from '@/shared/config/site';
 import { useAppAuth } from '@/shared/runtime/auth';
+
+import { type AccountMenuData, type CurrentUser, getAccountMenuData } from './account-menu-data';
 
 /** Sidebar account menu: settings, feedback and sign-out. */
 export function AccountMenu() {
@@ -68,49 +68,6 @@ export function AccountMenu() {
       <FeedbackDialog onClose={() => setShowFeedback(false)} />
     </Dialog>
   );
-}
-
-type CurrentUser = components['schemas']['GetMeUserResponse'];
-
-interface AccountMenuData {
-  displayName?: string | null;
-  email?: string | null;
-  spaceName: string;
-  imageUrl?: string | null;
-  initials: string;
-}
-
-function getAccountMenuData(user?: CurrentUser, spaceId?: string): AccountMenuData {
-  const displayName = getDisplayName(user);
-  const email = getEmail(user);
-
-  return {
-    displayName,
-    email,
-    spaceName: getActiveSpaceName(user, spaceId),
-    imageUrl: getImageUrl(user),
-    initials: getInitialChars(getIdentityLabel(displayName, email)),
-  };
-}
-
-function getDisplayName(user?: CurrentUser) {
-  return user?.externalIdentity?.fullName ?? user?.name;
-}
-
-function getEmail(user?: CurrentUser) {
-  return user?.externalIdentity?.email;
-}
-
-function getImageUrl(user?: CurrentUser) {
-  return user?.externalIdentity?.imageUrl;
-}
-
-function getIdentityLabel(displayName?: string | null, email?: string | null) {
-  return displayName ?? email ?? undefined;
-}
-
-function getActiveSpaceName(user?: CurrentUser, spaceId?: string) {
-  return user?.spaces?.find((space) => space.id === spaceId)?.name ?? siteConfig.name;
 }
 
 type Space = NonNullable<CurrentUser['spaces']>[number];
@@ -197,12 +154,12 @@ function AccountMenuDropdown({
   );
 }
 
-type UserSummaryProps = {
+interface UserSummaryProps {
   displayName?: string | null;
   email?: string | null;
   imageUrl?: string | null;
   initials: string;
-};
+}
 
 function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProps) {
   return (

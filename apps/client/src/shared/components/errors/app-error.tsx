@@ -9,7 +9,9 @@ import { AppBrand } from '@/shared/components/app-brand';
 import { ErrorImage } from '@/shared/components/errors/error-image';
 import { ErrorService } from '@/shared/lib/error-tracking';
 
-type Props = { resetErrorBoundary?: () => void } & Partial<ErrorComponentProps>;
+interface Props extends Partial<ErrorComponentProps> {
+  resetErrorBoundary?: () => void;
+}
 
 const handleGotToRoot = () => {
   globalThis.location.href = '/';

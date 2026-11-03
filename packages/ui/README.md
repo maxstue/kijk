@@ -1,6 +1,6 @@
 # @kijk/ui
 
-Shared UI components for the Kijk apps. The components are based on [shadcn/ui](https://ui.shadcn.com) (Radix
+Shared UI components for the Kijk apps. The components are based on [shadcn/ui](https://ui.shadcn.com) (Base UI
 primitives, Tailwind CSS v4) and live as source in this package, so they can be adjusted freely.
 
 ## Usage
@@ -36,6 +36,14 @@ Merge class names with `cn` from the `cn` package, as the components do.
 
 Some components need a provider higher up in the tree, e.g. `TooltipProvider` for tooltips and `SidebarProvider` for
 the sidebar.
+
+## Composition conventions
+
+Use separately exported parts such as `Card`, `CardHeader` and `CardContent`, with named props interfaces. App-facing compound components use the same flat naming style, including `PageToolbarControls` and `PageToolbarActions`.
+
+Apps may use these components directly and repeatedly. A wrapper should capture meaningful behavior, a domain responsibility or shared layout rules; repeated JSX alone is not a reason to add one. Structural compound components need no Context. Add Context only when their parts coordinate shared state or behavior.
+
+See the [client composition guide](https://linear.app/justmax/document/architecture-62a60c95919b#react-component-composition) for examples, state ownership and refactoring checks.
 
 ## Adding components
 

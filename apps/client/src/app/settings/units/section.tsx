@@ -15,7 +15,14 @@ import { Link } from '@tanstack/react-router';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 
-import { PageAddButton, PageHeader } from '@/shared/components/page-header';
+import {
+  PageAddButton,
+  PageHeader,
+  PageHeaderContent,
+  PageHeaderTitle,
+  PageHeaderDescription,
+  PageHeaderActions,
+} from '@/shared/components/page-header';
 
 import { UnitCreateForm } from './create-form';
 import { UnitTable } from './table';
@@ -51,15 +58,21 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
 
   return (
     <div className='space-y-6'>
-      <PageHeader
-        actions={<CreateUnitDialog canCreate={canCreate} spaceId={scope === 'space' ? spaceId : undefined} />}
-        title={scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
-        description={
-          scope === 'personal'
-            ? 'Browse system units and manage the custom units you can use across spaces.'
-            : 'Browse system units and units shared with this space.'
-        }
-      />
+      <PageHeader>
+        <PageHeaderContent>
+          <PageHeaderTitle>
+            {scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
+          </PageHeaderTitle>
+          <PageHeaderDescription>
+            {scope === 'personal'
+              ? 'Browse system units and manage the custom units you can use across spaces.'
+              : 'Browse system units and units shared with this space.'}
+          </PageHeaderDescription>
+        </PageHeaderContent>
+        <PageHeaderActions>
+          <CreateUnitDialog canCreate={canCreate} spaceId={scope === 'space' ? spaceId : undefined} />
+        </PageHeaderActions>
+      </PageHeader>
       {scope === 'space' && (
         <p className='text-muted-foreground text-sm'>
           Have a personal unit to use here?{' '}

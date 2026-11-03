@@ -1,8 +1,9 @@
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@kijk/ui/components/collapsible';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
-import { SlidersHorizontal, Sparkles } from 'lucide-react';
-import { useId, useState, type ReactNode } from 'react';
+import { SlidersHorizontal } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 
 interface CategorizationProgressProps {
   active: boolean;
@@ -29,20 +30,18 @@ interface ReviewAdjustmentsProps {
 
 export function ReviewAdjustments({ children }: ReviewAdjustmentsProps) {
   const [expanded, setExpanded] = useState(false);
-  const contentId = useId();
   return (
-    <Card role='region' aria-label='Review and adjust'>
+    <Collapsible
+      open={expanded}
+      onOpenChange={setExpanded}
+      render={<Card role='region' aria-label='Review and adjust' />}
+    >
       <CardHeader className='flex flex-wrap items-center justify-between gap-4'>
         <div className='flex flex-col gap-1'>
           <CardTitle>Review &amp; adjust</CardTitle>
           <CardDescription>Optional: suggest categories, change them manually or exclude transactions.</CardDescription>
         </div>
-        <Button
-          variant='outline'
-          aria-expanded={expanded}
-          aria-controls={contentId}
-          onClick={() => setExpanded((previous) => !previous)}
-        >
+        <CollapsibleTrigger render={<Button variant='outline' />}>
           <SlidersHorizontal data-icon='inline-start' />
           <span className='grid'>
             <span className='invisible col-start-1 row-start-1' aria-hidden='true'>
@@ -50,30 +49,9 @@ export function ReviewAdjustments({ children }: ReviewAdjustmentsProps) {
             </span>
             <span className='col-start-1 row-start-1'>{expanded ? 'Hide transactions' : 'Adjust transactions'}</span>
           </span>
-        </Button>
+        </CollapsibleTrigger>
       </CardHeader>
-      <div id={contentId} hidden={!expanded}>
-        {expanded && children}
-      </div>
-    </Card>
-  );
-}
-
-interface AiSuggestionsActionProps {
-  enabled: boolean;
-  disabled: boolean;
-  onOpen: () => void;
-}
-
-export function AiSuggestionsAction({ enabled, disabled, onOpen }: AiSuggestionsActionProps) {
-  if (!enabled) {
-    return null;
-  }
-  return (
-    <section aria-label='AI category suggestions' className='flex flex-wrap items-center gap-3'>
-      <Button size='sm' variant='outline' disabled={disabled} onClick={onOpen}>
-        <Sparkles data-icon='inline-start' /> Suggest categories
-      </Button>
-    </section>
+      <CollapsibleContent>{children}</CollapsibleContent>
+    </Collapsible>
   );
 }
