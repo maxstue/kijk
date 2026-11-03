@@ -30,13 +30,15 @@ export function AnnualValuesTable({ groups, year, month, unit, now }: AnnualValu
               <TableHead scope='row'>{label}</TableHead>
               {groups.map((group) => {
                 const future = year > now.getFullYear() || (year === now.getFullYear() && index > now.getMonth());
+                let value = 'No data';
+                if (future) {
+                  value = 'Upcoming';
+                } else if (group.values[index] != null) {
+                  value = group.values[index].toLocaleString();
+                }
                 return (
                   <TableCell key={group.label} className='text-right tabular-nums'>
-                    {future
-                      ? 'Upcoming'
-                      : group.values[index] == null
-                        ? 'No data'
-                        : group.values[index]?.toLocaleString()}
+                    {value}
                   </TableCell>
                 );
               })}

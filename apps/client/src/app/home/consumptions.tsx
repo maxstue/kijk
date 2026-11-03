@@ -66,11 +66,7 @@ export function Consumptions({ spaceId, year, month, resourceId, view, onResourc
         {!selected ? (
           <p className='text-muted-foreground'>No consumption data for this year.</p>
         ) : (
-          <div
-            className='flex min-w-0 flex-col gap-3'
-            role='group'
-            aria-label={`Consumption history for ${selected.name}`}
-          >
+          <div className='flex min-w-0 flex-col gap-3'>
             <AnnualChart year={year} month={month} unit={selected.unit} series={series} />
             <div className='text-muted-foreground flex justify-center gap-1.5 text-xs'>
               <span className='mt-1 size-2 rounded-sm' style={{ backgroundColor: selected.color }} />

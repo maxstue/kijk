@@ -44,9 +44,11 @@ function PageHeaderContent({ className, ...props }: PageHeaderContentProps) {
     />
   );
 }
-function PageHeaderTitle({ className, ...props }: PageHeaderTitleProps) {
+function PageHeaderTitle({ className, children, ...props }: PageHeaderTitleProps) {
   return (
-    <h2 data-slot='page-header-title' className={cn('text-lg font-semibold tracking-tight', className)} {...props} />
+    <h2 data-slot='page-header-title' className={cn('text-lg font-semibold tracking-tight', className)} {...props}>
+      {children}
+    </h2>
   );
 }
 function PageHeaderDescription({ className, ...props }: PageHeaderDescriptionProps) {

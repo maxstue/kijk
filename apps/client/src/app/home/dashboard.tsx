@@ -25,6 +25,27 @@ interface Props {
 /** Common space overview with independent loading and failure states. */
 export function Dashboard({ spaceId, year, month, resourceId, view, onResourceChange, onViewChange, onChange }: Props) {
   const features = useQuery(usersOptions.featuresQueryOptions());
+  let financeSection = null;
+  if (features.isPending || features.isError) {
+    financeSection = (
+      <Card role='region' aria-label='Finances' aria-busy={false} className='min-w-0 gap-4 shadow-xs'>
+        <CardHeader className='min-h-16 has-data-[slot=card-action]:grid-cols-1 @3xl/home:has-data-[slot=card-action]:grid-cols-[1fr_auto]'>
+          <CardTitle>Finances</CardTitle>
+          <CardDescription>Shared income and spending.</CardDescription>
+        </CardHeader>
+        <DashboardSectionContent
+          size='finance'
+          pending={features.isPending}
+          error={features.isError}
+          retry={() => void features.refetch()}
+        >
+          {null}
+        </DashboardSectionContent>
+      </Card>
+    );
+  } else if (features.data?.finances) {
+    financeSection = <Finances spaceId={spaceId} year={year} month={month} />;
+  }
   return (
     <div className='@container/home mx-auto flex w-full max-w-7xl flex-col gap-8 pb-6'>
       <div className='flex justify-start'>
@@ -43,24 +64,7 @@ export function Dashboard({ spaceId, year, month, resourceId, view, onResourceCh
         <Limits spaceId={spaceId} year={year} month={month} />
         {features.data?.finances && <Budgets spaceId={spaceId} year={year} month={month} />}
       </div>
-      {features.isPending || features.isError ? (
-        <Card role='region' aria-label='Finances' aria-busy={false} className='min-w-0 gap-4 shadow-xs'>
-          <CardHeader className='min-h-16 has-data-[slot=card-action]:grid-cols-1 @3xl/home:has-data-[slot=card-action]:grid-cols-[1fr_auto]'>
-            <CardTitle>Finances</CardTitle>
-            <CardDescription>Shared income and spending.</CardDescription>
-          </CardHeader>
-          <DashboardSectionContent
-            size='finance'
-            pending={features.isPending}
-            error={features.isError}
-            retry={() => void features.refetch()}
-          >
-            {null}
-          </DashboardSectionContent>
-        </Card>
-      ) : features.data?.finances ? (
-        <Finances spaceId={spaceId} year={year} month={month} />
-      ) : null}
+      {financeSection}
     </div>
   );
 }

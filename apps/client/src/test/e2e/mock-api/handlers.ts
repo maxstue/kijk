@@ -160,19 +160,21 @@ export const handlers = [
     if (!dashboardScenario.finances) {
       return HttpResponse.json({ title: 'Disabled' }, { status: 404 });
     }
+    if (dashboardScenario.empty) {
+      return HttpResponse.json([]);
+    }
+    const percentages = dashboardScenario.manyThresholds ? [150, 140, 130] : [70, 60, 50];
     return HttpResponse.json(
-      dashboardScenario.empty
-        ? []
-        : (dashboardScenario.manyThresholds ? [150, 140, 130] : [70, 60, 50]).map((percentage) => ({
-            id: `budget-${percentage}`,
-            name: `Household budget ${percentage}`,
-            currency: 'EUR',
-            amount: 100,
-            spent: percentage,
-            remaining: Math.max(0, 100 - percentage),
-            overrun: Math.max(0, percentage - 100),
-            percentage,
-          })),
+      percentages.map((percentage) => ({
+        id: `budget-${percentage}`,
+        name: `Household budget ${percentage}`,
+        currency: 'EUR',
+        amount: 100,
+        spent: percentage,
+        remaining: Math.max(0, 100 - percentage),
+        overrun: Math.max(0, percentage - 100),
+        percentage,
+      })),
     );
   }),
   http.get('*/api/spaces/:spaceId/dashboard/consumptions', async ({ request, params }) => {
@@ -188,13 +190,14 @@ export const handlers = [
     }
     const year = Number(new URL(request.url).searchParams.get('year'));
     const personal = params.spaceId === '00000000-0000-4000-8000-000000000005';
+    const consumptionBase = personal ? 200 : 10;
     const readings = Array.from({ length: 12 }, (_, index) => ({
       month: index + 1,
       resourceId: personal ? 'personal-energy' : 'shared-energy',
       name: personal ? 'Personal electricity' : 'Shared electricity',
       color: '#2563eb',
       unit: 'kWh',
-      value: index === 0 ? 0 : (personal ? 200 : 10) + index + year - 2025,
+      value: index === 0 ? 0 : consumptionBase + index + year - 2025,
       meterReading: 1000 + index * 10 + (personal ? 1000 : 0),
     }));
     if (dashboardScenario.sparseReadings) {

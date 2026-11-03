@@ -10,21 +10,23 @@ namespace Kijk.Api.Endpoints;
 /// <summary>Shared summaries available to every member of the route space.</summary>
 public sealed class DashboardEndpoints : IEndpointGroup
 {
+    private const string SharedDashboardPermissionReason = "Every space member may read shared dashboard aggregates";
+
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
         var group = builder.MapSpaceGroup("dashboard").WithTags("Dashboard")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted);
         group.MapGet("/finances", Finances).WithName("Dashboard.Finances")
-            .WithoutSpacePermission("Every space member may read shared dashboard aggregates")
+            .WithoutSpacePermission(SharedDashboardPermissionReason)
             .RequireFeature(AppConstants.Features.Finances);
         group.MapGet("/budgets", Budgets).WithName("Dashboard.Budgets")
-            .WithoutSpacePermission("Every space member may read shared dashboard aggregates")
+            .WithoutSpacePermission(SharedDashboardPermissionReason)
             .RequireFeature(AppConstants.Features.Finances);
         group.MapGet("/consumptions", Consumptions).WithName("Dashboard.Consumptions")
-            .WithoutSpacePermission("Every space member may read shared dashboard aggregates");
+            .WithoutSpacePermission(SharedDashboardPermissionReason);
         group.MapGet("/limits", Limits).WithName("Dashboard.Limits")
-            .WithoutSpacePermission("Every space member may read shared dashboard aggregates");
+            .WithoutSpacePermission(SharedDashboardPermissionReason);
         return builder;
     }
 

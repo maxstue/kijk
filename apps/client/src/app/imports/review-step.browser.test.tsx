@@ -640,5 +640,11 @@ test('keeps the current page when adjustments unmount and reopen', async () => {
   await screen.getByRole('button', { name: 'Adjust transactions' }).click();
   await expect.element(screen.getByText('Merchant 101', { exact: true })).toBeVisible();
   await expect.element(screen.getByRole('button', { name: 'Previous rows' })).toBeEnabled();
+  expect(importsApi.getCandidates).toHaveBeenLastCalledWith(
+    'space',
+    'import',
+    { months: '2026-09-01', page: 2, pageSize: 100, cardSettlementsOnly: false },
+    expect.any(AbortSignal),
+  );
   await screen.unmount();
 });

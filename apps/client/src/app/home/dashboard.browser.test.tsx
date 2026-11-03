@@ -63,6 +63,7 @@ test('a failed section leaves other sections usable and does not appear empty', 
     </QueryClientProvider>,
   );
   await expect.element(screen.getByRole('alert')).toBeVisible();
+  expect(screen.getByRole('alert').element().textContent).toContain('Could not load this section.');
   await expect.element(screen.getByText('No monthly limits close to their threshold.')).toBeVisible();
   await screen.unmount();
   client.clear();
@@ -116,6 +117,9 @@ test('shows only the three most urgent monthly limits, excluding safe and quarte
   for (const name of ['Zero allowance', 'Usage 120', 'Usage 110']) {
     await expect.element(screen.getByText(name, { exact: true })).toBeVisible();
   }
+  const zeroAllowance = screen.getByText('Zero allowance', { exact: true }).element();
+  const nextLimit = screen.getByText('Usage 120', { exact: true }).element();
+  expect(zeroAllowance.compareDocumentPosition(nextLimit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   for (const name of ['Usage 100', 'Usage 90', 'Usage 80', 'Usage 70', 'Quarterly']) {
     await expect.element(screen.getByText(name, { exact: true })).not.toBeInTheDocument();
   }
