@@ -21,14 +21,14 @@ test('switches by URL and keeps another tab in its own space', async ({ page, co
     }
   });
   await page.goto('/');
-  await expect(page).toHaveURL(new RegExp(`/${sharedId}$`));
+  await expect(page).toHaveURL((url) => url.pathname === `/${sharedId}`);
   const otherTab = await context.newPage();
   await otherTab.goto(`/${sharedId}`, { waitUntil: 'domcontentloaded' });
   await expect(otherTab.getByRole('region', { name: 'Consumptions', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'E2E Space', exact: true }).click();
   await page.getByRole('menuitem', { name: /Personal/ }).click();
-  await expect(page).toHaveURL(new RegExp(`/${personalId}$`));
-  await expect(otherTab).toHaveURL(new RegExp(`/${sharedId}$`));
+  await expect(page).toHaveURL((url) => url.pathname === `/${personalId}`);
+  await expect(otherTab).toHaveURL((url) => url.pathname === `/${sharedId}`);
   expect(defaultRequests).toEqual([]);
   await otherTab.close();
 });
@@ -49,5 +49,5 @@ test('account settings can clear the default and return to the last visited spac
   await saved;
   await expect(page).toHaveURL(/\/settings\/profile$/);
   await page.getByRole('link', { name: 'Back to app' }).click();
-  await expect(page).toHaveURL(new RegExp(`/${personalId}$`));
+  await expect(page).toHaveURL((url) => url.pathname === `/${personalId}`);
 });

@@ -1,6 +1,6 @@
+using Kijk.Application.Limits.Shared;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
-using Kijk.Application.Limits.Shared;
 using Kijk.Domain.Services;
 using Kijk.Domain.ValueObjects;
 using Kijk.Shared;
