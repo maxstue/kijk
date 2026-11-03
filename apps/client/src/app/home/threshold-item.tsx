@@ -29,7 +29,7 @@ export function ThresholdItem({ name, actual, threshold, unit, percentage, remai
           aria-label={`${name} utilization`}
         />
       )}
-      <div className='text-muted-foreground flex flex-wrap justify-between gap-2 text-xs'>
+      <div className='text-muted-foreground flex min-h-5 flex-wrap items-center justify-between gap-2 text-xs'>
         {overrun > 0 ? (
           <Badge variant='destructive'>
             Exceeded by {overrun.toLocaleString()} {unit}
