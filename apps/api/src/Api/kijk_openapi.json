@@ -8425,6 +8425,46 @@
         },
         "description": "The import settings of the active space."
       },
+      "LimitPeriodResponse": {
+        "required": [
+          "periodStart",
+          "periodEnd",
+          "actualValue",
+          "isExceeded",
+          "isComplete"
+        ],
+        "type": "object",
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "description": "The inclusive UTC calendar period start.",
+            "format": "date-time"
+          },
+          "periodEnd": {
+            "type": "string",
+            "description": "The exclusive UTC calendar period end.",
+            "format": "date-time"
+          },
+          "actualValue": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "The total normalized consumption recorded in the period.",
+            "format": "double"
+          },
+          "isExceeded": {
+            "type": "boolean",
+            "description": "Whether the consumption reached or exceeded the current threshold."
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Whether the calendar period has ended."
+          }
+        },
+        "description": "A recorded calendar period evaluated against the limit's current threshold and period settings.\nPeriods without readings and future periods are omitted; the current period is provisional."
+      },
       "LimitResourceResponse": {
         "required": [
           "id",
@@ -8465,7 +8505,8 @@
           "isExceeded",
           "periodStart",
           "periodEnd",
-          "lastOccurrence"
+          "lastOccurrence",
+          "history"
         ],
         "type": "object",
         "properties": {
@@ -8540,6 +8581,12 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LimitPeriodResponse"
+            }
           }
         },
         "description": "A consumption limit together with its current evaluation data."

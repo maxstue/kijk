@@ -57,16 +57,13 @@ public sealed class CreateHandler(
                 request.Active),
             resource, user, space);
 
-        var (start, end) = LimitEvaluation.GetPeriodRange(limit.Period, utcNow);
         var consumptions = await dbContext.Consumptions
             .Where(item => item.SpaceId == space.Id
-                           && item.ResourceId == resource.Id
-                           && item.Date >= start
-                           && item.Date < end)
+                           && item.ResourceId == resource.Id)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        limit.RecordOccurrence(false, consumptions.Sum(item => item.Value) >= limit.Threshold, utcNow);
+        limit.RecordOccurrence(false, LimitEvaluation.ToResponse(limit, consumptions, utcNow).IsExceeded, utcNow);
 
         dbContext.Limits.Add(limit);
         try

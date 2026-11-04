@@ -31,6 +31,7 @@ test('renders exceeded limits returned by the API', async () => {
           id: '0cab1db3-080c-4fd9-bb6d-cbe48422dcf0',
           isExceeded: true,
           lastOccurrence: '2026-09-06T12:00:00Z',
+          history: [],
           limit: 100,
           name: 'Monthly electricity',
           period: 'Month',

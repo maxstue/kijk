@@ -2147,6 +2147,34 @@ export interface components {
       /** Whether imports store neither names of private persons nor counterparty keys. */
       minimizeData: boolean;
     };
+    /**
+     * A recorded calendar period evaluated against the limit's current threshold and period settings. Periods without
+     * readings and future periods are omitted; the current period is provisional.
+     */
+    LimitPeriodResponse: {
+      /**
+       * Format: date-time
+       *
+       * The inclusive UTC calendar period start.
+       */
+      periodStart: string;
+      /**
+       * Format: date-time
+       *
+       * The exclusive UTC calendar period end.
+       */
+      periodEnd: string;
+      /**
+       * Format: double
+       *
+       * The total normalized consumption recorded in the period.
+       */
+      actualValue: number | string;
+      /** Whether the consumption reached or exceeded the current threshold. */
+      isExceeded: boolean;
+      /** Whether the calendar period has ended. */
+      isComplete: boolean;
+    };
     /** The resource governed by a consumption limit. */
     LimitResourceResponse: {
       /** Format: uuid */
@@ -2179,6 +2207,7 @@ export interface components {
       periodEnd: string;
       /** Format: date-time */
       lastOccurrence: null | string;
+      history: components['schemas']['LimitPeriodResponse'][];
     };
     /** @enum {unknown} */
     MappingSource: 'Profile' | 'Suggestion' | 'Ai' | null;
