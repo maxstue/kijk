@@ -37,6 +37,12 @@ export function LimitsSection({ view, onViewChange }: LimitsSectionProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selection, setSelection] = useState<LimitSelection | null>(null);
   const selectedLimit = data.find((limit) => limit.id === selection?.id);
+  const limitsView =
+    view === 'list' ? (
+      <LimitsList limits={data} canPlan={canPlan} onAction={setSelection} />
+    ) : (
+      <LimitsGrid limits={data} canPlan={canPlan} onAction={setSelection} />
+    );
 
   return (
     <div className='flex min-w-0 flex-col gap-6'>
@@ -93,10 +99,8 @@ export function LimitsSection({ view, onViewChange }: LimitsSectionProps) {
             <p className='text-muted-foreground text-sm'>Create a limit to start monitoring usage in this space.</p>
           </CardContent>
         </Card>
-      ) : view === 'list' ? (
-        <LimitsList limits={data} canPlan={canPlan} onAction={setSelection} />
       ) : (
-        <LimitsGrid limits={data} canPlan={canPlan} onAction={setSelection} />
+        limitsView
       )}
       <LimitDialogs limit={selectedLimit} selection={selection} onClose={() => setSelection(null)} />
     </div>

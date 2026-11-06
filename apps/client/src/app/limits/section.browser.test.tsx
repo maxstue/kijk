@@ -163,7 +163,7 @@ test('preserves an unsaved edit when the view changes', async () => {
       <TestLimitsSection viewOverride='cards' />
     </QueryClientProvider>,
   );
-  await expect.element(screen.getByRole('textbox', { name: 'Limit name' })).toHaveValue('Unsaved limit name');
+  expect(screen.getByRole('textbox', { name: 'Limit name' }).element()).toHaveProperty('value', 'Unsaved limit name');
   await screen.unmount();
   client.clear();
 });

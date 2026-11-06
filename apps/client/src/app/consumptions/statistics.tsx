@@ -45,38 +45,43 @@ export default function ConsumptionStats({ resourceCount }: ConsumptionStatsProp
           Totals by resource type for {selectedMonth} {selectedYear}.
         </p>
       </div>
-      <Suspense
-        fallback={
-          <div role='status' aria-label='Loading monthly overview'>
-            <div aria-hidden='true' className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
-              {Array.from({ length: Math.max(resourceCount, 1) }, (_, index) => (
-                <Card key={index} className='bg-background shadow-none'>
-                  <CardHeader className='flex flex-row items-center gap-2 space-y-0 pb-2'>
-                    <Skeleton className='size-2.5 shrink-0 rounded-full' />
-                    <div className='flex h-[21px] items-center'>
-                      <Skeleton className='h-4 w-24' />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className='flex h-8 items-center'>
-                      <Skeleton className='h-6 w-20' />
-                    </div>
-                    <div className='flex h-4 items-center'>
-                      <Skeleton className='h-3 w-12' />
-                    </div>
-                    <div className='mt-1 flex h-4 items-center'>
-                      <Skeleton className='h-3 w-44 max-w-full' />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        }
-      >
+      <Suspense fallback={<ConsumptionStatsSkeleton resourceCount={resourceCount} />}>
         <ConsumptionStatsContent year={selectedYear} month={selectedMonth} />
       </Suspense>
     </section>
+  );
+}
+
+function ConsumptionStatsSkeleton({ resourceCount }: ConsumptionStatsProps) {
+  return (
+    <div>
+      <output className='sr-only' aria-label='Loading monthly overview'>
+        Loading monthly overview
+      </output>
+      <div aria-hidden='true' className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+        {Array.from({ length: Math.max(resourceCount, 1) }, (_, index) => (
+          <Card key={index} className='bg-background shadow-none'>
+            <CardHeader className='flex flex-row items-center gap-2 space-y-0 pb-2'>
+              <Skeleton className='size-2.5 shrink-0 rounded-full' />
+              <div className='flex h-[21px] items-center'>
+                <Skeleton className='h-4 w-24' />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className='flex h-8 items-center'>
+                <Skeleton className='h-6 w-20' />
+              </div>
+              <div className='flex h-4 items-center'>
+                <Skeleton className='h-3 w-12' />
+              </div>
+              <div className='mt-1 flex h-4 items-center'>
+                <Skeleton className='h-3 w-44 max-w-full' />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
 

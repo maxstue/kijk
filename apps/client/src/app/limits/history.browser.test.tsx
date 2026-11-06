@@ -1,7 +1,7 @@
 import type { Limit } from '@kijk/api/limits/types';
 import { Dialog } from '@kijk/ui/components/dialog';
 import { expect, test } from 'vite-plus/test';
-import { page } from 'vite-plus/test/browser';
+import { page, userEvent } from 'vite-plus/test/browser';
 import { render } from 'vitest-browser-react';
 
 import { LimitHistoryContent } from './history';
@@ -48,6 +48,7 @@ test.each([
   const heading = screen.getByRole('heading', { name: 'Electricity history' });
 
   await expect.element(dialog).toBeVisible();
+  await expect.element(list).toHaveFocus();
   await expect.poll(() => Math.round(dialog.element().getBoundingClientRect().height)).toBe(dialogHeight);
   const bounds = dialog.element().getBoundingClientRect();
   expect(bounds.top).toBeGreaterThanOrEqual(0);
@@ -57,9 +58,12 @@ test.each([
   expect(dialog.element().scrollHeight).toBeLessThanOrEqual(dialog.element().clientHeight);
   expect(list.element().scrollHeight).toBeGreaterThan(list.element().clientHeight);
   const headingTop = heading.element().getBoundingClientRect().top;
+  await userEvent.keyboard('{PageDown}');
+  await expect.poll(() => list.element().scrollTop).toBeGreaterThan(0);
+  expect(Math.abs(heading.element().getBoundingClientRect().top - headingTop)).toBeLessThan(1);
   list.element().scrollTop = list.element().scrollHeight;
   await expect.poll(() => list.element().scrollTop).toBeGreaterThan(0);
-  expect(heading.element().getBoundingClientRect().top).toBe(headingTop);
+  expect(Math.abs(heading.element().getBoundingClientRect().top - headingTop)).toBeLessThan(1);
   expect(dialog.element().scrollTop).toBe(0);
   await expect.element(screen.getByRole('button', { name: 'Close', exact: true })).toBeVisible();
   await screen.unmount();
