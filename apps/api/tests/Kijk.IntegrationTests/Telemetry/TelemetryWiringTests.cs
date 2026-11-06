@@ -93,7 +93,7 @@ public class TelemetryWiringTests
             }
 
             await using var app = await StartAsync(recorder, variables);
-            await using var database = new PostgreSqlBuilder("postgres:18-alpine").WithDatabase("test-database").Build();
+            await using var database = new PostgreSqlBuilder("postgres:17-alpine").WithDatabase("test-database").Build();
             await database.StartAsync();
             var parent = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.Recorded, isRemote: true);
             using (var source = new ActivitySource("Wolverine"))

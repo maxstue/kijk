@@ -52,9 +52,12 @@ and port `80`. The start script now preloads the SDK from
 [instrumentation.mjs](../apps/client/instrumentation.mjs). No Railway JSON/TOML
 configuration file should be reintroduced.
 
-Backup CRON still follows `railwayapp-templates/postgres-s3-backups@main`; a fork
-branch or unmerged upstream PR will not change its production code. Backup
-Cleanup's complete replacement file is staged in Railway for dashboard review;
+Backup CRON still follows `railwayapp-templates/postgres-s3-backups@main`. That
+repository is archived and rejects new PRs. The instrumentation PR is
+[maxstue/postgres-s3-backups#1](https://github.com/maxstue/postgres-s3-backups/pull/1).
+After its merge, review changing **Backup CRON → Settings → Source** to
+`maxstue/postgres-s3-backups@main`; the fork PR alone cannot update the current
+production source. Backup Cleanup's complete replacement file is staged in Railway for dashboard review;
 applying the staged code deploys it. Its configured cron remains unchanged.
 
 ## Live acceptance after deployment
