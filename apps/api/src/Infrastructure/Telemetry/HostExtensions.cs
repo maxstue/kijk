@@ -20,6 +20,7 @@ public static class HostExtensions
     {
         builder.WebHost.UseSentry(options =>
         {
+            options.Dsn = builder.Configuration["Sentry:Dsn"] ?? string.Empty;
             options.SendDefaultPii = false;
             options.MaxRequestBodySize = RequestSize.None;
             options.MinimumBreadcrumbLevel = LogLevel.Error;

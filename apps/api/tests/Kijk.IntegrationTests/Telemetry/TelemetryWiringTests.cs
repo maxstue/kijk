@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using OpenTelemetry.Trace;
+using Testcontainers.PostgreSql;
 
 namespace Kijk.IntegrationTests.Telemetry;
 
@@ -71,7 +73,60 @@ public class TelemetryWiringTests
         }
     }
 
-    private static async Task<WebApplication> StartAsync(Recorder recorder)
+    [Test]
+    public async Task RailwayExportsWithoutOtherDestinationsAndKeepsTraceContext()
+    {
+        await using var recorder = Recorder.Start();
+        var variables = new Dictionary<string, string?>
+        {
+            ["OTEL_EXPORTER_OTLP_ENDPOINT"] = recorder.BaseAddress.ToString(),
+            ["OTEL_EXPORTER_OTLP_PROTOCOL"] = "http/protobuf",
+            ["OTEL_SERVICE_NAME"] = "railway-api-test",
+            ["OTEL_SERVICE_VERSION"] = "test-release"
+        };
+        var previous = variables.ToDictionary(item => item.Key, item => Environment.GetEnvironmentVariable(item.Key));
+        try
+        {
+            foreach (var item in variables)
+            {
+                Environment.SetEnvironmentVariable(item.Key, item.Value);
+            }
+
+            await using var app = await StartAsync(recorder, variables);
+            await using var database = new PostgreSqlBuilder("postgres:18-alpine").WithDatabase("test-database").Build();
+            await database.StartAsync();
+            var parent = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.Recorded, isRemote: true);
+            using (var source = new ActivitySource("Wolverine"))
+            {
+                using var span = source.StartActivity("database-job", ActivityKind.Internal, parent);
+                await Assert.That(span).IsNotNull();
+                await Assert.That(span!.TraceId).IsEqualTo(parent.TraceId);
+                await using var connection = new NpgsqlConnection(database.GetConnectionString());
+                await connection.OpenAsync();
+                await using var command = new NpgsqlCommand("SELECT @value", connection);
+                command.Parameters.AddWithValue("value", Secret);
+                await Assert.That(await command.ExecuteScalarAsync()).IsEqualTo(Secret);
+            }
+
+            app.Services.GetRequiredService<TracerProvider>().ForceFlush();
+            var exports = string.Concat(recorder.Requests.Where(item => item.Path == "/v1/traces").Select(item => item.Body));
+            await Assert.That(exports).Contains("railway-api-test");
+            await Assert.That(exports).Contains("test-release");
+            await Assert.That(exports).Contains("Npgsql");
+            await Assert.That(exports).Contains("postgresql");
+            await Assert.That(exports).Contains("test-database");
+            await Assert.That(exports).DoesNotContain(Secret);
+        }
+        finally
+        {
+            foreach (var item in previous)
+            {
+                Environment.SetEnvironmentVariable(item.Key, item.Value);
+            }
+        }
+    }
+
+    private static async Task<WebApplication> StartAsync(Recorder recorder, Dictionary<string, string?>? railway = null)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Testing" });
         builder.Configuration.Sources.Clear();
@@ -83,6 +138,13 @@ public class TelemetryWiringTests
             ["FeatureFlags:SecretApiKey"] = "phs_test",
             ["Telemetry:TracesSampleRate"] = "1"
         });
+        if (railway is not null)
+        {
+            builder.Configuration.AddInMemoryCollection(railway);
+            builder.Configuration["Sentry:Dsn"] = null;
+            builder.Configuration["PostHog:ProjectToken"] = null;
+            builder.Configuration["Telemetry:TracesSampleRate"] = "0";
+        }
         builder.WebHost.UseKestrel(options => options.Listen(IPAddress.Loopback, 0));
         builder.AddTelemetryTracking();
         builder.Services.AddOptions<TelemetryOptions>().Bind(builder.Configuration.GetSection(TelemetryOptions.SectionName));

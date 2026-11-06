@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
@@ -14,8 +15,8 @@ using PostHog.Config;
 namespace Kijk.Infrastructure.Telemetry;
 
 /// <summary>
-/// Registers PostHog error tracking and the OpenTelemetry traces of both tools (one sampler, one scrubbing processor, two
-/// OTLP exporters). Telemetry is configured in two places: Sentry hooks into the web host, so its error tracking is set up
+/// Registers error tracking and scrubbed OpenTelemetry traces for configured destinations, including Railway's
+/// environment-provided exporter. Sentry hooks into the web host, so its error tracking is set up
 /// in <see cref="HostExtensions.AddTelemetryTracking" />; everything else is here. A destination without settings is skipped.
 /// </summary>
 internal static class TelemetryDependencyInjection
@@ -31,6 +32,8 @@ internal static class TelemetryDependencyInjection
     public static IServiceCollection AddTelemetry(this IServiceCollection services, IConfiguration configuration)
     {
         var destinations = TelemetryDestinations.From(configuration);
+        var railway = !string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_ENDPOINT"])
+            || !string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"]);
         services.AddSingleton(destinations);
         services.AddSingleton<ITelemetryService, TelemetryService>();
         // Feedback must not carry trace headers that could link the message to an account's request.
@@ -50,16 +53,17 @@ internal static class TelemetryDependencyInjection
             services.AddSingleton<ErrorTrackingSerilogSink>();
         }
 
-        if (destinations.Any)
+        if (destinations.Any || railway)
         {
-            services.AddTracing(destinations);
+            services.AddTracing(destinations, configuration, railway);
         }
 
         return services;
     }
 
-    private static void AddTracing(this IServiceCollection services, TelemetryDestinations destinations)
+    private static void AddTracing(this IServiceCollection services, TelemetryDestinations destinations, IConfiguration configuration, bool railway)
     {
+        Sdk.SetDefaultTextMapPropagator(new TraceContextPropagator());
         // Exporters register services of their own, so they are added here and not in the deferred callback below.
         services.AddOpenTelemetry().WithTracing(tracing =>
         {
@@ -92,24 +96,36 @@ internal static class TelemetryDependencyInjection
                     exporter.Headers = $"Authorization=Bearer {destinations.PostHogToken}";
                 });
             }
+
+            if (railway)
+            {
+                // No exporter options: endpoint, protocol and authentication come from OTEL_* variables.
+                tracing.AddOtlpExporter("railway", _ => { });
+            }
         });
 
         services.ConfigureOpenTelemetryTracerProvider((provider, tracing) =>
         {
             var environment = provider.GetRequiredService<IHostEnvironment>();
             var options = provider.GetRequiredService<IOptions<TelemetryOptions>>().Value;
+            Sampler sampler = options.TracesSampleRate <= 0
+                ? new AlwaysOffSampler()
+                : new ParentBasedSampler(new TraceIdRatioBasedSampler(options.TracesSampleRate));
+            if (railway)
+            {
+                sampler = new ParentBasedSampler(new AlwaysOnSampler());
+            }
 
             tracing
                 .ConfigureResource(resource => resource
-                    .AddService(ServiceName, serviceVersion: typeof(TelemetryDependencyInjection).Assembly.GetName().Version?.ToString())
+                    .AddService(configuration["OTEL_SERVICE_NAME"] ?? ServiceName,
+                        serviceVersion: configuration["OTEL_SERVICE_VERSION"] ?? typeof(TelemetryDependencyInjection).Assembly.GetName().Version?.ToString())
                     // The environment is named the way each tool reads it.
                     .AddAttributes([
                         new("deployment.environment.name", environment.EnvironmentName.ToLowerInvariant()),
                         new("deployment.environment", environment.EnvironmentName.ToLowerInvariant())
                     ]))
-                .SetSampler(options.TracesSampleRate <= 0
-                    ? new AlwaysOffSampler()
-                    : new ParentBasedSampler(new TraceIdRatioBasedSampler(options.TracesSampleRate)));
+                .SetSampler(sampler);
         });
     }
 
