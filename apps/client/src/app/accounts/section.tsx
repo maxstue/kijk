@@ -16,7 +16,8 @@ import { useState } from 'react';
 import { accountDefaultSort, getAccountColumns } from '@/app/accounts/columns';
 import { AccountForm } from '@/app/accounts/form';
 import { DataTable } from '@/shared/components/data-table';
-import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { PageAddButton } from '@/shared/components/page-header';
+import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { useActiveSpace, useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -36,8 +37,8 @@ export function AccountsSection() {
 
   return (
     <div className='space-y-6'>
-      <PageToolbar
-        actions={
+      <PageToolbar>
+        <PageToolbarActions>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger
               render={
@@ -63,8 +64,8 @@ export function AccountsSection() {
               </div>
             </DialogContent>
           </Dialog>
-        }
-      />
+        </PageToolbarActions>
+      </PageToolbar>
       <Card className='min-w-32'>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
           <CardTitle className='text-sm font-medium'>Accounts</CardTitle>

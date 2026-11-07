@@ -15,7 +15,11 @@ const variants: Record<ImportJobStatus, 'default' | 'secondary' | 'destructive' 
   Reading: 'secondary',
 };
 
+interface ImportStatusBadgeProps {
+  status: ImportJobStatus;
+}
+
 /** Badge with the label of an import state. */
-export function ImportStatusBadge({ status }: { status: ImportJobStatus }) {
+export function ImportStatusBadge({ status }: ImportStatusBadgeProps) {
   return <Badge variant={variants[status]}>{importStatusLabels[status]}</Badge>;
 }

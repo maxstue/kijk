@@ -192,10 +192,10 @@ export function ConsumptionResourceField<TFormValues extends ConsumptionFormValu
         <SelectContent>
           {data.map((item) => (
             <SelectItem key={item.id} value={item.id}>
-              <div className='flex items-center gap-2'>
+              <span>
                 {item.name}
-                <span className='text-muted-foreground text-xs'>({item.unit})</span>
-              </div>
+                <span className='text-muted-foreground text-xs'> ({item.unit})</span>
+              </span>
             </SelectItem>
           ))}
         </SelectContent>

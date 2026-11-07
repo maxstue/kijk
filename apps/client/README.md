@@ -43,6 +43,10 @@ This is a same-origin BFF, not a claim that Clerk's browser session token is ina
 
 Feature components remain in `src/app`, reusable components in `@kijk/ui`, and API contracts/options in `@kijk/api`. Features use the auth contracts in `src/shared/runtime`. The root-only Clerk provider and theme bootstrap live in `src/app/root`; reusable integrations live in `src/shared/lib`. The browser-only router setup initializes telemetry services directly. Server code lives in `src/server`. E2E tests and their fake API live in `src/test/e2e`; unit and component tests remain colocated with their source files.
 
+## Component composition
+
+Follow [React component composition](https://linear.app/justmax/document/architecture-62a60c95919b#react-component-composition) when structuring UI. Prefer direct `@kijk/ui` composition, allow repeated UI JSX, and use separately named compound parts when callers need flexible composition. Hooks stay in the owning components; local Context is reserved for coordinated stateful parts.
+
 ## E2E tests
 
 Playwright builds the app and starts its production Node server on `http://127.0.0.1:5004`, plus a fake .NET API on port 5005. Every browser API request passes through the real Start CSRF, Clerk and relay logic. MSW handlers run only in the fake API process; E2E tests do not install a browser service worker. The fake API checks for a bearer header but does not validate JWTs or domain permissions, so these tests do not replace integration tests against the real .NET API.

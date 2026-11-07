@@ -39,12 +39,9 @@ public sealed class UpdateHandler(IAppDbContext dbContext, CurrentUser currentUs
         }
 
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        var yearStart = new DateTime(utcNow.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var yearEnd = yearStart.AddYears(1);
         var consumptions = await dbContext.Consumptions
             .Where(item => item.SpaceId == currentUser.ActiveSpaceId
-                           && item.ResourceId == limit.ResourceId
-                           && item.Date >= yearStart && item.Date < yearEnd)
+                           && item.ResourceId == limit.ResourceId)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
         var wasReached = limit.Active && limit.Period == request.Period

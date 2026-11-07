@@ -56,11 +56,9 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             return [];
         }
 
-        var yearStart = new DateTime(timeProvider.GetUtcNow().Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         return await dbContext.Consumptions
             .Where(item => item.SpaceId == currentUser.ActiveSpaceId
-                           && ids.Contains(item.ResourceId)
-                           && item.Date >= yearStart)
+                           && ids.Contains(item.ResourceId))
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

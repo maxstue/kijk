@@ -10,9 +10,21 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { saveDownload } from '@/shared/utils/download';
 import type { Months } from '@/shared/utils/months';
 
-type Props =
-  | { consumptionId: string; disabled?: never; month?: never; year?: never }
-  | { consumptionId?: never; disabled?: boolean; month: Months; year: number };
+interface SingleExportProps {
+  consumptionId: string;
+  disabled?: never;
+  month?: never;
+  year?: never;
+}
+
+interface MonthlyExportProps {
+  consumptionId?: never;
+  disabled?: boolean;
+  month: Months;
+  year: number;
+}
+
+type Props = SingleExportProps | MonthlyExportProps;
 
 /** Downloads a single consumption (`consumptionId`) or a whole month (`year` + `month`) as CSV. */
 export function ConsumptionExportButton(props: Props) {

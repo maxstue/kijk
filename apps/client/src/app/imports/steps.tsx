@@ -3,8 +3,12 @@ import { Check } from 'lucide-react';
 
 const steps = ['File', 'Columns', 'Months', 'Review', 'Done'];
 
+interface ImportStepsProps {
+  currentStep: number;
+}
+
 /** Shared orientation across the upload and import detail pages. */
-export function ImportSteps({ currentStep }: { currentStep: number }) {
+export function ImportSteps({ currentStep }: ImportStepsProps) {
   return (
     <nav aria-label='Import progress' className='relative isolate z-0'>
       <ol className='grid grid-cols-5 gap-2'>

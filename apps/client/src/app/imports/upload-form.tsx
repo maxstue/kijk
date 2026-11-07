@@ -4,11 +4,9 @@ import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import * as usersOptions from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
-import { Checkbox } from '@kijk/ui/components/checkbox';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { Label } from '@kijk/ui/components/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Upload } from 'lucide-react';
@@ -17,7 +15,9 @@ import { toast } from 'sonner';
 
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
-import { accountLabel } from '@/shared/utils/format';
+
+import { UploadAccountSelect } from './upload-account-select';
+import { UploadConsent } from './upload-consent';
 
 const maxFileBytes = 5 * 1024 * 1024;
 
@@ -36,7 +36,6 @@ export function ImportUploadForm() {
   const createMutation = useMutation(importsOptions.startMutationOptions(spaceId));
   const navigate = useNavigate();
   const fileId = useId();
-  const consentId = useId();
   const isPending = consentMutation.isPending || createMutation.isPending;
 
   function onSubmit(event: React.SubmitEvent<HTMLFormElement>) {
@@ -77,7 +76,7 @@ export function ImportUploadForm() {
   }
 
   return (
-    <Card>
+    <Card className='max-w-2xl'>
       <CardContent className='pt-6'>
         {bankAccounts.length === 0 ? (
           <p className='text-muted-foreground text-sm'>
@@ -92,25 +91,7 @@ export function ImportUploadForm() {
           </p>
         ) : (
           <form className='grid gap-6' onSubmit={onSubmit}>
-            <div className='grid gap-2'>
-              <Label>Bank account</Label>
-              <Select
-                items={bankAccounts.map((account) => ({ label: accountLabel(account), value: account.id }))}
-                value={accountId}
-                onValueChange={(next) => setAccountId(next ?? '')}
-              >
-                <SelectTrigger aria-label='Bank account' className='w-full'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {bankAccounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {accountLabel(account)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <UploadAccountSelect accounts={bankAccounts} accountId={accountId} onChange={setAccountId} />
             <div className='grid gap-2'>
               <Label htmlFor={fileId}>CSV file</Label>
               <p className='text-muted-foreground text-xs'>
@@ -123,29 +104,7 @@ export function ImportUploadForm() {
                 onChange={(event) => setFile(event.target.files?.[0])}
               />
             </div>
-            {hasConsent ? null : (
-              <div className='flex items-start gap-3 rounded border p-4'>
-                <Checkbox
-                  checked={consentChecked}
-                  id={consentId}
-                  onCheckedChange={(checked) => setConsentChecked(checked === true)}
-                />
-                <Label className='block text-sm leading-relaxed font-normal' htmlFor={consentId}>
-                  I explicitly consent to Kijk storing and processing my bank transactions, although they can reveal
-                  sensitive information, for example about my health, religion, political opinions or union membership
-                  (GDPR Article 9(2)(a)). I can withdraw this consent at any time in Settings → Info; Kijk then no
-                  longer imports bank exports for me.{' '}
-                  <a
-                    className='text-foreground underline underline-offset-4'
-                    href='/privacy'
-                    rel='noopener noreferrer'
-                    target='_blank'
-                  >
-                    Privacy Policy
-                  </a>
-                </Label>
-              </div>
-            )}
+            {hasConsent ? null : <UploadConsent checked={consentChecked} onChange={setConsentChecked} />}
             <div className='flex flex-wrap items-center justify-between gap-4 border-t pt-4'>
               <p className='text-muted-foreground text-sm'>You review the transactions before saving.</p>
               <Button disabled={!canImport || !file || (!hasConsent && !consentChecked) || isPending} type='submit'>

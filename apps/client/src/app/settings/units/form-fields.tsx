@@ -10,9 +10,14 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shar
 import { UnitSelectOptions, unitSelectItems } from '@/shared/components/unit-select-options';
 
 import type { CreateUnitFormValues } from './schemas';
+import { UnitSymbolField } from './symbol-field';
+
+interface UnitFormFieldsProps {
+  control: Control<CreateUnitFormValues>;
+}
 
 /** Shared fields of the unit forms: name, symbol, reference unit and factor. */
-export function UnitFormFields({ control }: { control: Control<CreateUnitFormValues> }) {
+export function UnitFormFields({ control }: UnitFormFieldsProps) {
   const { data } = useQuery(unitsOptions.listQueryOptions({ scope: 'System' }));
   const systemUnits = data?.items ?? [];
 
@@ -31,37 +36,7 @@ export function UnitFormFields({ control }: { control: Control<CreateUnitFormVal
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name='symbol'
-        render={({ field }) => (
-          <FormItem>
-            <div className='flex items-center gap-1.5'>
-              <FormLabel>Symbol</FormLabel>
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <button
-                      aria-label='What is a unit symbol?'
-                      className='text-muted-foreground hover:text-foreground'
-                      type='button'
-                    />
-                  }
-                >
-                  <Info className='size-4' />
-                </TooltipTrigger>
-                <TooltipContent>
-                  The short text shown after a value, such as l, kg, or kWh. No icon is needed.
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <FormControl>
-              <Input maxLength={20} placeholder='e.g. bbl' {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <UnitSymbolField control={control} />
       <FormField
         control={control}
         name='referenceUnitId'

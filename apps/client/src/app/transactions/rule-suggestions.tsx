@@ -32,11 +32,15 @@ function writeHidden(ids: string[]) {
   }
 }
 
+interface RuleSuggestionsProps {
+  canRecord: boolean;
+}
+
 /**
  * Rules suggested from repeated manual corrections. Remembering one creates the rule and categorizes the matching open
  * transactions, so recurring bookings no longer need the AI.
  */
-export function RuleSuggestions({ canRecord }: { canRecord: boolean }) {
+export function RuleSuggestions({ canRecord }: RuleSuggestionsProps) {
   const spaceId = useSpaceId();
   const { data } = useQuery(categoryRulesOptions.suggestionsQueryOptions(spaceId));
   const [hidden, setHidden] = useState(readHidden);
@@ -78,15 +82,13 @@ export function RuleSuggestions({ canRecord }: { canRecord: boolean }) {
   );
 }
 
-function SuggestionRow({
-  canRecord,
-  onHide,
-  suggestion,
-}: {
+interface SuggestionRowProps {
   canRecord: boolean;
   onHide: () => void;
   suggestion: CategoryRuleSuggestion;
-}) {
+}
+
+function SuggestionRow({ canRecord, onHide, suggestion }: SuggestionRowProps) {
   const spaceId = useSpaceId();
   const categorizeMutation = useMutation(transactionsOptions.categorizeMutationOptions(spaceId));
   const uncategorized = Number(suggestion.uncategorizedCount);

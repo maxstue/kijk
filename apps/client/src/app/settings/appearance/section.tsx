@@ -4,7 +4,7 @@ import { Label } from '@kijk/ui/components/label';
 import { cn } from 'cn';
 import { MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
 
-import { PageHeader } from '@/shared/components/page-header';
+import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
 
 /** Settings section to choose the theme mode. */
 export function AppearanceSection() {
@@ -13,10 +13,14 @@ export function AppearanceSection() {
 
   return (
     <div className='space-y-6'>
-      <PageHeader
-        title='Appearance'
-        description='Customize the appearance of the app. Automatically switch between light and dark themes.'
-      />
+      <PageHeader>
+        <PageHeaderContent>
+          <PageHeaderTitle>Appearance</PageHeaderTitle>
+          <PageHeaderDescription>
+            {'Customize the appearance of the app. Automatically switch between light and dark themes.'}
+          </PageHeaderDescription>
+        </PageHeaderContent>
+      </PageHeader>
       <div className='flex flex-col gap-6'>
         <div className='flex flex-1 flex-col space-y-4 md:space-y-6'>
           <div className='space-y-1.5'>

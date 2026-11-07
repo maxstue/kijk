@@ -3,18 +3,16 @@ import type { CsvImportMapping, ImportJob, ImportPreview } from '@kijk/api/impor
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
-import { Input } from '@kijk/ui/components/input';
-import { Label } from '@kijk/ui/components/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-import type { ColumnRole } from '@/app/imports/constants';
-import { columnRoles, dateFormats, delimiters, encodings, ignoredColumn } from '@/app/imports/constants';
 import { assignColumnRole, createEmptyMapping, getColumnRoles, getMissingMappingFields } from '@/app/imports/helpers';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
+
+import { ColumnRoleSelect } from './column-role-select';
+import { FormatOptions } from './format-options';
 
 const proposalDescriptions: Record<NonNullable<ImportJob['proposedMappingSource']> | 'None', string> = {
   Ai: 'The AI suggested this mapping from the column names and masked value patterns; it never saw your data.',
@@ -23,14 +21,13 @@ const proposalDescriptions: Record<NonNullable<ImportJob['proposedMappingSource'
   Suggestion: 'Kijk suggested a mapping from the column names. Check it against the first rows before importing.',
 };
 
-/** Step that lets the user check and correct the column mapping against the first rows of the file. */
-export function ImportMappingStep({
-  initialMapping,
-  job,
-}: {
+interface ImportMappingStepProps {
   initialMapping: CsvImportMapping | null;
   job: ImportJob;
-}) {
+}
+
+/** Step that lets the user check and correct the column mapping against the first rows of the file. */
+export function ImportMappingStep({ initialMapping, job }: ImportMappingStepProps) {
   const spaceId = useSpaceId();
   // A draft the user edits; it starts from the proposal and is sent only when confirmed.
   const [mapping, setMapping] = useState<CsvImportMapping | null>(initialMapping);
@@ -135,129 +132,5 @@ function MappingCard({ job, mapping, onChange, preview, updating }: MappingCardP
         </Button>
       </CardFooter>
     </Card>
-  );
-}
-
-function ColumnRoleSelect({
-  onChange,
-  role,
-}: {
-  role: ColumnRole | undefined;
-  onChange: (role: ColumnRole | undefined) => void;
-}) {
-  return (
-    <Select
-      items={[
-        { label: 'Not imported', value: ignoredColumn },
-        ...columnRoles.map((option) => ({ label: option.label, value: option.key })),
-      ]}
-      value={role ?? ignoredColumn}
-      onValueChange={(value) => onChange(value === ignoredColumn ? undefined : (value as ColumnRole))}
-    >
-      <SelectTrigger aria-label='Column content' className='w-full' size='sm'>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={ignoredColumn}>Not imported</SelectItem>
-        {columnRoles.map((option) => (
-          <SelectItem key={option.key} value={option.key}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-}
-
-interface FormatOptionsProps {
-  mapping: CsvImportMapping;
-  recordCount: number;
-  onChange: (mapping: CsvImportMapping) => void;
-}
-
-function FormatOptions({ mapping, onChange, recordCount }: FormatOptionsProps) {
-  const headerId = useId();
-
-  return (
-    <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
-      <OptionSelect
-        label='Delimiter'
-        options={delimiters}
-        value={mapping.delimiter}
-        onChange={(delimiter) => onChange({ ...mapping, delimiter })}
-      />
-      <OptionSelect
-        label='Encoding'
-        options={encodings}
-        value={mapping.encoding}
-        onChange={(encoding) => onChange({ ...mapping, encoding })}
-      />
-      <div className='grid gap-2'>
-        <Label htmlFor={headerId}>Header row</Label>
-        <Input
-          id={headerId}
-          max={recordCount}
-          min={1}
-          type='number'
-          value={Number(mapping.headerRowIndex) + 1}
-          onChange={(event) => {
-            const row = event.target.valueAsNumber;
-            if (Number.isInteger(row) && row >= 1 && row <= recordCount) {
-              onChange({ ...mapping, headerRowIndex: row - 1 });
-            }
-          }}
-        />
-      </div>
-      <OptionSelect
-        label='Date format'
-        options={dateFormats.map((value) => ({ label: value, value }))}
-        value={mapping.dateFormat}
-        onChange={(dateFormat) => onChange({ ...mapping, dateFormat })}
-      />
-      <OptionSelect
-        label='Decimal separator'
-        options={[
-          { label: 'Comma (1.234,56)', value: ',' },
-          { label: 'Point (1,234.56)', value: '.' },
-        ]}
-        value={mapping.decimalSeparator}
-        onChange={(decimalSeparator) => onChange({ ...mapping, decimalSeparator })}
-      />
-    </div>
-  );
-}
-
-interface OptionSelectProps {
-  label: string;
-  options: ReadonlyArray<{ label: string; value: string }>;
-  value: string;
-  onChange: (value: string) => void;
-}
-
-function OptionSelect({ label, onChange, options, value }: OptionSelectProps) {
-  return (
-    <div className='grid gap-2'>
-      <Label>{label}</Label>
-      <Select
-        items={options}
-        value={value}
-        onValueChange={(next) => {
-          if (next !== null) {
-            onChange(next);
-          }
-        }}
-      >
-        <SelectTrigger className='w-full'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
   );
 }

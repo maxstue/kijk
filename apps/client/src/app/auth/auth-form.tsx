@@ -5,14 +5,14 @@ import { GitHubIcon, GoogleIcon, SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { cn } from 'cn';
 import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import type { AuthSchema } from '@/app/auth/schemas';
 import { authSchema } from '@/app/auth/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { Allowed_Providers, Auth_Provider_Strategies } from '@/shared/types/auth';
 import type { AllowedProviders } from '@/shared/types/auth';
+import { Allowed_Providers, Auth_Provider_Strategies } from '@/shared/types/auth';
 
 interface Props {
   className?: string;
@@ -115,9 +115,7 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
   );
 }
 
-function PasswordField({
-  field,
-}: {
+interface PasswordFieldProps {
   field: ControllerRenderProps<
     {
       email: string;
@@ -125,7 +123,9 @@ function PasswordField({
     },
     'password'
   >;
-}) {
+}
+
+function PasswordField({ field }: PasswordFieldProps) {
   return (
     <FormItem>
       <FormLabel>Password</FormLabel>
@@ -138,9 +138,7 @@ function PasswordField({
   );
 }
 
-function EmailField({
-  field,
-}: {
+interface EmailFieldProps {
   field: ControllerRenderProps<
     {
       email: string;
@@ -148,7 +146,9 @@ function EmailField({
     },
     'email'
   >;
-}) {
+}
+
+function EmailField({ field }: EmailFieldProps) {
   return (
     <FormItem>
       <FormLabel>Email</FormLabel>

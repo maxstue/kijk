@@ -24,7 +24,8 @@ import { ConsumptionMonthView } from '@/app/consumptions/month-view';
 import { ConsumptionYearSwitcher } from '@/app/consumptions/year-switcher';
 import { LimitWarnings } from '@/app/limits/warnings';
 import { NotFound } from '@/shared/components/not-found';
-import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { PageAddButton } from '@/shared/components/page-header';
+import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
@@ -71,8 +72,31 @@ function UsagePage() {
 
   return (
     <div className='space-y-6 pt-6'>
-      <PageToolbar
-        actions={
+      <PageToolbar>
+        <PageToolbarControls>
+          <Tabs
+            value={view}
+            onValueChange={(nextView) =>
+              navigate({ search: (previous) => ({ ...previous, view: nextView as 'month' | 'year' }) })
+            }
+          >
+            <TabsList>
+              <TabsTrigger value='month'>Monthly</TabsTrigger>
+              <TabsTrigger value='year'>Annual</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Suspense>
+            {view === 'month' ? (
+              <ConsumptionMonthNav />
+            ) : (
+              <>
+                <ConsumptionCurrentPeriodButton view={view} />
+                <ConsumptionYearSwitcher className='w-auto min-w-28' />
+              </>
+            )}
+          </Suspense>
+        </PageToolbarControls>
+        <PageToolbarActions>
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger
               render={
@@ -92,24 +116,7 @@ function UsagePage() {
               <ConsumptionCreateForm consumptions={yearlyConsumptions} onClose={handleClose} />
             </DialogContent>
           </Dialog>
-        }
-      >
-        <Tabs
-          value={view}
-          onValueChange={(nextView) =>
-            navigate({ search: (previous) => ({ ...previous, view: nextView as 'month' | 'year' }) })
-          }
-        >
-          <TabsList>
-            <TabsTrigger value='month'>Monthly</TabsTrigger>
-            <TabsTrigger value='year'>Annual</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <Suspense>
-          <ConsumptionCurrentPeriodButton view={view} />
-          <ConsumptionYearSwitcher className='w-auto min-w-28' />
-          {view === 'month' && <ConsumptionMonthNav className='w-auto min-w-36' />}
-        </Suspense>
+        </PageToolbarActions>
       </PageToolbar>
       <LimitWarnings />
       {view === 'year' ? (

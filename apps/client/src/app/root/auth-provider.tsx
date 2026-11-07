@@ -4,8 +4,12 @@ import type { ReactNode } from 'react';
 import { config } from '@/shared/config';
 import { AppAuthContext } from '@/shared/runtime/auth';
 
+interface WebAuthProviderProps {
+  children: ReactNode;
+}
+
 /** Web-only Clerk integration. Public children render while the browser SDK loads. */
-export function WebAuthProvider({ children }: { children: ReactNode }) {
+export function WebAuthProvider({ children }: WebAuthProviderProps) {
   if (!config.AuthPublishableKey) {
     return (
       <AppAuthContext value={{ isLoaded: true, isSignedIn: false, signOut: async () => {} }}>{children}</AppAuthContext>
@@ -18,7 +22,11 @@ export function WebAuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function AuthBridge({ children }: { children: ReactNode }) {
+interface AuthBridgeProps {
+  children: ReactNode;
+}
+
+function AuthBridge({ children }: AuthBridgeProps) {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const { user } = useUser();
   return (

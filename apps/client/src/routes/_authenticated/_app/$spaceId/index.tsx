@@ -1,33 +1,38 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Suspense } from 'react';
+import { useState } from 'react';
+import { z } from 'zod';
 
-import { HomeChartArea } from '@/app/home/home-chart-area';
-import { HomeSectionCards } from '@/app/home/home-section-cards';
-import { HomeTable } from '@/app/home/home-table';
+import { Dashboard } from '@/app/home/dashboard';
 import { AppError } from '@/shared/components/errors/app-error';
-import { Loader } from '@/shared/components/ui/loaders/loader';
 
-/** `/$spaceId`: dashboard of the space. */
+/** The common overview of the route space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/')({
-  head: () => ({ meta: [{ title: 'Home' }] }),
+  validateSearch: z.object({
+    year: z.coerce.number().int().min(2000).max(9998).optional().catch(undefined),
+    resource: z.string().min(1).optional().catch(undefined),
+    view: z.enum(['meter', 'consumption']).default('meter').catch('meter'),
+    month: z.coerce.number().int().min(1).max(12).optional().catch(undefined),
+  }),
+  head: () => ({ meta: [{ title: 'Space overview' }] }),
   component: HomeIndexPage,
   errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
 });
 
 function HomeIndexPage() {
+  const { spaceId } = Route.useParams();
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [now] = useState(() => new Date());
   return (
-    <div className='@container/main flex flex-1 flex-col gap-2'>
-      <div className='flex flex-col gap-4'>
-        <HomeSectionCards />
-        <div>
-          <Suspense fallback={<Loader className='h-6 w-6' />}>
-            <HomeChartArea />
-          </Suspense>
-        </div>
-        <Suspense fallback={<Loader className='h-6 w-6' />}>
-          <HomeTable />
-        </Suspense>
-      </div>
-    </div>
+    <Dashboard
+      spaceId={spaceId}
+      year={search.year ?? now.getFullYear()}
+      month={search.month ?? now.getMonth() + 1}
+      resourceId={search.resource}
+      view={search.view}
+      onResourceChange={(resource) => void navigate({ search: (previous) => ({ ...previous, resource }) })}
+      onViewChange={(view) => void navigate({ search: (previous) => ({ ...previous, view }) })}
+      onChange={(period) => void navigate({ search: (previous) => ({ ...previous, ...period }) })}
+    />
   );
 }

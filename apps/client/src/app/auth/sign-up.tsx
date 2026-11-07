@@ -4,10 +4,10 @@ import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Input } from '@kijk/ui/components/input';
 import { Link, useRouter } from '@tanstack/react-router';
-import { useCallback, useState } from 'react';
 import type { Dispatch } from 'react';
-import { useForm } from 'react-hook-form';
+import { useCallback, useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { authErrorMessage } from '@/app/auth/helpers';
@@ -161,7 +161,11 @@ function Verify() {
   );
 }
 
-function CodeField({ field }: { field: ControllerRenderProps<{ code: string }, 'code'> }) {
+interface CodeFieldProps {
+  field: ControllerRenderProps<{ code: string }, 'code'>;
+}
+
+function CodeField({ field }: CodeFieldProps) {
   return (
     <FormItem>
       <FormLabel>Code</FormLabel>

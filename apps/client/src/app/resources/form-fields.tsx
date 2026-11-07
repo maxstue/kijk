@@ -41,7 +41,7 @@ export function ResourceUnitField({ className, field }: FieldProps<'unitId'>) {
       <FormLabel>Unit</FormLabel>
       <FormControl>
         <Select items={unitSelectItems(availableUnits)} value={field.value} onValueChange={field.onChange}>
-          <SelectTrigger aria-label='Unit'>
+          <SelectTrigger aria-label='Unit' className='w-full'>
             <SelectValue placeholder='Select a unit' />
           </SelectTrigger>
           <SelectContent>

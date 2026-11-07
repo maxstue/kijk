@@ -16,7 +16,8 @@ export const listQueryOptions = (spaceId: string) =>
 export const createMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: CreateAccountRequest) => create(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.accounts.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.accounts.all(spaceId)),
   });
 
 /** Mutation that updates an account. */
@@ -27,6 +28,7 @@ export const updateMutationOptions = (spaceId: string) =>
     onSuccess: (_data, _variables, _result, { client }) =>
       invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.accounts.all(spaceId),
         queryKeys.transactions.all(spaceId),
         queryKeys.imports.all(spaceId),
@@ -37,5 +39,6 @@ export const updateMutationOptions = (spaceId: string) =>
 export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (id: string) => remove(spaceId, id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.accounts.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.accounts.all(spaceId)),
   });

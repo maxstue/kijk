@@ -32,19 +32,22 @@ export const statisticsQueryOptions = (spaceId: string, year: number, month: num
 export const setFromMonthMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: SetBudgetRequest) => setFromMonth(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.budgets.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.budgets.all(spaceId), queryKeys.dashboard.all(spaceId)),
   });
 
 /** Mutation that updates a budget. */
 export const updateVersionMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: UpdateBudgetData) => updateVersion(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.budgets.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.budgets.all(spaceId), queryKeys.dashboard.all(spaceId)),
   });
 
 /** Mutation that deletes a budget. */
 export const deleteVersionMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (id: string) => deleteVersion(spaceId, id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.budgets.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.budgets.all(spaceId), queryKeys.dashboard.all(spaceId)),
   });

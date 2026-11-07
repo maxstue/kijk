@@ -2,8 +2,21 @@ import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { cn } from 'cn';
 import * as React from 'react';
-import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
+import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form';
+
+interface FormFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> extends ControllerProps<TFieldValues, TName> {}
+
+interface FormItemProps extends React.ComponentProps<'div'> {}
+
+interface FormLabelProps extends React.ComponentProps<'label'> {}
+
+interface FormDescriptionProps extends React.ComponentProps<'p'> {}
+
+interface FormMessageProps extends React.ComponentProps<'p'> {}
 
 // TODO refactor using tanstack-form and use shadcn Field component as base
 
@@ -25,7 +38,7 @@ const FormField = <
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
   ...props
-}: ControllerProps<TFieldValues, TName>) => (
+}: FormFieldProps<TFieldValues, TName>) => (
   <FormFieldContext.Provider value={{ name: props.name }}>
     <Controller {...props} />
   </FormFieldContext.Provider>
@@ -58,7 +71,7 @@ interface FormItemContextValue {
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
 /** Wraps a label, control, description and message and gives them a shared id. */
-function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
+function FormItem({ className, ...props }: FormItemProps) {
   const id = React.useId();
 
   return (
@@ -69,7 +82,7 @@ function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 /** Label of the field; turns red when the field is invalid. */
-function FormLabel({ className, ...props }: React.ComponentProps<'label'>) {
+function FormLabel({ className, ...props }: FormLabelProps) {
   const { error, formItemId } = useFormField();
 
   return (
@@ -83,13 +96,12 @@ function FormLabel({ className, ...props }: React.ComponentProps<'label'>) {
   );
 }
 
-/** Passes id and ARIA attributes for description and error to the wrapped control. */
-function FormControl({
-  children,
-  ...props
-}: Omit<useRender.ComponentProps<'div'>, 'render' | 'children'> & {
+interface FormControlProps extends Omit<useRender.ComponentProps<'div'>, 'render' | 'children'> {
   children: React.ReactElement;
-}) {
+}
+
+/** Passes id and ARIA attributes for description and error to the wrapped control. */
+function FormControl({ children, ...props }: FormControlProps) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return useRender({
@@ -109,7 +121,7 @@ function FormControl({
 }
 
 /** Help text of the field. */
-function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
+function FormDescription({ className, ...props }: FormDescriptionProps) {
   const { formDescriptionId } = useFormField();
 
   return (
@@ -123,7 +135,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
 }
 
 /** Validation error of the field, or its children when the field is valid. */
-function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
+function FormMessage({ className, ...props }: FormMessageProps) {
   const { error, formMessageId } = useFormField();
   const content = error ? String(error.message ?? '') : props.children;
   const hasBody = Boolean(content);
@@ -147,4 +159,4 @@ function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+export { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField };

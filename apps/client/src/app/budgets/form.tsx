@@ -1,12 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as budgetsOptions from '@kijk/api/budgets/options';
-import * as categoriesOptions from '@kijk/api/categories/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -28,6 +26,8 @@ import { useActiveSpace, useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { formatMonthYear } from '@/shared/utils/months';
 
+import { BudgetCategoryField } from './category-field';
+
 interface Props {
   /** Preselects and locks the category when editing an existing budget. */
   categoryId?: string;
@@ -45,9 +45,7 @@ export function BudgetForm({ categoryId, initialAmount, initialVisibility, month
   const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.budgets.plan);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const saveMutation = useMutation(budgetsOptions.setFromMonthMutationOptions(spaceId));
-  const expenseCategories = categories.filter((category) => category.kind === 'Expense');
   const monthLabel = formatMonthYear(year, month);
   const form = useForm<BudgetFormValues>({
     defaultValues: {
@@ -75,35 +73,7 @@ export function BudgetForm({ categoryId, initialAmount, initialVisibility, month
   return (
     <Form {...form}>
       <form className='grid gap-4' onSubmit={form.handleSubmit(onSubmit)} noValidate>
-        <FormField
-          control={form.control}
-          name='categoryId'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select
-                disabled={Boolean(categoryId)}
-                items={expenseCategories.map((category) => ({ label: category.name, value: category.id }))}
-                value={field.value}
-                onValueChange={field.onChange}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a category' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {expenseCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <BudgetCategoryField control={form.control} categoryId={categoryId} />
         <FormField
           control={form.control}
           name='amount'

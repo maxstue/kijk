@@ -1,5 +1,5 @@
 /** E-mail address for legal, privacy and support requests. */
-export const legalContactEmail = 'kijk@justmax.xyz';
+export const legalContactEmail = 'dev@justmax.xyz';
 
 /** Name, postal address and e-mail of the operator, as required for the imprint and the privacy policy. */
 export function LegalContact() {

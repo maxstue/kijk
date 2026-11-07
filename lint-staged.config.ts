@@ -7,7 +7,7 @@ export default defineConfig({
   ],
   'apps/client/**/!(package|package-lock|CHANGELOG).{json,css,md,yml,yaml}': 'pnpm --filter kijk-client exec oxfmt',
   'packages/api/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}': [
-    'pnpm --filter @kijk/api exec oxlint --fix',
+    'pnpm --filter @kijk/api exec oxlint --fix --no-error-on-unmatched-pattern',
     'pnpm --filter @kijk/api exec oxfmt',
   ],
   'packages/api/**/!(package|package-lock|CHANGELOG).{json,css,md,yml,yaml}': 'pnpm --filter @kijk/api exec oxfmt',

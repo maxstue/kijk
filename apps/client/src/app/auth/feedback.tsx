@@ -9,6 +9,8 @@ import { useState } from 'react';
 import { AppBrand } from '@/shared/components/app-brand';
 import { useAppAuth } from '@/shared/runtime/auth';
 
+interface AuthErrorProps extends ErrorComponentProps {}
+
 /** Visible while the server session and Kijk account are checked before entering the app. */
 export function AuthPending() {
   return (
@@ -20,7 +22,7 @@ export function AuthPending() {
 }
 
 /** Keeps account-loading failures visible instead of sending a signed-in user to the landing page. */
-export function AuthError({ error }: ErrorComponentProps) {
+export function AuthError({ error }: AuthErrorProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { isSignedIn, signOut } = useAppAuth();

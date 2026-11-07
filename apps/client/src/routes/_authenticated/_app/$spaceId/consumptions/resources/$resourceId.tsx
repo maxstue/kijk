@@ -31,7 +31,11 @@ function ResourceEditDialog() {
   );
 }
 
-function ResourceEditContent({ onClose }: { onClose: () => void }) {
+interface ResourceEditContentProps {
+  onClose: () => void;
+}
+
+function ResourceEditContent({ onClose }: ResourceEditContentProps) {
   const spaceId = useSpaceId();
   const { resourceId } = Route.useParams();
   const { data: resource } = useSuspenseQuery(resourcesOptions.detailsQueryOptions(spaceId, resourceId));

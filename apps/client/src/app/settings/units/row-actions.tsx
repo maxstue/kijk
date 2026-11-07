@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import { UnitDeleteContent } from './delete-content';
 import { UnitUpdateForm } from './update-form';
 
-interface Props {
+export interface UnitRowActionsProps {
   spaceId?: string;
   /** Spaces in which the user's role allows sharing units. */
   shareableSpaces: Array<{ id: string; name: string }>;
@@ -29,50 +29,35 @@ interface Props {
 }
 
 /** Row menu of the unit table: edit, share, archive or restore, remove from space and delete. */
-export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props) {
-  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: UnitRowActionsProps) {
+  const canDelete = Number(unit.resourceCount) === 0 && unit.spaceIds.length === 0;
+  const canUnshare = scope === 'space' && unit.isOwner && shareableSpaces.some((space) => space.id === spaceId);
   const restoreMutation = useMutation(unitsOptions.restoreMutationOptions());
   const shareMutation = useMutation(unitsOptions.shareWithSpaceMutationOptions());
   const unshareMutation = useMutation(unitsOptions.removeFromSpaceMutationOptions());
-  const canDelete = Number(unit.resourceCount) === 0 && unit.spaceIds.length === 0;
-  const canUnshare = scope === 'space' && unit.isOwner && shareableSpaces.some((space) => space.id === spaceId);
-
   function restore() {
     restoreMutation.mutate(unit.id, {
       onError: (error) => toast.error(error.message),
-      onSuccess: () => {
-        toast.success('Unit restored');
-      },
+      onSuccess: () => toast.success('Unit restored'),
     });
   }
-
-  function share(targetSpaceId: string) {
+  function share(spaceId: string) {
     shareMutation.mutate(
-      { spaceId: targetSpaceId, id: unit.id },
-      {
-        onError: (error) => toast.error(error.message),
-        onSuccess: () => {
-          toast.success('Unit shared with space');
-        },
-      },
+      { spaceId, id: unit.id },
+      { onError: (error) => toast.error(error.message), onSuccess: () => toast.success('Unit shared with space') },
     );
   }
-
   function unshare() {
     if (!spaceId) {
       return;
     }
     unshareMutation.mutate(
       { spaceId, id: unit.id },
-      {
-        onError: (error) => toast.error(error.message),
-        onSuccess: () => {
-          toast.success('Unit removed from space');
-        },
-      },
+      { onError: (error) => toast.error(error.message), onSuccess: () => toast.success('Unit removed from space') },
     );
   }
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
     <>
@@ -146,13 +131,12 @@ export function UnitRowActions({ spaceId, scope, shareableSpaces, unit }: Props)
   );
 }
 
-function UnitSharingActions({
-  scope,
-  shareableSpaces,
-  unit,
-  isPending,
-  onShare,
-}: Omit<Props, 'spaceId'> & { isPending: boolean; onShare: (spaceId: string) => void }) {
+interface UnitSharingActionsProps extends Omit<UnitRowActionsProps, 'spaceId'> {
+  isPending: boolean;
+  onShare: (spaceId: string) => void;
+}
+
+function UnitSharingActions({ scope, shareableSpaces, unit, isPending, onShare }: UnitSharingActionsProps) {
   if (scope !== 'personal' || !unit.isOwner || unit.isArchived) {
     return null;
   }

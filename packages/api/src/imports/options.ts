@@ -52,7 +52,12 @@ export const detailsQueryOptions = (spaceId: string, id: string) =>
       const job = await getDetails(spaceId, id, signal);
       const previous = client.getQueryData<ImportJob>(queryKeys.imports.detail(spaceId, id));
       if (previous?.status === 'Categorizing' && job.status !== 'Categorizing') {
-        await invalidate(client, queryKeys.imports.candidates(spaceId, id), queryKeys.imports.aiPreview(spaceId, id));
+        await invalidate(
+          client,
+          queryKeys.dashboard.all(spaceId),
+          queryKeys.imports.candidates(spaceId, id),
+          queryKeys.imports.aiPreview(spaceId, id),
+        );
       }
       return job;
     },
@@ -99,14 +104,16 @@ export const settingsQueryOptions = (spaceId: string) =>
 export const startMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: CreateImportData) => start(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.imports.list(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.imports.list(spaceId)),
   });
 
 /** Mutation that confirms a column mapping. */
 export const confirmMappingMutationOptions = (spaceId: string, id: string) =>
   mutationOptions({
     mutationFn: (mapping: CsvImportMapping) => confirmMapping(spaceId, id, mapping),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.imports.detail(spaceId, id)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.imports.detail(spaceId, id)),
   });
 
 /** Mutation that changes a row during the review. */
@@ -116,6 +123,7 @@ export const updateCandidateMutationOptions = (spaceId: string) =>
     onSuccess: (_data, { importId }, _result, { client }) =>
       invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.imports.candidates(spaceId, importId),
         queryKeys.imports.aiPreview(spaceId, importId),
       ),
@@ -128,6 +136,7 @@ export const commitMutationOptions = (spaceId: string, id: string) =>
     onSuccess: (_data, _variables, _result, { client }) =>
       invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.imports.all(spaceId),
         queryKeys.transactions.all(spaceId),
         queryKeys.budgets.all(spaceId),
@@ -138,14 +147,16 @@ export const commitMutationOptions = (spaceId: string, id: string) =>
 export const cancelMutationOptions = (spaceId: string, id: string) =>
   mutationOptions({
     mutationFn: () => cancel(spaceId, id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.imports.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.imports.all(spaceId)),
   });
 
 /** Mutation that changes the import settings. */
 export const updateSettingsMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: UpdateImportSettingsRequest) => updateSettings(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.imports.settings(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.imports.settings(spaceId)),
   });
 
 /** Mutation that lets the AI propose categories for the rows without one. */
@@ -154,7 +165,7 @@ export const startCategorizationMutationOptions = (spaceId: string, id: string) 
     mutationFn: (data: CategorizeImportRequest) => startCategorization(spaceId, id, data),
     onSuccess: (job, _variables, _result, { client }) => {
       client.setQueryData(queryKeys.imports.detail(spaceId, id), job);
-      return invalidate(client, queryKeys.imports.detail(spaceId, id));
+      return invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.imports.detail(spaceId, id));
     },
   });
 
@@ -163,5 +174,10 @@ export const resetOverridesMutationOptions = (spaceId: string, id: string) =>
   mutationOptions({
     mutationFn: () => resetOverrides(spaceId, id),
     onSuccess: (_data, _variables, _result, { client }) =>
-      invalidate(client, queryKeys.imports.candidates(spaceId, id), queryKeys.imports.aiPreview(spaceId, id)),
+      invalidate(
+        client,
+        queryKeys.dashboard.all(spaceId),
+        queryKeys.imports.candidates(spaceId, id),
+        queryKeys.imports.aiPreview(spaceId, id),
+      ),
   });

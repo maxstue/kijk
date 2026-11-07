@@ -5,11 +5,21 @@ import type { Consumption } from '@/shared/types/domain';
 
 import { ConsumptionAnnualView } from './annual-view';
 
+interface ConsumptionEditButtonProps {
+  id: string;
+}
+
+interface ConsumptionDeleteButtonProps {
+  id: string;
+}
+
 vi.mock('./edit-button', () => ({
-  ConsumptionEditButton: ({ id }: { id: string }) => <button aria-label={`Edit ${id}`}>Edit</button>,
+  ConsumptionEditButton: ({ id }: ConsumptionEditButtonProps) => <button aria-label={`Edit ${id}`}>Edit</button>,
 }));
 vi.mock('./delete-button', () => ({
-  ConsumptionDeleteButton: ({ id }: { id: string }) => <button aria-label={`Delete ${id}`}>Delete</button>,
+  ConsumptionDeleteButton: ({ id }: ConsumptionDeleteButtonProps) => (
+    <button aria-label={`Delete ${id}`}>Delete</button>
+  ),
 }));
 vi.mock('./limit-warning', () => ({ LimitWarning: () => null }));
 

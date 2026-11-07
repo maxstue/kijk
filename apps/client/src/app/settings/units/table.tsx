@@ -1,13 +1,12 @@
 import type { Unit } from '@kijk/api/units/types';
-import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import type { ReactNode } from 'react';
 
-import { PageToolbar } from '@/shared/components/page-header';
+import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 
-import { UnitRowActions } from './row-actions';
+import { UnitTableRow } from './table-row';
 
 interface Props {
   actions?: ReactNode;
@@ -45,16 +44,19 @@ export function UnitTable({
   return (
     <div className='min-w-0'>
       <div className='my-4'>
-        <PageToolbar actions={actions}>
-          <Input
-            className='w-full sm:w-72'
-            placeholder='Filter name or symbol...'
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-          />
+        <PageToolbar>
+          <PageToolbarControls>
+            <Input
+              className='w-full sm:w-72'
+              placeholder='Filter name or symbol...'
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+            />
+          </PageToolbarControls>
+          {actions && <PageToolbarActions>{actions}</PageToolbarActions>}
         </PageToolbar>
       </div>
       <div className='w-full overflow-x-auto rounded border'>
@@ -77,30 +79,13 @@ export function UnitTable({
               </TableRow>
             ) : (
               items.map((unit) => (
-                <TableRow key={unit.id}>
-                  <TableCell>
-                    <span className='font-medium'>
-                      {unit.name} ({unit.symbol})
-                    </span>
-                    {unit.conversionType === 'None' && (
-                      <p className='text-muted-foreground text-xs'>
-                        {unit.isOwner
-                          ? 'Legacy unit · define its conversion before using it again'
-                          : 'Legacy system unit · read-only'}
-                      </p>
-                    )}
-                  </TableCell>
-                  <TableCell>{unit.conversionType === 'None' ? 'Unknown' : unit.quantityKey}</TableCell>
-                  <TableCell>
-                    <Badge variant={unit.creatorType === 'System' ? 'secondary' : 'outline'}>
-                      {unit.creatorType === 'System' ? 'System' : 'Custom'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{unit.isArchived ? 'Archived' : 'Active'}</TableCell>
-                  <TableCell>
-                    <UnitRowActions spaceId={spaceId} shareableSpaces={shareableSpaces} scope={scope} unit={unit} />
-                  </TableCell>
-                </TableRow>
+                <UnitTableRow
+                  key={unit.id}
+                  unit={unit}
+                  spaceId={spaceId}
+                  scope={scope}
+                  shareableSpaces={shareableSpaces}
+                />
               ))
             )}
           </TableBody>

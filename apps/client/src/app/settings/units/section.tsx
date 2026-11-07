@@ -15,7 +15,14 @@ import { Link } from '@tanstack/react-router';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 
-import { PageAddButton, PageHeader } from '@/shared/components/page-header';
+import {
+  PageAddButton,
+  PageHeader,
+  PageHeaderContent,
+  PageHeaderTitle,
+  PageHeaderDescription,
+  PageHeaderActions,
+} from '@/shared/components/page-header';
 
 import { UnitCreateForm } from './create-form';
 import { UnitTable } from './table';
@@ -51,15 +58,21 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
 
   return (
     <div className='space-y-6'>
-      <PageHeader
-        actions={<CreateUnitDialog canCreate={canCreate} spaceId={scope === 'space' ? spaceId : undefined} />}
-        title={scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
-        description={
-          scope === 'personal'
-            ? 'Browse system units and manage the custom units you can use across spaces.'
-            : 'Browse system units and units shared with this space.'
-        }
-      />
+      <PageHeader>
+        <PageHeaderContent>
+          <PageHeaderTitle>
+            {scope === 'personal' ? 'Units' : `${selectedSpace?.name ?? 'Space'} units`}
+          </PageHeaderTitle>
+          <PageHeaderDescription>
+            {scope === 'personal'
+              ? 'Browse system units and manage the custom units you can use across spaces.'
+              : 'Browse system units and units shared with this space.'}
+          </PageHeaderDescription>
+        </PageHeaderContent>
+        <PageHeaderActions>
+          <CreateUnitDialog canCreate={canCreate} spaceId={scope === 'space' ? spaceId : undefined} />
+        </PageHeaderActions>
+      </PageHeader>
       {scope === 'space' && (
         <p className='text-muted-foreground text-sm'>
           Have a personal unit to use here?{' '}
@@ -102,8 +115,13 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
   );
 }
 
+interface CreateUnitDialogProps {
+  canCreate: boolean;
+  spaceId?: string;
+}
+
 /** "Add unit" button with the create dialog; a new unit is shared with `spaceId` when given. */
-function CreateUnitDialog({ canCreate, spaceId }: { canCreate: boolean; spaceId?: string }) {
+function CreateUnitDialog({ canCreate, spaceId }: CreateUnitDialogProps) {
   const [showDialog, setShowDialog] = useState(false);
 
   return (
@@ -129,7 +147,13 @@ function CreateUnitDialog({ canCreate, spaceId }: { canCreate: boolean; spaceId?
   );
 }
 
-function UnitStatistic({ icon, label, value }: { icon: 'custom' | 'overall'; label: string; value: number }) {
+interface UnitStatisticProps {
+  icon: 'custom' | 'overall';
+  label: string;
+  value: number;
+}
+
+function UnitStatistic({ icon, label, value }: UnitStatisticProps) {
   const Icon = icon === 'overall' ? Hash : BarChart3;
   return (
     <Card>

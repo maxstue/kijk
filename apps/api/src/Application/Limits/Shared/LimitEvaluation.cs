@@ -32,11 +32,17 @@ internal static class LimitEvaluation
     internal static LimitResponse ToResponse(Limit limit, IEnumerable<Consumption> consumptions, DateTime utcNow)
     {
         var (start, end) = GetPeriodRange(limit.Period, utcNow);
-        var actualValue = consumptions
-            .Where(consumption => consumption.ResourceId == limit.ResourceId
-                                  && consumption.Date >= start
-                                  && consumption.Date < end)
-            .Sum(consumption => consumption.CalculatedConsumption);
+        var history = consumptions
+            .Where(consumption => consumption.ResourceId == limit.ResourceId && consumption.Date < end)
+            .GroupBy(consumption => GetPeriodRange(limit.Period, consumption.Date))
+            .OrderByDescending(group => group.Key.Start)
+            .Select(group =>
+            {
+                var value = group.Sum(consumption => consumption.CalculatedConsumption);
+                return new LimitPeriodResponse(group.Key.Start, group.Key.End, value, value >= limit.Threshold, group.Key.End <= utcNow);
+            })
+            .ToList();
+        var actualValue = history.FirstOrDefault(item => item.PeriodStart == start)?.ActualValue ?? 0m;
         var remainingValue = Math.Max(0, limit.Threshold - actualValue);
         var utilizationPercentage = limit.Threshold == 0 ? 0 : decimal.Round(actualValue / limit.Threshold * 100, 2);
 
@@ -54,6 +60,7 @@ internal static class LimitEvaluation
             actualValue >= limit.Threshold,
             start,
             end,
-            limit.LastOccurrence);
+            limit.LastOccurrence,
+            history);
     }
 }

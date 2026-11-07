@@ -302,6 +302,70 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/spaces/{spaceId}/dashboard/finances': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['Dashboard.Finances'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/spaces/{spaceId}/dashboard/budgets': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['Dashboard.Budgets'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/spaces/{spaceId}/dashboard/consumptions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['Dashboard.Consumptions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/spaces/{spaceId}/dashboard/limits': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['Dashboard.Limits'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/spaces/{spaceId}/imports': {
     parameters: {
       query?: never;
@@ -1334,6 +1398,20 @@ export interface components {
       /** Confirms committing although many rows could not be parsed. */
       acceptErrors: boolean;
     };
+    /** Monthly consumption and the final effective meter reading; the reading is null until an absolute baseline exists. */
+    ConsumptionMonth: {
+      /** Format: int32 */
+      month: number | string;
+      /** Format: uuid */
+      resourceId: string;
+      name: string;
+      unit: string;
+      color: string;
+      /** Format: double */
+      value: number | string;
+      /** Format: double */
+      meterReading: null | number | string;
+    };
     /** The resource of a consumption entry. */
     ConsumptionResourceResponse: {
       /**
@@ -1712,6 +1790,44 @@ export interface components {
      * @enum {unknown}
      */
     CurrentUserStatus: 'OnboardingRequired' | 'Ready';
+    /** A shared monthly EUR budget evaluated against shared booked transactions only. */
+    DashboardBudget: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      currency: string;
+      /** Format: double */
+      amount: number | string;
+      /** Format: double */
+      spent: number | string;
+      /** Format: double */
+      remaining: number | string;
+      /** Format: double */
+      overrun: number | string;
+      /** Format: double */
+      percentage: null | number | string;
+    };
+    /** A limit evaluated using its current definition; a zero threshold has no percentage. */
+    DashboardLimit: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      unit: string;
+      /** Format: double */
+      threshold: number | string;
+      /** Format: double */
+      actualValue: number | string;
+      /** Format: double */
+      remaining: number | string;
+      /** Format: double */
+      overrun: number | string;
+      /** Format: double */
+      percentage: null | number | string;
+      /** Format: date-time */
+      periodStart: string;
+      /** Format: date-time */
+      periodEnd: string;
+    };
     /** Identity data owned by the authentication provider and exposed according to the user's preference. */
     ExternalIdentityResponse: {
       /** The full name, or null when its use is disabled. */
@@ -1738,6 +1854,19 @@ export interface components {
     FeedbackRequest: {
       /** The feedback text, between 2 and 4000 characters; do not include financial or account details. */
       message: string;
+    };
+    /** Monthly finance totals; HasData distinguishes a zero result from missing bookings. */
+    FinanceMonth: {
+      /** Format: int32 */
+      month: number | string;
+      currency: string;
+      /** Format: double */
+      income: number | string;
+      /** Format: double */
+      expenses: number | string;
+      /** Format: double */
+      balance: number | string;
+      hasData: boolean;
     };
     /** Represents the persisted Kijk user data for a ready account. */
     GetMeUserResponse: {
@@ -2018,6 +2147,34 @@ export interface components {
       /** Whether imports store neither names of private persons nor counterparty keys. */
       minimizeData: boolean;
     };
+    /**
+     * A recorded calendar period evaluated against the limit's current threshold and period settings. Periods without
+     * readings and future periods are omitted; the current period is provisional.
+     */
+    LimitPeriodResponse: {
+      /**
+       * Format: date-time
+       *
+       * The inclusive UTC calendar period start.
+       */
+      periodStart: string;
+      /**
+       * Format: date-time
+       *
+       * The exclusive UTC calendar period end.
+       */
+      periodEnd: string;
+      /**
+       * Format: double
+       *
+       * The total normalized consumption recorded in the period.
+       */
+      actualValue: number | string;
+      /** Whether the consumption reached or exceeded the current threshold. */
+      isExceeded: boolean;
+      /** Whether the calendar period has ended. */
+      isComplete: boolean;
+    };
     /** The resource governed by a consumption limit. */
     LimitResourceResponse: {
       /** Format: uuid */
@@ -2050,6 +2207,7 @@ export interface components {
       periodEnd: string;
       /** Format: date-time */
       lastOccurrence: null | string;
+      history: components['schemas']['LimitPeriodResponse'][];
     };
     /** @enum {unknown} */
     MappingSource: 'Profile' | 'Suggestion' | 'Ai' | null;
@@ -3689,6 +3847,160 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['GetYearsConsumptionQueryResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Dashboard.Finances': {
+    parameters: {
+      query: {
+        year: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceMonth'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Dashboard.Budgets': {
+    parameters: {
+      query: {
+        year: number | string;
+        month: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DashboardBudget'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Dashboard.Consumptions': {
+    parameters: {
+      query: {
+        year: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsumptionMonth'][];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      /** Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemDetails'];
+        };
+      };
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Dashboard.Limits': {
+    parameters: {
+      query: {
+        year: number | string;
+        month: number | string;
+      };
+      header?: never;
+      path: {
+        /** The space the request works on. */
+        spaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DashboardLimit'][];
         };
       };
       401: components['responses']['401'];

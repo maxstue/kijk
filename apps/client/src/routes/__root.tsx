@@ -41,7 +41,11 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
   pendingComponent: InitLoader,
 });
 
-function RootDocument({ children }: { children: ReactNode }) {
+interface RootDocumentProps {
+  children: ReactNode;
+}
+
+function RootDocument({ children }: RootDocumentProps) {
   return (
     <html lang='en' suppressHydrationWarning>
       <head>

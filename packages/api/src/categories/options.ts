@@ -16,7 +16,8 @@ export const listQueryOptions = (spaceId: string) =>
 export const createMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: CreateCategoryRequest) => create(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.categories.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.categories.all(spaceId)),
   });
 
 /** Mutation that updates a custom category. */
@@ -27,6 +28,7 @@ export const updateMutationOptions = (spaceId: string) =>
     onSuccess: (_data, _variables, _result, { client }) =>
       invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.categories.all(spaceId),
         queryKeys.budgets.all(spaceId),
         queryKeys.transactions.all(spaceId),
@@ -39,5 +41,6 @@ export const updateMutationOptions = (spaceId: string) =>
 export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (id: string) => remove(spaceId, id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.categories.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.categories.all(spaceId)),
   });
