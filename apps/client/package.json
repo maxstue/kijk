@@ -22,23 +22,31 @@
     "fmt:fix": "oxfmt",
     "clean": "rimraf ./dist ./.output ./.tanstack",
     "clean:dedupe": "pnpm dedupe --check",
-    "start": "node .output/server/index.mjs"
+    "start": "node --experimental-loader=@opentelemetry/instrumentation/hook.mjs --import ./instrumentation.mjs .output/server/index.mjs"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
+    "@clerk/tanstack-react-start": "catalog:",
     "@hookform/resolvers": "catalog:",
     "@kijk/api": "workspace:*",
     "@kijk/core": "workspace:*",
     "@kijk/ui": "workspace:*",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-trace-otlp-proto": "catalog:",
+    "@opentelemetry/instrumentation": "catalog:",
+    "@opentelemetry/instrumentation-http": "catalog:",
+    "@opentelemetry/instrumentation-undici": "catalog:",
     "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-node": "catalog:",
     "@opentelemetry/sdk-trace": "catalog:",
     "@opentelemetry/semantic-conventions": "catalog:",
+    "@sentry/node": "catalog:",
     "@sentry/react": "catalog:",
     "@tanstack/charts": "catalog:",
     "@tanstack/react-devtools": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
     "@tanstack/react-table": "catalog:",
     "@tanstack/react-virtual": "catalog:",
     "@tanstack/zod-adapter": "catalog:",
@@ -47,7 +55,6 @@
     "date-fns": "catalog:",
     "lucide-react": "catalog:",
     "posthog-js": "catalog:",
-    "@base-ui/react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-error-boundary": "catalog:",
@@ -55,10 +62,7 @@
     "sonner": "catalog:",
     "web-vitals": "catalog:",
     "zod": "catalog:",
-    "zustand": "catalog:",
-    "@tanstack/react-start": "catalog:",
-    "@clerk/tanstack-react-start": "catalog:",
-    "@sentry/node": "catalog:"
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@clerk/shared": "catalog:",
@@ -89,6 +93,7 @@
     "eslint-plugin-react-hooks": "catalog:",
     "globals": "catalog:",
     "msw": "catalog:",
+    "nitro": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
@@ -99,8 +104,7 @@
     "vite": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:",
-    "vitest-browser-react": "catalog:",
-    "nitro": "catalog:"
+    "vitest-browser-react": "catalog:"
   },
   "msw": {
     "workerDirectory": [

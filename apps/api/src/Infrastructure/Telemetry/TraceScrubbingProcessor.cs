@@ -20,7 +20,7 @@ internal sealed class TraceScrubbingProcessor : BaseProcessor<Activity>
         // Outcome
         "error.type", "db.response.status_code",
         // Database, without statement text and connection details
-        "db.system.name", "db.operation.name", "db.collection.name",
+        "db.system", "db.system.name", "db.namespace", "db.operation.name", "db.collection.name",
         // Background jobs
         "messaging.system", "messaging.operation.type", "messaging.destination.name", "wolverine.message_type",
         // Links a span to the response header and to the errors of the request

@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
       tanstackDevtools({
         removeDevtoolsOnBuild: true,
       }),
-      nitro(),
+      nitro({ plugins: ['./src/server/railway-tracing.ts'] }),
       tanstackStart({
         router: {
           routeFileIgnorePattern: String.raw`\.(test|spec)\.[cm]?[jt]sx?$`,
