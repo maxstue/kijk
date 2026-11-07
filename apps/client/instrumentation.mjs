@@ -65,7 +65,8 @@ if (process.env.OTEL_EXPORTER_OTLP_ENDPOINT || process.env.OTEL_EXPORTER_OTLP_TR
     ],
   });
   sdk.start();
-  // Do not exit here: Nitro owns graceful HTTP shutdown.
-  process.once('SIGTERM', () => void sdk.shutdown());
-  process.once('SIGINT', () => void sdk.shutdown());
+  // Nitro's bundled plugin calls the preloaded SDK only after HTTP requests drain.
+  // Passing a callback avoids bundling and initializing another SDK in Nitro.
+  let shutdown;
+  globalThis[Symbol.for('kijk.railwayTracing.shutdown')] = () => (shutdown ??= sdk.shutdown());
 }

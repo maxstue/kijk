@@ -35,9 +35,12 @@ trace headers, so the exported CLIENT spans end at the external bucket boundary.
 The API uses the same attribute scrubber before all exporters. With Railway
 configured, its parent-based sampler records all root work and respects incoming
 sampling decisions; Sentry and PostHog consequently receive the same sampled spans.
-The Client's existing anonymous Sentry/PostHog provider stays separate. Railway
+The Client's existing anonymous Sentry/PostHog provider starts spans with an
+explicit root context, independent of Railway's active trace and trace state. Railway
 HTTP spans exclude request paths, query strings, headers, exception events and
 status messages. Resource detection is restricted to OTEL environment attributes.
+Nitro awaits the preloaded SDK's shutdown from its runtime `close` hook after
+HTTP requests have drained, so requests still running at SIGTERM/SIGINT are exported.
 
 ## Deployment prerequisites
 

@@ -1,4 +1,4 @@
-import { SpanKind } from '@opentelemetry/api';
+import { ROOT_CONTEXT, SpanKind } from '@opentelemetry/api';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { BatchSpanProcessor, TraceIdRatioBasedSampler, TracerProvider } from '@opentelemetry/sdk-trace';
@@ -56,10 +56,14 @@ export function startServerSpan(request: Request) {
   const route = serverRouteTemplate(request);
   return getProvider()
     ?.getTracer('kijk-web')
-    .startSpan(`${method} ${route}`, {
-      kind: SpanKind.SERVER,
-      attributes: { 'http.request.method': method, 'http.route': route },
-    });
+    .startSpan(
+      `${method} ${route}`,
+      {
+        kind: SpanKind.SERVER,
+        attributes: { 'http.request.method': method, 'http.route': route },
+      },
+      ROOT_CONTEXT,
+    );
 }
 
 /** Sends the same allowlisted error type and stack to both tools; messages and request context are discarded. */
