@@ -16,8 +16,13 @@ import { toast } from 'sonner';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useFeature } from '@/shared/hooks/use-feature';
 
+interface ImportAiCategorizationProps {
+  job: ImportJob;
+  onStarted?: () => void;
+}
+
 /** Lets the user check and exclude shared texts before requesting category suggestions. */
-export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
+export function ImportAiCategorization({ job, onStarted }: ImportAiCategorizationProps) {
   const { data: currentUser } = useQuery(usersOptions.meQueryOptions());
   const aiImport = useFeature('aiImport');
   if (!currentUser?.user || !aiImport) {
@@ -33,7 +38,12 @@ export function ImportAiCategorization({ job, onStarted }: { job: ImportJob; onS
   return <AiPreviewCard job={job} onStarted={onStarted} />;
 }
 
-function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => void }) {
+interface AiPreviewCardProps {
+  job: ImportJob;
+  onStarted?: () => void;
+}
+
+function AiPreviewCard({ job, onStarted }: AiPreviewCardProps) {
   const spaceId = useSpaceId();
   const { data, isPending } = useQuery(importsOptions.aiDataPreviewQueryOptions(spaceId, job.id));
   const categorizeMutation = useMutation(importsOptions.startCategorizationMutationOptions(spaceId, job.id));
@@ -122,17 +132,14 @@ function AiPreviewCard({ job, onStarted }: { job: ImportJob; onStarted?: () => v
   );
 }
 
-function AiPreviewRow({
-  item,
-  checked,
-  disabled,
-  onCheckedChange,
-}: {
+interface AiPreviewRowProps {
   item: AiPreviewItem;
   checked: boolean;
   disabled: boolean;
   onCheckedChange: (checked: boolean) => void;
-}) {
+}
+
+function AiPreviewRow({ item, checked, disabled, onCheckedChange }: AiPreviewRowProps) {
   return (
     <TableRow className={cn(!checked && 'opacity-50')}>
       <TableCell>

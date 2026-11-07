@@ -10,8 +10,12 @@ import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { saveDownload } from '@/shared/utils/download';
 
+interface TransactionExportMenuItemProps {
+  filters: TransactionFilters;
+}
+
 /** Downloads the transactions matching `filters` as CSV. */
-export function TransactionExportMenuItem({ filters }: { filters: TransactionFilters }) {
+export function TransactionExportMenuItem({ filters }: TransactionExportMenuItemProps) {
   const spaceId = useSpaceId();
   const canExport = useSpacePermission(SpacePermissions.finances.export);
   const exportMutation = useMutation({

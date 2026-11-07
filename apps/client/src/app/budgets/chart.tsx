@@ -10,8 +10,12 @@ import { useMemo } from 'react';
 import { toAmount } from '@/app/budgets/helpers';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
+interface BudgetChartProps {
+  categories: BudgetCategory[];
+}
+
 /** Bar chart comparing budget and spending per category. */
-export function BudgetChart({ categories }: { categories: BudgetCategory[] }) {
+export function BudgetChart({ categories }: BudgetChartProps) {
   const definition = useMemo(() => {
     const data = categories.flatMap((category) => [
       { id: `${category.categoryId}-budget`, name: category.name, series: 'Budget', value: toAmount(category.budget) },

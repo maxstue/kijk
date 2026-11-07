@@ -64,6 +64,7 @@ export const recordMutationOptions = (spaceId: string) =>
 
       await invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.consumptions.byAll(spaceId),
         queryKeys.consumptions.statsAll(spaceId),
         queryKeys.consumptions.years(spaceId),
@@ -81,6 +82,7 @@ export const updateMutationOptions = (spaceId: string) =>
 
       await invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.consumptions.byAll(spaceId),
         queryKeys.consumptions.statsAll(spaceId),
         queryKeys.consumptions.years(spaceId),
@@ -108,9 +110,10 @@ export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: DeleteConsumptionData) => remove(spaceId, data.id),
     onSuccess: async (_data, _variables, _result, { client }) => {
-      await invalidate(client, queryKeys.consumptions.byAll(spaceId));
+      await invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.consumptions.byAll(spaceId));
       await invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.consumptions.statsAll(spaceId),
         queryKeys.consumptions.years(spaceId),
         queryKeys.limits.all(spaceId),

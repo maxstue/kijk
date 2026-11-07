@@ -13,8 +13,13 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+interface UnitDeleteContentProps {
+  onClose: () => void;
+  unit: Unit;
+}
+
 /** Confirmation dialog content for deleting a unit. */
-export function UnitDeleteContent({ onClose, unit }: { onClose: () => void; unit: Unit }) {
+export function UnitDeleteContent({ onClose, unit }: UnitDeleteContentProps) {
   const { isPending, mutate } = useMutation(unitsOptions.deleteMutationOptions());
 
   function handleDelete() {

@@ -17,8 +17,12 @@ import { toast } from 'sonner';
 
 import { useSpaceSettings } from './context';
 
+interface SpaceDeleteContentProps {
+  onClose: () => void;
+}
+
 /** Confirmation dialog content for deleting the space with all of its data. */
-export function SpaceDeleteContent({ onClose }: { onClose: () => void }) {
+export function SpaceDeleteContent({ onClose }: SpaceDeleteContentProps) {
   const { space, user } = useSpaceSettings();
   const [confirmation, setConfirmation] = useState('');
   const navigate = useNavigate();

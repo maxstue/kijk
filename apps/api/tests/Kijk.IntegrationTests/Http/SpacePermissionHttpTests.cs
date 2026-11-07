@@ -2,10 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using Kijk.Application.Consumptions.Record;
 using Kijk.Application.Consumptions.Update;
+using Kijk.Application.Dashboard.Queries;
 using Kijk.Application.Imports.Settings;
 using Kijk.Application.Limits.Create;
 using Kijk.Application.Limits.Update;
 using Kijk.Application.Resources.Update;
+using Kijk.Application.Shared.Features;
 using Kijk.Application.Spaces.ChangeMemberRole;
 using Kijk.Application.Spaces.Update;
 using Kijk.Domain.Authorization;
@@ -16,6 +18,7 @@ using Kijk.IntegrationTests.Persistence;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kijk.IntegrationTests.Http;
 
@@ -437,6 +440,176 @@ public class SpacePermissionHttpTests
         await Assert.That(active.MinimizeData).IsEqualTo(fixture.Space.MinimizeData);
         await Assert.That(selected.PurposeRetention).IsEqualTo(expected == HttpStatusCode.OK ? PurposeRetention.Remove : otherSpace.PurposeRetention);
         await Assert.That(selected.MinimizeData).IsEqualTo(expected == HttpStatusCode.OK);
+    }
+
+    [Test]
+    [Arguments("Admin")]
+    [Arguments("Member")]
+    [Arguments("Viewer")]
+    public async Task DashboardExcludesPrivateBookingsEvenForTheirOwner(string role)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using (var db = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var user = await db.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            var space = await db.Spaces.SingleAsync(item => item.Id == fixture.Space.Id);
+            var shared = Account.Create("Shared", null, space);
+            var secret = Account.Create("Private", null, space);
+            var otherSpace = Space.Create("Other space");
+            secret.SetOwner(user.Id);
+            var date = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+            db.AddRange(shared, secret,
+                Transaction.Create(new(date, 10000m, null, null, TransactionStatus.Booked, false), null, user, otherSpace),
+                Transaction.Create(new(date, 50m, null, null, TransactionStatus.Booked, false), shared, user, space),
+                Transaction.Create(new(date, -20m, null, null, TransactionStatus.Booked, false), shared, user, space),
+                Transaction.Create(new(date, 999m, null, null, TransactionStatus.Booked, false), secret, user, space),
+                Transaction.Create(new(date, 700m, null, null, TransactionStatus.Pending, false), shared, user, space),
+                Transaction.Create(new(date, 800m, null, null, TransactionStatus.Booked, true), shared, user, space));
+            await db.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId,
+            configureServices: services => services.AddSingleton<IFeatureFlags>(new DashboardFlags(true)));
+        using var other = host.CreateClient(fixture.OtherUser.AuthId);
+        var path = $"/api/spaces/{fixture.Space.Id}/dashboard/finances?year=2026";
+        var ownerResult = await host.Client.GetStringAsync(path);
+        await Assert.That(await other.GetStringAsync(path)).IsEqualTo(ownerResult);
+        var data = await host.Client.GetFromJsonAsync<List<FinanceMonth>>(path);
+        await Assert.That(data!.Count).IsEqualTo(12);
+        var september = data.Single(item => item.Month == 9);
+        await Assert.That(september.Income).IsEqualTo(50m);
+        await Assert.That(september.Expenses).IsEqualTo(20m);
+        await Assert.That(september.Balance).IsEqualTo(30m);
+        await Assert.That(data.Single(item => item.Month == 1).HasData).IsFalse();
+    }
+
+    [Test]
+    public async Task DashboardUsesSelectedPeriodAndKeepsConsumptionsAvailableWithoutFinances()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId,
+            configureServices: services => services.AddSingleton<IFeatureFlags>(new DashboardFlags(false)));
+        var root = $"/api/spaces/{fixture.Space.Id}/dashboard";
+        using var finances = await host.Client.GetAsync($"{root}/finances?year=2026");
+        await Assert.That(finances.IsSuccessStatusCode).IsFalse();
+        using var budgets = await host.Client.GetAsync($"{root}/budgets?year=2026&month=9");
+        await Assert.That(budgets.IsSuccessStatusCode).IsFalse();
+        var consumption = await host.Client.GetFromJsonAsync<List<ConsumptionMonth>>($"{root}/consumptions?year=2026");
+        await Assert.That(consumption!.Single().Value).IsEqualTo(10m);
+        var limits = await host.Client.GetFromJsonAsync<List<DashboardLimit>>($"{root}/limits?year=2026&month=9");
+        await Assert.That(limits!.Single().ActualValue).IsEqualTo(10m);
+        await Assert.That(limits!.Single().Remaining).IsEqualTo(90m);
+        using var foreign = await host.Client.GetAsync($"/api/spaces/{Guid.NewGuid()}/dashboard/consumptions?year=2026");
+        await Assert.That(foreign.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+    }
+
+    [Test]
+    [Arguments(20, 0, 50)]
+    [Arguments(10, 0, 100)]
+    [Arguments(5, 5, 200)]
+    [Arguments(0, 10, -1)]
+    public async Task DashboardLimitsDistinguishReachedExceededAndZero(int threshold, int overrun, int percentage)
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using (var db = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var limit = await db.Limits.SingleAsync(item => item.Id == fixture.Limit.Id);
+            limit.Threshold = threshold;
+            await db.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var data = await host.Client.GetFromJsonAsync<List<DashboardLimit>>($"/api/spaces/{fixture.Space.Id}/dashboard/limits?year=2026&month=9");
+        await Assert.That(data!.Single().Overrun).IsEqualTo((decimal)overrun);
+        await Assert.That(data!.Single().Percentage).IsEqualTo(percentage == -1 ? (decimal?)null : percentage);
+    }
+
+    [Test]
+    public async Task DashboardBudgetsUseSharedBookingsAndVersionsAndReturnTopThreeBudgets()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using (var db = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var user = await db.Users.SingleAsync(item => item.Id == fixture.User.Id);
+            var space = await db.Spaces.SingleAsync(item => item.Id == fixture.Space.Id);
+            var privateAccount = Account.Create("Private", null, space);
+            privateAccount.SetOwner(user.Id);
+            var date = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+            foreach (var spent in new[] { 10, 20, 30, 40, 50, 60, 70 })
+            {
+                var category = Category.Create($"Category {spent}", "house", "#334455", CategoryKind.Expense, space);
+                var shared = Budget.Create(100, new MonthYear(date), true, category, user, space);
+                var privateBudget = Budget.Create(1, new MonthYear(date), true, category, user, space, Visibility.Private);
+                var booking = Transaction.Create(new(date, -spent, null, null, TransactionStatus.Booked, false), null, user, space);
+                booking.AssignCategoryManually(category);
+                var privateBooking = Transaction.Create(new(date, -999, null, null, TransactionStatus.Booked, false), privateAccount, user, space);
+                privateBooking.AssignCategoryManually(category);
+                var pending = Transaction.Create(new(date, -999, null, null, TransactionStatus.Pending, false), null, user, space);
+                pending.AssignCategoryManually(category);
+                var future = Budget.Create(1000, new MonthYear(date.AddMonths(1)), true, category, user, space);
+                db.AddRange(category, shared, privateBudget, booking, privateBooking, pending, future);
+            }
+            await db.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId,
+            configureServices: services => services.AddSingleton<IFeatureFlags>(new DashboardFlags(true)));
+        var path = $"/api/spaces/{fixture.Space.Id}/dashboard/budgets?year=2026&month=9";
+        var data = await host.Client.GetFromJsonAsync<List<DashboardBudget>>(path);
+        await Assert.That(data!.Select(item => item.Spent).ToArray()).IsEquivalentTo(new decimal[] { 70, 60, 50 });
+        await Assert.That(data![0].Spent).IsEqualTo(70m);
+        await Assert.That(data.All(item => item.Amount == 100m)).IsTrue();
+        using var other = host.CreateClient(fixture.OtherUser.AuthId);
+        await Assert.That(await other.GetStringAsync(path)).IsEqualTo(await host.Client.GetStringAsync(path));
+        using var invalid = await host.Client.GetAsync($"/api/spaces/{fixture.Space.Id}/dashboard/budgets?year=2026&month=13");
+        await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task DashboardConsumptionMeterReadingsUseHistoricalBaselineRelativeEntriesAndMeterResets()
+    {
+        var fixture = await CreateFixtureAsync("Viewer");
+        await using (var db = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            var resource = await db.Resources.Include(item => item.Unit).SingleAsync(item => item.Id == fixture.Resource.Id);
+            var space = await db.Spaces.SingleAsync(item => item.Id == fixture.Space.Id);
+            var entries = new[]
+            {
+                (2025, 12, 1, 1000m, ConsumptionValueType.Absolute, 0m, false),
+                (2026, 1, 1, 10m, ConsumptionValueType.Relative, 10m, false),
+                (2026, 2, 1, 1040m, ConsumptionValueType.Absolute, 30m, false),
+                (2026, 2, 2, 5m, ConsumptionValueType.Relative, 5m, false),
+                (2026, 4, 1, 100m, ConsumptionValueType.Absolute, 0m, true),
+                (2026, 4, 2, 7m, ConsumptionValueType.Relative, 7m, false)
+            };
+            foreach (var (year, month, day, value, type, consumption, reset) in entries)
+            {
+                db.Add(Consumption.Create("Reading", resource, space, new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc),
+                    new ConsumptionReading(value, type, consumption, reset)));
+            }
+            var relativeOnly = new Resource { Name = "Relative only", Unit = resource.Unit, Color = "#334455", Icon = "flame", CreatorType = CreatorType.User, Space = space };
+            db.Add(Consumption.Create("No baseline", relativeOnly, space, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                new ConsumptionReading(15, ConsumptionValueType.Relative, 15)));
+            var otherSpace = Space.Create("Other space");
+            db.Add(Consumption.Create("Other meter", resource, otherSpace, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                new ConsumptionReading(99999, ConsumptionValueType.Absolute, 0)));
+            await db.SaveChangesAsync();
+        }
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        var data = await host.Client.GetFromJsonAsync<List<ConsumptionMonth>>($"/api/spaces/{fixture.Space.Id}/dashboard/consumptions?year=2026");
+        var readings = data!.Where(item => item.ResourceId == fixture.Resource.Id).ToDictionary(item => item.Month);
+        await Assert.That(readings.Count).IsEqualTo(4);
+        await Assert.That(readings[1].Color).IsEqualTo("#334455");
+        await Assert.That(readings[1].Value).IsEqualTo(10m);
+        await Assert.That(readings[1].MeterReading).IsEqualTo(1010m);
+        await Assert.That(readings[2].Value).IsEqualTo(35m);
+        await Assert.That(readings[2].MeterReading).IsEqualTo(1045m);
+        await Assert.That(readings[4].Value).IsEqualTo(7m);
+        await Assert.That(readings[4].MeterReading).IsEqualTo(107m);
+        await Assert.That(readings[9].MeterReading).IsEqualTo(117m);
+        await Assert.That(data!.Single(item => item.Name == "Relative only").MeterReading).IsNull();
+    }
+
+    private sealed class DashboardFlags(bool enabled) : IFeatureFlags
+    {
+        public Task<bool> IsEnabledAsync(string feature, CancellationToken cancellationToken) => Task.FromResult(enabled);
     }
 
     private static async Task<Fixture> CreateFixtureAsync(string roleName)

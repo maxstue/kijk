@@ -10,6 +10,8 @@ import { render } from '@/test/render-space';
 
 import { LimitWarning } from './limit-warning';
 
+interface TestProvidersProps extends PropsWithChildren {}
+
 const resourceId = '72f1314f-af24-4b88-83a5-94fcaed7e4a7';
 
 test('does not render a warning when no active limit is exceeded', async () => {
@@ -29,6 +31,7 @@ test('renders exceeded limits returned by the API', async () => {
           id: '0cab1db3-080c-4fd9-bb6d-cbe48422dcf0',
           isExceeded: true,
           lastOccurrence: '2026-09-06T12:00:00Z',
+          history: [],
           limit: 100,
           name: 'Monthly electricity',
           period: 'Month',
@@ -52,7 +55,7 @@ test('renders exceeded limits returned by the API', async () => {
 function renderWarning() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
-  function TestProviders({ children }: PropsWithChildren) {
+  function TestProviders({ children }: TestProvidersProps) {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider delay={0}>{children}</TooltipProvider>

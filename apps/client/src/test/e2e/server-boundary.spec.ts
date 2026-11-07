@@ -11,7 +11,7 @@ test.describe('signed in', () => {
   // Loading the app first lets Clerk refresh the short-lived session cookie that page.request reuses.
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Consumptions', exact: true })).toBeVisible();
   });
 
   test('relays reads with a server-side token and without browser credentials', async ({ page, upstreamRequests }) => {

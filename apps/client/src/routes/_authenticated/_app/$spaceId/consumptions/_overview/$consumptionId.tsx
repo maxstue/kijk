@@ -32,7 +32,11 @@ function ConsumptionEditDialog() {
   );
 }
 
-function ConsumptionEditContent({ onClose }: { onClose: () => void }) {
+interface ConsumptionEditContentProps {
+  onClose: () => void;
+}
+
+function ConsumptionEditContent({ onClose }: ConsumptionEditContentProps) {
   const spaceId = useSpaceId();
   const { consumptionId } = Route.useParams();
   const { year } = Route.useSearch();

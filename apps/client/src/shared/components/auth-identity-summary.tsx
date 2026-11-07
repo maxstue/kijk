@@ -31,7 +31,12 @@ export function AuthIdentitySummary({
   );
 }
 
-function IdentityItem({ label, value }: { label: string; value: string }) {
+interface IdentityItemProps {
+  label: string;
+  value: string;
+}
+
+function IdentityItem({ label, value }: IdentityItemProps) {
   return (
     <div className='grid min-w-0 grid-cols-[auto_1fr] gap-2'>
       <dt className='text-muted-foreground'>{label}</dt>

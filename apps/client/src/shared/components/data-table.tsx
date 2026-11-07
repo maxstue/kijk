@@ -1,5 +1,6 @@
-// 'use no memo' until the react compiler/table bug is fixed https://github.com/TanStack/table/issues/5567
 'use no memo';
+
+// 'use no memo' until the react compiler/table bug is fixed https://github.com/TanStack/table/issues/5567
 import { Button } from '@kijk/ui/components/button';
 import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
@@ -9,7 +10,7 @@ import { cn } from 'cn';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { PageToolbar } from '@/shared/components/page-header';
+import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { dataTableFeatures } from '@/shared/lib/table-features';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 
@@ -53,13 +54,16 @@ export function DataTable<TData extends RowData>({
   return (
     <div>
       <div className='my-4'>
-        <PageToolbar actions={actions}>
-          <Input
-            className='w-full sm:w-72'
-            placeholder={filterPlaceholder}
-            value={table.getColumn(filterColumn)?.getFilterValue() as string}
-            onChange={(event) => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
-          />
+        <PageToolbar>
+          <PageToolbarControls>
+            <Input
+              className='w-full sm:w-72'
+              placeholder={filterPlaceholder}
+              value={table.getColumn(filterColumn)?.getFilterValue() as string}
+              onChange={(event) => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
+            />
+          </PageToolbarControls>
+          {actions && <PageToolbarActions>{actions}</PageToolbarActions>}
         </PageToolbar>
       </div>
       <div className='h-full overflow-scroll rounded border'>

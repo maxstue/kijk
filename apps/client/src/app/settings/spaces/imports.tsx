@@ -1,6 +1,6 @@
-import { aiDataSharingLabels, purposeRetentionLabels } from '@kijk/api/imports/constants';
+import { aiDataSharingLabels } from '@kijk/api/imports/constants';
 import * as importsOptions from '@kijk/api/imports/options';
-import type { AiDataSharing, ImportSettings, PurposeRetention } from '@kijk/api/imports/types';
+import type { AiDataSharing, ImportSettings } from '@kijk/api/imports/types';
 import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
 import * as usersOptions from '@kijk/api/users/options';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
@@ -15,8 +15,8 @@ import { useFeature } from '@/shared/hooks/use-feature';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
+import { ImportPurposeSetting } from './import-purpose-setting';
 
-const retentions = Object.keys(purposeRetentionLabels) as PurposeRetention[];
 const sharingLevels = Object.keys(aiDataSharingLabels) as AiDataSharing[];
 
 /** Cards for choosing how much of the purpose text imported transactions keep and what the AI may see. */
@@ -26,7 +26,6 @@ export function SpaceImportSettings() {
   const { data } = useSuspenseQuery(importsOptions.settingsQueryOptions(space.id));
   const { data: currentUser } = useQuery(usersOptions.meQueryOptions());
   const updateMutation = useMutation(importsOptions.updateSettingsMutationOptions(space.id));
-  const retentionId = useId();
   const sharingId = useId();
   const minimizeId = useId();
   const aiImport = useFeature('aiImport');
@@ -56,30 +55,11 @@ export function SpaceImportSettings() {
           <CardDescription>Defaults for new bank imports in {space.name}.</CardDescription>
         </CardHeader>
         <CardContent className='space-y-6'>
-          <div className='space-y-2'>
-            <Label htmlFor={retentionId}>Purpose text</Label>
-            <p className='text-muted-foreground text-sm'>
-              IBANs, card and reference numbers are always removed. Choose how much of the remaining text new imports
-              keep.
-            </p>
-            <Select
-              disabled={!canConfigure || updateMutation.isPending}
-              items={purposeRetentionLabels}
-              value={data.purposeRetention}
-              onValueChange={(value) => save({ purposeRetention: value as PurposeRetention })}
-            >
-              <SelectTrigger className='w-full sm:w-80' id={retentionId}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {retentions.map((retention) => (
-                  <SelectItem key={retention} value={retention}>
-                    {purposeRetentionLabels[retention]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <ImportPurposeSetting
+            value={data.purposeRetention}
+            disabled={!canConfigure || updateMutation.isPending}
+            onChange={(purposeRetention) => save({ purposeRetention })}
+          />
           <div className='flex items-start justify-between gap-4'>
             <div className='space-y-1'>
               <Label htmlFor={minimizeId}>Store as little as possible</Label>

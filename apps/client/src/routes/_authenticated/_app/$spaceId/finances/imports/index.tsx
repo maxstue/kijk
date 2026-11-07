@@ -8,7 +8,7 @@ import { Plus, Settings } from 'lucide-react';
 
 import { ImportList } from '@/app/imports/import-list';
 import { AppError } from '@/shared/components/errors/app-error';
-import { PageToolbar } from '@/shared/components/page-header';
+import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
@@ -32,8 +32,8 @@ function ImportsPage() {
 
   return (
     <div className='space-y-6 pt-6'>
-      <PageToolbar
-        actions={
+      <PageToolbar>
+        <PageToolbarActions>
           <>
             {activeSpace && (
               <Button
@@ -53,8 +53,8 @@ function ImportsPage() {
               </Button>
             )}
           </>
-        }
-      />
+        </PageToolbarActions>
+      </PageToolbar>
       <ImportList />
     </div>
   );

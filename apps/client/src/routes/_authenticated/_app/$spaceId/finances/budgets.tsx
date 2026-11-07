@@ -19,7 +19,8 @@ import { BudgetForm } from '@/app/budgets/form';
 import { BudgetOverview } from '@/app/budgets/overview';
 import { AppError } from '@/shared/components/errors/app-error';
 import { MonthSwitcher } from '@/shared/components/month-switcher';
-import { PageAddButton, PageToolbar } from '@/shared/components/page-header';
+import { PageAddButton } from '@/shared/components/page-header';
+import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -70,8 +71,15 @@ function BudgetsPage() {
 
   return (
     <div className='space-y-6 pt-6'>
-      <PageToolbar
-        actions={
+      <PageToolbar>
+        <PageToolbarControls>
+          <MonthSwitcher
+            month={month}
+            year={year}
+            onChange={(monthSearch) => navigate({ search: (previous) => ({ ...previous, ...monthSearch }) })}
+          />
+        </PageToolbarControls>
+        <PageToolbarActions>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger
               render={
@@ -91,13 +99,7 @@ function BudgetsPage() {
               <BudgetForm month={month} year={year} onClose={() => setShowCreateDialog(false)} />
             </DialogContent>
           </Dialog>
-        }
-      >
-        <MonthSwitcher
-          month={month}
-          year={year}
-          onChange={(monthSearch) => navigate({ search: (previous) => ({ ...previous, ...monthSearch }) })}
-        />
+        </PageToolbarActions>
       </PageToolbar>
       <Tabs
         className='gap-6'

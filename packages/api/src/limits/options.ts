@@ -16,19 +16,22 @@ export const listQueryOptions = (spaceId: string) =>
 export const createMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: CreateLimitRequest) => create(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.limits.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.limits.all(spaceId)),
   });
 
 /** Mutation that updates a limit. */
 export const updateMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: UpdateLimitData) => update(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.limits.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.limits.all(spaceId)),
   });
 
 /** Mutation that deletes a limit. */
 export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (id: string) => remove(spaceId, id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.limits.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.limits.all(spaceId)),
   });

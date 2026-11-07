@@ -5,20 +5,16 @@ import type { ReactNode } from 'react';
 import { ImportSteps } from '@/app/imports/steps';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 
-/** Stable page frame shared by every step of the import wizard. */
-export function ImportWizard({
-  children,
-  currentStep,
-  title,
-  description,
-  context,
-}: {
+interface ImportWizardProps {
   children: ReactNode;
   currentStep?: number;
   title: string;
   description: string;
   context?: ReactNode;
-}) {
+}
+
+/** Stable page frame shared by every step of the import wizard. */
+export function ImportWizard({ children, currentStep, title, description, context }: ImportWizardProps) {
   const spaceId = useSpaceId();
   return (
     <div className='mx-auto w-full max-w-5xl space-y-8 py-6'>

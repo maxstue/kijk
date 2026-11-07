@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { ChevronRight, FileInput, Ruler, Settings2, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-import { PageHeader } from '@/shared/components/page-header';
+import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
 
 import { useSpaceSettings } from './context';
 
@@ -40,7 +40,12 @@ export function SpaceOverview() {
 
   return (
     <div className='mx-auto w-full max-w-4xl space-y-8'>
-      <PageHeader title={space.name} description={space.description || 'Settings for this space.'} />
+      <PageHeader>
+        <PageHeaderContent>
+          <PageHeaderTitle>{space.name}</PageHeaderTitle>
+          <PageHeaderDescription>{space.description || 'Settings for this space.'}</PageHeaderDescription>
+        </PageHeaderContent>
+      </PageHeader>
 
       <Card className='gap-0 overflow-hidden py-0'>
         {/* A personal space never has other members. */}

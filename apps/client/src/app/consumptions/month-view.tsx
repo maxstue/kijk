@@ -3,7 +3,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/c
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/tooltip';
 import { format, parseISO } from 'date-fns';
 import { InfoIcon, RefreshCcw } from 'lucide-react';
-import { Suspense } from 'react';
 
 import { ConsumptionDeleteButton } from '@/app/consumptions/delete-button';
 import { ConsumptionEditButton } from '@/app/consumptions/edit-button';
@@ -11,7 +10,6 @@ import { ConsumptionExportButton } from '@/app/consumptions/export-button';
 import { LimitWarning } from '@/app/consumptions/limit-warning';
 import ConsumptionStats from '@/app/consumptions/statistics';
 import { ResourceUnit } from '@/shared/components/resources-unit';
-import { Loader } from '@/shared/components/ui/loaders/loader';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 import type { Months } from '@/shared/utils/months';
@@ -26,9 +24,7 @@ interface Props {
 export function ConsumptionMonthView({ consumptions, month, year }: Props) {
   return (
     <>
-      <Suspense fallback={<Loader />}>
-        <ConsumptionStats />
-      </Suspense>
+      <ConsumptionStats resourceCount={new Set(consumptions.map((item) => item.resource.id)).size} />
       <section aria-labelledby='consumption-entries-heading' className='space-y-4'>
         <div className='flex items-start justify-between gap-4'>
           <div className='space-y-1'>

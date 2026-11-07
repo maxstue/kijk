@@ -9,6 +9,14 @@ namespace Kijk.Application.Shared.Finances;
 /// </summary>
 public static class FinanceQueryExtensions
 {
+    /// <summary>Returns only transactions shared with every member of the active space.</summary>
+    /// <param name="dbContext">The database context.</param>
+    /// <param name="currentUser">The member selecting the active space.</param>
+    /// <returns>Transactions without a private owning account, including unassigned bookings.</returns>
+    public static IQueryable<Transaction> GetSharedTransactions(this IAppDbContext dbContext, CurrentUser currentUser) =>
+        dbContext.GetVisibleTransactions(currentUser)
+            .Where(transaction => transaction.Account == null || transaction.Account.OwnerId == null);
+
     /// <param name="dbContext">The application database context.</param>
     extension(IAppDbContext dbContext)
     {

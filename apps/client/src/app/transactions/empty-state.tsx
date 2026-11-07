@@ -2,8 +2,12 @@ import type { TransactionPageQuery } from '@kijk/api/transactions/types';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { ReceiptText } from 'lucide-react';
 
+interface TransactionEmptyStateProps {
+  query: TransactionPageQuery;
+}
+
 /** Empty state for the selected transaction filters. */
-export function TransactionEmptyState({ query }: { query: TransactionPageQuery }) {
+export function TransactionEmptyState({ query }: TransactionEmptyStateProps) {
   let description = 'Record a transaction to fill your budget overview.';
   if (query.uncategorized) {
     description = 'All transactions of this month have a category.';

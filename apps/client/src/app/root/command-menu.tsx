@@ -1,5 +1,3 @@
-import { useThemeStoreActions } from '@kijk/core/stores/theme-store';
-import { Button } from '@kijk/ui/components/button';
 import {
   Command,
   CommandDialog,
@@ -12,13 +10,14 @@ import {
 } from '@kijk/ui/components/command';
 import { DialogDescription, DialogTitle } from '@kijk/ui/components/dialog';
 import { useNavigate } from '@tanstack/react-router';
-import { cn } from 'cn';
-import { Laptop, Moon, SunMedium } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useNavGroups } from '@/app/root/use-nav-groups';
 import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 import { settingsNav } from '@/shared/navigation/settings';
+
+import { CommandTrigger } from './command-trigger';
+import { ThemeCommands } from './theme-commands';
 
 interface Props {
   isCollapsed?: boolean;
@@ -30,7 +29,6 @@ export function CommandMenu({ ...props }: Props) {
   const navGroups = useNavGroups();
   const navigate = useNavigate({ from: '/' });
   const [open, setOpen] = useState(false);
-  const { setMode } = useThemeStoreActions();
 
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
@@ -63,25 +61,7 @@ export function CommandMenu({ ...props }: Props) {
 
   return (
     <>
-      <Button
-        variant='outline'
-        className={cn(
-          'group text-muted-foreground relative h-9 w-full justify-start text-sm',
-          props.isCollapsed ? 'p-1' : 'sm:pr-12',
-        )}
-        onClick={handleOpen(true)}
-      >
-        {props.isCollapsed ? undefined : <span className='inline-flex'>Search...</span>}
-
-        <kbd
-          className={cn(
-            'pointer-events-none absolute top-2 hidden h-5 items-center gap-1 rounded-sm px-1.5 font-mono text-[10px] font-medium opacity-100 select-none sm:flex',
-            props.isCollapsed ? 'right-0' : 'bg-muted group-hover:bg-background right-1.5',
-          )}
-        >
-          <span className='text-xs'>⌘</span>K
-        </kbd>
-      </Button>
+      <CommandTrigger isCollapsed={props.isCollapsed} onOpen={handleOpen(true)} />
       <CommandDialog open={open} onOpenChange={setOpen}>
         <Command>
           <DialogTitle aria-hidden className='hidden'>
@@ -126,35 +106,7 @@ export function CommandMenu({ ...props }: Props) {
               })}
             </CommandGroup>
             <CommandSeparator />
-            <CommandGroup heading='Theme'>
-              <CommandItem
-                value='theme-light'
-                onSelect={runCommand(() => {
-                  setMode('light');
-                })}
-              >
-                <SunMedium className='mr-2 h-4 w-4' />
-                Light
-              </CommandItem>
-              <CommandItem
-                value='theme-dark'
-                onSelect={runCommand(() => {
-                  setMode('dark');
-                })}
-              >
-                <Moon className='mr-2 h-4 w-4' />
-                Dark
-              </CommandItem>
-              <CommandItem
-                value='theme-system'
-                onSelect={runCommand(() => {
-                  setMode('system');
-                })}
-              >
-                <Laptop className='mr-2 h-4 w-4' />
-                System
-              </CommandItem>
-            </CommandGroup>
+            <ThemeCommands runCommand={runCommand} />
           </CommandList>
         </Command>
       </CommandDialog>

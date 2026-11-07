@@ -8,7 +8,7 @@ import { CategoryCreateButton } from '@/app/categories/create-button';
 import { CategoryRulesSection } from '@/app/categories/rules';
 import { CategoriesSection } from '@/app/categories/section';
 import { AppError } from '@/shared/components/errors/app-error';
-import { PageToolbar } from '@/shared/components/page-header';
+import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** The finances categories route, which shows the categories and categorization rules of the active space. */
@@ -29,9 +29,8 @@ function CategoriesPage() {
   return (
     <div className='space-y-6 pt-6'>
       <Tabs defaultValue='categories' className='gap-6'>
-        <PageToolbar
-          actions={<CategoryCreateButton />}
-          tabs={
+        <PageToolbar>
+          <PageToolbarControls>
             <TabsList aria-label='Category management' className='w-full sm:w-fit'>
               <TabsTrigger value='categories'>
                 <Tags /> Categories
@@ -40,8 +39,11 @@ function CategoriesPage() {
                 <Sparkles /> Categorization rules
               </TabsTrigger>
             </TabsList>
-          }
-        />
+          </PageToolbarControls>
+          <PageToolbarActions>
+            <CategoryCreateButton />
+          </PageToolbarActions>
+        </PageToolbar>
         <TabsContent value='categories'>
           <CategoriesSection />
         </TabsContent>

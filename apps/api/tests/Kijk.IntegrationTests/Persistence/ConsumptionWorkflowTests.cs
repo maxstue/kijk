@@ -161,6 +161,61 @@ public class ConsumptionWorkflowTests
     }
 
     [Test]
+    public async Task LimitHistoryUsesNormalizedConsumptionAcrossYearsAndReevaluatesCorrections()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var fixture = await CreateFixtureAsync(dbContext);
+        var clock = new MutableTimeProvider(new DateTimeOffset(2026, 9, 8, 12, 0, 0, TimeSpan.Zero));
+        var create = CreateHandler(dbContext, fixture.CurrentUser, clock);
+        await CreateAsync(create, "Old baseline", 1_000m, CreateConsumptionValueTypes.Absolute, fixture.Resource.Id, UtcDate(2025, 12, 1));
+        await CreateAsync(create, "Old usage", 1_060m, CreateConsumptionValueTypes.Absolute, fixture.Resource.Id, UtcDate(2025, 12, 20));
+        await CreateAsync(create, "Current usage", 1_080m, CreateConsumptionValueTypes.Absolute, fixture.Resource.Id, UtcDate(2026, 9, 1));
+        await CreateAsync(create, "Future usage", 500m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2027, 1, 1));
+
+        var result = await new Kijk.Application.Limits.Create.CreateHandler(
+                dbContext, fixture.CurrentUser, clock,
+                NullLogger<Kijk.Application.Limits.Create.CreateHandler>.Instance)
+            .HandleAsync(new Kijk.Application.Limits.Create.CreateLimitRequest(
+                "Monthly electricity", null, 50m, Period.Month, true, fixture.Resource.Id), CancellationToken.None);
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        await Assert.That(result.Value.ActualValue).IsEqualTo(20m);
+        await Assert.That(result.Value.IsExceeded).IsFalse();
+        await Assert.That(result.Value.LastOccurrence).IsNull();
+        await Assert.That(result.Value.History.Count).IsEqualTo(2);
+        await Assert.That(result.Value.History[0].IsComplete).IsFalse();
+        await Assert.That(result.Value.History[1].ActualValue).IsEqualTo(60m);
+        await Assert.That(result.Value.History[1].IsExceeded).IsTrue();
+        await Assert.That(result.Value.History[1].IsComplete).IsTrue();
+
+        var oldUsage = await dbContext.Consumptions.SingleAsync(item => item.Name == "Old usage");
+        var correction = await new UpdateHandler(dbContext, fixture.CurrentUser, clock,
+                new Kijk.Application.Units.Shared.UnitsNetConversionService(), NullLogger<UpdateHandler>.Instance)
+            .HandleAsync(oldUsage.Id, new UpdateConsumptionRequest(null, 1_040m, UpdateConsumptionValueTypes.Absolute, null, null), CancellationToken.None);
+        await Assert.That(correction.IsSuccess).IsTrue();
+
+        var details = await new Kijk.Application.Limits.Queries.QueriesHandler(dbContext, fixture.CurrentUser, clock)
+            .DetailsAsync(result.Value.Id, CancellationToken.None);
+        await Assert.That(details.Value.History[1].ActualValue).IsEqualTo(40m);
+        await Assert.That(details.Value.History[1].IsExceeded).IsFalse();
+        await Assert.That(details.Value.ActualValue).IsEqualTo(40m);
+
+        foreach (var period in new[] { Period.Quarter, Period.Year })
+        {
+            var updated = await new Kijk.Application.Limits.Update.UpdateHandler(dbContext, fixture.CurrentUser, clock)
+                .HandleAsync(result.Value.Id, new Kijk.Application.Limits.Update.UpdateLimitRequest(
+                    "Electricity", null, 40m, period, true), CancellationToken.None);
+            await Assert.That(updated.IsSuccess).IsTrue();
+            await Assert.That(updated.Value.History.Count).IsEqualTo(2);
+            await Assert.That(updated.Value.History[0].IsComplete).IsFalse();
+            await Assert.That(updated.Value.History[0].ActualValue).IsEqualTo(40m);
+            await Assert.That(updated.Value.History[1].ActualValue).IsEqualTo(40m);
+            await Assert.That(updated.Value.History[1].IsExceeded).IsTrue();
+            await Assert.That(updated.Value.History[1].IsComplete).IsTrue();
+        }
+    }
+
+    [Test]
     public async Task CreateUpdateAndDeleteRecalculateLaterAbsoluteReading()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();

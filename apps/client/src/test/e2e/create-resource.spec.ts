@@ -4,7 +4,7 @@ test.use({ storageState: 'playwright/.clerk/user.json' });
 
 test('creates a resource from the authenticated application', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Consumptions', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Resources' }).click();
 
   await expect(page.getByRole('heading', { name: 'Resources' })).toBeVisible();

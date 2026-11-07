@@ -26,8 +26,12 @@ const stepTitles: Record<ImportJob['status'], string> = {
   Failed: 'Import failed',
 };
 
+interface ImportDetailProps {
+  importId: string;
+}
+
 /** An import with the step that matches its state. */
-export function ImportDetail({ importId }: { importId: string }) {
+export function ImportDetail({ importId }: ImportDetailProps) {
   const spaceId = useSpaceId();
   const { data: job } = useSuspenseQuery(importsOptions.detailsQueryOptions(spaceId, importId));
 
@@ -94,7 +98,11 @@ function getStepPresentation(status: ImportJob['status'], stage: 'months' | 'rev
   }
 }
 
-function ImportStep({ job }: { job: ImportJob }) {
+interface ImportStepProps {
+  job: ImportJob;
+}
+
+function ImportStep({ job }: ImportStepProps) {
   if (importsOptions.isProcessing(job.status)) {
     return <ProcessingCard job={job} />;
   }
@@ -113,7 +121,11 @@ const processingTitles: Partial<Record<ImportJob['status'], string>> = {
   Reading: 'Reading the file',
 };
 
-function ProcessingCard({ job }: { job: ImportJob }) {
+interface ProcessingCardProps {
+  job: ImportJob;
+}
+
+function ProcessingCard({ job }: ProcessingCardProps) {
   const rowCount = Number(job.rowCount);
   const processed = Number(job.processedRows);
   return (
@@ -138,7 +150,11 @@ function ProcessingCard({ job }: { job: ImportJob }) {
   );
 }
 
-function DoneCard({ job }: { job: ImportJob }) {
+interface DoneCardProps {
+  job: ImportJob;
+}
+
+function DoneCard({ job }: DoneCardProps) {
   const spaceId = useSpaceId();
   return (
     <Card>
@@ -168,7 +184,11 @@ function DoneCard({ job }: { job: ImportJob }) {
   );
 }
 
-function ClosedCard({ job }: { job: ImportJob }) {
+interface ClosedCardProps {
+  job: ImportJob;
+}
+
+function ClosedCard({ job }: ClosedCardProps) {
   const spaceId = useSpaceId();
   return (
     <Card>

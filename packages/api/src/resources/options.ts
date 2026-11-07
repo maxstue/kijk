@@ -23,7 +23,8 @@ export const detailsQueryOptions = (spaceId: string, id: string) =>
 export const createMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: ResourceData) => create(spaceId, data),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.resources.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.resources.all(spaceId)),
   });
 
 /** Mutation that updates a resource. */
@@ -34,6 +35,7 @@ export const updateMutationOptions = (spaceId: string) =>
     onSuccess: (_data, _variables, _result, { client }) =>
       invalidate(
         client,
+        queryKeys.dashboard.all(spaceId),
         queryKeys.resources.all(spaceId),
         queryKeys.consumptions.all(spaceId),
         queryKeys.limits.all(spaceId),
@@ -44,5 +46,6 @@ export const updateMutationOptions = (spaceId: string) =>
 export const deleteMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: { id: string }) => remove(spaceId, data.id),
-    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.resources.all(spaceId)),
+    onSuccess: (_data, _variables, _result, { client }) =>
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.resources.all(spaceId)),
   });

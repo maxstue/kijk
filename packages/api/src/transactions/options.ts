@@ -15,6 +15,7 @@ import type {
 const invalidateFinances = (client: QueryClient, spaceId: string) =>
   invalidate(
     client,
+    queryKeys.dashboard.all(spaceId),
     queryKeys.transactions.all(spaceId),
     queryKeys.budgets.all(spaceId),
     queryKeys.categoryRules.all(spaceId),

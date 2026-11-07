@@ -2,7 +2,7 @@ import type { ResourceData } from '@kijk/api/resources/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import type { Unit } from '@kijk/api/units/types';
 import type { CurrentUser } from '@kijk/api/users/types';
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, delay, http } from 'msw';
 
 import type { Resource } from '@/shared/types/domain';
 
@@ -84,16 +84,212 @@ const getCurrentUser = () => ({
   },
 });
 
+/** Controls only the fake upstream; production authentication and the BFF remain unchanged. */
+export interface DashboardScenario {
+  finances: boolean;
+  empty: boolean;
+  emptyConsumptionYears: number[];
+  consumptionError: boolean;
+  consumptionDelayMs: number;
+  periodDelayMs: number;
+  multipleResources: boolean;
+  sparseReadings: boolean;
+  manyThresholds: boolean;
+}
+let dashboardScenario: DashboardScenario = {
+  finances: true,
+  empty: false,
+  emptyConsumptionYears: [],
+  consumptionError: false,
+  consumptionDelayMs: 0,
+  periodDelayMs: 0,
+  multipleResources: false,
+  sparseReadings: false,
+  manyThresholds: false,
+};
+export function configureDashboard(scenario: Partial<DashboardScenario>) {
+  dashboardScenario = { ...dashboardScenario, ...scenario };
+}
+
 /** Restores the initial data so that every test starts from the same state. */
 export function resetMockApi() {
   resources.clear();
+  dashboardScenario = {
+    finances: true,
+    empty: false,
+    emptyConsumptionYears: [],
+    consumptionError: false,
+    consumptionDelayMs: 0,
+    periodDelayMs: 0,
+    multipleResources: false,
+    sparseReadings: false,
+    manyThresholds: false,
+  };
   defaultSpaceId = initialDefaultSpaceId;
 }
 
 /** Fake responses of the .NET API, served behind the BFF by `server.ts`. */
 export const handlers = [
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
-  http.get('*/api/users/me/features', () => HttpResponse.json({ aiImport: true, finances: true })),
+  http.get('*/api/users/me/features', () =>
+    HttpResponse.json({ aiImport: true, finances: dashboardScenario.finances }),
+  ),
+  http.get('*/api/spaces/:spaceId/dashboard/finances', async ({ request, params }) => {
+    await delay(dashboardScenario.periodDelayMs);
+    if (!dashboardScenario.finances) {
+      return HttpResponse.json({ title: 'Disabled' }, { status: 404 });
+    }
+    if (dashboardScenario.empty) {
+      return HttpResponse.json([]);
+    }
+    const year = Number(new URL(request.url).searchParams.get('year'));
+    const personal = params.spaceId === '00000000-0000-4000-8000-000000000005';
+    return HttpResponse.json(
+      Array.from({ length: 12 }, (_, index) => ({
+        month: index + 1,
+        currency: 'EUR',
+        income: (personal ? 200 : 1000) + index + year - 2025,
+        expenses: 100,
+        balance: (personal ? 100 : 900) + index + year - 2025,
+        hasData: true,
+      })),
+    );
+  }),
+  http.get('*/api/spaces/:spaceId/dashboard/budgets', async () => {
+    await delay(dashboardScenario.periodDelayMs);
+    if (!dashboardScenario.finances) {
+      return HttpResponse.json({ title: 'Disabled' }, { status: 404 });
+    }
+    if (dashboardScenario.empty) {
+      return HttpResponse.json([]);
+    }
+    const percentages = dashboardScenario.manyThresholds ? [150, 140, 130] : [70, 60, 50];
+    return HttpResponse.json(
+      percentages.map((percentage) => ({
+        id: `budget-${percentage}`,
+        name: `Household budget ${percentage}`,
+        currency: 'EUR',
+        amount: 100,
+        spent: percentage,
+        remaining: Math.max(0, 100 - percentage),
+        overrun: Math.max(0, percentage - 100),
+        percentage,
+      })),
+    );
+  }),
+  http.get('*/api/spaces/:spaceId/dashboard/consumptions', async ({ request, params }) => {
+    await delay(dashboardScenario.consumptionDelayMs + dashboardScenario.periodDelayMs);
+    if (dashboardScenario.consumptionError) {
+      return HttpResponse.json({ title: 'Consumption unavailable' }, { status: 503 });
+    }
+    if (
+      dashboardScenario.empty ||
+      dashboardScenario.emptyConsumptionYears.includes(Number(new URL(request.url).searchParams.get('year')))
+    ) {
+      return HttpResponse.json([]);
+    }
+    const year = Number(new URL(request.url).searchParams.get('year'));
+    const personal = params.spaceId === '00000000-0000-4000-8000-000000000005';
+    const consumptionBase = personal ? 200 : 10;
+    const readings = Array.from({ length: 12 }, (_, index) => ({
+      month: index + 1,
+      resourceId: personal ? 'personal-energy' : 'shared-energy',
+      name: personal ? 'Personal electricity' : 'Shared electricity',
+      color: '#2563eb',
+      unit: 'kWh',
+      value: index === 0 ? 0 : consumptionBase + index + year - 2025,
+      meterReading: 1000 + index * 10 + (personal ? 1000 : 0),
+    }));
+    if (dashboardScenario.sparseReadings) {
+      return HttpResponse.json(readings.filter((row) => row.month >= 8 && row.month <= 10));
+    }
+    return HttpResponse.json(
+      dashboardScenario.multipleResources
+        ? [
+            ...readings,
+            ...readings.map((row) => ({
+              ...row,
+              resourceId: 'solar',
+              name: 'Solar energy',
+              color: '#16a34a',
+              value: row.value / 2,
+              meterReading: row.meterReading / 2,
+            })),
+            ...readings.map((row) => ({
+              ...row,
+              resourceId: 'water',
+              name: 'Water',
+              color: '#06b6d4',
+              unit: 'm³',
+              value: row.month / 3,
+              meterReading: 100 + row.month / 3,
+            })),
+            {
+              month: 5,
+              resourceId: 'rainwater',
+              name: 'Rainwater',
+              color: '#8b5cf6',
+              unit: 'm³',
+              value: 7,
+              meterReading: null,
+            },
+          ]
+        : readings,
+    );
+  }),
+  http.get('*/api/spaces/:spaceId/dashboard/limits', async ({ request }) => {
+    await delay(dashboardScenario.periodDelayMs);
+    if (dashboardScenario.empty) {
+      return HttpResponse.json([]);
+    }
+    const url = new URL(request.url);
+    const year = Number(url.searchParams.get('year'));
+    const month = Number(url.searchParams.get('month'));
+    const periodStart = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+    const periodEnd = new Date(Date.UTC(year, month, 1)).toISOString();
+    if (dashboardScenario.manyThresholds) {
+      return HttpResponse.json(
+        [70, 80, 90, 100, 110, 120, 130].map((percentage) => ({
+          id: `limit-${percentage}`,
+          name: `Consumption limit ${percentage}`,
+          unit: 'kWh',
+          threshold: 100,
+          actualValue: percentage,
+          remaining: Math.max(0, 100 - percentage),
+          overrun: Math.max(0, percentage - 100),
+          percentage,
+          periodStart,
+          periodEnd,
+        })),
+      );
+    }
+    return HttpResponse.json([
+      {
+        id: 'monthly',
+        name: 'Monthly electricity',
+        unit: 'kWh',
+        threshold: 100,
+        actualValue: month * 10,
+        remaining: Math.max(0, 100 - month * 10),
+        overrun: Math.max(0, month * 10 - 100),
+        percentage: month * 10,
+        periodStart,
+        periodEnd,
+      },
+      {
+        id: 'zero',
+        name: 'Zero allowance',
+        unit: 'kWh',
+        threshold: 0,
+        actualValue: 5,
+        remaining: 0,
+        overrun: 5,
+        percentage: null,
+        periodStart,
+        periodEnd,
+      },
+    ]);
+  }),
   http.put('*/api/users/default-space', async ({ request }) => {
     const { spaceId } = (await request.json()) as { spaceId: string | null };
     if (spaceId !== null && !currentUser.user.spaces.some((space) => space.id === spaceId)) {
