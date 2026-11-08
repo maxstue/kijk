@@ -65,15 +65,24 @@ const ShowMore = (props: ShowMoreProps) => {
 
         <ArrowDownIcon className={cn('h-3 w-3 text-orange-400', showMore ? 'rotate-180' : '')} />
       </button>
-      {showMore &&
-        (props.error instanceof Error ? (
-          <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>
-        ) : (
-          <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{JSON.stringify(props.error)}</div>
-        ))}
+      {showMore && (
+        <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{formatErrorDetails(props.error)}</div>
+      )}
     </div>
   );
 };
+
+/** Error fallbacks must remain usable even when the thrown value cannot be serialized. */
+function formatErrorDetails(error: unknown) {
+  if (error instanceof Error) {
+    return error.stack ?? error.message;
+  }
+  try {
+    return JSON.stringify(error, null, 2) ?? 'No error details available.';
+  } catch {
+    return 'Error details cannot be displayed.';
+  }
+}
 
 interface ErrorTitleProps {
   error?: unknown;

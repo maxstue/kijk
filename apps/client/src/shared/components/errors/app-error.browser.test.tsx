@@ -5,12 +5,45 @@ import { render } from 'vitest-browser-react';
 
 import { App } from '@/app';
 
+import { AppError } from './app-error';
+
 const { captureException } = vi.hoisted(() => ({
   captureException: vi.fn<(error: unknown) => void>(),
 }));
 
 vi.mock('@/shared/components/theme-mode-switcher', () => ({ ThemeModeSwitcher: () => null }));
 vi.mock('@/shared/lib/error-tracking', () => ({ ErrorService: { captureException } }));
+
+test.each([
+  {
+    name: 'circular reference',
+    createError: () => {
+      const error: { self?: unknown } = {};
+      error.self = error;
+      return error;
+    },
+  },
+  { name: 'BigInt', createError: () => 1n },
+  {
+    name: 'throwing serializer',
+    createError: () => ({
+      toJSON() {
+        throw new Error('Serialization failed');
+      },
+    }),
+  },
+])('keeps the error fallback usable for a $name', async ({ createError }) => {
+  const retry = vi.fn<() => void>();
+  const screen = await render(<AppError error={createError()} onRetry={retry} />);
+  try {
+    await screen.getByRole('button', { name: 'Show more advanced information:' }).click();
+    await expect.element(screen.getByText('Error details cannot be displayed.', { exact: true })).toBeVisible();
+    await screen.getByRole('button', { name: 'Try again', exact: true }).click();
+    expect(retry).toHaveBeenCalledOnce();
+  } finally {
+    await screen.unmount();
+  }
+});
 
 test('reports a caught render error once and retries the failed content', async () => {
   const queryClient = new QueryClient();
