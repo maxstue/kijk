@@ -28,7 +28,7 @@ jobs:
   changes:
     name: "🧭 Detect changes"
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     outputs:
       js: ${{ github.event_name != 'pull_request' || steps.filter.outputs.js == 'true' }}
       js-workspaces: ${{ steps.workspaces.outputs.list || '[]' }}
