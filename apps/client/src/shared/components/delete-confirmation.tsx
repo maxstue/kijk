@@ -10,7 +10,7 @@ import {
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import type { ReactNode } from 'react';
 
-interface DeleteConfirmationProps {
+interface Props {
   title: ReactNode;
   description: ReactNode;
   isPending: boolean;
@@ -18,7 +18,7 @@ interface DeleteConfirmationProps {
 }
 
 /** Shared pending/confirmation behavior; features retain their own deletion rules and mutations. */
-export function DeleteConfirmation({ title, description, isPending, onConfirm }: DeleteConfirmationProps) {
+export function DeleteConfirmation({ title, description, isPending, onConfirm }: Props) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
