@@ -67,21 +67,16 @@ export function ResourceIconPicker({ onChange, value }: Props) {
   );
 }
 
-function IconGrid({
-  icons,
-  selectedIcon,
-  query,
-  scrollElement,
-  onScrollElementChange,
-  onSelect,
-}: {
+interface IconGridProps {
   icons: readonly string[];
   selectedIcon: string;
   query: string;
   scrollElement: HTMLDivElement | null;
   onScrollElementChange: (element: HTMLDivElement | null) => void;
   onSelect: (name: string) => void;
-}) {
+}
+
+function IconGrid({ icons, selectedIcon, query, scrollElement, onScrollElementChange, onSelect }: IconGridProps) {
   // Keep the mutable virtualizer isolated so the picker and its filtering remain compiler-compatible.
   // oxlint-disable-next-line react/incompatible-library, react-hooks-js/incompatible-library
   const rowVirtualizer = useVirtualizer({

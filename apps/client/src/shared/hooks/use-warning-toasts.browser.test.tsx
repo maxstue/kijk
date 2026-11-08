@@ -11,7 +11,11 @@ vi.mock('sonner', () => ({
   },
 }));
 
-function Warnings({ warnings }: { warnings: WarningToast[] }) {
+interface WarningsProps {
+  warnings: WarningToast[];
+}
+
+function Warnings({ warnings }: WarningsProps) {
   useWarningToasts(warnings);
   return null;
 }

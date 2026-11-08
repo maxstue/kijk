@@ -10,18 +10,15 @@ import {
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import type { ReactNode } from 'react';
 
-/** Shared pending/confirmation behavior; features retain their own deletion rules and mutations. */
-export function DeleteConfirmation({
-  title,
-  description,
-  isPending,
-  onConfirm,
-}: {
+interface DeleteConfirmationProps {
   title: ReactNode;
   description: ReactNode;
   isPending: boolean;
   onConfirm: () => void;
-}) {
+}
+
+/** Shared pending/confirmation behavior; features retain their own deletion rules and mutations. */
+export function DeleteConfirmation({ title, description, isPending, onConfirm }: DeleteConfirmationProps) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
