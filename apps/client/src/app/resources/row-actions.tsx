@@ -13,14 +13,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@kijk/ui/components/too
 import { useNavigate } from '@tanstack/react-router';
 import type { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { ResourceTypeDeleteContent } from '@/app/resources/delete-content';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 import { CreatorTypes, type CreatorType, type Resource } from '@/shared/types/domain';
-
 interface DataTableRowActionsProps {
   canManage: boolean;
   row: Row<DataTableFeatures, Resource>;
@@ -35,12 +34,12 @@ export function ResourceTypeRowActions({ canManage, row }: DataTableRowActionsPr
   const managementRestriction = getManagementRestriction(resourceType.creatorType, canManage);
   const managementActionsDisabled = managementRestriction !== undefined;
 
-  const handleCopyName = useCallback(async () => {
+  const handleCopyName = async () => {
     await navigator.clipboard.writeText(resourceType.name);
     toast(`Successfully copied: ${resourceType.name}`);
-  }, [resourceType.name]);
+  };
 
-  const handleCloseDeleteDialog = useCallback(() => setShowDeleteDialog(false), []);
+  const handleCloseDeleteDialog = () => setShowDeleteDialog(false);
 
   return (
     <>

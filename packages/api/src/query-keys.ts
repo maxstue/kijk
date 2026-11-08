@@ -75,6 +75,7 @@ const imports = {
   preview: (spaceId: string, id: string, params: ImportPreviewParams) =>
     [...imports.all(spaceId), 'preview', id, params] as const,
   settings: (spaceId: string) => [...imports.all(spaceId), 'settings'] as const,
+  mutations: (spaceId: string, id: string) => [...imports.all(spaceId), 'mutations', id] as const,
 };
 
 const categoryRules = {

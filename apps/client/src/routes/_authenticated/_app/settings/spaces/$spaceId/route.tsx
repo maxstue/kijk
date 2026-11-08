@@ -3,15 +3,18 @@ import { Outlet, createFileRoute, notFound } from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { SpaceSettingsContext } from '@/app/settings/spaces/context';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/settings/spaces/$spaceId`: loads the space and provides it to its settings pages. */
 export const Route = createFileRoute('/_authenticated/_app/settings/spaces/$spaceId')({
   component: SpaceSettingsPage,
-  errorComponent: ({ info, error }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
   loader: async ({ context: { queryClient }, params: { spaceId } }) => {
-    const account = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
+    const account = await queryClient.query({
+      ...usersOptions.meQueryOptions(),
+      staleTime: 'static',
+    });
     const user = account.user;
     const space = user?.spaces?.find((entry) => entry.id === spaceId);
     if (!user || !space) {

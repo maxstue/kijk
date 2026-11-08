@@ -73,7 +73,7 @@ interface CardSettlementOptionProps {
 
 function CardSettlementOption({ candidate, importId }: CardSettlementOptionProps) {
   const spaceId = useSpaceId();
-  const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId));
+  const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId, importId));
   const id = useId();
 
   function onCheckedChange(checked: boolean) {

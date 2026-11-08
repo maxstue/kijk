@@ -1,6 +1,7 @@
 import { SpacePermissions, hasSpacePermission } from '@kijk/api/spaces/permissions';
 import * as unitsOptions from '@kijk/api/units/options';
 import * as usersOptions from '@kijk/api/users/options';
+import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -26,7 +27,6 @@ import {
 
 import { UnitCreateForm } from './create-form';
 import { UnitTable } from './table';
-
 interface Props {
   spaceId?: string;
   scope: 'space' | 'personal';
@@ -37,7 +37,12 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
-  const { data: pageData, isPending } = useQuery(
+  const {
+    data: pageData,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery(
     unitsOptions.listQueryOptions({
       includeArchived: true,
       page,
@@ -96,19 +101,28 @@ export function UnitsSection({ spaceId: selectedSpaceId, scope }: Props) {
           <List className='text-muted-foreground h-4 w-4' />
         </CardHeader>
         <CardContent>
-          <UnitTable
-            spaceId={spaceId}
-            shareableSpaces={shareableSpaces}
-            isPending={isPending}
-            items={pageData?.items ?? []}
-            page={page}
-            pageSize={20}
-            scope={scope}
-            search={search}
-            setPage={setPage}
-            setSearch={setSearch}
-            totalCount={Number(pageData?.totalCount ?? 0)}
-          />
+          {isError ? (
+            <div role='alert' className='space-y-3'>
+              <p>Units could not be loaded.</p>
+              <Button variant='outline' onClick={() => void refetch()}>
+                Try again
+              </Button>
+            </div>
+          ) : (
+            <UnitTable
+              spaceId={spaceId}
+              shareableSpaces={shareableSpaces}
+              isPending={isPending}
+              items={pageData?.items ?? []}
+              page={page}
+              pageSize={20}
+              scope={scope}
+              search={search}
+              setPage={setPage}
+              setSearch={setSearch}
+              totalCount={Number(pageData?.totalCount ?? 0)}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

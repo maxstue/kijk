@@ -40,13 +40,13 @@ jobs:
         uses: ./.github/actions/setup-js
 
       - name: '📊 Download JavaScript coverage'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: coverage-js-*
           path: coverage-reports
 
       - name: '📊 Download .NET coverage'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: coverage-dotnet-*
           path: apps/api/TestResults
@@ -76,13 +76,17 @@ jobs:
           lcov_reports=(coverage-reports/*/lcov.info)
           lcov_paths="$(IFS=,; echo "${lcov_reports[*]}")"
           echo "JavaScript coverage reports: ${lcov_paths:-none}"
+          coverage_args=()
+          if [ ${#lcov_reports[@]} -gt 0 ]; then
+            coverage_args+=("/d:sonar.javascript.lcov.reportPaths=$lcov_paths")
+          fi
 
           "${{ runner.temp }}/scanner/dotnet-sonarscanner" begin \
             /k:"maxstue_kijk" \
             /o:"maxstue" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.cs.vscoveragexml.reportsPaths="apps/api/TestResults/*.xml" \
-            /d:sonar.javascript.lcov.reportPaths="$lcov_paths" \
+            "${coverage_args[@]}" \
             /d:sonar.plsql.file.suffixes="tab,pkb" \
             /d:sonar.postgres.file.suffixes="sql,pgsql,psql"
 

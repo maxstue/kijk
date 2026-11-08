@@ -28,7 +28,13 @@ function cachedPage(items: ImportCandidate[], totalCount = 200): ImportCandidate
 }
 
 function row(id: string): ImportCandidate {
-  return { id, bookingDate: '2026-10-15', errors: null, excluded: false, isCardSettlement: false } as ImportCandidate;
+  return {
+    id,
+    bookingDate: '2026-10-15',
+    errors: null,
+    excluded: false,
+    isCardSettlement: false,
+  } as ImportCandidate;
 }
 
 test('editing a row reloads active pages and totals from the server and marks other pages stale', async () => {
@@ -51,7 +57,7 @@ test('editing a row reloads active pages and totals from the server and marks ot
   try {
     await client
       .getMutationCache()
-      .build(client, updateCandidateMutationOptions('space'))
+      .build(client, updateCandidateMutationOptions('space', 'import'))
       .execute({
         importId: 'import',
         candidateId: 'row',
@@ -73,7 +79,9 @@ test('editing a row reloads active pages and totals from the server and marks ot
 test.each([false, true])(
   'AI completion reloads candidates without relying on a rendered intermediate status (polling: %s)',
   async (needsPolling) => {
-    const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
+    const client = new QueryClient({
+      defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+    });
     const accepted = { id: 'import', status: 'Categorizing', aiCategorizedCount: 0 } as ImportJob;
     const completed = { ...accepted, status: 'NeedsReview', aiCategorizedCount: 1 } as ImportJob;
     const detail = detailsQueryOptions('space', 'import');
@@ -138,7 +146,7 @@ test('excluding a card statement reloads the server page including any replaceme
   try {
     await client
       .getMutationCache()
-      .build(client, updateCandidateMutationOptions('space'))
+      .build(client, updateCandidateMutationOptions('space', 'import'))
       .execute({
         importId: 'import',
         candidateId: 'card',
@@ -146,6 +154,55 @@ test('excluding a card statement reloads the server page including any replaceme
       });
     expect(client.getQueryData(options.queryKey)).toEqual(serverPage);
   } finally {
+    unsubscribe();
+    client.clear();
+  }
+});
+
+test('row edits stay pending for their import until active review pages finish refreshing', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  const pageOptions = candidatesQueryOptions('space', 'import');
+  const candidate = row('row');
+  client.setQueryData(pageOptions.queryKey, cachedPage([candidate]));
+  const refresh = Promise.withResolvers<ImportCandidatePage>();
+  const loadPage = vi.fn<() => Promise<ImportCandidatePage>>(() => refresh.promise);
+  const observer = new QueryObserver(client, { ...pageOptions, queryFn: loadPage });
+  const unsubscribe = observer.subscribe(() => {});
+  const update = Promise.withResolvers<ImportCandidate>();
+  vi.mocked(updateCandidate).mockReturnValue(update.promise);
+  const mutationOptions = updateCandidateMutationOptions('space', 'import');
+  const mutation = client.getMutationCache().build(client, mutationOptions);
+  const execution = mutation.execute({
+    importId: 'import',
+    candidateId: candidate.id,
+    candidate: { categoryId: null, excluded: true },
+  });
+  const updated = { ...candidate, excluded: true };
+  try {
+    await vi.waitFor(() => expect(mutation.state.status).toBe('pending'));
+    expect(client.isMutating({ mutationKey: mutationOptions.mutationKey })).toBe(1);
+    expect(
+      client.isMutating({
+        mutationKey: updateCandidateMutationOptions('space', 'other-import').mutationKey,
+      }),
+    ).toBe(0);
+    expect(
+      client.isMutating({
+        mutationKey: updateCandidateMutationOptions('other-space', 'import').mutationKey,
+      }),
+    ).toBe(0);
+    update.resolve(updated);
+    await vi.waitFor(() => expect(loadPage).toHaveBeenCalledOnce());
+    expect(mutation.state.status).toBe('pending');
+    expect(client.isMutating({ mutationKey: mutationOptions.mutationKey })).toBe(1);
+    refresh.resolve(cachedPage([updated]));
+    await execution;
+    expect(client.isMutating({ mutationKey: mutationOptions.mutationKey })).toBe(0);
+    expect(client.getQueryData(pageOptions.queryKey)).toEqual(cachedPage([updated]));
+  } finally {
+    update.resolve(updated);
+    refresh.resolve(cachedPage([updated]));
+    await execution;
     unsubscribe();
     client.clear();
   }

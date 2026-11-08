@@ -5,7 +5,7 @@ import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTit
 import { Input } from '@kijk/ui/components/input';
 import { useQueryClient } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
-import { useCallback } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ import { useSpaceId } from '@/shared/hooks/use-active-space';
 const Route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 const yearSchema = z.object({
-  year: z.number().min(1970).max(9999),
+  year: z.number().int().min(1970).max(9999),
 });
 
 type YearFormValues = z.infer<typeof yearSchema>;
@@ -28,8 +28,9 @@ export function AddNewYearDialog({ onClose }: AddNewYearDialogProps) {
   const spaceId = useSpaceId();
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
+  const [nextYear] = useState(() => new Date().getFullYear() + 1);
   const form = useForm({
-    defaultValues: { year: new Date().getFullYear() + 1 },
+    defaultValues: { year: nextYear },
     mode: 'onBlur',
     resolver: zodResolver(yearSchema),
   });
@@ -52,13 +53,14 @@ export function AddNewYearDialog({ onClose }: AddNewYearDialogProps) {
     onClose();
   }
 
-  const handleError = useCallback(() => {
+  const handleError = () => {
     toast.error('Error adding new year');
-  }, []);
+  };
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     form.reset();
-  }, [form]);
+    onClose();
+  };
 
   return (
     <DialogContent aria-description='add new year modal' title='Add new year'>
@@ -77,7 +79,17 @@ export function AddNewYearDialog({ onClose }: AddNewYearDialogProps) {
                   <FormItem>
                     <FormLabel>Year</FormLabel>
                     <FormControl>
-                      <Input placeholder={(new Date().getFullYear() + 1).toString()} type='number' {...field} />
+                      <Input
+                        {...field}
+                        placeholder={String(nextYear)}
+                        type='number'
+                        value={field.value ?? ''}
+                        onChange={(event) =>
+                          field.onChange(
+                            event.currentTarget.value === '' ? undefined : Number(event.currentTarget.value),
+                          )
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
