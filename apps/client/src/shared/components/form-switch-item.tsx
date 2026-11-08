@@ -1,12 +1,11 @@
 import { Switch } from '@kijk/ui/components/switch';
+import type { ComponentProps } from 'react';
 
 import { FormControl, FormDescription, FormItem, FormLabel } from '@/shared/components/form';
 
-interface Props {
-  checked: boolean;
+interface Props extends Required<Pick<ComponentProps<typeof Switch>, 'checked' | 'onCheckedChange'>> {
   description: string;
   label: string;
-  onCheckedChange: (checked: boolean) => void;
 }
 
 /** Bordered form row with a label, a description and a switch; render it inside a `FormField`. */

@@ -7,24 +7,17 @@ import { useState } from 'react';
 
 import { AppBrand } from '@/shared/components/app-brand';
 import { ErrorImage } from '@/shared/components/errors/error-image';
-import { ErrorService } from '@/shared/lib/error-tracking';
 
-interface Props extends Partial<ErrorComponentProps> {
-  resetErrorBoundary?: () => void;
+interface Props extends Pick<ErrorComponentProps<unknown>, 'error'> {
+  onRetry?: () => void;
 }
 
 const handleGotToRoot = () => {
   globalThis.location.href = '/';
 };
 
-/** Error boundary fallback; reports the error and offers going home or retrying. */
-export function AppError({ error, resetErrorBoundary }: Props) {
-  ErrorService.captureException(error);
-
-  const handleReset = () => {
-    resetErrorBoundary?.();
-  };
-
+/** Presentational error fallback shared by route and React boundaries. */
+export function AppError({ error, onRetry }: Props) {
   return (
     <div className='flex h-full w-full items-center justify-center'>
       <Card className='w-2/3 rounded border-none'>
@@ -38,8 +31,8 @@ export function AppError({ error, resetErrorBoundary }: Props) {
         </CardContent>
         <CardFooter className='flex w-full items-center justify-around'>
           <Button onClick={handleGotToRoot}>Go to home</Button>
-          {resetErrorBoundary !== undefined && (
-            <Button variant='secondary' onClick={handleReset}>
+          {onRetry !== undefined && (
+            <Button variant='secondary' onClick={onRetry}>
               Try again
             </Button>
           )}
@@ -50,9 +43,7 @@ export function AppError({ error, resetErrorBoundary }: Props) {
   );
 }
 
-interface ShowMoreProps {
-  error?: unknown;
-}
+interface ShowMoreProps extends Pick<Props, 'error'> {}
 
 const ShowMore = (props: ShowMoreProps) => {
   const [showMore, setShowMore] = useState(false);
@@ -72,19 +63,26 @@ const ShowMore = (props: ShowMoreProps) => {
 
         <ArrowDownIcon className={cn('h-3 w-3 text-orange-400', showMore ? 'rotate-180' : '')} />
       </button>
-      {showMore &&
-        (props.error instanceof Error ? (
-          <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{props.error.stack}</div>
-        ) : (
-          <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{JSON.stringify(props.error)}</div>
-        ))}
+      {showMore && (
+        <div className='h-50 overflow-auto rounded border border-gray-400 p-4'>{formatErrorDetails(props.error)}</div>
+      )}
     </div>
   );
 };
 
-interface ErrorTitleProps {
-  error?: unknown;
+/** Error fallbacks must remain usable even when the thrown value cannot be serialized. */
+function formatErrorDetails(error: unknown) {
+  if (error instanceof Error) {
+    return error.stack ?? error.message;
+  }
+  try {
+    return JSON.stringify(error, null, 2) ?? 'No error details available.';
+  } catch {
+    return 'Error details cannot be displayed.';
+  }
 }
+
+interface ErrorTitleProps extends Pick<Props, 'error'> {}
 
 const ErrorTitle = (props: ErrorTitleProps) => (
   <div className='flex flex-col justify-center gap-2'>

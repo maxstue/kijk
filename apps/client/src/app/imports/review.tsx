@@ -1,23 +1,23 @@
 import * as importsOptions from '@kijk/api/imports/options';
 import type { ImportJob } from '@kijk/api/imports/types';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { useState, type PropsWithChildren } from 'react';
 import { toast } from 'sonner';
 
 import { formatImportMonth } from '@/app/imports/helpers';
+import { useImportPending } from '@/app/imports/use-import-pending';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 import type { ReviewActionProps } from './review-actions';
 import { ImportReviewContext, type ImportReviewState } from './review-context';
-interface ImportReviewProps {
+interface Props extends Required<PropsWithChildren> {
   job: ImportJob;
   stage: 'months' | 'review';
   onStageChange: (stage: 'months' | 'review') => void;
-  children: ReactNode;
 }
 
 /** Owns state shared across review steps and both action bars, including while adjustments are unmounted. */
-export function ImportReview({ job, stage, onStageChange, children }: ImportReviewProps) {
+export function ImportReview({ job, stage, onStageChange, children }: Props) {
   const spaceId = useSpaceId();
   const [includedEdgeMonths, setIncludedEdgeMonths] = useState<string[]>([]);
   const [page, setPage] = useState(1);
@@ -37,8 +37,7 @@ export function ImportReview({ job, stage, onStageChange, children }: ImportRevi
   });
   const review = reviewQuery.data;
   const importedCount = review?.includedCount ?? 0;
-  const isPending =
-    commitMutation.isPending || cancelMutation.isPending || resetMutation.isPending || job.status === 'Categorizing';
+  const isPending = useImportPending(job);
   const isReviewLoading = !review || reviewQuery.isFetching || reviewQuery.isError;
   const cannotCommit = (job.hasHighErrorRate && !acceptErrors) || months.size === 0;
 

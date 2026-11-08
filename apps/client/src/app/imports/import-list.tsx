@@ -6,6 +6,7 @@ import { Link } from '@tanstack/react-router';
 
 import { ImportStatusBadge } from '@/app/imports/status-badge';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
+import { formatDateTime } from '@/shared/utils/format';
 
 /** Table of the space's latest imports, each linking to its details. */
 export function ImportList() {
@@ -41,9 +42,7 @@ export function ImportList() {
                     </Link>
                   </TableCell>
                   <TableCell>{job.accountName}</TableCell>
-                  <TableCell>
-                    {new Date(job.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-                  </TableCell>
+                  <TableCell>{formatDateTime(job.createdAt)}</TableCell>
                   <TableCell>
                     <ImportStatusBadge status={job.status} />
                   </TableCell>

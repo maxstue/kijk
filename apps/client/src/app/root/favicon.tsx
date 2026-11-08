@@ -1,21 +1,16 @@
-import { useCallback, useEffect } from 'react';
-
+import { useEffect } from 'react';
 /** Switches to the inactive favicon while the tab is hidden. Renders nothing. */
-export const Favicon = () => {
-  const updateIcon = useCallback(() => {
-    const link = document.querySelector("link[rel='icon'][sizes='any']");
-    if (link) {
-      const path = document.hidden ? '/favicon_inactive.svg' : '/favicon.svg';
-      link.setAttribute('href', path);
-    }
-  }, []);
-
+export function Favicon() {
   useEffect(() => {
+    function updateIcon() {
+      const link = document.querySelector<HTMLLinkElement>("link[rel='icon']");
+      if (link) {
+        link.href = document.hidden ? '/favicon_inactive.svg' : '/favicon.svg';
+      }
+    }
+    updateIcon();
     document.addEventListener('visibilitychange', updateIcon);
-    return () => {
-      document.removeEventListener('visibilitychange', updateIcon);
-    };
-  }, [updateIcon]);
-
-  return <></>;
-};
+    return () => document.removeEventListener('visibilitychange', updateIcon);
+  }, []);
+  return null;
+}

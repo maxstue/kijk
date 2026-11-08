@@ -4,7 +4,7 @@ import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -26,7 +26,6 @@ import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
-
 interface Props {
   consumptions: Consumption[];
   initialData: Consumption;
@@ -39,11 +38,12 @@ export function ConsumptionUpdateForm({ consumptions, onClose, initialData }: Pr
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const { isPending, mutate } = useMutation(consumptionsOptions.updateMutationOptions(spaceId));
 
+  const [initialDate] = useState(() => (initialData.date ? new Date(initialData.date) : new Date()));
   const form = useForm({
     defaultValues: {
       id: initialData.id,
       name: initialData.name,
-      date: initialData.date ? new Date(initialData.date) : new Date(),
+      date: initialDate,
       resourceId: initialData.resource.id,
       value: Number(initialData.value),
       valueType: initialData.valueType,

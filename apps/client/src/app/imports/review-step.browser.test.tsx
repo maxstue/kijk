@@ -79,7 +79,9 @@ async function renderReview(
   customRows?: ImportCandidate[],
   openAdjust = true,
 ) {
-  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+  });
   onTestFinished(() => client.clear());
   client.setQueryData(queryKeys.categories.list('space'), [
     { id: 'food', name: 'Food' },
@@ -245,6 +247,83 @@ test('blocks saving while a new page loads and allows retry after a failed reque
   await screen.unmount();
 });
 
+test.each(['transaction', 'card statement'] as const)(
+  'blocks conflicting review actions until a %s edit and its refresh finish',
+  async (kind) => {
+    const rows = [
+      {
+        id: 'edited-row',
+        bookingDate: '2026-09-15',
+        counterparty: 'Edited merchant',
+        amount: 12,
+        categoryId: null,
+        excluded: false,
+        errors: null,
+        isCardSettlement: kind === 'card statement',
+        countsAsOffset: false,
+      },
+      {
+        id: 'other-row',
+        bookingDate: '2026-09-15',
+        counterparty: 'Other merchant',
+        amount: 12,
+        categoryId: null,
+        excluded: false,
+        errors: null,
+      },
+    ] as ImportCandidate[];
+    const screen = await renderReview({ fullMonths: ['2026-09-01'], edgeMonths: [] }, 960, 'review', 2, rows);
+    const checkbox =
+      kind === 'transaction'
+        ? screen.getByRole('checkbox', { name: 'Import this row' }).first()
+        : screen.getByRole('checkbox', {
+            name: /Edited merchant.*purchases imported separately/,
+          });
+    if (kind === 'card statement') {
+      await screen.getByText('A credit card statement was found').click();
+    }
+    await expect.element(checkbox).toBeVisible();
+    const update = Promise.withResolvers<ImportCandidate>();
+    const refresh = Promise.withResolvers<ImportCandidatePage>();
+    const updated = {
+      ...rows[0],
+      excluded: kind === 'transaction',
+      countsAsOffset: kind === 'card statement',
+    };
+    vi.mocked(importsApi.updateCandidate).mockReturnValue(update.promise);
+    vi.mocked(importsApi.getCandidates).mockClear().mockReturnValue(refresh.promise);
+    const actions = [
+      screen.getByRole('button', { name: 'Start import' }).first(),
+      screen.getByRole('button', { name: 'Back', exact: true }).first(),
+      screen.getByRole('button', { name: 'Reset overrides' }),
+      screen.getByRole('button', { name: 'Suggest categories' }),
+    ];
+    try {
+      await checkbox.click();
+      await vi.waitFor(() => expect(importsApi.updateCandidate).toHaveBeenCalledOnce());
+      for (const action of actions) {
+        await expect.element(action).toBeDisabled();
+      }
+
+      update.resolve(updated);
+      await vi.waitFor(() => expect(importsApi.getCandidates).toHaveBeenCalled());
+      for (const action of actions) {
+        await expect.element(action).toBeDisabled();
+      }
+      expect(importsApi.commit).not.toHaveBeenCalled();
+      expect(importsApi.resetOverrides).not.toHaveBeenCalled();
+      refresh.resolve(candidatePage([updated, rows[1]]));
+      for (const action of actions) {
+        await expect.element(action).toBeEnabled();
+      }
+    } finally {
+      update.resolve(updated);
+      refresh.resolve(candidatePage([updated, rows[1]]));
+      await screen.unmount();
+    }
+  },
+);
+
 test('loads card statements outside the visible transaction page only when expanded', async () => {
   const rows = Array.from({ length: 102 }, (_, index) => ({
     id: `row-${index}`,
@@ -264,7 +343,9 @@ test('loads card statements outside the visible transaction page only when expan
   await screen.getByText('2 credit card statements were found').click();
   await expect.element(screen.getByText(/Merchant 101.*purchases imported separately/)).toBeVisible();
   expect(cardRequests()).toHaveLength(1);
-  const checkbox = screen.getByRole('checkbox', { name: /Merchant 101.*purchases imported separately/ });
+  const checkbox = screen.getByRole('checkbox', {
+    name: /Merchant 101.*purchases imported separately/,
+  });
   await checkbox.click();
   await expect.element(checkbox).toBeChecked();
   await screen.unmount();
@@ -432,7 +513,9 @@ test('closes the sharing preview after category suggestions start', async () => 
 });
 
 test('refreshes category suggestions when background categorization finishes', async () => {
-  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+  });
   onTestFinished(() => client.clear());
   const candidate = {
     id: 'row',
@@ -459,7 +542,11 @@ test('refreshes category suggestions when background categorization finishes', a
     aiCategorizedCount: 0,
   } as unknown as ImportJob;
   client.setQueryData(queryKeys.imports.detail('space', 'import'), job);
-  vi.mocked(importsApi.getDetails).mockResolvedValue({ ...job, status: 'NeedsReview', aiCategorizedCount: 1 });
+  vi.mocked(importsApi.getDetails).mockResolvedValue({
+    ...job,
+    status: 'NeedsReview',
+    aiCategorizedCount: 1,
+  });
   const screen = await render(
     <QueryClientProvider client={client}>
       <PolledReviewHarness />
@@ -476,7 +563,9 @@ test('refreshes category suggestions when background categorization finishes', a
 });
 
 test.each([360, 960])('keeps the table position stable while AI starts and finishes at %i px', async (width) => {
-  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+  });
   onTestFinished(() => client.clear());
   client.setQueryData(queryKeys.categories.list('space'), []);
   client.setQueryData(

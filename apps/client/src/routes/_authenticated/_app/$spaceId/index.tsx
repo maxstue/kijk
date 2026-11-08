@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 
 import { Dashboard } from '@/app/home/dashboard';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 
 /** The common overview of the route space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/')({
@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/')({
   }),
   head: () => ({ meta: [{ title: 'Space overview' }] }),
   component: HomeIndexPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
 });
 
 function HomeIndexPage() {

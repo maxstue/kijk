@@ -7,7 +7,7 @@ import { Sparkles, Tags } from 'lucide-react';
 import { CategoryCreateButton } from '@/app/categories/create-button';
 import { CategoryRulesSection } from '@/app/categories/rules';
 import { CategoriesSection } from '@/app/categories/section';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/cat
     ]);
   },
   component: CategoriesPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
   head: () => ({ meta: [{ title: 'Categories' }] }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });

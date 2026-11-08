@@ -3,7 +3,7 @@ import { createRouter } from '@tanstack/react-router';
 
 import { routeTree } from '@/routeTree.gen';
 import { serverAuth } from '@/server/session';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { NotFound } from '@/shared/components/not-found';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { AnalyticsService } from '@/shared/lib/analytics-tracking';
@@ -16,7 +16,8 @@ import { TracingService } from '@/shared/lib/tracing';
 export function getRouter() {
   const router = createRouter({
     context: { auth: serverAuth, queryClient: createQueryClient() },
-    defaultErrorComponent: AppError,
+    defaultErrorComponent: RouteError,
+    defaultOnCatch: (error) => ErrorService.captureException(error),
     defaultNotFoundComponent: NotFound,
     defaultPendingComponent: () => <Loader className='h-6 w-6' />,
     defaultPreload: 'intent',

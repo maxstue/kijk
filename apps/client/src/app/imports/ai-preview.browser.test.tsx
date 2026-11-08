@@ -12,14 +12,23 @@ import { ImportAiCategorization } from './ai-preview';
 
 vi.mock('@kijk/api/imports/requests', { spy: true });
 
-afterEach(() => vi.mocked(importsApi.startCategorization).mockReset());
+afterEach(() => {
+  vi.mocked(importsApi.startCategorization).mockReset();
+  vi.mocked(importsApi.getAiDataPreview).mockReset();
+});
 
 type CategorizeResult = Awaited<ReturnType<typeof importsApi.startCategorization>>;
 
-const job = { aiCategorizationUnavailable: false, aiCategorizedCount: 0, id: 'import' } as unknown as ImportJob;
+const job = {
+  aiCategorizationUnavailable: false,
+  aiCategorizedCount: 0,
+  id: 'import',
+} as unknown as ImportJob;
 
 function createClient(aiEnabled: boolean, aiDataSharing: 'Off' | 'Strict') {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+  });
   onTestFinished(() => client.clear());
   client.setQueryData(queryKeys.users.me, { status: 'Ready', user: { aiEnabled } });
   client.setQueryData(queryKeys.imports.settings('space'), {
@@ -29,9 +38,30 @@ function createClient(aiEnabled: boolean, aiDataSharing: 'Off' | 'Strict') {
   });
   client.setQueryData(queryKeys.imports.aiPreview('space', 'import'), {
     items: [
-      { counterparty: 'REWE Markt', excluded: false, incoming: false, key: 'a', purpose: 'Einkauf', rowCount: 2 },
-      { counterparty: '[PERSON]', excluded: false, incoming: false, key: 'b', purpose: 'Miete Oktober', rowCount: 1 },
-      { counterparty: 'Kino', excluded: true, incoming: false, key: 'c', purpose: null, rowCount: 1 },
+      {
+        counterparty: 'REWE Markt',
+        excluded: false,
+        incoming: false,
+        key: 'a',
+        purpose: 'Einkauf',
+        rowCount: 2,
+      },
+      {
+        counterparty: '[PERSON]',
+        excluded: false,
+        incoming: false,
+        key: 'b',
+        purpose: 'Miete Oktober',
+        rowCount: 1,
+      },
+      {
+        counterparty: 'Kino',
+        excluded: true,
+        incoming: false,
+        key: 'c',
+        purpose: null,
+        rowCount: 1,
+      },
     ],
     withheldRows: 1,
   });
@@ -60,6 +90,29 @@ test('opens the preview directly even when automatic AI is off for the space', a
   );
   await expect.element(screen.getByText('What the AI would see')).toBeVisible();
   await expect.element(screen.getByRole('button', { name: 'Show what would be sent' })).not.toBeInTheDocument();
+  await screen.unmount();
+});
+
+test('lets the user retry a failed preview before sharing any texts', async () => {
+  const client = createClient(true, 'Strict');
+  const previewKey = queryKeys.imports.aiPreview('space', 'import');
+  const preview = client.getQueryData<Awaited<ReturnType<typeof importsApi.getAiDataPreview>>>(previewKey)!;
+  client.removeQueries({ queryKey: previewKey });
+  vi.mocked(importsApi.getAiDataPreview).mockRejectedValueOnce(new Error('Unavailable')).mockResolvedValue(preview);
+  const screen = await render(
+    <QueryClientProvider client={client}>
+      <ImportAiCategorization job={job} />
+    </QueryClientProvider>,
+  );
+
+  await expect.element(screen.getByText('AI preview could not be loaded')).toBeVisible();
+  await expect.element(screen.getByRole('button', { name: 'Use suggestions' })).not.toBeInTheDocument();
+  expect(importsApi.startCategorization).not.toHaveBeenCalled();
+  await screen.getByRole('button', { name: 'Try again' }).click();
+  await expect.element(screen.getByText('Miete Oktober')).toBeVisible();
+  await expect.element(screen.getByRole('button', { name: 'Use suggestions' })).toBeEnabled();
+  expect(importsApi.getAiDataPreview).toHaveBeenCalledTimes(2);
+  expect(importsApi.startCategorization).not.toHaveBeenCalled();
   await screen.unmount();
 });
 

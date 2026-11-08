@@ -13,6 +13,7 @@ export function useAnalyticsConsent() {
   const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const currentUser = currentAccount?.user;
   const [anonymousConsent, setAnonymousConsent] = useState<CookieConsent>(() => AnalyticsService.getCookieConsent());
+  const hasUser = Boolean(currentUser);
   const serverConsent = toCookieConsent(currentUser?.analyticsConsent);
   const updateUserOptions = usersOptions.updateMutationOptions();
   const { mutate, isPending } = useMutation({
@@ -25,13 +26,13 @@ export function useAnalyticsConsent() {
   });
 
   useEffect(() => {
-    if (isSignedIn === true && currentUser) {
+    if (isSignedIn === true && hasUser) {
       AnalyticsService.setCookieConsent(serverConsent);
     }
     if (isSignedIn === false) {
       AnalyticsService.setCookieConsent(anonymousConsent);
     }
-  }, [anonymousConsent, currentUser, isSignedIn, serverConsent]);
+  }, [anonymousConsent, hasUser, isSignedIn, serverConsent]);
 
   function updateConsent(consent: Exclude<CookieConsent, 'undecided'>) {
     if (isSignedIn) {
@@ -46,7 +47,6 @@ export function useAnalyticsConsent() {
       return;
     }
 
-    AnalyticsService.setCookieConsent(consent);
     setAnonymousConsent(consent);
   }
 

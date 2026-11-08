@@ -3,7 +3,7 @@ import * as importsOptions from '@kijk/api/imports/options';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { ImportDetail } from '@/app/imports/import-detail';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 /** `/finances/imports/$importId`: the steps of one import, from column mapping to review. */
@@ -14,11 +14,14 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
         ...importsOptions.detailsQueryOptions(params.spaceId, params.importId),
         staleTime: 'static',
       }),
-      queryClient.query({ ...categoriesOptions.listQueryOptions(params.spaceId), staleTime: 'static' }),
+      queryClient.query({
+        ...categoriesOptions.listQueryOptions(params.spaceId),
+        staleTime: 'static',
+      }),
     ]);
   },
   component: ImportPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
   head: () => ({ meta: [{ title: 'Import' }] }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });

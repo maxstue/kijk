@@ -9,16 +9,15 @@ import {
   CommandList,
   CommandSeparator,
 } from '@kijk/ui/components/command';
-import { Dialog, DialogTrigger } from '@kijk/ui/components/dialog';
+import { Dialog } from '@kijk/ui/components/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@kijk/ui/components/popover';
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import type { ComponentPropsWithoutRef } from 'react';
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 import { AddNewYearDialog } from './add-year-dialog';
@@ -36,31 +35,22 @@ export function ConsumptionYearSwitcher({ className }: ConsumptionYearSwitcherPr
   const navigate = Route.useNavigate();
 
   const { data } = useSuspenseQuery(consumptionsOptions.yearsQueryOptions(spaceId));
-  const queryClient = useQueryClient();
-
   const selectedYear = searchParameters.year;
-  const years = useMemo(() => data.years, [data.years]);
-
-  // Add year from url to array if it doesn't exist
-  useEffect(() => {
-    if (years.length > 0 && !years.includes(Number(searchParameters.year))) {
-      years.push(Number(searchParameters.year));
-    }
-  }, [queryClient, searchParameters.year, years]);
+  const years = [...new Set([...data.years.map(Number), selectedYear])].sort((left, right) => right - left);
 
   const handleSelectYear = (year: number) => {
     setOpen(false);
     navigate({ search: (previous) => ({ ...previous, year }) });
   };
 
-  const handleNewYearClick = useCallback(() => {
+  const handleNewYearClick = () => {
     setOpen(false);
     setShowNewYearDialog(true);
-  }, []);
+  };
 
-  const handleCloseNewYearDialog = useCallback(() => {
+  const handleCloseNewYearDialog = () => {
     setShowNewYearDialog(false);
-  }, []);
+  };
 
   return (
     <Dialog open={showNewYearDialog} onOpenChange={setShowNewYearDialog}>
@@ -85,34 +75,28 @@ export function ConsumptionYearSwitcher({ className }: ConsumptionYearSwitcherPr
             <CommandList>
               <CommandInput placeholder='Search Year...' />
               <CommandEmpty>No Year found.</CommandEmpty>
-              <Suspense fallback={<Loader />}>
-                <CommandGroup key='years' heading='Years'>
-                  {years.map((yearData) => (
-                    <CommandItem
-                      key={yearData}
-                      className='text-sm'
-                      onSelect={(y) => {
-                        handleSelectYear(Number(y));
-                      }}
-                    >
-                      {yearData}
-                      <Check
-                        className={cn('ml-auto h-4 w-4', selectedYear === yearData ? 'opacity-100' : 'opacity-0')}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Suspense>
+              <CommandGroup key='years' heading='Years'>
+                {years.map((yearData) => (
+                  <CommandItem
+                    key={yearData}
+                    className='text-sm'
+                    onSelect={(y) => {
+                      handleSelectYear(Number(y));
+                    }}
+                  >
+                    {yearData}
+                    <Check className={cn('ml-auto h-4 w-4', selectedYear === yearData ? 'opacity-100' : 'opacity-0')} />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             </CommandList>
             <CommandSeparator />
             <CommandList>
               <CommandGroup>
-                <DialogTrigger>
-                  <CommandItem onSelect={handleNewYearClick}>
-                    <PlusCircle className='mr-2 h-5 w-5' />
-                    Add new year
-                  </CommandItem>
-                </DialogTrigger>
+                <CommandItem onSelect={handleNewYearClick}>
+                  <PlusCircle className='mr-2 h-5 w-5' />
+                  Add new year
+                </CommandItem>
               </CommandGroup>
             </CommandList>
           </Command>

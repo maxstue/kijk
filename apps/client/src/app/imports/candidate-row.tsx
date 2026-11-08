@@ -24,7 +24,7 @@ interface CandidateRowProps {
 
 export function CandidateRow({ candidate, categories, importId, manualOverrides }: CandidateRowProps) {
   const spaceId = useSpaceId();
-  const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId));
+  const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId, importId));
 
   function update(change: { categoryId?: string | null; excluded?: boolean }) {
     updateMutation.mutate(

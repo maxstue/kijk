@@ -8,13 +8,12 @@ import { barY, d3Curve, defineChart, lineY } from '@tanstack/charts';
 import { scaleBand } from '@tanstack/charts/scales/band';
 import { scaleLinear } from '@tanstack/charts/scales/linear';
 import { tooltip } from '@tanstack/charts/tooltip';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { curveStep } from 'd3-shape';
-import { useMemo } from 'react';
 
 import { toAmount } from '@/app/budgets/helpers';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
-import { formatStringToCurrency } from '@/shared/utils/format';
+import { formatShortMonth, formatStringToCurrency } from '@/shared/utils/format';
 
 const monthsShown = 12;
 
@@ -35,14 +34,12 @@ interface BudgetStatisticsProps {
 /** Spending per category over the last twelve months up to the given month, as small multiples or table. */
 export function BudgetStatistics({ month, year }: BudgetStatisticsProps) {
   const spaceId = useSpaceId();
-  const { data } = useQuery(budgetsOptions.statisticsQueryOptions(spaceId, year, month, monthsShown));
-  if (!data) {
-    return null;
+  const { data } = useSuspenseQuery(budgetsOptions.statisticsQueryOptions(spaceId, year, month, monthsShown));
+  if (data.months.length === 0) {
+    return <p className='text-muted-foreground py-6'>No spending statistics are available for this period.</p>;
   }
 
-  const labels = data.months.map((value) =>
-    new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { month: 'short', year: '2-digit' }),
-  );
+  const labels = data.months.map(formatShortMonth);
   const trends: Trend[] = [
     {
       budget: data.totalBudget.map((value) => toAmount(value) || null),
@@ -126,42 +123,40 @@ interface TrendChartProps {
 }
 
 function TrendChart({ labels, trend }: TrendChartProps) {
-  const definition = useMemo(() => {
-    const data = labels.map((label, index) => ({
-      budget: trend.budget[index],
-      month: label,
-      spent: Math.max(0, trend.spent[index] ?? 0),
-    }));
+  const data = labels.map((label, index) => ({
+    budget: trend.budget[index],
+    month: label,
+    spent: Math.max(0, trend.spent[index] ?? 0),
+  }));
 
-    return defineChart({
-      marks: [
-        barY(data, { x: 'month', y: 'spent', z: () => 'Spent', fill: 'var(--primary)', radius: [4, 4, 0, 0] }),
-        lineY(data, {
-          x: 'month',
-          y: 'budget',
-          z: () => 'Budget',
-          stroke: 'var(--muted-foreground)',
-          strokeDasharray: '4 3',
-          strokeWidth: 2,
-          curve: budgetCurve,
-        }),
-      ],
-      scales: {
-        x: {
-          scale: () => scaleBand<string>().padding(0.2),
-          axis: { line: false, ticks: { size: 0, padding: 4 }, tickLabels: { thin: { priority: 'ends' } } },
-        },
-        y: { scale: scaleLinear, nice: true, grid: true, axis: false },
+  const definition = defineChart({
+    marks: [
+      barY(data, { x: 'month', y: 'spent', z: () => 'Spent', fill: 'var(--primary)', radius: [4, 4, 0, 0] }),
+      lineY(data, {
+        x: 'month',
+        y: 'budget',
+        z: () => 'Budget',
+        stroke: 'var(--muted-foreground)',
+        strokeDasharray: '4 3',
+        strokeWidth: 2,
+        curve: budgetCurve,
+      }),
+    ],
+    scales: {
+      x: {
+        scale: () => scaleBand<string>().padding(0.2),
+        axis: { line: false, ticks: { size: 0, padding: 4 }, tickLabels: { thin: { priority: 'ends' } } },
       },
-      color: { domain: ['Spent', 'Budget'], range: ['var(--primary)', 'var(--muted-foreground)'] },
-      theme: chartTheme,
-      focus: 'group-x',
-      tooltip: {
-        use: tooltip,
-        content: (points, context) => getChartTooltipContent(points, context, formatStringToCurrency),
-      },
-    });
-  }, [labels, trend]);
+      y: { scale: scaleLinear, nice: true, grid: true, axis: false },
+    },
+    color: { domain: ['Spent', 'Budget'], range: ['var(--primary)', 'var(--muted-foreground)'] },
+    theme: chartTheme,
+    focus: 'group-x',
+    tooltip: {
+      use: tooltip,
+      content: (points, context) => getChartTooltipContent(points, context, formatStringToCurrency),
+    },
+  });
 
   return (
     <div className='rounded-md border p-3'>
