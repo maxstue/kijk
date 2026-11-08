@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { AppBrand } from '@/shared/components/app-brand';
 import { ErrorImage } from '@/shared/components/errors/error-image';
 
-interface Props extends Partial<ErrorComponentProps<unknown>> {
+interface Props extends Pick<ErrorComponentProps<unknown>, 'error'> {
   onRetry?: () => void;
 }
 
