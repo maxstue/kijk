@@ -1,20 +1,19 @@
 import { Toaster } from '@kijk/ui/components/toaster';
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClientProvider, QueryErrorResetBoundary, type QueryClient } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import type { PropsWithChildren } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 
 import { AppError } from '@/shared/components/errors/app-error';
 import { ThemeModeSwitcher } from '@/shared/components/theme-mode-switcher';
 import { ErrorService } from '@/shared/lib/error-tracking';
 
-interface AppProps {
-  children: ReactNode;
+interface Props extends Required<PropsWithChildren> {
   queryClient: QueryClient;
 }
 
 /** App root: error boundary, providers (query, tooltips), theme handling and toasts around the router. */
-export function App({ children, queryClient }: AppProps) {
+export function App({ children, queryClient }: Props) {
   return (
     <QueryClientProvider client={queryClient}>
       <QueryErrorResetBoundary>
@@ -32,7 +31,9 @@ export function App({ children, queryClient }: AppProps) {
   );
 }
 
-function AppErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+interface AppErrorFallbackProps extends FallbackProps {}
+
+function AppErrorFallback({ error, resetErrorBoundary }: AppErrorFallbackProps) {
   return <AppError error={error} onRetry={resetErrorBoundary} />;
 }
 

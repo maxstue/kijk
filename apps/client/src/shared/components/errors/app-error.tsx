@@ -1,5 +1,6 @@
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
+import type { ErrorComponentProps } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { ArrowDownIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -7,8 +8,7 @@ import { useState } from 'react';
 import { AppBrand } from '@/shared/components/app-brand';
 import { ErrorImage } from '@/shared/components/errors/error-image';
 
-interface Props {
-  error?: unknown;
+interface Props extends Partial<ErrorComponentProps<unknown>> {
   onRetry?: () => void;
 }
 
@@ -43,9 +43,7 @@ export function AppError({ error, onRetry }: Props) {
   );
 }
 
-interface ShowMoreProps {
-  error?: unknown;
-}
+interface ShowMoreProps extends Pick<Props, 'error'> {}
 
 const ShowMore = (props: ShowMoreProps) => {
   const [showMore, setShowMore] = useState(false);
@@ -84,9 +82,7 @@ function formatErrorDetails(error: unknown) {
   }
 }
 
-interface ErrorTitleProps {
-  error?: unknown;
-}
+interface ErrorTitleProps extends Pick<Props, 'error'> {}
 
 const ErrorTitle = (props: ErrorTitleProps) => (
   <div className='flex flex-col justify-center gap-2'>
