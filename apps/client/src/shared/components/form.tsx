@@ -18,8 +18,6 @@ interface FormDescriptionProps extends React.ComponentProps<'p'> {}
 
 interface FormMessageProps extends React.ComponentProps<'p'> {}
 
-// TODO refactor using tanstack-form and use shadcn Field component as base
-
 /** React Hook Form provider for a form built from the `Form*` components. */
 const Form = FormProvider;
 
@@ -30,7 +28,7 @@ interface FormFieldContextValue<
   name: TName;
 }
 
-const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
+const FormFieldContext = React.createContext<FormFieldContextValue | null>(null);
 
 /** Connects a form field to React Hook Form and provides its name to the nested `Form*` components. */
 const FormField = <
@@ -48,6 +46,9 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
   const itemContext = React.useContext(FormItemContext);
+  if (!fieldContext || !itemContext) {
+    throw new Error('Form components must be used within FormField and FormItem.');
+  }
   const { getFieldState } = useFormContext();
   const formState = useFormState({ name: fieldContext.name });
   const fieldState = getFieldState(fieldContext.name, formState);
@@ -68,7 +69,7 @@ interface FormItemContextValue {
   id: string;
 }
 
-const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
+const FormItemContext = React.createContext<FormItemContextValue | null>(null);
 
 /** Wraps a label, control, description and message and gives them a shared id. */
 function FormItem({ className, ...props }: FormItemProps) {

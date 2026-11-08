@@ -13,6 +13,7 @@ import { Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useImportPending } from '@/app/imports/use-import-pending';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useFeature } from '@/shared/hooks/use-feature';
 
@@ -45,9 +46,23 @@ interface AiPreviewCardProps {
 
 function AiPreviewCard({ job, onStarted }: AiPreviewCardProps) {
   const spaceId = useSpaceId();
-  const { data, isPending } = useQuery(importsOptions.aiDataPreviewQueryOptions(spaceId, job.id));
+  const { data, isPending, isError, refetch } = useQuery(importsOptions.aiDataPreviewQueryOptions(spaceId, job.id));
   const categorizeMutation = useMutation(importsOptions.startCategorizationMutationOptions(spaceId, job.id));
   const [selection, setSelection] = useState<Record<string, boolean>>({});
+  const isImportPending = useImportPending(job);
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className='space-y-3 py-6' role='alert'>
+          <p>AI preview could not be loaded</p>
+          <Button variant='outline' onClick={() => void refetch()}>
+            Try again
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isPending || !data) {
     return (
@@ -106,7 +121,7 @@ function AiPreviewCard({ job, onStarted }: AiPreviewCardProps) {
                     key={item.key}
                     item={item}
                     checked={selection[item.key] ?? !item.excluded}
-                    disabled={categorizeMutation.isPending || job.status === 'Categorizing'}
+                    disabled={isImportPending}
                     onCheckedChange={(checked) => setSelection((previous) => ({ ...previous, [item.key]: checked }))}
                   />
                 ))}
@@ -120,11 +135,7 @@ function AiPreviewCard({ job, onStarted }: AiPreviewCardProps) {
           {selected.length} texts for {selectedRows} rows
           {withheld > 0 && ` · ${withheld} rows withheld because nothing useful remains after cleaning`}
         </span>
-        <Button
-          disabled={categorizeMutation.isPending || job.status === 'Categorizing' || selected.length === 0}
-          size='sm'
-          onClick={onSend}
-        >
+        <Button disabled={isImportPending || selected.length === 0} size='sm' onClick={onSend}>
           {categorizeMutation.isPending ? <SpinnerIcon className='size-4 animate-spin' /> : 'Use suggestions'}
         </Button>
       </CardFooter>

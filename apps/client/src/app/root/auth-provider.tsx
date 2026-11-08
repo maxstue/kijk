@@ -1,15 +1,13 @@
 import { ClerkProvider, useAuth, useUser } from '@clerk/tanstack-react-start';
-import type { ReactNode } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { config } from '@/shared/config';
 import { AppAuthContext } from '@/shared/runtime/auth';
 
-interface WebAuthProviderProps {
-  children: ReactNode;
-}
+interface Props extends PropsWithChildren {}
 
 /** Web-only Clerk integration. Public children render while the browser SDK loads. */
-export function WebAuthProvider({ children }: WebAuthProviderProps) {
+export function WebAuthProvider({ children }: Props) {
   if (!config.AuthPublishableKey) {
     return (
       <AppAuthContext value={{ isLoaded: true, isSignedIn: false, signOut: async () => {} }}>{children}</AppAuthContext>
@@ -22,9 +20,7 @@ export function WebAuthProvider({ children }: WebAuthProviderProps) {
   );
 }
 
-interface AuthBridgeProps {
-  children: ReactNode;
-}
+interface AuthBridgeProps extends PropsWithChildren {}
 
 function AuthBridge({ children }: AuthBridgeProps) {
   const { isLoaded, isSignedIn, signOut } = useAuth();

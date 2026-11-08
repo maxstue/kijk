@@ -3,14 +3,14 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { ImportUploadForm } from '@/app/imports/upload-form';
 import { ImportWizard } from '@/app/imports/wizard';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/new')({
   loader: ({ params: { spaceId }, context: { queryClient } }) =>
     queryClient.query({ ...accountsOptions.listQueryOptions(spaceId), staleTime: 'static' }),
   component: NewImportPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
   head: () => ({ meta: [{ title: 'New import' }] }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });

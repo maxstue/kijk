@@ -2,12 +2,11 @@ import { useSignIn } from '@clerk/tanstack-react-start/legacy';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk/ui/components/card';
 import { Link, useRouter } from '@tanstack/react-router';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import type { Dispatch } from 'react';
 
 import { UserAuthForm } from '@/app/auth/auth-form';
 import { authErrorMessage } from '@/app/auth/helpers';
-
 interface Props {
   goto: Dispatch<React.SetStateAction<'Login' | 'Sign Up'>>;
   redirectTo: string;
@@ -19,41 +18,38 @@ export function Login({ goto, redirectTo }: Props) {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
 
-  const handleLogin = useCallback(
-    async (email: string, password: string) => {
-      if (!isLoaded) {
-        setErrorMessage('Sign-in is still loading. Please wait a moment and try again.');
-        return;
-      }
-      setErrorMessage(undefined);
-      try {
-        const completeLogin = await signIn.create({
-          identifier: email,
-          password,
-        });
+  const handleLogin = async (email: string, password: string) => {
+    if (!isLoaded) {
+      setErrorMessage('Sign-in is still loading. Please wait a moment and try again.');
+      return;
+    }
+    setErrorMessage(undefined);
+    try {
+      const completeLogin = await signIn.create({
+        identifier: email,
+        password,
+      });
 
-        if (completeLogin.status !== 'complete') {
-          setErrorMessage(
-            'Your sign-in requires additional verification and could not be completed here. Try another sign-in method or contact support.',
-          );
-        }
-
-        if (completeLogin.status === 'complete') {
-          await setActive({ session: completeLogin.createdSessionId });
-          await router.invalidate();
-        }
-      } catch (error) {
+      if (completeLogin.status !== 'complete') {
         setErrorMessage(
-          authErrorMessage(error, 'Sign-in could not be completed. Please check your connection and try again.'),
+          'Your sign-in requires additional verification and could not be completed here. Try another sign-in method or contact support.',
         );
       }
-    },
-    [isLoaded, router, setActive, signIn],
-  );
 
-  const handleGoToSignUp = useCallback(() => {
+      if (completeLogin.status === 'complete') {
+        await setActive({ session: completeLogin.createdSessionId });
+        await router.invalidate();
+      }
+    } catch (error) {
+      setErrorMessage(
+        authErrorMessage(error, 'Sign-in could not be completed. Please check your connection and try again.'),
+      );
+    }
+  };
+
+  const handleGoToSignUp = () => {
     goto('Sign Up');
-  }, [goto]);
+  };
 
   return (
     <div className='flex flex-col gap-6'>

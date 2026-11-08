@@ -5,10 +5,10 @@ import { AnalyticsService } from '@/shared/lib/analytics-tracking';
 
 /** Sends a PostHog page view on every route change. Renders nothing. */
 export const AnalyticsTracker = () => {
-  const location = useLocation();
+  const pathname = useLocation({ select: (location) => location.pathname });
   useEffect(() => {
     AnalyticsService.captureEvent('$pageview');
-  }, [location]);
+  }, [pathname]);
 
   return undefined;
 };

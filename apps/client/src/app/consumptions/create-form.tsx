@@ -5,7 +5,7 @@ import { Button } from '@kijk/ui/components/button';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -28,7 +28,6 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';
 import { getMonthNumber } from '@/shared/utils/months';
-
 const route = getRouteApi('/_authenticated/_app/$spaceId/consumptions/_overview');
 
 interface Props {
@@ -43,7 +42,11 @@ export function ConsumptionCreateForm({ consumptions, onClose }: Props) {
   const { isPending, mutate } = useMutation(consumptionsOptions.recordMutationOptions(spaceId));
   const { month, year } = route.useSearch();
 
-  const creationDate = new Date(`${Number(year)}-${getMonthNumber(month)}-${new Date().getDate()}`);
+  const [creationDate] = useState(() => {
+    const monthIndex = getMonthNumber(month) - 1;
+    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+    return new Date(year, monthIndex, Math.min(new Date().getDate(), lastDay));
+  });
 
   const form = useForm({
     defaultValues: {

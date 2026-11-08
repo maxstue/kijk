@@ -1,17 +1,8 @@
 import * as resourcesOptions from '@kijk/api/resources/options';
-import {
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@kijk/ui/components/alert-dialog';
-import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { DeleteConfirmation } from '@/shared/components/delete-confirmation';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Resource } from '@/shared/types/domain';
 
@@ -41,26 +32,11 @@ export function ResourceTypeDeleteContent({ onClose, resourceType }: Props) {
   };
 
   return (
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-        <AlertDialogDescription>
-          Only unused resource types can be deleted. Existing consumptions and limits are never deleted automatically.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-        <AlertDialogAction
-          disabled={isPending}
-          variant='destructive'
-          onClick={(event) => {
-            event.preventDefault();
-            handleDelete();
-          }}
-        >
-          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Delete'}
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
+    <DeleteConfirmation
+      title='Are you absolutely sure?'
+      description='Only unused resource types can be deleted. Existing consumptions and limits are never deleted automatically.'
+      isPending={isPending}
+      onConfirm={handleDelete}
+    />
   );
 }

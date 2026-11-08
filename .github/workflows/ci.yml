@@ -131,6 +131,7 @@ jobs:
     name: Sonar
     needs:
       [
+        changes,
         apps-client,
         packages-api,
         packages-core,
@@ -140,7 +141,7 @@ jobs:
         apps-api,
       ]
     if: >-
-      !cancelled() && !failure() &&
+      !cancelled() && !failure() && needs.changes.result == 'success' &&
       github.actor != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     uses: ./.github/workflows/_sonar.yml

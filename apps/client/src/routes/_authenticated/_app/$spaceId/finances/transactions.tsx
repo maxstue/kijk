@@ -24,7 +24,7 @@ import { TransactionList } from '@/app/transactions/list';
 import { ResponsiveTransactionFilters } from '@/app/transactions/responsive-filters';
 import { RuleSuggestions } from '@/app/transactions/rule-suggestions';
 import { TransactionViewTabs } from '@/app/transactions/view-tabs';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { PageAddButton } from '@/shared/components/page-header';
 import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
@@ -69,7 +69,7 @@ function toPageQuery(search: z.infer<typeof searchSchema>) {
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/transactions')({
   validateSearch: zodValidator(searchSchema),
   component: TransactionsPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
   loaderDeps: ({ search }) => toPageQuery(search),
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([

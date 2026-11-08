@@ -1,18 +1,9 @@
 import * as accountsOptions from '@kijk/api/accounts/options';
 import type { Account } from '@kijk/api/accounts/types';
-import {
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@kijk/ui/components/alert-dialog';
-import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { DeleteConfirmation } from '@/shared/components/delete-confirmation';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 interface Props {
@@ -38,26 +29,11 @@ export function AccountDeleteContent({ account, onClose }: Props) {
   };
 
   return (
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete {account.name}?</AlertDialogTitle>
-        <AlertDialogDescription>
-          Only accounts without transactions can be deleted. Transactions are never deleted automatically.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-        <AlertDialogAction
-          disabled={isPending}
-          variant='destructive'
-          onClick={(event) => {
-            event.preventDefault();
-            handleDelete();
-          }}
-        >
-          {isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Delete'}
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
+    <DeleteConfirmation
+      title={`Delete ${account.name}?`}
+      description='Only accounts without transactions can be deleted. Transactions are never deleted automatically.'
+      isPending={isPending}
+      onConfirm={handleDelete}
+    />
   );
 }

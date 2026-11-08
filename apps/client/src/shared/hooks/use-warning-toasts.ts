@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 /** A warning that is shown as toast while `active` is true. */
@@ -15,13 +15,19 @@ export interface WarningToast {
  * dismisses it once the warning is resolved.
  */
 export function useWarningToasts(warnings: WarningToast[]) {
+  const previous = useRef(new Map<string, WarningToast>());
   useEffect(() => {
-    warnings.forEach((warning) => {
-      if (!warning.active) {
-        toast.dismiss(warning.id);
-        return;
+    const active = new Map(warnings.filter((warning) => warning.active).map((warning) => [warning.id, warning]));
+    for (const id of previous.current.keys()) {
+      if (!active.has(id)) {
+        toast.dismiss(id);
       }
-
+    }
+    for (const warning of active.values()) {
+      const old = previous.current.get(warning.id);
+      if (old?.title === warning.title && old.description === warning.description) {
+        continue;
+      }
       toast.warning(warning.title, {
         closeButton: true,
         description: warning.description,
@@ -29,6 +35,17 @@ export function useWarningToasts(warnings: WarningToast[]) {
         duration: 5_000,
         id: warning.id,
       });
-    });
+    }
+    previous.current = active;
   }, [warnings]);
+
+  useEffect(
+    () => () => {
+      for (const id of previous.current.keys()) {
+        toast.dismiss(id);
+      }
+      previous.current.clear();
+    },
+    [],
+  );
 }

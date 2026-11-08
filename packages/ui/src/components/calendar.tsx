@@ -2,11 +2,9 @@
 
 import * as React from 'react';
 import { DayPicker, getDefaultClassNames, type DayButton, type Locale } from 'react-day-picker';
-
 import { cn } from 'cn';
 import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from 'lucide-react';
-
 /** Date picker calendar based on React DayPicker. */
 function Calendar({
   className,
@@ -168,6 +166,7 @@ function CalendarDayButton({
         className,
       )}
       {...props}
+      ref={ref}
     />
   );
 }

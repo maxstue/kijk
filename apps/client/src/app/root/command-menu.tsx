@@ -10,7 +10,7 @@ import {
 } from '@kijk/ui/components/command';
 import { DialogDescription, DialogTitle } from '@kijk/ui/components/dialog';
 import { useNavigate } from '@tanstack/react-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useNavGroups } from '@/app/root/use-nav-groups';
 import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
@@ -44,20 +44,14 @@ export function CommandMenu({ ...props }: Props) {
     };
   }, []);
 
-  const runCommand = useCallback(
-    (command: () => unknown) => () => {
-      setOpen(false);
-      command();
-    },
-    [],
-  );
+  const runCommand = (command: () => unknown) => () => {
+    setOpen(false);
+    command();
+  };
 
-  const handleOpen = useCallback(
-    (value: boolean) => () => {
-      setOpen(value);
-    },
-    [],
-  );
+  const handleOpen = (value: boolean) => () => {
+    setOpen(value);
+  };
 
   return (
     <>

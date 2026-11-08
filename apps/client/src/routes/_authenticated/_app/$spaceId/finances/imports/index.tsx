@@ -7,7 +7,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { Plus, Settings } from 'lucide-react';
 
 import { ImportList } from '@/app/imports/import-list';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
     await queryClient.query({ ...importsOptions.listQueryOptions(spaceId), staleTime: 'static' });
   },
   component: ImportsPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
   head: () => ({ meta: [{ title: 'Imports' }] }),
   pendingComponent: () => <Loader className='h-6 w-6' />,
 });
