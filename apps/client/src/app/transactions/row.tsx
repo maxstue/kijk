@@ -6,7 +6,7 @@ import { TableCell, TableRow } from '@kijk/ui/components/table';
 import { cn } from 'cn';
 
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
-import { formatStringToCurrency } from '@/shared/utils/format';
+import { formatCalendarDate, formatStringToCurrency } from '@/shared/utils/format';
 
 import { CategorySelect } from './category-select';
 import { EditButton, DeleteButton } from './row-actions';
@@ -31,9 +31,7 @@ export function TransactionRow({ selection, transaction }: TransactionRowProps) 
           />
         </TableCell>
       )}
-      <TableCell className='whitespace-nowrap'>
-        {new Date(`${transaction.bookingDate}T00:00:00`).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-      </TableCell>
+      <TableCell className='whitespace-nowrap'>{formatCalendarDate(transaction.bookingDate)}</TableCell>
       <TableCell>
         <div className='font-medium'>{transaction.counterparty ?? '—'}</div>
         {transaction.purpose && (

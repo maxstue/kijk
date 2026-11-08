@@ -4,7 +4,7 @@ import { Button } from '@kijk/ui/components/button';
 import { GitHubIcon, GoogleIcon, SpinnerIcon } from '@kijk/ui/components/icons';
 import { Input } from '@kijk/ui/components/input';
 import { cn } from 'cn';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -41,28 +41,25 @@ export function UserAuthForm({ className, btnLabel, onSubmit, redirectTo }: Prop
     await onSubmit(data.email.toLowerCase(), data.password);
   }
 
-  const handleSocialSignIn = useCallback(
-    async (provider: AllowedProviders) => {
-      if (!isLoaded || isLoading || loadingProvider) {
-        return;
-      }
+  const handleSocialSignIn = async (provider: AllowedProviders) => {
+    if (!isLoaded || isLoading || loadingProvider) {
+      return;
+    }
 
-      setLoadingProvider(provider);
-      setErrorMessage(undefined);
+    setLoadingProvider(provider);
+    setErrorMessage(undefined);
 
-      try {
-        await signIn.authenticateWithRedirect({
-          redirectUrl: '/sso-callback',
-          redirectUrlComplete: `/auth?from=${encodeURIComponent(redirectTo)}`,
-          strategy: Auth_Provider_Strategies[provider],
-        });
-      } catch {
-        setLoadingProvider(null);
-        setErrorMessage(`${provider} sign-in could not be started. Please try again or choose another sign-in method.`);
-      }
-    },
-    [isLoaded, isLoading, loadingProvider, redirectTo, signIn],
-  );
+    try {
+      await signIn.authenticateWithRedirect({
+        redirectUrl: '/sso-callback',
+        redirectUrlComplete: `/auth?from=${encodeURIComponent(redirectTo)}`,
+        strategy: Auth_Provider_Strategies[provider],
+      });
+    } catch {
+      setLoadingProvider(null);
+      setErrorMessage(`${provider} sign-in could not be started. Please try again or choose another sign-in method.`);
+    }
+  };
 
   const isBusy = isLoading || loadingProvider !== null;
 

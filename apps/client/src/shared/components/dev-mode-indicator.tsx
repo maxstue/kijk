@@ -1,29 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 import { config } from '@/shared/config';
 import { capitalizeFirstLetter } from '@/shared/utils/string';
 
-/** This component is only used in dev mode. It displays the current mode, the current dimensions and css breakpoint. */
+/** Displays the current development mode, viewport and CSS breakpoint. */
 export function DevModeIndicator() {
-  const [dimensions, setDimensions] = useState({ height: 0, width: 0 });
-
-  useEffect(() => {
-    function updateDimensions() {
-      setDimensions({
-        height: window.innerHeight,
-        width: window.innerWidth,
-      });
-    }
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-
-    return () => {
-      window.removeEventListener('resize', updateDimensions);
-    };
-  }, []);
-
-  const { width, height } = dimensions;
+  const dimensions = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [width, height] = dimensions.split('x').map(Number);
 
   return (
     <div className='pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-col items-center'>
@@ -43,3 +26,14 @@ export function DevModeIndicator() {
     </div>
   );
 }
+
+function subscribe(onChange: () => void) {
+  window.addEventListener('resize', onChange);
+  return () => window.removeEventListener('resize', onChange);
+}
+
+function getSnapshot() {
+  return `${window.innerWidth}x${window.innerHeight}`;
+}
+
+const getServerSnapshot = () => '0x0';

@@ -17,7 +17,7 @@ import { z } from 'zod';
 
 import { BudgetForm } from '@/app/budgets/form';
 import { BudgetOverview } from '@/app/budgets/overview';
-import { AppError } from '@/shared/components/errors/app-error';
+import { RouteError } from '@/shared/components/errors/route-error';
 import { MonthSwitcher } from '@/shared/components/month-switcher';
 import { PageAddButton } from '@/shared/components/page-header';
 import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
@@ -44,7 +44,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/budgets')({
   validateSearch: zodValidator(searchSchema),
   component: BudgetsPage,
-  errorComponent: ({ error, info }) => <AppError error={error} info={info} />,
+  errorComponent: RouteError,
   loaderDeps: ({ search: { month, year } }) => ({ month, year }),
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await Promise.all([

@@ -1,30 +1,23 @@
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import type { ErrorComponentProps } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { ArrowDownIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { AppBrand } from '@/shared/components/app-brand';
 import { ErrorImage } from '@/shared/components/errors/error-image';
-import { ErrorService } from '@/shared/lib/error-tracking';
 
-interface Props extends Partial<ErrorComponentProps> {
-  resetErrorBoundary?: () => void;
+interface Props {
+  error?: unknown;
+  onRetry?: () => void;
 }
 
 const handleGotToRoot = () => {
   globalThis.location.href = '/';
 };
 
-/** Error boundary fallback; reports the error and offers going home or retrying. */
-export function AppError({ error, resetErrorBoundary }: Props) {
-  ErrorService.captureException(error);
-
-  const handleReset = () => {
-    resetErrorBoundary?.();
-  };
-
+/** Presentational error fallback shared by route and React boundaries. */
+export function AppError({ error, onRetry }: Props) {
   return (
     <div className='flex h-full w-full items-center justify-center'>
       <Card className='w-2/3 rounded border-none'>
@@ -38,8 +31,8 @@ export function AppError({ error, resetErrorBoundary }: Props) {
         </CardContent>
         <CardFooter className='flex w-full items-center justify-around'>
           <Button onClick={handleGotToRoot}>Go to home</Button>
-          {resetErrorBoundary !== undefined && (
-            <Button variant='secondary' onClick={handleReset}>
+          {onRetry !== undefined && (
+            <Button variant='secondary' onClick={onRetry}>
               Try again
             </Button>
           )}

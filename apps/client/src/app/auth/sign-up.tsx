@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk
 import { Input } from '@kijk/ui/components/input';
 import { Link, useRouter } from '@tanstack/react-router';
 import type { Dispatch } from 'react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -26,32 +26,29 @@ export function SignUp({ goto, redirectTo }: Props) {
   const [errorMessage, setErrorMessage] = useState<string>();
   const { isLoaded, signUp } = useSignUp();
 
-  const handleRegister = useCallback(
-    async (email: string, password: string) => {
-      if (!isLoaded) {
-        setErrorMessage('Sign-up is still loading. Please wait a moment and try again.');
-        return;
-      }
-      setErrorMessage(undefined);
+  const handleRegister = async (email: string, password: string) => {
+    if (!isLoaded) {
+      setErrorMessage('Sign-up is still loading. Please wait a moment and try again.');
+      return;
+    }
+    setErrorMessage(undefined);
 
-      try {
-        await signUp.create({
-          emailAddress: email,
-          password,
-        });
-        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-        setVerify(true);
-      } catch (error) {
-        setVerify(false);
-        setErrorMessage(authErrorMessage(error, 'Your account could not be created. Please try again.'));
-      }
-    },
-    [isLoaded, signUp],
-  );
+    try {
+      await signUp.create({
+        emailAddress: email,
+        password,
+      });
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      setVerify(true);
+    } catch (error) {
+      setVerify(false);
+      setErrorMessage(authErrorMessage(error, 'Your account could not be created. Please try again.'));
+    }
+  };
 
-  const handleGoToLogin = useCallback(() => {
+  const handleGoToLogin = () => {
     goto('Login');
-  }, [goto]);
+  };
 
   return (
     <div className='flex flex-col gap-6'>
@@ -106,37 +103,34 @@ function Verify() {
     resolver: zodResolver(authCodeSchema),
   });
 
-  const handleVerify = useCallback(
-    async (data: AuthCodeSchema) => {
-      if (!isLoaded) {
-        setErrorMessage('Email verification is still loading. Please wait a moment and try again.');
-        return;
-      }
-      setErrorMessage(undefined);
+  const handleVerify = async (data: AuthCodeSchema) => {
+    if (!isLoaded) {
+      setErrorMessage('Email verification is still loading. Please wait a moment and try again.');
+      return;
+    }
+    setErrorMessage(undefined);
 
-      try {
-        const completeSignUp = await signUp.attemptEmailAddressVerification({
-          code: data.code,
-        });
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code: data.code,
+      });
 
-        if (completeSignUp.status !== 'complete') {
-          setErrorMessage(
-            'Your email was checked, but account setup is not complete. Please contact support or try another sign-in method.',
-          );
-        }
-
-        if (completeSignUp.status === 'complete') {
-          await setActive({ session: completeSignUp.createdSessionId });
-          await router.invalidate();
-        }
-      } catch (error) {
+      if (completeSignUp.status !== 'complete') {
         setErrorMessage(
-          authErrorMessage(error, 'The verification code could not be confirmed. Check the code and try again.'),
+          'Your email was checked, but account setup is not complete. Please contact support or try another sign-in method.',
         );
       }
-    },
-    [isLoaded, router, setActive, signUp],
-  );
+
+      if (completeSignUp.status === 'complete') {
+        await setActive({ session: completeSignUp.createdSessionId });
+        await router.invalidate();
+      }
+    } catch (error) {
+      setErrorMessage(
+        authErrorMessage(error, 'The verification code could not be confirmed. Check the code and try again.'),
+      );
+    }
+  };
 
   return (
     <div className='mt-6 grid gap-6'>

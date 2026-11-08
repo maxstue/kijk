@@ -10,6 +10,7 @@ import { COOKIE_CONSENT_KEY, LEGACY_CORRELATION_ID_KEY } from '@/shared/types/an
 
 let initialized = false;
 let enabled = false;
+let appliedConsent: CookieConsent | undefined;
 
 /** Starts optional analytics only after consent and stops capture immediately when it is withdrawn. */
 const AnalyticsService = {
@@ -25,6 +26,10 @@ const AnalyticsService = {
     browserStorage.removeItem(LEGACY_CORRELATION_ID_KEY);
   },
   setCookieConsent: (consent: CookieConsent) => {
+    if (appliedConsent === consent) {
+      return;
+    }
+    appliedConsent = consent;
     browserStorage.setItem(COOKIE_CONSENT_KEY, consent);
     TracingService.setConsent(consent);
     if (!config.PosthogKey || !config.PosthogUrl) {

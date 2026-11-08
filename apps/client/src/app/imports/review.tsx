@@ -5,6 +5,7 @@ import { useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
 import { formatImportMonth } from '@/app/imports/helpers';
+import { useImportPending } from '@/app/imports/use-import-pending';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 import type { ReviewActionProps } from './review-actions';
@@ -37,8 +38,7 @@ export function ImportReview({ job, stage, onStageChange, children }: ImportRevi
   });
   const review = reviewQuery.data;
   const importedCount = review?.includedCount ?? 0;
-  const isPending =
-    commitMutation.isPending || cancelMutation.isPending || resetMutation.isPending || job.status === 'Categorizing';
+  const isPending = useImportPending(job);
   const isReviewLoading = !review || reviewQuery.isFetching || reviewQuery.isError;
   const cannotCommit = (job.hasHighErrorRate && !acceptErrors) || months.size === 0;
 

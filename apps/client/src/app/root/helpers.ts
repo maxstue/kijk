@@ -1,6 +1,6 @@
 import type { Optional } from '@/shared/types/common';
 
-const initialRegex = new RegExp(/(\p{L}{1})\p{L}+/gu);
+const initialRegex = /(\p{L}{1})\p{L}+/gu;
 
 /**
  * Get initials from a string.

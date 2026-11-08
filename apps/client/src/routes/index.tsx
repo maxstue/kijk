@@ -1,22 +1,16 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
-
-import { useAppAuth } from '@/shared/runtime/auth';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 
 /** `/`: public landing page. */
 export const Route = createFileRoute('/')({
   component: PublicHomePage,
+  beforeLoad: async ({ context: { auth } }) => {
+    if (await auth.getSession()) {
+      throw redirect({ to: '/auth', replace: true });
+    }
+  },
 });
 
 function PublicHomePage() {
-  const navigate = useNavigate();
-  const { isLoaded, isSignedIn } = useAppAuth();
-  useEffect(() => {
-    if (!isLoaded || !isSignedIn) {
-      return;
-    }
-    void navigate({ to: '/auth', replace: true });
-  }, [navigate, isLoaded, isSignedIn]);
   return (
     <div className='bg-background flex min-h-screen flex-col'>
       <header className='mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5'>

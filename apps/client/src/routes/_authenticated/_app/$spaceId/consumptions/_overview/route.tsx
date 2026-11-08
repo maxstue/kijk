@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
+import { Skeleton } from '@kijk/ui/components/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Outlet, createFileRoute } from '@tanstack/react-router';
@@ -43,6 +44,10 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
   component: UsagePage,
   loaderDeps: ({ search: { month, view, year } }) => ({ month, view, year }),
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
+    void queryClient.prefetchQuery(consumptionsOptions.yearsQueryOptions(spaceId));
+    if (deps.view === 'month') {
+      void queryClient.prefetchQuery(consumptionsOptions.statisticsQueryOptions(spaceId, deps.year, deps.month));
+    }
     await Promise.all([
       queryClient.query({
         ...consumptionsOptions.listQueryOptions(spaceId, deps.year, deps.view === 'month' ? deps.month : undefined),
@@ -85,7 +90,7 @@ function UsagePage() {
               <TabsTrigger value='year'>Annual</TabsTrigger>
             </TabsList>
           </Tabs>
-          <Suspense>
+          <Suspense fallback={<Skeleton className='h-10 w-64' />}>
             {view === 'month' ? (
               <ConsumptionMonthNav />
             ) : (
