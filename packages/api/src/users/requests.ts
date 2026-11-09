@@ -9,10 +9,10 @@ export async function getGuide(signal?: AbortSignal) {
 }
 
 /** Changes only guide preferences and explanation progress. */
-export async function updateGuide(data: { hidden?: boolean; dashboardExplained?: boolean }) {
+export async function updateGuide(data: { hidden?: boolean; completedStep?: string }) {
   return unwrapApiResponse(
     await apiClient().PATCH('/api/users/me/guide', {
-      body: { hidden: data.hidden ?? null, dashboardExplained: data.dashboardExplained ?? null },
+      body: { hidden: data.hidden ?? null, completedStep: data.completedStep ?? null },
     }),
   );
 }

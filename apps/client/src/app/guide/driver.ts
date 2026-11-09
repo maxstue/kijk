@@ -3,14 +3,11 @@ import { driver, type DriveStep, type Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 import './guide.css';
 
-import type { GuideTask } from './types';
+import { getTourStops, type TourCapabilities } from './tour-stops';
+import type { GuideDestination, GuideTopic } from './types';
 
 interface Options {
   onDestroyed: () => void;
-}
-
-interface ChecklistOptions extends Options {
-  onTask: (id: string) => void;
 }
 
 function visibleTarget(selector: string) {
@@ -37,6 +34,7 @@ function createDriver(options: Options): Driver {
     nextBtnText: 'Next',
     prevBtnText: 'Back',
     doneBtnText: 'Done',
+    showProgress: true,
     progressText: '{{current}} of {{total}}',
     onPopoverRender: (popover) => {
       popover.closeButton.setAttribute('aria-label', 'Close introduction');
@@ -67,109 +65,120 @@ function createDriver(options: Options): Driver {
   };
 }
 
-/** Driver owns the checklist popover; all text is inserted as text nodes. */
-export function openChecklist(tasks: GuideTask[], options: ChecklistOptions): Driver {
-  const guide = createDriver(options);
-  guide.highlight({
-    element: visibleTarget('[data-guide="checklist"]'),
-    disableActiveInteraction: true,
-    popover: {
-      title: 'First steps with Kijk',
-      description: 'Choose your next step. You can close this introduction at any time.',
-      showButtons: ['close'],
-      onPopoverRender: (popover) => {
-        popover.closeButton.setAttribute('aria-label', 'Close introduction');
-        const list = document.createElement('ul');
-        list.className = 'kijk-guide-tasks';
-        for (const task of tasks) {
-          const row = document.createElement('li');
-          const label = `${task.done ? '✓ ' : ''}${task.label}${task.optional ? ' (optional)' : ''}`;
-          if (!task.done) {
-            const action = document.createElement('button');
-            action.type = 'button';
-            action.textContent = label;
-            action.addEventListener('click', () => {
-              guide.destroy();
-              options.onTask(task.id);
-            });
-            row.append(action);
-          } else {
-            row.textContent = label;
-          }
-          list.append(row);
-        }
-        popover.description.append(list);
-      },
-    },
-  });
-  return guide;
+interface WalkthroughOptions extends Options, TourCapabilities {
+  kind: 'tour' | GuideTopic;
+  onStepCompleted: (step: GuideTopic) => Promise<void>;
+  onNavigate: (destination: GuideDestination) => Promise<void>;
+  onError: () => void;
 }
 
-interface WalkthroughOptions extends Options {
-  canRecord: boolean;
-  canPlanLimits: boolean;
-  onDashboardExplained: () => void;
-  dashboardOnly?: boolean;
-}
-
-/** Explains visible UI without clicking targets or submitting forms. */
-export function openWalkthrough(options: WalkthroughOptions): Driver {
-  const guide = createDriver(options);
-  const steps: DriveStep[] = [];
-  const add = (selector: string, title: string, description: string, completed?: () => void) => {
-    const element = visibleTarget(selector);
-    if (!element) {
+/** Wait for the real route content, including Suspense, before moving the spotlight. */
+function waitForTarget(selector: string, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new Error('Tour closed'));
       return;
     }
-    steps.push({
-      element,
-      disableActiveInteraction: true,
-      popover: {
-        title,
-        description,
-        onNextClick: () => {
-          completed?.();
-          if (guide.hasNextStep()) {
-            guide.moveNext();
-          } else {
-            guide.destroy();
-          }
-        },
-      },
-    });
-  };
-  if (!options.dashboardOnly) {
-    add(
-      '[data-guide="navigation"]',
-      'Find your way around',
-      'Open Consumptions to see entries and resources. Use the account menu for settings and Help & introduction. On mobile, open the navigation menu first.',
-    );
-    if (options.canRecord) {
-      add(
-        '[data-guide="record"]',
-        'Record a value',
-        'A meter reading is the cumulative number on your meter. The first absolute reading establishes a baseline; later readings determine consumption. Choose consumption when entering an amount used directly.',
-      );
+    if (visibleTarget(selector)) {
+      resolve();
+      return;
     }
-  }
-  add(
-    '[data-guide="dashboard"]',
-    'Understand your dashboard',
-    'Choose a period and resource to explore the year. Meter reading shows cumulative readings; Consumption shows the amount used. An empty period does not remove older entries.',
-    options.onDashboardExplained,
-  );
-  if (!options.dashboardOnly && options.canPlanLimits) {
-    add(
-      '[data-guide="limits"]',
-      'Set a limit when you are ready',
-      'Limits compare consumption with a threshold for a period. Open Limits to create one. This step is optional and does not prevent completing your introduction.',
-    );
-  }
+    const cleanup = () => {
+      observer.disconnect();
+      clearTimeout(timeout);
+      signal.removeEventListener('abort', abort);
+    };
+    const abort = () => {
+      cleanup();
+      reject(new Error('Tour closed'));
+    };
+    const observer = new MutationObserver(() => {
+      if (visibleTarget(selector)) {
+        cleanup();
+        resolve();
+      }
+    });
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('Tour target unavailable'));
+    }, 8000);
+    signal.addEventListener('abort', abort, { once: true });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+  });
+}
+
+/** Each navigation stop introduces an actual link; Next opens its page before explaining its controls. */
+export function openWalkthrough(options: WalkthroughOptions): Driver {
+  const lifecycle = new AbortController();
+  const guide = createDriver({
+    onDestroyed: () => {
+      lifecycle.abort();
+      options.onDestroyed();
+    },
+  });
+  const stops = getTourStops(options, options.kind, (selector) => Boolean(visibleTarget(selector)));
+  let moving = false;
+  let index = 0;
+  const move = async (next: number) => {
+    if (moving || lifecycle.signal.aborted) {
+      return;
+    }
+    moving = true;
+    try {
+      const stop = stops[next]!;
+      const previous = stops[index]!;
+      if (next > index && previous.topic !== stop.topic) {
+        await options.onStepCompleted(previous.topic);
+      }
+      if (lifecycle.signal.aborted) {
+        return;
+      }
+      await options.onNavigate(stop.destination);
+      await waitForTarget(stop.selector, lifecycle.signal);
+      if (!lifecycle.signal.aborted) {
+        index = next;
+        guide.drive(next);
+      }
+    } catch {
+      if (!lifecycle.signal.aborted) {
+        options.onError();
+        guide.destroy();
+      }
+    } finally {
+      moving = false;
+    }
+  };
+  const steps: DriveStep[] = stops.map((stop, position) => ({
+    element: () => visibleTarget(stop.selector) ?? document.body,
+    disableActiveInteraction: true,
+    popover: {
+      title: stop.title,
+      description: stop.description,
+      onNextClick: () => {
+        if (moving) {
+          return;
+        }
+        if (index === stops.length - 1) {
+          moving = true;
+          void options
+            .onStepCompleted(stops[index]!.topic)
+            .then(() => guide.destroy())
+            .catch(() => {
+              options.onError();
+              guide.destroy();
+            });
+        } else {
+          void move(position + 1);
+        }
+      },
+      onPrevClick: () => {
+        if (position > 0) {
+          void move(position - 1);
+        }
+      },
+    },
+  }));
   guide.setSteps(steps);
-  if (steps.length > 0) {
-    guide.drive();
-  } else {
-    options.onDestroyed();
-  }
+  guide.drive();
   return guide;
 }

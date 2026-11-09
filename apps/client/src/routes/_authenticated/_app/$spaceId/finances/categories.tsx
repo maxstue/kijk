@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/cat
 
 function CategoriesPage() {
   return (
-    <div className='space-y-6 pt-6'>
+    <div data-guide='categories' className='space-y-6 pt-6'>
       <Tabs defaultValue='categories' className='gap-6'>
         <PageToolbar>
           <PageToolbarControls>

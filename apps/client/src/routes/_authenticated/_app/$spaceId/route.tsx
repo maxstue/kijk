@@ -1,10 +1,17 @@
 import * as usersOptions from '@kijk/api/users/options';
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
+import { z } from 'zod';
 
 import { rememberLastSpace } from '@/shared/lib/spaces';
 
 /** `/$spaceId`: everything that belongs to one space; unknown spaces lead back to the start space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId')({
+  validateSearch: z.object({
+    introduction: z
+      .enum(['tour', 'checklist', 'dashboard', 'consumptions', 'resources', 'limits', 'finances', 'navigation'])
+      .optional()
+      .catch(undefined),
+  }),
   beforeLoad: async ({ context: { queryClient }, params: { spaceId } }) => {
     const currentUser = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
     const space = currentUser.user?.spaces?.find((entry) => entry.id === spaceId);

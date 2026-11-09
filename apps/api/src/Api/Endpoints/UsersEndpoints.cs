@@ -39,7 +39,7 @@ public class UsersEndpoints : IEndpointGroup
         group.MapPatch("/me/guide", UpdateGuide).WithName("Users.UpdateGuide")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .WithoutSpacePermission(CurrentUserOnly)
-            .WithSummary("Changes visibility or completes the current dashboard explanation");
+            .WithSummary("Changes visibility or completes the current product guide");
 
         group.MapGet("/me", Me).WithName("Users.Me")
             .WithoutSpacePermission(CurrentUserOnly)

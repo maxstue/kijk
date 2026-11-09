@@ -36,8 +36,11 @@ public sealed class User : BaseEntity
     /// <summary>Gets whether the optional product checklist is hidden.</summary>
     public bool GuideHidden { get; private set; }
 
-    /// <summary>Gets the latest dashboard explanation completed by this user.</summary>
-    public int GuideDashboardVersion { get; private set; }
+    /// <summary>Gets the common guide version to which the completed steps belong.</summary>
+    public int GuideCompletedVersion { get; private set; }
+
+    /// <summary>Gets the completed subtours of that common guide version.</summary>
+    public string[] GuideCompletedSteps { get; private set; } = [];
 
     /// <summary>Gets when this user first successfully recorded a consumption.</summary>
     public DateTime? GuideFirstConsumptionAt { get; private set; }
@@ -45,8 +48,18 @@ public sealed class User : BaseEntity
     /// <summary>Shows or hides the optional product checklist.</summary>
     public void SetGuideHidden(bool hidden) => GuideHidden = hidden;
 
-    /// <summary>Records completion of an explanation without resetting newer progress.</summary>
-    public void CompleteDashboardGuide(int version) => GuideDashboardVersion = Math.Max(GuideDashboardVersion, version);
+    /// <summary>Completes one subtour, retaining other completions of the same guide version.</summary>
+    /// <param name="version">The common content version of the entire guide.</param>
+    /// <param name="step">The completed subtour id.</param>
+    public void CompleteGuideStep(int version, string step)
+    {
+        if (version < GuideCompletedVersion)
+        { return; }
+        if (version > GuideCompletedVersion)
+        { GuideCompletedSteps = []; }
+        GuideCompletedVersion = version;
+        GuideCompletedSteps = [.. GuideCompletedSteps.Append(step).Distinct(StringComparer.Ordinal)];
+    }
 
     /// <summary>Records a successful first entry; called in the consumption transaction.</summary>
     public void CompleteGuideConsumption(DateTime utcNow) => GuideFirstConsumptionAt ??= utcNow;

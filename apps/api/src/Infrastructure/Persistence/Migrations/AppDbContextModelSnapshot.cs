@@ -1654,9 +1654,14 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("email");
 
-                    b.Property<int>("GuideDashboardVersion")
+                    b.PrimitiveCollection<string[]>("GuideCompletedSteps")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("guide_completed_steps");
+
+                    b.Property<int>("GuideCompletedVersion")
                         .HasColumnType("integer")
-                        .HasColumnName("guide_dashboard_version");
+                        .HasColumnName("guide_completed_version");
 
                     b.Property<DateTime?>("GuideFirstConsumptionAt")
                         .HasColumnType("timestamp with time zone")

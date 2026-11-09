@@ -70,7 +70,7 @@ function BudgetsPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   return (
-    <div className='space-y-6 pt-6'>
+    <div data-guide='budgets' className='space-y-6 pt-6'>
       <PageToolbar>
         <PageToolbarControls>
           <MonthSwitcher

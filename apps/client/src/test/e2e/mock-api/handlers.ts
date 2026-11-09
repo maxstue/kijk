@@ -36,7 +36,9 @@ const resources = new Map<string, Resource[]>();
 
 const initialGuide: components['schemas']['GuideResponse'] = {
   guideHidden: false,
-  guideDashboardVersion: 0,
+  guideVersion: 1,
+  guideCompletedVersion: 0,
+  guideCompletedSteps: [] as string[],
   guideFirstConsumptionAt: null,
 };
 let guide = { ...initialGuide };
@@ -145,10 +147,36 @@ export const handlers = [
     guide = {
       ...guide,
       guideHidden: update.hidden ?? guide.guideHidden,
-      guideDashboardVersion: update.dashboardExplained ? 1 : guide.guideDashboardVersion,
+      guideVersion: 1,
+      guideCompletedVersion: update.completedStep ? 1 : guide.guideCompletedVersion,
+      guideCompletedSteps: update.completedStep
+        ? [...new Set([...guide.guideCompletedSteps, update.completedStep])]
+        : guide.guideCompletedSteps,
     };
     return HttpResponse.json(guide);
   }),
+  ...['accounts', 'categories', 'category-rules', 'budgets', 'imports'].map((feature) =>
+    http.get(`*/api/spaces/:spaceId/${feature}`, () => HttpResponse.json([])),
+  ),
+  http.get('*/api/spaces/:spaceId/transactions', () =>
+    HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 25, incoming: 0, outgoing: 0 }),
+  ),
+  http.get('*/api/spaces/:spaceId/budgets/overview', ({ request }) => {
+    const query = new URL(request.url).searchParams;
+    return HttpResponse.json({
+      year: Number(query.get('year')),
+      month: Number(query.get('month')),
+      categories: [],
+      totalBudget: 0,
+      totalSpent: 0,
+      income: 0,
+      uncategorizedExpenses: 0,
+      uncategorizedIncome: 0,
+      pendingExpenses: 0,
+    });
+  }),
+  http.get('*/api/spaces/:spaceId/consumptions', () => HttpResponse.json([])),
+  http.get('*/api/spaces/:spaceId/consumptions/statistics', () => HttpResponse.json({ stats: [] })),
   http.get('*/api/spaces/:spaceId/consumptions/years', () =>
     HttpResponse.json({ years: dashboardScenario.empty ? [] : [2025, 2026] }),
   ),

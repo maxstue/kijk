@@ -3,7 +3,6 @@ import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { z } from 'zod';
 
-import { GuideHelp } from '@/app/guide/help';
 import { AppearanceSection } from '@/app/settings/appearance/section';
 import { InfoSection } from '@/app/settings/info/section';
 import { ProfileSection } from '@/app/settings/profile/section';
@@ -19,6 +18,19 @@ const sectionSchema = z.enum(settingsTo);
 /** `/settings/$section`: a personal settings section. */
 export const Route = createFileRoute('/_authenticated/_app/settings/$section')({
   beforeLoad: async ({ context: { queryClient }, params }) => {
+    if (params.section === 'help') {
+      const currentUser = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
+      const space = isReadyCurrentUser(currentUser) ? getStartSpace(currentUser.user) : undefined;
+      if (space) {
+        throw redirect({
+          to: '/$spaceId',
+          params: { spaceId: space.id },
+          search: { introduction: 'checklist' },
+          replace: true,
+        });
+      }
+      throw redirect({ to: '/', replace: true });
+    }
     if (params.section === 'space-units') {
       const currentUser = await queryClient.query({
         ...usersOptions.meQueryOptions(),
@@ -50,7 +62,6 @@ function SettingsSectionPage() {
       {parameters.section === 'appearance' && <AppearanceSection />}
       {parameters.section === 'units' && <UnitsSection scope='personal' />}
       {parameters.section === 'info' && <InfoSection />}
-      {parameters.section === 'help' && <GuideHelp />}
     </div>
   );
 }

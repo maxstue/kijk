@@ -905,7 +905,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Changes visibility or completes the current dashboard explanation */
+    /** Changes visibility or completes the current product guide */
     patch: operations['Users.UpdateGuide'];
     trace?: never;
   };
@@ -1926,15 +1926,23 @@ export interface components {
       /**
        * Format: int32
        *
-       * The latest completed dashboard explanation.
+       * The common guide version associated with the completed steps.
        */
-      guideDashboardVersion: number | string;
+      guideCompletedVersion: number | string;
+      /** Completed subtour ids for the associated guide version. */
+      guideCompletedSteps: string[];
       /**
        * Format: date-time
        *
        * The first consumption successfully recorded by this user.
        */
       guideFirstConsumptionAt: null | string;
+      /**
+       * Format: int32
+       *
+       * The current version of the entire product guide and tour.
+       */
+      guideVersion?: number | string;
     };
     HttpValidationProblemDetails: {
       type?: null | string;
@@ -2570,8 +2578,8 @@ export interface components {
     UpdateGuideRequest: {
       /** Whether to hide the checklist; null keeps the preference. */
       hidden: null | boolean;
-      /** True records completion of the current explanation; null keeps progress. */
-      dashboardExplained: null | boolean;
+      /** A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null keeps progress. */
+      completedStep: null | string;
     };
     /** Request for changing a row during the review. */
     UpdateImportCandidateRequest: {

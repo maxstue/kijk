@@ -5539,7 +5539,7 @@
         "tags": [
           "Users"
         ],
-        "summary": "Changes visibility or completes the current dashboard explanation",
+        "summary": "Changes visibility or completes the current product guide",
         "operationId": "Users.UpdateGuide",
         "requestBody": {
           "content": {
@@ -7951,7 +7951,8 @@
       "GuideResponse": {
         "required": [
           "guideHidden",
-          "guideDashboardVersion",
+          "guideCompletedVersion",
+          "guideCompletedSteps",
           "guideFirstConsumptionAt"
         ],
         "type": "object",
@@ -7960,14 +7961,21 @@
             "type": "boolean",
             "description": "Whether the dashboard checklist is hidden."
           },
-          "guideDashboardVersion": {
+          "guideCompletedVersion": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "integer",
               "string"
             ],
-            "description": "The latest completed dashboard explanation.",
+            "description": "The common guide version associated with the completed steps.",
             "format": "int32"
+          },
+          "guideCompletedSteps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Completed subtour ids for the associated guide version."
           },
           "guideFirstConsumptionAt": {
             "type": [
@@ -7976,6 +7984,15 @@
             ],
             "description": "The first consumption successfully recorded by this user.",
             "format": "date-time"
+          },
+          "guideVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The current version of the entire product guide and tour.",
+            "format": "int32"
           }
         },
         "description": "User-owned product introduction progress, independent of welcome setup and analytics."
@@ -9505,7 +9522,7 @@
       "UpdateGuideRequest": {
         "required": [
           "hidden",
-          "dashboardExplained"
+          "completedStep"
         ],
         "type": "object",
         "properties": {
@@ -9516,12 +9533,12 @@
             ],
             "description": "Whether to hide the checklist; null keeps the preference."
           },
-          "dashboardExplained": {
+          "completedStep": {
             "type": [
               "null",
-              "boolean"
+              "string"
             ],
-            "description": "True records completion of the current explanation; null keeps progress."
+            "description": "A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null keeps progress."
           }
         },
         "description": "A partial change to the optional introduction. Consumption progress is recorded only by the API."

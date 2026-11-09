@@ -11,5 +11,6 @@ public static partial class GuideResponseMapper
     public static partial IQueryable<GuideResponse> ToGuideResponse(this IQueryable<User> source);
 
     /// <summary>Maps persisted guide progress.</summary>
+    [MapperIgnoreTarget(nameof(GuideResponse.GuideVersion))]
     public static partial GuideResponse ToGuideResponse(this User source);
 }

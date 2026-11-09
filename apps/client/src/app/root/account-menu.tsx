@@ -29,6 +29,7 @@ import { useState } from 'react';
 
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { siteConfig } from '@/shared/config/site';
+import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 import { useAppAuth } from '@/shared/runtime/auth';
 
 import { type AccountMenuData, type CurrentUser, getAccountMenuData } from './account-menu-data';
@@ -40,9 +41,10 @@ export function AccountMenu() {
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/' });
   const router = useRouter();
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const [showFeedback, setShowFeedback] = useState(false);
   const { spaceId } = useParams({ strict: false });
+  const navigationSpaceId = useNavigationSpaceId();
   const account = getAccountMenuData(currentAccount?.user, spaceId);
 
   const handleSignOut = () => {
@@ -62,7 +64,14 @@ export function AccountMenu() {
         account={account}
         isMobile={isMobile}
         onNavigateToSettings={() => navigate({ to: '/settings' })}
-        onOpenHelp={() => navigate({ to: '/settings/$section', params: { section: 'help' } })}
+        onOpenGuide={() => {
+          setOpenMobile(false);
+          void navigate(
+            navigationSpaceId
+              ? { to: '/$spaceId', params: { spaceId: navigationSpaceId }, search: { introduction: 'checklist' } }
+              : { to: '/' },
+          );
+        }}
         onOpenFeedback={() => setShowFeedback(true)}
         onSignOut={handleSignOut}
         spaces={currentAccount?.user?.spaces ?? []}
@@ -79,7 +88,7 @@ interface AccountMenuDropdownProps {
   spaces: Space[];
   isMobile: boolean;
   onNavigateToSettings: () => void;
-  onOpenHelp: () => void;
+  onOpenGuide: () => void;
   onOpenFeedback: () => void;
   onSignOut: () => void;
 }
@@ -88,7 +97,7 @@ function AccountMenuDropdown({
   account,
   isMobile,
   onNavigateToSettings,
-  onOpenHelp,
+  onOpenGuide,
   onOpenFeedback,
   onSignOut,
   spaces,
@@ -100,6 +109,7 @@ function AccountMenuDropdown({
           <DropdownMenuTrigger
             render={
               <SidebarMenuButton
+                data-guide='account'
                 className='data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground'
                 tooltip={account.spaceName}
               />
@@ -133,9 +143,9 @@ function AccountMenuDropdown({
                 <SettingsIcon />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onOpenHelp}>
+              <DropdownMenuItem onClick={onOpenGuide}>
                 <CircleHelpIcon />
-                Help & introduction
+                Getting started
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={

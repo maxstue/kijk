@@ -25,6 +25,7 @@ function seed(client: QueryClient, resources = [resource]) {
     status: 'Ready',
     user: {
       id: 'user',
+      analyticsConsent: 'Declined',
       spaces: ['space', 'other'].map((id) => ({
         id,
         name: id,
@@ -44,7 +45,9 @@ function seed(client: QueryClient, resources = [resource]) {
   client.setQueryData(queryKeys.users.features, { finances: false });
   client.setQueryData(queryKeys.users.guide, {
     guideHidden: false,
-    guideDashboardVersion: 0,
+    guideVersion: 1,
+    guideCompletedVersion: 0,
+    guideCompletedSteps: [],
     guideFirstConsumptionAt: null,
   });
   client.setQueryData(queryKeys.resources.list('space'), resources);
@@ -58,69 +61,133 @@ function seed(client: QueryClient, resources = [resource]) {
   );
 }
 
-test('the checklist opens the real recording dialog and cancelling it never submits data', async () => {
+test('the consumptions checkbox starts its real subtour and records only that completion', async () => {
+  await page.viewport(1280, 800);
+  const writes = vi.fn<(body: unknown) => void>();
+  worker.use(
+    http.get('http://localhost:5000/api/users/me/guide', () =>
+      HttpResponse.json({
+        guideHidden: false,
+        guideVersion: 1,
+        guideCompletedVersion: 1,
+        guideCompletedSteps: ['consumptions'],
+        guideFirstConsumptionAt: null,
+      }),
+    ),
+    http.patch('http://localhost:5000/api/users/me/guide', async ({ request }) => {
+      writes(await request.json());
+      return HttpResponse.json({
+        guideHidden: false,
+        guideVersion: 1,
+        guideCompletedVersion: 1,
+        guideCompletedSteps: ['consumptions'],
+        guideFirstConsumptionAt: null,
+      });
+    }),
+  );
+  const { router, queryClient } = await renderRoute({
+    initialEntry: '/space?introduction=consumptions',
+    overviewRoute: appRoute,
+    preserveAppLayout: true,
+    seedQueryClient: seed,
+  });
+  await expect.element(page.getByText('Switch between Monthly and Annual', { exact: false })).toBeVisible();
+  await expect.poll(() => router.state.location.pathname).toBe('/space/consumptions');
+  await expect.element(page.getByRole('dialog', { name: 'Add Consumption' })).not.toBeInTheDocument();
+  expect(writes).not.toHaveBeenCalled();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect.element(page.getByText('Record a reading or consumption', { exact: true })).toBeVisible();
+  expect(writes).not.toHaveBeenCalled();
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await expect.poll(() => writes.mock.calls).toEqual([[{ hidden: null, completedStep: 'consumptions' }]]);
+  await expect
+    .poll(() => queryClient.getQueryData(queryKeys.users.guide))
+    .toMatchObject({
+      guideCompletedSteps: ['consumptions'],
+      guideFirstConsumptionAt: null,
+    });
+});
+
+test('cancelling a resource subtour leaves its checklist progress unchanged', async () => {
+  await page.viewport(1280, 800);
   const write = vi.fn<() => void>();
   worker.use(
-    http.post('http://localhost:5000/api/spaces/space/consumptions', () => {
+    http.patch('http://localhost:5000/api/users/me/guide', () => {
       write();
       return HttpResponse.json({});
     }),
   );
-  const { screen, router } = await renderRoute({
-    initialEntry: '/space?year=2026&month=11',
+  const { router } = await renderRoute({
+    initialEntry: '/space?introduction=resources',
     overviewRoute: appRoute,
+    preserveAppLayout: true,
     seedQueryClient: seed,
   });
-  await screen.getByRole('button', { name: 'Record a value' }).click();
-  await expect.element(page.getByRole('dialog', { name: 'Add Consumption' })).toBeVisible();
-  expect(router.state.location.pathname).toBe('/space/consumptions');
-  expect(router.state.location.search).toMatchObject({ create: true });
+  await expect.poll(() => router.state.location.pathname).toBe('/space/consumptions/resources');
+  await expect.element(page.getByText('Each resource has its own unit', { exact: false })).toBeVisible();
   await userEvent.keyboard('{Escape}');
-  await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-  expect(router.state.location.search.create).toBeUndefined();
+  await expect.poll(() => document.querySelector('.driver-popover')).toBeNull();
   expect(write).not.toHaveBeenCalled();
 });
 
-test('without resources the direct action leads through configuration and returns to the real form', async () => {
-  const { screen, router, queryClient } = await renderRoute({
-    initialEntry: '/space?year=2026&month=11',
-    overviewRoute: appRoute,
-    seedQueryClient: (client) => seed(client, []),
-  });
-  await screen.getByRole('button', { name: 'Record a value' }).click();
-  await expect.element(screen.getByText('Configure a resource to continue your checklist.')).toBeVisible();
-  expect(router.state.location.search).toMatchObject({ guideReturn: 'record' });
-  expect(screen.getByRole('link', { name: 'Continue to record a value' }).query()).toBeNull();
-  queryClient.setQueryData(queryKeys.resources.list('space'), [resource]);
-  await screen.getByRole('link', { name: 'Continue to record a value' }).click();
-  await expect.element(page.getByRole('dialog', { name: 'Add Consumption' })).toBeVisible();
-  expect(router.state.location.pathname).toBe('/space/consumptions');
-  await userEvent.keyboard('{Escape}');
-});
-
-test('help restores the checklist, consumes its URL request, and back navigation does not repeat it', async () => {
-  const write = vi.fn<(body: unknown) => void>();
-  worker.use(
-    http.patch('http://localhost:5000/api/users/me/guide', async ({ request }) => {
-      write(await request.json());
-      return HttpResponse.json({ guideHidden: false, guideDashboardVersion: 0, guideFirstConsumptionAt: null });
-    }),
-    http.get('http://localhost:5000/api/users/me/guide', () =>
-      HttpResponse.json({ guideHidden: false, guideDashboardVersion: 0, guideFirstConsumptionAt: null }),
-    ),
-  );
+test('the user menu opens Getting started and keeps it out of the settings navigation', async () => {
+  await page.viewport(1280, 800);
   const { screen, router } = await renderRoute({
-    initialEntry: '/settings/help',
+    initialEntry: '/space',
     overviewRoute: appRoute,
+    preserveAppLayout: true,
     seedQueryClient: seed,
   });
-  await screen.getByRole('button', { name: 'Show checklist on dashboard' }).click();
-  await expect.element(page.getByRole('dialog', { name: 'First steps with Kijk' })).toBeVisible();
+  await screen.getByRole('button', { name: 'space', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Getting started', exact: true }).click();
+  await expect.element(page.getByRole('dialog', { name: 'Getting started' })).toBeVisible();
+  await expect.element(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
   expect(router.state.location.search.introduction).toBeUndefined();
   await userEvent.keyboard('{Escape}');
-  await router.navigate({ to: '/settings/$section', params: { section: 'help' } });
-  router.history.back();
-  await expect.element(screen.getByRole('button', { name: 'Show checklist' })).toBeVisible();
-  expect(document.querySelector('.driver-popover')).toBeNull();
-  expect(write).toHaveBeenCalledTimes(1);
+  await router.navigate({ to: '/settings/$section', params: { section: 'profile' } });
+  expect(screen.getByRole('link', { name: 'Getting started' }).query()).toBeNull();
+});
+
+test('closing the full tour during a progress save never navigates after that save finishes', async () => {
+  await page.viewport(1280, 800);
+  let release = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const saved = {
+    guideHidden: false,
+    guideVersion: 1,
+    guideCompletedVersion: 1,
+    guideCompletedSteps: ['dashboard'],
+    guideFirstConsumptionAt: null,
+  };
+  const write = vi.fn<() => void>();
+  worker.use(
+    http.get('http://localhost:5000/api/users/me/guide', () => HttpResponse.json(saved)),
+    http.patch('http://localhost:5000/api/users/me/guide', async () => {
+      write();
+      await gate;
+      return HttpResponse.json(saved);
+    }),
+  );
+  const { router, queryClient } = await renderRoute({
+    initialEntry: '/space?introduction=tour',
+    overviewRoute: appRoute,
+    preserveAppLayout: true,
+    seedQueryClient: seed,
+  });
+  try {
+    await expect.element(page.getByText('Your dashboard', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await expect.poll(() => write.mock.calls.length).toBe(1);
+    await userEvent.keyboard('{Escape}');
+    release();
+    await expect
+      .poll(() => queryClient.getQueryData(queryKeys.users.guide))
+      .toMatchObject({ guideCompletedSteps: ['dashboard'] });
+    expect(router.state.location.pathname).toBe('/space');
+    expect(document.querySelector('.driver-popover')).toBeNull();
+  } finally {
+    release();
+  }
 });

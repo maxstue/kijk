@@ -1,8 +1,9 @@
 import * as usersOptions from '@kijk/api/users/options';
 import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { SidebarInset, SidebarProvider } from '@kijk/ui/components/sidebar';
-import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
+import { Outlet, createFileRoute, redirect, useParams, useSearch } from '@tanstack/react-router';
 
+import { GuideLauncher } from '@/app/guide/launcher';
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { SiteHeader } from '@/app/root/site-header';
 import { AnalyticsBanner } from '@/shared/components/analytics-banner';
@@ -25,6 +26,8 @@ export const Route = createFileRoute('/_authenticated/_app')({
 });
 
 function AppLayout() {
+  const { spaceId } = useParams({ strict: false });
+  const { introduction } = useSearch({ strict: false });
   return (
     <SidebarProvider className='h-svh overflow-hidden'>
       <AppSidebar />
@@ -34,6 +37,7 @@ function AppLayout() {
           <Outlet />
         </div>
       </SidebarInset>
+      {spaceId && <GuideLauncher key={spaceId} spaceId={spaceId} request={introduction} />}
       <AnalyticsBanner />
     </SidebarProvider>
   );

@@ -6,8 +6,10 @@ namespace Kijk.Application.Users.Guide;
 /// <summary>Reads and updates only the authenticated user's optional guide.</summary>
 public sealed class GuideHandler(IAppDbContext dbContext, CurrentUser currentUser)
 {
-    /// <summary>The current guide content version.</summary>
+    /// <summary>The single content version shared by the product guide and tour.</summary>
     public const int Version = 1;
+
+    private static readonly string[] StepIds = ["dashboard", "consumptions", "resources", "limits", "finances", "navigation"];
 
     /// <summary>Loads the authenticated user's progress without inferring it from a period filter.</summary>
     public async Task<Result<GuideResponse>> ReadAsync(CancellationToken cancellationToken)
@@ -26,13 +28,17 @@ public sealed class GuideHandler(IAppDbContext dbContext, CurrentUser currentUse
             return Error.NotFound("User not found");
         }
 
+        if (request.CompletedStep is { } step && !StepIds.Contains(step, StringComparer.Ordinal))
+        {
+            return Error.Validation("Unknown guide step");
+        }
         if (request.Hidden is { } hidden)
         {
             user.SetGuideHidden(hidden);
         }
-        if (request.DashboardExplained is true)
+        if (request.CompletedStep is { } completedStep)
         {
-            user.CompleteDashboardGuide(Version);
+            user.CompleteGuideStep(Version, completedStep);
         }
         await dbContext.SaveChangesAsync(cancellationToken);
         return user.ToGuideResponse();

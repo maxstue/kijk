@@ -93,7 +93,7 @@ function TransactionsPage() {
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
 
   return (
-    <div className='space-y-6 pt-6'>
+    <div data-guide='transactions' className='space-y-6 pt-6'>
       <PageToolbar>
         <PageToolbarControls>
           <TransactionViewTabs />

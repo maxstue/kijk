@@ -23,7 +23,7 @@ function ResourcesPage() {
   const { guideReturn } = Route.useSearch();
   const resources = useQuery(resourcesOptions.listQueryOptions(spaceId));
   return (
-    <div className='space-y-6 pt-6'>
+    <div data-guide='resources' className='space-y-6 pt-6'>
       {guideReturn && (
         <div className='space-y-2 rounded-lg border p-4'>
           <p>Configure a resource to continue your checklist.</p>
