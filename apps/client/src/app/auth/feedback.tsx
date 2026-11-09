@@ -7,18 +7,14 @@ import type { ErrorComponentProps } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { AppBrand } from '@/shared/components/app-brand';
+import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 import { useAppAuth } from '@/shared/runtime/auth';
 
 interface AuthErrorProps extends ErrorComponentProps {}
 
 /** Visible while the server session and Kijk account are checked before entering the app. */
 export function AuthPending() {
-  return (
-    <main className='flex min-h-full flex-col items-center justify-center gap-6 p-6'>
-      <AppBrand />
-      <output>Checking your sign-in and loading your Kijk account…</output>
-    </main>
-  );
+  return <InitLoader />;
 }
 
 /** Keeps account-loading failures visible instead of sending a signed-in user to the landing page. */
@@ -57,7 +53,7 @@ export function AuthError({ error }: AuthErrorProps) {
   }
 
   return (
-    <main className='flex min-h-full flex-col items-center justify-center gap-6 p-6'>
+    <main className='flex min-h-svh flex-1 flex-col items-center justify-center gap-6 p-6'>
       <AppBrand />
       <Card className='w-full max-w-lg'>
         <CardHeader>
