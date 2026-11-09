@@ -1,3 +1,4 @@
+import type { components } from '@kijk/api/generated/kijk';
 import type { ResourceData } from '@kijk/api/resources/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import type { Unit } from '@kijk/api/units/types';
@@ -32,6 +33,13 @@ const units: Unit[] = [
 ];
 
 const resources = new Map<string, Resource[]>();
+
+const initialGuide: components['schemas']['GuideResponse'] = {
+  guideHidden: false,
+  guideDashboardVersion: 0,
+  guideFirstConsumptionAt: null,
+};
+let guide = { ...initialGuide };
 
 const currentUser = {
   status: 'Ready',
@@ -114,6 +122,7 @@ export function configureDashboard(scenario: Partial<DashboardScenario>) {
 /** Restores the initial data so that every test starts from the same state. */
 export function resetMockApi() {
   resources.clear();
+  guide = { ...initialGuide };
   dashboardScenario = {
     finances: true,
     empty: false,
@@ -130,6 +139,20 @@ export function resetMockApi() {
 
 /** Fake responses of the .NET API, served behind the BFF by `server.ts`. */
 export const handlers = [
+  http.get('*/api/users/me/guide', () => HttpResponse.json(guide)),
+  http.patch('*/api/users/me/guide', async ({ request }) => {
+    const update = (await request.json()) as components['schemas']['UpdateGuideRequest'];
+    guide = {
+      ...guide,
+      guideHidden: update.hidden ?? guide.guideHidden,
+      guideDashboardVersion: update.dashboardExplained ? 1 : guide.guideDashboardVersion,
+    };
+    return HttpResponse.json(guide);
+  }),
+  http.get('*/api/spaces/:spaceId/consumptions/years', () =>
+    HttpResponse.json({ years: dashboardScenario.empty ? [] : [2025, 2026] }),
+  ),
+  http.get('*/api/spaces/:spaceId/limits', () => HttpResponse.json([])),
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
   http.get('*/api/users/me/features', () =>
     HttpResponse.json({ aiImport: true, finances: dashboardScenario.finances }),

@@ -1,3 +1,4 @@
+using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ public class NameCollationMigrationTests
         await using var db = CreateDbContext(connectionString);
         var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
         await migrator.MigrateAsync(Before);
-        var fixture = await NameCollationTests.SeedAsync(db, " Café ");
+        var fixture = await SeedHistoricalFixtureAsync(db);
 
         await migrator.MigrateAsync(After);
         db.ChangeTracker.Clear();
@@ -58,7 +59,7 @@ public class NameCollationMigrationTests
         await using var db = CreateDbContext(connectionString);
         var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
         await migrator.MigrateAsync(Before);
-        var fixture = await NameCollationTests.SeedAsync(db, " Café ");
+        var fixture = await SeedHistoricalFixtureAsync(db);
         NameCollationTests.AddNamedEntity(db, fixture, table, "Cafe\u0301");
         await db.SaveChangesAsync();
 
@@ -70,6 +71,19 @@ public class NameCollationMigrationTests
         await Assert.That(await ScalarAsync(connectionString, $"SELECT count(*)::text FROM {table} WHERE name IN (' Café ', 'Café')")).IsEqualTo("2");
         db.ChangeTracker.Clear();
         await AssertNamesAsync(db, fixture, " Café ");
+    }
+
+    private static async Task<NameCollationTests.Fixture> SeedHistoricalFixtureAsync(AppDbContext db)
+    {
+        var owner = User.Init("collation-auth", "Owner", "owner@example.test");
+        owner.Id = Guid.NewGuid();
+        // This database deliberately predates later user columns. Seed only columns present at that point and attach
+        // the owner unchanged, so the current EF model only writes the entities whose name migration is under test.
+        await db.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO users (id, auth_id, name, email, ai_enabled, created_at)
+            VALUES ({owner.Id}, {owner.AuthId}, {owner.Name}, {owner.Email}, FALSE, {DateTime.UtcNow})
+            """);
+        return await NameCollationTests.SeedAsync(db, " Café ", owner);
     }
 
     private static async Task AssertNamesAsync(AppDbContext db, NameCollationTests.Fixture fixture, string expected)
