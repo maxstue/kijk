@@ -33,6 +33,24 @@ public sealed class User : BaseEntity
     /// </summary>
     public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
 
+    /// <summary>Gets whether the optional product checklist is hidden.</summary>
+    public bool GuideHidden { get; private set; }
+
+    /// <summary>Gets the latest dashboard explanation completed by this user.</summary>
+    public int GuideDashboardVersion { get; private set; }
+
+    /// <summary>Gets when this user first successfully recorded a consumption.</summary>
+    public DateTime? GuideFirstConsumptionAt { get; private set; }
+
+    /// <summary>Shows or hides the optional product checklist.</summary>
+    public void SetGuideHidden(bool hidden) => GuideHidden = hidden;
+
+    /// <summary>Records completion of an explanation without resetting newer progress.</summary>
+    public void CompleteDashboardGuide(int version) => GuideDashboardVersion = Math.Max(GuideDashboardVersion, version);
+
+    /// <summary>Records a successful first entry; called in the consumption transaction.</summary>
+    public void CompleteGuideConsumption(DateTime utcNow) => GuideFirstConsumptionAt ??= utcNow;
+
     /// <summary>
     /// Gets whether the user turned the AI features on. Off by default, because they rely on the user's consent; when
     /// off, no AI call is made for this user.

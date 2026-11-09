@@ -1,8 +1,8 @@
 import { InfoIcon, MonitorIcon, UserIcon } from '@kijk/ui/components/icons';
-import { RulerIcon } from 'lucide-react';
+import { RulerIcon, CircleHelpIcon } from 'lucide-react';
 
 /** Route segments of the settings pages. */
-export const settingsTo = ['profile', 'appearance', 'units', 'space-units', 'info'] as const;
+export const settingsTo = ['profile', 'appearance', 'units', 'space-units', 'info', 'help'] as const;
 
 /** Navigation entries of the settings pages. */
 export const settingsNav = [
@@ -10,6 +10,7 @@ export const settingsNav = [
   { icon: MonitorIcon, label: 'Appearance', shortCutKey: undefined, to: settingsTo[1] },
   { icon: RulerIcon, label: 'Units', shortCutKey: undefined, to: settingsTo[2] },
   { icon: InfoIcon, label: 'Info', shortCutKey: undefined, to: settingsTo[4] },
+  { icon: CircleHelpIcon, label: 'Help & introduction', shortCutKey: undefined, to: settingsTo[5] },
 ] as const;
 
 /** Settings navigation grouped by section. */
@@ -23,7 +24,7 @@ export const settingsNavGroups = [
     label: 'Space',
   },
   {
-    items: [settingsNav[3]],
+    items: [settingsNav[3], settingsNav[4]],
     label: 'Administration',
   },
 ] as const;

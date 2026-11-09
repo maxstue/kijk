@@ -54,6 +54,7 @@ export const apiOperations = {
   '/api/units/{id}/archive': ['post'],
   '/api/units/{id}/restore': ['post'],
   '/api/units/{id}/spaces/{spaceId}': ['put', 'delete'],
+  '/api/users/me/guide': ['get', 'patch'],
   '/api/users/me': ['get', 'put'],
   '/api/users/me/features': ['get'],
   '/api/users/me/feedback': ['post'],

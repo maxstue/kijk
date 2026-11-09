@@ -891,6 +891,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/users/me/guide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the current user's optional product introduction progress */
+    get: operations['Users.Guide'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Changes visibility or completes the current dashboard explanation */
+    patch: operations['Users.UpdateGuide'];
+    trace?: never;
+  };
   '/api/users/me': {
     parameters: {
       query?: never;
@@ -1901,6 +1919,23 @@ export interface components {
       /** The years. */
       years: (number | string)[];
     };
+    /** User-owned product introduction progress, independent of welcome setup and analytics. */
+    GuideResponse: {
+      /** Whether the dashboard checklist is hidden. */
+      guideHidden: boolean;
+      /**
+       * Format: int32
+       *
+       * The latest completed dashboard explanation.
+       */
+      guideDashboardVersion: number | string;
+      /**
+       * Format: date-time
+       *
+       * The first consumption successfully recorded by this user.
+       */
+      guideFirstConsumptionAt: null | string;
+    };
     HttpValidationProblemDetails: {
       type?: null | string;
       title?: null | string;
@@ -2531,6 +2566,13 @@ export interface components {
     };
     /** @enum {unknown} */
     UpdateConsumptionValueTypes: 'Absolute' | 'Relative' | null;
+    /** A partial change to the optional introduction. Consumption progress is recorded only by the API. */
+    UpdateGuideRequest: {
+      /** Whether to hide the checklist; null keeps the preference. */
+      hidden: null | boolean;
+      /** True records completion of the current explanation; null keeps progress. */
+      dashboardExplained: null | boolean;
+    };
     /** Request for changing a row during the review. */
     UpdateImportCandidateRequest: {
       /**
@@ -5739,6 +5781,58 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.Guide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GuideResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.UpdateGuide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateGuideRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GuideResponse'];
+        };
       };
       401: components['responses']['401'];
       403: components['responses']['403'];

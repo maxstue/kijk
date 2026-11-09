@@ -22,6 +22,7 @@ import {
   LogOut,
   SendIcon,
   SettingsIcon,
+  CircleHelpIcon,
   UsersIcon,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -61,6 +62,7 @@ export function AccountMenu() {
         account={account}
         isMobile={isMobile}
         onNavigateToSettings={() => navigate({ to: '/settings' })}
+        onOpenHelp={() => navigate({ to: '/settings/$section', params: { section: 'help' } })}
         onOpenFeedback={() => setShowFeedback(true)}
         onSignOut={handleSignOut}
         spaces={currentAccount?.user?.spaces ?? []}
@@ -77,6 +79,7 @@ interface AccountMenuDropdownProps {
   spaces: Space[];
   isMobile: boolean;
   onNavigateToSettings: () => void;
+  onOpenHelp: () => void;
   onOpenFeedback: () => void;
   onSignOut: () => void;
 }
@@ -85,6 +88,7 @@ function AccountMenuDropdown({
   account,
   isMobile,
   onNavigateToSettings,
+  onOpenHelp,
   onOpenFeedback,
   onSignOut,
   spaces,
@@ -128,6 +132,10 @@ function AccountMenuDropdown({
               <DropdownMenuItem onClick={onNavigateToSettings}>
                 <SettingsIcon />
                 Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onOpenHelp}>
+                <CircleHelpIcon />
+                Help & introduction
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={

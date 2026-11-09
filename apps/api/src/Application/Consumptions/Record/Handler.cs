@@ -71,6 +71,8 @@ public class RecordHandler(IAppDbContext dbContext, CurrentUser currentUser, Tim
         }
 
         dbContext.Consumptions.Add(consumption);
+        var recordingUser = await dbContext.Users.SingleAsync(user => user.Id == currentUser.Id, cancellationToken);
+        recordingUser.CompleteGuideConsumption(timeProvider.GetUtcNow().UtcDateTime);
         await LimitOccurrence.RecordAsync(
             dbContext,
             space.Id,

@@ -5,6 +5,7 @@ using Kijk.Application.Users.CompleteOnboarding;
 using Kijk.Application.Users.Delete;
 using Kijk.Application.Users.Features;
 using Kijk.Application.Users.Feedback;
+using Kijk.Application.Users.Guide;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.RequestDeletion;
 using Kijk.Application.Users.SetDefaultSpace;
@@ -29,6 +30,16 @@ public class UsersEndpoints : IEndpointGroup
     {
         var group = builder.MapGroup("/users")
             .WithTags("Users");
+
+        group.MapGet("/me/guide", Guide).WithName("Users.Guide")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission(CurrentUserOnly)
+            .WithSummary("Gets the current user's optional product introduction progress");
+
+        group.MapPatch("/me/guide", UpdateGuide).WithName("Users.UpdateGuide")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission(CurrentUserOnly)
+            .WithSummary("Changes visibility or completes the current dashboard explanation");
 
         group.MapGet("/me", Me).WithName("Users.Me")
             .WithoutSpacePermission(CurrentUserOnly)
@@ -66,6 +77,18 @@ public class UsersEndpoints : IEndpointGroup
             .WithSummary("Completes onboarding and creates the Kijk account when needed");
 
         return builder;
+    }
+
+    private static async Task<Results<Ok<GuideResponse>, ProblemHttpResult>> Guide(GuideHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.ReadAsync(cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<GuideResponse>, ProblemHttpResult>> UpdateGuide(UpdateGuideRequest request, GuideHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.UpdateAsync(request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
     /// <summary>

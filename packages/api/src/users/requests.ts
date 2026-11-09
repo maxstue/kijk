@@ -3,6 +3,20 @@ import { unwrapApiResponse } from '@kijk/api/http';
 
 import type { UpdateUserData, WelcomeUserData } from './types';
 
+/** Loads persisted optional introduction progress. */
+export async function getGuide(signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().GET('/api/users/me/guide', { signal }));
+}
+
+/** Changes only guide preferences and explanation progress. */
+export async function updateGuide(data: { hidden?: boolean; dashboardExplained?: boolean }) {
+  return unwrapApiResponse(
+    await apiClient().PATCH('/api/users/me/guide', {
+      body: { hidden: data.hidden ?? null, dashboardExplained: data.dashboardExplained ?? null },
+    }),
+  );
+}
+
 /** Submits voluntary feedback and rejects if delivery failed. */
 export async function sendFeedback(data: { message: string }) {
   await apiClient().POST('/api/users/me/feedback', { body: data });

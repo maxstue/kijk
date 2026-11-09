@@ -9,6 +9,7 @@ export const spaceKeyRoot = 'space';
 const space = (spaceId: string) => [spaceKeyRoot, spaceId] as const;
 
 const users = {
+  guide: ['users', 'guide'] as const,
   features: ['users', 'features'] as const,
   me: ['users', 'me'] as const,
 };

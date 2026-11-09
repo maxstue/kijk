@@ -64,6 +64,7 @@ export const recordMutationOptions = (spaceId: string) =>
 
       await invalidate(
         client,
+        queryKeys.users.guide,
         queryKeys.dashboard.all(spaceId),
         queryKeys.consumptions.byAll(spaceId),
         queryKeys.consumptions.statsAll(spaceId),

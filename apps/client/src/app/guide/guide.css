@@ -1,0 +1,33 @@
+.driver-popover.kijk-guide {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: min(360px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+.kijk-guide .driver-popover-title,
+.kijk-guide .driver-popover-description,
+.kijk-guide .driver-popover-footer button {
+  font-family: inherit;
+}
+.kijk-guide .driver-popover-footer button {
+  text-shadow: none;
+}
+.kijk-guide-tasks {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+}
+.kijk-guide-tasks button {
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.kijk-guide button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}

@@ -5498,6 +5498,90 @@
         ]
       }
     },
+    "/api/users/me/guide": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Gets the current user's optional product introduction progress",
+        "operationId": "Users.Guide",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Changes visibility or completes the current dashboard explanation",
+        "operationId": "Users.UpdateGuide",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGuideRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/users/me": {
       "get": {
         "tags": [
@@ -7864,6 +7948,38 @@
         },
         "description": "The years with consumptions in the active space."
       },
+      "GuideResponse": {
+        "required": [
+          "guideHidden",
+          "guideDashboardVersion",
+          "guideFirstConsumptionAt"
+        ],
+        "type": "object",
+        "properties": {
+          "guideHidden": {
+            "type": "boolean",
+            "description": "Whether the dashboard checklist is hidden."
+          },
+          "guideDashboardVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The latest completed dashboard explanation.",
+            "format": "int32"
+          },
+          "guideFirstConsumptionAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The first consumption successfully recorded by this user.",
+            "format": "date-time"
+          }
+        },
+        "description": "User-owned product introduction progress, independent of welcome setup and analytics."
+      },
       "HttpValidationProblemDetails": {
         "type": "object",
         "properties": {
@@ -9385,6 +9501,30 @@
           "Relative",
           null
         ]
+      },
+      "UpdateGuideRequest": {
+        "required": [
+          "hidden",
+          "dashboardExplained"
+        ],
+        "type": "object",
+        "properties": {
+          "hidden": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Whether to hide the checklist; null keeps the preference."
+          },
+          "dashboardExplained": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "True records completion of the current explanation; null keeps progress."
+          }
+        },
+        "description": "A partial change to the optional introduction. Consumption progress is recorded only by the API."
       },
       "UpdateImportCandidateRequest": {
         "required": [

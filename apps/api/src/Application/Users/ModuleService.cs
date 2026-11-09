@@ -22,6 +22,7 @@ public sealed class ModuleService : IModule
         services.AddScoped<FeaturesHandler>();
         services.AddScoped<UpdateHandler>();
         services.AddScoped<CompleteOnboardingHandler>();
+        services.AddScoped<Kijk.Application.Users.Guide.GuideHandler>();
 
         return services;
     }

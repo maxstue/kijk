@@ -3,6 +3,7 @@ import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { z } from 'zod';
 
+import { GuideHelp } from '@/app/guide/help';
 import { AppearanceSection } from '@/app/settings/appearance/section';
 import { InfoSection } from '@/app/settings/info/section';
 import { ProfileSection } from '@/app/settings/profile/section';
@@ -49,6 +50,7 @@ function SettingsSectionPage() {
       {parameters.section === 'appearance' && <AppearanceSection />}
       {parameters.section === 'units' && <UnitsSection scope='personal' />}
       {parameters.section === 'info' && <InfoSection />}
+      {parameters.section === 'help' && <GuideHelp />}
     </div>
   );
 }

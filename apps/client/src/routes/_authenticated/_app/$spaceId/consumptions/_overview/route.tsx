@@ -33,6 +33,7 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { getMonthFromDate, monthSchema } from '@/shared/utils/months';
 
 const searchSchema = z.object({
+  create: z.boolean().optional().catch(undefined),
   month: monthSchema.default(getMonthFromDate(new Date())),
   view: z.enum(['month', 'year']).default('month'),
   year: z.number().default(new Date().getFullYear()),
@@ -66,14 +67,20 @@ function UsagePage() {
   const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const [showDialog, setShowDialog] = useState(false);
-  const { month, view, year } = Route.useSearch();
+  const { month, view, year, create } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { data } = useSuspenseQuery(
     consumptionsOptions.listQueryOptions(spaceId, year, view === 'month' ? month : undefined),
   );
   const { data: yearlyConsumptions } = useSuspenseQuery(consumptionsOptions.listQueryOptions(spaceId, year));
 
-  const handleClose = () => setShowDialog(false);
+  const handleDialogChange = (open: boolean) => {
+    setShowDialog(open);
+    if (!open && create) {
+      void navigate({ replace: true, search: (previous) => ({ ...previous, create: undefined }) });
+    }
+  };
+  const handleClose = () => handleDialogChange(false);
 
   return (
     <div className='space-y-6 pt-6'>
@@ -102,7 +109,7 @@ function UsagePage() {
           </Suspense>
         </PageToolbarControls>
         <PageToolbarActions>
-          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <Dialog open={canRecord && (showDialog || create === true)} onOpenChange={handleDialogChange}>
             <DialogTrigger
               render={
                 <PageAddButton

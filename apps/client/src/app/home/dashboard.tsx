@@ -48,7 +48,7 @@ export function Dashboard({ spaceId, year, month, resourceId, view, onResourceCh
   }
   return (
     <div className='@container/home mx-auto flex w-full max-w-7xl flex-col gap-8 pb-6'>
-      <div className='flex justify-start'>
+      <div data-guide='dashboard' className='flex justify-start'>
         <MonthSwitcher year={year} month={month} onChange={onChange} />
       </div>
       <Consumptions

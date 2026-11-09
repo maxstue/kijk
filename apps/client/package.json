@@ -53,6 +53,7 @@
     "cn": "catalog:",
     "d3-shape": "catalog:",
     "date-fns": "catalog:",
+    "driver.js": "catalog:",
     "lucide-react": "catalog:",
     "posthog-js": "catalog:",
     "react": "catalog:",

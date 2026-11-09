@@ -10,7 +10,23 @@ import {
   sendFeedback,
   setDefaultSpace,
   update,
+  getGuide,
+  updateGuide,
 } from './requests';
+
+/** User-owned introduction, shared across spaces and devices. */
+export const guideQueryOptions = () =>
+  queryOptions({
+    queryKey: queryKeys.users.guide,
+    queryFn: ({ signal }) => getGuide(signal),
+  });
+
+/** Patches guide preferences; refetching avoids overwriting progress from concurrent successful entries. */
+export const updateGuideMutationOptions = () =>
+  mutationOptions({
+    mutationFn: updateGuide,
+    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.users.guide),
+  });
 
 /** Sends voluntary feedback without changing cached account data. */
 export const feedbackMutationOptions = () => mutationOptions({ mutationFn: sendFeedback, retry: false });
