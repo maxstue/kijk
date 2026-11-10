@@ -2,13 +2,14 @@ import * as usersOptions from '@kijk/api/users/options';
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 import { z } from 'zod';
 
+import { guideTopics } from '@/app/guide/constants';
 import { rememberLastSpace } from '@/shared/lib/spaces';
 
 /** `/$spaceId`: everything that belongs to one space; unknown spaces lead back to the start space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId')({
   validateSearch: z.object({
     introduction: z
-      .enum(['tour', 'checklist', 'dashboard', 'consumptions', 'resources', 'limits', 'finances', 'navigation'])
+      .enum(['tour', 'checklist', ...guideTopics.map((topic) => topic.id)])
       .optional()
       .catch(undefined),
   }),

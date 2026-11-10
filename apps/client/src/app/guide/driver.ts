@@ -3,8 +3,8 @@ import { driver, type DriveStep, type Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 import './guide.css';
 
-import { getTourStops, type TourCapabilities } from './tour-stops';
-import type { GuideDestination, GuideTopic } from './types';
+import { getTourStops } from './tour-stops';
+import type { GuideDestination, GuideTopic, TourCapabilities } from './types';
 
 interface Options {
   onDestroyed: () => void;

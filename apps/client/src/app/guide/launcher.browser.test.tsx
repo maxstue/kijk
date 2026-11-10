@@ -207,6 +207,51 @@ test('a failed progress write reopens the checklist with unchanged completion', 
   }
 });
 
+test.each(['subtour', 'full tour'] as const)(
+  'a failed save can restart the $0 directly without overlapping dialogs',
+  async (retry) => {
+    const { client, write } = fixture({ permissions: [] });
+    worker.use(
+      http.patch(
+        'http://localhost:5000/api/users/me/guide',
+        () => HttpResponse.json({ title: 'Unavailable' }, { status: 503 }),
+        { once: true },
+      ),
+    );
+    const screen = await render(<Harness client={client} />);
+    try {
+      await screen.getByRole('button', { name: 'Getting started' }).click();
+      await page.getByRole('button', { name: /^Dashboard/ }).click();
+      await page.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect
+        .element(page.getByRole('alert'))
+        .toHaveTextContent('Could not save introduction progress. Please try again.');
+
+      await page.getByRole('button', { name: retry === 'subtour' ? /^Dashboard/ : 'Get to know Kijk' }).click();
+      await expect.element(page.getByText('Your dashboard', { exact: true })).toBeVisible();
+      await expect.poll(() => document.querySelector('[data-slot="dialog-content"][data-open]')).toBeNull();
+      await expect.poll(() => document.querySelector('[role="alert"]')).toBeNull();
+      if (retry === 'full tour') {
+        await page.getByRole('button', { name: 'Next', exact: true }).click();
+      }
+      await expect
+        .element(
+          page.getByText(retry === 'subtour' ? 'Your dashboard' : 'Switch spaces and open settings', { exact: true }),
+        )
+        .toBeVisible();
+      await page.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect.poll(() => document.querySelector('.driver-popover')).toBeNull();
+      expect(write).toHaveBeenCalledTimes(retry === 'subtour' ? 1 : 2);
+      expect(client.getQueryData(queryKeys.users.guide)).toMatchObject({
+        guideCompletedSteps: retry === 'subtour' ? ['dashboard'] : ['dashboard', 'navigation'],
+      });
+    } finally {
+      await screen.unmount();
+      client.clear();
+    }
+  },
+);
+
 test('replaying an already completed section does not duplicate writes', async () => {
   const { client, write } = fixture({ completed: ['dashboard'] });
   const screen = await render(<Harness client={client} />);

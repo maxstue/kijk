@@ -37,6 +37,7 @@ export function GuideChecklist({ spaceId, request, progress, autoOpen = false, o
     spaceId,
     request,
     initiallyOpen: autoOpen,
+    onOpen: () => update.reset(),
     onAutoOpenHandled,
     ...capabilities,
     onStepCompleted: async (step, completedTour) => {

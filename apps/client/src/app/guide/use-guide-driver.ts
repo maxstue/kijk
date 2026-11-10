@@ -3,8 +3,8 @@ import { useNavigate } from '@tanstack/react-router';
 import type { Driver } from 'driver.js';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
-import type { TourCapabilities } from './tour-stops';
-import type { GuideContext, GuideDestination, GuideRequest, GuideTopic } from './types';
+import { getAvailableGuideTopics } from './constants';
+import type { GuideContext, GuideDestination, GuideRequest, GuideTopic, TourCapabilities } from './types';
 
 // Keep the imperative tour and its styles outside the initial application bundle.
 function loadDriver() {
@@ -13,6 +13,7 @@ function loadDriver() {
 
 interface Options extends GuideContext, TourCapabilities {
   initiallyOpen: boolean;
+  onOpen: () => void;
   onAutoOpenHandled?: () => void;
   onStepCompleted: (step: GuideTopic, completedTour?: boolean) => Promise<void>;
 }
@@ -22,6 +23,7 @@ export function useGuideDriver({
   spaceId,
   request,
   initiallyOpen,
+  onOpen,
   onAutoOpenHandled,
   canView,
   canViewResources,
@@ -82,6 +84,7 @@ export function useGuideDriver({
   }
 
   async function open(kind: GuideRequest) {
+    onOpen();
     onAutoOpenHandled?.();
     instance.current?.destroy();
     const current = ++epoch.current;
@@ -97,28 +100,20 @@ export function useGuideDriver({
       if (current !== epoch.current) {
         return;
       }
-      const destinations: Record<GuideTopic, GuideDestination> = {
-        dashboard: 'dashboard',
-        consumptions: 'consumptions',
-        resources: 'resources',
-        limits: 'limits',
-        finances: 'accounts',
-        navigation: 'dashboard',
-      };
-      const available: Record<GuideTopic, boolean> = {
-        dashboard: true,
-        consumptions: canView,
-        resources: canViewResources,
-        limits: canViewLimits,
-        finances: canViewFinances,
-        navigation: true,
-      };
-      if (kind !== 'tour' && !available[kind]) {
+      const topic = getAvailableGuideTopics({
+        canView,
+        canViewResources,
+        canViewLimits,
+        canRecord,
+        canViewFinances,
+        canImportFinances,
+      }).find((entry) => entry.id === kind);
+      if (kind !== 'tour' && !topic) {
         setError(true);
         setChecklistOpen(true);
         return;
       }
-      await visit(kind === 'tour' ? 'dashboard' : destinations[kind]);
+      await visit(topic?.destination ?? 'dashboard');
       if (current !== epoch.current) {
         return;
       }
