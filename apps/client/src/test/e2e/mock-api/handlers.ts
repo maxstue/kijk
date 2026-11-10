@@ -35,11 +35,10 @@ const units: Unit[] = [
 const resources = new Map<string, Resource[]>();
 
 const initialGuide: components['schemas']['GuideResponse'] = {
-  guideHidden: false,
   guideVersion: 1,
-  guideCompletedVersion: 0,
+  guideCompletedVersion: 1,
   guideCompletedSteps: [] as string[],
-  guideFirstConsumptionAt: null,
+  guideCompletedAt: null,
 };
 let guide = { ...initialGuide };
 
@@ -142,13 +141,17 @@ export function resetMockApi() {
 /** Fake responses of the .NET API, served behind the BFF by `server.ts`. */
 export const handlers = [
   http.get('*/api/users/me/guide', () => HttpResponse.json(guide)),
+  http.delete('*/api/users/me/guide', () => {
+    guide = { guideVersion: 1, guideCompletedVersion: 0, guideCompletedSteps: [], guideCompletedAt: null };
+    return HttpResponse.json(guide);
+  }),
   http.patch('*/api/users/me/guide', async ({ request }) => {
     const update = (await request.json()) as components['schemas']['UpdateGuideRequest'];
     guide = {
       ...guide,
-      guideHidden: update.hidden ?? guide.guideHidden,
+      guideCompletedAt: update.completedTour ? new Date().toISOString() : guide.guideCompletedAt,
       guideVersion: 1,
-      guideCompletedVersion: update.completedStep ? 1 : guide.guideCompletedVersion,
+      guideCompletedVersion: update.completedStep || update.completedTour ? 1 : guide.guideCompletedVersion,
       guideCompletedSteps: update.completedStep
         ? [...new Set([...guide.guideCompletedSteps, update.completedStep])]
         : guide.guideCompletedSteps,

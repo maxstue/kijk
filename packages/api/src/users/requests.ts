@@ -8,11 +8,16 @@ export async function getGuide(signal?: AbortSignal) {
   return unwrapApiResponse(await apiClient().GET('/api/users/me/guide', { signal }));
 }
 
-/** Changes only guide preferences and explanation progress. */
-export async function updateGuide(data: { hidden?: boolean; completedStep?: string }) {
+/** Clears only the current user's product introduction progress. */
+export async function resetGuide() {
+  return unwrapApiResponse(await apiClient().DELETE('/api/users/me/guide'));
+}
+
+/** Records a completed subtour and optionally completion of the full tour. */
+export async function updateGuide(data: { completedStep?: string; completedTour?: boolean }) {
   return unwrapApiResponse(
     await apiClient().PATCH('/api/users/me/guide', {
-      body: { hidden: data.hidden ?? null, completedStep: data.completedStep ?? null },
+      body: { completedStep: data.completedStep ?? null, completedTour: data.completedTour ?? false },
     }),
   );
 }

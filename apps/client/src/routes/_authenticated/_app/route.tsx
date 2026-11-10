@@ -2,6 +2,7 @@ import * as usersOptions from '@kijk/api/users/options';
 import { isReadyCurrentUser } from '@kijk/api/users/types';
 import { SidebarInset, SidebarProvider } from '@kijk/ui/components/sidebar';
 import { Outlet, createFileRoute, redirect, useParams, useSearch } from '@tanstack/react-router';
+import { useState } from 'react';
 
 import { GuideLauncher } from '@/app/guide/launcher';
 import { AppSidebar } from '@/app/root/app-sidebar';
@@ -26,6 +27,7 @@ export const Route = createFileRoute('/_authenticated/_app')({
 });
 
 function AppLayout() {
+  const [autoGuideAvailable, setAutoGuideAvailable] = useState(true);
   const { spaceId } = useParams({ strict: false });
   const { introduction } = useSearch({ strict: false });
   return (
@@ -37,7 +39,15 @@ function AppLayout() {
           <Outlet />
         </div>
       </SidebarInset>
-      {spaceId && <GuideLauncher key={spaceId} spaceId={spaceId} request={introduction} />}
+      {spaceId && (
+        <GuideLauncher
+          key={spaceId}
+          spaceId={spaceId}
+          request={introduction}
+          autoOpen={autoGuideAvailable}
+          onAutoOpenHandled={() => setAutoGuideAvailable(false)}
+        />
+      )}
       <AnalyticsBanner />
     </SidebarProvider>
   );

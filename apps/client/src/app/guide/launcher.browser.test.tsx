@@ -15,6 +15,7 @@ interface FixtureOptions {
   permissions?: string[];
   finances?: boolean;
   completed?: string[];
+  version?: number;
 }
 
 function fixture(options: FixtureOptions = {}) {
@@ -39,20 +40,21 @@ function fixture(options: FixtureOptions = {}) {
   });
   client.setQueryData(queryKeys.users.features, { finances: options.finances ?? false });
   let progress = {
-    guideHidden: false,
     guideVersion: 1,
-    guideCompletedVersion: 1,
+    guideCompletedVersion: options.version ?? 1,
     guideCompletedSteps: options.completed ?? [],
-    guideFirstConsumptionAt: null,
+    guideCompletedAt: null as string | null,
   };
-  const write = vi.fn<(body: { hidden: boolean | null; completedStep: string | null }) => void>();
+  const write = vi.fn<(body: { completedTour: boolean; completedStep: string | null }) => void>();
   worker.use(
     http.get('http://localhost:5000/api/users/me/guide', () => HttpResponse.json(progress)),
     http.patch('http://localhost:5000/api/users/me/guide', async ({ request }) => {
-      const body = (await request.json()) as { hidden: boolean | null; completedStep: string | null };
+      const body = (await request.json()) as { completedTour: boolean; completedStep: string | null };
       write(body);
       progress = {
         ...progress,
+        guideCompletedVersion: body.completedTour || body.completedStep ? 1 : progress.guideCompletedVersion,
+        guideCompletedAt: body.completedTour ? '2026-11-10T09:00:00Z' : progress.guideCompletedAt,
         guideCompletedSteps: [
           ...new Set([...progress.guideCompletedSteps, ...(body.completedStep ? [body.completedStep] : [])]),
         ],
@@ -129,7 +131,7 @@ test('a checkbox starts only its subtour and completion updates native progress 
   await expect.element(page.getByText('Your dashboard', { exact: true })).toBeVisible();
   expect(write).not.toHaveBeenCalled();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
-  await expect.poll(() => write.mock.calls).toEqual([[{ hidden: null, completedStep: 'dashboard' }]]);
+  await expect.poll(() => write.mock.calls).toEqual([[{ completedTour: false, completedStep: 'dashboard' }]]);
   await screen.getByRole('button', { name: 'Getting started' }).click();
   await expect.element(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
   expect(
@@ -236,4 +238,131 @@ test.each([
     await screen.unmount();
     client.clear();
   }
+});
+
+test('only finishing a full tour records its date, including a replay with completed checkboxes', async () => {
+  const { client, write } = fixture({ permissions: [], completed: ['dashboard', 'navigation'] });
+  const screen = await render(<Harness client={client} />);
+  try {
+    await screen.getByRole('button', { name: 'Getting started' }).click();
+    expect(page.getByText(/Tour last completed/).query()).toBeNull();
+    await page.getByRole('button', { name: 'Get to know Kijk' }).click();
+    await expect.element(page.getByText('Your dashboard', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await expect.element(page.getByText('Switch spaces and open settings', { exact: true })).toBeVisible();
+    expect(write).not.toHaveBeenCalled();
+    await page.getByRole('button', { name: 'Done', exact: true }).click();
+    await expect.poll(() => write.mock.calls).toEqual([[{ completedStep: 'navigation', completedTour: true }]]);
+    await expect.poll(() => document.querySelector('.driver-popover')).toBeNull();
+    await screen.getByRole('button', { name: 'Getting started' }).click();
+    await expect.element(page.getByText(/Tour last completed/)).toBeVisible();
+    expect(document.querySelector('time')?.dateTime).toBe('2026-11-10T09:00:00Z');
+    await page.getByRole('button', { name: 'Get to know Kijk' }).click();
+    await page.getByRole('button', { name: 'Next', exact: true }).click();
+    await expect.element(page.getByText('Switch spaces and open settings', { exact: true })).toBeVisible();
+    await userEvent.keyboard('{Escape}');
+    expect(write).toHaveBeenCalledTimes(1);
+  } finally {
+    await screen.unmount();
+    client.clear();
+  }
+});
+
+test('new progress opens automatically, stays dismissible, and opens again after a fresh mount', async () => {
+  const { client, write } = fixture({ version: 0 });
+  const screen = await render(
+    <QueryClientProvider client={client}>
+      <SidebarProvider>
+        <GuideLauncher spaceId='space' autoOpen />
+      </SidebarProvider>
+    </QueryClientProvider>,
+  );
+  await expect.element(page.getByRole('dialog', { name: 'Getting started' })).toBeVisible();
+  await userEvent.keyboard('{Escape}');
+  await expect.element(page.getByRole('dialog', { name: 'Getting started' })).not.toBeInTheDocument();
+  expect(write).not.toHaveBeenCalled();
+  await screen.unmount();
+  const reloaded = await render(
+    <QueryClientProvider client={client}>
+      <SidebarProvider>
+        <GuideLauncher spaceId='space' autoOpen />
+      </SidebarProvider>
+    </QueryClientProvider>,
+  );
+  await expect.element(page.getByRole('dialog', { name: 'Getting started' })).toBeVisible();
+  await reloaded.unmount();
+  client.clear();
+});
+
+test('existing partial progress does not open automatically', async () => {
+  const { client } = fixture({ completed: ['dashboard'] });
+  const screen = await render(
+    <QueryClientProvider client={client}>
+      <SidebarProvider>
+        <GuideLauncher spaceId='space' autoOpen />
+      </SidebarProvider>
+    </QueryClientProvider>,
+  );
+  await expect.poll(() => client.getQueryState(queryKeys.users.guide)?.status).toBe('success');
+  expect(page.getByRole('dialog', { name: 'Getting started' }).query()).toBeNull();
+  await screen.unmount();
+  client.clear();
+});
+
+test('skip records completion without ticking sections and stays closed after reloading', async () => {
+  const { client, write } = fixture({ version: 0 });
+  const screen = await render(
+    <QueryClientProvider client={client}>
+      <SidebarProvider>
+        <GuideLauncher spaceId='space' autoOpen />
+      </SidebarProvider>
+    </QueryClientProvider>,
+  );
+  await expect.element(page.getByRole('dialog', { name: 'Getting started' })).toBeVisible();
+  await page.getByRole('button', { name: 'Skip', exact: true }).click();
+  await expect.poll(() => write.mock.calls).toEqual([[{ completedStep: null, completedTour: true }]]);
+  await expect.element(page.getByRole('dialog', { name: 'Getting started' })).not.toBeInTheDocument();
+  await screen.unmount();
+  client.removeQueries({ queryKey: queryKeys.users.guide });
+  const reloaded = await render(
+    <QueryClientProvider client={client}>
+      <SidebarProvider>
+        <GuideLauncher spaceId='space' autoOpen />
+      </SidebarProvider>
+    </QueryClientProvider>,
+  );
+  await expect
+    .poll(() => client.getQueryData(queryKeys.users.guide))
+    .toMatchObject({ guideCompletedSteps: [], guideCompletedAt: '2026-11-10T09:00:00Z' });
+  expect(page.getByRole('dialog', { name: 'Getting started' }).query()).toBeNull();
+  await reloaded.unmount();
+  client.clear();
+});
+
+test('a failed skip keeps the modal open and progress unchanged', async () => {
+  const { client } = fixture({ version: 0 });
+  worker.use(
+    http.patch('http://localhost:5000/api/users/me/guide', () =>
+      HttpResponse.json({ title: 'Unavailable' }, { status: 503 }),
+    ),
+  );
+  const screen = await render(
+    <QueryClientProvider client={client}>
+      <SidebarProvider>
+        <GuideLauncher spaceId='space' autoOpen />
+      </SidebarProvider>
+    </QueryClientProvider>,
+  );
+  await page.getByRole('button', { name: 'Skip', exact: true }).click();
+  await expect
+    .element(page.getByRole('alert'))
+    .toHaveTextContent('Could not save introduction progress. Please try again.');
+  await expect.element(page.getByRole('dialog', { name: 'Getting started' })).toBeVisible();
+  expect(client.getQueryData(queryKeys.users.guide)).toMatchObject({
+    guideCompletedVersion: 0,
+    guideCompletedAt: null,
+    guideCompletedSteps: [],
+  });
+  await screen.unmount();
+  client.clear();
 });

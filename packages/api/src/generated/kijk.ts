@@ -902,10 +902,11 @@ export interface paths {
     get: operations['Users.Guide'];
     put?: never;
     post?: never;
-    delete?: never;
+    /** Resets the current user's introduction progress without changing account setup */
+    delete: operations['Users.ResetGuide'];
     options?: never;
     head?: never;
-    /** Changes visibility or completes the current product guide */
+    /** Records a completed guide section or full tour */
     patch: operations['Users.UpdateGuide'];
     trace?: never;
   };
@@ -1919,10 +1920,8 @@ export interface components {
       /** The years. */
       years: (number | string)[];
     };
-    /** User-owned product introduction progress, independent of welcome setup and analytics. */
+    /** User-owned tour progress, independent of welcome setup and analytics. */
     GuideResponse: {
-      /** Whether the dashboard checklist is hidden. */
-      guideHidden: boolean;
       /**
        * Format: int32
        *
@@ -1934,9 +1933,9 @@ export interface components {
       /**
        * Format: date-time
        *
-       * The first consumption successfully recorded by this user.
+       * When the introduction was last completed or skipped (UTC); null until completion.
        */
-      guideFirstConsumptionAt: null | string;
+      guideCompletedAt: null | string;
       /**
        * Format: int32
        *
@@ -2574,12 +2573,19 @@ export interface components {
     };
     /** @enum {unknown} */
     UpdateConsumptionValueTypes: 'Absolute' | 'Relative' | null;
-    /** A partial change to the optional introduction. Consumption progress is recorded only by the API. */
+    /** Records a completed subtour, full tour or a skipped introduction. */
     UpdateGuideRequest: {
-      /** Whether to hide the checklist; null keeps the preference. */
-      hidden: null | boolean;
-      /** A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null keeps progress. */
-      completedStep: null | string;
+      /**
+       * A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null with
+       * CompletedTour skips the introduction.
+       */
+      completedStep?: null | string;
+      /**
+       * Whether the introduction is completed or skipped; the API records its timestamp.
+       *
+       * @default false
+       */
+      completedTour: boolean;
     };
     /** Request for changing a row during the review. */
     UpdateImportCandidateRequest: {
@@ -5797,6 +5803,30 @@ export interface operations {
     };
   };
   'Users.Guide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GuideResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.ResetGuide': {
     parameters: {
       query?: never;
       header?: never;

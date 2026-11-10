@@ -5539,7 +5539,7 @@
         "tags": [
           "Users"
         ],
-        "summary": "Changes visibility or completes the current product guide",
+        "summary": "Records a completed guide section or full tour",
         "operationId": "Users.UpdateGuide",
         "requestBody": {
           "content": {
@@ -5551,6 +5551,42 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Resets the current user's introduction progress without changing account setup",
+        "operationId": "Users.ResetGuide",
         "responses": {
           "200": {
             "description": "OK",
@@ -7950,17 +7986,12 @@
       },
       "GuideResponse": {
         "required": [
-          "guideHidden",
           "guideCompletedVersion",
           "guideCompletedSteps",
-          "guideFirstConsumptionAt"
+          "guideCompletedAt"
         ],
         "type": "object",
         "properties": {
-          "guideHidden": {
-            "type": "boolean",
-            "description": "Whether the dashboard checklist is hidden."
-          },
           "guideCompletedVersion": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
@@ -7977,12 +8008,12 @@
             },
             "description": "Completed subtour ids for the associated guide version."
           },
-          "guideFirstConsumptionAt": {
+          "guideCompletedAt": {
             "type": [
               "null",
               "string"
             ],
-            "description": "The first consumption successfully recorded by this user.",
+            "description": "When the introduction was last completed or skipped (UTC); null until completion.",
             "format": "date-time"
           },
           "guideVersion": {
@@ -7995,7 +8026,7 @@
             "format": "int32"
           }
         },
-        "description": "User-owned product introduction progress, independent of welcome setup and analytics."
+        "description": "User-owned tour progress, independent of welcome setup and analytics."
       },
       "HttpValidationProblemDetails": {
         "type": "object",
@@ -9520,28 +9551,22 @@
         ]
       },
       "UpdateGuideRequest": {
-        "required": [
-          "hidden",
-          "completedStep"
-        ],
         "type": "object",
         "properties": {
-          "hidden": {
-            "type": [
-              "null",
-              "boolean"
-            ],
-            "description": "Whether to hide the checklist; null keeps the preference."
-          },
           "completedStep": {
             "type": [
               "null",
               "string"
             ],
-            "description": "A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null keeps progress."
+            "description": "A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null with CompletedTour skips the introduction."
+          },
+          "completedTour": {
+            "type": "boolean",
+            "description": "Whether the introduction is completed or skipped; the API records its timestamp.",
+            "default": false
           }
         },
-        "description": "A partial change to the optional introduction. Consumption progress is recorded only by the API."
+        "description": "Records a completed subtour, full tour or a skipped introduction."
       },
       "UpdateImportCandidateRequest": {
         "required": [

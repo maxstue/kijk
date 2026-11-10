@@ -5,6 +5,8 @@ import { Button } from '@kijk/ui/components/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@kijk/ui/components/dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { formatDateTime } from '@/shared/utils/format';
+
 import { DriverChecklist } from './driver-checklist';
 import { getGuideTasks } from './helpers';
 import type { GuideContext, GuideProgress } from './types';
@@ -12,10 +14,12 @@ import { useGuideDriver } from './use-guide-driver';
 
 interface Props extends GuideContext {
   progress: GuideProgress;
+  autoOpen?: boolean;
+  onAutoOpenHandled?: () => void;
 }
 
 /** Every checklist row starts a subtour; the main button runs those same sections in order. */
-export function GuideChecklist({ spaceId, request, progress }: Props) {
+export function GuideChecklist({ spaceId, request, progress, autoOpen = false, onAutoOpenHandled }: Props) {
   const { data: currentUser } = useQuery(usersOptions.meQueryOptions());
   const { data: features } = useQuery(usersOptions.featuresQueryOptions());
   const space = currentUser?.user?.spaces?.find((entry) => entry.id === spaceId);
@@ -28,21 +32,24 @@ export function GuideChecklist({ spaceId, request, progress }: Props) {
     canImportFinances: features?.finances === true && hasSpacePermission(space, 'finances:import'),
   };
   const queryClient = useQueryClient();
-  const update = useMutation({ ...usersOptions.updateGuideMutationOptions(), scope: { id: 'guide-progress' } });
+  const update = useMutation(usersOptions.updateGuideMutationOptions());
   const { open, checklistOpen, setChecklistOpen, error } = useGuideDriver({
     spaceId,
     request,
+    initiallyOpen: autoOpen,
+    onAutoOpenHandled,
     ...capabilities,
-    onStepCompleted: async (step) => {
+    onStepCompleted: async (step, completedTour) => {
       const saved = queryClient.getQueryData<GuideProgress>(queryKeys.users.guide);
       if (
+        !completedTour &&
         saved &&
         Number(saved.guideCompletedVersion) === Number(saved.guideVersion) &&
         saved.guideCompletedSteps.includes(step)
       ) {
         return;
       }
-      await update.mutateAsync({ completedStep: step });
+      await update.mutateAsync({ completedStep: step, completedTour });
     },
   });
   const tasks = getGuideTasks(progress, capabilities);
@@ -52,6 +59,7 @@ export function GuideChecklist({ spaceId, request, progress }: Props) {
       onOpenChange={(next) => {
         setChecklistOpen(next);
         if (!next) {
+          onAutoOpenHandled?.();
           update.reset();
         }
       }}
@@ -71,8 +79,44 @@ export function GuideChecklist({ spaceId, request, progress }: Props) {
             Pick a section for a short tour, or choose Get to know Kijk to explore every available section.
           </DialogDescription>
         </DialogHeader>
-        <DriverChecklist tasks={tasks} onTask={(id) => void open(id)} />
-        <Button onClick={() => void open('tour')}>Get to know Kijk</Button>
+        <DriverChecklist
+          tasks={tasks}
+          onTask={(id) => {
+            if (!update.isPending) {
+              void open(id);
+            }
+          }}
+        />
+        <Button disabled={update.isPending} onClick={() => void open('tour')}>
+          Get to know Kijk
+        </Button>
+        {!progress.guideCompletedAt && (
+          <Button
+            variant='ghost'
+            size='sm'
+            className='text-muted-foreground justify-self-center text-xs font-normal'
+            disabled={update.isPending}
+            onClick={() =>
+              update.mutate(
+                { completedTour: true },
+                {
+                  onSuccess: () => {
+                    onAutoOpenHandled?.();
+                    setChecklistOpen(false);
+                  },
+                },
+              )
+            }
+          >
+            {update.isPending ? 'Saving…' : 'Skip'}
+          </Button>
+        )}
+        {progress.guideCompletedAt && (
+          <p className='text-muted-foreground text-center text-xs'>
+            Tour last completed{' '}
+            <time dateTime={progress.guideCompletedAt}>{formatDateTime(progress.guideCompletedAt)}</time>
+          </p>
+        )}
         {update.isError && <p role='alert'>Could not save introduction progress. Please try again.</p>}
         {error && !update.isError && (
           <p role='alert'>Could not continue the tour. Please reopen a section to try again.</p>

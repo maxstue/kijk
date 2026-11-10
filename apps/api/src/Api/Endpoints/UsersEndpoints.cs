@@ -39,7 +39,12 @@ public class UsersEndpoints : IEndpointGroup
         group.MapPatch("/me/guide", UpdateGuide).WithName("Users.UpdateGuide")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .WithoutSpacePermission(CurrentUserOnly)
-            .WithSummary("Changes visibility or completes the current product guide");
+            .WithSummary("Records a completed guide section or full tour");
+
+        group.MapDelete("/me/guide", ResetGuide).WithName("Users.ResetGuide")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission(CurrentUserOnly)
+            .WithSummary("Resets the current user's introduction progress without changing account setup");
 
         group.MapGet("/me", Me).WithName("Users.Me")
             .WithoutSpacePermission(CurrentUserOnly)
@@ -82,6 +87,12 @@ public class UsersEndpoints : IEndpointGroup
     private static async Task<Results<Ok<GuideResponse>, ProblemHttpResult>> Guide(GuideHandler handler, CancellationToken cancellationToken)
     {
         var result = await handler.ReadAsync(cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<GuideResponse>, ProblemHttpResult>> ResetGuide(GuideHandler handler, CancellationToken cancellationToken)
+    {
+        var result = await handler.ResetAsync(cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

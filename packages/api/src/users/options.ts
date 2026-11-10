@@ -12,6 +12,7 @@ import {
   update,
   getGuide,
   updateGuide,
+  resetGuide,
 } from './requests';
 
 /** User-owned introduction, shared across spaces and devices. */
@@ -21,11 +22,24 @@ export const guideQueryOptions = () =>
     queryFn: ({ signal }) => getGuide(signal),
   });
 
-/** Patches guide preferences; refetching avoids overwriting progress from concurrent successful entries. */
+/** Saves guide progress and refetches the server-owned result. */
 export const updateGuideMutationOptions = () =>
   mutationOptions({
     mutationFn: updateGuide,
+    mutationKey: queryKeys.users.guide,
+    scope: { id: 'guide-progress' },
     onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.users.guide),
+  });
+
+/** Resets progress in the same mutation scope as tour writes. */
+export const resetGuideMutationOptions = () =>
+  mutationOptions({
+    mutationFn: resetGuide,
+    mutationKey: queryKeys.users.guide,
+    scope: { id: 'guide-progress' },
+    onSuccess: (data, _variables, _result, { client }) => {
+      client.setQueryData(queryKeys.users.guide, data);
+    },
   });
 
 /** Sends voluntary feedback without changing cached account data. */

@@ -1654,6 +1654,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("email");
 
+                    b.Property<DateTime?>("GuideCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("guide_completed_at");
+
                     b.PrimitiveCollection<string[]>("GuideCompletedSteps")
                         .IsRequired()
                         .HasColumnType("text[]")
@@ -1662,14 +1666,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<int>("GuideCompletedVersion")
                         .HasColumnType("integer")
                         .HasColumnName("guide_completed_version");
-
-                    b.Property<DateTime?>("GuideFirstConsumptionAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("guide_first_consumption_at");
-
-                    b.Property<bool>("GuideHidden")
-                        .HasColumnType("boolean")
-                        .HasColumnName("guide_hidden");
 
                     b.Property<string>("Image")
                         .HasMaxLength(250)

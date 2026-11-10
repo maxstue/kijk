@@ -12,13 +12,17 @@ function loadDriver() {
 }
 
 interface Options extends GuideContext, TourCapabilities {
-  onStepCompleted: (step: GuideTopic) => Promise<void>;
+  initiallyOpen: boolean;
+  onAutoOpenHandled?: () => void;
+  onStepCompleted: (step: GuideTopic, completedTour?: boolean) => Promise<void>;
 }
 
 /** Keeps a voluntary tour alive across its own route changes and tears it down when leaving its space. */
 export function useGuideDriver({
   spaceId,
   request,
+  initiallyOpen,
+  onAutoOpenHandled,
   canView,
   canViewResources,
   canViewLimits,
@@ -32,7 +36,7 @@ export function useGuideDriver({
   const instance = useRef<Driver | null>(null);
   const epoch = useRef(0);
   const requested = useRef(false);
-  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [checklistOpen, setChecklistOpen] = useState(initiallyOpen);
   const [error, setError] = useState(false);
 
   useEffect(
@@ -78,6 +82,7 @@ export function useGuideDriver({
   }
 
   async function open(kind: GuideRequest) {
+    onAutoOpenHandled?.();
     instance.current?.destroy();
     const current = ++epoch.current;
     setError(false);

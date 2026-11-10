@@ -5,10 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { GuideChecklist } from './checklist';
 import type { GuideContext } from './types';
 
-interface Props extends GuideContext {}
+interface Props extends GuideContext {
+  autoOpen?: boolean;
+  onAutoOpenHandled?: () => void;
+}
 
 /** Loads user-owned progress before mounting the space-specific introduction. */
-export function GuideLauncher({ spaceId, request }: Props) {
+export function GuideLauncher({ spaceId, request, autoOpen = false, onAutoOpenHandled }: Props) {
   const progress = useQuery(usersOptions.guideQueryOptions());
   if (progress.isPending) {
     return null;
@@ -23,5 +26,16 @@ export function GuideLauncher({ spaceId, request }: Props) {
       </p>
     ) : null;
   }
-  return <GuideChecklist key={spaceId} spaceId={spaceId} request={request} progress={progress.data} />;
+  return (
+    <GuideChecklist
+      key={spaceId}
+      spaceId={spaceId}
+      request={request}
+      progress={progress.data}
+      autoOpen={
+        autoOpen && Number(progress.data.guideCompletedVersion) === 0 && !progress.data.guideCompletedAt && !request
+      }
+      onAutoOpenHandled={onAutoOpenHandled}
+    />
+  );
 }

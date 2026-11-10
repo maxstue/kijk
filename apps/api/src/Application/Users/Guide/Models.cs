@@ -1,17 +1,16 @@
 namespace Kijk.Application.Users.Guide;
 
-/// <summary>User-owned product introduction progress, independent of welcome setup and analytics.</summary>
-/// <param name="GuideHidden">Whether the dashboard checklist is hidden.</param>
+/// <summary>User-owned tour progress, independent of welcome setup and analytics.</summary>
 /// <param name="GuideCompletedVersion">The common guide version associated with the completed steps.</param>
 /// <param name="GuideCompletedSteps">Completed subtour ids for the associated guide version.</param>
-/// <param name="GuideFirstConsumptionAt">The first consumption successfully recorded by this user.</param>
-public sealed record GuideResponse(bool GuideHidden, int GuideCompletedVersion, string[] GuideCompletedSteps, DateTime? GuideFirstConsumptionAt)
+/// <param name="GuideCompletedAt">When the introduction was last completed or skipped (UTC); null until completion.</param>
+public sealed record GuideResponse(int GuideCompletedVersion, string[] GuideCompletedSteps, DateTime? GuideCompletedAt)
 {
     /// <summary>The current version of the entire product guide and tour.</summary>
     public int GuideVersion { get; init; } = GuideHandler.Version;
 }
 
-/// <summary>A partial change to the optional introduction. Consumption progress is recorded only by the API.</summary>
-/// <param name="Hidden">Whether to hide the checklist; null keeps the preference.</param>
-/// <param name="CompletedStep">A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null keeps progress.</param>
-public sealed record UpdateGuideRequest(bool? Hidden, string? CompletedStep);
+/// <summary>Records a completed subtour, full tour or a skipped introduction.</summary>
+/// <param name="CompletedStep">A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null with CompletedTour skips the introduction.</param>
+/// <param name="CompletedTour">Whether the introduction is completed or skipped; the API records its timestamp.</param>
+public sealed record UpdateGuideRequest(string? CompletedStep = null, bool CompletedTour = false);

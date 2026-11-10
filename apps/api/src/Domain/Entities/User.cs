@@ -33,36 +33,58 @@ public sealed class User : BaseEntity
     /// </summary>
     public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
 
-    /// <summary>Gets whether the optional product checklist is hidden.</summary>
-    public bool GuideHidden { get; private set; }
-
     /// <summary>Gets the common guide version to which the completed steps belong.</summary>
     public int GuideCompletedVersion { get; private set; }
 
     /// <summary>Gets the completed subtours of that common guide version.</summary>
     public string[] GuideCompletedSteps { get; private set; } = [];
 
-    /// <summary>Gets when this user first successfully recorded a consumption.</summary>
-    public DateTime? GuideFirstConsumptionAt { get; private set; }
+    /// <summary>Gets when this user last completed or skipped the introduction of the associated guide version (UTC).</summary>
+    public DateTime? GuideCompletedAt { get; private set; }
 
-    /// <summary>Shows or hides the optional product checklist.</summary>
-    public void SetGuideHidden(bool hidden) => GuideHidden = hidden;
+    /// <summary>Clears only product introduction progress so the next visit behaves like a new guide.</summary>
+    public void ResetGuide()
+    {
+        GuideCompletedVersion = 0;
+        GuideCompletedSteps = [];
+        GuideCompletedAt = null;
+    }
 
     /// <summary>Completes one subtour, retaining other completions of the same guide version.</summary>
     /// <param name="version">The common content version of the entire guide.</param>
     /// <param name="step">The completed subtour id.</param>
-    public void CompleteGuideStep(int version, string step)
+    /// <param name="completedAt">The server time when the full tour finishes; null for a subtour.</param>
+    public void CompleteGuideStep(int version, string step, DateTime? completedAt = null)
     {
-        if (version < GuideCompletedVersion)
+        if (!PrepareGuideVersion(version))
         { return; }
-        if (version > GuideCompletedVersion)
-        { GuideCompletedSteps = []; }
-        GuideCompletedVersion = version;
+        GuideCompletedAt = completedAt ?? GuideCompletedAt;
         GuideCompletedSteps = [.. GuideCompletedSteps.Append(step).Distinct(StringComparer.Ordinal)];
     }
 
-    /// <summary>Records a successful first entry; called in the consumption transaction.</summary>
-    public void CompleteGuideConsumption(DateTime utcNow) => GuideFirstConsumptionAt ??= utcNow;
+    /// <summary>Completes or skips the introduction without marking unvisited sections as completed.</summary>
+    /// <param name="version">The common content version of the guide.</param>
+    /// <param name="utcNow">The server time of completion or skipping (UTC).</param>
+    public void CompleteGuide(int version, DateTime utcNow)
+    {
+        if (PrepareGuideVersion(version))
+        { GuideCompletedAt = utcNow; }
+    }
+
+    private bool PrepareGuideVersion(int version)
+    {
+        if (version < GuideCompletedVersion)
+        { return false; }
+        if (version > GuideCompletedVersion)
+        {
+            GuideCompletedSteps = [];
+            GuideCompletedAt = null;
+        }
+        GuideCompletedVersion = version;
+        return true;
+    }
+
+
 
     /// <summary>
     /// Gets whether the user turned the AI features on. Off by default, because they rely on the user's consent; when

@@ -21,6 +21,7 @@ for (const mobile of [false, true]) {
     const modal = page.getByRole('dialog', { name: 'Getting started' });
     await expect(modal.getByRole('progressbar')).toHaveAttribute('aria-valuemax', '6');
     await expect(modal.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    await expect(modal.getByText(/Tour last completed/)).toHaveCount(0);
     await expect(modal.getByRole('button', { name: 'Explore finances' })).toHaveCount(0);
     await page.screenshot({ animations: 'disabled' });
     if (!mobile) {
@@ -80,6 +81,7 @@ for (const mobile of [false, true]) {
     await page.locator('[data-guide="account"]').click();
     await page.getByRole('menuitem', { name: 'Getting started', exact: true }).click();
     await expect(modal.getByRole('progressbar')).toHaveAttribute('aria-valuenow', String(topics.length));
+    await expect(modal.getByText(/Tour last completed/)).toBeVisible();
     await page.screenshot({ animations: 'disabled', path: testInfo.outputPath('checklist-completed.png') });
     const writes = (await upstreamRequests()).filter((request) => request.method !== 'GET');
     expect(writes).toHaveLength(topics.length);
@@ -107,6 +109,7 @@ test('each row starts a subtour and the finance checkbox completes only finances
   await page.locator('[data-guide="account"]').click();
   await page.getByRole('menuitem', { name: 'Getting started' }).click();
   await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
+  await expect(page.getByText(/Tour last completed/)).toHaveCount(0);
   await expect(page.locator('[data-item-id="finances"]').locator('..')).toHaveClass(/driver-checklist-item-done/);
   expect((await upstreamRequests()).filter((request) => request.method !== 'GET')).toHaveLength(1);
 });
@@ -126,4 +129,57 @@ test('the user-menu modal replaces the administration page and never shows a rem
   await page.keyboard.press('Escape');
   await expect(page.locator('.driver-popover')).not.toBeVisible();
   expect((await upstreamRequests()).filter((request) => request.method === 'PATCH')).toHaveLength(0);
+});
+
+test('profile reset clears guide progress and reopens the dismissible introduction on reload', async ({
+  page,
+  upstreamRequests,
+}) => {
+  await page.goto(`/${spaceId}?introduction=dashboard`);
+  await expect(page.locator('.driver-popover-title')).toHaveText('Your dashboard');
+  await page.locator('.driver-popover').getByRole('button', { name: 'Done', exact: true }).click();
+  await expect(page.locator('.driver-popover')).not.toBeVisible();
+  await page.goto('/settings/profile');
+  await expect(page.getByRole('textbox', { name: 'Username' })).toHaveValue('E2E User');
+  await page.getByRole('button', { name: 'Reset introduction', exact: true }).click();
+  await expect(page.getByText('Introduction reset. Reload a space to start fresh.')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Getting started' })).not.toBeVisible();
+  await page.goto(`/${spaceId}`);
+  const modal = page.getByRole('dialog', { name: 'Getting started' });
+  await expect(modal).toBeVisible();
+  await expect(modal.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+  await expect(modal.getByText(/Tour last completed/)).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(modal).not.toBeVisible();
+  await page.getByRole('link', { name: 'Consumptions', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/${spaceId}/consumptions`));
+  await expect(modal).not.toBeVisible();
+  await page.reload();
+  await expect(modal).toBeVisible();
+  await page.keyboard.press('Escape');
+  const writes = (await upstreamRequests()).filter((request) => request.method !== 'GET');
+  expect(writes.filter((request) => request.method === 'DELETE').map((request) => request.path)).toEqual([
+    '/api/users/me/guide',
+  ]);
+  await page.goto('/settings/profile');
+  await expect(page.getByRole('textbox', { name: 'Username' })).toHaveValue('E2E User');
+});
+
+test('skipping a fresh introduction persists across reload without completing subtours', async ({ page }) => {
+  await page.goto('/settings/profile');
+  await page.getByRole('button', { name: 'Reset introduction' }).click();
+  await expect(page.getByText('Introduction reset. Reload a space to start fresh.')).toBeVisible();
+  await page.goto(`/${spaceId}`);
+  const modal = page.getByRole('dialog', { name: 'Getting started' });
+  await expect(modal).toBeVisible();
+  await modal.getByRole('button', { name: 'Skip', exact: true }).click();
+  await expect(modal).not.toBeVisible();
+  await page.reload();
+  await expect(page.locator('[data-guide="dashboard"]')).toBeVisible();
+  await expect(modal).not.toBeVisible();
+  await page.locator('[data-guide="account"]').click();
+  await page.getByRole('menuitem', { name: 'Getting started', exact: true }).click();
+  await expect(modal).toBeVisible();
+  await expect(modal.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+  await expect(modal.getByText(/Tour last completed/)).toBeVisible();
 });

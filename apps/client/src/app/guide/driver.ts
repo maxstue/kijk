@@ -67,7 +67,7 @@ function createDriver(options: Options): Driver {
 
 interface WalkthroughOptions extends Options, TourCapabilities {
   kind: 'tour' | GuideTopic;
-  onStepCompleted: (step: GuideTopic) => Promise<void>;
+  onStepCompleted: (step: GuideTopic, completedTour?: boolean) => Promise<void>;
   onNavigate: (destination: GuideDestination) => Promise<void>;
   onError: () => void;
 }
@@ -161,7 +161,7 @@ export function openWalkthrough(options: WalkthroughOptions): Driver {
         if (index === stops.length - 1) {
           moving = true;
           void options
-            .onStepCompleted(stops[index]!.topic)
+            .onStepCompleted(stops[index]!.topic, options.kind === 'tour')
             .then(() => guide.destroy())
             .catch(() => {
               options.onError();

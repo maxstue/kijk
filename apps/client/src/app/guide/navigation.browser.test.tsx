@@ -44,11 +44,10 @@ function seed(client: QueryClient, resources = [resource]) {
   });
   client.setQueryData(queryKeys.users.features, { finances: false });
   client.setQueryData(queryKeys.users.guide, {
-    guideHidden: false,
     guideVersion: 1,
-    guideCompletedVersion: 0,
+    guideCompletedVersion: 1,
     guideCompletedSteps: [],
-    guideFirstConsumptionAt: null,
+    guideCompletedAt: null,
   });
   client.setQueryData(queryKeys.resources.list('space'), resources);
   client.setQueryData(queryKeys.consumptions.years('space'), { years: [] });
@@ -67,21 +66,19 @@ test('the consumptions checkbox starts its real subtour and records only that co
   worker.use(
     http.get('http://localhost:5000/api/users/me/guide', () =>
       HttpResponse.json({
-        guideHidden: false,
         guideVersion: 1,
         guideCompletedVersion: 1,
         guideCompletedSteps: ['consumptions'],
-        guideFirstConsumptionAt: null,
+        guideCompletedAt: null,
       }),
     ),
     http.patch('http://localhost:5000/api/users/me/guide', async ({ request }) => {
       writes(await request.json());
       return HttpResponse.json({
-        guideHidden: false,
         guideVersion: 1,
         guideCompletedVersion: 1,
         guideCompletedSteps: ['consumptions'],
-        guideFirstConsumptionAt: null,
+        guideCompletedAt: null,
       });
     }),
   );
@@ -99,12 +96,12 @@ test('the consumptions checkbox starts its real subtour and records only that co
   await expect.element(page.getByText('Record a reading or consumption', { exact: true })).toBeVisible();
   expect(writes).not.toHaveBeenCalled();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
-  await expect.poll(() => writes.mock.calls).toEqual([[{ hidden: null, completedStep: 'consumptions' }]]);
+  await expect.poll(() => writes.mock.calls).toEqual([[{ completedTour: false, completedStep: 'consumptions' }]]);
   await expect
     .poll(() => queryClient.getQueryData(queryKeys.users.guide))
     .toMatchObject({
       guideCompletedSteps: ['consumptions'],
-      guideFirstConsumptionAt: null,
+      guideCompletedAt: null,
     });
 });
 
@@ -155,11 +152,10 @@ test('closing the full tour during a progress save never navigates after that sa
     release = resolve;
   });
   const saved = {
-    guideHidden: false,
     guideVersion: 1,
     guideCompletedVersion: 1,
     guideCompletedSteps: ['dashboard'],
-    guideFirstConsumptionAt: null,
+    guideCompletedAt: null,
   };
   const write = vi.fn<() => void>();
   worker.use(

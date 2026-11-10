@@ -246,32 +246,6 @@ public class ConsumptionWorkflowTests
     private static RecordHandler CreateHandler(AppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider) =>
         new(dbContext, currentUser, timeProvider, NullLogger<RecordHandler>.Instance);
 
-    [Test]
-    public async Task GuideProgressRequiresSuccessfulRecordingAndSurvivesLaterEntries()
-    {
-        await using var db = PostgreSqlTestDatabase.CreateDbContext();
-        var fixture = await CreateFixtureAsync(db);
-        var other = User.Init("other", "Other member", null);
-        db.Users.Add(other);
-        await db.SaveChangesAsync();
-        var clock = new MutableTimeProvider(new DateTimeOffset(2026, 11, 9, 8, 0, 0, TimeSpan.Zero));
-        var handler = CreateHandler(db, fixture.CurrentUser, clock);
-        var rejected = await handler.HandleAsync(new CreateConsumptionRequest("Invalid resource", 10m,
-            CreateConsumptionValueTypes.Relative, Guid.NewGuid(), UtcDate(2026, 9, 1)), CancellationToken.None);
-        await Assert.That(rejected.IsError).IsTrue();
-        await Assert.That(fixture.User.GuideFirstConsumptionAt).IsNull();
-
-        await CreateAsync(handler, "First", 10m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 1));
-        var firstRecordedAt = clock.UtcNow.UtcDateTime;
-        clock.UtcNow = clock.UtcNow.AddDays(1);
-        await CreateAsync(handler, "Second", 20m, CreateConsumptionValueTypes.Relative, fixture.Resource.Id, UtcDate(2026, 9, 2));
-        db.ChangeTracker.Clear();
-        var saved = await db.Users.SingleAsync(user => user.Id == fixture.User.Id);
-        await Assert.That(saved.GuideFirstConsumptionAt).IsEqualTo(firstRecordedAt);
-        var otherMember = await db.Users.SingleAsync(user => user.Id == other.Id);
-        await Assert.That(otherMember.GuideFirstConsumptionAt).IsNull();
-    }
-
     private static DateTime UtcDate(int year, int month, int day) => new(year, month, day, 0, 0, 0, DateTimeKind.Utc);
 
     private static async Task CreateAsync(
