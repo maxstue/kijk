@@ -83,7 +83,7 @@ public sealed class AiCsvFormatDetector(IChatClient chatClient, IAiGate aiGate, 
         """;
 
     private static readonly ChatResponseFormat ResponseFormat = ChatResponseFormat.ForJsonSchema(
-        JsonDocument.Parse($$"""
+        JsonElement.Parse($$"""
             {
               "type": "object",
               "additionalProperties": false,
@@ -106,7 +106,7 @@ public sealed class AiCsvFormatDetector(IChatClient chatClient, IAiGate aiGate, 
                 "bookingTypeColumn": { "type": "integer" }
               }
             }
-            """).RootElement,
+            """),
         "csv_column_mapping",
         "The columns of a bank account CSV export");
 

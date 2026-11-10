@@ -72,7 +72,7 @@ public sealed class AiTransactionCategorizer(IChatClient chatClient, IAiGate aiG
         """;
 
     private static readonly ChatResponseFormat ResponseFormat = ChatResponseFormat.ForJsonSchema(
-        JsonDocument.Parse("""
+        JsonElement.Parse("""
             {
               "type": "object",
               "additionalProperties": false,
@@ -89,7 +89,7 @@ public sealed class AiTransactionCategorizer(IChatClient chatClient, IAiGate aiG
                 }
               }
             }
-            """).RootElement,
+            """),
         "transaction_categories",
         "The category index of each transaction");
 
