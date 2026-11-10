@@ -1,3 +1,4 @@
+import type { components } from '@kijk/api/generated/kijk';
 import type { ResourceData } from '@kijk/api/resources/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import type { Unit } from '@kijk/api/units/types';
@@ -32,6 +33,14 @@ const units: Unit[] = [
 ];
 
 const resources = new Map<string, Resource[]>();
+
+const initialGuide: components['schemas']['GuideResponse'] = {
+  guideVersion: 1,
+  guideCompletedVersion: 1,
+  guideCompletedSteps: [] as string[],
+  guideCompletedAt: null,
+};
+let guide = { ...initialGuide };
 
 const currentUser = {
   status: 'Ready',
@@ -114,6 +123,7 @@ export function configureDashboard(scenario: Partial<DashboardScenario>) {
 /** Restores the initial data so that every test starts from the same state. */
 export function resetMockApi() {
   resources.clear();
+  guide = { ...initialGuide };
   dashboardScenario = {
     finances: true,
     empty: false,
@@ -130,6 +140,50 @@ export function resetMockApi() {
 
 /** Fake responses of the .NET API, served behind the BFF by `server.ts`. */
 export const handlers = [
+  http.get('*/api/users/me/guide', () => HttpResponse.json(guide)),
+  http.delete('*/api/users/me/guide', () => {
+    guide = { guideVersion: 1, guideCompletedVersion: 0, guideCompletedSteps: [], guideCompletedAt: null };
+    return HttpResponse.json(guide);
+  }),
+  http.patch('*/api/users/me/guide', async ({ request }) => {
+    const update = (await request.json()) as components['schemas']['UpdateGuideRequest'];
+    guide = {
+      ...guide,
+      guideCompletedAt: update.completedTour ? new Date().toISOString() : guide.guideCompletedAt,
+      guideVersion: 1,
+      guideCompletedVersion: update.completedStep || update.completedTour ? 1 : guide.guideCompletedVersion,
+      guideCompletedSteps: update.completedStep
+        ? [...new Set([...guide.guideCompletedSteps, update.completedStep])]
+        : guide.guideCompletedSteps,
+    };
+    return HttpResponse.json(guide);
+  }),
+  ...['accounts', 'categories', 'category-rules', 'budgets', 'imports'].map((feature) =>
+    http.get(`*/api/spaces/:spaceId/${feature}`, () => HttpResponse.json([])),
+  ),
+  http.get('*/api/spaces/:spaceId/transactions', () =>
+    HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 25, incoming: 0, outgoing: 0 }),
+  ),
+  http.get('*/api/spaces/:spaceId/budgets/overview', ({ request }) => {
+    const query = new URL(request.url).searchParams;
+    return HttpResponse.json({
+      year: Number(query.get('year')),
+      month: Number(query.get('month')),
+      categories: [],
+      totalBudget: 0,
+      totalSpent: 0,
+      income: 0,
+      uncategorizedExpenses: 0,
+      uncategorizedIncome: 0,
+      pendingExpenses: 0,
+    });
+  }),
+  http.get('*/api/spaces/:spaceId/consumptions', () => HttpResponse.json([])),
+  http.get('*/api/spaces/:spaceId/consumptions/statistics', () => HttpResponse.json({ stats: [] })),
+  http.get('*/api/spaces/:spaceId/consumptions/years', () =>
+    HttpResponse.json({ years: dashboardScenario.empty ? [] : [2025, 2026] }),
+  ),
+  http.get('*/api/spaces/:spaceId/limits', () => HttpResponse.json([])),
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
   http.get('*/api/users/me/features', () =>
     HttpResponse.json({ aiImport: true, finances: dashboardScenario.finances }),

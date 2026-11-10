@@ -39,6 +39,7 @@ export function NavMain() {
                   <SidebarMenuButton
                     render={
                       <Link
+                        data-guide={`nav-${item.url.split('/').at(-1) === '$spaceId' ? 'dashboard' : item.url.split('/').at(-1)}`}
                         activeOptions={{ exact: 'exact' in item && item.exact }}
                         className={cn(!item.isActive && 'cursor-not-allowed')}
                         disabled={!item.isActive || !spaceId}

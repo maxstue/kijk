@@ -24,15 +24,17 @@ function HomeIndexPage() {
   const navigate = Route.useNavigate();
   const [now] = useState(() => new Date());
   return (
-    <Dashboard
-      spaceId={spaceId}
-      year={search.year ?? now.getFullYear()}
-      month={search.month ?? now.getMonth() + 1}
-      resourceId={search.resource}
-      view={search.view}
-      onResourceChange={(resource) => void navigate({ search: (previous) => ({ ...previous, resource }) })}
-      onViewChange={(view) => void navigate({ search: (previous) => ({ ...previous, view }) })}
-      onChange={(period) => void navigate({ search: (previous) => ({ ...previous, ...period }) })}
-    />
+    <div className='space-y-6'>
+      <Dashboard
+        spaceId={spaceId}
+        year={search.year ?? now.getFullYear()}
+        month={search.month ?? now.getMonth() + 1}
+        resourceId={search.resource}
+        view={search.view}
+        onResourceChange={(resource) => void navigate({ search: (previous) => ({ ...previous, resource }) })}
+        onViewChange={(view) => void navigate({ search: (previous) => ({ ...previous, view }) })}
+        onChange={(period) => void navigate({ search: (previous) => ({ ...previous, ...period }) })}
+      />
+    </div>
   );
 }

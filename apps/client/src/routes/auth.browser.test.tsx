@@ -46,9 +46,7 @@ test('shows progress while the account is loading and does not navigate prematur
     },
   });
   try {
-    await expect
-      .element(screen.getByRole('status'))
-      .toHaveTextContent('Checking your sign-in and loading your Kijk account…');
+    await expect.element(screen.getByRole('status')).toHaveTextContent('Getting your space in order…');
     expect(router.state.location.pathname).toBe('/auth');
   } finally {
     pending.resolve(queryClient.getQueryData(queryKeys.users.me));

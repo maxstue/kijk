@@ -53,15 +53,15 @@ function AuthPage() {
   const from = safeRedirect(search.from);
 
   return (
-    <div className='bg-muted flex h-full flex-col gap-6 p-6'>
+    <main className='bg-background flex min-h-svh flex-1 flex-col items-center justify-center gap-6 p-6'>
       <title>{show} | Kijk</title>
-      <div className='flex h-full w-full flex-col items-center justify-center gap-6'>
+      <div className='flex w-full max-w-sm flex-col items-center gap-6'>
         <AppBrand />
-        <div className='flex'>
+        <div className='w-full'>
           {show === 'Sign Up' && <SignUp goto={setShow} redirectTo={from} />}
           {show === 'Login' && <Login goto={setShow} redirectTo={from} />}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

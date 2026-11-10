@@ -18,6 +18,19 @@ const sectionSchema = z.enum(settingsTo);
 /** `/settings/$section`: a personal settings section. */
 export const Route = createFileRoute('/_authenticated/_app/settings/$section')({
   beforeLoad: async ({ context: { queryClient }, params }) => {
+    if (params.section === 'help') {
+      const currentUser = await queryClient.query({ ...usersOptions.meQueryOptions(), staleTime: 'static' });
+      const space = isReadyCurrentUser(currentUser) ? getStartSpace(currentUser.user) : undefined;
+      if (space) {
+        throw redirect({
+          to: '/$spaceId',
+          params: { spaceId: space.id },
+          search: { introduction: 'checklist' },
+          replace: true,
+        });
+      }
+      throw redirect({ to: '/', replace: true });
+    }
     if (params.section === 'space-units') {
       const currentUser = await queryClient.query({
         ...usersOptions.meQueryOptions(),

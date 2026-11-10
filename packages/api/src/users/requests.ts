@@ -3,6 +3,25 @@ import { unwrapApiResponse } from '@kijk/api/http';
 
 import type { UpdateUserData, WelcomeUserData } from './types';
 
+/** Loads persisted optional introduction progress. */
+export async function getGuide(signal?: AbortSignal) {
+  return unwrapApiResponse(await apiClient().GET('/api/users/me/guide', { signal }));
+}
+
+/** Clears only the current user's product introduction progress. */
+export async function resetGuide() {
+  return unwrapApiResponse(await apiClient().DELETE('/api/users/me/guide'));
+}
+
+/** Records a completed subtour and optionally completion of the full tour. */
+export async function updateGuide(data: { completedStep?: string; completedTour?: boolean }) {
+  return unwrapApiResponse(
+    await apiClient().PATCH('/api/users/me/guide', {
+      body: { completedStep: data.completedStep ?? null, completedTour: data.completedTour ?? false },
+    }),
+  );
+}
+
 /** Submits voluntary feedback and rejects if delivery failed. */
 export async function sendFeedback(data: { message: string }) {
   await apiClient().POST('/api/users/me/feedback', { body: data });

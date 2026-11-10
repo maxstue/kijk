@@ -76,9 +76,9 @@ function UsagePage() {
   const handleClose = () => setShowDialog(false);
 
   return (
-    <div className='space-y-6 pt-6'>
+    <div data-guide='consumptions' className='space-y-6 pt-6'>
       <PageToolbar>
-        <PageToolbarControls>
+        <PageToolbarControls data-guide='consumption-period'>
           <Tabs
             value={view}
             onValueChange={(nextView) =>
@@ -106,6 +106,7 @@ function UsagePage() {
             <DialogTrigger
               render={
                 <PageAddButton
+                  data-guide='consumption-create'
                   disabled={!canRecord}
                   title={canRecord ? undefined : 'Your role in this space does not allow recording consumptions'}
                 />

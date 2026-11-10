@@ -17,7 +17,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
 
 function ResourcesPage() {
   return (
-    <div className='space-y-6 pt-6'>
+    <div data-guide='resources' className='space-y-6 pt-6'>
       <ResourceTypesSection />
       <Outlet />
     </div>

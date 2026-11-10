@@ -1,6 +1,8 @@
 import { ProfileForm } from '@/app/settings/profile/form';
 import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
 
+import { IntroductionSettings } from './introduction';
+
 /** Profile settings section. */
 export function ProfileSection() {
   return (
@@ -20,6 +22,7 @@ export function ProfileSection() {
         </PageHeaderContent>
       </PageHeader>
       <ProfileForm />
+      <IntroductionSettings />
     </div>
   );
 }

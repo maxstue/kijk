@@ -2,7 +2,7 @@ import { InfoIcon, MonitorIcon, UserIcon } from '@kijk/ui/components/icons';
 import { RulerIcon } from 'lucide-react';
 
 /** Route segments of the settings pages. */
-export const settingsTo = ['profile', 'appearance', 'units', 'space-units', 'info'] as const;
+export const settingsTo = ['profile', 'appearance', 'units', 'space-units', 'info', 'help'] as const;
 
 /** Navigation entries of the settings pages. */
 export const settingsNav = [

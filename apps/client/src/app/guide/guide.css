@@ -1,0 +1,213 @@
+.driver-popover.kijk-guide {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: min(360px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+.kijk-guide .driver-popover-title,
+.kijk-guide .driver-popover-description,
+.kijk-guide .driver-popover-footer button {
+  font-family: inherit;
+}
+.kijk-guide .driver-popover-footer button {
+  text-shadow: none;
+}
+.kijk-guide button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+/* Driver owns the checklist; the app owns its layout, typography and theme. */
+.driver-checklist.kijk-checklist {
+  --driver-checklist-color: var(--primary);
+  position: static;
+  width: 100%;
+  max-width: none;
+  color: var(--foreground);
+  font-family: inherit;
+}
+.kijk-checklist .driver-checklist-panel {
+  width: 100%;
+  max-height: none;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  animation: none;
+  overflow: visible;
+}
+.kijk-checklist .driver-checklist-close-btn,
+.kijk-checklist .driver-checklist-title {
+  display: none;
+}
+.kijk-checklist .driver-checklist-header {
+  padding: 0 0 20px;
+}
+.kijk-checklist .driver-checklist-progress {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin: 0;
+}
+.kijk-checklist .driver-checklist-progress-bar {
+  flex: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--muted);
+}
+.kijk-checklist .driver-checklist-progress-text,
+.kijk-checklist .driver-checklist-item-description,
+.kijk-checklist .driver-checklist-item-done .driver-checklist-item-title {
+  color: var(--muted-foreground);
+}
+.kijk-checklist .driver-checklist-items {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+}
+.kijk-checklist .driver-checklist-item {
+  padding: 14px;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    background-color 120ms,
+    border-color 120ms;
+}
+.kijk-checklist .driver-checklist-item-trigger {
+  gap: 4px;
+}
+.kijk-checklist .driver-checklist-item-title {
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 600;
+}
+.kijk-checklist .driver-checklist-item-description {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.driver-checklist.kijk-checklist .driver-checklist-item:has(.driver-checklist-item-trigger:hover),
+.driver-checklist.kijk-checklist .driver-checklist-item:has(.driver-checklist-item-trigger:focus-visible) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--ring);
+}
+.driver-checklist.kijk-checklist .driver-checklist-item:has(.driver-checklist-item-trigger:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.kijk-checklist .driver-checklist-item-trigger:focus-visible {
+  outline: none;
+}
+.kijk-checklist .driver-checklist-check {
+  border-radius: 4px;
+  border-color: var(--muted-foreground);
+  margin-top: 2px;
+}
+.kijk-checklist .driver-checklist-item-done .driver-checklist-check {
+  background-image: none;
+}
+.kijk-checklist .driver-checklist-item-done .driver-checklist-check::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: var(--primary-foreground);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2 5 8.5l4.5-5' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+@media (min-width: 640px) {
+  .kijk-checklist .driver-checklist-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kijk-checklist .driver-checklist-item {
+    min-height: 106px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kijk-checklist .driver-checklist-item {
+    transition: none;
+  }
+}
+
+.driver-popover.kijk-guide {
+  padding: 20px;
+}
+.driver-popover.kijk-guide .driver-popover-title {
+  margin-right: 24px;
+  font-size: 18px;
+  line-height: 1.3;
+}
+.driver-popover.kijk-guide .driver-popover-description {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.driver-popover.kijk-guide .driver-popover-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+.driver-popover.kijk-guide .driver-popover-progress-text {
+  margin-right: auto;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.driver-popover.kijk-guide .driver-popover-footer button {
+  appearance: none;
+  float: none;
+  min-height: 32px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  box-shadow: none;
+  text-shadow: none;
+  cursor: pointer;
+  transition:
+    background-color 120ms,
+    color 120ms,
+    opacity 120ms;
+}
+.driver-popover.kijk-guide .driver-popover-footer .driver-popover-next-btn {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: transparent;
+}
+.driver-popover.kijk-guide .driver-popover-footer .driver-popover-prev-btn:not(:disabled):hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.driver-popover.kijk-guide .driver-popover-footer .driver-popover-next-btn:not(:disabled):hover {
+  background: color-mix(in oklab, var(--primary) 85%, var(--background));
+}
+.driver-popover.kijk-guide .driver-popover-footer button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.driver-popover.kijk-guide .driver-popover-close-btn {
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  color: var(--muted-foreground);
+}
+.driver-popover.kijk-guide .driver-popover-close-btn:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+.driver-popover.kijk-guide button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .driver-popover.kijk-guide .driver-popover-footer button {
+    transition: none;
+  }
+}

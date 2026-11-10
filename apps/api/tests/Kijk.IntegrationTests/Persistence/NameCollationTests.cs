@@ -94,14 +94,22 @@ public class NameCollationTests
         await Assert.That(await db.Units.AnyAsync(item => item.Id == fixture.Unit.Id && item.Symbol == "MW")).IsFalse();
     }
 
-    internal static async Task<Fixture> SeedAsync(AppDbContext db, string name = "Café")
+    internal static async Task<Fixture> SeedAsync(AppDbContext db, string name = "Café", User? persistedOwner = null)
     {
-        var owner = User.Init("collation-auth", "Owner", "owner@example.test");
+        var owner = persistedOwner ?? User.Init("collation-auth", "Owner", "owner@example.test");
+        if (persistedOwner is null)
+        {
+            db.Users.Add(owner);
+        }
+        else
+        {
+            db.Users.Attach(owner);
+        }
         var space = Space.Create("Collation space");
         var unit = NewUnit(name, owner);
         var category = Category.Create(name, "circle", "#112233", CategoryKind.Expense, space);
         var resource = NewResource(name, unit, space);
-        db.AddRange(owner, space, unit, category, resource);
+        db.AddRange(space, unit, category, resource);
         await db.SaveChangesAsync();
         return new(owner, space, unit, category, resource);
     }

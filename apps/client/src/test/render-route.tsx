@@ -18,6 +18,7 @@ interface RenderRouteOptions {
   auth?: AuthGateway;
   bypassAuth?: boolean;
   stubOverviewLoader?: boolean;
+  preserveAppLayout?: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ export async function renderRoute({
   auth = { getSession: () => Promise.resolve({ id: 'session', userId: 'user' }) },
   bypassAuth = true,
   stubOverviewLoader = true,
+  preserveAppLayout = false,
 }: RenderRouteOptions) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -69,10 +71,10 @@ export async function renderRoute({
     ...(bypassAuth ? { beforeLoad: undefined } : {}),
     component: Outlet,
   });
-  Object.assign(appRoute.options, { beforeLoad: undefined, component: Outlet });
+  Object.assign(appRoute.options, { beforeLoad: undefined, ...(preserveAppLayout ? {} : { component: Outlet }) });
   Object.assign(overviewRoute.options, {
     ...(stubOverviewLoader ? { loader: undefined } : {}),
-    component: Outlet,
+    ...(preserveAppLayout && overviewRoute === appRoute ? {} : { component: Outlet }),
   });
 
   const router = createRouter({

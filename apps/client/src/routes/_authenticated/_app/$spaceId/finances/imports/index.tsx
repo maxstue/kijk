@@ -31,7 +31,7 @@ function ImportsPage() {
   const activeSpace = data.user?.spaces?.find((space) => space.id === spaceId);
 
   return (
-    <div className='space-y-6 pt-6'>
+    <div data-guide='imports' className='space-y-6 pt-6'>
       <PageToolbar>
         <PageToolbarActions>
           <>

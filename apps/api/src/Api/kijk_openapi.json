@@ -5498,6 +5498,126 @@
         ]
       }
     },
+    "/api/users/me/guide": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Gets the current user's optional product introduction progress",
+        "operationId": "Users.Guide",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Records a completed guide section or full tour",
+        "operationId": "Users.UpdateGuide",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGuideRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Resets the current user's introduction progress without changing account setup",
+        "operationId": "Users.ResetGuide",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/users/me": {
       "get": {
         "tags": [
@@ -7864,6 +7984,50 @@
         },
         "description": "The years with consumptions in the active space."
       },
+      "GuideResponse": {
+        "required": [
+          "guideCompletedVersion",
+          "guideCompletedSteps",
+          "guideCompletedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "guideCompletedVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The common guide version associated with the completed steps.",
+            "format": "int32"
+          },
+          "guideCompletedSteps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Completed subtour ids for the associated guide version."
+          },
+          "guideCompletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the introduction was last completed or skipped (UTC); null until completion.",
+            "format": "date-time"
+          },
+          "guideVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The current version of the entire product guide and tour.",
+            "format": "int32"
+          }
+        },
+        "description": "User-owned tour progress, independent of welcome setup and analytics."
+      },
       "HttpValidationProblemDetails": {
         "type": "object",
         "properties": {
@@ -9385,6 +9549,24 @@
           "Relative",
           null
         ]
+      },
+      "UpdateGuideRequest": {
+        "type": "object",
+        "properties": {
+          "completedStep": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null with CompletedTour skips the introduction."
+          },
+          "completedTour": {
+            "type": "boolean",
+            "description": "Whether the introduction is completed or skipped; the API records its timestamp.",
+            "default": false
+          }
+        },
+        "description": "Records a completed subtour, full tour or a skipped introduction."
       },
       "UpdateImportCandidateRequest": {
         "required": [

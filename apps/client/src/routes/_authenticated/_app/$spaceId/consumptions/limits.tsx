@@ -26,7 +26,7 @@ function LimitsPage() {
   const { view } = Route.useSearch();
   const navigate = Route.useNavigate();
   return (
-    <div className='pt-6'>
+    <div data-guide='limits' className='pt-6'>
       <LimitsSection
         view={view}
         onViewChange={(nextView) => void navigate({ search: (previous) => ({ ...previous, view: nextView }) })}

@@ -15,7 +15,7 @@ export function AppSidebar({ ...props }: Props) {
   });
 
   return (
-    <Sidebar variant='inset' {...props}>
+    <Sidebar data-guide='navigation' variant='inset' {...props}>
       <SidebarHeader>
         <AccountMenu />
       </SidebarHeader>

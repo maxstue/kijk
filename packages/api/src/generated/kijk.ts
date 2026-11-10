@@ -891,6 +891,25 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/users/me/guide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets the current user's optional product introduction progress */
+    get: operations['Users.Guide'];
+    put?: never;
+    post?: never;
+    /** Resets the current user's introduction progress without changing account setup */
+    delete: operations['Users.ResetGuide'];
+    options?: never;
+    head?: never;
+    /** Records a completed guide section or full tour */
+    patch: operations['Users.UpdateGuide'];
+    trace?: never;
+  };
   '/api/users/me': {
     parameters: {
       query?: never;
@@ -1901,6 +1920,29 @@ export interface components {
       /** The years. */
       years: (number | string)[];
     };
+    /** User-owned tour progress, independent of welcome setup and analytics. */
+    GuideResponse: {
+      /**
+       * Format: int32
+       *
+       * The common guide version associated with the completed steps.
+       */
+      guideCompletedVersion: number | string;
+      /** Completed subtour ids for the associated guide version. */
+      guideCompletedSteps: string[];
+      /**
+       * Format: date-time
+       *
+       * When the introduction was last completed or skipped (UTC); null until completion.
+       */
+      guideCompletedAt: null | string;
+      /**
+       * Format: int32
+       *
+       * The current version of the entire product guide and tour.
+       */
+      guideVersion?: number | string;
+    };
     HttpValidationProblemDetails: {
       type?: null | string;
       title?: null | string;
@@ -2531,6 +2573,20 @@ export interface components {
     };
     /** @enum {unknown} */
     UpdateConsumptionValueTypes: 'Absolute' | 'Relative' | null;
+    /** Records a completed subtour, full tour or a skipped introduction. */
+    UpdateGuideRequest: {
+      /**
+       * A completed subtour: dashboard, consumptions, resources, limits, finances or navigation. Null with
+       * CompletedTour skips the introduction.
+       */
+      completedStep?: null | string;
+      /**
+       * Whether the introduction is completed or skipped; the API records its timestamp.
+       *
+       * @default false
+       */
+      completedTour: boolean;
+    };
     /** Request for changing a row during the review. */
     UpdateImportCandidateRequest: {
       /**
@@ -5739,6 +5795,82 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.Guide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GuideResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.ResetGuide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GuideResponse'];
+        };
+      };
+      401: components['responses']['401'];
+      403: components['responses']['403'];
+      429: components['responses']['429'];
+      500: components['responses']['500'];
+    };
+  };
+  'Users.UpdateGuide': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateGuideRequest'];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GuideResponse'];
+        };
       };
       401: components['responses']['401'];
       403: components['responses']['403'];
