@@ -110,9 +110,12 @@ minimumReleaseAge: 2880 # 2 days
 sharedWorkspaceLockfile: true
 overrides:
   # get-uri still requests basic-ftp 5, which has no fix for GHSA-c475-qrg2-pj4r.
-  get-uri>basic-ftp: ^6.2.3
+  get-uri>basic-ftp: ^6.2.6
   vite@*: "catalog:"
   vitest@*: "catalog:"
 auditConfig:
   ignoreGhsas:
     - GHSA-vfj7-8cjw-p6xm
+minimumReleaseAgeExclude:
+  # Renovate security update: basic-ftp@6.2.6
+  - basic-ftp@6.2.6
