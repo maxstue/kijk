@@ -21,21 +21,28 @@ public class LayerDependencyTests
     // them to one assembly, so the layers exclude it; otherwise every layer would seem to depend on the API layer.
     private const string CoverageTracker = "Microsoft.CodeCoverage.Instrumentation.Static.Tracker";
 
+    // Wolverine emits this manifest into multiple assemblies with the same full name as well.
+    private const string EventManifest = "JasperFx.Generated.DiscoveredEventModels";
+
     private static readonly IObjectProvider<IType> ApiLayer =
         Types().That().ResideInAssembly(typeof(Api.DependencyInjection).Assembly)
-            .And().DoNotResideInNamespace(CoverageTracker).As("API layer");
+            .And().DoNotResideInNamespace(CoverageTracker)
+            .And().DoNotHaveFullName(EventManifest).As("API layer");
 
     private static readonly IObjectProvider<IType> ApplicationLayer =
         Types().That().ResideInAssembly(typeof(Application.DependencyInjection).Assembly)
-            .And().DoNotResideInNamespace(CoverageTracker).As("Application layer");
+            .And().DoNotResideInNamespace(CoverageTracker)
+            .And().DoNotHaveFullName(EventManifest).As("Application layer");
 
     private static readonly IObjectProvider<IType> DomainLayer =
         Types().That().ResideInAssembly(typeof(Domain.BaseEntity).Assembly)
-            .And().DoNotResideInNamespace(CoverageTracker).As("Domain layer");
+            .And().DoNotResideInNamespace(CoverageTracker)
+            .And().DoNotHaveFullName(EventManifest).As("Domain layer");
 
     private static readonly IObjectProvider<IType> InfrastructureLayer =
         Types().That().ResideInAssembly(typeof(Infrastructure.DependencyInjection).Assembly)
-            .And().DoNotResideInNamespace(CoverageTracker).As("Infrastructure layer");
+            .And().DoNotResideInNamespace(CoverageTracker)
+            .And().DoNotHaveFullName(EventManifest).As("Infrastructure layer");
 
     [Test]
     public void DomainDoesNotDependOnOuterLayers()
