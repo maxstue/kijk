@@ -5,6 +5,8 @@ import {
   consumptionsDetails,
   consumptionsExport,
   consumptionsExportMonth,
+  consumptionsImport,
+  consumptionsImportTemplate,
   consumptionsList,
   consumptionsRecord,
   consumptionsStatistics,
@@ -132,4 +134,21 @@ export async function exportMonth(
   });
 
   return toCsvDownload(result, `consumptions-${year}-${month}.csv`);
+}
+
+/** Imports consumptions from a CSV file; nothing is saved when a row cannot be imported. */
+export async function importCsv(spaceId: string, file: File, signal?: AbortSignal) {
+  return consumptionsImport({ client: apiClient(), path: { spaceId }, body: { file }, signal });
+}
+
+/** Downloads the CSV template of the import with an example row per resource of the space. */
+export async function getImportTemplate(spaceId: string, signal?: AbortSignal): Promise<CsvDownload> {
+  const result = await consumptionsImportTemplate({
+    client: apiClient(),
+    path: { spaceId },
+    throwOnError: false,
+    signal,
+  });
+
+  return toCsvDownload(result, 'consumptions-import-template.csv');
 }

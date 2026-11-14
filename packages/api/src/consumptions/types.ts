@@ -4,6 +4,9 @@ import type { Months } from '@kijk/api/months';
 /** A recorded consumption. */
 export type Consumption = Api.ConsumptionResponse;
 
+/** The result of a CSV import; nothing was saved when `errorCount` is greater than zero. */
+export type ConsumptionImportResult = Api.ConsumptionImportResponse;
+
 /** Form data of a consumption. */
 export interface ConsumptionData {
   date: Date;

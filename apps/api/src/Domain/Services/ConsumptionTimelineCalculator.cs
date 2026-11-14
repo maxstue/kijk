@@ -39,6 +39,21 @@ public static class ConsumptionTimelineCalculator
     /// <returns>A successful result, or a validation error for a decreasing absolute reading.</returns>
     public static Result<bool> Recalculate(IEnumerable<Consumption> consumptions)
     {
+        if (RecalculateUntilInvalid(consumptions) is { } invalid)
+        {
+            return invalid.Error;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Recalculates every entry in chronological order and stops at the first decreasing absolute reading.
+    /// </summary>
+    /// <param name="consumptions">The complete timeline for one space and resource.</param>
+    /// <returns>The entry with the decreasing reading, or <see langword="null"/> when the timeline is valid.</returns>
+    public static InvalidReading? RecalculateUntilInvalid(IEnumerable<Consumption> consumptions)
+    {
         decimal? meterReading = null;
 
         foreach (var consumption in OrderTimeline(consumptions))
@@ -51,14 +66,14 @@ public static class ConsumptionTimelineCalculator
             var calculation = CalculateConsumption(consumption, meterReading);
             if (calculation.IsError)
             {
-                return calculation.Error;
+                return new InvalidReading(consumption, calculation.Error);
             }
 
             consumption.CalculatedConsumption = calculation.Value;
             meterReading = ApplyToMeterReading(meterReading, consumption);
         }
 
-        return true;
+        return null;
     }
 
     /// <summary>
@@ -161,3 +176,10 @@ public static class ConsumptionTimelineCalculator
             .ThenBy(item => item.CreatedAt)
             .ThenBy(item => item.Id);
 }
+
+/// <summary>
+/// An absolute reading that is lower than the meter reading before it.
+/// </summary>
+/// <param name="Consumption">The entry with the decreasing reading.</param>
+/// <param name="Error">The validation error that describes it.</param>
+public sealed record InvalidReading(Consumption Consumption, Error Error);

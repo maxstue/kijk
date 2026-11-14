@@ -1,3 +1,4 @@
+using Kijk.Application.Consumptions.Shared;
 using Kijk.Shared;
 
 namespace Kijk.Application.Consumptions.Update;
@@ -9,7 +10,7 @@ public sealed class UpdateConsumptionRequestValidator : AbstractValidator<Update
     /// <param name="timeProvider">The clock used to validate the consumption date.</param>
     public UpdateConsumptionRequestValidator(TimeProvider timeProvider)
     {
-        RuleFor(request => request.Name).NotEmpty().Length(2, 50)
+        RuleFor(request => request.Name).NotEmpty().Length(ConsumptionValidationRules.NameMinimumLength, ConsumptionValidationRules.NameMaximumLength)
             .When(request => request.Name is not null).WithErrorCode(ErrorCodes.ValidationError);
         RuleFor(request => request.Value).GreaterThanOrEqualTo(0).WithErrorCode(ErrorCodes.ValidationError);
         RuleFor(request => request.ValueType).IsInEnum().WithErrorCode(ErrorCodes.ValidationError);

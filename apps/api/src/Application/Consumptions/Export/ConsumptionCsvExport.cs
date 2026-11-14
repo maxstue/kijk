@@ -26,26 +26,28 @@ public static class ConsumptionCsvWriter
     {
         var writer = Sep.New(',').Writer(options => options with { Escape = true }).ToText();
         writer.Header.Add(
-            "Date",
-            "Name",
-            "Resource",
-            "Unit",
-            "ValueType",
-            "Value",
-            "CalculatedConsumption",
-            "Description");
+            ConsumptionCsvColumns.Date,
+            ConsumptionCsvColumns.Name,
+            ConsumptionCsvColumns.Resource,
+            ConsumptionCsvColumns.Unit,
+            ConsumptionCsvColumns.ValueType,
+            ConsumptionCsvColumns.Value,
+            ConsumptionCsvColumns.StartsNewMeterSegment,
+            ConsumptionCsvColumns.CalculatedConsumption,
+            ConsumptionCsvColumns.Description);
 
         foreach (var consumption in consumptions)
         {
             using var row = writer.NewRow();
-            row["Date"].Set(consumption.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-            row["Name"].Set(SanitizeText(consumption.Name));
-            row["Resource"].Set(SanitizeText(consumption.Resource.Name));
-            row["Unit"].Set(SanitizeText(consumption.Resource.Unit));
-            row["ValueType"].Set(consumption.ValueType.ToString());
-            row["Value"].Set(consumption.Value.ToString(CultureInfo.InvariantCulture));
-            row["CalculatedConsumption"].Set(consumption.CalculatedConsumption.ToString(CultureInfo.InvariantCulture));
-            row["Description"].Set(SanitizeText(consumption.Description));
+            row[ConsumptionCsvColumns.Date].Set(consumption.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            row[ConsumptionCsvColumns.Name].Set(SanitizeText(consumption.Name));
+            row[ConsumptionCsvColumns.Resource].Set(SanitizeText(consumption.Resource.Name));
+            row[ConsumptionCsvColumns.Unit].Set(SanitizeText(consumption.Resource.Unit));
+            row[ConsumptionCsvColumns.ValueType].Set(consumption.ValueType.ToString());
+            row[ConsumptionCsvColumns.Value].Set(consumption.Value.ToString(CultureInfo.InvariantCulture));
+            row[ConsumptionCsvColumns.StartsNewMeterSegment].Set(consumption.StartsNewMeterSegment ? "true" : "false");
+            row[ConsumptionCsvColumns.CalculatedConsumption].Set(consumption.CalculatedConsumption.ToString(CultureInfo.InvariantCulture));
+            row[ConsumptionCsvColumns.Description].Set(SanitizeText(consumption.Description));
         }
 
         writer.Dispose();

@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { ConsumptionAnnualView } from '@/app/consumptions/annual-view';
 import { ConsumptionCreateForm } from '@/app/consumptions/create-form';
 import { ConsumptionCurrentPeriodButton } from '@/app/consumptions/current-period-button';
+import { ConsumptionImportDialog } from '@/app/consumptions/import-dialog';
 import { ConsumptionMonthNav } from '@/app/consumptions/month-nav';
 import { ConsumptionMonthView } from '@/app/consumptions/month-view';
 import { ConsumptionYearSwitcher } from '@/app/consumptions/year-switcher';
@@ -102,6 +103,7 @@ function UsagePage() {
           </Suspense>
         </PageToolbarControls>
         <PageToolbarActions>
+          <ConsumptionImportDialog />
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger
               render={

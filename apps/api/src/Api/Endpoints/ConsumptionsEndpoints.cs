@@ -4,6 +4,8 @@ using Kijk.Api.Models;
 using Kijk.Application.Consumptions.Delete;
 using Kijk.Application.Consumptions.Details;
 using Kijk.Application.Consumptions.Export;
+using Kijk.Application.Consumptions.Import;
+using Kijk.Application.Consumptions.ImportTemplate;
 using Kijk.Application.Consumptions.List;
 using Kijk.Application.Consumptions.Record;
 using Kijk.Application.Consumptions.Shared;
@@ -22,6 +24,9 @@ namespace Kijk.Api.Endpoints;
 /// </summary>
 public class ConsumptionsEndpoints : IEndpointGroup
 {
+    // Room for the multipart envelope around the largest allowed file.
+    private const int ImportRequestLimitBytes = ConsumptionImportLimits.MaxFileBytes + 64 * 1024;
+
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
     {
@@ -45,6 +50,21 @@ public class ConsumptionsEndpoints : IEndpointGroup
             .WithSummary("Exports all consumptions for a month as CSV")
             .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv")
             .ProducesValidationProblem();
+
+        group.MapPost("/import", Import).WithName("Consumptions.Import")
+            .RequireSpacePermission(SpacePermissions.Consumptions.Record)
+            .RequireRateLimiting(AppConstants.UploadRateLimit)
+            .DisableAntiforgery()
+            // Keeps the whole upload in memory, so ASP.NET never writes it to a temporary file.
+            .WithMetadata(new RequestSizeLimitAttribute(ImportRequestLimitBytes))
+            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = ImportRequestLimitBytes, MemoryBufferThreshold = ImportRequestLimitBytes, ValueCountLimit = 10 })
+            .WithSummary("Imports consumptions from a CSV file; all rows or none")
+            .ProducesValidationProblem();
+
+        group.MapGet("/import/template", ImportTemplate).WithName("Consumptions.ImportTemplate")
+            .RequireSpacePermission(SpacePermissions.Consumptions.Record)
+            .WithSummary("Downloads a CSV template for the consumption import")
+            .Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv");
 
         group.MapGet("/", List).WithName("Consumptions.List")
             .RequireSpacePermission(SpacePermissions.Consumptions.View)
@@ -112,6 +132,36 @@ public class ConsumptionsEndpoints : IEndpointGroup
         CancellationToken cancellationToken)
     {
         var result = await handler.MonthAsync(year, month, cancellationToken);
+        return result.IsError
+            ? TypedResults.Problem(result.Error.ToProblemDetails())
+            : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
+    }
+
+    /// <summary>
+    /// Imports consumptions from a CSV file.
+    /// </summary>
+    /// <param name="file">The CSV file in the consumption export format.</param>
+    /// <param name="handler">The handler.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns>The import result, or a problem response when the file cannot be read.</returns>
+    private static async Task<Results<Ok<ConsumptionImportResponse>, ProblemHttpResult>> Import(
+        IFormFile file,
+        ImportHandler handler,
+        CancellationToken cancellationToken)
+    {
+        await using var content = file.OpenReadStream();
+        var result = await handler.HandleAsync(content, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Downloads a CSV template for the consumption import.
+    /// </summary>
+    private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> ImportTemplate(
+        ImportTemplateHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
             : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);

@@ -16,6 +16,8 @@ export const apiOperations = {
   '/api/spaces/{spaceId}/consumptions/{id}': ['get', 'put', 'delete'],
   '/api/spaces/{spaceId}/consumptions/{id}/export': ['get'],
   '/api/spaces/{spaceId}/consumptions/export': ['get'],
+  '/api/spaces/{spaceId}/consumptions/import': ['post'],
+  '/api/spaces/{spaceId}/consumptions/import/template': ['get'],
   '/api/spaces/{spaceId}/consumptions': ['get', 'post'],
   '/api/spaces/{spaceId}/consumptions/statistics': ['get'],
   '/api/spaces/{spaceId}/consumptions/years': ['get'],

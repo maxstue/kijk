@@ -1,3 +1,4 @@
+using Kijk.Application.Consumptions.Shared;
 using Kijk.Shared;
 
 namespace Kijk.Application.Consumptions.Record;
@@ -13,7 +14,9 @@ public class CreateConsumptionCommandValidator : AbstractValidator<CreateConsump
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be set")
-            .Length(2, 50).WithErrorCode(ErrorCodes.ValidationError).WithMessage("'Name‘ must be between 2 and 50 characters long");
+            .Length(ConsumptionValidationRules.NameMinimumLength, ConsumptionValidationRules.NameMaximumLength)
+            .WithErrorCode(ErrorCodes.ValidationError)
+            .WithMessage($"'Name‘ must be between {ConsumptionValidationRules.NameMinimumLength} and {ConsumptionValidationRules.NameMaximumLength} characters long");
 
         RuleFor(x => x.Value)
             .GreaterThanOrEqualTo(0).WithErrorCode(ErrorCodes.ValidationError);
