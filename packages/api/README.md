@@ -43,4 +43,5 @@ replaces the one from the options, so call `options.onSuccess` from it when you 
 After an API change, run `pnpm api:generate` from the repository root. It builds the API and runs Kubb
 (`kubb.config.ts`), which writes `src/generated/types.ts`, `src/generated/sdk.ts` and the fetch runtime in
 `src/generated/.kubb`. It then regenerates `src/generated/operations.ts`, the operations the web BFF relays, and formats
-the output. Kubb packages are pinned to exact, matching versions; update them together.
+the output. Kubb packages are pinned to exact versions; the plugins are versioned separately from `kubb` and require a
+minimum core version.
