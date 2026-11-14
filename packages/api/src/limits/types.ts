@@ -1,11 +1,11 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** A limit with its current evaluation. */
-export type Limit = components['schemas']['LimitResponse'];
+export type Limit = Api.LimitResponse;
 /** Payload for creating a limit. */
-export type CreateLimitRequest = components['schemas']['CreateLimitRequest'];
+export type CreateLimitRequest = Api.CreateLimitRequest;
 /** Payload for updating a limit. */
-export type UpdateLimitRequest = components['schemas']['UpdateLimitRequest'];
+export type UpdateLimitRequest = Api.UpdateLimitRequest;
 
 /** Variables of the update-limit mutation. */
 export interface UpdateLimitData {

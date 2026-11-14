@@ -1,7 +1,7 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** Problem details returned by the API, including Kijk's extension fields. */
-export type ApiProblemDetails = components['schemas']['Problem'] & {
+export type ApiProblemDetails = Api.Problem & {
   correlationId?: string;
   errorType?: string;
   /** Validation messages per request property. */

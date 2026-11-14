@@ -5,7 +5,7 @@
 **pnpm monorepo** with app and package workspaces:
 
 - `apps/` — api (dotnet), client (React/TanStack Start)
-- `packages/` — `@kijk/api` (typed API client, query keys, query/mutation options), `@kijk/ui` (shared components), `@kijk/core` (utilities, stores, hooks), `@kijk/config` (shared tsconfig/lint/format configs), `@kijk/openapi-codegen` (generates the API types)
+- `packages/` — `@kijk/api` (typed API client, query keys, query/mutation options), `@kijk/ui` (shared components), `@kijk/core` (utilities, stores, hooks), `@kijk/config` (shared tsconfig/lint/format configs)
 
 ## Developer Commands
 
@@ -44,7 +44,7 @@ dotnet ef database update
 
 ## Package Structure
 
-- **`@kijk/api`** — Typed client for the Kijk API: generated OpenAPI types, requests, query keys, `queryOptions` and `mutationOptions`; browser apps call `configureApiClient()` once at startup. Use `createApiClient()` for isolated transports; never share user authentication through a global server client.
+- **`@kijk/api`** — Typed client for the Kijk API: OpenAPI types and request functions generated with Kubb (`kubb.config.ts`, single-file output in `src/generated`), handwritten requests, query keys, `queryOptions` and `mutationOptions`; browser apps call `configureApiClient()` once at startup. Use `createApiClient()` for isolated transports; never share user authentication through a global server client.
 - **`@kijk/ui`** — UI components (buttons, dialogs, etc.) using Base UI (`@base-ui/react`)
 - **`@kijk/core`** — Zustand stores, hooks (use-mobile), browser-storage, logger
 - **`@kijk/config`** — Shared lint/format config exports (oxlint/oxfmt)

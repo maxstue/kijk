@@ -1,5 +1,20 @@
 import { apiClient } from '@kijk/api/client';
-import { unwrapApiResponse } from '@kijk/api/http';
+import {
+  importsAiDataPreview,
+  importsCancel,
+  importsCandidates,
+  importsCommit,
+  importsConfirmMapping,
+  importsDetails,
+  importsFilePreview,
+  importsList,
+  importsResetOverrides,
+  importsSettings,
+  importsStart,
+  importsStartCategorization,
+  importsUpdateCandidate,
+  importsUpdateSettings,
+} from '@kijk/api/generated/sdk';
 
 import type {
   CategorizeImportRequest,
@@ -14,26 +29,17 @@ import type {
 
 /** Loads the latest imports of the active space. */
 export async function list(spaceId: string, signal?: AbortSignal) {
-  return unwrapApiResponse(
-    await apiClient().GET('/api/spaces/{spaceId}/imports', { params: { path: { spaceId } }, signal }),
-  );
+  return importsList({ client: apiClient(), path: { spaceId }, signal });
 }
 
 /** Loads an import. */
 export async function getDetails(spaceId: string, id: string, signal?: AbortSignal) {
-  return unwrapApiResponse(
-    await apiClient().GET('/api/spaces/{spaceId}/imports/{id}', { params: { path: { spaceId, id } }, signal }),
-  );
+  return importsDetails({ client: apiClient(), path: { spaceId, id }, signal });
 }
 
 /** Loads the first rows of an uploaded file, optionally with another format. */
 export async function getFilePreview(spaceId: string, id: string, query: ImportPreviewParams, signal?: AbortSignal) {
-  return unwrapApiResponse(
-    await apiClient().GET('/api/spaces/{spaceId}/imports/{id}/preview', {
-      params: { path: { spaceId, id }, query },
-      signal,
-    }),
-  );
+  return importsFilePreview({ client: apiClient(), path: { spaceId, id }, query, signal });
 }
 
 /** Loads the rows of an import waiting for review. */
@@ -43,104 +49,59 @@ export async function getCandidates(
   query: ImportCandidatesQuery = {},
   signal?: AbortSignal,
 ) {
-  return unwrapApiResponse(
-    await apiClient().GET('/api/spaces/{spaceId}/imports/{id}/candidates', {
-      params: { path: { spaceId, id }, query },
-      signal,
-    }),
-  );
+  return importsCandidates({ client: apiClient(), path: { spaceId, id }, query, signal });
 }
 
 /** Uploads a bank export as multipart form data and starts its import. */
 export async function start(spaceId: string, data: CreateImportData) {
-  const form = new FormData();
-  form.append('accountId', data.accountId);
-  form.append('file', data.file);
-  return unwrapApiResponse(
-    await apiClient().POST('/api/spaces/{spaceId}/imports', {
-      params: { path: { spaceId } },
-      body: { accountId: data.accountId, file: data.file.name },
-      bodySerializer: () => form,
-    }),
-  );
+  return importsStart({ client: apiClient(), path: { spaceId }, body: { accountId: data.accountId, file: data.file } });
 }
 
 /** Confirms the column mapping and starts reading the file. */
 export async function confirmMapping(spaceId: string, id: string, mapping: CsvImportMapping) {
-  return unwrapApiResponse(
-    await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/mapping', {
-      body: mapping,
-      params: { path: { spaceId, id } },
-    }),
-  );
+  return importsConfirmMapping({ client: apiClient(), body: mapping, path: { spaceId, id } });
 }
 
 /** Changes the category or exclusion of a row during the review. */
 export async function updateCandidate(spaceId: string, data: UpdateImportCandidateData) {
-  return unwrapApiResponse(
-    await apiClient().PUT('/api/spaces/{spaceId}/imports/{id}/candidates/{candidateId}', {
-      body: data.candidate,
-      params: { path: { spaceId, candidateId: data.candidateId, id: data.importId } },
-    }),
-  );
+  return importsUpdateCandidate({
+    client: apiClient(),
+    body: data.candidate,
+    path: { spaceId, candidateId: data.candidateId, id: data.importId },
+  });
 }
 
 /** Replaces the account's transactions in the covered months with the reviewed rows. */
 export async function commit(spaceId: string, id: string, data: CommitImportRequest) {
-  return unwrapApiResponse(
-    await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/commit', {
-      body: data,
-      params: { path: { spaceId, id } },
-    }),
-  );
+  return importsCommit({ client: apiClient(), body: data, path: { spaceId, id } });
 }
 
 /** Cancels an open import and deletes its file. */
 export async function cancel(spaceId: string, id: string) {
-  return unwrapApiResponse(
-    await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/cancel', { params: { path: { spaceId, id } } }),
-  );
+  return importsCancel({ client: apiClient(), path: { spaceId, id } });
 }
 
 /** Loads the import settings of a space. */
 export async function getSettings(spaceId: string, signal?: AbortSignal) {
-  return unwrapApiResponse(
-    await apiClient().GET('/api/spaces/{spaceId}/imports/settings', { params: { path: { spaceId } }, signal }),
-  );
+  return importsSettings({ client: apiClient(), path: { spaceId }, signal });
 }
 
 /** Changes the import settings of a space. */
 export async function updateSettings(spaceId: string, data: UpdateImportSettingsRequest) {
-  return unwrapApiResponse(
-    await apiClient().PUT('/api/spaces/{spaceId}/imports/settings', { params: { path: { spaceId } }, body: data }),
-  );
+  return importsUpdateSettings({ client: apiClient(), path: { spaceId }, body: data });
 }
 
 /** Starts the AI categorization of the rows without a category. */
 export async function startCategorization(spaceId: string, id: string, data: CategorizeImportRequest) {
-  return unwrapApiResponse(
-    await apiClient().POST('/api/spaces/{spaceId}/imports/{id}/categorize', {
-      body: data,
-      params: { path: { spaceId, id } },
-    }),
-  );
+  return importsStartCategorization({ client: apiClient(), body: data, path: { spaceId, id } });
 }
 
 /** Loads exactly the texts the AI categorization of an import would send. */
 export async function getAiDataPreview(spaceId: string, id: string, signal?: AbortSignal) {
-  return unwrapApiResponse(
-    await apiClient().GET('/api/spaces/{spaceId}/imports/{id}/ai-preview', {
-      params: { path: { spaceId, id } },
-      signal,
-    }),
-  );
+  return importsAiDataPreview({ client: apiClient(), path: { spaceId, id }, signal });
 }
 
 /** Clears every manual category choice in the import, across all pages and months. */
 export async function resetOverrides(spaceId: string, id: string) {
-  return unwrapApiResponse(
-    await apiClient().DELETE('/api/spaces/{spaceId}/imports/{id}/category-overrides', {
-      params: { path: { spaceId, id } },
-    }),
-  );
+  return importsResetOverrides({ client: apiClient(), path: { spaceId, id } });
 }

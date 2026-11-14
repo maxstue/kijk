@@ -3,6 +3,8 @@ import { afterEach, expect, test, vi } from 'vite-plus/test';
 import * as accountsApi from './accounts/requests';
 import { configureApiClient, createApiClient } from './client';
 import { ApiError } from './errors';
+import { accountsDelete, consumptionsExportMonth, usersMe } from './generated/sdk';
+import * as importsApi from './imports/requests';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -14,7 +16,7 @@ test('isolated API clients never share authentication callbacks', async () => {
   });
   const alice = createApiClient({ baseUrl: 'https://api.example.test', fetch, getAuthToken: () => 'alice' });
   const bob = createApiClient({ baseUrl: 'https://api.example.test', fetch, getAuthToken: () => 'bob' });
-  await Promise.all([alice.GET('/api/users/me'), bob.GET('/api/users/me')]);
+  await Promise.all([usersMe({ client: alice }), usersMe({ client: bob })]);
   expect(tokens.toSorted((left, right) => (left ?? '').localeCompare(right ?? ''))).toEqual([
     'Bearer alice',
     'Bearer bob',
@@ -24,21 +26,21 @@ test('isolated API clients never share authentication callbacks', async () => {
 test('the same-origin BFF transport does not add a bearer header', async () => {
   const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json({ status: 'Ready' }));
   const browser = createApiClient({ baseUrl: 'https://app.example.test', fetch });
-  await browser.GET('/api/users/me');
+  await usersMe({ client: browser });
   expect((fetch.mock.calls[0][0] as Request).headers.has('Authorization')).toBe(false);
 });
 
 test('default headers accompany reads, mutations and downloads', async () => {
   const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async () => Response.json({}));
   const browser = createApiClient({ baseUrl: 'https://app.example.test', fetch, headers: { 'X-CSRF': '1' } });
-  await browser.GET('/api/users/me');
-  await browser.GET('/api/spaces/{spaceId}/consumptions/export', {
-    params: { path: { spaceId: 'space' }, query: { year: 2026, month: 'january' } },
-    parseAs: 'blob',
+  await usersMe({ client: browser });
+  await consumptionsExportMonth({
+    client: browser,
+    path: { spaceId: 'space' },
+    query: { year: 2026, month: 'january' },
+    throwOnError: false,
   });
-  await browser.DELETE('/api/spaces/{spaceId}/accounts/{id}', {
-    params: { path: { spaceId: 'space', id: 'account' } },
-  });
+  await accountsDelete({ client: browser, path: { spaceId: 'space', id: 'account' } });
   expect(fetch.mock.calls.map(([request]) => (request as Request).headers.get('X-CSRF'))).toEqual(['1', '1', '1']);
 });
 
@@ -98,4 +100,16 @@ test('does not send or store a correlation id', async () => {
   const [request] = vi.mocked(fetch).mock.calls[0] as [Request];
   expect(request.headers.has('X-Correlation-Id')).toBe(false);
   expect(new URL(request.url).pathname).toBe('/api/spaces/space/accounts/account');
+});
+
+test('an import upload sends the bank export as multipart form data', async () => {
+  respond(Response.json({ id: 'import' }));
+  const file = new File(['date;amount'], 'export.csv', { type: 'text/csv' });
+  await importsApi.start('space', { accountId: 'account', file });
+
+  const [request] = vi.mocked(fetch).mock.calls[0] as [Request];
+  expect(request.headers.get('Content-Type')).toMatch(/^multipart\/form-data; boundary=/);
+  const form = await request.formData();
+  expect(form.get('accountId')).toBe('account');
+  expect(await (form.get('file') as File).text()).toBe('date;amount');
 });

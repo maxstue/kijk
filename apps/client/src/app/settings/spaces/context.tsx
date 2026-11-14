@@ -1,8 +1,8 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 import { createContext, useContext } from 'react';
 
-type Space = components['schemas']['UserSpaceResponse'];
-type User = components['schemas']['GetMeUserResponse'];
+type Space = Api.UserSpaceResponse;
+type User = Api.GetMeUserResponse;
 
 interface SpaceSettingsContextValue {
   space: Space;

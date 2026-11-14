@@ -1,9 +1,9 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 import { LockIcon, UsersIcon } from 'lucide-react';
 
 /** Who can see an account or a budget within a shared space. */
-export type Visibility = components['schemas']['Visibility'];
+export type Visibility = Api.Visibility;
 
 interface Props {
   /** Whether the user may create shared items; otherwise only private ones are offered. */
