@@ -6,12 +6,7 @@ import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Label } from '@kijk/ui/components/label';
 import { useId } from 'react';
 
-import {
-  CsvRowErrors,
-  CsvRowErrorsDescription,
-  CsvRowErrorsList,
-  CsvRowErrorsTitle,
-} from '@/shared/components/csv-row-errors';
+import { CsvRowErrors, CsvRowErrorsList } from '@/shared/components/csv-row-errors';
 
 interface UnreadableRowsProps {
   review: ImportCandidatePage | undefined;
@@ -27,8 +22,8 @@ export function UnreadableRows({ review, requiresConfirmation, accepted, onAccep
   }
   return (
     <CsvRowErrors className='mx-4 mb-4 w-auto' variant={requiresConfirmation ? 'destructive' : 'default'}>
-      <CsvRowErrorsTitle>{review.errorCount} rows could not be read and will not be imported</CsvRowErrorsTitle>
-      <CsvRowErrorsDescription>
+      <AlertTitle>{review.errorCount} rows could not be read and will not be imported</AlertTitle>
+      <AlertDescription>
         <CsvRowErrorsList rows={review.errorSamples} total={Number(review.errorCount)}>
           Show unreadable rows
         </CsvRowErrorsList>
@@ -38,7 +33,7 @@ export function UnreadableRows({ review, requiresConfirmation, accepted, onAccep
             <Label htmlFor={id}>Import the readable rows anyway</Label>
           </div>
         )}
-      </CsvRowErrorsDescription>
+      </AlertDescription>
     </CsvRowErrors>
   );
 }

@@ -1,14 +1,10 @@
 import type { CsvRowError } from '@kijk/api/csv/types';
-import { Alert, AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
+import { Alert } from '@kijk/ui/components/alert';
 import { cn } from 'cn';
 import { TriangleAlert } from 'lucide-react';
 import type { ComponentProps } from 'react';
 
 interface Props extends ComponentProps<typeof Alert> {}
-
-interface CsvRowErrorsTitleProps extends ComponentProps<typeof AlertTitle> {}
-
-interface CsvRowErrorsDescriptionProps extends ComponentProps<typeof AlertDescription> {}
 
 interface CsvRowErrorsListProps extends ComponentProps<'details'> {
   rows: CsvRowError[];
@@ -16,7 +12,10 @@ interface CsvRowErrorsListProps extends ComponentProps<'details'> {
   total?: number;
 }
 
-/** Alert for rows of an uploaded CSV file that could not be read or imported. */
+/**
+ * Alert for rows of an uploaded CSV file that could not be read or imported; compose it with `AlertTitle` and
+ * `AlertDescription`.
+ */
 function CsvRowErrors({ children, ...props }: Props) {
   return (
     <Alert data-slot='csv-row-errors' {...props}>
@@ -24,14 +23,6 @@ function CsvRowErrors({ children, ...props }: Props) {
       {children}
     </Alert>
   );
-}
-
-function CsvRowErrorsTitle(props: CsvRowErrorsTitleProps) {
-  return <AlertTitle {...props} />;
-}
-
-function CsvRowErrorsDescription(props: CsvRowErrorsDescriptionProps) {
-  return <AlertDescription {...props} />;
 }
 
 /** Collapsible list of the rows by number; `children` replace the default summary text. */
@@ -53,4 +44,4 @@ function CsvRowErrorsList({ className, children, rows, total, ...props }: CsvRow
   );
 }
 
-export { CsvRowErrors, CsvRowErrorsDescription, CsvRowErrorsList, CsvRowErrorsTitle };
+export { CsvRowErrors, CsvRowErrorsList };

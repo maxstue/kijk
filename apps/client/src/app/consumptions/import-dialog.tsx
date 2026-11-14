@@ -1,6 +1,7 @@
 import * as consumptionsOptions from '@kijk/api/consumptions/options';
 import type { ConsumptionImportResult } from '@kijk/api/consumptions/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
+import { AlertDescription, AlertTitle } from '@kijk/ui/components/alert';
 import { Button } from '@kijk/ui/components/button';
 import {
   Dialog,
@@ -24,12 +25,7 @@ import {
   CsvFileFieldInput,
   CsvFileFieldLabel,
 } from '@/shared/components/csv-file-field';
-import {
-  CsvRowErrors,
-  CsvRowErrorsDescription,
-  CsvRowErrorsList,
-  CsvRowErrorsTitle,
-} from '@/shared/components/csv-row-errors';
+import { CsvRowErrors, CsvRowErrorsList } from '@/shared/components/csv-row-errors';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -136,13 +132,11 @@ export function ConsumptionImportDialog() {
           </CsvFileField>
           {rejected && (
             <CsvRowErrors variant='destructive'>
-              <CsvRowErrorsTitle>
-                {rejected.errorCount} rows could not be imported, so nothing was saved
-              </CsvRowErrorsTitle>
-              <CsvRowErrorsDescription>
+              <AlertTitle>{rejected.errorCount} rows could not be imported, so nothing was saved</AlertTitle>
+              <AlertDescription>
                 <p>Fix the rows and upload the file again.</p>
                 <CsvRowErrorsList open rows={rejected.errorSamples} total={Number(rejected.errorCount)} />
-              </CsvRowErrorsDescription>
+              </AlertDescription>
             </CsvRowErrors>
           )}
           <DialogFooter>
