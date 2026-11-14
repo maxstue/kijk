@@ -4,6 +4,7 @@ using Kijk.Application.Imports.Detection;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Ai;
 using Kijk.Application.Shared.Authorization;
+using Kijk.Application.Shared.Csv;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Shared.Security;

@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Kijk.Application.Shared.Csv;
 
 namespace Kijk.Application.Imports.Csv;
 

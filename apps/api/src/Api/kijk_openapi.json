@@ -7559,6 +7559,29 @@
         },
         "description": "Describes how the columns of a bank export map to transaction fields. Only declarative options, never code.\nColumn indexes are 0-based."
       },
+      "CsvRowErrorResponse": {
+        "required": [
+          "rowNumber",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "rowNumber": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The record number in the file.",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "string",
+            "description": "Why the record could not be read or imported."
+          }
+        },
+        "description": "A bounded error preview of an uploaded CSV file without the original row content."
+      },
       "CurrentUserResponse": {
         "type": "object",
         "properties": {
@@ -8090,29 +8113,6 @@
         "type": "string",
         "format": "binary"
       },
-      "ImportCandidateErrorResponse": {
-        "required": [
-          "rowNumber",
-          "errors"
-        ],
-        "type": "object",
-        "properties": {
-          "rowNumber": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "description": "The record number in the file.",
-            "format": "int32"
-          },
-          "errors": {
-            "type": "string",
-            "description": "Why the record could not be parsed."
-          }
-        },
-        "description": "A bounded error preview without the original row content."
-      },
       "ImportCandidatePageResponse": {
         "required": [
           "items",
@@ -8181,7 +8181,7 @@
           "errorSamples": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ImportCandidateErrorResponse"
+              "$ref": "#/components/schemas/CsvRowErrorResponse"
             },
             "description": "At most ten unreadable row descriptions."
           },

@@ -1380,6 +1380,26 @@ export type CsvImportMapping = {
   mappedColumns?: (number | string)[] | null;
 };
 
+/**
+ * A bounded error preview of an uploaded CSV file without the original row content.
+ *
+ * @type object
+ */
+export type CsvRowErrorResponse = {
+  /**
+   * The record number in the file.
+   *
+   * Format: `int32`
+   */
+  rowNumber: number | string;
+  /**
+   * Why the record could not be read or imported.
+   *
+   * @type string
+   */
+  errors: string;
+};
+
 export type CurrentUserStatus = 'OnboardingRequired' | 'Ready';
 
 /**
@@ -1796,26 +1816,6 @@ export type HttpValidationProblemDetails = {
 export type IFormFile = Blob;
 
 /**
- * A bounded error preview without the original row content.
- *
- * @type object
- */
-export type ImportCandidateErrorResponse = {
-  /**
-   * The record number in the file.
-   *
-   * Format: `int32`
-   */
-  rowNumber: number | string;
-  /**
-   * Why the record could not be parsed.
-   *
-   * @type string
-   */
-  errors: string;
-};
-
-/**
  * A row of an import waiting for review.
  *
  * @type object
@@ -1949,7 +1949,7 @@ export type ImportCandidatePageResponse = {
    *
    * @type array
    */
-  errorSamples: ImportCandidateErrorResponse[];
+  errorSamples: CsvRowErrorResponse[];
   /**
    * Included card statements in all selected months.
    *
