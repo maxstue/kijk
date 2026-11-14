@@ -14,6 +14,7 @@ test('keeps a backend failure visible on auth and retries before continuing to t
       detail: 'You are signed in, but your account could not be loaded. Please try again later.',
     },
     new Response(null, { status: 503 }),
+    new Request('https://kijk.test/api/users/me'),
   );
   const { router, screen } = await renderRoute({
     initialEntry: '/auth?from=%2Fterms',

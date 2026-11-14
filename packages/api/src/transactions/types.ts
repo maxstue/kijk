@@ -1,15 +1,15 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** A transaction of the space. */
-export type Transaction = components['schemas']['TransactionResponse'];
+export type Transaction = Api.TransactionResponse;
 /** A server-side page of transactions, newest first. */
-export type TransactionPage = components['schemas']['TransactionPageResponse'];
+export type TransactionPage = Api.TransactionPageResponse;
 /** Whether a transaction is booked or pending. */
-export type TransactionStatus = components['schemas']['TransactionStatus'];
+export type TransactionStatus = Api.TransactionStatus;
 /** Payload for recording a transaction. */
-export type CreateTransactionRequest = components['schemas']['CreateTransactionRequest'];
+export type CreateTransactionRequest = Api.CreateTransactionRequest;
 /** Payload for updating a transaction. */
-export type UpdateTransactionRequest = components['schemas']['UpdateTransactionRequest'];
+export type UpdateTransactionRequest = Api.UpdateTransactionRequest;
 
 /** Variables of the update-transaction mutation. */
 export interface UpdateTransactionData {
@@ -33,7 +33,7 @@ export interface TransactionPageQuery extends TransactionFilters {
 }
 
 /** Payload for correcting the category of a transaction. */
-export type CategorizeTransactionRequest = components['schemas']['CategorizeTransactionRequest'];
+export type CategorizeTransactionRequest = Api.CategorizeTransactionRequest;
 
 /** Variables of the categorize mutation. */
 export interface CategorizeTransactionData {
@@ -42,4 +42,4 @@ export interface CategorizeTransactionData {
 }
 
 /** Payload for assigning one category to several transactions. */
-export type CategorizeTransactionsRequest = components['schemas']['CategorizeTransactionsRequest'];
+export type CategorizeTransactionsRequest = Api.CategorizeTransactionsRequest;

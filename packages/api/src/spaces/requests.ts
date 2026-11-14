@@ -1,34 +1,35 @@
 import { apiClient } from '@kijk/api/client';
-import { unwrapApiResponse } from '@kijk/api/http';
+import {
+  spacesChangeMemberRole,
+  spacesDelete,
+  spacesMembers,
+  spacesRoles,
+  spacesUpdate,
+} from '@kijk/api/generated/sdk';
 
 import type { UpdateSpaceData } from './types';
 
 /** Updates the details of a space. */
 export async function update(id: string, data: UpdateSpaceData) {
-  await apiClient().PUT('/api/spaces/{id}', { body: data, params: { path: { id } } });
+  await spacesUpdate({ client: apiClient(), body: data, path: { id } });
 }
 
 /** Deletes a space and all of its data. */
 export async function remove(id: string) {
-  await apiClient().DELETE('/api/spaces/{id}', { params: { path: { id } } });
+  await spacesDelete({ client: apiClient(), path: { id } });
 }
 
 /** Loads the space roles and their permissions. */
 export async function getRoles(signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/spaces/roles', { signal }));
+  return spacesRoles({ client: apiClient(), signal });
 }
 
 /** Loads the members of a space with their roles. */
 export async function getMembers(id: string, signal?: AbortSignal) {
-  return unwrapApiResponse(await apiClient().GET('/api/spaces/{id}/members', { params: { path: { id } }, signal }));
+  return spacesMembers({ client: apiClient(), path: { id }, signal });
 }
 
 /** Changes the role of another space member and returns the updated member. */
 export async function changeMemberRole(id: string, userId: string, roleId: string) {
-  return unwrapApiResponse(
-    await apiClient().PUT('/api/spaces/{id}/members/{userId}/role', {
-      body: { roleId },
-      params: { path: { id, userId } },
-    }),
-  );
+  return spacesChangeMemberRole({ client: apiClient(), body: { roleId }, path: { id, userId } });
 }

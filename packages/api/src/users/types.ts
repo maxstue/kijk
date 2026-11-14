@@ -1,11 +1,11 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** The current account state. */
-export type CurrentUser = components['schemas']['CurrentUserResponse'];
+export type CurrentUser = Api.CurrentUserResponse;
 /** The parts of Kijk that are switched on for the current user. */
-export type Features = components['schemas']['FeaturesResponse'];
+export type Features = Api.FeaturesResponse;
 /** A user who completed onboarding. */
-export type ReadyCurrentUser = components['schemas']['GetMeUserResponse'];
+export type ReadyCurrentUser = Api.GetMeUserResponse;
 
 /** Returns whether a current-account response contains a fully initialized Kijk user. */
 export function isReadyCurrentUser(

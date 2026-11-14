@@ -1,17 +1,17 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** The state of an import. */
-export type ImportJob = components['schemas']['ImportJobResponse'];
+export type ImportJob = Api.ImportJobResponse;
 /** The processing state of an import. */
-export type ImportJobStatus = components['schemas']['ImportJobStatus'];
+export type ImportJobStatus = Api.ImportJobStatus;
 /** How the columns of a bank export map to transaction fields. */
-export type CsvImportMapping = components['schemas']['CsvImportMapping'];
+export type CsvImportMapping = Api.CsvImportMapping;
 /** The first rows of an uploaded file. */
-export type ImportPreview = components['schemas']['ImportPreviewResponse'];
+export type ImportPreview = Api.ImportPreviewResponse;
 /** A row of an import waiting for review. */
-export type ImportCandidate = components['schemas']['ImportCandidateResponse'];
+export type ImportCandidate = Api.ImportCandidateResponse;
 /** A bounded page of review rows and selection-wide totals. */
-export type ImportCandidatePage = components['schemas']['ImportCandidatePageResponse'];
+export type ImportCandidatePage = Api.ImportCandidatePageResponse;
 
 /** Server-side review filters and pagination. */
 export interface ImportCandidatesQuery {
@@ -22,23 +22,23 @@ export interface ImportCandidatesQuery {
 }
 
 /** The import settings of the active space. */
-export type ImportSettings = components['schemas']['ImportSettingsResponse'];
+export type ImportSettings = Api.ImportSettingsResponse;
 /** How much of the purpose text imported transactions keep. */
-export type PurposeRetention = components['schemas']['PurposeRetention'];
+export type PurposeRetention = Api.PurposeRetention;
 /** Which transaction data the AI categorization may see. */
-export type AiDataSharing = components['schemas']['AiDataSharing'];
+export type AiDataSharing = Api.AiDataSharing;
 /** Payload for changing the import settings. */
-export type UpdateImportSettingsRequest = components['schemas']['UpdateImportSettingsRequest'];
+export type UpdateImportSettingsRequest = Api.UpdateImportSettingsRequest;
 /** Payload for categorizing an import with the AI. */
-export type CategorizeImportRequest = components['schemas']['CategorizeImportRequest'];
+export type CategorizeImportRequest = Api.CategorizeImportRequest;
 /** What the AI categorization of an import would send. */
-export type AiPreview = components['schemas']['AiPreviewResponse'];
+export type AiPreview = Api.AiPreviewResponse;
 /** A distinct text the AI categorization would send. */
-export type AiPreviewItem = components['schemas']['AiPreviewItemResponse'];
+export type AiPreviewItem = Api.AiPreviewItemResponse;
 /** Payload for committing an import. */
-export type CommitImportRequest = components['schemas']['CommitImportRequest'];
+export type CommitImportRequest = Api.CommitImportRequest;
 /** Payload for changing a row during the review. */
-export type UpdateImportCandidateRequest = components['schemas']['UpdateImportCandidateRequest'];
+export type UpdateImportCandidateRequest = Api.UpdateImportCandidateRequest;
 
 /** Format overrides for the mapping preview. */
 export interface ImportPreviewParams {

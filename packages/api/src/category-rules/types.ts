@@ -1,8 +1,8 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** A remembered category correction. */
-export type CategoryRule = components['schemas']['CategoryRuleResponse'];
+export type CategoryRule = Api.CategoryRuleResponse;
 /** What a category rule matches on. */
-export type CategoryRuleScope = components['schemas']['CategoryRuleScope'];
+export type CategoryRuleScope = Api.CategoryRuleScope;
 /** A rule suggested from repeated manual corrections. */
-export type CategoryRuleSuggestion = components['schemas']['CategoryRuleSuggestionResponse'];
+export type CategoryRuleSuggestion = Api.CategoryRuleSuggestionResponse;

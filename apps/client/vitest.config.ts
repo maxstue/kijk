@@ -76,7 +76,6 @@ export default defineConfig({
             'lucide-react/dynamic',
             'msw',
             'msw/browser',
-            '@kijk/api > openapi-fetch',
             'posthog-js',
             'posthog-js/dist/exception-autocapture.js',
             'react',

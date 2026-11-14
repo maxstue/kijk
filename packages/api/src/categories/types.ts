@@ -1,10 +1,10 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** A system or space category. */
-export type Category = components['schemas']['CategoryResponse'];
+export type Category = Api.CategoryResponse;
 /** Whether a category groups expenses or income. */
-export type CategoryKind = components['schemas']['CategoryKind'];
+export type CategoryKind = Api.CategoryKind;
 /** Payload for creating a category. */
-export type CreateCategoryRequest = components['schemas']['CreateCategoryRequest'];
+export type CreateCategoryRequest = Api.CreateCategoryRequest;
 /** Payload for updating a category. */
-export type UpdateCategoryRequest = components['schemas']['UpdateCategoryRequest'];
+export type UpdateCategoryRequest = Api.UpdateCategoryRequest;
