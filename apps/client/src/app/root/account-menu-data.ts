@@ -1,9 +1,9 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 import { getInitialChars } from '@/app/root/helpers';
 import { siteConfig } from '@/shared/config/site';
 
-export type CurrentUser = components['schemas']['GetMeUserResponse'];
+export type CurrentUser = Api.GetMeUserResponse;
 
 export interface AccountMenuData {
   displayName?: string | null;

@@ -1,7 +1,7 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 /** A consumption entry. */
-export type Consumption = components['schemas']['ConsumptionResponse'];
+export type Consumption = Api.ConsumptionResponse;
 
 /** How a consumption value is interpreted. */
 export const ValueTypes = {
@@ -10,7 +10,7 @@ export const ValueTypes = {
 } as const;
 
 /** The resource of a statistic. */
-export type ResourceStats = components['schemas']['ConsumptionStatsResourceResponse'];
+export type ResourceStats = Api.ConsumptionStatsResourceResponse;
 
 /** Who created a resource or unit. */
 export const CreatorTypes = {
@@ -22,4 +22,4 @@ export const CreatorTypes = {
 export type CreatorType = (typeof CreatorTypes)[keyof typeof CreatorTypes];
 
 /** A resource consumptions are recorded for. */
-export type Resource = components['schemas']['ResourceResponse'];
+export type Resource = Api.ResourceResponse;

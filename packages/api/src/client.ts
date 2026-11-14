@@ -1,7 +1,10 @@
 import { ApiError, type ApiProblemDetails } from '@kijk/api/errors';
-import type { paths } from '@kijk/api/generated/kijk';
-import createClient from 'openapi-fetch';
-import type { Client, Middleware } from 'openapi-fetch';
+import {
+  createClient,
+  toRequestInit,
+  type ClientInstance,
+  type DecodedResponse,
+} from '@kijk/api/generated/.kubb/client';
 
 /** Settings an app passes once at startup, before it sends the first request. */
 export interface ApiClientOptions {
@@ -15,11 +18,11 @@ export interface ApiClientOptions {
   headers?: Record<string, string>;
 }
 
-let client: Client<paths> | undefined;
+let client: ClientInstance | undefined;
 
 /**
- * Creates the API client. It is generated from the OpenAPI specification with openapi-fetch; the types are {@link paths}
- * from the generated API types file.
+ * Creates the API client. Its request functions are generated from the OpenAPI specification with Kubb
+ * (`@kijk/api/generated/sdk`); every request function takes the client as its `client` option.
  */
 export function configureApiClient(options: ApiClientOptions) {
   client = createApiClient(options);
@@ -27,11 +30,19 @@ export function configureApiClient(options: ApiClientOptions) {
 
 /** Creates an isolated client; server requests must use their own instance rather than the browser default. */
 export function createApiClient(options: ApiClientOptions) {
-  const instance = createClient<paths>({ baseUrl: options.baseUrl, fetch: options.fetch, headers: options.headers });
-  if (options.getAuthToken) {
-    instance.use(createAuthMiddleware(options.getAuthToken));
-  }
-  instance.use(apiResponseMiddleware);
+  const { getAuthToken, fetch = (...args) => globalThis.fetch(...args) } = options;
+  const instance = createClient({
+    baseURL: options.baseUrl,
+    headers: options.headers,
+    auth: getAuthToken ? async () => (await getAuthToken()) ?? undefined : undefined,
+    transport: async (request) => {
+      const nativeRequest = new Request(request.url, toRequestInit(request));
+      const response = await fetch(nativeRequest);
+      return { webResponse: response, request: nativeRequest, response };
+    },
+  });
+  instance.interceptors.response.use(raiseApiError);
+  instance.interceptors.error.use(logError);
   return instance;
 }
 
@@ -44,51 +55,35 @@ export function apiClient() {
   return client;
 }
 
-// ##### Middlewares #####
+// ##### Interceptors #####
 
-function createAuthMiddleware(getAuthToken: NonNullable<ApiClientOptions['getAuthToken']>): Middleware {
-  return {
-    async onRequest({ request }) {
-      const headers = new Headers(request.headers);
-      const token = await getAuthToken();
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-
-      if (request.body && !headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
-      }
-
-      return new Request(request, { headers });
-    },
-    onError({ error }) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        return;
-      }
-      console.error(error);
-    },
-  };
-}
-
-const apiResponseMiddleware: Middleware = {
-  async onResponse({ response }) {
-    if (response.ok) {
-      return response;
-    }
-
-    throw new ApiError(await readApiError(response), response);
-  },
-};
-
-async function readApiError(response: Response) {
-  const error = await response.clone().text();
-  if (!error) {
-    return { status: response.status, title: response.statusText } satisfies ApiProblemDetails;
+/** Turns every failed response into an {@link ApiError}, including calls that read the full result. */
+function raiseApiError(result: DecodedResponse) {
+  if (result.status >= 200 && result.status < 300) {
+    return result;
   }
 
-  try {
-    return JSON.parse(error) as ApiProblemDetails;
-  } catch {
-    return { detail: error, status: response.status, title: response.statusText } satisfies ApiProblemDetails;
+  throw new ApiError(readApiError(result), result.response, result.request);
+}
+
+function readApiError({ data, status, statusText }: DecodedResponse): ApiProblemDetails {
+  if (data === undefined || data === null || data === '') {
+    return { status, title: statusText };
+  }
+
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data) as ApiProblemDetails;
+    } catch {
+      return { detail: data, status, title: statusText };
+    }
+  }
+
+  return data as ApiProblemDetails;
+}
+
+function logError(error: Error) {
+  if (error.name !== 'AbortError' && !ApiError.isApiError(error)) {
+    console.error(error);
   }
 }

@@ -44,6 +44,12 @@
       "commitMessageTopic": "frontend packages"
     },
     {
+      "description": "Kubb packages are released together and must stay on matching versions.",
+      "matchPackageNames": ["kubb", "@kubb/**"],
+      "groupName": "kubb",
+      "commitMessageTopic": "kubb"
+    },
+    {
       "description": "Group backend package patch and minor updates.",
       "matchManagers": ["nuget"],
       "matchUpdateTypes": ["patch", "minor"],

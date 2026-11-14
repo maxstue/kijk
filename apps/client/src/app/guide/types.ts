@@ -1,8 +1,8 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 
 import type { guideTopics } from './constants';
 
-export type GuideProgress = components['schemas']['GuideResponse'];
+export type GuideProgress = Api.GuideResponse;
 export type GuideTopic = (typeof guideTopics)[number]['id'];
 export type GuideRequest = 'tour' | 'checklist' | GuideTopic;
 

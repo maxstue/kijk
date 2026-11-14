@@ -17,13 +17,14 @@ configureApiClient({ baseUrl: import.meta.env.VITE_BASE_API_URL, getAuthToken: (
 
 | Import path                    | Purpose                                                                      |
 | ------------------------------ | ---------------------------------------------------------------------------- |
-| `@kijk/api/<feature>/requests` | One function per endpoint, built on the generated types.                     |
+| `@kijk/api/<feature>/requests` | One function per endpoint, built on the generated request functions.         |
 | `@kijk/api/<feature>/options`  | `queryOptions` and `mutationOptions`; mutations invalidate what they change. |
 | `@kijk/api/<feature>/types`    | Aliases of the generated schemas plus mutation variables.                    |
 | `@kijk/api/query-keys`         | All query keys; use them for every cache read, write and invalidation.       |
-| `@kijk/api/client`             | `configureApiClient` and the configured openapi-fetch client.                |
+| `@kijk/api/client`             | `configureApiClient` and the configured Kubb fetch client.                   |
 | `@kijk/api/errors`             | `ApiError`, problem details and the correlation id header.                   |
-| `@kijk/api/generated/kijk`     | Types generated from the OpenAPI document; never edit by hand.               |
+| `@kijk/api/generated/types`    | Types generated from the OpenAPI document; never edit by hand.               |
+| `@kijk/api/generated/sdk`      | Request functions generated from the OpenAPI document; never edit by hand.   |
 
 ## Usage
 
@@ -37,7 +38,9 @@ createTransaction.mutate(values, { onSuccess: () => toast.success('Saved') });
 Mutations refresh the affected queries themselves. Add UI reactions as `mutate` callbacks; a hook-level `onSuccess`
 replaces the one from the options, so call `options.onSuccess` from it when you need one.
 
-## Regenerating the types
+## Regenerating the client
 
-After an API change, run `pnpm api:generate` from the repository root. It builds the API, regenerates
-`src/generated/kijk.ts` with `@kijk/openapi-codegen` and formats it.
+After an API change, run `pnpm api:generate` from the repository root. It builds the API and runs Kubb
+(`kubb.config.ts`), which writes `src/generated/types.ts`, `src/generated/sdk.ts` and the fetch runtime in
+`src/generated/.kubb`. It then regenerates `src/generated/operations.ts`, the operations the web BFF relays, and formats
+the output. Kubb packages are pinned to exact, matching versions; update them together.

@@ -1,4 +1,4 @@
-import type { components } from '@kijk/api/generated/kijk';
+import type * as Api from '@kijk/api/generated/types';
 import type { ResourceData } from '@kijk/api/resources/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import type { Unit } from '@kijk/api/units/types';
@@ -34,7 +34,7 @@ const units: Unit[] = [
 
 const resources = new Map<string, Resource[]>();
 
-const initialGuide: components['schemas']['GuideResponse'] = {
+const initialGuide: Api.GuideResponse = {
   guideVersion: 1,
   guideCompletedVersion: 1,
   guideCompletedSteps: [] as string[],
@@ -146,7 +146,7 @@ export const handlers = [
     return HttpResponse.json(guide);
   }),
   http.patch('*/api/users/me/guide', async ({ request }) => {
-    const update = (await request.json()) as components['schemas']['UpdateGuideRequest'];
+    const update = (await request.json()) as Api.UpdateGuideRequest;
     guide = {
       ...guide,
       guideCompletedAt: update.completedTour ? new Date().toISOString() : guide.guideCompletedAt,

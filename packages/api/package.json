@@ -9,7 +9,7 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "generate": "pnpm --filter @kijk/openapi-codegen generate && oxfmt src/generated",
+    "generate": "kubb generate && node scripts/generate-operations.mjs ../../apps/api/src/Api/kijk_openapi.json src/generated/operations.ts && oxfmt src/generated",
     "test": "vp test run",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
@@ -19,18 +19,20 @@
     "test:coverage": "vp test run --coverage"
   },
   "dependencies": {
-    "@tanstack/react-query": "catalog:",
-    "openapi-fetch": "catalog:"
+    "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {
     "@kijk/config": "workspace:*",
+    "@kubb/plugin-fetch": "catalog:",
+    "@kubb/plugin-ts": "catalog:",
     "@tanstack/eslint-plugin-query": "catalog:",
     "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "kubb": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "typescript": "catalog:",
-    "vite-plus": "catalog:",
-    "@vitest/coverage-v8": "catalog:"
+    "vite-plus": "catalog:"
   }
 }
