@@ -4659,6 +4659,17 @@
               }
             }
           },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
           "401": {
             "$ref": "#/components/responses/401"
           },

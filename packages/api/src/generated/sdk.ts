@@ -1539,6 +1539,7 @@ export function transactionsExport<ThrowOnError extends boolean = true>(
       method: 'GET',
       url: '/api/spaces/{spaceId}/transactions/export',
       security: [securitySchemes.Bearer],
+      parseAs: 'blob',
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),
     }),

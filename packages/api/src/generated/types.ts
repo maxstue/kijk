@@ -6349,6 +6349,9 @@ export type TransactionsExportQuery = {
   categoryIds?: string[];
 };
 
+/** Format: `byte` */
+export type TransactionsExportStatus200 = Blob;
+
 export type TransactionsExportStatus401 = Problem;
 
 export type TransactionsExportStatus403 = Problem;
@@ -6367,6 +6370,7 @@ export type TransactionsExportOptions = {
 };
 
 export type TransactionsExportResponses = {
+  '200': TransactionsExportStatus200;
   '401': TransactionsExportStatus401;
   '403': TransactionsExportStatus403;
   '404': TransactionsExportStatus404;
@@ -6375,12 +6379,7 @@ export type TransactionsExportResponses = {
 };
 
 /** Union of all possible responses */
-export type TransactionsExportResponse =
-  | TransactionsExportStatus401
-  | TransactionsExportStatus403
-  | TransactionsExportStatus404
-  | TransactionsExportStatus429
-  | TransactionsExportStatus500;
+export type TransactionsExportResponse = TransactionsExportStatus200;
 
 export type TransactionsDetailsPath = {
   /**
