@@ -79,6 +79,23 @@ test('keeps the dialog open with the rejected rows until another file is chosen'
   await expect.element(screen.getByText('2 rows could not be imported, so nothing was saved')).not.toBeInTheDocument();
 });
 
+test('keeps the file selection locked until the running import finishes', async () => {
+  const pending = Promise.withResolvers<ConsumptionImportResult>();
+  importCsv.mockReturnValueOnce(pending.promise);
+  const screen = await openDialog();
+
+  await screen.getByLabelText('CSV file').upload(csv);
+  await screen.getByRole('button', { name: 'Import', exact: true }).click();
+
+  await expect.element(screen.getByLabelText('CSV file')).toBeDisabled();
+  await expect.element(screen.getByRole('button', { name: 'Importing…' })).toBeDisabled();
+  pending.resolve({ importedCount: 1, skippedCount: 0, errorCount: 0, errorSamples: [] });
+  await vi.waitFor(() =>
+    expect(toast.success).toHaveBeenCalledWith('1 consumptions imported', { description: undefined }),
+  );
+  expect(importCsv).toHaveBeenCalledTimes(1);
+});
+
 test('downloads the template from the API', async () => {
   getImportTemplate.mockResolvedValue({ blob: new Blob(['csv']), fileName: 'consumptions-import-template.csv' });
   vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:template');

@@ -68,7 +68,10 @@ export function ConsumptionImportDialog() {
 
   const handleFileChange = (nextFile: File | undefined) => {
     setFile(nextFile);
-    importMutation.reset();
+    // The input is disabled while importing; never detach a running import from its pending state.
+    if (!importMutation.isPending) {
+      importMutation.reset();
+    }
   };
 
   const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
@@ -129,7 +132,7 @@ export function ConsumptionImportDialog() {
               The template contains the exact resource names and units of this space.{' '}
               <ConsumptionImportTemplateButton />
             </CsvFileFieldDescription>
-            <CsvFileFieldInput />
+            <CsvFileFieldInput disabled={importMutation.isPending} />
           </CsvFileField>
           {rejected && (
             <CsvRowErrors variant='destructive'>

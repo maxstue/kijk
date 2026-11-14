@@ -105,7 +105,8 @@ public sealed class ImportHandler(IAppDbContext dbContext, CurrentUser currentUs
             }
 
             // An explicit creation time keeps the file order for entries on the same day, before and after saving.
-            consumption.CreatedAt = now.AddTicks(imported.Count);
+            // Steps of one microsecond survive the timestamp precision of PostgreSQL.
+            consumption.CreatedAt = now.AddMicroseconds(imported.Count);
             imported.Add((consumption, row.RowNumber));
         }
 

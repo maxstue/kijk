@@ -39,6 +39,28 @@ public partial class ConsumptionWorkflowTests
     }
 
     [Test]
+    public async Task ImportKeepsTheFileOrderOfReadingsOnTheSameDayAfterSaving()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var fixture = await CreateFixtureAsync(dbContext);
+        var csv = new StringBuilder("Date,Name,Resource,Value\n");
+        for (var index = 0; index < 20; index++)
+        {
+            csv.Append(System.Globalization.CultureInfo.InvariantCulture, $"2026-01-01,Reading {index:D2},Electricity,{1000 + index}\n");
+        }
+
+        var result = await ImportAsync(dbContext, fixture.CurrentUser, csv.ToString());
+
+        await Assert.That(result.Value.ImportedCount).IsEqualTo(20);
+        await using var verify = PostgreSqlTestDatabase.CreateDbContext();
+        var saved = await verify.Consumptions.ToListAsync();
+        await Assert.That(saved.Select(item => item.CreatedAt).Distinct().Count()).IsEqualTo(20);
+        await Assert.That(Kijk.Domain.Services.ConsumptionTimelineCalculator.RecalculateUntilInvalid(saved)).IsNull();
+        await Assert.That(saved.OrderBy(item => item.CreatedAt).Select(item => item.Name))
+            .IsEquivalentTo(Enumerable.Range(0, 20).Select(index => $"Reading {index:D2}"), TUnit.Assertions.Enums.CollectionOrdering.Matching);
+    }
+
+    [Test]
     public async Task ImportingTheSameFileAgainSkipsExistingConsumptions()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
