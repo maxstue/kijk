@@ -63,7 +63,7 @@ function raiseApiError(result: DecodedResponse) {
     return result;
   }
 
-  throw new ApiError(readApiError(result), result.response);
+  throw new ApiError(readApiError(result), result.response, result.request);
 }
 
 function readApiError({ data, status, statusText }: DecodedResponse): ApiProblemDetails {

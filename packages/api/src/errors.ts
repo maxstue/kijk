@@ -1,3 +1,4 @@
+import { ResponseError } from '@kijk/api/generated/.kubb/client';
 import type * as Api from '@kijk/api/generated/types';
 
 /** Problem details returned by the API, including Kijk's extension fields. */
@@ -11,21 +12,23 @@ export type ApiProblemDetails = Api.Problem & {
 };
 
 /**
- * Represents an error that occurs during an API call. This error includes the details of the API problem, the original
- * response, and the HTTP status code.
+ * An error response of the Kijk API with its problem details. It extends the generated Kubb `ResponseError`, so the
+ * error type that generated request and query helpers declare is the error that the API client actually throws. Its
+ * `name` stays `ApiError`; check it with {@link ApiError.isApiError}, not with Kubb's name-based `isResponseError`.
  */
-export class ApiError extends Error {
-  error: ApiProblemDetails;
-  response: Response;
-  status: number;
-
-  constructor(error: ApiProblemDetails, response: Response) {
-    super();
+export class ApiError extends ResponseError<ApiProblemDetails> {
+  constructor(problem: ApiProblemDetails, response: Response, request: Request) {
+    super({
+      data: problem,
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get('Content-Type') ?? undefined,
+      headers: response.headers,
+      request,
+      response,
+    });
     this.name = 'ApiError';
-    this.error = error;
-    this.response = response;
-    this.status = response.status;
-    this.message = this.getErrorMessage(error, response);
+    this.message = problem.detail ?? problem.title ?? response.statusText;
   }
 
   public static isApiError(error: unknown): error is ApiError {
@@ -33,23 +36,11 @@ export class ApiError extends Error {
   }
 
   public getErrorsString() {
-    const messages = Object.values(this.error.errors ?? {}).flat();
+    const messages = Object.values(this.data.errors ?? {}).flat();
     if (messages.length > 0) {
       return messages.join(', ');
     }
 
-    return `${this.error.status} ${this.error.title}`;
-  }
-
-  getErrorMessage(error: unknown, response: Response) {
-    if (this.isApiProblemDetail(error)) {
-      return error.detail ?? error.title ?? response.statusText;
-    }
-
-    return response.statusText;
-  }
-
-  isApiProblemDetail(error: unknown): error is ApiProblemDetails {
-    return typeof error === 'object' && error !== null && 'status' in error && 'title' in error;
+    return `${this.data.status} ${this.data.title}`;
   }
 }

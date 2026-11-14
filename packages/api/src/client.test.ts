@@ -3,7 +3,9 @@ import { afterEach, expect, test, vi } from 'vite-plus/test';
 import * as accountsApi from './accounts/requests';
 import { configureApiClient, createApiClient } from './client';
 import { ApiError } from './errors';
+import { ResponseError, type ResponseErrorConfig } from './generated/.kubb/client';
 import { accountsDelete, consumptionsExportMonth, usersMe } from './generated/sdk';
+import type * as Api from './generated/types';
 import * as importsApi from './imports/requests';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -62,7 +64,7 @@ test('the same middleware raises problem details for reads and bodyless mutation
       name: 'ApiError',
       status: 403,
       message: problem.detail,
-      error: problem,
+      data: problem,
     });
   }
 });
@@ -112,4 +114,19 @@ test('an import upload sends the bank export as multipart form data', async () =
   const form = await request.formData();
   expect(form.get('accountId')).toBe('account');
   expect(await (form.get('file') as File).text()).toBe('date;amount');
+});
+
+test('the thrown ApiError is the error type that generated Kubb helpers declare', async () => {
+  respond(Response.json({ status: 400, title: 'Bad Request', errors: { Name: ['Required'] } }, { status: 400 }));
+  const error = await accountsApi.create('space', { name: '' } as Api.CreateAccountRequest).catch((thrown) => thrown);
+
+  // Compile-time check: generated mutation and query options type their error with the operation's error statuses
+  // (400 validation problem, 401/403/429/500 problem, 404 problem details).
+  const declared: ResponseErrorConfig<
+    Api.AccountsCreateStatus400 | Api.AccountsCreateStatus401 | Api.AccountsCreateStatus404
+  > = error as ApiError;
+  expect(declared).toBeInstanceOf(ResponseError);
+  expect(declared).toBeInstanceOf(ApiError);
+  expect(declared).toMatchObject({ status: 400, data: { title: 'Bad Request' }, message: 'Bad Request' });
+  expect(declared.request.method).toBe('POST');
 });
