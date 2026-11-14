@@ -110,17 +110,13 @@ export function ConsumptionImportDialog() {
         </DialogHeader>
         <form className='grid gap-4' onSubmit={handleSubmit}>
           <ul className='text-muted-foreground list-disc space-y-1 pl-4 text-sm'>
-            <li>One row per reading with the columns of the template, as in a consumption export.</li>
+            <li>Start with the template and replace its example rows with your readings, one row per reading.</li>
             <li>Dates as 2026-01-31 and values without thousands separators.</li>
             <li>
-              Value type <code>Absolute</code> for meter readings (default) or <code>Relative</code> for consumed
-              amounts.
+              Meter readings are <code>Absolute</code>, consumed amounts <code>Relative</code>. Mark the first reading
+              of a new meter with <code>true</code> in <code>StartsNewMeterSegment</code>.
             </li>
-            <li>
-              <code>StartsNewMeterSegment</code> set to <code>true</code> marks the first reading of a new meter, e.g.
-              after a meter replacement.
-            </li>
-            <li>Rows are only imported when every row of the file is valid.</li>
+            <li>Nothing is imported while a row is invalid.</li>
           </ul>
           <CsvFileField maxBytes={maxFileBytes} onFileChange={handleFileChange}>
             <CsvFileFieldLabel>CSV file</CsvFileFieldLabel>

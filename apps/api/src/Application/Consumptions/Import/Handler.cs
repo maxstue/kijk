@@ -56,7 +56,13 @@ public sealed class ImportHandler(IAppDbContext dbContext, CurrentUser currentUs
         foreach (var row in file.Value.Rows)
         {
             var rowErrors = new List<string>();
-            var resource = ResolveResource(row, resources, rowErrors);
+            var match = ResourceMatcher.Match(resources, row.Resource, row.Unit);
+            var resource = match.IsError ? null : match.Value;
+            if (match.IsError)
+            {
+                rowErrors.Add(match.Error.Description);
+            }
+
             var name = row.Name ?? resource?.Name;
             if (name?.Length is < ConsumptionValidationRules.NameMinimumLength or > ConsumptionValidationRules.NameMaximumLength)
             {
@@ -115,7 +121,9 @@ public sealed class ImportHandler(IAppDbContext dbContext, CurrentUser currentUs
             var timeline = existing.Where(item => item.ResourceId == group.Key).Concat(group.Select(item => item.Consumption));
             if (ConsumptionTimelineCalculator.RecalculateUntilInvalid(timeline) is { } invalid)
             {
-                errors.Add(new CsvRowErrorResponse(RowNumberOf(invalid.Consumption, group.ToList()), invalid.Error.Description));
+                // A decreasing existing reading has no row; its date is part of the message, the row is the resource's first.
+                var source = group.FirstOrDefault(item => item.Consumption == invalid.Consumption, group.First());
+                errors.Add(new CsvRowErrorResponse(source.RowNumber, invalid.Error.Description));
             }
         }
 
@@ -140,40 +148,6 @@ public sealed class ImportHandler(IAppDbContext dbContext, CurrentUser currentUs
             logger.LogInformation("Imported {ImportedCount} consumptions and skipped {SkippedCount} existing ones", imported.Count, skipped);
         }
         return new ConsumptionImportResponse(imported.Count, skipped, 0, []);
-    }
-
-    private static Resource? ResolveResource(ConsumptionCsvRow row, IReadOnlyList<Resource> resources, List<string> errors)
-    {
-        var matches = resources
-            .Where(item => string.Equals(item.Name, row.Resource, StringComparison.OrdinalIgnoreCase))
-            .Where(item => row.Unit is null || string.Equals(item.Unit.Symbol, row.Unit, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-        switch (matches.Count)
-        {
-            case 1:
-                return matches[0];
-            case 0:
-                errors.Add(row.Unit is null
-                    ? $"Resource '{row.Resource}' is not available in this space"
-                    : $"Resource '{row.Resource}' with unit '{row.Unit}' is not available in this space");
-                return null;
-            default:
-                errors.Add($"Resource '{row.Resource}' exists with several units; add the {ConsumptionCsvColumns.Unit} column");
-                return null;
-        }
-    }
-
-    // A decreasing reading of an existing entry is caused by the latest imported row before it.
-    private static int RowNumberOf(Consumption consumption, List<(Consumption Consumption, int RowNumber)> timeline)
-    {
-        var own = timeline.FindIndex(item => item.Consumption == consumption);
-        if (own >= 0)
-        {
-            return timeline[own].RowNumber;
-        }
-
-        var preceding = timeline.Where(item => item.Consumption.Date <= consumption.Date).ToList();
-        return preceding.Count > 0 ? preceding.MaxBy(item => item.Consumption.Date).RowNumber : timeline[0].RowNumber;
     }
 
     private static (Guid ResourceId, DateTime Date, ConsumptionValueType ValueType, decimal Value) Key(Consumption consumption) =>

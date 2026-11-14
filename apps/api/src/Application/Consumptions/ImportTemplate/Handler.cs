@@ -12,6 +12,9 @@ namespace Kijk.Application.Consumptions.ImportTemplate;
 /// </summary>
 public sealed class ImportTemplateHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
+    // The example value rarely fits an existing meter, so the row says that it has to be replaced.
+    private const string ExampleDescription = "Example row: replace it with your readings";
+
     /// <summary>
     /// Creates a template in the export format with one example meter reading per resource available in the active
     /// space, so the file shows the exact resource names and units the import accepts.
@@ -30,7 +33,7 @@ public sealed class ImportTemplateHandler(IAppDbContext dbContext, CurrentUser c
         var examples = resources.Select(resource => new ConsumptionResponse(
             Guid.Empty,
             $"{resource.Name} reading",
-            null,
+            ExampleDescription,
             100m,
             ConsumptionValueType.Absolute,
             false,

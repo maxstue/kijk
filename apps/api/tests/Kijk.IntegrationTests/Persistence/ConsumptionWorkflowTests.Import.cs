@@ -180,7 +180,7 @@ public partial class ConsumptionWorkflowTests
         var result = await ImportAsync(dbContext, fixture.CurrentUser, csv);
 
         await Assert.That(template.Value.FileName).IsEqualTo("consumptions-import-template.csv");
-        await Assert.That(csv).Contains("2026-09-08,Electricity reading,Electricity,kWh,Absolute,100");
+        await Assert.That(csv).Contains("2026-09-08,Electricity reading,Electricity,kWh,Absolute,100,false,0,Example row: replace it with your readings");
         await Assert.That(result.Value.ImportedCount).IsEqualTo(1);
     }
 
