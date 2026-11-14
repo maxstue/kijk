@@ -1,5 +1,6 @@
 version: 1
-general: {}
+general:
+    domain: https://eu.infisical.com
 secrets-management:
     project-id: 9a68ec78-1ccd-4ee3-b2e0-036d54381756
     default-environment: dev
