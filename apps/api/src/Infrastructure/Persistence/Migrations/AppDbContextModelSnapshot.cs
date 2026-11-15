@@ -20,7 +20,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "creator_type", new[] { "system", "user" });
@@ -1577,6 +1577,28 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                             QuantityKey = "Mass",
                             Symbol = "t",
                             UnitsNetUnitName = "Tonne"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-8444-444444444441"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Meter",
+                            QuantityKey = "Length",
+                            Symbol = "m",
+                            UnitsNetUnitName = "Meter"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-8444-444444444442"),
+                            ConversionType = "UnitsNet",
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatorType = CreatorType.System,
+                            Name = "Kilometer",
+                            QuantityKey = "Length",
+                            Symbol = "km",
+                            UnitsNetUnitName = "Kilometer"
                         });
                 });
 

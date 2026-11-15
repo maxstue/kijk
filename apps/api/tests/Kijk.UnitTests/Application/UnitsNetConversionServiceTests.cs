@@ -40,6 +40,37 @@ public sealed class UnitsNetConversionServiceTests
     }
 
     [Test]
+    public async Task ConvertBetweenLengthUnits()
+    {
+        var result = _service.Convert(1.5m, SystemUnit("Kilometer", "Length"), SystemUnit("Meter", "Length"));
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        await Assert.That(result.Value).IsEqualTo(1_500m);
+    }
+
+    [Test]
+    public async Task ConvertFactorUnitWithKilometerReference()
+    {
+        var kilometer = SystemUnit("Kilometer", "Length");
+        var marathon = new Unit
+        {
+            Name = "Marathon",
+            Symbol = "marathon",
+            CreatorType = CreatorType.User,
+            ConversionType = UnitConversionType.Factor,
+            QuantityKey = "Length",
+            ReferenceUnit = kilometer,
+            ReferenceUnitId = kilometer.Id,
+            ConversionFactor = 42.195m
+        };
+
+        var result = _service.Convert(2m, marathon, SystemUnit("Meter", "Length"));
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        await Assert.That(result.Value).IsEqualTo(84_390m);
+    }
+
+    [Test]
     public async Task RejectDifferentQuantities()
     {
         var result = _service.Convert(1m, SystemUnit("Liter", "Volume"), SystemUnit("KilowattHour", "Energy"));

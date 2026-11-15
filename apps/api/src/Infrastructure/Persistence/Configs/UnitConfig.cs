@@ -48,7 +48,9 @@ public sealed class UnitConfig : IEntityTypeConfiguration<Unit>
             SystemUnit(new("22222222-2222-4222-8222-222222222223"), "Megawatt hour", "MWh", "Energy", "MegawattHour", createdAt),
             SystemUnit(new("33333333-3333-4333-8333-333333333331"), "Gram", "g", "Mass", "Gram", createdAt),
             SystemUnit(new("33333333-3333-4333-8333-333333333332"), "Kilogram", "kg", "Mass", "Kilogram", createdAt),
-            SystemUnit(new("33333333-3333-4333-8333-333333333333"), "Tonne", "t", "Mass", "Tonne", createdAt));
+            SystemUnit(new("33333333-3333-4333-8333-333333333333"), "Tonne", "t", "Mass", "Tonne", createdAt),
+            SystemUnit(new("44444444-4444-4444-8444-444444444441"), "Meter", "m", "Length", "Meter", createdAt),
+            SystemUnit(new("44444444-4444-4444-8444-444444444442"), "Kilometer", "km", "Length", "Kilometer", createdAt));
     }
 
     private static Unit SystemUnit(
