@@ -1,7 +1,7 @@
 services:
   database:
     container_name: "kijk-db"
-    image: "postgres:alpine"
+    image: "postgres:18-alpine"
     restart: "on-failure"
     environment:
       POSTGRES_USER: postgres
@@ -10,8 +10,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - data-volume:/var/lib/postgresql/data
+      # PostgreSQL 18+ keeps its data in a version-specific directory below this mount.
+      - postgres-data:/var/lib/postgresql
       # - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
-  data-volume:
+  postgres-data:
