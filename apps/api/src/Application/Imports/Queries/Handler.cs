@@ -3,6 +3,7 @@ using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Shared;
 using Kijk.Application.Shared.Csv;
 using Kijk.Application.Shared.Finances;
+using Kijk.Application.Shared.Paging;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -14,22 +15,40 @@ namespace Kijk.Application.Imports.Queries;
 /// </summary>
 public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentUser, ImportFileReader fileReader)
 {
-    private const int ListSize = 20;
-
-    /// <summary>Gets the latest imports of the active space.</summary>
+    /// <summary>Searches, filters, sorts and optionally pages the visible import history.</summary>
+    /// <param name="request">The search, sort and page.</param>
+    /// <param name="status">An optional processing status.</param>
+    /// <param name="accountId">An optional visible account.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The imports, newest first.</returns>
-    public async Task<Result<List<ImportJobResponse>>> ListAsync(CancellationToken cancellationToken)
+    /// <returns>The matching imports.</returns>
+    public async Task<Result<PageResponse<ImportJobResponse>>> ListAsync(
+        ListRequest<ImportSort> request, ImportJobStatus? status, Guid? accountId, CancellationToken cancellationToken)
     {
-        var jobs = await dbContext.GetVisibleImports(currentUser)
+        var query = dbContext.GetVisibleImports(currentUser)
             .Include(item => item.Account)
             .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
-            .OrderByDescending(item => item.CreatedAt)
-            .Take(ListSize)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        return jobs.Select(job => job.ToResponse()).ToList();
+            .AsNoTracking();
+        if (request.Search.ToContainsPattern() is { } pattern)
+        {
+            query = query.Where(item => EF.Functions.ILike(item.FileName, pattern, PagingExtensions.LikeEscape)
+                || EF.Functions.ILike(item.Account.Name, pattern, PagingExtensions.LikeEscape));
+        }
+        if (status is not null)
+        {
+            query = query.Where(item => item.Status == status);
+        }
+        if (accountId is not null)
+        {
+            query = query.Where(item => item.AccountId == accountId);
+        }
+        var ordered = request.Sort switch
+        {
+            ImportSort.FileName => query.OrderBy(item => item.FileName, request.Descending),
+            ImportSort.Account => query.OrderBy(item => item.Account.Name, request.Descending),
+            _ => query.OrderBy(item => item.CreatedAt, request.Sort is null || request.Descending)
+        };
+        var page = await ordered.ThenBy(item => item.Id).ToPageAsync(request.Page, request.PageSize, cancellationToken);
+        return page.Map(job => job.ToResponse());
     }
 
     /// <summary>Gets an import of the active space.</summary>
@@ -106,6 +125,8 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
     /// <param name="page">The one-based page number, clamped to the available pages.</param>
     /// <param name="pageSize">The page size, clamped to 1-100.</param>
     /// <param name="months">Comma-separated first days of selected months; null includes all rows.</param>
+    /// <param name="search">Optional counterparty or purpose text.</param>
+    /// <param name="filter">Optional review filter, independent of commit selection and totals.</param>
     /// <param name="cardSettlementsOnly">Whether to show only included, readable card statements.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The page, or a not-found or invalid-month error.</returns>
@@ -115,7 +136,9 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
         int pageSize,
         string? months,
         bool cardSettlementsOnly,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? search = null,
+        CandidateFilter? filter = null)
     {
         var job = await FindAsync(id, cancellationToken);
         if (job is null)
@@ -148,13 +171,30 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             Included = group.Count(item => item.Errors == null && !item.Excluded),
             CardSettlements = group.Count(item => item.Errors == null && !item.Excluded && item.IsCardSettlement)
         }).SingleOrDefaultAsync(cancellationToken);
-        var totalCount = summary?.Count ?? 0;
         if (cardSettlementsOnly)
         {
             query = query.Where(item => item.Errors == null && !item.Excluded && item.IsCardSettlement);
-            totalCount = summary?.CardSettlements ?? 0;
         }
 
+        if (filter == CandidateFilter.Errors && !cardSettlementsOnly)
+        {
+            // Unreadable dates cannot be assigned to a selected month; show all error rows for diagnosis.
+            query = all.Where(item => item.Errors != null);
+        }
+        // Display filters must not change the summary used by the commit action.
+        if (search.ToContainsPattern() is { } pattern)
+        {
+            query = query.Where(item => item.Counterparty != null && EF.Functions.ILike(item.Counterparty, pattern, PagingExtensions.LikeEscape)
+                || item.Purpose != null && EF.Functions.ILike(item.Purpose, pattern, PagingExtensions.LikeEscape));
+        }
+        query = filter switch
+        {
+            CandidateFilter.Uncategorized => query.Where(item => item.Errors == null && item.CategoryId == null),
+            CandidateFilter.Errors => query.Where(item => item.Errors != null),
+            CandidateFilter.Excluded => query.Where(item => item.Excluded),
+            _ => query
+        };
+        var totalCount = await query.CountAsync(cancellationToken);
         pageSize = Math.Clamp(pageSize, 1, 100);
         var lastPage = Math.Max(1, (totalCount + pageSize - 1) / pageSize);
         page = Math.Clamp(page, 1, lastPage);

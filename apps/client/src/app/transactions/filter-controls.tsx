@@ -34,7 +34,7 @@ export function TransactionFilterControls({ compact = true }: TransactionFilterC
           }
         />
       )}
-      {(search.uncategorized || (search.categoryIds?.length ?? 0) > 0) && (
+      {(search.uncategorized || (search.categoryIds?.length ?? 0) > 0 || Boolean(search.search)) && (
         <Button
           variant='ghost'
           onClick={() =>
@@ -43,6 +43,7 @@ export function TransactionFilterControls({ compact = true }: TransactionFilterC
                 ...previous,
                 categoryIds: undefined,
                 page: undefined,
+                search: undefined,
                 uncategorized: undefined,
               }),
             })

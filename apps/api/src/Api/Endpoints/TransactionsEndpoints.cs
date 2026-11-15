@@ -29,8 +29,8 @@ public sealed class TransactionsEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .RequireFeature(AppConstants.Features.Finances);
 
-        group.MapGet("/", List).WithName("Transactions.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets a page of transactions of the active space, optionally by year, month, categories or without category");
-        group.MapGet("/export", Export).WithName("Transactions.Export").RequireSpacePermission(SpacePermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month, categories or without category").Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv");
+        group.MapGet("/", List).WithName("Transactions.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets a page of transactions of the active space, optionally by year, month, categories, without category or by a search of counterparty and purpose");
+        group.MapGet("/export", Export).WithName("Transactions.Export").RequireSpacePermission(SpacePermissions.Finances.Export).WithSummary("Exports transactions as CSV, optionally by year, month, categories, without category or by a search of counterparty and purpose").Produces<byte[]>(StatusCodes.Status200OK, contentType: "text/csv");
         group.MapGet("/{id:guid}", Details).WithName("Transactions.Details").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets a transaction by id");
         group.MapPost("/", Record).WithName("Transactions.Record").RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateTransactionRequest>().WithSummary("Records a transaction manually");
         group.MapPut("/{id:guid}", Update).WithName("Transactions.Update").RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<UpdateTransactionRequest>().WithSummary("Updates a transaction");
@@ -46,13 +46,14 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         int? month,
         bool? uncategorized,
         [FromQuery] Guid[]? categoryIds,
+        string? search,
         int? page,
         int? pageSize,
         [FromServices] QueriesHandler handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.ListAsync(
-            new TransactionFilter(year, month, uncategorized, categoryIds),
+            new TransactionFilter(year, month, uncategorized, categoryIds, search),
             page ?? 1,
             pageSize ?? QueriesHandler.DefaultPageSize,
             cancellationToken);
@@ -119,10 +120,11 @@ public sealed class TransactionsEndpoints : IEndpointGroup
         int? month,
         bool? uncategorized,
         [FromQuery] Guid[]? categoryIds,
+        string? search,
         ExportHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(new TransactionFilter(year, month, uncategorized, categoryIds), cancellationToken);
+        var result = await handler.HandleAsync(new TransactionFilter(year, month, uncategorized, categoryIds, search), cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
             : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);

@@ -6,6 +6,7 @@ using Kijk.Application.Accounts.Delete;
 using Kijk.Application.Accounts.List;
 using Kijk.Application.Accounts.Shared;
 using Kijk.Application.Accounts.Update;
+using Kijk.Application.Shared.Paging;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -25,7 +26,7 @@ public sealed class AccountsEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .RequireFeature(AppConstants.Features.Finances);
 
-        group.MapGet("/", List).WithName("Accounts.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the accounts of the active space");
+        group.MapGet("/", List).WithName("Accounts.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the accounts of the active space, optionally searched by name or IBAN ending, sorted and paged");
         group.MapPost("/", Create).WithName("Accounts.Create").RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<CreateAccountRequest>().WithSummary("Creates an account; shared accounts additionally require finances:configure");
         group.MapPut("/{id:guid}", Update).WithName("Accounts.Update").RequireSpacePermission(SpacePermissions.Finances.Record).WithRequestValidation<UpdateAccountRequest>().WithSummary("Updates an account; shared accounts additionally require finances:configure");
         group.MapDelete("/{id:guid}", Delete).WithName("Accounts.Delete").RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Deletes an account without transactions; shared accounts additionally require finances:configure");
@@ -33,9 +34,16 @@ public sealed class AccountsEndpoints : IEndpointGroup
         return builder;
     }
 
-    private static async Task<Results<Ok<List<AccountResponse>>, ProblemHttpResult>> List(ListHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<PageResponse<AccountResponse>>, ProblemHttpResult>> List(
+        ListHandler handler,
+        CancellationToken cancellationToken,
+        string? search = null,
+        AccountSort? sort = null,
+        bool descending = false,
+        int? page = null,
+        int? pageSize = null)
     {
-        var result = await handler.HandleAsync(cancellationToken);
+        var result = await handler.HandleAsync(new ListRequest<AccountSort>(search, sort, descending, page, pageSize), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

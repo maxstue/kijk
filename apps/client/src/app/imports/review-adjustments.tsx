@@ -3,7 +3,9 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@kijk/ui/component
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@kijk/ui/components/collapsible';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { SlidersHorizontal } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { use, type ReactNode } from 'react';
+
+import { ImportReviewContext } from './review-context';
 
 interface CategorizationProgressProps {
   active: boolean;
@@ -29,7 +31,11 @@ interface ReviewAdjustmentsProps {
 }
 
 export function ReviewAdjustments({ children }: ReviewAdjustmentsProps) {
-  const [expanded, setExpanded] = useState(false);
+  const context = use(ImportReviewContext);
+  if (!context) {
+    throw new Error('ReviewAdjustments requires ImportReview');
+  }
+  const { adjustmentsOpen: expanded, onAdjustmentsOpenChange: setExpanded } = context;
   return (
     <Collapsible
       open={expanded}

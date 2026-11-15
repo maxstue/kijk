@@ -5,18 +5,36 @@ import { Button } from '@kijk/ui/components/button';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Plus, Settings } from 'lucide-react';
+import { z } from 'zod';
 
+import { importStatusLabels } from '@/app/imports/constants';
 import { ImportList } from '@/app/imports/import-list';
 import { RouteError } from '@/shared/components/errors/route-error';
 import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import { listSearchSchema } from '@/shared/lib/list-search';
 
 /** Import history with entry points for the wizard and space settings. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/')({
-  loader: async ({ params: { spaceId }, context: { queryClient } }) => {
-    await queryClient.query({ ...importsOptions.listQueryOptions(spaceId), staleTime: 'static' });
+  validateSearch: listSearchSchema.extend({
+    status: z
+      .enum(
+        Object.keys(importStatusLabels) as [keyof typeof importStatusLabels, ...Array<keyof typeof importStatusLabels>],
+      )
+      .optional()
+      .catch(undefined),
+    accountId: z.uuid().optional().catch(undefined),
+    sort: z.enum(['CreatedAt', 'FileName', 'Account']).default('CreatedAt').catch('CreatedAt'),
+    descending: z.boolean().default(true).catch(true),
+  }),
+  loaderDeps: ({ search }) => search,
+  loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
+    await queryClient.query({
+      ...importsOptions.listQueryOptions(spaceId, { ...deps, pageSize: 10 }),
+      staleTime: 'static',
+    });
   },
   component: ImportsPage,
   errorComponent: RouteError,
@@ -25,6 +43,8 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
 });
 
 function ImportsPage() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const spaceId = useSpaceId();
   const canImport = useSpacePermission(SpacePermissions.finances.import);
   const { data } = useSuspenseQuery(usersOptions.meQueryOptions());
@@ -55,7 +75,12 @@ function ImportsPage() {
           </>
         </PageToolbarActions>
       </PageToolbar>
-      <ImportList />
+      <ImportList
+        query={{ ...search, pageSize: 10 }}
+        onQueryChange={(query) =>
+          void navigate({ search: { ...search, ...query }, replace: query.search !== search.search })
+        }
+      />
     </div>
   );
 }

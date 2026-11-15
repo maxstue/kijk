@@ -10,3 +10,8 @@ export interface UpdateResourceData {
   id: string;
   resource: UpdateResourceRequest;
 }
+
+/** Resources available in the active space; one page of them when the query names a page. */
+export type ResourcePage = Api.PageResponseOfResourceResponse;
+/** The columns the resource list can be sorted by. */
+export type ResourceSort = Api.ResourceSort;

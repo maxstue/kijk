@@ -12,7 +12,9 @@ interface Props {
 /** Warning icon with tooltip when an active limit of the resource is exceeded. */
 export function LimitWarning({ resourceId }: Props) {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(limitsOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: data },
+  } = useSuspenseQuery(limitsOptions.listQueryOptions(spaceId));
   const exceededLimits = data.filter((limit) => limit.active && limit.isExceeded && limit.resource.id === resourceId);
 
   if (exceededLimits.length === 0) {

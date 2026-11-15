@@ -1,4 +1,5 @@
 import type * as Api from '@kijk/api/generated/types';
+import type { ListQuery } from '@kijk/api/paging';
 
 /** The state of an import. */
 export type ImportJob = Api.ImportJobResponse;
@@ -19,6 +20,8 @@ export interface ImportCandidatesQuery {
   pageSize?: number;
   months?: string;
   cardSettlementsOnly?: boolean;
+  search?: string;
+  filter?: Api.CandidateFilter;
 }
 
 /** The import settings of the active space. */
@@ -58,4 +61,12 @@ export interface UpdateImportCandidateData {
   importId: string;
   candidateId: string;
   candidate: UpdateImportCandidateRequest;
+}
+
+/** Sort columns of the list. */
+export type ImportSort = Api.ImportSort;
+/** Server-side list filters and page. */
+export interface ImportsQuery extends ListQuery<ImportSort> {
+  status?: ImportJobStatus;
+  accountId?: string;
 }

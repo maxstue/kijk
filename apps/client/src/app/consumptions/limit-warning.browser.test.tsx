@@ -1,10 +1,10 @@
-import type { Limit } from '@kijk/api/limits/types';
 import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import type { PropsWithChildren } from 'react';
 import { expect, test } from 'vite-plus/test';
 
+import { listPage } from '@/test/list-page';
 import { worker } from '@/test/mocks/browser';
 import { render } from '@/test/render-space';
 
@@ -23,25 +23,27 @@ test('does not render a warning when no active limit is exceeded', async () => {
 test('renders exceeded limits returned by the API', async () => {
   worker.use(
     http.get('http://localhost:5000/api/spaces/space/limits', () =>
-      HttpResponse.json<Limit[]>([
-        {
-          active: true,
-          actualValue: 125,
-          description: null,
-          id: '0cab1db3-080c-4fd9-bb6d-cbe48422dcf0',
-          isExceeded: true,
-          lastOccurrence: '2026-09-06T12:00:00Z',
-          history: [],
-          limit: 100,
-          name: 'Monthly electricity',
-          period: 'Month',
-          periodEnd: '2026-10-01T00:00:00Z',
-          periodStart: '2026-09-01T00:00:00Z',
-          remainingValue: 0,
-          resource: { color: '#123456', id: resourceId, name: 'Electricity', unit: 'kWh' },
-          utilizationPercentage: 125,
-        },
-      ]),
+      HttpResponse.json(
+        listPage([
+          {
+            active: true,
+            actualValue: 125,
+            description: null,
+            id: '0cab1db3-080c-4fd9-bb6d-cbe48422dcf0',
+            isExceeded: true,
+            lastOccurrence: '2026-09-06T12:00:00Z',
+            history: [],
+            limit: 100,
+            name: 'Monthly electricity',
+            period: 'Month',
+            periodEnd: '2026-10-01T00:00:00Z',
+            periodStart: '2026-09-01T00:00:00Z',
+            remainingValue: 0,
+            resource: { color: '#123456', id: resourceId, name: 'Electricity', unit: 'kWh' },
+            utilizationPercentage: 125,
+          },
+        ]),
+      ),
     ),
   );
   const screen = await renderWarning();

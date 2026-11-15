@@ -72,6 +72,19 @@ public partial class ImportHttpTests
         await Assert.That(cards.TotalCount).IsEqualTo(123);
         await Assert.That(cards.IncludedCount).IsEqualTo(245);
         await Assert.That(cards.Items.All(item => item.IsCardSettlement && !item.Excluded)).IsTrue();
+        var baseUrl = $"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates?months=2026-10-01";
+        var excluded = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"{baseUrl}&search=MERCHANT&filter=Excluded&page=999&pageSize=2", Json))!;
+        await Assert.That(excluded.TotalCount).IsEqualTo(5);
+        await Assert.That(excluded.Page).IsEqualTo(3);
+        await Assert.That(excluded.IncludedCount).IsEqualTo(245);
+        await Assert.That(excluded.CardSettlementCount).IsEqualTo(123);
+        var errors = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"{baseUrl}&filter=Errors&pageSize=10", Json))!;
+        await Assert.That(errors.TotalCount).IsEqualTo(15);
+        await Assert.That(errors.IncludedCount).IsEqualTo(245);
+        var noMatches = (await host.Client.GetFromJsonAsync<ImportCandidatePageResponse>($"{baseUrl}&search=missing", Json))!;
+        await Assert.That(noMatches.TotalCount).IsEqualTo(0);
+        await Assert.That(noMatches.IncludedCount).IsEqualTo(245);
+
         using var invalidMonth = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{job.Id}/candidates?months=2026-12-01");
         await Assert.That(invalidMonth.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         using var missing = await host.Client.GetAsync($"/api/spaces/{fixture.Account.SpaceId}/imports/{Guid.NewGuid()}/candidates?months=2026-10-01");

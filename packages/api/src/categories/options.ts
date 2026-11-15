@@ -1,15 +1,21 @@
 import { invalidate } from '@kijk/api/cache';
+import { keepPreviousPageInSpace } from '@kijk/api/paging';
+import type { ListQuery } from '@kijk/api/paging';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { create, remove, list, update } from './requests';
-import type { CreateCategoryRequest, UpdateCategoryRequest } from './types';
+import type { CategoryPage, CategorySort, CreateCategoryRequest, UpdateCategoryRequest } from './types';
 
-/** Query for the categories available to the active space. */
-export const listQueryOptions = (spaceId: string) =>
+/**
+ * Query for the categories available to the active space. Tables pass a search, sort and page; selects omit the query
+ * to get every row.
+ */
+export const listQueryOptions = (spaceId: string, query: ListQuery<CategorySort> = {}) =>
   queryOptions({
-    queryFn: ({ signal }) => list(spaceId, signal),
-    queryKey: queryKeys.categories.list(spaceId),
+    placeholderData: keepPreviousPageInSpace<CategoryPage>(spaceId),
+    queryFn: ({ signal }) => list(spaceId, query, signal),
+    queryKey: queryKeys.categories.list(spaceId, query),
   });
 
 /** Mutation that creates a custom category. */

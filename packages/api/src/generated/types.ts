@@ -44,6 +44,8 @@ export type AccountResponse = {
   visibility: Visibility;
 };
 
+export type AccountSort = 'Name' | 'Kind';
+
 export type AiDataSharing = 'Off' | 'Strict';
 
 /**
@@ -387,6 +389,8 @@ export type BudgetStatisticsResponse = {
   totalBudget: (number | string)[];
 };
 
+export type CandidateFilter = 'Uncategorized' | 'Errors' | 'Excluded';
+
 /**
  * Request for categorizing the rows of an import with the AI.
  *
@@ -696,6 +700,8 @@ export type CategoryRuleResponse = {
   visibility: Visibility;
 };
 
+export type CategoryRuleSort = 'Label' | 'Category';
+
 /**
  * A rule Kijk suggests because a member set the same category for a merchant or counterparty by hand.
  *
@@ -755,6 +761,8 @@ export type CategoryRuleSuggestionResponse = {
    */
   transactionId: string;
 };
+
+export type CategorySort = 'Name' | 'Kind' | 'CreatorType';
 
 /**
  * Contains the new role of a space member.
@@ -2202,6 +2210,8 @@ export type ImportSettingsResponse = {
   minimizeData: boolean;
 };
 
+export type ImportSort = 'CreatedAt' | 'FileName' | 'Account';
+
 /**
  * A recorded calendar period evaluated against the limit's current threshold and period settings. Periods without
  * readings and future periods are omitted; the current period is provisional.
@@ -2319,45 +2329,166 @@ export type LimitResponse = {
   history: LimitPeriodResponse[];
 };
 
-export type ProblemErrorTypeEnum =
-  | 'Authentication'
-  | 'Authorization'
-  | 'NotFound'
-  | 'Conflict'
-  | 'Validation'
-  | 'Unexpected';
+export type LimitSort = 'Resource' | 'Name' | 'Period';
 
-export type Problem = {
-  type?: string | null;
-  title?: string | null;
-  /** Format: `int32` */
-  status?: (number | string) | null;
-  detail?: string | null;
-  instance?: string | null;
-  errorType?: ProblemErrorTypeEnum;
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type PageResponseOfAccountResponse = {
   /**
-   * The date and time when the error occurred.
+   * The rows of the page.
    *
-   * Format: `date-time`
-   *
-   * @type string | undefined
+   * @type array
    */
-  timestamp?: string;
+  items: AccountResponse[];
   /**
-   * The correlation ID for the request.
+   * The number of rows matching the search, across all pages.
    *
-   * @type string | undefined
+   * Format: `int32`
    */
-  correlationId?: string;
+  totalCount: number | string;
+  /**
+   * The 1-based page number; clamped to the last page when the requested one is past the end.
+   *
+   * Format: `int32`
+   */
+  page: number | string;
+  /**
+   * The page size; the number of rows when the request names no page.
+   *
+   * Format: `int32`
+   */
+  pageSize: number | string;
 };
 
-export type ProblemDetails = {
-  type?: string | null;
-  title?: string | null;
-  /** Format: `int32` */
-  status?: (number | string) | null;
-  detail?: string | null;
-  instance?: string | null;
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type PageResponseOfCategoryResponse = {
+  /**
+   * The rows of the page.
+   *
+   * @type array
+   */
+  items: CategoryResponse[];
+  /**
+   * The number of rows matching the search, across all pages.
+   *
+   * Format: `int32`
+   */
+  totalCount: number | string;
+  /**
+   * The 1-based page number; clamped to the last page when the requested one is past the end.
+   *
+   * Format: `int32`
+   */
+  page: number | string;
+  /**
+   * The page size; the number of rows when the request names no page.
+   *
+   * Format: `int32`
+   */
+  pageSize: number | string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type PageResponseOfCategoryRuleResponse = {
+  /**
+   * The rows of the page.
+   *
+   * @type array
+   */
+  items: CategoryRuleResponse[];
+  /**
+   * The number of rows matching the search, across all pages.
+   *
+   * Format: `int32`
+   */
+  totalCount: number | string;
+  /**
+   * The 1-based page number; clamped to the last page when the requested one is past the end.
+   *
+   * Format: `int32`
+   */
+  page: number | string;
+  /**
+   * The page size; the number of rows when the request names no page.
+   *
+   * Format: `int32`
+   */
+  pageSize: number | string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type PageResponseOfImportJobResponse = {
+  /**
+   * The rows of the page.
+   *
+   * @type array
+   */
+  items: ImportJobResponse[];
+  /**
+   * The number of rows matching the search, across all pages.
+   *
+   * Format: `int32`
+   */
+  totalCount: number | string;
+  /**
+   * The 1-based page number; clamped to the last page when the requested one is past the end.
+   *
+   * Format: `int32`
+   */
+  page: number | string;
+  /**
+   * The page size; the number of rows when the request names no page.
+   *
+   * Format: `int32`
+   */
+  pageSize: number | string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type PageResponseOfLimitResponse = {
+  /**
+   * The rows of the page.
+   *
+   * @type array
+   */
+  items: LimitResponse[];
+  /**
+   * The number of rows matching the search, across all pages.
+   *
+   * Format: `int32`
+   */
+  totalCount: number | string;
+  /**
+   * The 1-based page number; clamped to the last page when the requested one is past the end.
+   *
+   * Format: `int32`
+   */
+  page: number | string;
+  /**
+   * The page size; the number of rows when the request names no page.
+   *
+   * Format: `int32`
+   */
+  pageSize: number | string;
 };
 
 /**
@@ -2425,6 +2556,81 @@ export type ResourceResponse = {
    */
   creatorType: CreatorType;
 };
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type PageResponseOfResourceResponse = {
+  /**
+   * The rows of the page.
+   *
+   * @type array
+   */
+  items: ResourceResponse[];
+  /**
+   * The number of rows matching the search, across all pages.
+   *
+   * Format: `int32`
+   */
+  totalCount: number | string;
+  /**
+   * The 1-based page number; clamped to the last page when the requested one is past the end.
+   *
+   * Format: `int32`
+   */
+  page: number | string;
+  /**
+   * The page size; the number of rows when the request names no page.
+   *
+   * Format: `int32`
+   */
+  pageSize: number | string;
+};
+
+export type ProblemErrorTypeEnum =
+  | 'Authentication'
+  | 'Authorization'
+  | 'NotFound'
+  | 'Conflict'
+  | 'Validation'
+  | 'Unexpected';
+
+export type Problem = {
+  type?: string | null;
+  title?: string | null;
+  /** Format: `int32` */
+  status?: (number | string) | null;
+  detail?: string | null;
+  instance?: string | null;
+  errorType?: ProblemErrorTypeEnum;
+  /**
+   * The date and time when the error occurred.
+   *
+   * Format: `date-time`
+   *
+   * @type string | undefined
+   */
+  timestamp?: string;
+  /**
+   * The correlation ID for the request.
+   *
+   * @type string | undefined
+   */
+  correlationId?: string;
+};
+
+export type ProblemDetails = {
+  type?: string | null;
+  title?: string | null;
+  /** Format: `int32` */
+  status?: (number | string) | null;
+  detail?: string | null;
+  instance?: string | null;
+};
+
+export type ResourceSort = 'Name' | 'Unit' | 'Color' | 'CreatorType';
 
 /**
  * Request for setting a budget for a category from a month on.
@@ -3089,7 +3295,26 @@ export type AccountsListPath = {
   spaceId: string;
 };
 
-export type AccountsListStatus200 = AccountResponse[];
+export type AccountsListQuery = {
+  search?: string;
+  sort?: AccountSort | null;
+  /**
+   * @default false
+   * @type boolean | undefined
+   */
+  descending?: boolean;
+  /** Format: `int32` */
+  page?: number | string;
+  /** Format: `int32` */
+  pageSize?: number | string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type AccountsListStatus200 = PageResponseOfAccountResponse;
 
 export type AccountsListStatus401 = Problem;
 
@@ -3104,7 +3329,7 @@ export type AccountsListStatus500 = Problem;
 export type AccountsListOptions = {
   body?: never;
   path: AccountsListPath;
-  query?: never;
+  query?: AccountsListQuery;
   headers?: never;
 };
 
@@ -3619,7 +3844,26 @@ export type CategoriesListPath = {
   spaceId: string;
 };
 
-export type CategoriesListStatus200 = CategoryResponse[];
+export type CategoriesListQuery = {
+  search?: string;
+  sort?: CategorySort | null;
+  /**
+   * @default false
+   * @type boolean | undefined
+   */
+  descending?: boolean;
+  /** Format: `int32` */
+  page?: number | string;
+  /** Format: `int32` */
+  pageSize?: number | string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type CategoriesListStatus200 = PageResponseOfCategoryResponse;
 
 export type CategoriesListStatus401 = Problem;
 
@@ -3634,7 +3878,7 @@ export type CategoriesListStatus500 = Problem;
 export type CategoriesListOptions = {
   body?: never;
   path: CategoriesListPath;
-  query?: never;
+  query?: CategoriesListQuery;
   headers?: never;
 };
 
@@ -3829,7 +4073,26 @@ export type CategoryRulesListPath = {
   spaceId: string;
 };
 
-export type CategoryRulesListStatus200 = CategoryRuleResponse[];
+export type CategoryRulesListQuery = {
+  search?: string;
+  sort?: CategoryRuleSort | null;
+  /**
+   * @default false
+   * @type boolean | undefined
+   */
+  descending?: boolean;
+  /** Format: `int32` */
+  page?: number | string;
+  /** Format: `int32` */
+  pageSize?: number | string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type CategoryRulesListStatus200 = PageResponseOfCategoryRuleResponse;
 
 export type CategoryRulesListStatus401 = Problem;
 
@@ -3844,7 +4107,7 @@ export type CategoryRulesListStatus500 = Problem;
 export type CategoryRulesListOptions = {
   body?: never;
   path: CategoryRulesListPath;
-  query?: never;
+  query?: CategoryRulesListQuery;
   headers?: never;
 };
 
@@ -4727,7 +4990,38 @@ export type ImportsListPath = {
   spaceId: string;
 };
 
-export type ImportsListStatus200 = ImportJobResponse[];
+export type ImportsListQuery = {
+  search?: string;
+  sort?: ImportSort | null;
+  /**
+   * @default false
+   * @type boolean | undefined
+   */
+  descending?: boolean;
+  /** Format: `int32` */
+  page?: number | string;
+  /** Format: `int32` */
+  pageSize?: number | string;
+  /**
+   * Represents the processing state of a CSV import.
+   *
+   * @type string | undefined
+   */
+  status?: ImportJobStatus;
+  /**
+   * Format: `uuid`
+   *
+   * @type string | undefined
+   */
+  accountId?: string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type ImportsListStatus200 = PageResponseOfImportJobResponse;
 
 export type ImportsListStatus401 = Problem;
 
@@ -4742,7 +5036,7 @@ export type ImportsListStatus500 = Problem;
 export type ImportsListOptions = {
   body?: never;
   path: ImportsListPath;
-  query?: never;
+  query?: ImportsListQuery;
   headers?: never;
 };
 
@@ -4986,6 +5280,8 @@ export type ImportsCandidatesQuery = {
    * @type boolean | undefined
    */
   cardSettlementsOnly?: boolean;
+  search?: string;
+  filter?: CandidateFilter | null;
 };
 
 /**
@@ -5544,7 +5840,38 @@ export type LimitsListPath = {
   spaceId: string;
 };
 
-export type LimitsListStatus200 = LimitResponse[];
+export type LimitsListQuery = {
+  search?: string;
+  sort?: LimitSort | null;
+  /**
+   * @default false
+   * @type boolean | undefined
+   */
+  descending?: boolean;
+  /** Format: `int32` */
+  page?: number | string;
+  /** Format: `int32` */
+  pageSize?: number | string;
+  /**
+   * Format: `uuid`
+   *
+   * @type string | undefined
+   */
+  resourceId?: string;
+  /**
+   * Represents a period of time.
+   *
+   * @type string | undefined
+   */
+  period?: Period;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type LimitsListStatus200 = PageResponseOfLimitResponse;
 
 export type LimitsListStatus401 = Problem;
 
@@ -5559,7 +5886,7 @@ export type LimitsListStatus500 = Problem;
 export type LimitsListOptions = {
   body?: never;
   path: LimitsListPath;
-  query?: never;
+  query?: LimitsListQuery;
   headers?: never;
 };
 
@@ -5807,7 +6134,26 @@ export type ResourcesListPath = {
   spaceId: string;
 };
 
-export type ResourcesListStatus200 = ResourceResponse[];
+export type ResourcesListQuery = {
+  search?: string;
+  sort?: ResourceSort | null;
+  /**
+   * @default false
+   * @type boolean | undefined
+   */
+  descending?: boolean;
+  /** Format: `int32` */
+  page?: number | string;
+  /** Format: `int32` */
+  pageSize?: number | string;
+};
+
+/**
+ * The rows of a list endpoint; a single page holding every row when the request names no page.
+ *
+ * @type object
+ */
+export type ResourcesListStatus200 = PageResponseOfResourceResponse;
 
 export type ResourcesListStatus401 = Problem;
 
@@ -5822,7 +6168,7 @@ export type ResourcesListStatus500 = Problem;
 export type ResourcesListOptions = {
   body?: never;
   path: ResourcesListPath;
-  query?: never;
+  query?: ResourcesListQuery;
   headers?: never;
 };
 
@@ -6293,6 +6639,7 @@ export type TransactionsListQuery = {
   month?: number | string;
   uncategorized?: boolean;
   categoryIds?: string[];
+  search?: string;
   /** Format: `int32` */
   page?: number | string;
   /** Format: `int32` */
@@ -6410,6 +6757,7 @@ export type TransactionsExportQuery = {
   month?: number | string;
   uncategorized?: boolean;
   categoryIds?: string[];
+  search?: string;
 };
 
 /** Format: `byte` */

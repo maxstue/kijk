@@ -1,15 +1,21 @@
 import { invalidate } from '@kijk/api/cache';
+import { keepPreviousPageInSpace } from '@kijk/api/paging';
+import type { ListQuery } from '@kijk/api/paging';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { create, remove, getDetails, list, update } from './requests';
-import type { ResourceData, UpdateResourceData } from './types';
+import type { ResourceData, ResourcePage, ResourceSort, UpdateResourceData } from './types';
 
-/** Query for the resources of the active space. */
-export const listQueryOptions = (spaceId: string) =>
+/**
+ * Query for the resources of the active space. Tables pass a search, sort and page; selects omit the query to get every
+ * row.
+ */
+export const listQueryOptions = (spaceId: string, query: ListQuery<ResourceSort> = {}) =>
   queryOptions({
-    queryFn: ({ signal }) => list(spaceId, signal),
-    queryKey: queryKeys.resources.list(spaceId),
+    placeholderData: keepPreviousPageInSpace<ResourcePage>(spaceId),
+    queryFn: ({ signal }) => list(spaceId, query, signal),
+    queryKey: queryKeys.resources.list(spaceId, query),
   });
 
 /** Query for a single resource. */

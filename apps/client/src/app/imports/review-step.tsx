@@ -10,15 +10,18 @@ import {
   ImportReviewAiDialog,
 } from './review';
 import { ReviewAdjustments } from './review-adjustments';
+import type { ReviewQuery } from './types';
 
-interface ImportReviewStepProps {
+interface Props {
   job: ImportJob;
+  query: ReviewQuery;
+  onQueryChange: (query: ReviewQuery) => void;
   stage: 'months' | 'review';
   onStageChange: (stage: 'months' | 'review') => void;
 }
 
 /** Composes the review workflow; shared state lives in Root and survives step changes. */
-export function ImportReviewStep(props: ImportReviewStepProps) {
+export function ImportReviewStep(props: Props) {
   return (
     <ImportReview {...props}>
       <ImportReviewMonthSelection />

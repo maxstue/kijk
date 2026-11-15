@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk
 import { Progress } from '@kijk/ui/components/progress';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
 
 import { formatImportMonth } from '@/app/imports/helpers';
 import { ImportMappingStep } from '@/app/imports/mapping-step';
@@ -13,6 +12,8 @@ import { ImportReviewStep } from '@/app/imports/review-step';
 import { ImportStatusBadge } from '@/app/imports/status-badge';
 import { ImportWizard } from '@/app/imports/wizard';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
+
+import type { ReviewQuery } from './types';
 
 const stepTitles: Record<ImportJob['status'], string> = {
   Pending: 'Preparing your file',
@@ -26,16 +27,19 @@ const stepTitles: Record<ImportJob['status'], string> = {
   Failed: 'Import failed',
 };
 
-interface ImportDetailProps {
+interface Props {
   importId: string;
+  query: ReviewQuery;
+  onQueryChange: (query: ReviewQuery) => void;
 }
 
 /** An import with the step that matches its state. */
-export function ImportDetail({ importId }: ImportDetailProps) {
+export function ImportDetail({ importId, query, onQueryChange }: Props) {
   const spaceId = useSpaceId();
   const { data: job } = useSuspenseQuery(importsOptions.detailsQueryOptions(spaceId, importId));
 
-  const [reviewStage, setReviewStage] = useState<'months' | 'review'>('months');
+  const reviewStage = query.reviewStage ?? 'months';
+  const setReviewStage = (reviewStage: 'months' | 'review') => onQueryChange({ ...query, reviewStage });
   const isReview = job.status === 'NeedsReview' || job.status === 'Categorizing';
 
   return (
@@ -50,7 +54,14 @@ export function ImportDetail({ importId }: ImportDetailProps) {
       }
     >
       {isReview ? (
-        <ImportReviewStep key={job.id} job={job} stage={reviewStage} onStageChange={setReviewStage} />
+        <ImportReviewStep
+          query={query}
+          onQueryChange={onQueryChange}
+          key={job.id}
+          job={job}
+          stage={reviewStage}
+          onStageChange={setReviewStage}
+        />
       ) : (
         <ImportStep job={job} />
       )}

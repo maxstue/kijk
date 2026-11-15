@@ -1,11 +1,12 @@
 import { apiClient } from '@kijk/api/client';
 import { categoriesCreate, categoriesDelete, categoriesList, categoriesUpdate } from '@kijk/api/generated/sdk';
+import type { ListQuery } from '@kijk/api/paging';
 
-import type { CreateCategoryRequest, UpdateCategoryRequest } from './types';
+import type { CategorySort, CreateCategoryRequest, UpdateCategoryRequest } from './types';
 
-/** Loads the system categories and the active space's own categories. */
-export async function list(spaceId: string, signal?: AbortSignal) {
-  return categoriesList({ client: apiClient(), path: { spaceId }, signal });
+/** Loads the categories, optionally searched, sorted and paged. */
+export async function list(spaceId: string, query: ListQuery<CategorySort> = {}, signal?: AbortSignal) {
+  return categoriesList({ client: apiClient(), path: { spaceId }, query, signal });
 }
 
 /** Creates a custom category. */

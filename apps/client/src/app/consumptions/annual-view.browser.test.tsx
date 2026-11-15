@@ -1,8 +1,10 @@
+import { useState, type ComponentProps } from 'react';
 import { expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import type { Consumption } from '@/shared/types/domain';
 
+import type { AnnualViewState } from './annual-view';
 import { ConsumptionAnnualView } from './annual-view';
 
 interface ConsumptionEditButtonProps {
@@ -47,14 +49,14 @@ function entry(id: string, resource: Consumption['resource'], date: string, valu
 }
 
 test('shows an explicit empty state when the year has no consumptions', async () => {
-  const screen = await render(<ConsumptionAnnualView consumptions={[]} />);
+  const screen = await render(<TestAnnualView consumptions={[]} />);
   await expect.element(screen.getByText('No consumptions found.')).toBeVisible();
   await expect.element(screen.getByRole('button', { name: 'Expand entries' })).not.toBeInTheDocument();
 });
 
 test('expands grouped readings in date order and distinguishes meter resets', async () => {
   const screen = await render(
-    <ConsumptionAnnualView
+    <TestAnnualView
       consumptions={[
         entry('January reading', electricity, '2026-01-01', 30),
         entry('New meter', electricity, '2026-02-01', 100, true),
@@ -80,7 +82,7 @@ test('expands grouped readings in date order and distinguishes meter resets', as
 
 test('filters summaries by resource and can return to all types', async () => {
   const screen = await render(
-    <ConsumptionAnnualView
+    <TestAnnualView
       consumptions={[entry('Meter', electricity, '2026-01-01', 30), entry('Water reading', water, '2026-01-02', 20)]}
     />,
   );
@@ -95,3 +97,9 @@ test('filters summaries by resource and can return to all types', async () => {
   await screen.getByRole('option', { name: 'All types' }).click();
   await expect.poll(() => screen.getByRole('button', { name: 'Expand entries' }).all().length).toBe(2);
 });
+
+interface Props extends Pick<ComponentProps<typeof ConsumptionAnnualView>, 'consumptions'> {}
+function TestAnnualView({ consumptions }: Props) {
+  const [state, setState] = useState<AnnualViewState>({});
+  return <ConsumptionAnnualView consumptions={consumptions} state={state} onStateChange={setState} />;
+}

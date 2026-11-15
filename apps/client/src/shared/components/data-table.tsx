@@ -1,53 +1,102 @@
 'use no memo';
 
 // 'use no memo' until the react compiler/table bug is fixed https://github.com/TanStack/table/issues/5567
+import type { ListQuery } from '@kijk/api/paging';
 import { Button } from '@kijk/ui/components/button';
-import { Input } from '@kijk/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import { useQuery } from '@tanstack/react-query';
+import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
 import { flexRender, useTable } from '@tanstack/react-table';
-import type { ColumnDef, ColumnFiltersState, ColumnSort, RowData, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, PaginationState, RowData, SortingState } from '@tanstack/react-table';
 import { cn } from 'cn';
-import { useState } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import type { ReactNode } from 'react';
 
 import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
+import { SearchInput } from '@/shared/components/search-input';
 import { dataTableFeatures } from '@/shared/lib/table-features';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
+import { tablePageSize, toTableQuery } from '@/shared/lib/table-query';
+import type { TableSort, TableControlProps } from '@/shared/lib/table-query';
 
-interface Props<TData extends RowData> {
+/** Rows while the first page loads; stable, so the table does not rebuild its row model every render. */
+const noRows: never[] = [];
+
+/** The part of an API list page the table reads. */
+interface TablePage<TData> {
+  items: TData[];
+  page: number | string;
+  totalCount: number | string;
+}
+
+interface Props<
+  TData extends RowData,
+  TSort extends string,
+  TPage extends TablePage<TData>,
+  TKey extends QueryKey,
+> extends TableControlProps {
   columns: Array<ColumnDef<DataTableFeatures, TData>>;
-  data: TData[];
   actions?: ReactNode;
-  defaultSort?: ColumnSort;
-  /** Id of the column the filter input searches; defaults to `name`. */
-  filterColumn?: string;
-  filterPlaceholder?: string;
+  searchPlaceholder?: string;
+  /** Builds the list query of one page; the API searches, sorts and pages the rows. */
+  queryOptions: (query: ListQuery<TSort>) => UseQueryOptions<TPage, Error, TPage, TKey>;
+  sort: TableSort<TSort>;
 }
 
 /**
- * Client-side table with a text filter, sortable columns and pagination (10 rows per page).
- *
- * The filter input targets the column with id `filterColumn` (`name` by default).
+ * Server-side table with a search, sortable columns and pagination (10 rows per page): search, sort and page go to the
+ * list endpoint together. A new search or sort starts at the first page again; the shown page stays visible while the
+ * next one loads.
  */
-export function DataTable<TData extends RowData>({
+export function DataTable<
+  TData extends RowData,
+  TSort extends string,
+  TPage extends TablePage<TData>,
+  TKey extends QueryKey,
+>({
   columns,
-  data,
   actions,
-  defaultSort,
-  filterColumn = 'name',
-  filterPlaceholder = 'Filter name...',
-}: Props<TData>) {
-  const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  searchPlaceholder = 'Search...',
+  queryOptions,
+  sort,
+  state,
+  onStateChange,
+}: Props<TData, TSort, TPage, TKey>) {
+  const { search = '', pageIndex = 0 } = state;
+  const sorting: SortingState = [state.sort ?? sort.defaultSort];
+  const { data, isError, isPending, isPlaceholderData, refetch } = useQuery(
+    queryOptions(toTableQuery(sort, { pageIndex, search, sort: sorting[0] })),
+  );
+  // The API returns the last page when the requested one no longer exists, for example after deleting its last row.
+  const servedPageIndex = data && !isPlaceholderData ? Number(data.page) - 1 : pageIndex;
+  // A background invalidation can clamp the page after deletion. Update the external URL only when that page changes,
+  // reading the latest navigation callback and other filters without resynchronizing on their object identities.
+  const syncServedPage = useEffectEvent((pageIndex: number) => {
+    onStateChange({ ...state, pageIndex }, { replace: true });
+  });
+  useEffect(() => {
+    if (servedPageIndex !== pageIndex) {
+      syncServedPage(servedPageIndex);
+    }
+  }, [servedPageIndex, pageIndex]);
+
+  const pagination: PaginationState = { pageIndex, pageSize: tablePageSize };
   const table = useTable({
     columns,
-    data,
+    data: data?.items ?? noRows,
     features: dataTableFeatures,
-    onColumnFiltersChange: setColumnFilters,
-    onSortingChange: setSorting,
+    manualPagination: true,
+    manualSorting: true,
+    rowCount: Number(data?.totalCount ?? 0),
+    onPaginationChange: (updater) =>
+      onStateChange({ ...state, pageIndex: (typeof updater === 'function' ? updater(pagination) : updater).pageIndex }),
+    onSortingChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(sorting) : updater;
+      onStateChange({ ...state, sort: next[0] ?? sort.defaultSort, pageIndex: 0 });
+    },
     state: {
-      columnFilters,
-      sorting: sorting,
+      pagination,
+      sorting,
     },
   });
 
@@ -56,17 +105,30 @@ export function DataTable<TData extends RowData>({
       <div className='my-4'>
         <PageToolbar>
           <PageToolbarControls>
-            <Input
-              className='w-full sm:w-72'
-              placeholder={filterPlaceholder}
-              value={table.getColumn(filterColumn)?.getFilterValue() as string}
-              onChange={(event) => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
+            <SearchInput
+              value={search}
+              aria-label={searchPlaceholder}
+              placeholder={searchPlaceholder}
+              onSearch={(nextSearch) => {
+                onStateChange({ ...state, search: nextSearch, pageIndex: 0 }, { replace: true });
+              }}
             />
           </PageToolbarControls>
           {actions && <PageToolbarActions>{actions}</PageToolbarActions>}
         </PageToolbar>
       </div>
-      <div className='h-full overflow-scroll rounded border'>
+      {isError && (
+        <div role='alert' className='mb-3 flex items-center gap-3'>
+          <span>The rows could not be loaded.</span>
+          <Button size='sm' variant='outline' onClick={() => void refetch()}>
+            Try again
+          </Button>
+        </div>
+      )}
+      <div
+        aria-busy={isPlaceholderData}
+        className={cn('h-full overflow-scroll rounded border transition-opacity', isPlaceholderData && 'opacity-60')}
+      >
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -93,7 +155,8 @@ export function DataTable<TData extends RowData>({
             ) : (
               <TableRow>
                 <TableCell className='h-24 text-center' colSpan={columns.length}>
-                  No results.
+                  {isPending && 'Loading...'}
+                  {!isPending && !isError && 'No results.'}
                 </TableCell>
               </TableRow>
             )}

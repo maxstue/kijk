@@ -1,4 +1,5 @@
 using Kijk.Application.Limits.Shared;
+using Kijk.Application.Shared.Paging;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Shared;
 
@@ -9,22 +10,40 @@ namespace Kijk.Application.Limits.Queries;
 /// </summary>
 public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
-    /// <summary>Gets all limits of the active space with their current evaluation.</summary>
+    /// <summary>Searches and pages limits before evaluating their consumption.</summary>
+    /// <param name="request">Optional search, sort and page.</param>
+    /// <param name="resourceId">An optional resource.</param>
+    /// <param name="period">An optional recurring period.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The limits.</returns>
-    public async Task<Result<List<LimitResponse>>> ListAsync(CancellationToken cancellationToken)
+    /// <returns>The matching limits with current evaluations.</returns>
+    public async Task<Result<PageResponse<LimitResponse>>> ListAsync(
+        ListRequest<LimitSort> request, Guid? resourceId, Period? period, CancellationToken cancellationToken)
     {
-        var limits = await dbContext.Limits
-            .Include(item => item.Resource.Unit)
-            .Where(item => item.SpaceId == currentUser.ActiveSpaceId)
-            .OrderBy(item => item.Resource.Name)
-            .ThenBy(item => item.Period)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        var consumptions = await GetRelevantConsumptionsAsync(limits.Select(item => item.ResourceId), cancellationToken);
+        var query = dbContext.Limits.Include(item => item.Resource.Unit)
+            .Where(item => item.SpaceId == currentUser.ActiveSpaceId).AsNoTracking();
+        if (request.Search.ToContainsPattern() is { } pattern)
+        {
+            query = query.Where(item => EF.Functions.ILike(item.Name, pattern, PagingExtensions.LikeEscape)
+                || EF.Functions.Like(item.Resource.Name, pattern, PagingExtensions.LikeEscape));
+        }
+        if (resourceId is not null)
+        {
+            query = query.Where(item => item.ResourceId == resourceId);
+        }
+        if (period is not null)
+        {
+            query = query.Where(item => item.Period == period);
+        }
+        var ordered = request.Sort switch
+        {
+            LimitSort.Name => query.OrderBy(item => item.Name, request.Descending),
+            LimitSort.Period => query.OrderBy(item => item.Period, request.Descending).ThenBy(item => item.Resource.Name),
+            _ => query.OrderBy(item => item.Resource.Name, request.Descending).ThenBy(item => item.Period)
+        };
+        var page = await ordered.ThenBy(item => item.Id).ToPageAsync(request.Page, request.PageSize, cancellationToken);
+        var consumptions = await GetRelevantConsumptionsAsync(page.Items.Select(item => item.ResourceId), cancellationToken);
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        return limits.Select(limit => LimitEvaluation.ToResponse(limit, consumptions, utcNow)).ToList();
+        return page.Map(limit => LimitEvaluation.ToResponse(limit, consumptions, utcNow));
     }
 
     /// <summary>Gets a limit of the active space with its current evaluation.</summary>

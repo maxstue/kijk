@@ -29,7 +29,9 @@ const maxFileBytes = 5 * 1024 * 1024;
 export function ImportUploadForm() {
   const spaceId = useSpaceId();
   const canImport = useSpacePermission(SpacePermissions.finances.import);
-  const { data: accounts } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: accounts },
+  } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
   const bankAccounts = accounts.filter((account) => account.kind === 'Bank');
   const [accountId, setAccountId] = useState(bankAccounts[0]?.id ?? '');
   const [file, setFile] = useState<File>();

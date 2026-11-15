@@ -46,7 +46,9 @@ export function ConsumptionRunningTotal({ consumptions, excludeId }: RunningTota
   const resourceId = useWatch({ control, name: 'resourceId' });
   const value = useWatch({ control, name: 'value' });
   const valueType = useWatch({ control, name: 'valueType' });
-  const { data: resources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: resources },
+  } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const resource = resources.find((item) => item.id === resourceId);
   const entryDate = date instanceof Date ? format(date, 'yyyy-MM-dd') : '';
   const previousEntry = consumptions.find(
@@ -99,8 +101,10 @@ export function ConsumptionValueField<TFormValues extends ConsumptionFormValues>
   const { control } = useFormContext<TFormValues>();
   const resourceId = useWatch<TFormValues>({ control, name: 'resourceId' as FieldPath<TFormValues> });
   const valueType = useWatch<TFormValues>({ control, name: 'valueType' as FieldPath<TFormValues> });
-  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
-  const resource = data.find((item) => item.id === resourceId);
+  const {
+    data: { items: resources },
+  } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  const resource = resources.find((item) => item.id === resourceId);
 
   return (
     <FormItem className={className}>
@@ -174,14 +178,16 @@ export function ConsumptionResourceField<TFormValues extends ConsumptionFormValu
   field,
 }: FieldProps<TFormValues, 'resourceId'>) {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: resources },
+  } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
 
   return (
     <FormItem className={className}>
       <FormLabel>Resource</FormLabel>
       <Select<string>
         value={field.value}
-        items={data.map((item) => ({ label: `${item.name} (${item.unit})`, value: item.id }))}
+        items={resources.map((item) => ({ label: `${item.name} (${item.unit})`, value: item.id }))}
         onValueChange={field.onChange}
       >
         <FormControl>
@@ -190,7 +196,7 @@ export function ConsumptionResourceField<TFormValues extends ConsumptionFormValu
           </SelectTrigger>
         </FormControl>
         <SelectContent>
-          {data.map((item) => (
+          {resources.map((item) => (
             <SelectItem key={item.id} value={item.id}>
               <span>
                 {item.name}

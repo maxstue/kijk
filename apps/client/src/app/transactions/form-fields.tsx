@@ -45,7 +45,9 @@ export function DirectionField() {
 export function CategoryField() {
   const form = useFormContext<TransactionFormValues>();
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: categories },
+  } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
 
   return (
     <FormField
@@ -86,7 +88,9 @@ export function CategoryField() {
 export function AccountField() {
   const form = useFormContext<TransactionFormValues>();
   const spaceId = useSpaceId();
-  const { data: accounts } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: accounts },
+  } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
 
   return (
     <FormField

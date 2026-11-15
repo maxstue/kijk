@@ -17,7 +17,9 @@ interface CategorySelectProps {
 
 export function CategorySelect({ disabled, transaction }: CategorySelectProps) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: categories },
+  } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const categorizeMutation = useMutation(transactionsOptions.categorizeMutationOptions(spaceId));
   const [rememberTarget, setRememberTarget] = useState<{ categoryId: string; transaction: Transaction }>();
 

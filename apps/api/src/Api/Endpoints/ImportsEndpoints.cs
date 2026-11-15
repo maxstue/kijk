@@ -13,7 +13,9 @@ using Kijk.Application.Imports.Shared;
 using Kijk.Application.Imports.Start;
 using Kijk.Application.Imports.StartCategorization;
 using Kijk.Application.Imports.UpdateCandidate;
+using Kijk.Application.Shared.Paging;
 using Kijk.Domain.Authorization;
+using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -67,9 +69,18 @@ public sealed class ImportsEndpoints : IEndpointGroup
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
-    private static async Task<Results<Ok<List<ImportJobResponse>>, ProblemHttpResult>> List(QueriesHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<PageResponse<ImportJobResponse>>, ProblemHttpResult>> List(
+        QueriesHandler handler,
+        CancellationToken cancellationToken,
+        string? search = null,
+        ImportSort? sort = null,
+        bool descending = false,
+        int? page = null,
+        int? pageSize = null,
+        ImportJobStatus? status = null,
+        Guid? accountId = null)
     {
-        var result = await handler.ListAsync(cancellationToken);
+        var result = await handler.ListAsync(new ListRequest<ImportSort>(search, sort, descending, page, pageSize), status, accountId, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -98,9 +109,11 @@ public sealed class ImportsEndpoints : IEndpointGroup
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 100,
         [FromQuery] string? months = null,
-        [FromQuery] bool cardSettlementsOnly = false)
+        [FromQuery] bool cardSettlementsOnly = false,
+        [FromQuery] string? search = null,
+        [FromQuery] CandidateFilter? filter = null)
     {
-        var result = await handler.CandidatesAsync(id, page, pageSize, months, cardSettlementsOnly, cancellationToken);
+        var result = await handler.CandidatesAsync(id, page, pageSize, months, cardSettlementsOnly, cancellationToken, search, filter);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

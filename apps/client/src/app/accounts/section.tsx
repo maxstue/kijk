@@ -9,28 +9,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { Landmark } from 'lucide-react';
 import { useState } from 'react';
 
-import { accountDefaultSort, getAccountColumns } from '@/app/accounts/columns';
+import { accountSort, getAccountColumns } from '@/app/accounts/columns';
 import { AccountForm } from '@/app/accounts/form';
 import { DataTable } from '@/shared/components/data-table';
 import { PageAddButton } from '@/shared/components/page-header';
 import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { useActiveSpace, useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import type { TableControlProps } from '@/shared/lib/table-query';
 
 /**
  * Accounts page: the space's bank accounts with create, update and delete. Members may keep private accounts; shared
  * accounts need finances:configure.
  */
-export function AccountsSection() {
+interface Props extends TableControlProps {}
+
+export function AccountsSection({ state, onStateChange }: Props) {
   const spaceId = useSpaceId();
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const isPersonalSpace = useActiveSpace()?.isPersonal ?? false;
-  const { data: accounts } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const canCreate = canConfigure || canRecord;
   const columns = getAccountColumns({ canConfigure, canRecord, isPersonalSpace });
@@ -73,7 +74,14 @@ export function AccountsSection() {
         </CardHeader>
         <CardContent>
           <div className='mt-2'>
-            <DataTable columns={columns} data={accounts} defaultSort={accountDefaultSort} />
+            <DataTable
+              state={state}
+              onStateChange={onStateChange}
+              columns={columns}
+              queryOptions={(query) => accountsOptions.listQueryOptions(spaceId, query)}
+              searchPlaceholder='Search name or IBAN...'
+              sort={accountSort}
+            />
           </div>
         </CardContent>
       </Card>

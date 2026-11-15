@@ -34,6 +34,8 @@ import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { getMonthFromDate, monthSchema } from '@/shared/utils/months';
 
 const searchSchema = z.object({
+  resourceId: z.string().max(100).optional().catch(undefined),
+  expanded: z.array(z.string().max(100)).max(100).optional().catch(undefined),
   month: monthSchema.default(getMonthFromDate(new Date())),
   view: z.enum(['month', 'year']).default('month'),
   year: z.number().default(new Date().getFullYear()),
@@ -67,7 +69,7 @@ function UsagePage() {
   const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.consumptions.record);
   const [showDialog, setShowDialog] = useState(false);
-  const { month, view, year } = Route.useSearch();
+  const { month, view, year, resourceId, expanded } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { data } = useSuspenseQuery(
     consumptionsOptions.listQueryOptions(spaceId, year, view === 'month' ? month : undefined),
@@ -128,7 +130,11 @@ function UsagePage() {
       </PageToolbar>
       <LimitWarnings />
       {view === 'year' ? (
-        <ConsumptionAnnualView consumptions={data} />
+        <ConsumptionAnnualView
+          consumptions={data}
+          state={{ resourceId, expanded }}
+          onStateChange={(state) => void navigate({ search: (previous) => ({ ...previous, ...state }) })}
+        />
       ) : (
         <ConsumptionMonthView consumptions={data} month={month} year={year} />
       )}

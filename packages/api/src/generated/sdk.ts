@@ -168,7 +168,7 @@ import type {
 /**
  * `GET /api/spaces/{spaceId}/accounts`
  *
- * @summary Gets the accounts of the active space
+ * @summary Gets the accounts of the active space, optionally searched by name or IBAN ending, sorted and paged
  */
 export function accountsList<ThrowOnError extends boolean = true>(
   options: Options<AccountsListOptions, ThrowOnError>,
@@ -392,7 +392,7 @@ export function budgetsDeleteVersion<ThrowOnError extends boolean = true>(
 /**
  * `GET /api/spaces/{spaceId}/categories`
  *
- * @summary Gets the categories available to the active space
+ * @summary Gets the categories available to the active space, optionally searched by name, sorted and paged
  */
 export function categoriesList<ThrowOnError extends boolean = true>(
   options: Options<CategoriesListOptions, ThrowOnError>,
@@ -482,7 +482,7 @@ export function categoriesDelete<ThrowOnError extends boolean = true>(
 /**
  * `GET /api/spaces/{spaceId}/category-rules`
  *
- * @summary Gets the remembered category corrections of the active space
+ * @summary Gets the remembered category corrections of the active space, optionally searched by label or category, sorted and paged
  */
 export function categoryRulesList<ThrowOnError extends boolean = true>(
   options: Options<CategoryRulesListOptions, ThrowOnError>,
@@ -1294,7 +1294,7 @@ export function limitsDelete<ThrowOnError extends boolean = true>(
 /**
  * `GET /api/spaces/{spaceId}/resources`
  *
- * @summary Gets all resources
+ * @summary Gets the resources of the active space, optionally searched by name or unit, sorted and paged
  */
 export function resourcesList<ThrowOnError extends boolean = true>(
   options: Options<ResourcesListOptions, ThrowOnError>,
@@ -1518,7 +1518,7 @@ export function spacesChangeMemberRole<ThrowOnError extends boolean = true>(
 /**
  * `GET /api/spaces/{spaceId}/transactions`
  *
- * @summary Gets a page of transactions of the active space, optionally by year, month, categories or without category
+ * @summary Gets a page of transactions of the active space, optionally by year, month, categories, without category or by a search of counterparty and purpose
  */
 export function transactionsList<ThrowOnError extends boolean = true>(
   options: Options<TransactionsListOptions, ThrowOnError>,
@@ -1563,7 +1563,7 @@ export function transactionsRecord<ThrowOnError extends boolean = true>(
 /**
  * `GET /api/spaces/{spaceId}/transactions/export`
  *
- * @summary Exports transactions as CSV, optionally by year, month, categories or without category
+ * @summary Exports transactions as CSV, optionally by year, month, categories, without category or by a search of counterparty and purpose
  */
 export function transactionsExport<ThrowOnError extends boolean = true>(
   options: Options<TransactionsExportOptions, ThrowOnError>,

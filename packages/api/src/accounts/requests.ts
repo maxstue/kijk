@@ -1,11 +1,12 @@
 import { apiClient } from '@kijk/api/client';
 import { accountsCreate, accountsDelete, accountsList, accountsUpdate } from '@kijk/api/generated/sdk';
+import type { ListQuery } from '@kijk/api/paging';
 
-import type { CreateAccountRequest, UpdateAccountRequest } from './types';
+import type { AccountSort, CreateAccountRequest, UpdateAccountRequest } from './types';
 
-/** Loads the accounts of the active space. */
-export async function list(spaceId: string, signal?: AbortSignal) {
-  return accountsList({ client: apiClient(), path: { spaceId }, signal });
+/** Loads the accounts, optionally searched, sorted and paged. */
+export async function list(spaceId: string, query: ListQuery<AccountSort> = {}, signal?: AbortSignal) {
+  return accountsList({ client: apiClient(), path: { spaceId }, query, signal });
 }
 
 /** Creates an account. */

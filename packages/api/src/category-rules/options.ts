@@ -1,14 +1,21 @@
 import { invalidate } from '@kijk/api/cache';
+import { keepPreviousPageInSpace } from '@kijk/api/paging';
+import type { ListQuery } from '@kijk/api/paging';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { remove, getSuggestions, list } from './requests';
+import type { CategoryRulePage, CategoryRuleSort } from './types';
 
-/** Query for the remembered category corrections. */
-export const listQueryOptions = (spaceId: string) =>
+/**
+ * Query for the remembered category corrections. Tables pass a search, sort and page; selects omit the query to get
+ * every row.
+ */
+export const listQueryOptions = (spaceId: string, query: ListQuery<CategoryRuleSort> = {}) =>
   queryOptions({
-    queryFn: ({ signal }) => list(spaceId, signal),
-    queryKey: queryKeys.categoryRules.list(spaceId),
+    placeholderData: keepPreviousPageInSpace<CategoryRulePage>(spaceId),
+    queryFn: ({ signal }) => list(spaceId, query, signal),
+    queryKey: queryKeys.categoryRules.list(spaceId, query),
   });
 
 /** Query for rules suggested from repeated manual corrections. */

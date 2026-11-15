@@ -6,7 +6,7 @@ import { renderRoute } from '@/test/render-route';
 
 test('loads the canonical resource URL and closes to the overview while preserving search', async () => {
   const { router, screen } = await renderRoute({
-    initialEntry: '/space/consumptions/resources/resource-7?filter=active',
+    initialEntry: '/space/consumptions/resources/resource-7?search=active&page=2&sort=name&descending=true',
     overviewRoute: resourcesRoute,
     seedQueryClient(queryClient) {
       queryClient.setQueryData(queryKeys.resources.detail('space', 'resource-7'), {
@@ -25,5 +25,5 @@ test('loads the canonical resource URL and closes to the overview while preservi
   await screen.getByRole('button', { name: 'Close' }).click();
 
   await vi.waitFor(() => expect(router.state.location.pathname).toBe('/space/consumptions/resources'));
-  expect(router.state.location.search).toEqual({ filter: 'active' });
+  expect(router.state.location.search).toMatchObject({ search: 'active', page: 2, sort: 'name', descending: true });
 });

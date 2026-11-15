@@ -1,15 +1,18 @@
 import { invalidate } from '@kijk/api/cache';
+import { keepPreviousPageInSpace } from '@kijk/api/paging';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { create, remove, list, update } from './requests';
+import type { LimitsQuery } from './types';
 import type { CreateLimitRequest, UpdateLimitData } from './types';
 
 /** Query for the limits of the active space. */
-export const listQueryOptions = (spaceId: string) =>
+export const listQueryOptions = (spaceId: string, query: LimitsQuery = {}) =>
   queryOptions({
-    queryFn: ({ signal }) => list(spaceId, signal),
-    queryKey: queryKeys.limits.list(spaceId),
+    queryFn: ({ signal }) => list(spaceId, query, signal),
+    queryKey: queryKeys.limits.list(spaceId, query),
+    placeholderData: keepPreviousPageInSpace<Awaited<ReturnType<typeof list>>>(spaceId),
   });
 
 /** Mutation that creates a limit. */

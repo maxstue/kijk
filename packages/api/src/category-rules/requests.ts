@@ -1,9 +1,12 @@
 import { apiClient } from '@kijk/api/client';
 import { categoryRulesDelete, categoryRulesList, categoryRulesSuggestions } from '@kijk/api/generated/sdk';
+import type { ListQuery } from '@kijk/api/paging';
 
-/** Loads the remembered category corrections of the active space. */
-export async function list(spaceId: string, signal?: AbortSignal) {
-  return categoryRulesList({ client: apiClient(), path: { spaceId }, signal });
+import type { CategoryRuleSort } from './types';
+
+/** Loads the category rules, optionally searched, sorted and paged. */
+export async function list(spaceId: string, query: ListQuery<CategoryRuleSort> = {}, signal?: AbortSignal) {
+  return categoryRulesList({ client: apiClient(), path: { spaceId }, query, signal });
 }
 
 /** Deletes a remembered category correction; transactions keep their categories. */

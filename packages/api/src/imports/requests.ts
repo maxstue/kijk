@@ -16,6 +16,7 @@ import {
   importsUpdateSettings,
 } from '@kijk/api/generated/sdk';
 
+import type { ImportsQuery } from './types';
 import type {
   CategorizeImportRequest,
   CommitImportRequest,
@@ -28,8 +29,8 @@ import type {
 } from './types';
 
 /** Loads the latest imports of the active space. */
-export async function list(spaceId: string, signal?: AbortSignal) {
-  return importsList({ client: apiClient(), path: { spaceId }, signal });
+export async function list(spaceId: string, query: ImportsQuery = {}, signal?: AbortSignal) {
+  return importsList({ client: apiClient(), path: { spaceId }, query, signal });
 }
 
 /** Loads an import. */

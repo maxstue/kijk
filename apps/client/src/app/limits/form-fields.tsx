@@ -41,7 +41,9 @@ interface ResourceFieldProps {
 export function ResourceField({ disabled }: ResourceFieldProps) {
   const form = useFormContext<LimitFormValues>();
   const spaceId = useSpaceId();
-  const { data: resources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: resources },
+  } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   return (
     <FormField
       control={form.control}

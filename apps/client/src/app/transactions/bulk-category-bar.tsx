@@ -25,7 +25,9 @@ interface BulkCategoryBarProps {
  */
 export function BulkCategoryBar({ onDone, selectedIds, selectedTransactions }: BulkCategoryBarProps) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: categories },
+  } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const categorizeMutation = useMutation(transactionsOptions.categorizeManyMutationOptions(spaceId));
   const [categoryId, setCategoryId] = useState<string>();
 

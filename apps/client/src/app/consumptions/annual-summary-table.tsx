@@ -73,17 +73,28 @@ const summaryColumns: Array<ColumnDef<typeof summaryFeatures, AnnualResourceSumm
   },
 ];
 
-interface AnnualSummaryTableProps {
+interface Props {
+  expanded: string[];
+  onExpandedChange: (expanded: string[]) => void;
   summaries: AnnualResourceSummary[];
 }
 
-export function AnnualSummaryTable({ summaries }: AnnualSummaryTableProps) {
+export function AnnualSummaryTable({ summaries, expanded, onExpandedChange }: Props) {
   'use no memo';
 
   const table = useTable({
     columns: summaryColumns,
     data: summaries,
     features: summaryFeatures,
+    autoResetExpanded: false,
+    state: { expanded: Object.fromEntries(expanded.map((id) => [id, true])) },
+    onExpandedChange: (updater) => {
+      const current = Object.fromEntries(expanded.map((id) => [id, true]));
+      const next = typeof updater === 'function' ? updater(current) : updater;
+      onExpandedChange(
+        next === true ? summaries.map((item) => item.resource.id) : Object.keys(next).filter((id) => next[id]),
+      );
+    },
     getRowCanExpand: () => true,
     getRowId: (row) => row.resource.id,
   });

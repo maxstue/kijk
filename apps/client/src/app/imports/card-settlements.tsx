@@ -5,24 +5,26 @@ import { Checkbox } from '@kijk/ui/components/checkbox';
 import { Label } from '@kijk/ui/components/label';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { CreditCard } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import { toast } from 'sonner';
 
 import { ImportCandidatePagination } from '@/app/imports/candidate-table';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
-interface CardSettlementsProps {
+interface Props {
+  page: number;
+  open: boolean;
+  onPageChange: (page: number) => void;
+  onOpenChange: (open: boolean) => void;
   count: number;
   months: string;
   importId: string;
 }
 
 /** Credit card statements found in the file; they count as offset only when the user confirms it per row. */
-export function CardSettlements({ count, months, importId }: CardSettlementsProps) {
+export function CardSettlements({ count, months, importId, page, open, onPageChange, onOpenChange }: Props) {
   const spaceId = useSpaceId();
-  const [open, setOpen] = useState(false);
-  const [page, setPage] = useState(1);
   const { data, isFetching, isError, refetch } = useQuery({
     ...importsOptions.candidatesQueryOptions(spaceId, importId, { months, page, cardSettlementsOnly: true }),
     enabled: open && count > 0,
@@ -32,7 +34,15 @@ export function CardSettlements({ count, months, importId }: CardSettlementsProp
     return null;
   }
   return (
-    <details className='border-t px-4 py-3' onToggle={(event) => setOpen(event.currentTarget.open)}>
+    <details
+      open={open}
+      className='border-t px-4 py-3'
+      onToggle={(event) => {
+        if (event.currentTarget.open !== open) {
+          onOpenChange(event.currentTarget.open);
+        }
+      }}
+    >
       <summary className='cursor-pointer text-sm font-medium'>
         <CreditCard className='mr-2 inline size-4' />
         {count === 1 ? 'A credit card statement was found' : `${count} credit card statements were found`}
@@ -57,7 +67,7 @@ export function CardSettlements({ count, months, importId }: CardSettlementsProp
           <ImportCandidatePagination
             data={data}
             isFetching={isFetching}
-            onPageChange={setPage}
+            onPageChange={onPageChange}
             label='Card statement pages'
           />
         )}

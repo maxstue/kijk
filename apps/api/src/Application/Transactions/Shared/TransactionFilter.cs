@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Paging;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 
@@ -10,7 +11,13 @@ namespace Kijk.Application.Transactions.Shared;
 /// <param name="Month">The month (1-12), or <see langword="null" /> for the whole year. Requires a year.</param>
 /// <param name="Uncategorized">When <see langword="true" />, only transactions without a category.</param>
 /// <param name="CategoryIds">When not empty, only transactions in one of these categories.</param>
-public sealed record TransactionFilter(int? Year, int? Month, bool? Uncategorized, IReadOnlyCollection<Guid>? CategoryIds)
+/// <param name="Search">When not empty, only transactions whose counterparty or purpose contains it, ignoring case.</param>
+public sealed record TransactionFilter(
+    int? Year,
+    int? Month,
+    bool? Uncategorized,
+    IReadOnlyCollection<Guid>? CategoryIds,
+    string? Search = null)
 {
     /// <summary>The most categories a filter may name.</summary>
     public const int MaxCategoryIds = 50;
@@ -49,6 +56,12 @@ public sealed record TransactionFilter(int? Year, int? Month, bool? Uncategorize
         if (CategoryIds is { Count: > 0 } categoryIds)
         {
             query = query.Where(transaction => transaction.CategoryId != null && categoryIds.Contains(transaction.CategoryId.Value));
+        }
+
+        if (Search.ToContainsPattern() is { } pattern)
+        {
+            query = query.Where(transaction => EF.Functions.ILike(transaction.Counterparty!, pattern, PagingExtensions.LikeEscape)
+                                               || EF.Functions.ILike(transaction.Purpose!, pattern, PagingExtensions.LikeEscape));
         }
 
         return query;

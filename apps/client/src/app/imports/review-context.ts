@@ -1,4 +1,4 @@
-import type { ImportCandidatePage, ImportJob } from '@kijk/api/imports/types';
+import type { ImportCandidatePage, ImportJob, ImportCandidatesQuery } from '@kijk/api/imports/types';
 import type { UseQueryResult } from '@tanstack/react-query';
 import { createContext } from 'react';
 
@@ -18,6 +18,14 @@ export interface ImportReviewState {
   acceptErrors: boolean;
   onAcceptErrors: (accepted: boolean) => void;
   selectedMonths: string;
+  filters: ImportCandidatesQuery;
+  onFilterChange: (query: Partial<ImportCandidatesQuery>) => void;
+  adjustmentsOpen: boolean;
+  onAdjustmentsOpenChange: (open: boolean) => void;
+  cardPage: number;
+  cardOpen: boolean;
+  onCardPageChange: (page: number) => void;
+  onCardOpenChange: (open: boolean) => void;
   onPageChange: (page: number) => void;
   onResetOverrides: () => void;
   showAiPreview: boolean;

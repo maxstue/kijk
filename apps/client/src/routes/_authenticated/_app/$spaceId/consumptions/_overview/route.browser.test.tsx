@@ -5,6 +5,7 @@ import { expect, test, vi } from 'vite-plus/test';
 import { Route as appRoute } from '@/routes/_authenticated/_app/route';
 import { Route as authenticatedRoute } from '@/routes/_authenticated/route';
 import { routeTree } from '@/routeTree.gen';
+import { listPage } from '@/test/list-page';
 import { worker } from '@/test/mocks/browser';
 import { renderRoute } from '@/test/render-route';
 
@@ -17,7 +18,7 @@ test('restores layouts, guards and the loader when the router fixture is cleaned
     initialEntry: '/space/consumptions?view=year&year=2026',
     overviewRoute: Route,
     seedQueryClient(client) {
-      client.setQueryData(queryKeys.limits.list('space'), []);
+      client.setQueryData(queryKeys.limits.list('space'), listPage([]));
     },
   });
   expect(authenticatedRoute.options.beforeLoad).toBeUndefined();

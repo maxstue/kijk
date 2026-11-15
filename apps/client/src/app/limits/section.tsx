@@ -1,5 +1,8 @@
 import * as limitsOptions from '@kijk/api/limits/options';
+import type { LimitsQuery } from '@kijk/api/limits/types';
+import * as resourcesOptions from '@kijk/api/resources/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
+import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import {
   Dialog,
@@ -10,44 +13,82 @@ import {
   DialogTrigger,
 } from '@kijk/ui/components/dialog';
 import { ToggleGroup, ToggleGroupItem } from '@kijk/ui/components/toggle-group';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Gauge, LayoutGrid, List } from 'lucide-react';
 import { useState } from 'react';
 
+import { ListFilter } from '@/shared/components/list-filter';
+import { ListPagination } from '@/shared/components/list-pagination';
 import { PageAddButton } from '@/shared/components/page-header';
 import { PageToolbar, PageToolbarActions, PageToolbarControls } from '@/shared/components/page-toolbar';
+import { SearchInput } from '@/shared/components/search-input';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
 import { LimitDialogs } from './actions';
 import { LimitForm } from './form';
+import { periods } from './schemas';
 import type { LimitSelection, LimitsView } from './types';
 import { LimitsGrid, LimitsList } from './views';
 
-interface LimitsSectionProps {
+interface Props {
   view: LimitsView;
+  query: LimitsQuery;
+  onQueryChange: (query: LimitsQuery) => void;
   onViewChange: (view: LimitsView) => void;
 }
 
 /** One query and stable dialog ownership shared by both presentations. */
-export function LimitsSection({ view, onViewChange }: LimitsSectionProps) {
+export function LimitsSection({ view, onViewChange, query, onQueryChange }: Props) {
   const spaceId = useSpaceId();
   const canPlan = useSpacePermission(SpacePermissions.limits.plan);
-  const { data } = useSuspenseQuery(limitsOptions.listQueryOptions(spaceId));
+  const { data, isPending, isFetching, isError, refetch } = useQuery(limitsOptions.listQueryOptions(spaceId, query));
+  const { data: resources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  const update = (change: Partial<LimitsQuery>) => onQueryChange({ ...query, ...change, page: 1 });
+  const limits = data?.items ?? [];
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selection, setSelection] = useState<LimitSelection | null>(null);
-  const selectedLimit = data.find((limit) => limit.id === selection?.id);
+  const selectedLimit = limits.find((limit) => limit.id === selection?.id);
   const limitsView =
     view === 'list' ? (
-      <LimitsList limits={data} canPlan={canPlan} onAction={setSelection} />
+      <LimitsList limits={limits} canPlan={canPlan} onAction={setSelection} />
     ) : (
-      <LimitsGrid limits={data} canPlan={canPlan} onAction={setSelection} />
+      <LimitsGrid limits={limits} canPlan={canPlan} onAction={setSelection} />
     );
 
   return (
     <div className='flex min-w-0 flex-col gap-6'>
       <PageToolbar>
         <PageToolbarControls>
+          <SearchInput
+            value={query.search ?? ''}
+            aria-label='Search limits'
+            placeholder='Search limit or resource…'
+            onSearch={(search) => update({ search })}
+          />
+          <ListFilter
+            label='Resources'
+            value={query.resourceId}
+            options={resources.items.map((resource) => ({ value: resource.id, label: resource.name }))}
+            onChange={(resourceId) => update({ resourceId })}
+          />
+          <ListFilter
+            label='Periods'
+            value={query.period}
+            options={periods.map((value) => ({ value, label: value }))}
+            onChange={(period) => update({ period: period as LimitsQuery['period'] })}
+          />
+          <ListFilter
+            label='Sort order'
+            allowAll={false}
+            value={query.sort ?? 'Resource'}
+            options={[
+              { value: 'Resource', label: 'Resource' },
+              { value: 'Name', label: 'Name' },
+              { value: 'Period', label: 'Period' },
+            ]}
+            onChange={(sort) => update({ sort: sort as LimitsQuery['sort'] })}
+          />
           <ToggleGroup
             aria-label='Limits view'
             variant='outline'
@@ -91,16 +132,34 @@ export function LimitsSection({ view, onViewChange }: LimitsSectionProps) {
           </Dialog>
         </PageToolbarActions>
       </PageToolbar>
-      {data.length === 0 ? (
-        <Card className='border-dashed'>
-          <CardContent className='flex flex-col items-center gap-2 py-12 text-center'>
-            <Gauge className='text-muted-foreground size-8' />
-            <p className='font-medium'>No consumption limits yet</p>
-            <p className='text-muted-foreground text-sm'>Create a limit to start monitoring usage in this space.</p>
-          </CardContent>
-        </Card>
-      ) : (
-        limitsView
+      {isPending && <p role='status'>Loading limits…</p>}
+      {isError && (
+        <div role='alert'>
+          Limits could not be loaded.{' '}
+          <Button variant='outline' onClick={() => void refetch()}>
+            Try again
+          </Button>
+        </div>
+      )}
+      <div className='min-w-0' aria-busy={isFetching}>
+        {data && limits.length === 0 ? (
+          <Card className='border-dashed'>
+            <CardContent className='flex flex-col items-center gap-2 py-12 text-center'>
+              <Gauge className='text-muted-foreground size-8' />
+              <p className='font-medium'>No matching consumption limits</p>
+              <p className='text-muted-foreground text-sm'>
+                {query.search || query.resourceId || query.period
+                  ? 'Try another search or clear the filters.'
+                  : 'Create a limit to start monitoring usage in this space.'}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          limitsView
+        )}
+      </div>
+      {data && (
+        <ListPagination {...data} isFetching={isFetching} onPageChange={(page) => onQueryChange({ ...query, page })} />
       )}
       <LimitDialogs limit={selectedLimit} selection={selection} onClose={() => setSelection(null)} />
     </div>

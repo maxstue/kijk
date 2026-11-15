@@ -1,4 +1,5 @@
 import type * as Api from '@kijk/api/generated/types';
+import type { ListQuery } from '@kijk/api/paging';
 
 /** A limit with its current evaluation. */
 export type Limit = Api.LimitResponse;
@@ -11,4 +12,12 @@ export type UpdateLimitRequest = Api.UpdateLimitRequest;
 export interface UpdateLimitData {
   id: string;
   limit: UpdateLimitRequest;
+}
+
+/** Sort columns of the list. */
+export type LimitSort = Api.LimitSort;
+/** Server-side list filters and page. */
+export interface LimitsQuery extends ListQuery<LimitSort> {
+  resourceId?: string;
+  period?: Api.Period;
 }

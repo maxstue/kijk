@@ -22,6 +22,8 @@ export interface TransactionFilters {
   /** Only transactions in one of these categories; empty or omitted means all. */
   categoryIds?: string[];
   month?: number;
+  /** Only transactions whose counterparty or purpose contains this text, ignoring case. */
+  search?: string;
   uncategorized?: boolean;
   year?: number;
 }
