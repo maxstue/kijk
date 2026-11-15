@@ -40,19 +40,23 @@ public class SystemUnitCatalogMigrationTests
         var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
         await migrator.MigrateAsync(Previous);
         Guid userId = Guid.NewGuid(), spaceId = Guid.NewGuid();
-        Guid barrel = Guid.NewGuid(), pieces = Guid.NewGuid(), kilometers = Guid.NewGuid();
-        Guid barrelWater = Guid.NewGuid(), literWater = Guid.NewGuid(), laundry = Guid.NewGuid(), car = Guid.NewGuid();
+        Guid barrel = Guid.NewGuid(), otherBarrel = Guid.NewGuid(), pieces = Guid.NewGuid(), kilometers = Guid.NewGuid();
+        Guid barrelWater = Guid.NewGuid(), otherBarrelWater = Guid.NewGuid(), literWater = Guid.NewGuid();
+        Guid suffixedWater = Guid.NewGuid(), laundry = Guid.NewGuid(), car = Guid.NewGuid();
         await db.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO users (id, auth_id, name, ai_enabled, guide_completed_version) VALUES ({userId}, 'units-migration', 'Units migration', FALSE, 0);
             INSERT INTO spaces (id, name, is_personal, ai_data_sharing, minimize_data, purpose_retention) VALUES ({spaceId}, 'Home', FALSE, 0, FALSE, 0);
             INSERT INTO units (id, name, symbol, creator_type, conversion_type, quantity_key, owner_user_id, reference_unit_id, conversion_factor, created_at) VALUES
                 ({barrel}, 'Barrel', 'barrel', 'user', 'Factor', 'Volume', {userId}, {Liter}, 159, now()),
+                ({otherBarrel}, 'Small barrel', 'barrel', 'user', 'Factor', 'Volume', NULL, {Liter}, 100, now()),
                 ({pieces}, 'Stk', 'Stk', 'user', 'None', 'Legacy:pieces', {userId}, NULL, NULL, now()),
                 ({kilometers}, 'KM', 'KM', 'user', 'None', 'Legacy:km', {userId}, NULL, NULL, now());
             INSERT INTO unit_spaces (unit_id, space_id, shared_by_user_id, shared_at) VALUES ({barrel}, {spaceId}, {userId}, now());
             INSERT INTO resources (id, name, unit_id, creator_type, space_id, created_at) VALUES
                 ({barrelWater}, 'Water', {barrel}, 'user', {spaceId}, now()),
+                ({otherBarrelWater}, 'Water', {otherBarrel}, 'user', {spaceId}, now()),
                 ({literWater}, 'Water', {Liter}, 'user', {spaceId}, now()),
+                ({suffixedWater}, 'Water (barrel)', {Liter}, 'user', {spaceId}, now()),
                 ({laundry}, 'Laundry', {pieces}, 'user', {spaceId}, now()),
                 ({car}, 'Car', {kilometers}, 'user', {spaceId}, now());
             INSERT INTO consumptions (id, name, value, calculated_consumption, value_type, starts_new_meter_segment, date, resource_id, space_id) VALUES
@@ -64,9 +68,13 @@ public class SystemUnitCatalogMigrationTests
         await migrator.MigrateAsync(Catalog);
 
         var resources = await db.Resources.AsNoTracking().ToDictionaryAsync(item => item.Id);
+        // Both barrel resources collide with "Water" and the existing "Water (barrel)" in liters.
         await Assert.That(resources[barrelWater].UnitId).IsEqualTo(Liter);
-        await Assert.That(resources[barrelWater].Name).IsEqualTo("Water (barrel)");
+        await Assert.That(resources[otherBarrelWater].UnitId).IsEqualTo(Liter);
+        await Assert.That(new[] { resources[barrelWater].Name, resources[otherBarrelWater].Name })
+            .IsEquivalentTo(["Water (barrel 2)", "Water (barrel 3)"]);
         await Assert.That(resources[literWater].Name).IsEqualTo("Water");
+        await Assert.That(resources[suffixedWater].Name).IsEqualTo("Water (barrel)");
         await Assert.That(resources[laundry].UnitId).IsEqualTo(Piece);
         await Assert.That(resources[car].UnitId).IsEqualTo(Kilometer);
         var consumption = await db.Consumptions.AsNoTracking().SingleAsync();

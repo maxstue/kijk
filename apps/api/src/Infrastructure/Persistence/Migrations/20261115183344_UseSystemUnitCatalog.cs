@@ -15,7 +15,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
             // Resources move from custom and legacy units to system units before the custom units are removed:
             // factor units become their reference unit with converted values, legacy free-text units the system unit
             // with the same symbol or name, and anything else Piece. A resource whose name and new unit collide with
-            // another resource of its space keeps its old symbol in the name.
+            // another resource of its space gets its old symbol in the name, numbered until the name is free.
             migrationBuilder.Sql("""
                 INSERT INTO units (id, name, symbol, creator_type, conversion_type, quantity_key, created_at)
                 VALUES ('55555555-5555-4555-8555-555555555551', 'Piece', 'pcs', 'system', 'None', 'Count',
@@ -55,18 +55,40 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                 JOIN unit_replacements replacement ON replacement.unit_id = resource.unit_id
                 WHERE limit_row.resource_id = resource.id AND replacement.factor <> 1;
 
-                UPDATE resources resource
-                SET name = left(resource.name, 27 - length(replacement.symbol)) || ' (' || replacement.symbol || ')'
-                FROM unit_replacements replacement
-                WHERE resource.unit_id = replacement.unit_id
-                  AND EXISTS (
-                      SELECT 1
-                      FROM resources other
-                      LEFT JOIN unit_replacements other_replacement ON other_replacement.unit_id = other.unit_id
-                      WHERE other.id <> resource.id
-                        AND other.space_id IS NOT DISTINCT FROM resource.space_id
-                        AND other.name = resource.name
-                        AND coalesce(other_replacement.replacement_id, other.unit_id) = replacement.replacement_id);
+                DO $$
+                DECLARE
+                    resource_row record;
+                    candidate text;
+                    suffix text;
+                    attempt int;
+                BEGIN
+                    FOR resource_row IN
+                        SELECT resource.id, resource.name, resource.space_id, replacement.symbol, replacement.replacement_id
+                        FROM resources resource
+                        JOIN unit_replacements replacement ON replacement.unit_id = resource.unit_id
+                        ORDER BY resource.created_at, resource.id
+                    LOOP
+                        candidate := resource_row.name;
+                        attempt := 0;
+                        WHILE EXISTS (
+                            SELECT 1
+                            FROM resources other
+                            LEFT JOIN unit_replacements other_replacement ON other_replacement.unit_id = other.unit_id
+                            WHERE other.id <> resource_row.id
+                              AND other.space_id IS NOT DISTINCT FROM resource_row.space_id
+                              AND other.name = candidate COLLATE case_insensitive
+                              AND coalesce(other_replacement.replacement_id, other.unit_id) = resource_row.replacement_id)
+                        LOOP
+                            attempt := attempt + 1;
+                            suffix := ' (' || resource_row.symbol || CASE WHEN attempt > 1 THEN ' ' || attempt ELSE '' END || ')';
+                            candidate := rtrim(left(resource_row.name, 30 - length(suffix))) || suffix;
+                        END LOOP;
+
+                        IF candidate <> resource_row.name THEN
+                            UPDATE resources SET name = candidate WHERE id = resource_row.id;
+                        END IF;
+                    END LOOP;
+                END $$;
 
                 UPDATE resources resource
                 SET unit_id = replacement.replacement_id
