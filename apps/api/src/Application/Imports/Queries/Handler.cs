@@ -1,6 +1,7 @@
 using System.Globalization;
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Csv;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
@@ -160,7 +161,7 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
         var items = await query.OrderBy(item => item.Errors == null).ThenBy(item => item.RowNumber).ThenBy(item => item.Id)
             .Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToResponses().ToListAsync(cancellationToken);
         var errors = await all.Where(item => item.Errors != null).OrderBy(item => item.RowNumber).ThenBy(item => item.Id)
-            .Take(10).Select(item => new ImportCandidateErrorResponse(item.RowNumber, item.Errors!)).ToListAsync(cancellationToken);
+            .Take(10).Select(item => new CsvRowErrorResponse(item.RowNumber, item.Errors!)).ToListAsync(cancellationToken);
 
         return new ImportCandidatePageResponse(items, totalCount, page, pageSize,
             summary?.Included ?? 0, job.ErrorCount, errors, summary?.CardSettlements ?? 0);

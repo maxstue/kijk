@@ -5,14 +5,18 @@ import * as usersOptions from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
-import { Input } from '@kijk/ui/components/input';
-import { Label } from '@kijk/ui/components/label';
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Upload } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
+import {
+  CsvFileField,
+  CsvFileFieldDescription,
+  CsvFileFieldInput,
+  CsvFileFieldLabel,
+} from '@/shared/components/csv-file-field';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 
@@ -35,16 +39,11 @@ export function ImportUploadForm() {
   const consentMutation = useMutation(usersOptions.updateMutationOptions());
   const createMutation = useMutation(importsOptions.startMutationOptions(spaceId));
   const navigate = useNavigate();
-  const fileId = useId();
   const isPending = consentMutation.isPending || createMutation.isPending;
 
   function onSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!file || !accountId) {
-      return;
-    }
-    if (file.size > maxFileBytes) {
-      toast.error('File too large', { description: 'Bank exports can be at most 5 MB.' });
       return;
     }
     const upload = (selected: File) =>
@@ -92,18 +91,11 @@ export function ImportUploadForm() {
         ) : (
           <form className='grid gap-6' onSubmit={onSubmit}>
             <UploadAccountSelect accounts={bankAccounts} accountId={accountId} onChange={setAccountId} />
-            <div className='grid gap-2'>
-              <Label htmlFor={fileId}>CSV file</Label>
-              <p className='text-muted-foreground text-xs'>
-                Choose the CSV export downloaded from your bank. Maximum 5 MB.
-              </p>
-              <Input
-                accept='.csv,text/csv'
-                id={fileId}
-                type='file'
-                onChange={(event) => setFile(event.target.files?.[0])}
-              />
-            </div>
+            <CsvFileField maxBytes={maxFileBytes} onFileChange={setFile}>
+              <CsvFileFieldLabel>CSV file</CsvFileFieldLabel>
+              <CsvFileFieldDescription>Choose the CSV export downloaded from your bank.</CsvFileFieldDescription>
+              <CsvFileFieldInput />
+            </CsvFileField>
             {hasConsent ? null : <UploadConsent checked={consentChecked} onChange={setConsentChecked} />}
             <div className='flex flex-wrap items-center justify-between gap-4 border-t pt-4'>
               <p className='text-muted-foreground text-sm'>You review the transactions before saving.</p>

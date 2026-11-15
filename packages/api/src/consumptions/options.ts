@@ -3,7 +3,19 @@ import { MONTHS } from '@kijk/api/months';
 import { queryKeys } from '@kijk/api/query-keys';
 import { keepPreviousData, mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import { record, remove, exportCsv, exportMonth, getDetails, list, getStatistics, getYears, update } from './requests';
+import {
+  record,
+  remove,
+  exportCsv,
+  exportMonth,
+  getDetails,
+  getImportTemplate,
+  importCsv,
+  list,
+  getStatistics,
+  getYears,
+  update,
+} from './requests';
 import type { Consumption, ConsumptionData, DeleteConsumptionData, UpdateConsumptionData } from './types';
 
 /** Downloads one consumption or a selected month's consumptions without changing cached data. */
@@ -11,6 +23,32 @@ export const exportMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: { consumptionId: string } | { month: string; year: number }) =>
       'consumptionId' in data ? exportCsv(spaceId, data.consumptionId) : exportMonth(spaceId, data.year, data.month),
+  });
+
+/** Downloads the CSV template of the import without changing cached data. */
+export const importTemplateMutationOptions = (spaceId: string) =>
+  mutationOptions({
+    mutationFn: () => getImportTemplate(spaceId),
+  });
+
+/** Mutation that imports a CSV file; refreshes everything derived from consumptions when rows were saved. */
+export const importMutationOptions = (spaceId: string) =>
+  mutationOptions({
+    mutationFn: (file: File) => importCsv(spaceId, file),
+    onSuccess: async (data, _variables, _result, { client }) => {
+      if (Number(data.importedCount) === 0) {
+        return;
+      }
+
+      await invalidate(
+        client,
+        queryKeys.dashboard.all(spaceId),
+        queryKeys.consumptions.byAll(spaceId),
+        queryKeys.consumptions.statsAll(spaceId),
+        queryKeys.consumptions.years(spaceId),
+        queryKeys.limits.all(spaceId),
+      );
+    },
   });
 
 /** Query for the years that have consumptions. */

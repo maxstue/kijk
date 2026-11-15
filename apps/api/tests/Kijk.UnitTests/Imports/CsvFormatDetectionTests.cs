@@ -1,6 +1,7 @@
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Detection;
 using Kijk.Application.Shared.Ai;
+using Kijk.Application.Shared.Csv;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging.Abstractions;
 

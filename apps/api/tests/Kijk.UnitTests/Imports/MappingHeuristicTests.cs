@@ -1,4 +1,5 @@
 using Kijk.Application.Imports.Csv;
+using Kijk.Application.Shared.Csv;
 
 namespace Kijk.UnitTests.Imports;
 

@@ -793,6 +793,59 @@ export type CommitImportRequest = {
 };
 
 /**
+ * A bounded error preview of an uploaded CSV file without the original row content.
+ *
+ * @type object
+ */
+export type CsvRowErrorResponse = {
+  /**
+   * The record number in the file.
+   *
+   * Format: `int32`
+   */
+  rowNumber: number | string;
+  /**
+   * Why the record could not be read or imported.
+   *
+   * @type string
+   */
+  errors: string;
+};
+
+/**
+ * The result of a consumption import. The file is imported completely or not at all: when ErrorCount is greater than
+ * zero, nothing was saved.
+ *
+ * @type object
+ */
+export type ConsumptionImportResponse = {
+  /**
+   * The number of saved consumptions.
+   *
+   * Format: `int32`
+   */
+  importedCount: number | string;
+  /**
+   * The number of rows skipped because the same consumption already exists.
+   *
+   * Format: `int32`
+   */
+  skippedCount: number | string;
+  /**
+   * The number of rows that could not be imported.
+   *
+   * Format: `int32`
+   */
+  errorCount: number | string;
+  /**
+   * The first row errors, without the original row content.
+   *
+   * @type array
+   */
+  errorSamples: CsvRowErrorResponse[];
+};
+
+/**
  * Monthly consumption and the final effective meter reading; the reading is null until an absolute baseline exists.
  *
  * @type object
@@ -1796,26 +1849,6 @@ export type HttpValidationProblemDetails = {
 export type IFormFile = Blob;
 
 /**
- * A bounded error preview without the original row content.
- *
- * @type object
- */
-export type ImportCandidateErrorResponse = {
-  /**
-   * The record number in the file.
-   *
-   * Format: `int32`
-   */
-  rowNumber: number | string;
-  /**
-   * Why the record could not be parsed.
-   *
-   * @type string
-   */
-  errors: string;
-};
-
-/**
  * A row of an import waiting for review.
  *
  * @type object
@@ -1949,7 +1982,7 @@ export type ImportCandidatePageResponse = {
    *
    * @type array
    */
-  errorSamples: ImportCandidateErrorResponse[];
+  errorSamples: CsvRowErrorResponse[];
   /**
    * Included card statements in all selected months.
    *
@@ -4255,6 +4288,110 @@ export type ConsumptionsExportMonthResponses = {
 
 /** Union of all possible responses */
 export type ConsumptionsExportMonthResponse = ConsumptionsExportMonthStatus200;
+
+export type ConsumptionsImportPath = {
+  /**
+   * The space the request works on.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  spaceId: string;
+};
+
+/**
+ * The result of a consumption import. The file is imported completely or not at all: when ErrorCount is greater than
+ * zero, nothing was saved.
+ *
+ * @type object
+ */
+export type ConsumptionsImportStatus200 = ConsumptionImportResponse;
+
+export type ConsumptionsImportStatus400 = HttpValidationProblemDetails;
+
+export type ConsumptionsImportStatus401 = Problem;
+
+export type ConsumptionsImportStatus403 = Problem;
+
+export type ConsumptionsImportStatus404 = ProblemDetails;
+
+export type ConsumptionsImportStatus429 = Problem;
+
+export type ConsumptionsImportStatus500 = Problem;
+
+export type ConsumptionsImportBody = {
+  /**
+   * Format: `binary`
+   *
+   * @remarks
+   *   Pass a `File` to send its filename. A plain `Blob` is sent with the filename `blob`.
+   */
+  file: IFormFile;
+};
+
+export type ConsumptionsImportOptions = {
+  body: ConsumptionsImportBody;
+  path: ConsumptionsImportPath;
+  query?: never;
+  headers?: never;
+};
+
+export type ConsumptionsImportResponses = {
+  '200': ConsumptionsImportStatus200;
+  '400': ConsumptionsImportStatus400;
+  '401': ConsumptionsImportStatus401;
+  '403': ConsumptionsImportStatus403;
+  '404': ConsumptionsImportStatus404;
+  '429': ConsumptionsImportStatus429;
+  '500': ConsumptionsImportStatus500;
+};
+
+/** Union of all possible responses */
+export type ConsumptionsImportResponse = ConsumptionsImportStatus200;
+
+export type ConsumptionsImportTemplatePath = {
+  /**
+   * The space the request works on.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  spaceId: string;
+};
+
+/** Format: `byte` */
+export type ConsumptionsImportTemplateStatus200 = Blob;
+
+export type ConsumptionsImportTemplateStatus401 = Problem;
+
+export type ConsumptionsImportTemplateStatus403 = Problem;
+
+export type ConsumptionsImportTemplateStatus404 = ProblemDetails;
+
+export type ConsumptionsImportTemplateStatus429 = Problem;
+
+export type ConsumptionsImportTemplateStatus500 = Problem;
+
+export type ConsumptionsImportTemplateOptions = {
+  body?: never;
+  path: ConsumptionsImportTemplatePath;
+  query?: never;
+  headers?: never;
+};
+
+export type ConsumptionsImportTemplateResponses = {
+  '200': ConsumptionsImportTemplateStatus200;
+  '401': ConsumptionsImportTemplateStatus401;
+  '403': ConsumptionsImportTemplateStatus403;
+  '404': ConsumptionsImportTemplateStatus404;
+  '429': ConsumptionsImportTemplateStatus429;
+  '500': ConsumptionsImportTemplateStatus500;
+};
+
+/** Union of all possible responses */
+export type ConsumptionsImportTemplateResponse = ConsumptionsImportTemplateStatus200;
 
 export type ConsumptionsListPath = {
   /**

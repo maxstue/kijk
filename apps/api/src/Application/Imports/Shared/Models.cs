@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Kijk.Application.Imports.Csv;
+using Kijk.Application.Shared.Csv;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Riok.Mapperly.Abstractions;
@@ -117,13 +118,8 @@ public sealed record ImportCandidatePageResponse(
     int PageSize,
     int IncludedCount,
     int ErrorCount,
-    List<ImportCandidateErrorResponse> ErrorSamples,
+    List<CsvRowErrorResponse> ErrorSamples,
     int CardSettlementCount);
-
-/// <summary>A bounded error preview without the original row content.</summary>
-/// <param name="RowNumber">The record number in the file.</param>
-/// <param name="Errors">Why the record could not be parsed.</param>
-public sealed record ImportCandidateErrorResponse(int RowNumber, string Errors);
 
 /// <summary>The import settings of the active space.</summary>
 /// <param name="PurposeRetention">How much of the purpose text imported transactions keep.</param>

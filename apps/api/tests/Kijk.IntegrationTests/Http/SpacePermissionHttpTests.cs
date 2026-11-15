@@ -83,6 +83,24 @@ public class SpacePermissionHttpTests
 
     [Test]
     [Arguments("Admin", HttpStatusCode.OK)]
+    [Arguments("Member", HttpStatusCode.OK)]
+    [Arguments("Viewer", HttpStatusCode.Forbidden)]
+    public async Task ImportingRequiresRecordPermission(string role, HttpStatusCode expected)
+    {
+        var fixture = await CreateFixtureAsync(role);
+        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
+        using var form = new MultipartFormDataContent();
+        form.Add(new ByteArrayContent("Date,Resource,Value\n2026-09-02,Gas,5\n"u8.ToArray()), "file", "consumptions.csv");
+        using var response = await host.Client.PostAsync($"/api/spaces/{fixture.Space.Id}/consumptions/import", form);
+
+        await Assert.That(response.StatusCode).IsEqualTo(expected);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var count = await verification.Consumptions.CountAsync(item => item.SpaceId == fixture.Space.Id);
+        await Assert.That(count).IsEqualTo(expected == HttpStatusCode.OK ? 2 : 1);
+    }
+
+    [Test]
+    [Arguments("Admin", HttpStatusCode.OK)]
     [Arguments("Member", HttpStatusCode.Forbidden)]
     [Arguments("Viewer", HttpStatusCode.Forbidden)]
     public async Task PlanningRequiresPlanPermission(string role, HttpStatusCode expected)

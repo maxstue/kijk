@@ -1,3 +1,5 @@
+using Kijk.Application.Shared.Csv;
+
 namespace Kijk.Application.Imports.Csv;
 
 /// <summary>

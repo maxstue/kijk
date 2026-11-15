@@ -1,16 +1,16 @@
 using System.Text;
 
-namespace Kijk.Application.Imports.Csv;
+namespace Kijk.Application.Shared.Csv;
 
 /// <summary>
-/// Detects the text encoding of a bank export and decodes it.
+/// Detects the text encoding of an uploaded CSV file and decodes it.
 /// </summary>
 public static class CsvDecoder
 {
     /// <summary>The name of UTF-8, with or without byte order mark.</summary>
     public const string Utf8 = "utf-8";
 
-    /// <summary>The name of Windows-1252, the superset of ISO-8859-1 that German banks use for older exports.</summary>
+    /// <summary>The name of Windows-1252, the superset of ISO-8859-1 that older German exports and spreadsheet apps use.</summary>
     public const string Windows1252 = "windows-1252";
 
     private static readonly UTF8Encoding StrictUtf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);

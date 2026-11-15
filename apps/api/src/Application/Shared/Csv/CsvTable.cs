@@ -1,9 +1,9 @@
 using nietras.SeparatedValues;
 
-namespace Kijk.Application.Imports.Csv;
+namespace Kijk.Application.Shared.Csv;
 
 /// <summary>
-/// A bank export split into records. Records may have different column counts, because many banks put metadata lines
+/// A CSV file split into records. Records may have different column counts, because many banks put metadata lines
 /// above the actual table.
 /// </summary>
 /// <param name="Records">All non-empty records in file order.</param>
@@ -45,7 +45,7 @@ public sealed record CsvTable(IReadOnlyList<CsvRecord> Records)
 }
 
 /// <summary>
-/// A record of a bank export.
+/// A record of a CSV file.
 /// </summary>
 /// <param name="RowNumber">The 1-based record number in the file.</param>
 /// <param name="Fields">The field values.</param>

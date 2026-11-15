@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace Kijk.IntegrationTests.Persistence;
 
 [NotInParallel]
-public class ConsumptionWorkflowTests
+public partial class ConsumptionWorkflowTests
 {
     [Before(Class)]
     public static Task StartDatabase() => PostgreSqlTestDatabase.StartAsync();

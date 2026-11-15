@@ -26,8 +26,8 @@ public class ConsumptionCsvWriterTests
         var csv = Encoding.UTF8.GetString(content.AsSpan(preamble.Length));
 
         await Assert.That(content.AsSpan(0, preamble.Length).SequenceEqual(preamble)).IsTrue();
-        await Assert.That(csv).Contains("Date,Name,Resource,Unit,ValueType,Value,CalculatedConsumption,Description");
-        await Assert.That(csv).Contains("2026-09-11,'=SUM(A1:A2),Electricity,kWh,Relative,1234.56,12.34,\"Line one, line two\"");
+        await Assert.That(csv).Contains("Date,Name,Resource,Unit,ValueType,Value,StartsNewMeterSegment,CalculatedConsumption,Description");
+        await Assert.That(csv).Contains("2026-09-11,'=SUM(A1:A2),Electricity,kWh,Relative,1234.56,false,12.34,\"Line one, line two\"");
         await Assert.That(csv).Contains("\r\n");
     }
 
@@ -37,6 +37,6 @@ public class ConsumptionCsvWriterTests
         var content = ConsumptionCsvWriter.Write([]);
         var csv = Encoding.UTF8.GetString(content.AsSpan(Encoding.UTF8.GetPreamble().Length));
 
-        await Assert.That(csv.TrimEnd()).IsEqualTo("Date,Name,Resource,Unit,ValueType,Value,CalculatedConsumption,Description");
+        await Assert.That(csv.TrimEnd()).IsEqualTo("Date,Name,Resource,Unit,ValueType,Value,StartsNewMeterSegment,CalculatedConsumption,Description");
     }
 }

@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { recordMutationOptions, deleteMutationOptions, updateMutationOptions } from './options';
-import { record, remove, update } from './requests';
+import { recordMutationOptions, deleteMutationOptions, importMutationOptions, updateMutationOptions } from './options';
+import { importCsv, record, remove, update } from './requests';
 import type { Consumption } from './types';
 
 vi.mock('./requests', { spy: true });
@@ -64,5 +64,29 @@ test('deleting the last reading of a year refreshes the available years', async 
   vi.mocked(remove).mockResolvedValue();
   await client.getMutationCache().build(client, deleteMutationOptions('space')).execute({ id: 'last' });
   expect(client.getQueryState(queryKeys.consumptions.years('space'))?.isInvalidated).toBe(true);
+  client.clear();
+});
+
+test('an import refreshes consumption data of its space only when rows were saved', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  const keys = [
+    queryKeys.consumptions.by('space', '2026', 'January'),
+    queryKeys.consumptions.stats('space', '2026', 'January'),
+    queryKeys.consumptions.years('space'),
+    queryKeys.limits.list('space'),
+  ];
+  for (const key of [...keys, queryKeys.consumptions.years('other')]) {
+    client.setQueryData(key, []);
+  }
+  const file = new File(['Date,Resource,Value'], 'consumptions.csv');
+
+  vi.mocked(importCsv).mockResolvedValue({ importedCount: 0, skippedCount: 0, errorCount: 1, errorSamples: [] });
+  await client.getMutationCache().build(client, importMutationOptions('space')).execute(file);
+  expect(keys.some((key) => client.getQueryState(key)?.isInvalidated)).toBe(false);
+
+  vi.mocked(importCsv).mockResolvedValue({ importedCount: 2, skippedCount: 1, errorCount: 0, errorSamples: [] });
+  await client.getMutationCache().build(client, importMutationOptions('space')).execute(file);
+  expect(keys.every((key) => client.getQueryState(key)?.isInvalidated)).toBe(true);
+  expect(client.getQueryState(queryKeys.consumptions.years('other'))?.isInvalidated).toBe(false);
   client.clear();
 });

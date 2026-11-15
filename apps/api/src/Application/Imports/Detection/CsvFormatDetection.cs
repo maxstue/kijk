@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Shared.Ai;
+using Kijk.Application.Shared.Csv;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 

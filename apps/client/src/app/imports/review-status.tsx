@@ -4,8 +4,9 @@ import { Button } from '@kijk/ui/components/button';
 import { Checkbox } from '@kijk/ui/components/checkbox';
 import { SpinnerIcon } from '@kijk/ui/components/icons';
 import { Label } from '@kijk/ui/components/label';
-import { TriangleAlert } from 'lucide-react';
 import { useId } from 'react';
+
+import { CsvRowErrors, CsvRowErrorsList } from '@/shared/components/csv-row-errors';
 
 interface UnreadableRowsProps {
   review: ImportCandidatePage | undefined;
@@ -20,20 +21,12 @@ export function UnreadableRows({ review, requiresConfirmation, accepted, onAccep
     return null;
   }
   return (
-    <Alert className='mx-4 mb-4 w-auto' variant={requiresConfirmation ? 'destructive' : 'default'}>
-      <TriangleAlert />
+    <CsvRowErrors className='mx-4 mb-4 w-auto' variant={requiresConfirmation ? 'destructive' : 'default'}>
       <AlertTitle>{review.errorCount} rows could not be read and will not be imported</AlertTitle>
       <AlertDescription>
-        <details className='mt-1'>
-          <summary className='cursor-pointer'>Show unreadable rows</summary>
-          <ul className='mt-2 list-disc pl-4'>
-            {review.errorSamples.map((candidate) => (
-              <li key={candidate.rowNumber}>
-                Row {candidate.rowNumber}: {candidate.errors}
-              </li>
-            ))}
-          </ul>
-        </details>
+        <CsvRowErrorsList rows={review.errorSamples} total={Number(review.errorCount)}>
+          Show unreadable rows
+        </CsvRowErrorsList>
         {requiresConfirmation && (
           <div className='mt-3 flex items-center gap-2'>
             <Checkbox checked={accepted} id={id} onCheckedChange={(checked) => onAccept(checked === true)} />
@@ -41,7 +34,7 @@ export function UnreadableRows({ review, requiresConfirmation, accepted, onAccep
           </div>
         )}
       </AlertDescription>
-    </Alert>
+    </CsvRowErrors>
   );
 }
 

@@ -1,5 +1,6 @@
 using Kijk.Application.Imports.Csv;
 using Kijk.Application.Imports.Shared;
+using Kijk.Application.Shared.Csv;
 using Kijk.Application.Shared.Finances;
 using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;

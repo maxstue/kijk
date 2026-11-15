@@ -45,6 +45,10 @@ import type {
   ConsumptionsExportMonthResponses,
   ConsumptionsExportOptions,
   ConsumptionsExportResponses,
+  ConsumptionsImportOptions,
+  ConsumptionsImportResponses,
+  ConsumptionsImportTemplateOptions,
+  ConsumptionsImportTemplateResponses,
   ConsumptionsListOptions,
   ConsumptionsListResponses,
   ConsumptionsRecordOptions,
@@ -659,6 +663,52 @@ export function consumptionsExportMonth<ThrowOnError extends boolean = true>(
     apiClient<ConsumptionsExportMonthResponses, ThrowOnError>({
       method: 'GET',
       url: '/api/spaces/{spaceId}/consumptions/export',
+      security: [securitySchemes.Bearer],
+      parseAs: 'blob',
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `POST /api/spaces/{spaceId}/consumptions/import`
+ *
+ * @summary Imports consumptions from a CSV file; all rows or none
+ */
+export function consumptionsImport<ThrowOnError extends boolean = true>(
+  options: Options<ConsumptionsImportOptions, ThrowOnError>,
+): Promise<UnwrappedResult<ConsumptionsImportResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<ConsumptionsImportResponses, ThrowOnError>({
+      method: 'POST',
+      url: '/api/spaces/{spaceId}/consumptions/import',
+      security: [securitySchemes.Bearer],
+      contentType: { request: 'multipart/form-data' },
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `GET /api/spaces/{spaceId}/consumptions/import/template`
+ *
+ * @summary Downloads a CSV template for the consumption import
+ */
+export function consumptionsImportTemplate<ThrowOnError extends boolean = true>(
+  options: Options<ConsumptionsImportTemplateOptions, ThrowOnError>,
+): Promise<UnwrappedResult<ConsumptionsImportTemplateResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<ConsumptionsImportTemplateResponses, ThrowOnError>({
+      method: 'GET',
+      url: '/api/spaces/{spaceId}/consumptions/import/template',
       security: [securitySchemes.Bearer],
       parseAs: 'blob',
       ...config,
