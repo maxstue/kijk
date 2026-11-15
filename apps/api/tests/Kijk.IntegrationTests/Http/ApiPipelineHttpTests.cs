@@ -5,10 +5,8 @@ using System.Text.Json.Serialization;
 using Kijk.Application.Categories.Create;
 using Kijk.Application.Categories.Shared;
 using Kijk.Application.Categories.Update;
-using Kijk.Application.Units.Create;
 using Kijk.Application.Units.List;
 using Kijk.Application.Units.Shared;
-using Kijk.Application.Units.Update;
 using Kijk.Application.Users.Update;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
@@ -76,10 +74,10 @@ public class ApiPipelineHttpTests
         var user = await CreateUserAsync("actor");
         await using var host = await SpaceApiHost.StartAsync(user.AuthId);
 
-        using var first = new HttpRequestMessage(HttpMethod.Get, "/api/units?scope=System");
+        using var first = new HttpRequestMessage(HttpMethod.Get, "/api/units");
         first.Headers.Add(AppConstants.CorrelationId, "client-id");
         using var firstResponse = await host.Client.SendAsync(first);
-        using var secondResponse = await host.Client.GetAsync("/api/units?scope=System");
+        using var secondResponse = await host.Client.GetAsync("/api/units");
         var firstId = firstResponse.Headers.GetValues(AppConstants.CorrelationId).Single();
         var secondId = secondResponse.Headers.GetValues(AppConstants.CorrelationId).Single();
 
@@ -88,49 +86,16 @@ public class ApiPipelineHttpTests
     }
 
     [Test]
-    public async Task UnitScopesListSystemPersonalAndSpaceUnits()
+    public async Task UnitsListTheSystemCatalog()
     {
-        var user = await CreateUserAsync("actor", "Bucket");
+        var user = await CreateUserAsync("actor");
         await using var host = await SpaceApiHost.StartAsync(user.AuthId);
 
-        var system = await host.Client.GetFromJsonAsync<UnitPageResponse>("/api/units?scope=System", Json);
-        var personal = await host.Client.GetFromJsonAsync<UnitPageResponse>("/api/units?scope=Personal&pageSize=2&page=2", Json);
-        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var spaceId = await dbContext.UserSpaces.Where(link => link.UserId == user.Id).Select(link => link.SpaceId).SingleAsync();
-        var space = await host.Client.GetFromJsonAsync<UnitPageResponse>($"/api/units?scope={UnitScope.Space}&spaceId={spaceId}", Json);
-        using var withoutSpace = await host.Client.GetAsync($"/api/units?scope={UnitScope.Space}");
+        var units = await host.Client.GetFromJsonAsync<List<UnitResponse>>("/api/units", Json);
 
-        await Assert.That(system!.Items.All(unit => unit.CreatorType == CreatorType.System)).IsTrue();
-        await Assert.That(system.TotalCount).IsEqualTo(system.Items.Count);
-        await Assert.That(personal!.TotalCount).IsEqualTo(system.TotalCount + 1);
-        await Assert.That(personal.CustomCount).IsEqualTo(1);
-        await Assert.That(personal.Items.Count).IsEqualTo(2);
-        await Assert.That(personal.Page).IsEqualTo(2);
-        await Assert.That(space!.TotalCount).IsEqualTo(system.TotalCount);
-        await Assert.That(withoutSpace.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    [Arguments("BUCKET")]
-    [Arguments(" bucket ")]
-    public async Task UnitNamesUseNormalizedUniquenessForCreateAndUpdate(string duplicateName)
-    {
-        var user = await CreateUserAsync("actor", "Bucket");
-        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
-        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var referenceId = await dbContext.Units.Where(unit => unit.CreatorType == CreatorType.System)
-            .Select(unit => unit.Id).FirstAsync();
-
-        using var duplicate = await host.Client.PostAsJsonAsync("/api/units", new CreateUnitRequest(duplicateName, "b", referenceId, 1m, null), Json);
-        using var created = await host.Client.PostAsJsonAsync("/api/units", new CreateUnitRequest("Other", "o", referenceId, 1m, null), Json);
-        var other = await created.Content.ReadFromJsonAsync<UnitResponse>(Json);
-        using var update = await host.Client.PutAsJsonAsync($"/api/units/{other!.Id}", new UpdateUnitRequest(duplicateName, "o", referenceId, 1m), Json);
-        using var unchanged = await host.Client.PutAsJsonAsync($"/api/units/{other.Id}", new UpdateUnitRequest("OTHER", "o", referenceId, 1m), Json);
-
-        await Assert.That(duplicate.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
-        await Assert.That(created.StatusCode).IsEqualTo(HttpStatusCode.Created);
-        await Assert.That(update.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
-        await Assert.That(unchanged.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(units!.Count).IsEqualTo(12);
+        await Assert.That(units.Select(unit => unit.Symbol)).Contains("km");
+        await Assert.That(units.Single(unit => unit.Symbol == "pcs").QuantityKey).IsEqualTo("Count");
     }
 
     [Test]
@@ -162,45 +127,6 @@ public class ApiPipelineHttpTests
     }
 
     [Test]
-    [Arguments("%")]
-    [Arguments("_")]
-    [Arguments("\\")]
-    [Arguments("tAnK%_\\ä")]
-    public async Task UnitSearchTreatsPatternCharactersLiterallyAndIgnoresCase(string search)
-    {
-        var user = await CreateUserAsync("actor", "Tank%_\\Ä");
-        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        dbContext.Units.Add(new Unit
-        {
-            Name = "TankABCÄ",
-            Symbol = "tankabcä",
-            QuantityKey = "Custom:other",
-            CreatorType = CreatorType.User,
-            ConversionType = UnitConversionType.None,
-            OwnerUserId = user.Id
-        });
-        await dbContext.SaveChangesAsync();
-        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
-
-        var result = await host.Client.GetFromJsonAsync<UnitPageResponse>($"/api/units?scope=Personal&search={Uri.EscapeDataString(search)}", Json);
-
-        await Assert.That(result!.TotalCount).IsEqualTo(1);
-        await Assert.That(result.Items.Single().Name).IsEqualTo("Tank%_\\Ä");
-    }
-
-    [Test]
-    public async Task UnitSearchMatchesSymbolsIgnoringCase()
-    {
-        var user = await CreateUserAsync("actor");
-        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
-
-        var result = await host.Client.GetFromJsonAsync<UnitPageResponse>("/api/units?scope=System&search=KWH", Json);
-
-        await Assert.That(result!.TotalCount).IsEqualTo(1);
-        await Assert.That(result.Items.Single().Symbol).IsEqualTo("kWh");
-    }
-
-    [Test]
     public async Task ProfileUpdatesAndConsumptionStatisticsUseCanonicalPaths()
     {
         var user = await CreateUserAsync("actor");
@@ -220,21 +146,7 @@ public class ApiPipelineHttpTests
         await Assert.That(await dbContext.Users.Where(item => item.Id == user.Id).Select(item => item.Name).SingleAsync()).IsEqualTo("Updated actor");
     }
 
-    [Test]
-    public async Task SpaceUnitsRequireMembership()
-    {
-        var user = await CreateUserAsync("actor");
-        var outsider = await CreateUserAsync("outsider");
-        await using var host = await SpaceApiHost.StartAsync(user.AuthId);
-        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var foreignSpaceId = await dbContext.UserSpaces.Where(link => link.UserId == outsider.Id).Select(link => link.SpaceId).SingleAsync();
-
-        using var response = await host.Client.GetAsync($"/api/units?scope={UnitScope.Space}&spaceId={foreignSpaceId}");
-
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
-    }
-
-    private static async Task<User> CreateUserAsync(string name, string? unitName = null)
+    private static async Task<User> CreateUserAsync(string name)
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var admin = await dbContext.Roles.SingleAsync(item => item.Id == SpaceRoles.Admin.Id);
@@ -242,19 +154,6 @@ public class ApiPipelineHttpTests
         user.CompleteOnboarding(name, AnalyticsConsent.Declined, DateTime.UtcNow);
         user.UserSpaces.Add(UserSpace.Create(user, Space.Create($"{name} space"), admin));
         dbContext.Add(user);
-        if (unitName is not null)
-        {
-            dbContext.Add(new Unit
-            {
-                Name = unitName,
-                Symbol = unitName.ToLowerInvariant(),
-                QuantityKey = $"Custom:{unitName}",
-                CreatorType = CreatorType.User,
-                ConversionType = UnitConversionType.None,
-                OwnerUser = user
-            });
-        }
-
         await dbContext.SaveChangesAsync();
         return user;
     }

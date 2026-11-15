@@ -35,8 +35,6 @@ public sealed class Space : BaseEntity
     public ICollection<Limit> Limits { get; init; } = new List<Limit>();
     /// <summary>Gets the custom resources owned by this space.</summary>
     public ICollection<Resource> Resources { get; init; } = new List<Resource>();
-    /// <summary>Gets the units shared with this space.</summary>
-    public ICollection<UnitSpace> UnitSpaces { get; init; } = new List<UnitSpace>();
     /// <summary>Gets the custom categories owned by this space.</summary>
     public ICollection<Category> Categories { get; init; } = new List<Category>();
     /// <summary>Gets the budgets of this space.</summary>

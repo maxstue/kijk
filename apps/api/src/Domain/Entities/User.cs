@@ -104,11 +104,6 @@ public sealed class User : BaseEntity
     /// <summary>Gets the user's space memberships.</summary>
     public ICollection<UserSpace> UserSpaces { get; init; } = new List<UserSpace>();
 
-    /// <summary>
-    /// Units created by this user.
-    /// </summary>
-    public ICollection<Unit> Units { get; init; } = new List<Unit>();
-
     private readonly List<Resource> _resources = [];
     /// <summary>Gets the resources the user has enabled.</summary>
     public IEnumerable<Resource> Resources => _resources;

@@ -1,5 +1,4 @@
 using Kijk.Domain.Entities;
-using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,27 +15,13 @@ public sealed class UnitConfig : IEntityTypeConfiguration<Unit>
         builder.ToTable(table => table.HasCheckConstraint("ck_units_name_trimmed", "name = btrim(name)"));
         builder.HasKey(unit => unit.Id);
         builder.Property(unit => unit.Name).HasMaxLength(50).UseCollation(AppDbContext.CaseInsensitiveCollation);
-        builder.Property(unit => unit.Symbol).HasMaxLength(20);
+        builder.Property(unit => unit.Symbol).HasMaxLength(20).UseCollation(AppDbContext.CaseInsensitiveCollation);
         builder.Property(unit => unit.QuantityKey).HasMaxLength(100);
         builder.Property(unit => unit.UnitsNetUnitName).HasMaxLength(100);
-        builder.Property(unit => unit.ConversionType).HasConversion<string>().HasMaxLength(16);
-        builder.Property(unit => unit.ConversionFactor).HasPrecision(28, 12);
 
-        builder.HasIndex("QuantityKey", "UnitsNetUnitName")
-            .IsUnique()
-            .HasFilter("creator_type = 'system'");
-        builder.HasIndex(unit => new { unit.OwnerUserId, unit.Name })
-            .IsUnique()
-            .HasFilter("creator_type = 'user' AND archived_at IS NULL");
-
-        builder.HasOne(unit => unit.ReferenceUnit)
-            .WithMany()
-            .HasForeignKey(unit => unit.ReferenceUnitId)
-            .OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(unit => unit.OwnerUser)
-            .WithMany(user => user.Units)
-            .HasForeignKey(unit => unit.OwnerUserId)
-            .OnDelete(DeleteBehavior.SetNull);
+        // The consumption import identifies units by symbol regardless of case.
+        builder.HasIndex(unit => unit.Symbol).IsUnique();
+        builder.HasIndex(unit => unit.Name).IsUnique();
 
         var createdAt = new DateTime(2026, 9, 22, 0, 0, 0, DateTimeKind.Utc);
         builder.HasData(
@@ -50,7 +35,8 @@ public sealed class UnitConfig : IEntityTypeConfiguration<Unit>
             SystemUnit(new("33333333-3333-4333-8333-333333333332"), "Kilogram", "kg", "Mass", "Kilogram", createdAt),
             SystemUnit(new("33333333-3333-4333-8333-333333333333"), "Tonne", "t", "Mass", "Tonne", createdAt),
             SystemUnit(new("44444444-4444-4444-8444-444444444441"), "Meter", "m", "Length", "Meter", createdAt),
-            SystemUnit(new("44444444-4444-4444-8444-444444444442"), "Kilometer", "km", "Length", "Kilometer", createdAt));
+            SystemUnit(new("44444444-4444-4444-8444-444444444442"), "Kilometer", "km", "Length", "Kilometer", createdAt),
+            SystemUnit(new("55555555-5555-4555-8555-555555555551"), "Piece", "pcs", "Count", null, createdAt));
     }
 
     private static Unit SystemUnit(
@@ -58,14 +44,12 @@ public sealed class UnitConfig : IEntityTypeConfiguration<Unit>
         string name,
         string symbol,
         string quantityKey,
-        string unitsNetUnitName,
+        string? unitsNetUnitName,
         DateTime createdAt) => new()
         {
             Id = id,
             Name = name,
             Symbol = symbol,
-            CreatorType = CreatorType.System,
-            ConversionType = UnitConversionType.UnitsNet,
             QuantityKey = quantityKey,
             UnitsNetUnitName = unitsNetUnitName,
             CreatedAt = createdAt

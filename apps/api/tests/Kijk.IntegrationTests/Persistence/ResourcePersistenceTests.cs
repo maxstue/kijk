@@ -23,12 +23,7 @@ public class ResourcePersistenceTests
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var space = Space.Create("Integration space");
         dbContext.Spaces.Add(space);
-        var units = new[]
-        {
-            CreateUnit("Kilowatt hour", "kWh", "Energy", "KilowattHour"),
-            CreateUnit("Liter", "l", "Volume", "Liter"),
-            CreateUnit("Cubic meter", "m³", "Volume", "CubicMeter")
-        };
+        var units = await dbContext.Units.ToListAsync();
 
         var faker = new Faker<Resource>()
             .UseSeed(215)
@@ -53,7 +48,7 @@ public class ResourcePersistenceTests
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var space = Space.Create("Integration space");
-        var unit = CreateUnit("Kilowatt hour", "kWh", "Energy", "KilowattHour");
+        var unit = await dbContext.Units.SingleAsync(item => item.Symbol == "kWh");
         dbContext.Resources.AddRange(
             CreateResource("Electricity", unit, space),
             CreateResource("electricity", unit, space));
@@ -94,15 +89,5 @@ public class ResourcePersistenceTests
         Icon = "circle",
         CreatorType = CreatorType.User,
         Space = space
-    };
-
-    private static Unit CreateUnit(string name, string symbol, string quantityKey, string unitsNetUnitName) => new()
-    {
-        Name = name,
-        Symbol = symbol,
-        QuantityKey = quantityKey,
-        UnitsNetUnitName = unitsNetUnitName,
-        CreatorType = CreatorType.User,
-        ConversionType = UnitConversionType.UnitsNet
     };
 }

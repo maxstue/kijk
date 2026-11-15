@@ -59,7 +59,6 @@ public class AccountDeletionHttpTests
         await Assert.That(await dbContext.Accounts.AnyAsync(item => item.Id == seed.PrivateAccountId)).IsFalse();
         await Assert.That(await dbContext.Transactions.AnyAsync(item => item.Counterparty == "Private shop")).IsFalse();
         await Assert.That(await dbContext.Budgets.AnyAsync(item => item.OwnerId != null)).IsFalse();
-        await Assert.That(await dbContext.Units.AnyAsync(item => item.Id == seed.UnitId)).IsFalse();
 
         // Shared data stays and now belongs to the remaining member, who became the space's administrator.
         var shared = await dbContext.Transactions.SingleAsync(item => item.Counterparty == "Shared shop");
@@ -119,11 +118,10 @@ public class AccountDeletionHttpTests
         var privateBooking = Transaction.Create(new TransactionDetails(October, -20m, "Private shop", null, TransactionStatus.Booked, false), privateAccount, leaving, shared);
         var sharedBudget = Budget.Create(300m, new MonthYear(October), true, groceries, leaving, shared);
         var privateBudget = Budget.Create(100m, new MonthYear(October), true, groceries, leaving, shared, Visibility.Private);
-        var unit = new Unit { Name = "Bucket", Symbol = "bucket", QuantityKey = "Custom:bucket", CreatorType = CreatorType.User, ConversionType = UnitConversionType.None, OwnerUser = leaving };
 
-        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget, unit);
+        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget);
         await dbContext.SaveChangesAsync();
-        return new Seed(leaving, remaining, personal.Id, solo.Id, shared.Id, privateAccount.Id, unit.Id);
+        return new Seed(leaving, remaining, personal.Id, solo.Id, shared.Id, privateAccount.Id);
     }
 
     private static User CreateUser(string name)
@@ -133,7 +131,7 @@ public class AccountDeletionHttpTests
         return user;
     }
 
-    private sealed record Seed(User Leaving, User Remaining, Guid PersonalSpaceId, Guid SoloSpaceId, Guid SharedSpaceId, Guid PrivateAccountId, Guid UnitId);
+    private sealed record Seed(User Leaving, User Remaining, Guid PersonalSpaceId, Guid SoloSpaceId, Guid SharedSpaceId, Guid PrivateAccountId);
 
     private sealed class RecordingIdentityProvider : IIdentityProvider
     {

@@ -17,18 +17,7 @@ const units: Unit[] = [
     id: unitId,
     name: 'Kilowatt hour',
     symbol: 'kWh',
-    creatorType: 'System',
-    conversionType: 'UnitsNet',
     quantityKey: 'Energy',
-    unitsNetUnitName: null,
-    referenceUnitId: null,
-    conversionFactor: null,
-    ownerUserId: null,
-    isOwner: false,
-    isAvailableInActiveSpace: true,
-    isArchived: false,
-    resourceCount: 0,
-    spaceIds: [],
   },
 ];
 
@@ -391,13 +380,5 @@ export const handlers = [
         },
       }),
   ),
-  http.get('*/api/units', () =>
-    HttpResponse.json({
-      customCount: units.filter((unit) => unit.creatorType === 'User').length,
-      items: units,
-      page: 1,
-      pageSize: Math.max(units.length, 1),
-      totalCount: units.length,
-    }),
-  ),
+  http.get('*/api/units', () => HttpResponse.json(units)),
 ];

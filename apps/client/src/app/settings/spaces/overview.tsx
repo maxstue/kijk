@@ -1,6 +1,6 @@
 import { Card } from '@kijk/ui/components/card';
 import { Link } from '@tanstack/react-router';
-import { ChevronRight, FileInput, Ruler, Settings2, Users } from 'lucide-react';
+import { ChevronRight, FileInput, Settings2, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
@@ -19,12 +19,6 @@ const sections = [
     icon: Users,
     label: 'Members',
     section: 'members',
-  },
-  {
-    description: 'Units available to this space',
-    icon: Ruler,
-    label: 'Units',
-    section: 'units',
   },
   {
     description: 'Bank import defaults, privacy, and AI categorization',

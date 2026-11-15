@@ -62,6 +62,7 @@ public class NameCollationMigrationTests
         var fixture = await SeedHistoricalFixtureAsync(db);
         NameCollationTests.AddNamedEntity(db, fixture, table, "Cafe\u0301");
         await db.SaveChangesAsync();
+        await AssignUnitsAsync(db, fixture.Owner);
 
         var failure = await MigrationFailureAsync(migrator);
 
@@ -83,8 +84,18 @@ public class NameCollationMigrationTests
             INSERT INTO users (id, auth_id, name, email, ai_enabled, created_at)
             VALUES ({owner.Id}, {owner.AuthId}, {owner.Name}, {owner.Email}, FALSE, {DateTime.UtcNow})
             """);
-        return await NameCollationTests.SeedAsync(db, " Café ", owner);
+        // The current model no longer writes the kind and owner of a unit, which this schema still has: seeded
+        // units become units of the owner, as user units were then.
+        await db.Database.ExecuteSqlRawAsync("""
+            ALTER TABLE units ALTER COLUMN creator_type SET DEFAULT 'user', ALTER COLUMN conversion_type SET DEFAULT 'None'
+            """);
+        var fixture = await NameCollationTests.SeedAsync(db, " Café ", owner);
+        await AssignUnitsAsync(db, owner);
+        return fixture;
     }
+
+    private static async Task AssignUnitsAsync(AppDbContext db, User owner) =>
+        await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE units SET owner_user_id = {owner.Id} WHERE creator_type = 'user'");
 
     private static async Task AssertNamesAsync(AppDbContext db, NameCollationTests.Fixture fixture, string expected)
     {

@@ -23,8 +23,6 @@ public interface IAppDbContext
     DbSet<Resource> Resources { get; }
     /// <summary>Gets the units.</summary>
     DbSet<Unit> Units { get; }
-    /// <summary>Gets the units shared with spaces.</summary>
-    DbSet<UnitSpace> UnitSpaces { get; }
     /// <summary>Gets the users.</summary>
     DbSet<User> Users { get; }
     /// <summary>Gets the transaction categories.</summary>

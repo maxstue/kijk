@@ -36,8 +36,9 @@ internal static class PostgreSqlTestDatabase
         await ExecuteAsync(connection, "CREATE SCHEMA test_seed");
         _restoreSystemRowsSql = string.Join(
             ';',
-            await CopySystemRowsAsync(connection, "units"),
-            await CopySystemRowsAsync(connection, "categories"));
+            // Every unit is a system unit right after the migrations.
+            await CopySystemRowsAsync(connection, "units", "TRUE"),
+            await CopySystemRowsAsync(connection, "categories", "creator_type = 'system'"));
 
         _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
@@ -61,7 +62,7 @@ internal static class PostgreSqlTestDatabase
         await ExecuteAsync(connection, _restoreSystemRowsSql);
     }
 
-    private static async Task<string> CopySystemRowsAsync(NpgsqlConnection connection, string table)
+    private static async Task<string> CopySystemRowsAsync(NpgsqlConnection connection, string table, string systemRows)
     {
         await using var columns = new NpgsqlCommand(
             """
@@ -73,7 +74,7 @@ internal static class PostgreSqlTestDatabase
         columns.Parameters.AddWithValue("table", table);
         var tableColumns = (string)(await columns.ExecuteScalarAsync())!;
 
-        await ExecuteAsync(connection, $"CREATE TABLE test_seed.{table} AS SELECT * FROM {table} WHERE creator_type = 'system'");
+        await ExecuteAsync(connection, $"CREATE TABLE test_seed.{table} AS SELECT * FROM {table} WHERE {systemRows}");
         return $"INSERT INTO {table} ({tableColumns}) SELECT {tableColumns} FROM test_seed.{table}";
     }
 

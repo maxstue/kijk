@@ -9,17 +9,7 @@ namespace Kijk.Application.Units.Shared;
 public interface IUnitConversionService
 {
     /// <summary>
-    /// Resolves metadata for a UnitsNet unit enum member.
-    /// </summary>
-    Result<UnitMetadata> Resolve(string unitName);
-
-    /// <summary>
-    /// Converts a value between compatible units.
+    /// Converts a value between units of the same quantity.
     /// </summary>
     Result<decimal> Convert(decimal value, Unit source, Unit target);
 }
-
-/// <summary>
-/// Resolved UnitsNet metadata.
-/// </summary>
-public sealed record UnitMetadata(string Name, string Symbol, string QuantityKey, string UnitsNetUnitName);

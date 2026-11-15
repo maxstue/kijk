@@ -34,9 +34,6 @@ export const SpacePermissions = {
     configure: 'resources:configure',
     view: 'resources:view',
   },
-  units: {
-    share: 'units:share',
-  },
 } as const;
 
 type PermissionGroups = typeof SpacePermissions;
@@ -64,7 +61,6 @@ export const spacePermissionLabels: Record<SpacePermission, string> = {
   'members:view': 'View members and their roles',
   'resources:configure': 'Create, change and delete resources',
   'resources:view': 'View resources',
-  'units:share': 'Share units with the space',
 };
 
 interface SpaceWithRole {

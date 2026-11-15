@@ -2,8 +2,6 @@ using Kijk.Api.Mappers;
 using Kijk.Application.Spaces.ChangeMemberRole;
 using Kijk.Application.Spaces.Members;
 using Kijk.Application.Spaces.Update;
-using Kijk.Application.Units.Create;
-using Kijk.Application.Units.ShareWithSpace;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
@@ -137,50 +135,6 @@ public class SpaceRoleTests
         await Assert.That(adminChangesSelf.Error.Type).IsEqualTo(ErrorType.Validation);
         await Assert.That(unknownRole.Error.Type).IsEqualTo(ErrorType.Validation);
         await Assert.That(unknownMember.Error.Type).IsEqualTo(ErrorType.NotFound);
-    }
-
-    [Test]
-    public async Task MemberCannotShareUnitsWithTheSpace()
-    {
-        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var space = await CreateSpaceAsync(dbContext);
-        var member = await AddMemberAsync(dbContext, space, "member", SpaceRoles.Member);
-        var unit = new Unit
-        {
-            Name = "Bucket",
-            Symbol = "bucket",
-            QuantityKey = "Custom:bucket",
-            CreatorType = CreatorType.User,
-            ConversionType = UnitConversionType.None,
-            OwnerUserId = member.Id
-        };
-        dbContext.Units.Add(unit);
-        await dbContext.SaveChangesAsync();
-
-        var result = await new ShareWithSpaceHandler(dbContext, CurrentUserFor(member, space), TimeProvider.System)
-            .HandleAsync(unit.Id, space.Id, CancellationToken.None);
-
-        await Assert.That(result.Error.Type).IsEqualTo(ErrorType.Authorization);
-    }
-
-    [Test]
-    public async Task CreatingAUnitSharedWithTheSpaceRequiresTheSharePermission()
-    {
-        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-        var space = await CreateSpaceAsync(dbContext);
-        var admin = await AddMemberAsync(dbContext, space, "admin", SpaceRoles.Admin);
-        var member = await AddMemberAsync(dbContext, space, "member", SpaceRoles.Member);
-        var kilowattHour = new Guid("22222222-2222-4222-8222-222222222222");
-
-        var asMember = await new CreateHandler(dbContext, CurrentUserFor(member, space), TimeProvider.System)
-            .HandleAsync(new CreateUnitRequest("Member battery", "mbat", kilowattHour, 2m, [space.Id]), CancellationToken.None);
-        var asAdmin = await new CreateHandler(dbContext, CurrentUserFor(admin, space), TimeProvider.System)
-            .HandleAsync(new CreateUnitRequest("Admin battery", "abat", kilowattHour, 2m, [space.Id]), CancellationToken.None);
-
-        await Assert.That(asMember.Error.Type).IsEqualTo(ErrorType.Authorization);
-        await Assert.That(asAdmin.IsSuccess).IsTrue();
-        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
-        await Assert.That(await verification.Units.AnyAsync(unit => unit.Name == "Member battery")).IsFalse();
     }
 
     private static async Task<Space> CreateSpaceAsync(AppDbContext dbContext)

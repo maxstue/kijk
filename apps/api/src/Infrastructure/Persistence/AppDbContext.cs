@@ -35,8 +35,6 @@ public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
     /// <inheritdoc />
     public DbSet<Unit> Units { get; set; }
     /// <inheritdoc />
-    public DbSet<UnitSpace> UnitSpaces { get; set; }
-    /// <inheritdoc />
     public DbSet<User> Users { get; set; }
     /// <inheritdoc />
     public DbSet<Category> Categories { get; set; }

@@ -75,12 +75,10 @@ public class UpdateHandler(
             return resource.Unit;
         }
 
-        var unit = await dbContext.GetAvailableUnits(currentUser)
-            .Include(item => item.ReferenceUnit)
-            .FirstOrDefaultAsync(item => item.Id == unitId.Value, cancellationToken);
+        var unit = await dbContext.Units.FirstOrDefaultAsync(item => item.Id == unitId.Value, cancellationToken);
         if (unit is null)
         {
-            return Error.NotFound("Unit is not available in the active space");
+            return Error.NotFound("Unit could not be found");
         }
 
         return string.Equals(resource.Unit.QuantityKey, unit.QuantityKey, StringComparison.Ordinal)

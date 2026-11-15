@@ -16,9 +16,7 @@ public class ConsumptionTimelineCalculatorTests
             Name = "Kilowatt hour",
             Symbol = "kWh",
             QuantityKey = "Energy",
-            UnitsNetUnitName = "KilowattHour",
-            CreatorType = Kijk.Shared.CreatorType.System,
-            ConversionType = UnitConversionType.UnitsNet
+            UnitsNetUnitName = "KilowattHour"
         },
         Color = "#112233",
         Icon = "zap",

@@ -10,12 +10,9 @@ interface Props {
 export const unitSelectItems = (units: Unit[]) =>
   units.map((unit) => ({ label: `${unit.name} (${unit.symbol})`, value: unit.id }));
 
-/** Select options for convertible, non-archived units, grouped by quantity. */
+/** Select options for the units, grouped by quantity. */
 export function UnitSelectOptions({ units }: Props) {
-  const groups = Map.groupBy(
-    units.filter((unit) => unit.conversionType !== 'None' && !unit.isArchived),
-    (unit) => unit.quantityKey,
-  );
+  const groups = Map.groupBy(units, (unit) => unit.quantityKey);
   const quantityKeys = [...groups.keys()].sort((left, right) => left.localeCompare(right));
 
   return quantityKeys.map((quantityKey, index) => (

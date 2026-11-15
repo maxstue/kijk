@@ -1298,25 +1298,6 @@ export type CreateTransactionRequest = {
 };
 
 /**
- * Creates a reusable user unit.
- *
- * @type object
- */
-export type CreateUnitRequest = {
-  name: string;
-  symbol: string;
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  referenceUnitId: string;
-  /** Format: `double` */
-  conversionFactor: number | string;
-  shareWithSpaceIds: string[] | null;
-};
-
-/**
  * Describes how the columns of a bank export map to transaction fields. Only declarative options, never code. Column
  * indexes are 0-based.
  *
@@ -2609,76 +2590,39 @@ export type TransactionPageResponse = {
   outgoing: number | string;
 };
 
-export type UnitConversionType = 'UnitsNet' | 'Factor' | 'None';
-
 /**
- * A unit available to the current user.
+ * A unit of the system unit catalog.
  *
  * @type object
  */
 export type UnitResponse = {
   /**
+   * The unit id.
+   *
    * Format: `uuid`
    *
    * @type string
    */
   id: string;
+  /**
+   * The display name, e.g. "Kilowatt hour".
+   *
+   * @type string
+   */
   name: string;
+  /**
+   * The symbol, e.g. "kWh".
+   *
+   * @type string
+   */
   symbol: string;
   /**
-   * Represents who was the creator of the object.
+   * The quantity, e.g. "Energy"; a resource can only switch to a unit of the same quantity.
    *
    * @type string
    */
-  creatorType: CreatorType;
-  /**
-   * Describes how a unit converts to other units of the same physical quantity.
-   *
-   * @type string
-   */
-  conversionType: UnitConversionType;
   quantityKey: string;
-  unitsNetUnitName: string | null;
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  referenceUnitId: string | null;
-  /** Format: `double` */
-  conversionFactor: (number | string) | null;
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  ownerUserId: string | null;
-  isOwner: boolean;
-  isAvailableInActiveSpace: boolean;
-  isArchived: boolean;
-  /** Format: `int32` */
-  resourceCount: number | string;
-  spaceIds: string[];
 };
-
-/**
- * A list of units; a page of it when a page size was requested.
- *
- * @type object
- */
-export type UnitPageResponse = {
-  items: UnitResponse[];
-  /** Format: `int32` */
-  totalCount: number | string;
-  /** Format: `int32` */
-  customCount: number | string;
-  /** Format: `int32` */
-  page: number | string;
-  /** Format: `int32` */
-  pageSize: number | string;
-};
-
-export type UnitScope = 'Space' | 'Personal' | 'System';
 
 /**
  * Request for replacing the editable properties of an account.
@@ -2978,24 +2922,6 @@ export type UpdateTransactionRequest = {
    * @type string
    */
   categoryId: string | null;
-};
-
-/**
- * Updates user-editable unit metadata.
- *
- * @type object
- */
-export type UpdateUnitRequest = {
-  name: string;
-  symbol: string;
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  referenceUnitId: string;
-  /** Format: `double` */
-  conversionFactor: number | string;
 };
 
 /**
@@ -6799,38 +6725,7 @@ export type TransactionsCategorizeResponses = {
 /** Union of all possible responses */
 export type TransactionsCategorizeResponse = TransactionsCategorizeStatus200;
 
-export type UnitsListQuery = {
-  /**
-   * Which units a unit list contains. System units are part of every scope.
-   *
-   * @default 'Space'
-   * @type string | undefined
-   */
-  scope?: UnitScope;
-  /**
-   * Format: `uuid`
-   *
-   * @type string | undefined
-   */
-  spaceId?: string;
-  /**
-   * @default false
-   * @type boolean | undefined
-   */
-  includeArchived?: boolean;
-  search?: string;
-  /** Format: `int32` */
-  page?: number | string;
-  /** Format: `int32` */
-  pageSize?: number | string;
-};
-
-/**
- * A list of units; a page of it when a page size was requested.
- *
- * @type object
- */
-export type UnitsListStatus200 = UnitPageResponse;
+export type UnitsListStatus200 = UnitResponse[];
 
 export type UnitsListStatus401 = Problem;
 
@@ -6843,7 +6738,7 @@ export type UnitsListStatus500 = Problem;
 export type UnitsListOptions = {
   body?: never;
   path?: never;
-  query?: UnitsListQuery;
+  query?: never;
   headers?: never;
 };
 
@@ -6857,298 +6752,6 @@ export type UnitsListResponses = {
 
 /** Union of all possible responses */
 export type UnitsListResponse = UnitsListStatus200;
-
-/**
- * A unit available to the current user.
- *
- * @type object
- */
-export type UnitsCreateStatus201 = UnitResponse;
-
-export type UnitsCreateStatus400 = HttpValidationProblemDetails;
-
-export type UnitsCreateStatus401 = Problem;
-
-export type UnitsCreateStatus403 = Problem;
-
-export type UnitsCreateStatus429 = Problem;
-
-export type UnitsCreateStatus500 = Problem;
-
-/**
- * Creates a reusable user unit.
- *
- * @type object
- */
-export type UnitsCreateBody = CreateUnitRequest;
-
-export type UnitsCreateOptions = {
-  body: UnitsCreateBody;
-  path?: never;
-  query?: never;
-  headers?: never;
-};
-
-export type UnitsCreateResponses = {
-  '201': UnitsCreateStatus201;
-  '400': UnitsCreateStatus400;
-  '401': UnitsCreateStatus401;
-  '403': UnitsCreateStatus403;
-  '429': UnitsCreateStatus429;
-  '500': UnitsCreateStatus500;
-};
-
-/** Union of all possible responses */
-export type UnitsCreateResponse = UnitsCreateStatus201;
-
-export type UnitsUpdatePath = {
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  id: string;
-};
-
-/**
- * A unit available to the current user.
- *
- * @type object
- */
-export type UnitsUpdateStatus200 = UnitResponse;
-
-export type UnitsUpdateStatus400 = HttpValidationProblemDetails;
-
-export type UnitsUpdateStatus401 = Problem;
-
-export type UnitsUpdateStatus403 = Problem;
-
-export type UnitsUpdateStatus429 = Problem;
-
-export type UnitsUpdateStatus500 = Problem;
-
-/**
- * Updates user-editable unit metadata.
- *
- * @type object
- */
-export type UnitsUpdateBody = UpdateUnitRequest;
-
-export type UnitsUpdateOptions = {
-  body: UnitsUpdateBody;
-  path: UnitsUpdatePath;
-  query?: never;
-  headers?: never;
-};
-
-export type UnitsUpdateResponses = {
-  '200': UnitsUpdateStatus200;
-  '400': UnitsUpdateStatus400;
-  '401': UnitsUpdateStatus401;
-  '403': UnitsUpdateStatus403;
-  '429': UnitsUpdateStatus429;
-  '500': UnitsUpdateStatus500;
-};
-
-/** Union of all possible responses */
-export type UnitsUpdateResponse = UnitsUpdateStatus200;
-
-export type UnitsDeletePath = {
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  id: string;
-};
-
-export type UnitsDeleteStatus204 = unknown;
-
-export type UnitsDeleteStatus401 = Problem;
-
-export type UnitsDeleteStatus403 = Problem;
-
-export type UnitsDeleteStatus429 = Problem;
-
-export type UnitsDeleteStatus500 = Problem;
-
-export type UnitsDeleteOptions = {
-  body?: never;
-  path: UnitsDeletePath;
-  query?: never;
-  headers?: never;
-};
-
-export type UnitsDeleteResponses = {
-  '204': UnitsDeleteStatus204;
-  '401': UnitsDeleteStatus401;
-  '403': UnitsDeleteStatus403;
-  '429': UnitsDeleteStatus429;
-  '500': UnitsDeleteStatus500;
-};
-
-/** Union of all possible responses */
-export type UnitsDeleteResponse = UnitsDeleteStatus204;
-
-export type UnitsArchivePath = {
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  id: string;
-};
-
-export type UnitsArchiveStatus204 = unknown;
-
-export type UnitsArchiveStatus401 = Problem;
-
-export type UnitsArchiveStatus403 = Problem;
-
-export type UnitsArchiveStatus429 = Problem;
-
-export type UnitsArchiveStatus500 = Problem;
-
-export type UnitsArchiveOptions = {
-  body?: never;
-  path: UnitsArchivePath;
-  query?: never;
-  headers?: never;
-};
-
-export type UnitsArchiveResponses = {
-  '204': UnitsArchiveStatus204;
-  '401': UnitsArchiveStatus401;
-  '403': UnitsArchiveStatus403;
-  '429': UnitsArchiveStatus429;
-  '500': UnitsArchiveStatus500;
-};
-
-/** Union of all possible responses */
-export type UnitsArchiveResponse = UnitsArchiveStatus204;
-
-export type UnitsRestorePath = {
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  id: string;
-};
-
-export type UnitsRestoreStatus204 = unknown;
-
-export type UnitsRestoreStatus401 = Problem;
-
-export type UnitsRestoreStatus403 = Problem;
-
-export type UnitsRestoreStatus429 = Problem;
-
-export type UnitsRestoreStatus500 = Problem;
-
-export type UnitsRestoreOptions = {
-  body?: never;
-  path: UnitsRestorePath;
-  query?: never;
-  headers?: never;
-};
-
-export type UnitsRestoreResponses = {
-  '204': UnitsRestoreStatus204;
-  '401': UnitsRestoreStatus401;
-  '403': UnitsRestoreStatus403;
-  '429': UnitsRestoreStatus429;
-  '500': UnitsRestoreStatus500;
-};
-
-/** Union of all possible responses */
-export type UnitsRestoreResponse = UnitsRestoreStatus204;
-
-export type UnitsShareWithSpacePath = {
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  id: string;
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  spaceId: string;
-};
-
-export type UnitsShareWithSpaceStatus204 = unknown;
-
-export type UnitsShareWithSpaceStatus401 = Problem;
-
-export type UnitsShareWithSpaceStatus403 = Problem;
-
-export type UnitsShareWithSpaceStatus429 = Problem;
-
-export type UnitsShareWithSpaceStatus500 = Problem;
-
-export type UnitsShareWithSpaceOptions = {
-  body?: never;
-  path: UnitsShareWithSpacePath;
-  query?: never;
-  headers?: never;
-};
-
-export type UnitsShareWithSpaceResponses = {
-  '204': UnitsShareWithSpaceStatus204;
-  '401': UnitsShareWithSpaceStatus401;
-  '403': UnitsShareWithSpaceStatus403;
-  '429': UnitsShareWithSpaceStatus429;
-  '500': UnitsShareWithSpaceStatus500;
-};
-
-/** Union of all possible responses */
-export type UnitsShareWithSpaceResponse = UnitsShareWithSpaceStatus204;
-
-export type UnitsRemoveFromSpacePath = {
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  id: string;
-  /**
-   * Format: `uuid`
-   *
-   * @type string
-   */
-  spaceId: string;
-};
-
-export type UnitsRemoveFromSpaceStatus204 = unknown;
-
-export type UnitsRemoveFromSpaceStatus401 = Problem;
-
-export type UnitsRemoveFromSpaceStatus403 = Problem;
-
-export type UnitsRemoveFromSpaceStatus429 = Problem;
-
-export type UnitsRemoveFromSpaceStatus500 = Problem;
-
-export type UnitsRemoveFromSpaceOptions = {
-  body?: never;
-  path: UnitsRemoveFromSpacePath;
-  query?: never;
-  headers?: never;
-};
-
-export type UnitsRemoveFromSpaceResponses = {
-  '204': UnitsRemoveFromSpaceStatus204;
-  '401': UnitsRemoveFromSpaceStatus401;
-  '403': UnitsRemoveFromSpaceStatus403;
-  '429': UnitsRemoveFromSpaceStatus429;
-  '500': UnitsRemoveFromSpaceStatus500;
-};
-
-/** Union of all possible responses */
-export type UnitsRemoveFromSpaceResponse = UnitsRemoveFromSpaceStatus204;
 
 /**
  * User-owned tour progress, independent of welcome setup and analytics.

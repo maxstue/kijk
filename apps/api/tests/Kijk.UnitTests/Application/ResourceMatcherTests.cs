@@ -46,9 +46,7 @@ public class ResourceMatcherTests
         {
             Name = symbol,
             Symbol = symbol,
-            QuantityKey = $"Custom:{symbol}",
-            CreatorType = CreatorType.User,
-            ConversionType = UnitConversionType.None
+            QuantityKey = $"Custom:{symbol}"
         },
         Color = "#112233",
         Icon = "zap",

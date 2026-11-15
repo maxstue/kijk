@@ -1,6 +1,5 @@
 using Kijk.Application.Units.Shared;
 using Kijk.Domain.Entities;
-using Kijk.Shared;
 
 namespace Kijk.UnitTests.Application;
 
@@ -18,28 +17,6 @@ public sealed class UnitsNetConversionServiceTests
     }
 
     [Test]
-    public async Task ConvertFactorUnitToSystemUnit()
-    {
-        var liter = SystemUnit("Liter", "Volume");
-        var barrel = new Unit
-        {
-            Name = "Barrel",
-            Symbol = "barrel",
-            CreatorType = CreatorType.User,
-            ConversionType = UnitConversionType.Factor,
-            QuantityKey = "Volume",
-            ReferenceUnit = liter,
-            ReferenceUnitId = liter.Id,
-            ConversionFactor = 159m
-        };
-
-        var result = _service.Convert(2m, barrel, liter);
-
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.Value).IsEqualTo(318m);
-    }
-
-    [Test]
     public async Task ConvertBetweenLengthUnits()
     {
         var result = _service.Convert(1.5m, SystemUnit("Kilometer", "Length"), SystemUnit("Meter", "Length"));
@@ -49,25 +26,22 @@ public sealed class UnitsNetConversionServiceTests
     }
 
     [Test]
-    public async Task ConvertFactorUnitWithKilometerReference()
+    public async Task KeepTheValueForTheSameUnitEvenWithoutConversion()
     {
-        var kilometer = SystemUnit("Kilometer", "Length");
-        var marathon = new Unit
-        {
-            Name = "Marathon",
-            Symbol = "marathon",
-            CreatorType = CreatorType.User,
-            ConversionType = UnitConversionType.Factor,
-            QuantityKey = "Length",
-            ReferenceUnit = kilometer,
-            ReferenceUnitId = kilometer.Id,
-            ConversionFactor = 42.195m
-        };
+        var piece = SystemUnit(null, "Count");
 
-        var result = _service.Convert(2m, marathon, SystemUnit("Meter", "Length"));
+        var result = _service.Convert(3m, piece, piece);
 
         await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.Value).IsEqualTo(84_390m);
+        await Assert.That(result.Value).IsEqualTo(3m);
+    }
+
+    [Test]
+    public async Task RejectUnitsWithoutConversion()
+    {
+        var result = _service.Convert(3m, SystemUnit(null, "Count"), SystemUnit(null, "Count"));
+
+        await Assert.That(result.IsError).IsTrue();
     }
 
     [Test]
@@ -78,14 +52,12 @@ public sealed class UnitsNetConversionServiceTests
         await Assert.That(result.IsError).IsTrue();
     }
 
-    private static Unit SystemUnit(string name, string quantity) => new()
+    private static Unit SystemUnit(string? unitsNetUnitName, string quantity) => new()
     {
         Id = Guid.NewGuid(),
-        Name = name,
-        Symbol = name,
-        CreatorType = CreatorType.System,
-        ConversionType = UnitConversionType.UnitsNet,
+        Name = unitsNetUnitName ?? "Piece",
+        Symbol = unitsNetUnitName ?? "pcs",
         QuantityKey = quantity,
-        UnitsNetUnitName = name
+        UnitsNetUnitName = unitsNetUnitName
     };
 }

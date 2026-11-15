@@ -83,15 +83,6 @@ public static class SpacePermissions
     }
 
     /// <summary>
-    /// Permissions for units used by a space.
-    /// </summary>
-    public static class Units
-    {
-        /// <summary>Share units with the space or remove a share.</summary>
-        public const string Share = "units:share";
-    }
-
-    /// <summary>
     /// Permissions for the space itself.
     /// </summary>
     public static class Space
@@ -127,7 +118,6 @@ public static class SpacePermissions
         new(new("5ca7bb07-cf8b-4930-8047-e4c857c4fc65"), Limits.Plan),
         new(new("c2d383b8-545f-43d1-b5bb-44a2f184934a"), Resources.View),
         new(new("af500b09-178e-4fd2-8e20-387b84c91fac"), Resources.Configure),
-        new(new("57820fa1-c443-458d-b8d3-40ef527720d4"), Units.Share),
         new(new("0e065002-1522-4138-a96b-52e657b7cbcc"), Space.Configure),
         new(new("4ab7acac-5b5f-41b4-a3f7-7174694781b1"), Space.Delete),
         new(new("55d9913b-dcb6-43bc-b9b8-0b840508c795"), Members.View),
