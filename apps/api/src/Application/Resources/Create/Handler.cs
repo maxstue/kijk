@@ -1,6 +1,5 @@
 using Kijk.Application.Resources.Shared;
 using Kijk.Application.Shared.Persistence;
-using Kijk.Application.Units.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 using Microsoft.Extensions.Logging;
@@ -27,11 +26,10 @@ public class CreateHandler(IAppDbContext dbContext, CurrentUser currentUser, ILo
         }
 
         var name = request.Name.Trim();
-        var unit = await dbContext.GetAvailableUnits(currentUser)
-            .FirstOrDefaultAsync(item => item.Id == request.UnitId, cancellationToken);
+        var unit = await dbContext.Units.FirstOrDefaultAsync(item => item.Id == request.UnitId, cancellationToken);
         if (unit is null)
         {
-            return Error.NotFound("Unit is not available in the active space");
+            return Error.NotFound("Unit could not be found");
         }
 
         if (await ResourceHelpers.HasConflictAsync(dbContext, currentUser, name, unit.Id, null, cancellationToken))

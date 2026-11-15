@@ -187,19 +187,6 @@ public class SpacePermissionHttpTests
     [Arguments("Admin", HttpStatusCode.NoContent)]
     [Arguments("Member", HttpStatusCode.Forbidden)]
     [Arguments("Viewer", HttpStatusCode.Forbidden)]
-    public async Task SharingOwnedUnitsRequiresSharePermission(string role, HttpStatusCode expected)
-    {
-        var fixture = await CreateFixtureAsync(role);
-        await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId);
-        using var response = await host.Client.PutAsync($"/api/units/{fixture.Unit.Id}/spaces/{fixture.Space.Id}", null);
-
-        await Assert.That(response.StatusCode).IsEqualTo(expected);
-    }
-
-    [Test]
-    [Arguments("Admin", HttpStatusCode.NoContent)]
-    [Arguments("Member", HttpStatusCode.Forbidden)]
-    [Arguments("Viewer", HttpStatusCode.Forbidden)]
     public async Task SpaceChangesRequireConfigurePermission(string role, HttpStatusCode expected)
     {
         var fixture = await CreateFixtureAsync(role);
@@ -646,10 +633,9 @@ public class SpacePermissionHttpTests
         otherUser.AddResource(resource);
         var consumption = Consumption.Create("Reading", resource, space, new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc), new ConsumptionReading(10m, ConsumptionValueType.Relative, 10m));
         var limit = Limit.Create(new("Budget", null, 100m, Period.Month, true), resource, user, space);
-        var unit = new Unit { Name = "Bucket", Symbol = "bucket", QuantityKey = "Custom:bucket", CreatorType = CreatorType.User, ConversionType = UnitConversionType.None, OwnerUser = user };
-        dbContext.AddRange(user, otherUser, resource, consumption, limit, unit);
+        dbContext.AddRange(user, otherUser, resource, consumption, limit);
         await dbContext.SaveChangesAsync();
-        return new(space, user, otherUser, resource, consumption, limit, unit);
+        return new(space, user, otherUser, resource, consumption, limit);
     }
 
     private static User CreateUser(string name)
@@ -659,5 +645,5 @@ public class SpacePermissionHttpTests
         return user;
     }
 
-    private sealed record Fixture(Space Space, User User, User OtherUser, Resource Resource, Consumption Consumption, Limit Limit, Unit Unit);
+    private sealed record Fixture(Space Space, User User, User OtherUser, Resource Resource, Consumption Consumption, Limit Limit);
 }

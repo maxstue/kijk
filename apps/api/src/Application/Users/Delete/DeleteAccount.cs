@@ -61,12 +61,6 @@ public sealed class AccountEraser(IAppDbContext dbContext, IIdentityProvider ide
             }
         }
 
-        // Units only this user could use; units shared with spaces or used by resources stay without an owner.
-        await dbContext.Units
-            .Where(unit => unit.OwnerUserId == userId
-                           && !unit.Spaces.Any()
-                           && !dbContext.Resources.Any(resource => resource.UnitId == unit.Id))
-            .ExecuteDeleteAsync(cancellationToken);
         await dbContext.Users.Where(item => item.Id == userId).ExecuteDeleteAsync(cancellationToken);
     }
 
@@ -111,8 +105,6 @@ public sealed class AccountEraser(IAppDbContext dbContext, IIdentityProvider ide
             .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.CreatedById, successorId), cancellationToken);
         await dbContext.ImportJobs.Where(item => item.SpaceId == spaceId && item.CreatedById == userId)
             .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.CreatedById, successorId), cancellationToken);
-        await dbContext.UnitSpaces.Where(item => item.SpaceId == spaceId && item.SharedByUserId == userId)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.SharedByUserId, successorId), cancellationToken);
         await dbContext.UserSpaces.Where(link => link.SpaceId == spaceId && link.UserId == userId).ExecuteDeleteAsync(cancellationToken);
     }
 }

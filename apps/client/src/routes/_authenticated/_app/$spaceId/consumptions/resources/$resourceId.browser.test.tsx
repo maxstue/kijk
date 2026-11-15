@@ -16,13 +16,7 @@ test('loads the canonical resource URL and closes to the overview while preservi
         name: 'Electricity',
         unit: 'kWh',
       });
-      queryClient.setQueryData(queryKeys.units.list({ scope: 'Space', spaceId: 'space' }), {
-        customCount: 0,
-        items: [],
-        page: 1,
-        pageSize: 1,
-        totalCount: 0,
-      });
+      queryClient.setQueryData(queryKeys.units.list(), []);
     },
   });
 

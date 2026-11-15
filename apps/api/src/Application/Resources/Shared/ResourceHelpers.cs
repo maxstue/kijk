@@ -22,7 +22,7 @@ internal static class ResourceHelpers
     {
         var resource = await dbContext
             .GetUserAvailableResources(currentUser)
-            .Include(resource => resource.Unit.ReferenceUnit)
+            .Include(resource => resource.Unit)
             .FirstOrDefaultAsync(resource => resource.Id == resourceId, cancellationToken);
         if (resource is null)
         {

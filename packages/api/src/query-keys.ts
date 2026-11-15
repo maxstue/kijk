@@ -1,6 +1,5 @@
 import type { ImportCandidatesQuery, ImportPreviewParams } from '@kijk/api/imports/types';
 import type { TransactionPageQuery } from '@kijk/api/transactions/types';
-import type { UnitListQuery } from '@kijk/api/units/types';
 
 /** First key part of every query that belongs to one space. */
 export const spaceKeyRoot = 'space';
@@ -85,12 +84,10 @@ const categoryRules = {
   suggestions: (spaceId: string) => [...categoryRules.all(spaceId), 'suggestions'] as const,
 };
 
-// Units belong to users and are shared with spaces, so their lists name the space in the query.
+// The unit catalog is the same for every user and space.
 const units = {
   all: ['units'] as const,
-  inSpace: (spaceId: string) => [...space(spaceId), 'units'] as const,
-  list: (query: UnitListQuery) =>
-    [...(query.scope === 'Space' && query.spaceId ? units.inSpace(query.spaceId) : units.all), 'list', query] as const,
+  list: () => [...units.all, 'list'] as const,
 };
 
 /** Query keys for the API queries and mutations. */

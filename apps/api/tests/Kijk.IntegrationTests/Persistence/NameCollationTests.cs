@@ -64,34 +64,30 @@ public class NameCollationTests
     }
 
     [Test]
-    public async Task NameIndexesRetainOwnerSpaceUnitAndArchiveScopes()
+    public async Task NameIndexesRetainSpaceAndUnitScopes()
     {
         await using var db = PostgreSqlTestDatabase.CreateDbContext();
         var fixture = await SeedAsync(db);
-        var otherOwner = User.Init("other-auth", "Other", "other@example.test");
         var otherSpace = Space.Create("Other space");
-        var otherUnit = NewUnit("CAFÉ", otherOwner);
-        var archived = NewUnit("CAFÉ", fixture.Owner);
-        archived.ArchivedAt = DateTime.UtcNow;
-        db.AddRange(otherOwner, otherSpace, otherUnit, archived);
+        var otherUnit = NewUnit("Other unit", "other");
+        db.AddRange(otherSpace, otherUnit);
         db.Categories.Add(Category.Create("CAFÉ", "circle", "#112233", CategoryKind.Expense, otherSpace));
         db.Resources.AddRange(NewResource("CAFÉ", fixture.Unit, otherSpace), NewResource("CAFÉ", otherUnit, fixture.Space));
 
         await db.SaveChangesAsync();
 
-        await Assert.That(await db.Units.CountAsync(item => item.Name == "café")).IsEqualTo(3);
         await Assert.That(await db.Categories.CountAsync(item => item.Name == "café")).IsEqualTo(2);
         await Assert.That(await db.Resources.CountAsync(item => item.Name == "café")).IsEqualTo(3);
     }
 
     [Test]
-    public async Task UnitSymbolsRemainCaseSensitive()
+    public async Task UnitSymbolsIgnoreCase()
     {
         await using var db = PostgreSqlTestDatabase.CreateDbContext();
         var fixture = await SeedAsync(db);
 
         await Assert.That(await db.Units.AnyAsync(item => item.Id == fixture.Unit.Id && item.Symbol == "mW")).IsTrue();
-        await Assert.That(await db.Units.AnyAsync(item => item.Id == fixture.Unit.Id && item.Symbol == "MW")).IsFalse();
+        await Assert.That(await db.Units.AnyAsync(item => item.Id == fixture.Unit.Id && item.Symbol == "MW")).IsTrue();
     }
 
     internal static async Task<Fixture> SeedAsync(AppDbContext db, string name = "Café", User? persistedOwner = null)
@@ -106,7 +102,7 @@ public class NameCollationTests
             db.Users.Attach(owner);
         }
         var space = Space.Create("Collation space");
-        var unit = NewUnit(name, owner);
+        var unit = NewUnit(name, "mW");
         var category = Category.Create(name, "circle", "#112233", CategoryKind.Expense, space);
         var resource = NewResource(name, unit, space);
         db.AddRange(space, unit, category, resource);
@@ -119,7 +115,7 @@ public class NameCollationTests
         switch (table)
         {
             case "units":
-                db.Units.Add(NewUnit(name, fixture.Owner));
+                db.Units.Add(NewUnit(name, "collation"));
                 break;
             case "categories":
                 db.Categories.Add(Category.Create(name, "circle", "#112233", CategoryKind.Expense, fixture.Space));
@@ -145,14 +141,11 @@ public class NameCollationTests
         throw new InvalidOperationException("Expected the database to reject this name.");
     }
 
-    private static Unit NewUnit(string name, User owner) => new()
+    private static Unit NewUnit(string name, string symbol) => new()
     {
         Name = name,
-        Symbol = "mW",
-        QuantityKey = "Custom:collation",
-        CreatorType = CreatorType.User,
-        ConversionType = UnitConversionType.None,
-        OwnerUser = owner
+        Symbol = symbol,
+        QuantityKey = "Custom:collation"
     };
 
     private static Resource NewResource(string name, Unit unit, Space space) => new()

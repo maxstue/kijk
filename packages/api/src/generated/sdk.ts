@@ -141,22 +141,8 @@ import type {
   TransactionsRecordResponses,
   TransactionsUpdateOptions,
   TransactionsUpdateResponses,
-  UnitsArchiveOptions,
-  UnitsArchiveResponses,
-  UnitsCreateOptions,
-  UnitsCreateResponses,
-  UnitsDeleteOptions,
-  UnitsDeleteResponses,
   UnitsListOptions,
   UnitsListResponses,
-  UnitsRemoveFromSpaceOptions,
-  UnitsRemoveFromSpaceResponses,
-  UnitsRestoreOptions,
-  UnitsRestoreResponses,
-  UnitsShareWithSpaceOptions,
-  UnitsShareWithSpaceResponses,
-  UnitsUpdateOptions,
-  UnitsUpdateResponses,
   UsersCompleteOnboardingOptions,
   UsersCompleteOnboardingResponses,
   UsersFeaturesOptions,
@@ -1713,7 +1699,7 @@ export function transactionsCategorize<ThrowOnError extends boolean = true>(
 /**
  * `GET /api/units`
  *
- * @summary Gets the units of a scope, optionally filtered and paged
+ * @summary Gets all units
  */
 export function unitsList<ThrowOnError extends boolean = true>(
   options: Options<UnitsListOptions, ThrowOnError> = {},
@@ -1724,162 +1710,6 @@ export function unitsList<ThrowOnError extends boolean = true>(
     apiClient<UnitsListResponses, ThrowOnError>({
       method: 'GET',
       url: '/api/units',
-      security: [securitySchemes.Bearer],
-      ...config,
-      throwOnError: resolveThrowOnError(config.throwOnError, true),
-    }),
-    resolveThrowOnError(config.throwOnError, true),
-  );
-}
-
-/**
- * `POST /api/units`
- *
- * @summary Creates a user unit
- */
-export function unitsCreate<ThrowOnError extends boolean = true>(
-  options: Options<UnitsCreateOptions, ThrowOnError>,
-): Promise<UnwrappedResult<UnitsCreateResponses, ThrowOnError>> {
-  const { client: apiClient = client, ...config } = options;
-
-  return unwrapResult(
-    apiClient<UnitsCreateResponses, ThrowOnError>({
-      method: 'POST',
-      url: '/api/units',
-      security: [securitySchemes.Bearer],
-      contentType: { request: 'application/json' },
-      ...config,
-      throwOnError: resolveThrowOnError(config.throwOnError, true),
-    }),
-    resolveThrowOnError(config.throwOnError, true),
-  );
-}
-
-/**
- * `PUT /api/units/{id}`
- *
- * @summary Updates a user unit
- */
-export function unitsUpdate<ThrowOnError extends boolean = true>(
-  options: Options<UnitsUpdateOptions, ThrowOnError>,
-): Promise<UnwrappedResult<UnitsUpdateResponses, ThrowOnError>> {
-  const { client: apiClient = client, ...config } = options;
-
-  return unwrapResult(
-    apiClient<UnitsUpdateResponses, ThrowOnError>({
-      method: 'PUT',
-      url: '/api/units/{id}',
-      security: [securitySchemes.Bearer],
-      contentType: { request: 'application/json' },
-      ...config,
-      throwOnError: resolveThrowOnError(config.throwOnError, true),
-    }),
-    resolveThrowOnError(config.throwOnError, true),
-  );
-}
-
-/**
- * `DELETE /api/units/{id}`
- *
- * @summary Deletes an unused user unit
- */
-export function unitsDelete<ThrowOnError extends boolean = true>(
-  options: Options<UnitsDeleteOptions, ThrowOnError>,
-): Promise<UnwrappedResult<UnitsDeleteResponses, ThrowOnError>> {
-  const { client: apiClient = client, ...config } = options;
-
-  return unwrapResult(
-    apiClient<UnitsDeleteResponses, ThrowOnError>({
-      method: 'DELETE',
-      url: '/api/units/{id}',
-      security: [securitySchemes.Bearer],
-      ...config,
-      throwOnError: resolveThrowOnError(config.throwOnError, true),
-    }),
-    resolveThrowOnError(config.throwOnError, true),
-  );
-}
-
-/**
- * `POST /api/units/{id}/archive`
- *
- * @summary Archives a user unit
- */
-export function unitsArchive<ThrowOnError extends boolean = true>(
-  options: Options<UnitsArchiveOptions, ThrowOnError>,
-): Promise<UnwrappedResult<UnitsArchiveResponses, ThrowOnError>> {
-  const { client: apiClient = client, ...config } = options;
-
-  return unwrapResult(
-    apiClient<UnitsArchiveResponses, ThrowOnError>({
-      method: 'POST',
-      url: '/api/units/{id}/archive',
-      security: [securitySchemes.Bearer],
-      ...config,
-      throwOnError: resolveThrowOnError(config.throwOnError, true),
-    }),
-    resolveThrowOnError(config.throwOnError, true),
-  );
-}
-
-/**
- * `POST /api/units/{id}/restore`
- *
- * @summary Restores a user unit
- */
-export function unitsRestore<ThrowOnError extends boolean = true>(
-  options: Options<UnitsRestoreOptions, ThrowOnError>,
-): Promise<UnwrappedResult<UnitsRestoreResponses, ThrowOnError>> {
-  const { client: apiClient = client, ...config } = options;
-
-  return unwrapResult(
-    apiClient<UnitsRestoreResponses, ThrowOnError>({
-      method: 'POST',
-      url: '/api/units/{id}/restore',
-      security: [securitySchemes.Bearer],
-      ...config,
-      throwOnError: resolveThrowOnError(config.throwOnError, true),
-    }),
-    resolveThrowOnError(config.throwOnError, true),
-  );
-}
-
-/**
- * `PUT /api/units/{id}/spaces/{spaceId}`
- *
- * @summary Shares a unit with a space
- */
-export function unitsShareWithSpace<ThrowOnError extends boolean = true>(
-  options: Options<UnitsShareWithSpaceOptions, ThrowOnError>,
-): Promise<UnwrappedResult<UnitsShareWithSpaceResponses, ThrowOnError>> {
-  const { client: apiClient = client, ...config } = options;
-
-  return unwrapResult(
-    apiClient<UnitsShareWithSpaceResponses, ThrowOnError>({
-      method: 'PUT',
-      url: '/api/units/{id}/spaces/{spaceId}',
-      security: [securitySchemes.Bearer],
-      ...config,
-      throwOnError: resolveThrowOnError(config.throwOnError, true),
-    }),
-    resolveThrowOnError(config.throwOnError, true),
-  );
-}
-
-/**
- * `DELETE /api/units/{id}/spaces/{spaceId}`
- *
- * @summary Removes a unit from a space
- */
-export function unitsRemoveFromSpace<ThrowOnError extends boolean = true>(
-  options: Options<UnitsRemoveFromSpaceOptions, ThrowOnError>,
-): Promise<UnwrappedResult<UnitsRemoveFromSpaceResponses, ThrowOnError>> {
-  const { client: apiClient = client, ...config } = options;
-
-  return unwrapResult(
-    apiClient<UnitsRemoveFromSpaceResponses, ThrowOnError>({
-      method: 'DELETE',
-      url: '/api/units/{id}/spaces/{spaceId}',
       security: [securitySchemes.Bearer],
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),

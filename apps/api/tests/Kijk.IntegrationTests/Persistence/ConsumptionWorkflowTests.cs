@@ -125,6 +125,43 @@ public partial class ConsumptionWorkflowTests
     }
 
     [Test]
+    public async Task StatsCalculateDrivenKilometersFromOdometerReadings()
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var fixture = await CreateFixtureAsync(dbContext);
+        var kilometer = await dbContext.Units.SingleAsync(unit => unit.Id == new Guid("44444444-4444-4444-8444-444444444442"));
+        var car = new Resource
+        {
+            Name = "Car",
+            Unit = kilometer,
+            Color = "#445566",
+            Icon = "car",
+            CreatorType = CreatorType.User,
+            Space = fixture.Space
+        };
+        dbContext.Add(car);
+        await dbContext.SaveChangesAsync();
+        var clock = new MutableTimeProvider(new DateTimeOffset(2026, 9, 8, 12, 0, 0, TimeSpan.Zero));
+        var create = CreateHandler(dbContext, fixture.CurrentUser, clock);
+
+        await CreateAsync(create, "Start", 55_831m, CreateConsumptionValueTypes.Absolute, car.Id, UtcDate(2026, 1, 1));
+        await CreateAsync(create, "January", 57_169m, CreateConsumptionValueTypes.Absolute, car.Id, UtcDate(2026, 1, 31));
+        await CreateAsync(create, "February", 58_248m, CreateConsumptionValueTypes.Absolute, car.Id, UtcDate(2026, 2, 28));
+        await CreateAsync(create, "March", 59_342m, CreateConsumptionValueTypes.Absolute, car.Id, UtcDate(2026, 3, 31));
+
+        var result = await new StatisticsHandler(dbContext, fixture.CurrentUser, clock)
+            .HandleAsync(2026, "March", CancellationToken.None);
+
+        await Assert.That(result.IsSuccess).IsTrue();
+        var stats = result.Value.Stats.Single(item => item.Resource.Id == car.Id);
+        await Assert.That(stats.Resource.Unit).IsEqualTo("km");
+        await Assert.That(stats.MonthTotal).IsEqualTo(1_094m);
+        await Assert.That(stats.YearTotal).IsEqualTo(3_511m);
+        await Assert.That(stats.YearMin).IsEqualTo(1_079m);
+        await Assert.That(stats.YearMax).IsEqualTo(1_338m);
+    }
+
+    [Test]
     public async Task LimitOccurrenceIsRecordedAgainOnlyAfterFallingBelowThreshold()
     {
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();

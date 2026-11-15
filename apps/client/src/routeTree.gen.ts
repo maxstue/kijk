@@ -45,7 +45,6 @@ import { Route as AuthenticatedAppSettingsSpacesSpaceIdIndexRouteImport } from '
 import { Route as AuthenticatedAppSettingsSpacesSpaceIdGeneralRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/general'
 import { Route as AuthenticatedAppSettingsSpacesSpaceIdImportsRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/imports'
 import { Route as AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/members'
-import { Route as AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport } from './routes/_authenticated/_app/settings/spaces/$spaceId/units'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -251,12 +250,6 @@ const AuthenticatedAppSettingsSpacesSpaceIdMembersRoute =
     path: '/members',
     getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRouteRoute,
   } as any)
-const AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute =
-  AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport.update({
-    id: '/units',
-    path: '/units',
-    getParentRoute: () => AuthenticatedAppSettingsSpacesSpaceIdRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -289,7 +282,6 @@ export interface FileRoutesByFullPath {
   '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
   '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
-  '/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
   '/$spaceId/consumptions/': typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute
   '/$spaceId/finances/imports/': typeof AuthenticatedAppSpaceIdFinancesImportsIndexRoute
   '/settings/spaces/$spaceId/': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
@@ -321,7 +313,6 @@ export interface FileRoutesByTo {
   '/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
   '/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
-  '/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
   '/$spaceId/consumptions': typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute
   '/$spaceId/finances/imports': typeof AuthenticatedAppSpaceIdFinancesImportsIndexRoute
   '/settings/spaces/$spaceId': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
@@ -361,7 +352,6 @@ export interface FileRoutesById {
   '/_authenticated/_app/settings/spaces/$spaceId/general': typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   '/_authenticated/_app/settings/spaces/$spaceId/imports': typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
   '/_authenticated/_app/settings/spaces/$spaceId/members': typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
-  '/_authenticated/_app/settings/spaces/$spaceId/units': typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
   '/_authenticated/_app/$spaceId/consumptions/_overview/': typeof AuthenticatedAppSpaceIdConsumptionsOverviewIndexRoute
   '/_authenticated/_app/$spaceId/finances/imports/': typeof AuthenticatedAppSpaceIdFinancesImportsIndexRoute
   '/_authenticated/_app/settings/spaces/$spaceId/': typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
@@ -399,7 +389,6 @@ export interface FileRouteTypes {
     | '/settings/spaces/$spaceId/general'
     | '/settings/spaces/$spaceId/imports'
     | '/settings/spaces/$spaceId/members'
-    | '/settings/spaces/$spaceId/units'
     | '/$spaceId/consumptions/'
     | '/$spaceId/finances/imports/'
     | '/settings/spaces/$spaceId/'
@@ -431,7 +420,6 @@ export interface FileRouteTypes {
     | '/settings/spaces/$spaceId/general'
     | '/settings/spaces/$spaceId/imports'
     | '/settings/spaces/$spaceId/members'
-    | '/settings/spaces/$spaceId/units'
     | '/$spaceId/consumptions'
     | '/$spaceId/finances/imports'
     | '/settings/spaces/$spaceId'
@@ -470,7 +458,6 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/settings/spaces/$spaceId/general'
     | '/_authenticated/_app/settings/spaces/$spaceId/imports'
     | '/_authenticated/_app/settings/spaces/$spaceId/members'
-    | '/_authenticated/_app/settings/spaces/$spaceId/units'
     | '/_authenticated/_app/$spaceId/consumptions/_overview/'
     | '/_authenticated/_app/$spaceId/finances/imports/'
     | '/_authenticated/_app/settings/spaces/$spaceId/'
@@ -742,13 +729,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRouteImport
       parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRoute
     }
-    '/_authenticated/_app/settings/spaces/$spaceId/units': {
-      id: '/_authenticated/_app/settings/spaces/$spaceId/units'
-      path: '/units'
-      fullPath: '/settings/spaces/$spaceId/units'
-      preLoaderRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdRouteRoute
-    }
   }
 }
 
@@ -851,7 +831,6 @@ interface AuthenticatedAppSettingsSpacesSpaceIdRouteRouteChildren {
   AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdGeneralRoute
   AuthenticatedAppSettingsSpacesSpaceIdImportsRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdImportsRoute
   AuthenticatedAppSettingsSpacesSpaceIdMembersRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdMembersRoute
-  AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute
   AuthenticatedAppSettingsSpacesSpaceIdIndexRoute: typeof AuthenticatedAppSettingsSpacesSpaceIdIndexRoute
 }
 
@@ -863,8 +842,6 @@ const AuthenticatedAppSettingsSpacesSpaceIdRouteRouteChildren: AuthenticatedAppS
       AuthenticatedAppSettingsSpacesSpaceIdImportsRoute,
     AuthenticatedAppSettingsSpacesSpaceIdMembersRoute:
       AuthenticatedAppSettingsSpacesSpaceIdMembersRoute,
-    AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute:
-      AuthenticatedAppSettingsSpacesSpaceIdUnitsRoute,
     AuthenticatedAppSettingsSpacesSpaceIdIndexRoute:
       AuthenticatedAppSettingsSpacesSpaceIdIndexRoute,
   }

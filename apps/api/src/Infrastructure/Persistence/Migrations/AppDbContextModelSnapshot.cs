@@ -20,7 +20,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "creator_type", new[] { "system", "user" });
@@ -1008,12 +1008,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("57820fa1-c443-458d-b8d3-40ef527720d4"),
-                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "units:share"
-                        },
-                        new
-                        {
                             Id = new Guid("0e065002-1522-4138-a96b-52e657b7cbcc"),
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "space:configure"
@@ -1394,28 +1388,9 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("archived_at");
-
-                    b.Property<decimal?>("ConversionFactor")
-                        .HasPrecision(28, 12)
-                        .HasColumnType("numeric(28,12)")
-                        .HasColumnName("conversion_factor");
-
-                    b.Property<string>("ConversionType")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)")
-                        .HasColumnName("conversion_type");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
-
-                    b.Property<CreatorType>("CreatorType")
-                        .HasColumnType("creator_type")
-                        .HasColumnName("creator_type");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1428,25 +1403,18 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnName("name")
                         .UseCollation("case_insensitive");
 
-                    b.Property<Guid?>("OwnerUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_user_id");
-
                     b.Property<string>("QuantityKey")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("quantity_key");
 
-                    b.Property<Guid?>("ReferenceUnitId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("reference_unit_id");
-
                     b.Property<string>("Symbol")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("symbol");
+                        .HasColumnName("symbol")
+                        .UseCollation("case_insensitive");
 
                     b.Property<string>("UnitsNetUnitName")
                         .HasMaxLength(100)
@@ -1460,18 +1428,13 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_units");
 
-                    b.HasIndex("ReferenceUnitId")
-                        .HasDatabaseName("ix_units_reference_unit_id");
-
-                    b.HasIndex("OwnerUserId", "Name")
+                    b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_units_owner_user_id_name")
-                        .HasFilter("creator_type = 'user' AND archived_at IS NULL");
+                        .HasDatabaseName("ix_units_name");
 
-                    b.HasIndex("QuantityKey", "UnitsNetUnitName")
+                    b.HasIndex("Symbol")
                         .IsUnique()
-                        .HasDatabaseName("ix_units_quantity_key_units_net_unit_name")
-                        .HasFilter("creator_type = 'system'");
+                        .HasDatabaseName("ix_units_symbol");
 
                     b.ToTable("units", null, t =>
                         {
@@ -1482,9 +1445,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-4111-8111-111111111111"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Liter",
                             QuantityKey = "Volume",
                             Symbol = "l",
@@ -1493,9 +1454,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-4111-8111-111111111112"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Milliliter",
                             QuantityKey = "Volume",
                             Symbol = "ml",
@@ -1504,9 +1463,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-4111-8111-111111111113"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Cubic meter",
                             QuantityKey = "Volume",
                             Symbol = "m³",
@@ -1515,9 +1472,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-4222-8222-222222222221"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Watt hour",
                             QuantityKey = "Energy",
                             Symbol = "Wh",
@@ -1526,9 +1481,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-4222-8222-222222222222"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Kilowatt hour",
                             QuantityKey = "Energy",
                             Symbol = "kWh",
@@ -1537,9 +1490,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-4222-8222-222222222223"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Megawatt hour",
                             QuantityKey = "Energy",
                             Symbol = "MWh",
@@ -1548,9 +1499,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-4333-8333-333333333331"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Gram",
                             QuantityKey = "Mass",
                             Symbol = "g",
@@ -1559,9 +1508,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-4333-8333-333333333332"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Kilogram",
                             QuantityKey = "Mass",
                             Symbol = "kg",
@@ -1570,44 +1517,38 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-4333-8333-333333333333"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Tonne",
                             QuantityKey = "Mass",
                             Symbol = "t",
                             UnitsNetUnitName = "Tonne"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-8444-444444444441"),
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Meter",
+                            QuantityKey = "Length",
+                            Symbol = "m",
+                            UnitsNetUnitName = "Meter"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-8444-444444444442"),
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Kilometer",
+                            QuantityKey = "Length",
+                            Symbol = "km",
+                            UnitsNetUnitName = "Kilometer"
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-4555-8555-555555555551"),
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Piece",
+                            QuantityKey = "Count",
+                            Symbol = "pcs"
                         });
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.UnitSpace", b =>
-                {
-                    b.Property<Guid>("UnitId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("unit_id");
-
-                    b.Property<Guid>("SpaceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("space_id");
-
-                    b.Property<DateTime>("SharedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("shared_at");
-
-                    b.Property<Guid>("SharedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("shared_by_user_id");
-
-                    b.HasKey("UnitId", "SpaceId")
-                        .HasName("pk_unit_spaces");
-
-                    b.HasIndex("SharedByUserId")
-                        .HasDatabaseName("ix_unit_spaces_shared_by_user_id");
-
-                    b.HasIndex("SpaceId")
-                        .HasDatabaseName("ix_unit_spaces_space_id");
-
-                    b.ToTable("unit_spaces", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.User", b =>
@@ -1830,11 +1771,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             PermissionsId = new Guid("af500b09-178e-4fd2-8e20-387b84c91fac"),
-                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
-                        },
-                        new
-                        {
-                            PermissionsId = new Guid("57820fa1-c443-458d-b8d3-40ef527720d4"),
                             RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
                         },
                         new
@@ -2263,55 +2199,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Navigation("Space");
                 });
 
-            modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
-                {
-                    b.HasOne("Kijk.Domain.Entities.User", "OwnerUser")
-                        .WithMany("Units")
-                        .HasForeignKey("OwnerUserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_units_users_owner_user_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Unit", "ReferenceUnit")
-                        .WithMany()
-                        .HasForeignKey("ReferenceUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_units_units_reference_unit_id");
-
-                    b.Navigation("OwnerUser");
-
-                    b.Navigation("ReferenceUnit");
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.UnitSpace", b =>
-                {
-                    b.HasOne("Kijk.Domain.Entities.User", "SharedByUser")
-                        .WithMany()
-                        .HasForeignKey("SharedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_unit_spaces_users_shared_by_user_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
-                        .WithMany("UnitSpaces")
-                        .HasForeignKey("SpaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_unit_spaces_spaces_space_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Unit", "Unit")
-                        .WithMany("Spaces")
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_unit_spaces_units_unit_id");
-
-                    b.Navigation("SharedByUser");
-
-                    b.Navigation("Space");
-
-                    b.Navigation("Unit");
-                });
-
             modelBuilder.Entity("Kijk.Domain.Entities.UserSpace", b =>
                 {
                     b.HasOne("Kijk.Domain.Entities.Role", "Role")
@@ -2401,20 +2288,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Transactions");
 
-                    b.Navigation("UnitSpaces");
-
                     b.Navigation("UserSpaces");
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
-                {
-                    b.Navigation("Spaces");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Units");
-
                     b.Navigation("UserSpaces");
                 });
 #pragma warning restore 612, 618

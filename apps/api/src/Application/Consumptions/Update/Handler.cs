@@ -38,7 +38,7 @@ public class UpdateHandler(
         }
 
         var existingResourceUsage = await dbContext.Consumptions
-            .Include(resourceUsage => resourceUsage.Resource.Unit.ReferenceUnit)
+            .Include(resourceUsage => resourceUsage.Resource.Unit)
             .FirstOrDefaultAsync(x => x.Id == id && x.SpaceId == currentUser.ActiveSpaceId, cancellationToken);
         if (existingResourceUsage is null)
         {
@@ -103,7 +103,7 @@ public class UpdateHandler(
     {
         var resource = await dbContext
             .GetUserAvailableResources(currentUser)
-            .Include(item => item.Unit.ReferenceUnit)
+            .Include(item => item.Unit)
             .FirstOrDefaultAsync(item => item.Id == resourceId, cancellationToken);
         if (resource is null)
         {

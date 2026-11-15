@@ -5219,424 +5219,21 @@
         "tags": [
           "Units"
         ],
-        "summary": "Gets the units of a scope, optionally filtered and paged",
+        "summary": "Gets all units",
         "operationId": "Units.List",
-        "parameters": [
-          {
-            "name": "scope",
-            "in": "query",
-            "schema": {
-              "default": "Space",
-              "$ref": "#/components/schemas/UnitScope"
-            }
-          },
-          {
-            "name": "spaceId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "includeArchived",
-            "in": "query",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
-              "format": "int32"
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
-              "format": "int32"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UnitPageResponse"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UnitResponse"
+                  }
                 }
               }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Units"
-        ],
-        "summary": "Creates a user unit",
-        "operationId": "Units.Create",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUnitRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnitResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/units/{id}": {
-      "put": {
-        "tags": [
-          "Units"
-        ],
-        "summary": "Updates a user unit",
-        "operationId": "Units.Update",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUnitRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnitResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Units"
-        ],
-        "summary": "Deletes an unused user unit",
-        "operationId": "Units.Delete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/units/{id}/archive": {
-      "post": {
-        "tags": [
-          "Units"
-        ],
-        "summary": "Archives a user unit",
-        "operationId": "Units.Archive",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/units/{id}/restore": {
-      "post": {
-        "tags": [
-          "Units"
-        ],
-        "summary": "Restores a user unit",
-        "operationId": "Units.Restore",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      }
-    },
-    "/api/units/{id}/spaces/{spaceId}": {
-      "put": {
-        "tags": [
-          "Units"
-        ],
-        "summary": "Shares a unit with a space",
-        "operationId": "Units.ShareWithSpace",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "spaceId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [ ]
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Units"
-        ],
-        "summary": "Removes a unit from a space",
-        "operationId": "Units.RemoveFromSpace",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "spaceId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
           },
           "401": {
             "$ref": "#/components/responses/401"
@@ -7523,47 +7120,6 @@
         },
         "description": "Request for recording a transaction manually."
       },
-      "CreateUnitRequest": {
-        "required": [
-          "name",
-          "symbol",
-          "referenceUnitId",
-          "conversionFactor",
-          "shareWithSpaceIds"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "referenceUnitId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "conversionFactor": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
-            "format": "double"
-          },
-          "shareWithSpaceIds": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        },
-        "description": "Creates a reusable user unit."
-      },
       "CreatorType": {
         "enum": [
           "System",
@@ -9447,167 +9003,34 @@
         ],
         "description": "Represents the booking status of a transaction."
       },
-      "UnitConversionType": {
-        "enum": [
-          "UnitsNet",
-          "Factor",
-          "None"
-        ],
-        "description": "Describes how a unit converts to other units of the same physical quantity."
-      },
-      "UnitPageResponse": {
-        "required": [
-          "items",
-          "totalCount",
-          "customCount",
-          "page",
-          "pageSize"
-        ],
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UnitResponse"
-            }
-          },
-          "totalCount": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
-          "customCount": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
-          "page": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
-          "pageSize": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          }
-        },
-        "description": "A list of units; a page of it when a page size was requested."
-      },
       "UnitResponse": {
         "required": [
           "id",
           "name",
           "symbol",
-          "creatorType",
-          "conversionType",
-          "quantityKey",
-          "unitsNetUnitName",
-          "referenceUnitId",
-          "conversionFactor",
-          "ownerUserId",
-          "isOwner",
-          "isAvailableInActiveSpace",
-          "isArchived",
-          "resourceCount",
-          "spaceIds"
+          "quantityKey"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
+            "description": "The unit id.",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The display name, e.g. \"Kilowatt hour\"."
           },
           "symbol": {
-            "type": "string"
-          },
-          "creatorType": {
-            "$ref": "#/components/schemas/CreatorType"
-          },
-          "conversionType": {
-            "$ref": "#/components/schemas/UnitConversionType"
+            "type": "string",
+            "description": "The symbol, e.g. \"kWh\"."
           },
           "quantityKey": {
-            "type": "string"
-          },
-          "unitsNetUnitName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "referenceUnitId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
-          "conversionFactor": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ],
-            "format": "double"
-          },
-          "ownerUserId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
-          "isOwner": {
-            "type": "boolean"
-          },
-          "isAvailableInActiveSpace": {
-            "type": "boolean"
-          },
-          "isArchived": {
-            "type": "boolean"
-          },
-          "resourceCount": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
-          "spaceIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
+            "type": "string",
+            "description": "The quantity, e.g. \"Energy\"; a resource can only switch to a unit of the same quantity."
           }
         },
-        "description": "A unit available to the current user."
-      },
-      "UnitScope": {
-        "enum": [
-          "Space",
-          "Personal",
-          "System"
-        ],
-        "description": "Which units a unit list contains. System units are part of every scope."
+        "description": "A unit of the system unit catalog."
       },
       "UpdateAccountRequest": {
         "required": [
@@ -9999,36 +9422,6 @@
           }
         },
         "description": "Request for replacing the editable properties of a transaction."
-      },
-      "UpdateUnitRequest": {
-        "required": [
-          "name",
-          "symbol",
-          "referenceUnitId",
-          "conversionFactor"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "referenceUnitId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "conversionFactor": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
-            "format": "double"
-          }
-        },
-        "description": "Updates user-editable unit metadata."
       },
       "UpdateUserRequest": {
         "required": [

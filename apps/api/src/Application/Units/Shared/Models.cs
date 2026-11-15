@@ -1,29 +1,10 @@
-using Kijk.Domain.Entities;
-using Kijk.Shared;
-
 namespace Kijk.Application.Units.Shared;
 
 /// <summary>
-/// A unit available to the current user.
+/// A unit of the system unit catalog.
 /// </summary>
-public sealed record UnitResponse(
-    Guid Id,
-    string Name,
-    string Symbol,
-    CreatorType CreatorType,
-    UnitConversionType ConversionType,
-    string QuantityKey,
-    string? UnitsNetUnitName,
-    Guid? ReferenceUnitId,
-    decimal? ConversionFactor,
-    Guid? OwnerUserId,
-    bool IsOwner,
-    bool IsAvailableInActiveSpace,
-    bool IsArchived,
-    int ResourceCount,
-    IReadOnlyList<Guid> SpaceIds);
-
-/// <summary>
-/// Unit information embedded in resource responses.
-/// </summary>
-public sealed record ResourceUnitResponse(Guid Id, string Name, string Symbol, string QuantityKey);
+/// <param name="Id">The unit id.</param>
+/// <param name="Name">The display name, e.g. "Kilowatt hour".</param>
+/// <param name="Symbol">The symbol, e.g. "kWh".</param>
+/// <param name="QuantityKey">The quantity, e.g. "Energy"; a resource can only switch to a unit of the same quantity.</param>
+public sealed record UnitResponse(Guid Id, string Name, string Symbol, string QuantityKey);

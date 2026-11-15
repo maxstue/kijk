@@ -12,7 +12,6 @@ test('deleting a space drops its cached data and keeps the other spaces', async 
   client.setQueryData(queryKeys.accounts.list('deleted'), ['account']);
   client.setQueryData(queryKeys.spaces.members('deleted'), ['member']);
   client.setQueryData(queryKeys.accounts.list('other'), ['account']);
-  client.setQueryData(queryKeys.units.list({ scope: 'Space', spaceId: 'deleted' }), ['unit']);
   vi.mocked(remove).mockResolvedValue();
 
   await client.getMutationCache().build(client, deleteMutationOptions()).execute('deleted');

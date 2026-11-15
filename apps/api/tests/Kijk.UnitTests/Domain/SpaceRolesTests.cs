@@ -40,7 +40,6 @@ public partial class SpaceRolesTests
     [Test]
     [Arguments(SpacePermissions.Limits.Plan)]
     [Arguments(SpacePermissions.Resources.Configure)]
-    [Arguments(SpacePermissions.Units.Share)]
     [Arguments(SpacePermissions.Space.Configure)]
     [Arguments(SpacePermissions.Space.Delete)]
     [Arguments(SpacePermissions.Members.AssignRole)]
