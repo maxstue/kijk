@@ -42,14 +42,16 @@ public sealed class TransactionsEndpoints : IEndpointGroup
     }
 
     private static async Task<Results<Ok<TransactionPageResponse>, ProblemHttpResult>> List(
-        [AsParameters] TransactionQueryParameters query,
+        [AsParameters] TransactionFilterParameters filter,
         [FromServices] QueriesHandler handler,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        int? page = null,
+        int? pageSize = null)
     {
         var result = await handler.ListAsync(
-            new TransactionFilter(query.Year, query.Month, query.Uncategorized, query.CategoryIds, query.Search),
-            query.Page ?? 1,
-            query.PageSize ?? QueriesHandler.DefaultPageSize,
+            filter.ToFilter(),
+            page ?? 1,
+            pageSize ?? QueriesHandler.DefaultPageSize,
             cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
@@ -110,15 +112,11 @@ public sealed class TransactionsEndpoints : IEndpointGroup
     }
 
     private static async Task<Results<FileContentHttpResult, ProblemHttpResult>> Export(
-        int? year,
-        int? month,
-        bool? uncategorized,
-        [FromQuery] Guid[]? categoryIds,
-        string? search,
+        [AsParameters] TransactionFilterParameters filter,
         ExportHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(new TransactionFilter(year, month, uncategorized, categoryIds, search), cancellationToken);
+        var result = await handler.HandleAsync(filter.ToFilter(), cancellationToken);
         return result.IsError
             ? TypedResults.Problem(result.Error.ToProblemDetails())
             : TypedResults.File(result.Value.Content, "text/csv; charset=utf-8", result.Value.FileName);
