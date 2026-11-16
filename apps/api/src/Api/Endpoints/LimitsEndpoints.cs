@@ -37,11 +37,12 @@ public sealed class LimitsEndpoints : IEndpointGroup
     private static async Task<Results<Ok<PageResponse<LimitResponse>>, ProblemHttpResult>> List(
         QueriesHandler handler,
         [AsParameters] ListQueryParameters<LimitSort> query,
+        [AsParameters] PageParameters paging,
         CancellationToken cancellationToken,
         Guid? resourceId = null,
         Period? period = null)
     {
-        var result = await handler.ListAsync(query.ToRequest(), resourceId, period, cancellationToken);
+        var result = await handler.ListAsync(query.ToRequest(paging), resourceId, period, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

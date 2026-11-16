@@ -69,9 +69,10 @@ public class ResourcesEndpoints : IEndpointGroup
     private static async Task<Results<Ok<PageResponse<ResourceResponse>>, ProblemHttpResult>> List(
         ListHandler handler,
         [AsParameters] ListQueryParameters<ResourceSort> query,
+        [AsParameters] PageParameters paging,
         CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(query.ToRequest(), cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(paging), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

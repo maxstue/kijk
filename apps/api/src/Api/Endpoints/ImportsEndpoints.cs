@@ -72,11 +72,12 @@ public sealed class ImportsEndpoints : IEndpointGroup
     private static async Task<Results<Ok<PageResponse<ImportJobResponse>>, ProblemHttpResult>> List(
         QueriesHandler handler,
         [AsParameters] ListQueryParameters<ImportSort> query,
+        [AsParameters] PageParameters paging,
         CancellationToken cancellationToken,
         ImportJobStatus? status = null,
         Guid? accountId = null)
     {
-        var result = await handler.ListAsync(query.ToRequest(), status, accountId, cancellationToken);
+        var result = await handler.ListAsync(query.ToRequest(paging), status, accountId, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
@@ -102,9 +103,10 @@ public sealed class ImportsEndpoints : IEndpointGroup
         Guid id,
         QueriesHandler handler,
         [AsParameters] CandidateQueryParameters query,
+        [AsParameters] PageParameters paging,
         CancellationToken cancellationToken)
     {
-        var result = await handler.CandidatesAsync(id, query.ToRequest(), cancellationToken);
+        var result = await handler.CandidatesAsync(id, query.ToRequest(paging), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

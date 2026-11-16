@@ -43,15 +43,14 @@ public sealed class TransactionsEndpoints : IEndpointGroup
 
     private static async Task<Results<Ok<TransactionPageResponse>, ProblemHttpResult>> List(
         [AsParameters] TransactionFilterParameters filter,
+        [AsParameters] PageParameters paging,
         [FromServices] QueriesHandler handler,
-        CancellationToken cancellationToken,
-        int? page = null,
-        int? pageSize = null)
+        CancellationToken cancellationToken)
     {
         var result = await handler.ListAsync(
             filter.ToFilter(),
-            page ?? 1,
-            pageSize ?? QueriesHandler.DefaultPageSize,
+            paging.Page ?? 1,
+            paging.PageSize ?? QueriesHandler.DefaultPageSize,
             cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }

@@ -5262,18 +5262,6 @@ export type ImportsCandidatesPath = {
 };
 
 export type ImportsCandidatesQuery = {
-  /**
-   * Format: `int32`
-   *
-   * @default 1
-   */
-  page?: number | string;
-  /**
-   * Format: `int32`
-   *
-   * @default 100
-   */
-  pageSize?: number | string;
   months?: string;
   /**
    * @default false
@@ -5282,6 +5270,10 @@ export type ImportsCandidatesQuery = {
   cardSettlementsOnly?: boolean;
   search?: string;
   filter?: CandidateFilter | null;
+  /** Format: `int32` */
+  page?: number | string;
+  /** Format: `int32` */
+  pageSize?: number | string;
 };
 
 /**

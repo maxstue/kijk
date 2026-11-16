@@ -35,9 +35,10 @@ public sealed class CategoryRulesEndpoints : IEndpointGroup
     private static async Task<Results<Ok<PageResponse<CategoryRuleResponse>>, ProblemHttpResult>> List(
         ListHandler handler,
         [AsParameters] ListQueryParameters<CategoryRuleSort> query,
+        [AsParameters] PageParameters paging,
         CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(query.ToRequest(), cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(paging), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

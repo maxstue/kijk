@@ -37,9 +37,10 @@ public sealed class AccountsEndpoints : IEndpointGroup
     private static async Task<Results<Ok<PageResponse<AccountResponse>>, ProblemHttpResult>> List(
         ListHandler handler,
         [AsParameters] ListQueryParameters<AccountSort> query,
+        [AsParameters] PageParameters paging,
         CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(query.ToRequest(), cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(paging), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

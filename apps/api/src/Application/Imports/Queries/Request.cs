@@ -28,5 +28,9 @@ public enum CandidateFilter
 /// <param name="CardSettlementsOnly">Whether to display included card statements only.</param>
 /// <param name="Search">Counterparty or purpose search.</param>
 /// <param name="Filter">An optional review filter.</param>
-public sealed record CandidatesRequest(int Page = 1, int PageSize = 100, string? Months = null,
-    bool CardSettlementsOnly = false, string? Search = null, CandidateFilter? Filter = null);
+public sealed record CandidatesRequest(int Page = 1, int PageSize = CandidatesRequest.DefaultPageSize, string? Months = null,
+    bool CardSettlementsOnly = false, string? Search = null, CandidateFilter? Filter = null)
+{
+    /// <summary>The page size when the request names none.</summary>
+    public const int DefaultPageSize = 100;
+}
