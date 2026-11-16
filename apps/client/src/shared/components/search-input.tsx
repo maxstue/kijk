@@ -8,7 +8,7 @@ import type { ComponentProps } from 'react';
 import { maxSearchLength } from '@/shared/lib/list-search';
 
 /** Pause after the last keystroke before a search applies; Enter and the search button apply it right away. */
-export const searchDebounceMs = 500;
+const searchDebounceMs = 500;
 
 interface Props extends Pick<ComponentProps<'input'>, 'aria-label' | 'placeholder'> {
   className?: string;
