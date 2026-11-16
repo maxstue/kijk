@@ -36,14 +36,10 @@ public sealed class CategoriesEndpoints : IEndpointGroup
 
     private static async Task<Results<Ok<PageResponse<CategoryResponse>>, ProblemHttpResult>> List(
         ListHandler handler,
-        CancellationToken cancellationToken,
-        string? search = null,
-        CategorySort? sort = null,
-        bool descending = false,
-        int? page = null,
-        int? pageSize = null)
+        [AsParameters] ListQueryParameters<CategorySort> query,
+        CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(new ListRequest<CategorySort>(search, sort, descending, page, pageSize), cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

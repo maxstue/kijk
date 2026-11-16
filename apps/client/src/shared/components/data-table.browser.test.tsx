@@ -62,10 +62,10 @@ function renderTable(api = vi.fn<typeof fakeApi>(fakeApi)) {
   return { api, client, screen };
 }
 
-interface TestTableProps {
+interface Props {
   api: typeof fakeApi;
 }
-function TestTable({ api }: TestTableProps) {
+function TestTable({ api }: Props) {
   const [state, onStateChange] = useState<TableState>({});
   return (
     <DataTable
@@ -151,6 +151,7 @@ test('offers a retry when the page cannot be loaded', async () => {
   await rendered.getByRole('button', { name: 'Try again' }).click();
 
   await expect.poll(() => renderedNames(rendered.container)).toHaveLength(10);
+  expect(renderedNames(rendered.container)).toHaveLength(10);
 });
 
 test('shows a refresh failure and retry alongside cached rows', async () => {

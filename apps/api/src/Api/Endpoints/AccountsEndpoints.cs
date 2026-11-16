@@ -36,14 +36,10 @@ public sealed class AccountsEndpoints : IEndpointGroup
 
     private static async Task<Results<Ok<PageResponse<AccountResponse>>, ProblemHttpResult>> List(
         ListHandler handler,
-        CancellationToken cancellationToken,
-        string? search = null,
-        AccountSort? sort = null,
-        bool descending = false,
-        int? page = null,
-        int? pageSize = null)
+        [AsParameters] ListQueryParameters<AccountSort> query,
+        CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(new ListRequest<AccountSort>(search, sort, descending, page, pageSize), cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

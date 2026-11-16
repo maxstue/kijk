@@ -4,8 +4,7 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { create, remove, list, update } from './requests';
-import type { LimitsQuery } from './types';
-import type { CreateLimitRequest, UpdateLimitData } from './types';
+import type { LimitsQuery, CreateLimitRequest, UpdateLimitData } from './types';
 
 /** Query for the limits of the active space. */
 export const listQueryOptions = (spaceId: string, query: LimitsQuery = {}) =>

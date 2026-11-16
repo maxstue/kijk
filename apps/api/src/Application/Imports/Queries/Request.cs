@@ -21,3 +21,12 @@ public enum CandidateFilter
     /// <summary>Rows excluded from import.</summary>
     Excluded
 }
+/// <summary>Display filters and paging for import review, independent of commit selection.</summary>
+/// <param name="Page">One-based page.</param>
+/// <param name="PageSize">Maximum rows per page.</param>
+/// <param name="Months">Selected months, comma-separated.</param>
+/// <param name="CardSettlementsOnly">Whether to display included card statements only.</param>
+/// <param name="Search">Counterparty or purpose search.</param>
+/// <param name="Filter">An optional review filter.</param>
+public sealed record CandidatesRequest(int Page = 1, int PageSize = 100, string? Months = null,
+    bool CardSettlementsOnly = false, string? Search = null, CandidateFilter? Filter = null);

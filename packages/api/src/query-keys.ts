@@ -1,8 +1,7 @@
 import type { AccountSort } from '@kijk/api/accounts/types';
 import type { CategorySort } from '@kijk/api/categories/types';
 import type { CategoryRuleSort } from '@kijk/api/category-rules/types';
-import type { ImportsQuery } from '@kijk/api/imports/types';
-import type { ImportCandidatesQuery, ImportPreviewParams } from '@kijk/api/imports/types';
+import type { ImportsQuery, ImportCandidatesQuery, ImportPreviewParams } from '@kijk/api/imports/types';
 import type { LimitsQuery } from '@kijk/api/limits/types';
 import type { ListQuery } from '@kijk/api/paging';
 import type { ResourceSort } from '@kijk/api/resources/types';

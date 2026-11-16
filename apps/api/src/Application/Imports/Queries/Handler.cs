@@ -122,23 +122,13 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
 
     /// <summary>Gets a bounded page of review rows with totals over the selected months.</summary>
     /// <param name="id">The import id.</param>
-    /// <param name="page">The one-based page number, clamped to the available pages.</param>
-    /// <param name="pageSize">The page size, clamped to 1-100.</param>
-    /// <param name="months">Comma-separated first days of selected months; null includes all rows.</param>
-    /// <param name="search">Optional counterparty or purpose text.</param>
-    /// <param name="filter">Optional review filter, independent of commit selection and totals.</param>
-    /// <param name="cardSettlementsOnly">Whether to show only included, readable card statements.</param>
+    /// <param name="request">Display filters and paging.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
     /// <returns>The page, or a not-found or invalid-month error.</returns>
     public async Task<Result<ImportCandidatePageResponse>> CandidatesAsync(
         Guid id,
-        int page,
-        int pageSize,
-        string? months,
-        bool cardSettlementsOnly,
-        CancellationToken cancellationToken,
-        string? search = null,
-        CandidateFilter? filter = null)
+        CandidatesRequest request,
+        CancellationToken cancellationToken)
     {
         var job = await FindAsync(id, cancellationToken);
         if (job is null)
@@ -146,23 +136,17 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             return Error.NotFound("Import could not be found");
         }
 
+        var (page, pageSize, months, cardSettlementsOnly, search, filter) = request;
         var all = dbContext.ImportCandidates.Where(item => item.ImportJobId == id);
         var query = all;
         if (months is not null)
         {
-            var allowed = job.FullMonths.Concat(job.EdgeMonths).Select(DateOnly.FromDateTime).ToHashSet();
-            var selected = new HashSet<int>();
-            foreach (var value in months.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            var selected = FilterMonths(query, job, months);
+            if (selected.IsError)
             {
-                if (!DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var month)
-                    || month.Day != 1 || !allowed.Contains(month))
-                {
-                    return Error.Validation("The selected month is not part of the import");
-                }
-                selected.Add(month.Year * 12 + month.Month);
+                return selected.Error;
             }
-            query = query.Where(item => item.Errors == null && item.BookingDate != null
-                && selected.Contains(item.BookingDate.Value.Year * 12 + item.BookingDate.Value.Month));
+            query = selected.Value;
         }
 
         var summary = await query.GroupBy(_ => 1).Select(group => new
@@ -205,6 +189,23 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
 
         return new ImportCandidatePageResponse(items, totalCount, page, pageSize,
             summary?.Included ?? 0, job.ErrorCount, errors, summary?.CardSettlements ?? 0);
+    }
+
+    private static Result<IQueryable<ImportCandidate>> FilterMonths(IQueryable<ImportCandidate> query, ImportJob job, string months)
+    {
+        var allowed = job.FullMonths.Concat(job.EdgeMonths).Select(DateOnly.FromDateTime).ToHashSet();
+        var selected = new HashSet<int>();
+        foreach (var value in months.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (!DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var month)
+                || month.Day != 1 || !allowed.Contains(month))
+            {
+                return Error.Validation("The selected month is not part of the import");
+            }
+            selected.Add(month.Year * 12 + month.Month);
+        }
+        return new Result<IQueryable<ImportCandidate>>(query.Where(item => item.Errors == null && item.BookingDate != null
+            && selected.Contains(item.BookingDate.Value.Year * 12 + item.BookingDate.Value.Month)));
     }
 
     private Task<ImportJob?> FindAsync(Guid id, CancellationToken cancellationToken) =>

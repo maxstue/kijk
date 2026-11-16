@@ -1,8 +1,7 @@
 import { apiClient } from '@kijk/api/client';
 import { limitsCreate, limitsDelete, limitsList, limitsUpdate } from '@kijk/api/generated/sdk';
 
-import type { LimitsQuery } from './types';
-import type { CreateLimitRequest, UpdateLimitData } from './types';
+import type { LimitsQuery, CreateLimitRequest, UpdateLimitData } from './types';
 
 /** Loads the limits of the active space with their current evaluation. */
 export async function list(spaceId: string, query: LimitsQuery = {}, signal?: AbortSignal) {

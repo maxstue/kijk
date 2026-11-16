@@ -19,8 +19,8 @@ import {
   updateCandidate,
   updateSettings,
 } from './requests';
-import type { ImportsQuery } from './types';
 import type {
+  ImportsQuery,
   CategorizeImportRequest,
   CommitImportRequest,
   CreateImportData,

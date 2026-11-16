@@ -25,6 +25,7 @@ test('restores the budget statistics table tab through history and reload', asyn
   await cleanup();
   const restored = await renderRoute({ initialEntry: url, overviewRoute: appRoute, seedQueryClient });
   await expect.element(restored.screen.getByRole('table')).toBeVisible();
+  expect(restored.router.state.location.search.statisticsView).toBe('table');
 });
 
 function seedQueryClient(client: QueryClient) {

@@ -32,6 +32,7 @@ test('restores the resource filter and expanded readings from URL and history', 
     .element(restored.screen.getByRole('combobox', { name: 'Filter consumptions by type' }))
     .toHaveTextContent('All types');
   await expect.element(restored.screen.getByRole('button', { name: 'Collapse entries' })).toBeVisible();
+  expect(restored.router.state.location.search.expanded).toEqual(['water']);
 });
 
 function seedQueryClient(client: QueryClient) {

@@ -55,6 +55,7 @@ test('shows an applied search that changes from outside', async () => {
   await screen.rerender(<SearchInput aria-label='Search accounts' value='' onSearch={() => {}} />);
 
   await expect.element(screen.getByRole('searchbox', { name: 'Search accounts' })).toHaveValue('');
+  expect(screen.getByRole('searchbox', { name: 'Search accounts' }).element()).toHaveProperty('value', '');
 });
 
 test('keeps the draft while URL navigation is pending and preserves newer typing on acknowledgement', async () => {
@@ -67,6 +68,7 @@ test('keeps the draft while URL navigation is pending and preserves newer typing
   await input.fill('newer');
   await screen.rerender(<SearchInput aria-label='Search accounts' value='new' onSearch={onSearch} />);
   await expect.element(input).toHaveValue('newer');
+  expect(input.element()).toHaveProperty('value', 'newer');
   await expect.poll(() => onSearch.mock.calls).toEqual([['new'], ['newer']]);
 });
 

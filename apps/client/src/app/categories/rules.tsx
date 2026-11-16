@@ -12,8 +12,7 @@ import { PrivateBadge } from '@/shared/components/visibility-select';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
-import type { TableControlProps } from '@/shared/lib/table-query';
-import type { TableSort } from '@/shared/lib/table-query';
+import type { TableControlProps, TableSort } from '@/shared/lib/table-query';
 
 const ruleScopeLabels: Record<CategoryRule['scope'], string> = {
   Counterparty: 'Counterparty account',

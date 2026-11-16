@@ -66,7 +66,7 @@ export function ImportList({ query, onQueryChange }: Props) {
             }}
           />
         </div>
-        {isPending && <p role='status'>Loading imports…</p>}
+        {isPending && <output>Loading imports…</output>}
         {isError && (
           <div role='alert'>
             Imports could not be loaded.{' '}

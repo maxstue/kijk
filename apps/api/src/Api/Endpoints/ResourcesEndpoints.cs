@@ -64,22 +64,14 @@ public class ResourcesEndpoints : IEndpointGroup
     /// </summary>
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <param name="search">An optional text the name or unit must contain.</param>
-    /// <param name="sort">The column to sort by; by name when omitted.</param>
-    /// <param name="descending">Whether to sort in descending order.</param>
-    /// <param name="page">The 1-based page; all resources when page and page size are omitted.</param>
-    /// <param name="pageSize">The page size.</param>
+    /// <param name="query">Search, sorting and paging.</param>
     /// <returns>The result, or a problem response on failure.</returns>
     private static async Task<Results<Ok<PageResponse<ResourceResponse>>, ProblemHttpResult>> List(
         ListHandler handler,
-        CancellationToken cancellationToken,
-        string? search = null,
-        ResourceSort? sort = null,
-        bool descending = false,
-        int? page = null,
-        int? pageSize = null)
+        [AsParameters] ListQueryParameters<ResourceSort> query,
+        CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(new ListRequest<ResourceSort>(search, sort, descending, page, pageSize), cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

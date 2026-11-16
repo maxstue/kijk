@@ -132,7 +132,7 @@ export function LimitsSection({ view, onViewChange, query, onQueryChange }: Prop
           </Dialog>
         </PageToolbarActions>
       </PageToolbar>
-      {isPending && <p role='status'>Loading limits…</p>}
+      {isPending && <output>Loading limits…</output>}
       {isError && (
         <div role='alert'>
           Limits could not be loaded.{' '}

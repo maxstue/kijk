@@ -42,20 +42,14 @@ public sealed class TransactionsEndpoints : IEndpointGroup
     }
 
     private static async Task<Results<Ok<TransactionPageResponse>, ProblemHttpResult>> List(
-        int? year,
-        int? month,
-        bool? uncategorized,
-        [FromQuery] Guid[]? categoryIds,
-        string? search,
-        int? page,
-        int? pageSize,
+        [AsParameters] TransactionQueryParameters query,
         [FromServices] QueriesHandler handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.ListAsync(
-            new TransactionFilter(year, month, uncategorized, categoryIds, search),
-            page ?? 1,
-            pageSize ?? QueriesHandler.DefaultPageSize,
+            new TransactionFilter(query.Year, query.Month, query.Uncategorized, query.CategoryIds, query.Search),
+            query.Page ?? 1,
+            query.PageSize ?? QueriesHandler.DefaultPageSize,
             cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
