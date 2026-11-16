@@ -3,7 +3,7 @@ import { posthog } from 'posthog-js';
 import type { PostHog } from 'posthog-js';
 import { beforeEach, expect, test, vi } from 'vite-plus/test';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 
 const sentry = vi.hoisted(() => ({
   init: vi.fn<typeof Sentry.init>(),
@@ -11,7 +11,7 @@ const sentry = vi.hoisted(() => ({
 }));
 const errors = vi.hoisted(() => ({ captureException: vi.fn<PostHog['captureException']>() }));
 const posthogSdk = vi.hoisted(() => ({ init: vi.fn<typeof posthog.init>() }));
-vi.mock('@/shared/config', () => ({
+vi.mock('@/shared/config/env', () => ({
   config: { Mode: 'test', PosthogKey: 'phc_public', PosthogUrl: 'https://eu.i.posthog.example', SentryDsn: '' },
 }));
 vi.mock('@sentry/react', () => sentry);

@@ -1,7 +1,7 @@
 import { posthog } from 'posthog-js';
 import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import type { CookieConsent } from '@/shared/types/analytics';
 import { COOKIE_CONSENT_KEY, LEGACY_CORRELATION_ID_KEY } from '@/shared/types/analytics';
 
@@ -21,7 +21,7 @@ const sdk = vi.hoisted(() => ({
 const performanceConsent = vi.hoisted(() => vi.fn<(consent: CookieConsent) => void>());
 vi.mock('@kijk/core/lib/browser-storage', () => ({ browserStorage: storage }));
 vi.mock('posthog-js', () => ({ posthog: sdk }));
-vi.mock('@/shared/config', () => ({
+vi.mock('@/shared/config/env', () => ({
   config: { PosthogKey: 'synthetic-public-key', PosthogUrl: 'https://analytics.example.test' },
 }));
 vi.mock('@/shared/lib/tracing', () => ({ TracingService: { setConsent: performanceConsent } }));

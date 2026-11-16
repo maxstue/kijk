@@ -3,7 +3,7 @@ import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { lazy } from 'react';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 
 /** TanStack Query and Router devtools plus the dev-mode indicator. */
 export function RootDevtools() {
@@ -31,7 +31,7 @@ function DevModeIndicator() {
 }
 
 const LazyDevModeIndicator = lazy(() =>
-  import('@/shared/components/dev-mode-indicator').then(({ DevModeIndicator: Component }) => ({
+  import('@/app/root/dev-mode-indicator').then(({ DevModeIndicator: Component }) => ({
     default: Component,
   })),
 );

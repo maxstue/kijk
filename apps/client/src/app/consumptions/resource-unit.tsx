@@ -1,6 +1,5 @@
+import { ResourceIcon } from '@/shared/components/resource-icon';
 import type { Resource, ResourceStats } from '@/shared/types/domain';
-
-import { ResourceIcon } from './resource-icon';
 
 interface Props {
   type?: Resource | ResourceStats;

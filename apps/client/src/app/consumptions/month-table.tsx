@@ -8,8 +8,8 @@ import { cn } from 'cn';
 import { format, parseISO } from 'date-fns';
 import { ArrowUpDown } from 'lucide-react';
 
+import { ResourceUnit } from '@/app/consumptions/resource-unit';
 import { DataTable } from '@/shared/components/data-table';
-import { ResourceUnit } from '@/shared/components/resources-unit';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
 import type { Consumption, Resource } from '@/shared/types/domain';

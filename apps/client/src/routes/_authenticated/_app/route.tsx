@@ -5,9 +5,9 @@ import { Outlet, createFileRoute, redirect, useParams, useSearch } from '@tansta
 import { useState } from 'react';
 
 import { GuideLauncher } from '@/app/guide/launcher';
+import { AnalyticsBanner } from '@/app/root/analytics-banner';
 import { AppSidebar } from '@/app/root/app-sidebar';
 import { SiteHeader } from '@/app/root/site-header';
-import { AnalyticsBanner } from '@/shared/components/analytics-banner';
 import { InitLoader } from '@/shared/components/ui/loaders/init-loader';
 
 /** App layout with sidebar and header for onboarded users; redirects to `/welcome` while onboarding is pending. */

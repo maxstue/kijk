@@ -5,7 +5,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { Suspense } from 'react';
 
-import { ResourceUnit } from '@/shared/components/resources-unit';
+import { ResourceUnit } from '@/app/consumptions/resource-unit';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Months } from '@/shared/utils/months';
 import { getMonthFromDate } from '@/shared/utils/months';

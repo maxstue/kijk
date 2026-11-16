@@ -1,7 +1,7 @@
 import { ClerkProvider, useAuth, useUser } from '@clerk/tanstack-react-start';
 import type { PropsWithChildren } from 'react';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import { AppAuthContext } from '@/shared/runtime/auth';
 
 interface Props extends PropsWithChildren {}

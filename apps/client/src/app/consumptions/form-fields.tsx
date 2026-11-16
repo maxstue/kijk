@@ -9,10 +9,10 @@ import { InfoIcon } from 'lucide-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 
+import { DatePicker } from '@/app/consumptions/date-picker';
+import { ResourceUnit } from '@/app/consumptions/resource-unit';
 import type { ConsumptionCreateFormSchema, ConsumptionUpdateFormSchema } from '@/app/consumptions/schemas';
-import { DatePicker } from '@/shared/components/date-picker';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { ResourceUnit } from '@/shared/components/resources-unit';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import type { Consumption } from '@/shared/types/domain';
 import { ValueTypes } from '@/shared/types/domain';

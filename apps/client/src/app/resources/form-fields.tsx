@@ -5,8 +5,8 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 
 import type { ResourceFormValues } from '@/app/resources/schemas';
+import { UnitSelectOptions, unitSelectItems } from '@/app/resources/unit-select-options';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-import { UnitSelectOptions, unitSelectItems } from '@/shared/components/unit-select-options';
 
 import { ResourceIconPicker } from './icon-picker';
 

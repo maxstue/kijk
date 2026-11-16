@@ -22,7 +22,7 @@ import type { OtlpDestination } from '@/shared/lib/otlp-destinations';
 export { posthogDestination, sentryDestination } from '@/shared/lib/otlp-destinations';
 
 /** Share of navigations that is traced; the decision is made once per trace, so both tools receive the same traces. */
-export const TRACES_SAMPLE_RATE = 0.1;
+const TRACES_SAMPLE_RATE = 0.1;
 
 export interface TracingOptions {
   environment: string;
