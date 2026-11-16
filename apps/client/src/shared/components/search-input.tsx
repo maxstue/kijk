@@ -5,6 +5,8 @@ import { SearchIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { ComponentProps } from 'react';
 
+import { maxSearchLength } from '@/shared/lib/list-search';
+
 /** Pause after the last keystroke before a search applies; Enter and the search button apply it right away. */
 export const searchDebounceMs = 500;
 
@@ -53,6 +55,7 @@ export function SearchInput({ className, onSearch, value: appliedValue, ...props
       <InputGroup>
         <InputGroupInput
           type='search'
+          maxLength={maxSearchLength}
           value={value}
           onChange={(event) => {
             setValue(event.target.value);

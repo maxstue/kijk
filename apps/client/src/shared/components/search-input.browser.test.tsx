@@ -2,6 +2,8 @@ import { expect, test, vi } from 'vite-plus/test';
 import { userEvent } from 'vite-plus/test/browser';
 import { render } from 'vitest-browser-react';
 
+import { maxSearchLength } from '@/shared/lib/list-search';
+
 import { SearchInput } from './search-input';
 
 test('applies the trimmed search once typing pauses', async () => {
@@ -89,4 +91,14 @@ test('cancels pending searches when the field unmounts', async () => {
   await screen.unmount();
   await new Promise((resolve) => setTimeout(resolve, 700));
   expect(onSearch).not.toHaveBeenCalled();
+});
+
+test('accepts no more text than the URL keeps', async () => {
+  const onSearch = vi.fn<(search: string) => void>();
+  const screen = await render(<SearchInput aria-label='Search accounts' onSearch={onSearch} />);
+
+  await screen.getByRole('searchbox', { name: 'Search accounts' }).fill('x'.repeat(maxSearchLength + 1));
+  await userEvent.keyboard('{Enter}');
+
+  expect(onSearch.mock.calls).toEqual([['x'.repeat(maxSearchLength)]]);
 });

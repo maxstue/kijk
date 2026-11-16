@@ -31,6 +31,7 @@ import { SearchInput } from '@/shared/components/search-input';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import { maxSearchLength } from '@/shared/lib/list-search';
 
 const searchSchema = z.object({
   categoryIds: z.array(z.string()).optional(),
@@ -43,7 +44,7 @@ const searchSchema = z.object({
   page: z.number().int().min(1).optional(),
   // Unknown sizes, e.g. from an edited URL, fall back to the default.
   pageSize: z.literal(transactionPageSizes).optional().catch(undefined),
-  search: z.string().trim().max(200).optional().catch(undefined),
+  search: z.string().trim().max(maxSearchLength).optional().catch(undefined),
   uncategorized: z.boolean().optional(),
   year: z.number().int().min(2000).max(9999).default(new Date().getFullYear()),
 });
