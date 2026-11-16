@@ -27,7 +27,7 @@ import type { TableControlProps } from '@/shared/lib/table-query';
  */
 interface Props extends TableControlProps {}
 
-export function AccountsSection({ state, onStateChange }: Props) {
+export function AccountsSection({ search, onSearchChange }: Props) {
   const spaceId = useSpaceId();
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
@@ -75,8 +75,8 @@ export function AccountsSection({ state, onStateChange }: Props) {
         <CardContent>
           <div className='mt-2'>
             <DataTable
-              state={state}
-              onStateChange={onStateChange}
+              search={search}
+              onSearchChange={onSearchChange}
               columns={columns}
               queryOptions={(query) => accountsOptions.listQueryOptions(spaceId, query)}
               searchPlaceholder='Search name or IBAN...'

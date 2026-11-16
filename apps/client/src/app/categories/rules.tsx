@@ -65,7 +65,7 @@ const getRuleColumns = (canRecord: boolean): Array<ColumnDef<DataTableFeatures, 
 /** Remembered category corrections that imports apply automatically, with deleting them. */
 interface Props extends TableControlProps {}
 
-export function CategoryRulesSection({ state, onStateChange }: Props) {
+export function CategoryRulesSection({ search, onSearchChange }: Props) {
   const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
   const columns = getRuleColumns(canRecord);
@@ -87,8 +87,8 @@ export function CategoryRulesSection({ state, onStateChange }: Props) {
         <CardContent>
           <div className='mt-2'>
             <DataTable
-              state={state}
-              onStateChange={onStateChange}
+              search={search}
+              onSearchChange={onSearchChange}
               columns={columns}
               queryOptions={(query) => categoryRulesOptions.listQueryOptions(spaceId, query)}
               searchPlaceholder='Search matches or category...'

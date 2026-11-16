@@ -25,5 +25,5 @@ test('loads the canonical resource URL and closes to the overview while preservi
   await screen.getByRole('button', { name: 'Close' }).click();
 
   await vi.waitFor(() => expect(router.state.location.pathname).toBe('/space/consumptions/resources'));
-  expect(router.state.location.search).toMatchObject({ search: 'active', page: 2, sort: 'name', descending: true });
+  expect(router.state.location.search).toEqual({ search: 'active', page: 2, descending: true });
 });

@@ -3,7 +3,7 @@ import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import * as usersOptions from '@kijk/api/users/options';
 import { Button } from '@kijk/ui/components/button';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, stripSearchParams } from '@tanstack/react-router';
 import { Plus, Settings } from 'lucide-react';
 import { z } from 'zod';
 
@@ -30,6 +30,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
     sort: z.enum(['CreatedAt', 'FileName', 'Account']).default('CreatedAt').catch('CreatedAt'),
     descending: z.boolean().default(true).catch(true),
   }),
+  search: { middlewares: [stripSearchParams({ page: 1, search: '', sort: 'CreatedAt', descending: true })] },
   loaderDeps: ({ search }) => search,
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await queryClient.query({

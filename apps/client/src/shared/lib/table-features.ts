@@ -1,8 +1,7 @@
-import { rowPaginationFeature, rowSortingFeature, tableFeatures } from '@tanstack/react-table';
+import { rowSortingFeature, tableFeatures } from '@tanstack/react-table';
 
-/** Features of the shared `DataTable`: sorting and pagination state; the API searches, sorts and pages the rows. */
+/** Features of the shared `DataTable`: the sorting state; the API searches, sorts and pages the rows. */
 export const dataTableFeatures = tableFeatures({
-  rowPaginationFeature,
   rowSortingFeature,
 });
 

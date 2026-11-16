@@ -1,6 +1,6 @@
 import * as limitsOptions from '@kijk/api/limits/options';
 import * as resourcesOptions from '@kijk/api/resources/options';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { periods } from '@/app/limits/schemas';
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
     period: z.enum(periods).optional().catch(undefined),
     sort: z.enum(['Resource', 'Name', 'Period']).default('Resource').catch('Resource'),
   }),
+  search: { middlewares: [stripSearchParams({ page: 1, search: '', view: 'list', sort: 'Resource' })] },
   loaderDeps: ({ search }) => search,
   loader: async ({ params: { spaceId }, context: { queryClient }, deps: { view: _view, ...query } }) => {
     await Promise.all([

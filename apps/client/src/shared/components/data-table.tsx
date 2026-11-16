@@ -7,16 +7,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery } from '@tanstack/react-query';
 import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
 import { flexRender, useTable } from '@tanstack/react-table';
-import type { ColumnDef, PaginationState, RowData, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, RowData, SortingState } from '@tanstack/react-table';
 import { cn } from 'cn';
-import { useEffect, useEffectEvent } from 'react';
 import type { ReactNode } from 'react';
 
+import { ListPagination } from '@/shared/components/list-pagination';
 import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { SearchInput } from '@/shared/components/search-input';
 import { dataTableFeatures } from '@/shared/lib/table-features';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
-import { tablePageSize, toTableQuery } from '@/shared/lib/table-query';
+import { toColumnSort, toTableQuery } from '@/shared/lib/table-query';
 import type { TableSort, TableControlProps } from '@/shared/lib/table-query';
 
 /** Rows while the first page loads; stable, so the table does not rebuild its row model every render. */
@@ -26,6 +26,7 @@ const noRows: never[] = [];
 interface TablePage<TData> {
   items: TData[];
   page: number | string;
+  pageSize: number | string;
   totalCount: number | string;
 }
 
@@ -46,7 +47,8 @@ interface Props<
 /**
  * Server-side table with a search, sortable columns and pagination (10 rows per page): search, sort and page go to the
  * list endpoint together. A new search or sort starts at the first page again; the shown page stays visible while the
- * next one loads.
+ * next one loads. Paging starts from the page the API served, which can be lower than the requested one after rows were
+ * deleted.
  */
 export function DataTable<
   TData extends RowData,
@@ -59,45 +61,25 @@ export function DataTable<
   searchPlaceholder = 'Search...',
   queryOptions,
   sort,
-  state,
-  onStateChange,
+  search,
+  onSearchChange,
 }: Props<TData, TSort, TPage, TKey>) {
-  const { search = '', pageIndex = 0 } = state;
-  const sorting: SortingState = [state.sort ?? sort.defaultSort];
-  const { data, isError, isPending, isPlaceholderData, refetch } = useQuery(
-    queryOptions(toTableQuery(sort, { pageIndex, search, sort: sorting[0] })),
+  const sorting: SortingState = [toColumnSort(sort, search)];
+  const { data, isError, isFetching, isPending, isPlaceholderData, refetch } = useQuery(
+    queryOptions(toTableQuery(sort, search)),
   );
-  // The API returns the last page when the requested one no longer exists, for example after deleting its last row.
-  const servedPageIndex = data && !isPlaceholderData ? Number(data.page) - 1 : pageIndex;
-  // A background invalidation can clamp the page after deletion. Update the external URL only when that page changes,
-  // reading the latest navigation callback and other filters without resynchronizing on their object identities.
-  const syncServedPage = useEffectEvent((pageIndex: number) => {
-    onStateChange({ ...state, pageIndex }, { replace: true });
-  });
-  useEffect(() => {
-    if (servedPageIndex !== pageIndex) {
-      syncServedPage(servedPageIndex);
-    }
-  }, [servedPageIndex, pageIndex]);
-
-  const pagination: PaginationState = { pageIndex, pageSize: tablePageSize };
   const table = useTable({
     columns,
     data: data?.items ?? noRows,
     features: dataTableFeatures,
-    manualPagination: true,
     manualSorting: true,
-    rowCount: Number(data?.totalCount ?? 0),
-    onPaginationChange: (updater) =>
-      onStateChange({ ...state, pageIndex: (typeof updater === 'function' ? updater(pagination) : updater).pageIndex }),
     onSortingChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(sorting) : updater;
-      onStateChange({ ...state, sort: next[0] ?? sort.defaultSort, pageIndex: 0 });
+      const [next] = typeof updater === 'function' ? updater(sorting) : updater;
+      // The initial sort stays out of the URL, also on pages whose tabs share one table state.
+      const isDefault = !next || (next.id === sort.defaultSort.id && next.desc === sort.defaultSort.desc);
+      onSearchChange({ page: 1, sort: isDefault ? undefined : next.id, descending: isDefault ? undefined : next.desc });
     },
-    state: {
-      pagination,
-      sorting,
-    },
+    state: { sorting },
   });
 
   return (
@@ -106,12 +88,10 @@ export function DataTable<
         <PageToolbar>
           <PageToolbarControls>
             <SearchInput
-              value={search}
+              value={search.search ?? ''}
               aria-label={searchPlaceholder}
               placeholder={searchPlaceholder}
-              onSearch={(nextSearch) => {
-                onStateChange({ ...state, search: nextSearch, pageIndex: 0 }, { replace: true });
-              }}
+              onSearch={(nextSearch) => onSearchChange({ page: 1, search: nextSearch }, { replace: true })}
             />
           </PageToolbarControls>
           {actions && <PageToolbarActions>{actions}</PageToolbarActions>}
@@ -163,28 +143,15 @@ export function DataTable<
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-end space-x-2 py-4'>
-        <Button
-          disabled={!table.getCanPreviousPage()}
-          size='sm'
-          variant='outline'
-          onClick={() => {
-            table.previousPage();
-          }}
-        >
-          Previous
-        </Button>
-        <Button
-          disabled={!table.getCanNextPage()}
-          size='sm'
-          variant='outline'
-          onClick={() => {
-            table.nextPage();
-          }}
-        >
-          Next
-        </Button>
-      </div>
+      {data && (
+        <ListPagination
+          page={data.page}
+          pageSize={data.pageSize}
+          totalCount={data.totalCount}
+          isFetching={isFetching}
+          onPageChange={(page) => onSearchChange({ page })}
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import * as categoriesOptions from '@kijk/api/categories/options';
 import * as categoryRulesOptions from '@kijk/api/category-rules/options';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@kijk/ui/components/tabs';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { Sparkles, Tags } from 'lucide-react';
 import { z } from 'zod';
 
@@ -12,40 +12,36 @@ import { CategoriesSection } from '@/app/categories/section';
 import { RouteError } from '@/shared/components/errors/route-error';
 import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { Loader } from '@/shared/components/ui/loaders/loader';
-import { toTableQuery, tableSearchSchema, fromTableSearch, toTableSearch } from '@/shared/lib/table-query';
+import { tableSearchSchema, toTableQuery } from '@/shared/lib/table-query';
+import type { TableSearch } from '@/shared/lib/table-query';
 
-/** The finances categories route, which shows the categories and categorization rules of the active space. */
+const categoryTabs = ['categories', 'rules'] as const;
+
+/**
+ * The finances categories route, which shows the categories and categorization rules of the active space. Both tabs
+ * share one table URL state; switching tabs starts the other table at its first page.
+ */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/categories')({
   validateSearch: tableSearchSchema.extend({
-    tab: z.enum(['categories', 'rules']).default('categories').catch('categories'),
-    rulesPage: z.coerce.number().int().min(1).max(2147483647).default(1).catch(1),
-    rulesSearch: z.string().trim().max(200).default('').catch(''),
-    rulesSort: z.string().max(100).optional().catch(undefined),
-    rulesDescending: z.boolean().optional().catch(undefined),
+    tab: z.enum(categoryTabs).default('categories').catch('categories'),
   }),
+  search: {
+    middlewares: [
+      // Each tab has its own initial sort; only the shared page and search defaults are left out of the URL.
+      stripSearchParams({ page: 1, search: '', tab: 'categories' }),
+    ],
+  },
   loaderDeps: ({ search }) => search,
-  loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
-    await Promise.all([
-      queryClient.query({
-        ...categoriesOptions.listQueryOptions(spaceId, toTableQuery(categorySort, fromTableSearch(categorySort, deps))),
-        staleTime: 'static',
-      }),
-      queryClient.query({
-        ...categoryRulesOptions.listQueryOptions(
-          spaceId,
-          toTableQuery(
-            ruleSort,
-            fromTableSearch(ruleSort, {
-              page: deps.rulesPage,
-              search: deps.rulesSearch,
-              sort: deps.rulesSort,
-              descending: deps.rulesDescending,
-            }),
-          ),
-        ),
-        staleTime: 'static',
-      }),
-    ]);
+  loader: async ({ params: { spaceId }, context: { queryClient }, deps: { tab, ...search } }) => {
+    await (tab === 'rules'
+      ? queryClient.query({
+          ...categoryRulesOptions.listQueryOptions(spaceId, toTableQuery(ruleSort, search)),
+          staleTime: 'static',
+        })
+      : queryClient.query({
+          ...categoriesOptions.listQueryOptions(spaceId, toTableQuery(categorySort, search)),
+          staleTime: 'static',
+        }));
   },
   component: CategoriesPage,
   errorComponent: RouteError,
@@ -54,15 +50,18 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/cat
 });
 
 function CategoriesPage() {
-  const search = Route.useSearch();
+  const { tab, ...search } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const onSearchChange = (change: Partial<TableSearch>, options?: { replace?: boolean }) =>
+    void navigate({ search: (previous) => ({ ...previous, ...change }), replace: options?.replace });
   return (
     <div data-guide='categories' className='space-y-6 pt-6'>
       <Tabs
-        value={search.tab}
-        onValueChange={(tab) => {
-          if (tab === 'categories' || tab === 'rules') {
-            void navigate({ search: (previous) => ({ ...previous, tab }) });
+        value={tab}
+        onValueChange={(next) => {
+          const nextTab = categoryTabs.find((item) => item === next);
+          if (nextTab) {
+            void navigate({ search: { tab: nextTab } });
           }
         }}
         className='gap-6'
@@ -83,38 +82,10 @@ function CategoriesPage() {
           </PageToolbarActions>
         </PageToolbar>
         <TabsContent value='categories'>
-          <CategoriesSection
-            state={fromTableSearch(categorySort, search)}
-            onStateChange={(state, options) =>
-              void navigate({
-                search: (previous) => ({ ...previous, ...toTableSearch(state) }),
-                replace: options?.replace,
-              })
-            }
-          />
+          <CategoriesSection search={search} onSearchChange={onSearchChange} />
         </TabsContent>
         <TabsContent value='rules'>
-          <CategoryRulesSection
-            state={fromTableSearch(ruleSort, {
-              page: search.rulesPage,
-              search: search.rulesSearch,
-              sort: search.rulesSort,
-              descending: search.rulesDescending,
-            })}
-            onStateChange={(state, options) => {
-              const next = toTableSearch(state);
-              void navigate({
-                search: (previous) => ({
-                  ...previous,
-                  rulesPage: next.page,
-                  rulesSearch: next.search,
-                  rulesSort: next.sort,
-                  rulesDescending: next.descending,
-                }),
-                replace: options?.replace,
-              });
-            }}
-          />
+          <CategoryRulesSection search={search} onSearchChange={onSearchChange} />
         </TabsContent>
       </Tabs>
     </div>

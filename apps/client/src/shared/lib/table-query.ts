@@ -14,65 +14,50 @@ export interface TableSort<TSort extends string> {
   defaultSort: ColumnSort;
 }
 
-/** The table state a list query is built from; omitted values mean the first page, no search and the default sort. */
-export interface TableState {
-  pageIndex?: number;
-  search?: string;
-  sort?: ColumnSort;
-}
-
-/**
- * Builds the list query of a table state. Route loaders call it without a state to prefetch the first page under the
- * same query key as the table.
- */
-export function toTableQuery<TSort extends string>(
-  { columns, defaultSort }: TableSort<TSort>,
-  { pageIndex = 0, search, sort = defaultSort }: TableState = {},
-): ListQuery<TSort> {
-  return {
-    descending: sort.desc,
-    page: pageIndex + 1,
-    pageSize: tablePageSize,
-    search: search || undefined,
-    sort: columns[sort.id],
-  };
-}
-
-/** URL fields shared by the server-side administration tables. */
+/** URL state of a server-side table: page, search and the sorted column. */
 export const tableSearchSchema = listSearchSchema.extend({
   sort: z.string().max(100).optional().catch(undefined),
   descending: z.boolean().optional().catch(undefined),
 });
 
-export interface TableSearch {
-  page?: number;
-  search?: string;
-  sort?: string;
-  descending?: boolean;
-}
+/** URL state of a server-side table; routes pass it to `DataTable` unchanged. */
+export type TableSearch = z.infer<typeof tableSearchSchema>;
 
-/** A controlled table; routes own its state and navigation. */
+/** A table controlled through its route's URL state. */
 export interface TableControlProps {
-  state: TableState;
-  onStateChange: (state: TableState, options?: { replace?: boolean }) => void;
+  search: Partial<TableSearch>;
+  onSearchChange: (change: Partial<TableSearch>, options?: { replace?: boolean }) => void;
 }
 
-/** Resolves URL values against the table's supported sort columns. */
-export function fromTableSearch<TSort extends string>(sort: TableSort<TSort>, search: TableSearch): TableState {
-  const column = search.sort && Object.hasOwn(sort.columns, search.sort) ? search.sort : sort.defaultSort.id;
+/** The sorted column of the URL state; unsupported columns fall back to the table's initial sort. */
+export function toColumnSort<TSort extends string>(
+  { columns, defaultSort }: TableSort<TSort>,
+  { sort, descending }: Partial<TableSearch>,
+): ColumnSort {
+  return sort && Object.hasOwn(columns, sort)
+    ? { id: sort, desc: descending ?? defaultSort.desc }
+    : { id: defaultSort.id, desc: descending ?? defaultSort.desc };
+}
+
+/**
+ * Builds the list query of the URL state. Route loaders call it with their search params to prefetch the same page
+ * under the same query key as the table.
+ */
+export function toTableQuery<TSort extends string>(
+  sort: TableSort<TSort>,
+  search: Partial<TableSearch> = {},
+): ListQuery<TSort> {
+  const column = toColumnSort(sort, search);
   return {
-    pageIndex: (search.page ?? 1) - 1,
-    search: search.search ?? '',
-    sort: { id: column, desc: search.descending ?? sort.defaultSort.desc },
+    descending: column.desc,
+    page: search.page ?? 1,
+    pageSize: tablePageSize,
+    search: search.search || undefined,
+    sort: sort.columns[column.id],
   };
 }
 
-/** Serializes a table state without introducing a second local copy. */
-export function toTableSearch(state: TableState): TableSearch {
-  return {
-    page: (state.pageIndex ?? 0) + 1,
-    search: state.search ?? '',
-    sort: state.sort?.id,
-    descending: state.sort?.desc,
-  };
+/** URL values a table starts with; `stripSearchParams` leaves them out of the URL. */
+export function tableSearchDefaults({ defaultSort }: TableSort<string>): Required<TableSearch> {
+  return { page: 1, search: '', sort: defaultSort.id, descending: defaultSort.desc };
 }

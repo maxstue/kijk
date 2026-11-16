@@ -27,7 +27,7 @@ import { CreatorTypes } from '@/shared/types/domain';
 /** Resources page: statistics, the resource table and the create dialog. */
 interface Props extends TableControlProps {}
 
-export function ResourceTypesSection({ state, onStateChange }: Props) {
+export function ResourceTypesSection({ search, onSearchChange }: Props) {
   const spaceId = useSpaceId();
   const [showDialog, setShowDialog] = useState(false);
   // The statistics count every resource, not only the table's page.
@@ -78,8 +78,8 @@ export function ResourceTypesSection({ state, onStateChange }: Props) {
           <CardContent>
             <div className='mt-2'>
               <DataTable
-                state={state}
-                onStateChange={onStateChange}
+                search={search}
+                onSearchChange={onSearchChange}
                 columns={columns}
                 queryOptions={(query) => resourcesOptions.listQueryOptions(spaceId, query)}
                 searchPlaceholder='Search name or unit...'

@@ -12,7 +12,7 @@ import type { TableControlProps } from '@/shared/lib/table-query';
 /** Categories page: default and custom categories, with create, update and delete for the custom ones. */
 interface Props extends TableControlProps {}
 
-export function CategoriesSection({ state, onStateChange }: Props) {
+export function CategoriesSection({ search, onSearchChange }: Props) {
   const spaceId = useSpaceId();
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
   const columns = getCategoryColumns(canConfigure);
@@ -30,8 +30,8 @@ export function CategoriesSection({ state, onStateChange }: Props) {
         <CardContent>
           <div className='mt-2'>
             <DataTable
-              state={state}
-              onStateChange={onStateChange}
+              search={search}
+              onSearchChange={onSearchChange}
               columns={columns}
               queryOptions={(query) => categoriesOptions.listQueryOptions(spaceId, query)}
               searchPlaceholder='Search name...'

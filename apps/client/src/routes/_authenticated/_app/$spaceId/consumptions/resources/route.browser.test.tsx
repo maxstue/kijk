@@ -17,7 +17,7 @@ test('resources restores search, sort and page through URL, history and reload',
     http.get(`http://localhost:5000/api/spaces/space/${endpoint}`, ({ request }) => {
       const query = new URL(request.url).searchParams;
       requests.push(query);
-      return HttpResponse.json({ items: [], page: Number(query.get('page') ?? 1), totalCount: 35 });
+      return HttpResponse.json({ items: [], page: Number(query.get('page') ?? 1), pageSize: 10, totalCount: 35 });
     }),
     http.get('http://localhost:5000/api/spaces/space/category-rules', () =>
       HttpResponse.json({ items: [], page: 1, totalCount: 0 }),
@@ -39,9 +39,7 @@ test('resources restores search, sort and page through URL, history and reload',
   router.history.forward();
   await expect.poll(() => router.state.location.search.page).toBe(3);
   await screen.getByRole('button', { name: 'Name', exact: true }).click();
-  await expect
-    .poll(() => router.state.location.search)
-    .toMatchObject({ page: 1, search: 'fuel', sort: 'name', descending: false });
+  await expect.poll(() => router.state.location.search).toEqual({ search: 'fuel' });
   await screen.getByRole('searchbox', { name: placeholder }).fill('water');
   await screen.getByRole('button', { name: 'Search', exact: true }).click();
   await expect.poll(() => router.state.location.search.search).toBe('water');
@@ -49,7 +47,8 @@ test('resources restores search, sort and page through URL, history and reload',
   await cleanup();
   const reloaded = await renderRoute({ initialEntry: url, overviewRoute: appRoute, seedQueryClient });
   await expect.element(reloaded.screen.getByRole('searchbox', { name: placeholder })).toHaveValue('water');
-  expect(reloaded.router.state.location.search).toMatchObject({ page: 1, search: 'water', descending: false });
+  // Default page and sort stay out of the URL.
+  expect(reloaded.router.state.location.search).toEqual({ search: 'water' });
 });
 
 function seedQueryClient(client: QueryClient) {

@@ -87,10 +87,10 @@ test('combines server search, period and paging and restores them from the URL',
   await expect.poll(() => router.state.location.search.page).toBe(3);
   await screen.getByRole('searchbox', { name: 'Search limits' }).fill('Water');
   await userEvent.keyboard('{Enter}');
-  await expect.poll(() => router.state.location.search).toMatchObject({ page: 1, search: 'Water', period: 'Month' });
+  await expect.poll(() => router.state.location.search).toEqual({ search: 'Water', period: 'Month' });
   const savedUrl = router.state.location.href;
   await cleanup();
   const reloaded = await renderRoute({ initialEntry: savedUrl, overviewRoute, seedQueryClient });
   await expect.element(reloaded.screen.getByRole('searchbox', { name: 'Search limits' })).toHaveValue('Water');
-  expect(reloaded.router.state.location.search).toMatchObject({ page: 1, search: 'Water', period: 'Month' });
+  expect(reloaded.router.state.location.search).toEqual({ search: 'Water', period: 'Month' });
 });

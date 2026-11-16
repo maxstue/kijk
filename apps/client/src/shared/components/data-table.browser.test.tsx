@@ -6,8 +6,7 @@ import { expect, test, vi } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 import type { DataTableFeatures } from '@/shared/lib/table-features';
-import type { TableState } from '@/shared/lib/table-query';
-import type { TableSort } from '@/shared/lib/table-query';
+import type { TableSearch, TableSort } from '@/shared/lib/table-query';
 
 import { DataTable } from './data-table';
 
@@ -49,7 +48,12 @@ function fakeApi(query: ListQuery<ItemSort>) {
   const lastPage = Math.max(1, Math.ceil(matching.length / pageSize));
   const page = Math.min(query.page ?? 1, lastPage);
   const start = (page - 1) * pageSize;
-  return Promise.resolve({ items: matching.slice(start, start + pageSize), page, totalCount: matching.length });
+  return Promise.resolve({
+    items: matching.slice(start, start + pageSize),
+    page,
+    pageSize,
+    totalCount: matching.length,
+  });
 }
 
 function renderTable(api = vi.fn<typeof fakeApi>(fakeApi)) {
@@ -66,11 +70,11 @@ interface Props {
   api: typeof fakeApi;
 }
 function TestTable({ api }: Props) {
-  const [state, onStateChange] = useState<TableState>({});
+  const [search, setSearch] = useState<Partial<TableSearch>>({});
   return (
     <DataTable
-      state={state}
-      onStateChange={onStateChange}
+      search={search}
+      onSearchChange={(change) => setSearch((previous) => ({ ...previous, ...change }))}
       columns={columns}
       queryOptions={(query) => queryOptions({ queryFn: () => api(query), queryKey: ['items', query] })}
       searchPlaceholder='Search name...'
@@ -136,9 +140,11 @@ test('follows the API to the last page when the requested one no longer exists',
   shrunk = true;
   await client.invalidateQueries();
 
+  // The table pages from the served page, without rewriting the requested one.
   await expect.poll(() => renderedNames(rendered.container)).toHaveLength(9);
+  await expect.element(rendered.getByText('Rows 1–9 of 9')).toBeVisible();
   await expect.element(rendered.getByRole('button', { name: 'Previous' })).toBeDisabled();
-  expect(api).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1 }));
+  await expect.element(rendered.getByRole('button', { name: 'Next' })).toBeDisabled();
 });
 
 test('offers a retry when the page cannot be loaded', async () => {

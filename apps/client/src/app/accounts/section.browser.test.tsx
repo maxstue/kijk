@@ -31,7 +31,7 @@ test('members keep private accounts and cannot add shared ones', async () => {
   const screen = await render(
     <QueryClientProvider client={client}>
       <TooltipProvider>
-        <AccountsSection state={{}} onStateChange={() => {}} />
+        <AccountsSection search={{}} onSearchChange={() => {}} />
       </TooltipProvider>
     </QueryClientProvider>,
   );
@@ -52,7 +52,7 @@ test('a personal space offers no visibility choice', async () => {
   const screen = await render(
     <QueryClientProvider client={client}>
       <TooltipProvider>
-        <AccountsSection state={{}} onStateChange={() => {}} />
+        <AccountsSection search={{}} onSearchChange={() => {}} />
       </TooltipProvider>
     </QueryClientProvider>,
   );
@@ -70,7 +70,7 @@ test('a row menu opens the update dialog and closes its menu', async () => {
   const screen = await render(
     <QueryClientProvider client={client}>
       <TooltipProvider>
-        <AccountsSection state={{}} onStateChange={() => {}} />
+        <AccountsSection search={{}} onSearchChange={() => {}} />
       </TooltipProvider>
     </QueryClientProvider>,
   );

@@ -1,6 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 
-import { tablePageSize, toTableQuery, fromTableSearch, toTableSearch, tableSearchSchema } from './table-query';
+import { tablePageSize, tableSearchDefaults, tableSearchSchema, toColumnSort, toTableQuery } from './table-query';
 
 const sort = { columns: { name: 'Name', type: 'Kind' } as const, defaultSort: { desc: false, id: 'name' } };
 
@@ -14,8 +14,8 @@ test('builds the first page with the default sort and no search', () => {
   });
 });
 
-test('maps the sorted column, the page index and the search', () => {
-  expect(toTableQuery(sort, { pageIndex: 2, search: 'gas', sort: { desc: true, id: 'type' } })).toEqual({
+test('maps the URL page, search and sorted column', () => {
+  expect(toTableQuery(sort, { page: 3, search: 'gas', sort: 'type', descending: true })).toEqual({
     descending: true,
     page: 3,
     pageSize: tablePageSize,
@@ -24,14 +24,15 @@ test('maps the sorted column, the page index and the search', () => {
   });
 });
 
-test('round-trips table URL state and falls back from unsupported sort columns', () => {
-  const state = fromTableSearch(sort, { page: 3, search: 'gas', sort: 'type', descending: true });
-  expect(toTableQuery(sort, state)).toMatchObject({ page: 3, search: 'gas', sort: 'Kind', descending: true });
-  expect(toTableSearch(state)).toEqual({ page: 3, search: 'gas', sort: 'type', descending: true });
-  expect(fromTableSearch(sort, { sort: 'toString' }).sort).toEqual(sort.defaultSort);
+test('falls back from unsupported sort columns and invalid URL values', () => {
+  expect(toColumnSort(sort, { sort: 'toString' })).toEqual(sort.defaultSort);
   expect(tableSearchSchema.parse({ page: -1, descending: 'false', search: 42 })).toMatchObject({
     page: 1,
     search: '',
     descending: undefined,
   });
+});
+
+test('derives the URL defaults from the initial sort', () => {
+  expect(tableSearchDefaults(sort)).toEqual({ page: 1, search: '', sort: 'name', descending: false });
 });
