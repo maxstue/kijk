@@ -23,10 +23,7 @@ interface Props extends Required<PropsWithChildren> {
 export function ImportReview({ job, stage, onStageChange, children, query, onQueryChange }: Props) {
   const spaceId = useSpaceId();
   const [includedEdgeMonths, setIncludedEdgeMonths] = useState<string[]>([]);
-  const navigation = query;
-  const { cardPage = 1, cardOpen = false, adjustmentsOpen = false, reviewStage: _reviewStage, ...filters } = navigation;
-  const changeQuery = onQueryChange;
-  const setPage = (page: number) => changeQuery({ ...navigation, page });
+  const setPage = (page: number) => onQueryChange({ ...query, page });
   const [acceptErrors, setAcceptErrors] = useState(false);
   const [showAiPreview, setShowAiPreview] = useState(false);
   const commitMutation = useMutation(importsOptions.commitMutationOptions(spaceId, job.id));
@@ -37,7 +34,7 @@ export function ImportReview({ job, stage, onStageChange, children, query, onQue
   const months = new Set([...job.fullMonths, ...includedEdgeMonths]);
   const selectedMonths = [...months].sort((left, right) => left.localeCompare(right)).join(',');
   const reviewQuery = useQuery({
-    ...importsOptions.candidatesQueryOptions(spaceId, job.id, { ...filters, months: selectedMonths }),
+    ...importsOptions.candidatesQueryOptions(spaceId, job.id, { ...query, months: selectedMonths }),
     enabled: stage === 'review',
     placeholderData: keepPreviousData,
   });
@@ -48,7 +45,7 @@ export function ImportReview({ job, stage, onStageChange, children, query, onQue
   const cannotCommit = (job.hasHighErrorRate && !acceptErrors) || months.size === 0;
 
   function toggleEdgeMonth(month: string, checked: boolean) {
-    changeQuery({ ...navigation, page: 1, cardPage: 1 });
+    setPage(1);
     setIncludedEdgeMonths((previous) => (checked ? [...previous, month] : previous.filter((item) => item !== month)));
   }
 
@@ -92,14 +89,8 @@ export function ImportReview({ job, stage, onStageChange, children, query, onQue
     onAcceptErrors: setAcceptErrors,
     selectedMonths,
     onPageChange: setPage,
-    filters,
-    adjustmentsOpen,
-    onAdjustmentsOpenChange: (adjustmentsOpen) => changeQuery({ ...navigation, adjustmentsOpen }),
-    cardPage,
-    cardOpen,
-    onCardPageChange: (cardPage) => changeQuery({ ...navigation, cardPage }),
-    onCardOpenChange: (cardOpen) => changeQuery({ ...navigation, cardOpen }),
-    onFilterChange: (change) => changeQuery({ ...navigation, ...change, page: 1 }),
+    filters: query,
+    onFilterChange: (change) => onQueryChange({ ...query, ...change, page: 1 }),
     onResetOverrides: () =>
       resetMutation.mutate(undefined, {
         onSuccess: (count) => toast.success(`${count} manual overrides reset`),

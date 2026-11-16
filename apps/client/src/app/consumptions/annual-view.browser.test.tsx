@@ -4,7 +4,6 @@ import { render } from 'vitest-browser-react';
 
 import type { Consumption } from '@/shared/types/domain';
 
-import type { AnnualViewState } from './annual-view';
 import { ConsumptionAnnualView } from './annual-view';
 
 interface ConsumptionEditButtonProps {
@@ -100,6 +99,6 @@ test('filters summaries by resource and can return to all types', async () => {
 
 interface Props extends Pick<ComponentProps<typeof ConsumptionAnnualView>, 'consumptions'> {}
 function TestAnnualView({ consumptions }: Props) {
-  const [state, setState] = useState<AnnualViewState>({});
-  return <ConsumptionAnnualView consumptions={consumptions} state={state} onStateChange={setState} />;
+  const [resourceId, setResourceId] = useState<string>();
+  return <ConsumptionAnnualView consumptions={consumptions} resourceId={resourceId} onResourceChange={setResourceId} />;
 }

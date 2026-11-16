@@ -1,9 +1,4 @@
 import type { ImportCandidatesQuery } from '@kijk/api/imports/types';
 
-/** Review navigation; selection and editable import data remain owned by the form. */
-export interface ReviewQuery extends ImportCandidatesQuery {
-  reviewStage?: 'months' | 'review';
-  adjustmentsOpen?: boolean;
-  cardPage?: number;
-  cardOpen?: boolean;
-}
+/** Review list navigation kept in the URL; month selection and editable import data remain owned by the review. */
+export type ReviewQuery = Pick<ImportCandidatesQuery, 'filter' | 'page' | 'search'>;

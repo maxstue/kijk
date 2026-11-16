@@ -1,4 +1,3 @@
-import type { ImportCandidatesQuery } from '@kijk/api/imports/types';
 import { Button } from '@kijk/ui/components/button';
 import { CardContent } from '@kijk/ui/components/card';
 import { X, Sparkles } from 'lucide-react';
@@ -20,10 +19,6 @@ export function ImportReviewTransactions() {
   }
   const {
     filters,
-    cardPage,
-    cardOpen,
-    onCardPageChange,
-    onCardOpenChange,
     onFilterChange,
     job,
     isPending,
@@ -77,7 +72,7 @@ export function ImportReviewTransactions() {
             { value: 'Errors', label: 'Unreadable' },
             { value: 'Excluded', label: 'Excluded' },
           ]}
-          onChange={(filter) => onFilterChange({ filter: filter as ImportCandidatesQuery['filter'] })}
+          onChange={(filter) => onFilterChange({ filter })}
         />
       </div>
       {filters.filter === 'Errors' && (
@@ -88,15 +83,7 @@ export function ImportReviewTransactions() {
       <div className='relative' aria-busy={job.status === 'Categorizing'}>
         {review && (
           <div inert={isPending || reviewQuery.isPlaceholderData} aria-busy={reviewQuery.isFetching}>
-            <CardSettlements
-              page={cardPage}
-              open={cardOpen}
-              onPageChange={onCardPageChange}
-              onOpenChange={onCardOpenChange}
-              count={Number(review.cardSettlementCount)}
-              months={selectedMonths}
-              importId={job.id}
-            />
+            <CardSettlements count={Number(review.cardSettlementCount)} months={selectedMonths} importId={job.id} />
             <ImportCandidateTable
               data={review}
               importId={job.id}

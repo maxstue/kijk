@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kijk
 import { Progress } from '@kijk/ui/components/progress';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
 
 import { formatImportMonth } from '@/app/imports/helpers';
 import { ImportMappingStep } from '@/app/imports/mapping-step';
@@ -38,8 +39,7 @@ export function ImportDetail({ importId, query, onQueryChange }: Props) {
   const spaceId = useSpaceId();
   const { data: job } = useSuspenseQuery(importsOptions.detailsQueryOptions(spaceId, importId));
 
-  const reviewStage = query.reviewStage ?? 'months';
-  const setReviewStage = (reviewStage: 'months' | 'review') => onQueryChange({ ...query, reviewStage });
+  const [reviewStage, setReviewStage] = useState<'months' | 'review'>('months');
   const isReview = job.status === 'NeedsReview' || job.status === 'Categorizing';
 
   return (

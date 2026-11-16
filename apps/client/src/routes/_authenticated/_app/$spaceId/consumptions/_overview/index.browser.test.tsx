@@ -6,33 +6,29 @@ import { Route as appRoute } from '@/routes/_authenticated/_app/route';
 import { listPage } from '@/test/list-page';
 import { renderRoute } from '@/test/render-route';
 
-test('restores the resource filter and expanded readings from URL and history', async () => {
+test('restores the resource filter from URL and history', async () => {
   const { router, screen, cleanup } = await renderRoute({
-    initialEntry: '/space/consumptions?view=year&year=2026&resourceId=water&expanded=["water"]',
+    initialEntry: '/space/consumptions?view=year&year=2026&resourceId=water',
     overviewRoute: appRoute,
     seedQueryClient,
   });
-  await expect
-    .element(screen.getByRole('combobox', { name: 'Filter consumptions by type' }))
-    .toHaveTextContent('Water');
-  await expect.element(screen.getByRole('button', { name: 'Collapse entries' })).toBeVisible();
-  await expect.element(screen.getByRole('cell', { name: 'Water reading', exact: true })).toBeVisible();
-  await screen.getByRole('button', { name: 'Collapse entries' }).click();
-  await expect.poll(() => router.state.location.search.expanded).toEqual([]);
-  router.history.back();
-  await expect.element(screen.getByRole('button', { name: 'Collapse entries' })).toBeVisible();
-  await screen.getByRole('combobox', { name: 'Filter consumptions by type' }).click();
-  await screen.getByRole('option', { name: 'All types' }).click();
+  const filter = screen.getByRole('combobox', { name: 'Filter consumptions by type' });
+  await expect.element(filter).toHaveTextContent('Water');
   await expect.poll(() => screen.getByRole('button', { name: 'Expand entries' }).all().length).toBe(1);
-  await expect.element(screen.getByRole('button', { name: 'Collapse entries' })).toBeVisible();
+
+  await filter.click();
+  await screen.getByRole('option', { name: 'All types' }).click();
+  await expect.poll(() => router.state.location.search.resourceId).toBeUndefined();
+  await expect.poll(() => screen.getByRole('button', { name: 'Expand entries' }).all().length).toBe(2);
+
+  router.history.back();
+  await expect.element(filter).toHaveTextContent('Water');
   const url = router.state.location.href;
   await cleanup();
   const restored = await renderRoute({ initialEntry: url, overviewRoute: appRoute, seedQueryClient });
   await expect
     .element(restored.screen.getByRole('combobox', { name: 'Filter consumptions by type' }))
-    .toHaveTextContent('All types');
-  await expect.element(restored.screen.getByRole('button', { name: 'Collapse entries' })).toBeVisible();
-  expect(restored.router.state.location.search.expanded).toEqual(['water']);
+    .toHaveTextContent('Water');
 });
 
 function seedQueryClient(client: QueryClient) {

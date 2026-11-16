@@ -8,6 +8,7 @@ import { LimitsSection } from '@/app/limits/section';
 import { RouteError } from '@/shared/components/errors/route-error';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { listSearchSchema } from '@/shared/lib/list-search';
+import { tablePageSize } from '@/shared/lib/table-query';
 
 /** `/consumptions/limits`: consumption limits of the active space. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions/limits')({
@@ -21,7 +22,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/consumptions
   loader: async ({ params: { spaceId }, context: { queryClient }, deps: { view: _view, ...query } }) => {
     await Promise.all([
       queryClient.query({
-        ...limitsOptions.listQueryOptions(spaceId, { ...query, pageSize: 10 }),
+        ...limitsOptions.listQueryOptions(spaceId, { ...query, pageSize: tablePageSize }),
         staleTime: 'static',
       }),
       queryClient.query({ ...resourcesOptions.listQueryOptions(spaceId), staleTime: 'static' }),
@@ -40,8 +41,10 @@ function LimitsPage() {
     <div data-guide='limits' className='pt-6'>
       <LimitsSection
         view={view}
-        query={{ ...query, pageSize: 10 }}
-        onQueryChange={(next) => void navigate({ search: { ...next, view }, replace: next.search !== query.search })}
+        query={{ ...query, pageSize: tablePageSize }}
+        onQueryChange={({ pageSize: _pageSize, ...next }) =>
+          void navigate({ search: { ...next, view }, replace: next.search !== query.search })
+        }
         onViewChange={(nextView) => void navigate({ search: (previous) => ({ ...previous, view: nextView }) })}
       />
     </div>

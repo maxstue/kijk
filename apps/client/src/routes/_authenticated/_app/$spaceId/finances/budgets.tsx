@@ -30,7 +30,6 @@ const BudgetStatistics = lazy(() =>
 );
 
 const searchSchema = z.object({
-  statisticsView: z.enum(['chart', 'table']).default('chart').catch('chart'),
   view: z.enum(['budgets', 'spending']).default('budgets'),
   month: z
     .number()
@@ -62,7 +61,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/bud
 });
 
 function BudgetsPage() {
-  const { month, view, year, statisticsView } = Route.useSearch();
+  const { month, view, year } = Route.useSearch();
   const navigate = Route.useNavigate();
   const canPlanShared = useSpacePermission(SpacePermissions.budgets.plan);
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
@@ -121,14 +120,7 @@ function BudgetsPage() {
         <TabsContent className='space-y-6' value='spending'>
           <BudgetOverview month={month} view='spending' year={year} />
           <Suspense fallback={<Loader className='h-6 w-6' />}>
-            <BudgetStatistics
-              month={month}
-              year={year}
-              view={statisticsView}
-              onViewChange={(statisticsView) =>
-                void navigate({ search: (previous) => ({ ...previous, statisticsView }) })
-              }
-            />
+            <BudgetStatistics month={month} year={year} />
           </Suspense>
         </TabsContent>
       </Tabs>

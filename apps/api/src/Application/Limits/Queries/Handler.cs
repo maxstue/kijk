@@ -26,14 +26,17 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             query = query.Where(item => EF.Functions.ILike(item.Name, pattern, PagingExtensions.LikeEscape)
                 || EF.Functions.Like(item.Resource.Name, pattern, PagingExtensions.LikeEscape));
         }
+
         if (resourceId is not null)
         {
             query = query.Where(item => item.ResourceId == resourceId);
         }
+
         if (period is not null)
         {
             query = query.Where(item => item.Period == period);
         }
+
         var ordered = request.Sort switch
         {
             LimitSort.Name => query.OrderBy(item => item.Name, request.Descending),

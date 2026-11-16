@@ -3,7 +3,7 @@ namespace Kijk.Application.Imports.Queries;
 /// <summary>The columns of the import history.</summary>
 public enum ImportSort
 {
-    /// <summary>Upload time.</summary>
+    /// <summary>Upload time; also the order when no sort is requested.</summary>
     CreatedAt,
     /// <summary>Uploaded file name.</summary>
     FileName,

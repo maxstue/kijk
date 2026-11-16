@@ -27,14 +27,12 @@ interface Trend {
 }
 
 interface Props {
-  view: 'chart' | 'table';
-  onViewChange: (view: 'chart' | 'table') => void;
   month: number;
   year: number;
 }
 
 /** Spending per category over the last twelve months up to the given month, as small multiples or table. */
-export function BudgetStatistics({ month, year, view, onViewChange }: Props) {
+export function BudgetStatistics({ month, year }: Props) {
   const spaceId = useSpaceId();
   const { data } = useSuspenseQuery(budgetsOptions.statisticsQueryOptions(spaceId, year, month, monthsShown));
   if (data.months.length === 0) {
@@ -77,14 +75,7 @@ export function BudgetStatistics({ month, year, view, onViewChange }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs
-          value={view}
-          onValueChange={(next) => {
-            if (next === 'chart' || next === 'table') {
-              onViewChange(next);
-            }
-          }}
-        >
+        <Tabs defaultValue='chart'>
           <TabsList>
             <TabsTrigger value='chart'>Chart</TabsTrigger>
             <TabsTrigger value='table'>Table</TabsTrigger>

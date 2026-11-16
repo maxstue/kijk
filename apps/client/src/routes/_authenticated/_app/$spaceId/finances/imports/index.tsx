@@ -15,6 +15,7 @@ import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import { listSearchSchema } from '@/shared/lib/list-search';
+import { tablePageSize } from '@/shared/lib/table-query';
 
 /** Import history with entry points for the wizard and space settings. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/')({
@@ -32,7 +33,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
   loaderDeps: ({ search }) => search,
   loader: async ({ params: { spaceId }, context: { queryClient }, deps }) => {
     await queryClient.query({
-      ...importsOptions.listQueryOptions(spaceId, { ...deps, pageSize: 10 }),
+      ...importsOptions.listQueryOptions(spaceId, { ...deps, pageSize: tablePageSize }),
       staleTime: 'static',
     });
   },
@@ -76,8 +77,8 @@ function ImportsPage() {
         </PageToolbarActions>
       </PageToolbar>
       <ImportList
-        query={{ ...search, pageSize: 10 }}
-        onQueryChange={(query) =>
+        query={{ ...search, pageSize: tablePageSize }}
+        onQueryChange={({ pageSize: _pageSize, ...query }) =>
           void navigate({ search: { ...search, ...query }, replace: query.search !== search.search })
         }
       />

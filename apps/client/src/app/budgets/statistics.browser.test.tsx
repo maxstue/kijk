@@ -1,6 +1,5 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
 import { expect, test } from 'vite-plus/test';
 
 import { render } from '@/test/render-space';
@@ -40,7 +39,7 @@ test('shows a small chart per category, the uncategorized spending and a table v
 
   const screen = await render(
     <QueryClientProvider client={client}>
-      <TestStatistics />
+      <BudgetStatistics month={10} year={2026} />
     </QueryClientProvider>,
   );
 
@@ -78,7 +77,7 @@ test('leaves gaps in the budget reference line for months without a budget', asy
 
   const screen = await render(
     <QueryClientProvider client={client}>
-      <TestStatistics />
+      <BudgetStatistics month={10} year={2026} />
     </QueryClientProvider>,
   );
   const chart = screen.getByRole('img', { name: 'Groceries: spending and budget over time' });
@@ -88,8 +87,3 @@ test('leaves gaps in the budget reference line for months without a budget', asy
   await screen.unmount();
   client.clear();
 });
-
-function TestStatistics() {
-  const [view, setView] = useState<'chart' | 'table'>('chart');
-  return <BudgetStatistics month={10} year={2026} view={view} onViewChange={setView} />;
-}

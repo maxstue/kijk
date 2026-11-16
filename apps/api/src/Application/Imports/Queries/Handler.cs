@@ -33,19 +33,22 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             query = query.Where(item => EF.Functions.ILike(item.FileName, pattern, PagingExtensions.LikeEscape)
                 || EF.Functions.ILike(item.Account.Name, pattern, PagingExtensions.LikeEscape));
         }
+
         if (status is not null)
         {
             query = query.Where(item => item.Status == status);
         }
+
         if (accountId is not null)
         {
             query = query.Where(item => item.AccountId == accountId);
         }
+
         var ordered = request.Sort switch
         {
             ImportSort.FileName => query.OrderBy(item => item.FileName, request.Descending),
             ImportSort.Account => query.OrderBy(item => item.Account.Name, request.Descending),
-            _ => query.OrderBy(item => item.CreatedAt, request.Sort is null || request.Descending)
+            _ => query.OrderBy(item => item.CreatedAt, request.Descending)
         };
         var page = await ordered.ThenBy(item => item.Id).ToPageAsync(request.Page, request.PageSize, cancellationToken);
         return page.Map(job => job.ToResponse());
@@ -136,12 +139,11 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             return Error.NotFound("Import could not be found");
         }
 
-        var (page, pageSize, months, cardSettlementsOnly, search, filter) = request;
         var all = dbContext.ImportCandidates.Where(item => item.ImportJobId == id);
         var query = all;
-        if (months is not null)
+        if (request.Months is not null)
         {
-            var selected = FilterMonths(query, job, months);
+            var selected = FilterMonths(query, job, request.Months);
             if (selected.IsError)
             {
                 return selected.Error;
@@ -155,33 +157,13 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
             Included = group.Count(item => item.Errors == null && !item.Excluded),
             CardSettlements = group.Count(item => item.Errors == null && !item.Excluded && item.IsCardSettlement)
         }).SingleOrDefaultAsync(cancellationToken);
-        if (cardSettlementsOnly)
-        {
-            query = query.Where(item => item.Errors == null && !item.Excluded && item.IsCardSettlement);
-        }
 
-        if (filter == CandidateFilter.Errors && !cardSettlementsOnly)
-        {
-            // Unreadable dates cannot be assigned to a selected month; show all error rows for diagnosis.
-            query = all.Where(item => item.Errors != null);
-        }
-        // Display filters must not change the summary used by the commit action.
-        if (search.ToContainsPattern() is { } pattern)
-        {
-            query = query.Where(item => item.Counterparty != null && EF.Functions.ILike(item.Counterparty, pattern, PagingExtensions.LikeEscape)
-                || item.Purpose != null && EF.Functions.ILike(item.Purpose, pattern, PagingExtensions.LikeEscape));
-        }
-        query = filter switch
-        {
-            CandidateFilter.Uncategorized => query.Where(item => item.Errors == null && item.CategoryId == null),
-            CandidateFilter.Errors => query.Where(item => item.Errors != null),
-            CandidateFilter.Excluded => query.Where(item => item.Excluded),
-            _ => query
-        };
+        // Display filters run after the summary, so they never change what the commit action saves.
+        query = ApplyDisplayFilters(query, all, request);
         var totalCount = await query.CountAsync(cancellationToken);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        var pageSize = Math.Clamp(request.PageSize, 1, 100);
         var lastPage = Math.Max(1, (totalCount + pageSize - 1) / pageSize);
-        page = Math.Clamp(page, 1, lastPage);
+        var page = Math.Clamp(request.Page, 1, lastPage);
         var items = await query.OrderBy(item => item.Errors == null).ThenBy(item => item.RowNumber).ThenBy(item => item.Id)
             .Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToResponses().ToListAsync(cancellationToken);
         var errors = await all.Where(item => item.Errors != null).OrderBy(item => item.RowNumber).ThenBy(item => item.Id)
@@ -189,6 +171,28 @@ public sealed class QueriesHandler(IAppDbContext dbContext, CurrentUser currentU
 
         return new ImportCandidatePageResponse(items, totalCount, page, pageSize,
             summary?.Included ?? 0, job.ErrorCount, errors, summary?.CardSettlements ?? 0);
+    }
+
+    private static IQueryable<ImportCandidate> ApplyDisplayFilters(
+        IQueryable<ImportCandidate> selected,
+        IQueryable<ImportCandidate> all,
+        CandidatesRequest request)
+    {
+        var query = request switch
+        {
+            // The card statement list ignores the review filter.
+            { CardSettlementsOnly: true } => selected.Where(item => item.Errors == null && !item.Excluded && item.IsCardSettlement),
+            // Unreadable dates cannot be assigned to a selected month; show the error rows of the whole file.
+            { Filter: CandidateFilter.Errors } => all.Where(item => item.Errors != null),
+            { Filter: CandidateFilter.Uncategorized } => selected.Where(item => item.Errors == null && item.CategoryId == null),
+            { Filter: CandidateFilter.Excluded } => selected.Where(item => item.Excluded),
+            _ => selected
+        };
+
+        return request.Search.ToContainsPattern() is { } pattern
+            ? query.Where(item => item.Counterparty != null && EF.Functions.ILike(item.Counterparty, pattern, PagingExtensions.LikeEscape)
+                                  || item.Purpose != null && EF.Functions.ILike(item.Purpose, pattern, PagingExtensions.LikeEscape))
+            : query;
     }
 
     private static Result<IQueryable<ImportCandidate>> FilterMonths(IQueryable<ImportCandidate> query, ImportJob job, string months)

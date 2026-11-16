@@ -1,21 +1,29 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kijk/ui/components/select';
 
-interface Props {
+/** A choice of a list filter or sort order. */
+export interface ListOption<TValue extends string> {
+  value: TValue;
   label: string;
-  allowAll?: boolean;
-  value?: string;
-  options: ReadonlyArray<{ value: string; label: string }>;
-  onChange: (value: string | undefined) => void;
+}
+
+/** Select value of the all-items choice; never a filter value. */
+const allValue = '__all__';
+
+interface Props<TValue extends string> {
+  label: string;
+  value?: TValue;
+  options: ReadonlyArray<ListOption<TValue>>;
+  onChange: (value: TValue | undefined) => void;
 }
 
 /** An optional list filter with an explicit all-items choice. */
-export function ListFilter({ label, value, options, onChange, allowAll = true }: Props) {
-  const items = allowAll ? [{ value: 'all', label: `All ${label.toLowerCase()}` }, ...options] : [...options];
+export function ListFilter<TValue extends string>({ label, value, options, onChange }: Props<TValue>) {
+  const items = [{ value: allValue, label: `All ${label.toLowerCase()}` }, ...options];
   return (
     <Select
       items={items}
-      value={value ?? 'all'}
-      onValueChange={(next) => onChange(next === 'all' || next === null ? undefined : next)}
+      value={value ?? allValue}
+      onValueChange={(next) => onChange(options.find((option) => option.value === next)?.value)}
     >
       <SelectTrigger aria-label={label}>
         <SelectValue />

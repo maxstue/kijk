@@ -8,7 +8,7 @@ import { listPage } from '@/test/list-page';
 import { worker } from '@/test/mocks/browser';
 import { renderRoute } from '@/test/render-route';
 
-test('restores the review step, open panels and independent card-statement page from the URL', async () => {
+test('applies the review page and search from the URL and keeps them on reload', async () => {
   const requests: URLSearchParams[] = [];
   worker.use(
     http.get('http://localhost:5000/api/spaces/space/imports/import/candidates', ({ request }) => {
@@ -41,38 +41,27 @@ test('restores the review step, open panels and independent card-statement page 
       });
     }),
   );
-  const initialEntry =
-    '/space/finances/imports/import?reviewStage=review&adjustmentsOpen=true&cardOpen=true&cardPage=3&page=2&search=bank';
+  const initialEntry = '/space/finances/imports/import?page=2&search=bank';
   const { screen, router, cleanup } = await renderRoute({ initialEntry, overviewRoute: appRoute, seedQueryClient });
-  const cards = screen.getByRole('navigation', { name: 'Card statement pages' });
-  await expect.element(cards).toBeVisible();
-  await expect
-    .poll(() =>
-      requests
-        .filter((query) => query.get('cardSettlementsOnly') === 'true')
-        .at(-1)
-        ?.get('page'),
-    )
-    .toBe('3');
-  expect(
-    requests.every((query) => !query.has('cardOpen') && !query.has('reviewStage') && !query.has('adjustmentsOpen')),
-  ).toBe(true);
-  await cards.getByRole('button', { name: 'Next rows' }).click();
-  await expect.poll(() => router.state.location.search.cardPage).toBe(4);
-  expect(router.state.location.search.page).toBe(2);
+  await screen.getByRole('button', { name: 'Continue to review' }).click();
+  await screen.getByRole('button', { name: 'Adjust transactions' }).click();
+
+  const pages = screen.getByRole('navigation', { name: 'Transaction pages' });
+  await expect.element(pages).toBeVisible();
+  const reviewRequest = () => requests.filter((query) => query.get('cardSettlementsOnly') !== 'true').at(-1);
+  await expect.poll(() => reviewRequest()?.get('page')).toBe('2');
+  expect(reviewRequest()?.get('search')).toBe('bank');
+  await expect.element(screen.getByRole('searchbox', { name: 'Search review transactions' })).toHaveValue('bank');
+
+  await pages.getByRole('button', { name: 'Next rows' }).click();
+  await expect.poll(() => router.state.location.search.page).toBe(3);
   router.history.back();
-  await expect.poll(() => router.state.location.search.cardPage).toBe(3);
+  await expect.poll(() => router.state.location.search.page).toBe(2);
+
   const url = router.state.location.href;
   await cleanup();
   const restored = await renderRoute({ initialEntry: url, overviewRoute: appRoute, seedQueryClient });
-  await expect.element(restored.screen.getByRole('navigation', { name: 'Card statement pages' })).toBeVisible();
-  expect(restored.router.state.location.search).toMatchObject({
-    page: 2,
-    cardPage: 3,
-    cardOpen: true,
-    adjustmentsOpen: true,
-    reviewStage: 'review',
-  });
+  expect(restored.router.state.location.search).toMatchObject({ page: 2, search: 'bank' });
 });
 
 function seedQueryClient(client: QueryClient) {

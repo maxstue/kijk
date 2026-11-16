@@ -11,10 +11,6 @@ import { listSearchSchema } from '@/shared/lib/list-search';
 /** `/finances/imports/$importId`: the steps of one import, from column mapping to review. */
 export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imports/$importId')({
   validateSearch: listSearchSchema.extend({
-    reviewStage: z.enum(['months', 'review']).default('months').catch('months'),
-    adjustmentsOpen: z.boolean().default(false).catch(false),
-    cardPage: z.coerce.number().int().min(1).max(2147483647).default(1).catch(1),
-    cardOpen: z.boolean().default(false).catch(false),
     filter: z.enum(['Uncategorized', 'Errors', 'Excluded']).optional().catch(undefined),
   }),
   loader: async ({ context: { queryClient }, params }) => {

@@ -10,11 +10,14 @@ import { Link } from '@tanstack/react-router';
 import { ImportStatusBadge } from '@/app/imports/status-badge';
 import { ListFilter } from '@/shared/components/list-filter';
 import { ListPagination } from '@/shared/components/list-pagination';
+import { ListSort } from '@/shared/components/list-sort';
 import { SearchInput } from '@/shared/components/search-input';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { formatDateTime } from '@/shared/utils/format';
 
-import { importStatusLabels } from './constants';
+import { importSortOrders, importStatusOptions } from './constants';
+
+const sortOrderKeys = Object.keys(importSortOrders) as Array<keyof typeof importSortOrders>;
 
 interface Props {
   query: ImportsQuery;
@@ -27,6 +30,10 @@ export function ImportList({ query, onQueryChange }: Props) {
   const { data, isFetching, isPending, isError, refetch } = useQuery(importsOptions.listQueryOptions(spaceId, query));
   const { data: accounts } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
   const update = (change: Partial<ImportsQuery>) => onQueryChange({ ...query, ...change, page: 1 });
+  const sortOrder =
+    sortOrderKeys.find(
+      (key) => importSortOrders[key].sort === query.sort && importSortOrders[key].descending === query.descending,
+    ) ?? 'newest';
 
   return (
     <Card>
@@ -41,8 +48,8 @@ export function ImportList({ query, onQueryChange }: Props) {
           <ListFilter
             label='Statuses'
             value={query.status}
-            options={Object.entries(importStatusLabels).map(([value, label]) => ({ value, label }))}
-            onChange={(status) => update({ status: status as ImportsQuery['status'] })}
+            options={importStatusOptions}
+            onChange={(status) => update({ status })}
           />
           <ListFilter
             label='Accounts'
@@ -50,19 +57,12 @@ export function ImportList({ query, onQueryChange }: Props) {
             options={accounts.items.map((account) => ({ value: account.id, label: account.name }))}
             onChange={(accountId) => update({ accountId })}
           />
-          <ListFilter
-            label='Sort order'
-            allowAll={false}
-            value={`${query.sort ?? 'CreatedAt'}:${query.descending ?? true}`}
-            options={[
-              { value: 'CreatedAt:true', label: 'Newest first' },
-              { value: 'CreatedAt:false', label: 'Oldest first' },
-              { value: 'FileName:false', label: 'File name' },
-              { value: 'Account:false', label: 'Account name' },
-            ]}
+          <ListSort
+            value={sortOrder}
+            options={sortOrderKeys.map((value) => ({ value, label: importSortOrders[value].label }))}
             onChange={(value) => {
-              const [sort, descending] = (value ?? 'CreatedAt:true').split(':');
-              update({ sort: sort as ImportsQuery['sort'], descending: descending === 'true' });
+              const { sort, descending } = importSortOrders[value];
+              update({ sort, descending });
             }}
           />
         </div>

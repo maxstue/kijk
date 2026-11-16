@@ -1,5 +1,5 @@
 import * as limitsOptions from '@kijk/api/limits/options';
-import type { LimitsQuery } from '@kijk/api/limits/types';
+import type { LimitSort, LimitsQuery } from '@kijk/api/limits/types';
 import * as resourcesOptions from '@kijk/api/resources/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
@@ -18,7 +18,9 @@ import { Gauge, LayoutGrid, List } from 'lucide-react';
 import { useState } from 'react';
 
 import { ListFilter } from '@/shared/components/list-filter';
+import type { ListOption } from '@/shared/components/list-filter';
 import { ListPagination } from '@/shared/components/list-pagination';
+import { ListSort } from '@/shared/components/list-sort';
 import { PageAddButton } from '@/shared/components/page-header';
 import { PageToolbar, PageToolbarActions, PageToolbarControls } from '@/shared/components/page-toolbar';
 import { SearchInput } from '@/shared/components/search-input';
@@ -30,6 +32,12 @@ import { LimitForm } from './form';
 import { periods } from './schemas';
 import type { LimitSelection, LimitsView } from './types';
 import { LimitsGrid, LimitsList } from './views';
+
+const limitSortOptions = [
+  { value: 'Resource', label: 'Resource' },
+  { value: 'Name', label: 'Name' },
+  { value: 'Period', label: 'Period' },
+] as const satisfies ReadonlyArray<ListOption<LimitSort>>;
 
 interface Props {
   view: LimitsView;
@@ -76,19 +84,9 @@ export function LimitsSection({ view, onViewChange, query, onQueryChange }: Prop
             label='Periods'
             value={query.period}
             options={periods.map((value) => ({ value, label: value }))}
-            onChange={(period) => update({ period: period as LimitsQuery['period'] })}
+            onChange={(period) => update({ period })}
           />
-          <ListFilter
-            label='Sort order'
-            allowAll={false}
-            value={query.sort ?? 'Resource'}
-            options={[
-              { value: 'Resource', label: 'Resource' },
-              { value: 'Name', label: 'Name' },
-              { value: 'Period', label: 'Period' },
-            ]}
-            onChange={(sort) => update({ sort: sort as LimitsQuery['sort'] })}
-          />
+          <ListSort value={query.sort ?? 'Resource'} options={limitSortOptions} onChange={(sort) => update({ sort })} />
           <ToggleGroup
             aria-label='Limits view'
             variant='outline'
