@@ -173,3 +173,15 @@ test('shows a refresh failure and retry alongside cached rows', async () => {
   await expect.element(rendered.getByRole('alert')).not.toBeInTheDocument();
   expect(renderedNames(rendered.container)).toHaveLength(10);
 });
+
+test('shows one empty state without pagination when nothing matches', async () => {
+  const { screen } = renderTable();
+  const rendered = await screen;
+  await expect.poll(() => renderedNames(rendered.container)).toHaveLength(10);
+
+  await rendered.getByRole('searchbox', { name: 'Search name...' }).fill('missing');
+  await rendered.getByRole('button', { name: 'Search' }).click();
+
+  await expect.element(rendered.getByText('No results.')).toBeVisible();
+  expect(rendered.getByRole('navigation', { name: 'List pages' }).query()).toBeNull();
+});

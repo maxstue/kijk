@@ -143,7 +143,7 @@ export function DataTable<
           </TableBody>
         </Table>
       </div>
-      {data && (
+      {data && Number(data.totalCount) > 0 && (
         <ListPagination
           page={data.page}
           pageSize={data.pageSize}

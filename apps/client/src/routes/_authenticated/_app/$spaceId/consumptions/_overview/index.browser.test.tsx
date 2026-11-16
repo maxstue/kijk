@@ -29,6 +29,7 @@ test('restores the resource filter from URL and history', async () => {
   await expect
     .element(restored.screen.getByRole('combobox', { name: 'Filter consumptions by type' }))
     .toHaveTextContent('Water');
+  expect(restored.router.state.location.search).toMatchObject({ resourceId: 'water' });
 });
 
 function seedQueryClient(client: QueryClient) {

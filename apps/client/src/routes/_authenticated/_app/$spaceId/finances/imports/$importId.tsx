@@ -1,6 +1,6 @@
 import * as categoriesOptions from '@kijk/api/categories/options';
 import * as importsOptions from '@kijk/api/imports/options';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { ImportDetail } from '@/app/imports/import-detail';
@@ -13,6 +13,7 @@ export const Route = createFileRoute('/_authenticated/_app/$spaceId/finances/imp
   validateSearch: listSearchSchema.extend({
     filter: z.enum(['Uncategorized', 'Errors', 'Excluded']).optional().catch(undefined),
   }),
+  search: { middlewares: [stripSearchParams({ page: 1, search: '' })] },
   loader: async ({ context: { queryClient }, params }) => {
     await Promise.all([
       queryClient.query({
