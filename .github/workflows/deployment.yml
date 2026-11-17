@@ -73,7 +73,7 @@ jobs:
       - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: '🔐 Load database secrets'
+      - name: '🔐 Load secrets'
         uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
         with:
           method: oidc
@@ -82,16 +82,6 @@ jobs:
           domain: https://eu.infisical.com
           env-slug: prod
           secret-path: /CI/Database
-
-      - name: '🔐 Load Railway secrets'
-        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
-        with:
-          method: oidc
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
-          domain: https://eu.infisical.com
-          env-slug: prod
-          secret-path: /CI/Deploy
 
       - name: '🗃️ Build and apply migrations'
         uses: ./.github/actions/migrate-database
