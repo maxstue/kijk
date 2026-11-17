@@ -71,28 +71,34 @@ runs:
 
         # The Railway CLI picks up registered keys from ~/.ssh.
         ssh_key="$HOME/.ssh/id_ed25519"
+        tunnel_log="$(mktemp)"
         tunnel_pid=''
 
         cleanup() {
           if [ -n "$tunnel_pid" ]; then
             kill "$tunnel_pid" 2>/dev/null || true
           fi
-          rm -f "$ssh_key"
+          rm -f "$ssh_key" "$tunnel_log"
         }
         trap cleanup EXIT
+
+        # The tunnel prints the database credentials; GitHub only masks the whole connection string.
+        db_password="$(printf '%s' "$API_MIGRATION_CONNECTION" | sed -nE 's/^(.*;)?[[:space:]]*(password|pwd)[[:space:]]*=[[:space:]]*([^;]*[^;[:space:]])[[:space:]]*(;.*)?$/\3/Ip')"
+        if [ -n "$db_password" ]; then
+          echo "::add-mask::$db_password"
+        fi
 
         install -d -m 700 "$HOME/.ssh"
         printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$ssh_key"
         chmod 600 "$ssh_key"
         unset RAILWAY_SSH_PRIVATE_KEY
 
-        # The tunnel prints the database credentials, so its output is discarded.
         railway connect Postgres \
           --tunnel-only \
           --project "$RAILWAY_PROJECT_ID" \
           --environment "$RAILWAY_ENVIRONMENT_ID" \
           --port "$TUNNEL_PORT" \
-          > /dev/null 2>&1 &
+          > "$tunnel_log" 2>&1 &
         tunnel_pid=$!
 
         ready=false
@@ -110,7 +116,8 @@ runs:
         done
 
         if [ "$ready" != true ]; then
-          echo "::error title=Database migration::Could not open the SSH tunnel to the database. Run 'railway connect Postgres --tunnel-only' locally with the CI key to inspect the error."
+          cat "$tunnel_log"
+          echo "::error title=Database migration::Could not open the SSH tunnel to the database."
           exit 1
         fi
 
