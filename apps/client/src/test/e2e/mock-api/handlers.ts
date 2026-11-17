@@ -105,6 +105,20 @@ let dashboardScenario: DashboardScenario = {
   sparseReadings: false,
   manyThresholds: false,
 };
+/** Answers like a list endpoint: searches names, and pages only when the request names a page. */
+function toListPage<TItem extends { name?: string }>(items: TItem[], request: Request) {
+  const query = new URL(request.url).searchParams;
+  const search = query.get('search')?.toLowerCase();
+  const matching = search ? items.filter((item) => item.name?.toLowerCase().includes(search)) : items;
+  if (!query.has('page') && !query.has('pageSize')) {
+    return { items: matching, page: 1, pageSize: matching.length, totalCount: matching.length };
+  }
+  const pageSize = Number(query.get('pageSize') ?? 10);
+  const page = Math.min(Number(query.get('page') ?? 1), Math.max(1, Math.ceil(matching.length / pageSize)));
+  const start = (page - 1) * pageSize;
+  return { items: matching.slice(start, start + pageSize), page, pageSize, totalCount: matching.length };
+}
+
 export function configureDashboard(scenario: Partial<DashboardScenario>) {
   dashboardScenario = { ...dashboardScenario, ...scenario };
 }
@@ -147,9 +161,10 @@ export const handlers = [
     };
     return HttpResponse.json(guide);
   }),
-  ...['accounts', 'categories', 'category-rules', 'budgets', 'imports'].map((feature) =>
-    http.get(`*/api/spaces/:spaceId/${feature}`, () => HttpResponse.json([])),
+  ...['accounts', 'categories', 'category-rules'].map((feature) =>
+    http.get(`*/api/spaces/:spaceId/${feature}`, ({ request }) => HttpResponse.json(toListPage([], request))),
   ),
+  ...['budgets'].map((feature) => http.get(`*/api/spaces/:spaceId/${feature}`, () => HttpResponse.json([]))),
   http.get('*/api/spaces/:spaceId/transactions', () =>
     HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 25, incoming: 0, outgoing: 0 }),
   ),
@@ -172,7 +187,11 @@ export const handlers = [
   http.get('*/api/spaces/:spaceId/consumptions/years', () =>
     HttpResponse.json({ years: dashboardScenario.empty ? [] : [2025, 2026] }),
   ),
-  http.get('*/api/spaces/:spaceId/limits', () => HttpResponse.json([])),
+  ...['limits', 'imports'].map((feature) =>
+    http.get(`*/api/spaces/:spaceId/${feature}`, () =>
+      HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 10 }),
+    ),
+  ),
   http.get('*/api/users/me', () => HttpResponse.json(getCurrentUser())),
   http.get('*/api/users/me/features', () =>
     HttpResponse.json({ aiImport: true, finances: dashboardScenario.finances }),
@@ -341,8 +360,8 @@ export const handlers = [
     defaultSpaceId = spaceId;
     return HttpResponse.json(getCurrentUser());
   }),
-  http.get('*/api/spaces/:spaceId/resources', ({ params }) =>
-    HttpResponse.json(resources.get(String(params.spaceId)) ?? []),
+  http.get('*/api/spaces/:spaceId/resources', ({ params, request }) =>
+    HttpResponse.json(toListPage(resources.get(String(params.spaceId)) ?? [], request)),
   ),
   http.post('*/api/spaces/:spaceId/resources', async ({ request, params }) => {
     const data = (await request.json()) as ResourceData;

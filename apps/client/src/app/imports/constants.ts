@@ -1,4 +1,4 @@
-import type { CsvImportMapping, ImportJobStatus } from '@kijk/api/imports/types';
+import type { CsvImportMapping, ImportJobStatus, ImportSort } from '@kijk/api/imports/types';
 
 /** Mapping fields that point to a column, with the label shown in the column dropdown. */
 export const columnRoles = [
@@ -51,3 +51,16 @@ export const importStatusLabels: Record<ImportJobStatus, string> = {
   Pending: 'Queued',
   Reading: 'Reading file',
 };
+
+/** The status filter choices of the import history. */
+export const importStatusOptions = (Object.entries(importStatusLabels) as Array<[ImportJobStatus, string]>).map(
+  ([value, label]) => ({ value, label }),
+);
+
+/** Sort orders of the import history; the newest imports come first by default. */
+export const importSortOrders = {
+  newest: { label: 'Newest first', sort: 'CreatedAt', descending: true },
+  oldest: { label: 'Oldest first', sort: 'CreatedAt', descending: false },
+  fileName: { label: 'File name', sort: 'FileName', descending: false },
+  account: { label: 'Account name', sort: 'Account', descending: false },
+} as const satisfies Record<string, { label: string; sort: ImportSort; descending: boolean }>;

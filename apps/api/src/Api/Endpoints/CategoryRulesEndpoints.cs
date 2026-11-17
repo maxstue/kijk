@@ -5,6 +5,7 @@ using Kijk.Application.CategoryRules.Delete;
 using Kijk.Application.CategoryRules.List;
 using Kijk.Application.CategoryRules.Shared;
 using Kijk.Application.CategoryRules.Suggestions;
+using Kijk.Application.Shared.Paging;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -24,16 +25,20 @@ public sealed class CategoryRulesEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .RequireFeature(AppConstants.Features.Finances);
 
-        group.MapGet("/", List).WithName("CategoryRules.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the remembered category corrections of the active space");
+        group.MapGet("/", List).WithName("CategoryRules.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the remembered category corrections of the active space, optionally searched by label or category, sorted and paged");
         group.MapGet("/suggestions", Suggestions).WithName("CategoryRules.Suggestions").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Suggests rules from repeated manual corrections; remembering the suggested transaction's category creates the rule");
         group.MapDelete("/{id:guid}", Delete).WithName("CategoryRules.Delete").RequireSpacePermission(SpacePermissions.Finances.Record).WithSummary("Deletes a remembered category correction");
 
         return builder;
     }
 
-    private static async Task<Results<Ok<List<CategoryRuleResponse>>, ProblemHttpResult>> List(ListHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<PageResponse<CategoryRuleResponse>>, ProblemHttpResult>> List(
+        ListHandler handler,
+        [AsParameters] ListQueryParameters<CategoryRuleSort> query,
+        [AsParameters] PageParameters paging,
+        CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(paging), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

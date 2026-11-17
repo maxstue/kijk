@@ -1,11 +1,11 @@
 import { apiClient } from '@kijk/api/client';
 import { limitsCreate, limitsDelete, limitsList, limitsUpdate } from '@kijk/api/generated/sdk';
 
-import type { CreateLimitRequest, UpdateLimitData } from './types';
+import type { LimitsQuery, CreateLimitRequest, UpdateLimitData } from './types';
 
 /** Loads the limits of the active space with their current evaluation. */
-export async function list(spaceId: string, signal?: AbortSignal) {
-  return limitsList({ client: apiClient(), path: { spaceId }, signal });
+export async function list(spaceId: string, query: LimitsQuery = {}, signal?: AbortSignal) {
+  return limitsList({ client: apiClient(), path: { spaceId }, query, signal });
 }
 
 /** Creates a limit and returns it with its evaluation. */

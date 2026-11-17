@@ -1,4 +1,5 @@
 import { invalidate } from '@kijk/api/cache';
+import { keepPreviousPageInSpace } from '@kijk/api/paging';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
@@ -19,6 +20,7 @@ import {
   updateSettings,
 } from './requests';
 import type {
+  ImportsQuery,
   CategorizeImportRequest,
   CommitImportRequest,
   CreateImportData,
@@ -39,10 +41,11 @@ export const isProcessing = (status: ImportJobStatus | undefined) =>
   status !== undefined && processingStatuses.has(status);
 
 /** Query for the latest imports of the active space. */
-export const listQueryOptions = (spaceId: string) =>
+export const listQueryOptions = (spaceId: string, query: ImportsQuery = {}) =>
   queryOptions({
-    queryFn: ({ signal }) => list(spaceId, signal),
-    queryKey: queryKeys.imports.list(spaceId),
+    queryFn: ({ signal }) => list(spaceId, query, signal),
+    queryKey: queryKeys.imports.list(spaceId, query),
+    placeholderData: keepPreviousPageInSpace<Awaited<ReturnType<typeof list>>>(spaceId),
   });
 
 /** Polls a processing import and reloads its review rows when categorization finishes. */
@@ -105,7 +108,7 @@ export const startMutationOptions = (spaceId: string) =>
   mutationOptions({
     mutationFn: (data: CreateImportData) => start(spaceId, data),
     onSuccess: (_data, _variables, _result, { client }) =>
-      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.imports.list(spaceId)),
+      invalidate(client, queryKeys.dashboard.all(spaceId), queryKeys.imports.all(spaceId)),
   });
 
 /** Mutation that confirms a column mapping. */

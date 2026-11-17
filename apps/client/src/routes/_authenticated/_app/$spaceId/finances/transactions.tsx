@@ -27,9 +27,11 @@ import { TransactionViewTabs } from '@/app/transactions/view-tabs';
 import { RouteError } from '@/shared/components/errors/route-error';
 import { PageAddButton } from '@/shared/components/page-header';
 import { PageToolbarControls, PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
+import { SearchInput } from '@/shared/components/search-input';
 import { Loader } from '@/shared/components/ui/loaders/loader';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import { maxSearchLength } from '@/shared/lib/list-search';
 
 const searchSchema = z.object({
   categoryIds: z.array(z.string()).optional(),
@@ -42,6 +44,7 @@ const searchSchema = z.object({
   page: z.number().int().min(1).optional(),
   // Unknown sizes, e.g. from an edited URL, fall back to the default.
   pageSize: z.literal(transactionPageSizes).optional().catch(undefined),
+  search: z.string().trim().max(maxSearchLength).optional().catch(undefined),
   uncategorized: z.boolean().optional(),
   year: z.number().int().min(2000).max(9999).default(new Date().getFullYear()),
 });
@@ -51,10 +54,17 @@ const currentMonth = () => new Date().getMonth() + 1;
 
 /**
  * The list's filters: the month of the search params, optionally only its uncategorized transactions or only those in
- * the selected categories. The two exclude each other, so the category filter only applies to all transactions.
+ * the selected categories, narrowed by the search. Uncategorized and categories exclude each other, so the category
+ * filter only applies to all transactions.
  */
-function toFilters({ categoryIds, month, uncategorized, year }: z.infer<typeof searchSchema>) {
-  return { categoryIds: uncategorized ? undefined : categoryIds, month, uncategorized, year };
+function toFilters({ categoryIds, month, search, uncategorized, year }: z.infer<typeof searchSchema>) {
+  return {
+    categoryIds: uncategorized ? undefined : categoryIds,
+    month,
+    search: search || undefined,
+    uncategorized,
+    year,
+  };
 }
 
 /** The filters plus page and page size of the search params; changing the filters starts at the first page again. */
@@ -101,6 +111,14 @@ function TransactionsPage() {
           <ResponsiveTransactionFilters mobile={<TransactionFilterControls compact={false} />}>
             <TransactionFilterControls />
           </ResponsiveTransactionFilters>
+          <SearchInput
+            aria-label='Search transactions'
+            placeholder='Search counterparty or purpose...'
+            value={search.search ?? ''}
+            onSearch={(value) =>
+              navigate({ search: (previous) => ({ ...previous, page: undefined, search: value || undefined }) })
+            }
+          />
         </PageToolbarControls>
         <PageToolbarActions>
           <>

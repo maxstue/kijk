@@ -1,5 +1,6 @@
-import '@kijk/ui/globals.css';
 import * as importsOptions from '@kijk/api/imports/options';
+
+import '@kijk/ui/globals.css';
 import * as importsApi from '@kijk/api/imports/requests';
 import type { ImportCandidate, ImportCandidatePage, ImportCandidatesQuery, ImportJob } from '@kijk/api/imports/types';
 import { queryKeys } from '@kijk/api/query-keys';
@@ -7,10 +8,12 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import { useState } from 'react';
 import { afterEach, expect, onTestFinished, test, vi } from 'vite-plus/test';
 
+import { listPage } from '@/test/list-page';
 import { render } from '@/test/render-space';
 
 import { ImportReviewStep } from './review-step';
 import { ImportSteps } from './steps';
+import type { ReviewQuery } from './types';
 
 interface ImportAiCategorizationProps {
   onStarted?: () => void;
@@ -42,7 +45,8 @@ afterEach(() => {
 
 function ReviewHarness({ job, initialStage }: ReviewHarnessProps) {
   const [stage, setStage] = useState(initialStage);
-  return <ImportReviewStep job={job} stage={stage} onStageChange={setStage} />;
+  const [query, setQuery] = useState<ReviewQuery>({ page: 1 });
+  return <ImportReviewStep query={query} onQueryChange={setQuery} job={job} stage={stage} onStageChange={setStage} />;
 }
 
 function PolledReviewHarness() {
@@ -83,10 +87,13 @@ async function renderReview(
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
   onTestFinished(() => client.clear());
-  client.setQueryData(queryKeys.categories.list('space'), [
-    { id: 'food', name: 'Food' },
-    { id: 'shopping', name: 'Shopping' },
-  ]);
+  client.setQueryData(
+    queryKeys.categories.list('space'),
+    listPage([
+      { id: 'food', name: 'Food' },
+      { id: 'shopping', name: 'Shopping' },
+    ]),
+  );
   const rows =
     customRows ??
     (Array.from({ length: rowCount }, (_, index) => ({
@@ -526,7 +533,7 @@ test('refreshes category suggestions when background categorization finishes', a
     excluded: false,
     categoryId: null,
   } as unknown as ImportCandidate;
-  client.setQueryData(queryKeys.categories.list('space'), [{ id: 'food', name: 'Food' }]);
+  client.setQueryData(queryKeys.categories.list('space'), listPage([{ id: 'food', name: 'Food' }]));
   client.setQueryData(
     importsOptions.candidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
     candidatePage([candidate]),
@@ -567,7 +574,7 @@ test.each([360, 960])('keeps the table position stable while AI starts and finis
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
   onTestFinished(() => client.clear());
-  client.setQueryData(queryKeys.categories.list('space'), []);
+  client.setQueryData(queryKeys.categories.list('space'), listPage([]));
   client.setQueryData(
     importsOptions.candidatesQueryOptions('space', 'import', { months: '2026-09-01', page: 1 }).queryKey,
     candidatePage([]),

@@ -1,10 +1,9 @@
 import * as categoryRulesOptions from '@kijk/api/category-rules/options';
-import type { CategoryRule } from '@kijk/api/category-rules/types';
+import type { CategoryRule, CategoryRuleSort } from '@kijk/api/category-rules/types';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Sparkles } from 'lucide-react';
 
 import { CategoryRuleRowActions } from '@/app/categories/rule-row-actions';
@@ -13,6 +12,7 @@ import { PrivateBadge } from '@/shared/components/visibility-select';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
+import type { TableControlProps, TableSort } from '@/shared/lib/table-query';
 
 const ruleScopeLabels: Record<CategoryRule['scope'], string> = {
   Counterparty: 'Counterparty account',
@@ -20,7 +20,11 @@ const ruleScopeLabels: Record<CategoryRule['scope'], string> = {
   Merchant: 'Merchant name',
 };
 
-const ruleDefaultSort: ColumnSort = { desc: false, id: 'label' };
+/** Sortable columns of the rule table and its initial sort (by label). */
+export const ruleSort: TableSort<CategoryRuleSort> = {
+  columns: { categoryName: 'Category', label: 'Label' },
+  defaultSort: { desc: false, id: 'label' },
+};
 
 const getRuleColumns = (canRecord: boolean): Array<ColumnDef<DataTableFeatures, CategoryRule>> => [
   {
@@ -59,10 +63,11 @@ const getRuleColumns = (canRecord: boolean): Array<ColumnDef<DataTableFeatures, 
 ];
 
 /** Remembered category corrections that imports apply automatically, with deleting them. */
-export function CategoryRulesSection() {
+interface Props extends TableControlProps {}
+
+export function CategoryRulesSection({ search, onSearchChange }: Props) {
   const spaceId = useSpaceId();
   const canRecord = useSpacePermission(SpacePermissions.finances.record);
-  const { data: rules } = useSuspenseQuery(categoryRulesOptions.listQueryOptions(spaceId));
   const columns = getRuleColumns(canRecord);
 
   return (
@@ -82,11 +87,12 @@ export function CategoryRulesSection() {
         <CardContent>
           <div className='mt-2'>
             <DataTable
+              search={search}
+              onSearchChange={onSearchChange}
               columns={columns}
-              data={rules}
-              defaultSort={ruleDefaultSort}
-              filterColumn='label'
-              filterPlaceholder='Filter matches...'
+              queryOptions={(query) => categoryRulesOptions.listQueryOptions(spaceId, query)}
+              searchPlaceholder='Search matches or category...'
+              sort={ruleSort}
             />
           </div>
         </CardContent>

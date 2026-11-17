@@ -1,56 +1,126 @@
+import * as accountsOptions from '@kijk/api/accounts/options';
 import * as importsOptions from '@kijk/api/imports/options';
+import type { ImportsQuery } from '@kijk/api/imports/types';
+import { Button } from '@kijk/ui/components/button';
 import { Card, CardContent } from '@kijk/ui/components/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 
 import { ImportStatusBadge } from '@/app/imports/status-badge';
+import { ListFilter } from '@/shared/components/list-filter';
+import { ListPagination } from '@/shared/components/list-pagination';
+import { ListSort } from '@/shared/components/list-sort';
+import { SearchInput } from '@/shared/components/search-input';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { formatDateTime } from '@/shared/utils/format';
 
+import { importSortOrders, importStatusOptions } from './constants';
+
+const sortOrderKeys = Object.keys(importSortOrders) as Array<keyof typeof importSortOrders>;
+
+interface Props {
+  query: ImportsQuery;
+  onQueryChange: (query: ImportsQuery) => void;
+}
+
 /** Table of the space's latest imports, each linking to its details. */
-export function ImportList() {
+export function ImportList({ query, onQueryChange }: Props) {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(importsOptions.listQueryOptions(spaceId));
+  const { data, isFetching, isPending, isError, refetch } = useQuery(importsOptions.listQueryOptions(spaceId, query));
+  const { data: accounts } = useSuspenseQuery(accountsOptions.listQueryOptions(spaceId));
+  const update = (change: Partial<ImportsQuery>) => onQueryChange({ ...query, ...change, page: 1 });
+  const sortOrder =
+    sortOrderKeys.find(
+      (key) => importSortOrders[key].sort === query.sort && importSortOrders[key].descending === query.descending,
+    ) ?? 'newest';
 
   return (
     <Card>
       <CardContent>
-        {data.length === 0 ? (
-          <p className='text-muted-foreground text-sm'>No imports yet.</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>File</TableHead>
-                <TableHead>Account</TableHead>
-                <TableHead>Uploaded</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className='text-right'>Imported</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((job) => (
-                <TableRow key={job.id}>
-                  <TableCell>
-                    <Link
-                      className='font-medium underline-offset-4 hover:underline'
-                      params={{ spaceId: spaceId, importId: job.id }}
-                      to='/$spaceId/finances/imports/$importId'
-                    >
-                      {job.fileName}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{job.accountName}</TableCell>
-                  <TableCell>{formatDateTime(job.createdAt)}</TableCell>
-                  <TableCell>
-                    <ImportStatusBadge status={job.status} />
-                  </TableCell>
-                  <TableCell className='text-right'>{job.status === 'Done' ? job.importedCount : '—'}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className='my-4 flex flex-wrap gap-3'>
+          <SearchInput
+            value={query.search ?? ''}
+            aria-label='Search imports'
+            placeholder='Search file or account…'
+            onSearch={(search) => update({ search })}
+          />
+          <ListFilter
+            label='Statuses'
+            value={query.status}
+            options={importStatusOptions}
+            onChange={(status) => update({ status })}
+          />
+          <ListFilter
+            label='Accounts'
+            value={query.accountId}
+            options={accounts.items.map((account) => ({ value: account.id, label: account.name }))}
+            onChange={(accountId) => update({ accountId })}
+          />
+          <ListSort
+            value={sortOrder}
+            options={sortOrderKeys.map((value) => ({ value, label: importSortOrders[value].label }))}
+            onChange={(value) => {
+              const { sort, descending } = importSortOrders[value];
+              update({ sort, descending });
+            }}
+          />
+        </div>
+        {isPending && <output>Loading imports…</output>}
+        {isError && (
+          <div role='alert'>
+            Imports could not be loaded.{' '}
+            <Button variant='outline' onClick={() => void refetch()}>
+              Try again
+            </Button>
+          </div>
+        )}
+        {data && (
+          <ListPagination
+            {...data}
+            isFetching={isFetching}
+            onPageChange={(page) => onQueryChange({ ...query, page })}
+          />
+        )}
+        {data && (
+          <div aria-busy={isFetching}>
+            {data.items.length === 0 ? (
+              <p className='text-muted-foreground text-sm'>No matching imports.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>File</TableHead>
+                    <TableHead>Account</TableHead>
+                    <TableHead>Uploaded</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className='text-right'>Imported</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.items.map((job) => (
+                    <TableRow key={job.id}>
+                      <TableCell>
+                        <Link
+                          className='font-medium underline-offset-4 hover:underline'
+                          params={{ spaceId: spaceId, importId: job.id }}
+                          to='/$spaceId/finances/imports/$importId'
+                        >
+                          {job.fileName}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{job.accountName}</TableCell>
+                      <TableCell>{formatDateTime(job.createdAt)}</TableCell>
+                      <TableCell>
+                        <ImportStatusBadge status={job.status} />
+                      </TableCell>
+                      <TableCell className='text-right'>{job.status === 'Done' ? job.importedCount : '—'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

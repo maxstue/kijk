@@ -1,15 +1,20 @@
+import type { ResourceSort } from '@kijk/api/resources/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
-import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { ResourceTypeRowActions } from '@/app/resources/row-actions';
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
+import type { TableSort } from '@/shared/lib/table-query';
 import type { Resource } from '@/shared/types/domain';
 
-/** Default sorting of the resource table (by name). */
-export const resourceDefaultSort: ColumnSort = { desc: false, id: 'name' };
+/** Sortable columns of the resource table and its initial sort (by name). */
+export const resourceSort: TableSort<ResourceSort> = {
+  columns: { color: 'Color', creatorType: 'CreatorType', name: 'Name', unit: 'Unit' },
+  defaultSort: { desc: false, id: 'name' },
+};
 
 /** Columns of the resource table; `canManage` enables the management actions. */
 export const getResourceTypeColumns = (canManage: boolean): Array<ColumnDef<DataTableFeatures, Resource>> => [

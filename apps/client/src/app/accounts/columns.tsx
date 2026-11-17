@@ -1,16 +1,20 @@
-import type { Account } from '@kijk/api/accounts/types';
+import type { Account, AccountSort } from '@kijk/api/accounts/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
-import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { AccountRowActions } from '@/app/accounts/row-actions';
 import type { AccountPermissions } from '@/app/accounts/types';
 import { PrivateBadge } from '@/shared/components/visibility-select';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
+import type { TableSort } from '@/shared/lib/table-query';
 
-/** Default sorting of the account table (by name). */
-export const accountDefaultSort: ColumnSort = { desc: false, id: 'name' };
+/** Sortable columns of the account table and its initial sort (by name). */
+export const accountSort: TableSort<AccountSort> = {
+  columns: { kind: 'Kind', name: 'Name' },
+  defaultSort: { desc: false, id: 'name' },
+};
 
 /** Columns of the account table; `permissions` decide which management actions are enabled. */
 export const getAccountColumns = (permissions: AccountPermissions): Array<ColumnDef<DataTableFeatures, Account>> => [

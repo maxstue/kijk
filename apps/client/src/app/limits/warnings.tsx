@@ -9,7 +9,9 @@ import { useWarningToasts } from '@/shared/hooks/use-warning-toasts';
  */
 export function LimitWarnings() {
   const spaceId = useSpaceId();
-  const { data } = useSuspenseQuery(limitsOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: data },
+  } = useSuspenseQuery(limitsOptions.listQueryOptions(spaceId));
   const warnings = data.map((limit) => ({
     active: limit.active && limit.isExceeded,
     description: `${Number(limit.actualValue).toLocaleString()} of ${Number(limit.limit).toLocaleString()} ${limit.resource.unit} used this ${limit.period.toLowerCase()}.`,

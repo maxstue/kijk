@@ -5,6 +5,7 @@ import { expect, test, vi } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser';
 
 import { Route as appRoute } from '@/routes/_authenticated/_app/route';
+import { listPage } from '@/test/list-page';
 import { worker } from '@/test/mocks/browser';
 import { renderRoute } from '@/test/render-route';
 
@@ -49,9 +50,9 @@ function seed(client: QueryClient, resources = [resource]) {
     guideCompletedSteps: [],
     guideCompletedAt: null,
   });
-  client.setQueryData(queryKeys.resources.list('space'), resources);
+  client.setQueryData(queryKeys.resources.list('space'), listPage(resources));
   client.setQueryData(queryKeys.consumptions.years('space'), { years: [] });
-  client.setQueryData(queryKeys.limits.list('space'), []);
+  client.setQueryData(queryKeys.limits.list('space'), listPage([]));
   client.setQueryData(queryKeys.dashboard.consumptions('space', 2026), []);
   client.setQueryData(queryKeys.dashboard.limits('space', 2026, 11), []);
   worker.use(

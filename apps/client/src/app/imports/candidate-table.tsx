@@ -1,14 +1,14 @@
 import * as categoriesOptions from '@kijk/api/categories/options';
 import type { ImportCandidatePage } from '@kijk/api/imports/types';
 import { Button } from '@kijk/ui/components/button';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@kijk/ui/components/table';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 import { CandidateRow } from './candidate-row';
 
-interface ImportCandidateTableProps {
+interface Props {
   data: ImportCandidatePage;
   importId: string;
   isFetching: boolean;
@@ -17,15 +17,11 @@ interface ImportCandidateTableProps {
 }
 
 /** Paged transaction review with row-level editing. */
-export function ImportCandidateTable({
-  data,
-  importId,
-  isFetching,
-  onPageChange,
-  manualOverrides = false,
-}: ImportCandidateTableProps) {
+export function ImportCandidateTable({ data, importId, isFetching, onPageChange, manualOverrides = false }: Props) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: categories },
+  } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   return (
     <div className='border-t'>
       <Table>
@@ -39,6 +35,13 @@ export function ImportCandidateTable({
           </TableRow>
         </TableHeader>
         <TableBody>
+          {data.items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className='py-8 text-center'>
+                No matching transactions.
+              </TableCell>
+            </TableRow>
+          )}
           {data.items.map((candidate) => (
             <CandidateRow
               key={candidate.id}

@@ -6,6 +6,7 @@ using Kijk.Application.Limits.Delete;
 using Kijk.Application.Limits.Queries;
 using Kijk.Application.Limits.Shared;
 using Kijk.Application.Limits.Update;
+using Kijk.Application.Shared.Paging;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -33,11 +34,15 @@ public sealed class LimitsEndpoints : IEndpointGroup
         return builder;
     }
 
-    private static async Task<Results<Ok<List<LimitResponse>>, ProblemHttpResult>> List(
+    private static async Task<Results<Ok<PageResponse<LimitResponse>>, ProblemHttpResult>> List(
         QueriesHandler handler,
-        CancellationToken cancellationToken)
+        [AsParameters] ListQueryParameters<LimitSort> query,
+        [AsParameters] PageParameters paging,
+        CancellationToken cancellationToken,
+        Guid? resourceId = null,
+        Period? period = null)
     {
-        var result = await handler.ListAsync(cancellationToken);
+        var result = await handler.ListAsync(query.ToRequest(paging), resourceId, period, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

@@ -4,8 +4,11 @@ import { TooltipProvider } from '@kijk/ui/components/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test } from 'vite-plus/test';
 
+import { toTableQuery } from '@/shared/lib/table-query';
+import { listPage } from '@/test/list-page';
 import { render } from '@/test/render-space';
 
+import { accountSort } from './columns';
 import { AccountsSection } from './section';
 
 const accounts = [
@@ -19,7 +22,7 @@ function createClient(permissions: string[], isPersonal: boolean) {
     status: 'Ready',
     user: { spaces: [{ id: 'space', isDefault: true, isPersonal, name: 'Space', role: { permissions } }] },
   });
-  client.setQueryData(queryKeys.accounts.list('space'), accounts);
+  client.setQueryData(queryKeys.accounts.list('space', toTableQuery(accountSort)), listPage(accounts));
   return client;
 }
 
@@ -28,7 +31,7 @@ test('members keep private accounts and cannot add shared ones', async () => {
   const screen = await render(
     <QueryClientProvider client={client}>
       <TooltipProvider>
-        <AccountsSection />
+        <AccountsSection search={{}} onSearchChange={() => {}} />
       </TooltipProvider>
     </QueryClientProvider>,
   );
@@ -49,7 +52,7 @@ test('a personal space offers no visibility choice', async () => {
   const screen = await render(
     <QueryClientProvider client={client}>
       <TooltipProvider>
-        <AccountsSection />
+        <AccountsSection search={{}} onSearchChange={() => {}} />
       </TooltipProvider>
     </QueryClientProvider>,
   );
@@ -67,7 +70,7 @@ test('a row menu opens the update dialog and closes its menu', async () => {
   const screen = await render(
     <QueryClientProvider client={client}>
       <TooltipProvider>
-        <AccountsSection />
+        <AccountsSection search={{}} onSearchChange={() => {}} />
       </TooltipProvider>
     </QueryClientProvider>,
   );

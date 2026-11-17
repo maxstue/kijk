@@ -73,11 +73,11 @@ const summaryColumns: Array<ColumnDef<typeof summaryFeatures, AnnualResourceSumm
   },
 ];
 
-interface AnnualSummaryTableProps {
+interface Props {
   summaries: AnnualResourceSummary[];
 }
 
-export function AnnualSummaryTable({ summaries }: AnnualSummaryTableProps) {
+export function AnnualSummaryTable({ summaries }: Props) {
   'use no memo';
 
   const table = useTable({

@@ -6,12 +6,13 @@ import {
   resourcesList,
   resourcesUpdate,
 } from '@kijk/api/generated/sdk';
+import type { ListQuery } from '@kijk/api/paging';
 
-import type { ResourceData, UpdateResourceData } from './types';
+import type { ResourceData, ResourceSort, UpdateResourceData } from './types';
 
-/** Loads the resources of the active space. */
-export async function list(spaceId: string, signal?: AbortSignal) {
-  return resourcesList({ client: apiClient(), path: { spaceId }, signal });
+/** Loads the resources, optionally searched, sorted and paged. */
+export async function list(spaceId: string, query: ListQuery<ResourceSort> = {}, signal?: AbortSignal) {
+  return resourcesList({ client: apiClient(), path: { spaceId }, query, signal });
 }
 
 /** Loads a single resource. */

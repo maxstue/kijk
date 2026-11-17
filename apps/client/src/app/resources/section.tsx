@@ -14,20 +14,24 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { BarChart3, Hash, List } from 'lucide-react';
 import { useState } from 'react';
 
-import { getResourceTypeColumns, resourceDefaultSort } from '@/app/resources/columns';
+import { getResourceTypeColumns, resourceSort } from '@/app/resources/columns';
 import { ResourceTypeCreateForm } from '@/app/resources/create-form';
 import { DataTable } from '@/shared/components/data-table';
 import { PageAddButton } from '@/shared/components/page-header';
 import { PageToolbarActions, PageToolbar } from '@/shared/components/page-toolbar';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
+import type { TableControlProps } from '@/shared/lib/table-query';
 import type { Resource } from '@/shared/types/domain';
 import { CreatorTypes } from '@/shared/types/domain';
 
 /** Resources page: statistics, the resource table and the create dialog. */
-export function ResourceTypesSection() {
+interface Props extends TableControlProps {}
+
+export function ResourceTypesSection({ search, onSearchChange }: Props) {
   const spaceId = useSpaceId();
   const [showDialog, setShowDialog] = useState(false);
-  const { data } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
+  // The statistics count every resource, not only the table's page.
+  const { data: allResources } = useSuspenseQuery(resourcesOptions.listQueryOptions(spaceId));
   const { data: currentAccount } = useQuery(usersOptions.meQueryOptions());
   const activeSpace = currentAccount?.user?.spaces?.find((space) => space.id === spaceId);
   const canManage = hasSpacePermission(activeSpace, SpacePermissions.resources.configure);
@@ -63,7 +67,7 @@ export function ResourceTypesSection() {
         </PageToolbarActions>
       </PageToolbar>
       <div className='grid gap-4 lg:grid-cols-2'>
-        <ResourceTypeStatistics resources={data} />
+        <ResourceTypeStatistics resources={allResources.items} />
       </div>
       <div className='w-full'>
         <Card className='min-w-32'>
@@ -73,7 +77,14 @@ export function ResourceTypesSection() {
           </CardHeader>
           <CardContent>
             <div className='mt-2'>
-              <DataTable columns={columns} data={data} defaultSort={resourceDefaultSort} />
+              <DataTable
+                search={search}
+                onSearchChange={onSearchChange}
+                columns={columns}
+                queryOptions={(query) => resourcesOptions.listQueryOptions(spaceId, query)}
+                searchPlaceholder='Search name or unit...'
+                sort={resourceSort}
+              />
             </div>
           </CardContent>
         </Card>

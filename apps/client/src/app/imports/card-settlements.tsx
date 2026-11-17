@@ -12,14 +12,14 @@ import { ImportCandidatePagination } from '@/app/imports/candidate-table';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { formatStringToCurrency } from '@/shared/utils/format';
 
-interface CardSettlementsProps {
+interface Props {
   count: number;
   months: string;
   importId: string;
 }
 
 /** Credit card statements found in the file; they count as offset only when the user confirms it per row. */
-export function CardSettlements({ count, months, importId }: CardSettlementsProps) {
+export function CardSettlements({ count, months, importId }: Props) {
   const spaceId = useSpaceId();
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);

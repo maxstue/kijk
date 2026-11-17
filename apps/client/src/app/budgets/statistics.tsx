@@ -26,13 +26,13 @@ interface Trend {
   budget: Array<number | null>;
 }
 
-interface BudgetStatisticsProps {
+interface Props {
   month: number;
   year: number;
 }
 
 /** Spending per category over the last twelve months up to the given month, as small multiples or table. */
-export function BudgetStatistics({ month, year }: BudgetStatisticsProps) {
+export function BudgetStatistics({ month, year }: Props) {
   const spaceId = useSpaceId();
   const { data } = useSuspenseQuery(budgetsOptions.statisticsQueryOptions(spaceId, year, month, monthsShown));
   if (data.months.length === 0) {

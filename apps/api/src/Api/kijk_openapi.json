@@ -11,7 +11,7 @@
         "tags": [
           "Accounts"
         ],
-        "summary": "Gets the accounts of the active space",
+        "summary": "Gets the accounts of the active space, optionally searched by name or IBAN ending, sorted and paged",
         "operationId": "Accounts.List",
         "parameters": [
           {
@@ -22,6 +22,52 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/AccountSort"
+            }
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
             }
           }
         ],
@@ -41,10 +87,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AccountResponse"
-                  }
+                  "$ref": "#/components/schemas/PageResponseOfAccountResponse"
                 }
               }
             }
@@ -775,7 +818,7 @@
         "tags": [
           "Categories"
         ],
-        "summary": "Gets the categories available to the active space",
+        "summary": "Gets the categories available to the active space, optionally searched by name, sorted and paged",
         "operationId": "Categories.List",
         "parameters": [
           {
@@ -786,6 +829,52 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CategorySort"
+            }
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
             }
           }
         ],
@@ -805,10 +894,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CategoryResponse"
-                  }
+                  "$ref": "#/components/schemas/PageResponseOfCategoryResponse"
                 }
               }
             }
@@ -1065,7 +1151,7 @@
         "tags": [
           "Category Rules"
         ],
-        "summary": "Gets the remembered category corrections of the active space",
+        "summary": "Gets the remembered category corrections of the active space, optionally searched by label or category, sorted and paged",
         "operationId": "CategoryRules.List",
         "parameters": [
           {
@@ -1076,6 +1162,52 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CategoryRuleSort"
+            }
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
             }
           }
         ],
@@ -1095,10 +1227,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CategoryRuleResponse"
-                  }
+                  "$ref": "#/components/schemas/PageResponseOfCategoryRuleResponse"
                 }
               }
             }
@@ -2419,6 +2548,67 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ImportSort"
+            }
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ImportJobStatus"
+            }
+          },
+          {
+            "name": "accountId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -2437,10 +2627,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ImportJobResponse"
-                  }
+                  "$ref": "#/components/schemas/PageResponseOfImportJobResponse"
                 }
               }
             }
@@ -2748,32 +2935,6 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
-              "format": "int32",
-              "default": 1
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
-              "format": "int32",
-              "default": 100
-            }
-          },
-          {
             "name": "months",
             "in": "query",
             "schema": {
@@ -2786,6 +2947,44 @@
             "schema": {
               "type": "boolean",
               "default": false
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CandidateFilter"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
             }
           }
         ],
@@ -3532,6 +3731,67 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/LimitSort"
+            }
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "resourceId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Period"
+            }
           }
         ],
         "responses": {
@@ -3550,10 +3810,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/LimitResponse"
-                  }
+                  "$ref": "#/components/schemas/PageResponseOfLimitResponse"
                 }
               }
             }
@@ -3877,7 +4134,7 @@
         "tags": [
           "Resources"
         ],
-        "summary": "Gets all resources",
+        "summary": "Gets the resources of the active space, optionally searched by name or unit, sorted and paged",
         "operationId": "Resources.List",
         "parameters": [
           {
@@ -3888,6 +4145,52 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ResourceSort"
+            }
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
             }
           }
         ],
@@ -3907,10 +4210,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ResourceResponse"
-                  }
+                  "$ref": "#/components/schemas/PageResponseOfResourceResponse"
                 }
               }
             }
@@ -4537,7 +4837,7 @@
         "tags": [
           "Transactions"
         ],
-        "summary": "Gets a page of transactions of the active space, optionally by year, month, categories or without category",
+        "summary": "Gets a page of transactions of the active space, optionally by year, month, categories, without category or by a search of counterparty and purpose",
         "operationId": "Transactions.List",
         "parameters": [
           {
@@ -4590,6 +4890,13 @@
                 "type": "string",
                 "format": "uuid"
               }
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -4741,7 +5048,7 @@
         "tags": [
           "Transactions"
         ],
-        "summary": "Exports transactions as CSV, optionally by year, month, categories or without category",
+        "summary": "Exports transactions as CSV, optionally by year, month, categories, without category or by a search of counterparty and purpose",
         "operationId": "Transactions.Export",
         "parameters": [
           {
@@ -4794,6 +5101,13 @@
                 "type": "string",
                 "format": "uuid"
               }
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -5742,6 +6056,13 @@
         },
         "description": "A bank account of the space."
       },
+      "AccountSort": {
+        "enum": [
+          "Name",
+          "Kind",
+          null
+        ]
+      },
       "AiDataSharing": {
         "enum": [
           "Off",
@@ -6150,6 +6471,14 @@
         },
         "description": "Spending per expense category over several months."
       },
+      "CandidateFilter": {
+        "enum": [
+          "Uncategorized",
+          "Errors",
+          "Excluded",
+          null
+        ]
+      },
       "CategorizeImportRequest": {
         "type": "object",
         "properties": {
@@ -6373,6 +6702,13 @@
         ],
         "description": "Represents what a category rule matches on."
       },
+      "CategoryRuleSort": {
+        "enum": [
+          "Label",
+          "Category",
+          null
+        ]
+      },
       "CategoryRuleSuggestionResponse": {
         "required": [
           "id",
@@ -6432,6 +6768,14 @@
           }
         },
         "description": "A rule Kijk suggests because a member set the same category for a merchant or counterparty by hand."
+      },
+      "CategorySort": {
+        "enum": [
+          "Name",
+          "Kind",
+          "CreatorType",
+          null
+        ]
       },
       "CategorySource": {
         "enum": [
@@ -8351,6 +8695,14 @@
         },
         "description": "The import settings of the active space."
       },
+      "ImportSort": {
+        "enum": [
+          "CreatedAt",
+          "FileName",
+          "Account",
+          null
+        ]
+      },
       "LimitPeriodResponse": {
         "required": [
           "periodStart",
@@ -8517,6 +8869,14 @@
         },
         "description": "A consumption limit together with its current evaluation data."
       },
+      "LimitSort": {
+        "enum": [
+          "Resource",
+          "Name",
+          "Period",
+          null
+        ]
+      },
       "MappingSource": {
         "enum": [
           "Profile",
@@ -8524,6 +8884,282 @@
           "Ai",
           null
         ]
+      },
+      "PageResponseOfAccountResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountResponse"
+            },
+            "description": "The rows of the page."
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows matching the search, across all pages.",
+            "format": "int32"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page number; clamped to the last page when the requested one is past the end.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size; the number of rows when the request names no page.",
+            "format": "int32"
+          }
+        },
+        "description": "The rows of a list endpoint; a single page holding every row when the request names no page."
+      },
+      "PageResponseOfCategoryResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryResponse"
+            },
+            "description": "The rows of the page."
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows matching the search, across all pages.",
+            "format": "int32"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page number; clamped to the last page when the requested one is past the end.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size; the number of rows when the request names no page.",
+            "format": "int32"
+          }
+        },
+        "description": "The rows of a list endpoint; a single page holding every row when the request names no page."
+      },
+      "PageResponseOfCategoryRuleResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryRuleResponse"
+            },
+            "description": "The rows of the page."
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows matching the search, across all pages.",
+            "format": "int32"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page number; clamped to the last page when the requested one is past the end.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size; the number of rows when the request names no page.",
+            "format": "int32"
+          }
+        },
+        "description": "The rows of a list endpoint; a single page holding every row when the request names no page."
+      },
+      "PageResponseOfImportJobResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportJobResponse"
+            },
+            "description": "The rows of the page."
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows matching the search, across all pages.",
+            "format": "int32"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page number; clamped to the last page when the requested one is past the end.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size; the number of rows when the request names no page.",
+            "format": "int32"
+          }
+        },
+        "description": "The rows of a list endpoint; a single page holding every row when the request names no page."
+      },
+      "PageResponseOfLimitResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LimitResponse"
+            },
+            "description": "The rows of the page."
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows matching the search, across all pages.",
+            "format": "int32"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page number; clamped to the last page when the requested one is past the end.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size; the number of rows when the request names no page.",
+            "format": "int32"
+          }
+        },
+        "description": "The rows of a list endpoint; a single page holding every row when the request names no page."
+      },
+      "PageResponseOfResourceResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceResponse"
+            },
+            "description": "The rows of the page."
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The number of rows matching the search, across all pages.",
+            "format": "int32"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The 1-based page number; clamped to the last page when the requested one is past the end.",
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The page size; the number of rows when the request names no page.",
+            "format": "int32"
+          }
+        },
+        "description": "The rows of a list endpoint; a single page holding every row when the request names no page."
       },
       "Period": {
         "enum": [
@@ -8690,6 +9326,15 @@
           }
         },
         "description": "A resource that consumptions can be recorded for."
+      },
+      "ResourceSort": {
+        "enum": [
+          "Name",
+          "Unit",
+          "Color",
+          "CreatorType",
+          null
+        ]
       },
       "SetBudgetRequest": {
         "required": [

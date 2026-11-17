@@ -1,15 +1,19 @@
-import type { Category } from '@kijk/api/categories/types';
+import type { Category, CategorySort } from '@kijk/api/categories/types';
 import { Badge } from '@kijk/ui/components/badge';
 import { Button } from '@kijk/ui/components/button';
-import type { ColumnDef, ColumnSort } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { CategoryRowActions } from '@/app/categories/row-actions';
 import { ResourceIcon } from '@/shared/components/resource-icon';
 import type { DataTableFeatures } from '@/shared/lib/table-features';
+import type { TableSort } from '@/shared/lib/table-query';
 
-/** Default sorting of the category table (by name). */
-export const categoryDefaultSort: ColumnSort = { desc: false, id: 'name' };
+/** Sortable columns of the category table and its initial sort (by name). */
+export const categorySort: TableSort<CategorySort> = {
+  columns: { creatorType: 'CreatorType', kind: 'Kind', name: 'Name' },
+  defaultSort: { desc: false, id: 'name' },
+};
 
 /** Columns of the category table; `canConfigure` enables the management actions. */
 export const getCategoryColumns = (canConfigure: boolean): Array<ColumnDef<DataTableFeatures, Category>> => [

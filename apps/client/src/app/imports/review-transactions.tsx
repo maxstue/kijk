@@ -3,6 +3,8 @@ import { CardContent } from '@kijk/ui/components/card';
 import { X, Sparkles } from 'lucide-react';
 import { use } from 'react';
 
+import { ListFilter } from '@/shared/components/list-filter';
+import { SearchInput } from '@/shared/components/search-input';
 import { useFeature } from '@/shared/hooks/use-feature';
 
 import { ImportCandidateTable } from './candidate-table';
@@ -15,7 +17,17 @@ export function ImportReviewTransactions() {
   if (!context) {
     throw new Error('ImportReviewTransactions requires ImportReview');
   }
-  const { job, isPending, reviewQuery, selectedMonths, onPageChange, onAiPreviewChange, onResetOverrides } = context;
+  const {
+    filters,
+    onFilterChange,
+    job,
+    isPending,
+    reviewQuery,
+    selectedMonths,
+    onPageChange,
+    onAiPreviewChange,
+    onResetOverrides,
+  } = context;
   const aiImport = useFeature('aiImport');
   const review = reviewQuery.data;
   return (
@@ -45,6 +57,29 @@ export function ImportReviewTransactions() {
           choices.
         </p>
       </div>
+      <div className='flex flex-wrap gap-3 px-(--card-spacing)'>
+        <SearchInput
+          aria-label='Search review transactions'
+          placeholder='Search counterparty or purpose…'
+          value={filters.search ?? ''}
+          onSearch={(search) => onFilterChange({ search })}
+        />
+        <ListFilter
+          label='Review rows'
+          value={filters.filter}
+          options={[
+            { value: 'Uncategorized', label: 'Uncategorized' },
+            { value: 'Errors', label: 'Unreadable' },
+            { value: 'Excluded', label: 'Excluded' },
+          ]}
+          onChange={(filter) => onFilterChange({ filter })}
+        />
+      </div>
+      {filters.filter === 'Errors' && (
+        <p className='text-muted-foreground px-(--card-spacing) text-sm'>
+          Unreadable rows from the entire file are shown because their month may be unknown.
+        </p>
+      )}
       <div className='relative' aria-busy={job.status === 'Categorizing'}>
         {review && (
           <div inert={isPending || reviewQuery.isPlaceholderData} aria-busy={reviewQuery.isFetching}>

@@ -9,6 +9,7 @@ using Kijk.Application.Budgets.Shared;
 using Kijk.Application.Budgets.UpdateVersion;
 using Kijk.Application.CategoryRules.Shared;
 using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Paging;
 using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Record;
 using Kijk.Application.Transactions.Shared;
@@ -133,8 +134,8 @@ public class SpaceHttpTests
         await using var host = await SpaceApiHost.StartAsync(admin.AuthId,
             configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider, FakeIdentityProvider>()));
         using var created = await host.Client.PostAsJsonAsync($"/api/spaces/{spaceId}/accounts", new CreateAccountRequest("Joint", null), Json);
-        var shared = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!;
-        var personalAccounts = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{personalId}/accounts", Json))!;
+        var shared = (await host.Client.GetFromJsonAsync<PageResponse<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!.Items;
+        var personalAccounts = (await host.Client.GetFromJsonAsync<PageResponse<AccountResponse>>($"/api/spaces/{personalId}/accounts", Json))!.Items;
         using var foreign = await host.Client.GetAsync($"/api/spaces/{Guid.NewGuid()}/accounts");
 
         await Assert.That(created.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -162,14 +163,14 @@ public class SpaceHttpTests
             new CreateTransactionRequest(new DateOnly(2026, 10, 3), -20m, "Secret shop", null, TransactionStatus.Booked, false, account.Id, GroceriesId), Json);
         var transaction = (await recorded.Content.ReadFromJsonAsync<TransactionResponse>(Json))!;
 
-        var ownAccounts = (await host.Client.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!;
+        var ownAccounts = (await host.Client.GetFromJsonAsync<PageResponse<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!.Items;
         var ownTransactions = (await host.Client.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{spaceId}/transactions?year=2026&month=10", Json))!.Items;
         var ownOverview = (await host.Client.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{spaceId}/budgets/overview?year=2026&month=10", Json))!;
         await Assert.That(ownAccounts.Select(item => item.Name)).Contains("Mine");
         await Assert.That(ownTransactions.Single().Id).IsEqualTo(transaction.Id);
         await Assert.That(ownOverview.TotalSpent).IsEqualTo(20m);
 
-        var accounts = (await adminClient.GetFromJsonAsync<List<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!;
+        var accounts = (await adminClient.GetFromJsonAsync<PageResponse<AccountResponse>>($"/api/spaces/{spaceId}/accounts", Json))!.Items;
         var transactions = (await adminClient.GetFromJsonAsync<TransactionPageResponse>($"/api/spaces/{spaceId}/transactions?year=2026&month=10", Json))!.Items;
         var overview = (await adminClient.GetFromJsonAsync<BudgetOverviewResponse>($"/api/spaces/{spaceId}/budgets/overview?year=2026&month=10", Json))!;
         var export = await adminClient.GetStringAsync($"/api/spaces/{spaceId}/transactions/export");
@@ -246,8 +247,8 @@ public class SpaceHttpTests
 
         using var remembered = await host.Client.PutAsJsonAsync($"/api/spaces/{spaceId}/transactions/{privateBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
         var result = (await remembered.Content.ReadFromJsonAsync<CategorizeTransactionResponse>(Json))!;
-        var ownRules = (await host.Client.GetFromJsonAsync<List<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!;
-        var adminRules = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!;
+        var ownRules = (await host.Client.GetFromJsonAsync<PageResponse<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!.Items;
+        var adminRules = (await adminClient.GetFromJsonAsync<PageResponse<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!.Items;
 
         await Assert.That(result.AppliedToOthers).IsEqualTo(0);
         await Assert.That(ownRules.Single().Visibility).IsEqualTo(Visibility.Private);
@@ -257,7 +258,7 @@ public class SpaceHttpTests
 
         // Remembering from the shared account creates a shared rule next to the private one.
         using var shared = await host.Client.PutAsJsonAsync($"/api/spaces/{spaceId}/transactions/{sharedBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
-        var adminRulesAfter = (await adminClient.GetFromJsonAsync<List<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!;
+        var adminRulesAfter = (await adminClient.GetFromJsonAsync<PageResponse<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!.Items;
         await Assert.That(adminRulesAfter.Single().Visibility).IsEqualTo(Visibility.Shared);
     }
 

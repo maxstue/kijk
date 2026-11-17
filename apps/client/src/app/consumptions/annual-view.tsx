@@ -1,18 +1,18 @@
-import { useState } from 'react';
-
 import type { Consumption } from '@/shared/types/domain';
 
 import { AnnualSummaryTable } from './annual-summary-table';
 import { createAnnualResourceSummaries } from './helpers';
 import { allResourceTypes, ConsumptionTypeFilter } from './type-filter';
 
-interface AnnualViewProps {
+interface Props {
   consumptions: Consumption[];
+  /** The selected resource; all resources when omitted. */
+  resourceId?: string;
+  onResourceChange: (resourceId: string | undefined) => void;
 }
 
 /** Year view: one expandable row per resource with its yearly total and entries, filterable by resource. */
-export function ConsumptionAnnualView({ consumptions }: AnnualViewProps) {
-  const [resourceId, setResourceId] = useState(allResourceTypes);
+export function ConsumptionAnnualView({ consumptions, resourceId = allResourceTypes, onResourceChange }: Props) {
   const summaries = createAnnualResourceSummaries(consumptions);
   const resources = summaries.map((summary) => summary.resource);
   const filteredSummaries =
@@ -20,7 +20,11 @@ export function ConsumptionAnnualView({ consumptions }: AnnualViewProps) {
 
   return (
     <div className='space-y-4'>
-      <ConsumptionTypeFilter resources={resources} value={resourceId} onSelect={setResourceId} />
+      <ConsumptionTypeFilter
+        resources={resources}
+        value={resourceId}
+        onSelect={(value) => onResourceChange(value === allResourceTypes ? undefined : value)}
+      />
       <AnnualSummaryTable summaries={filteredSummaries} />
     </div>
   );

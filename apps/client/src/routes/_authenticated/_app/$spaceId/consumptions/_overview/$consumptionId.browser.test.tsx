@@ -2,6 +2,7 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { Route as consumptionsRoute } from '@/routes/_authenticated/_app/$spaceId/consumptions/_overview/route';
+import { listPage } from '@/test/list-page';
 import { renderRoute } from '@/test/render-route';
 
 test('loads the canonical consumption URL and closes to the overview while preserving search', async () => {
@@ -23,8 +24,8 @@ test('loads the canonical consumption URL and closes to the overview while prese
         resource,
         value: 42,
       });
-      queryClient.setQueryData(queryKeys.resources.list('space'), [resource]);
-      queryClient.setQueryData(queryKeys.limits.list('space'), []);
+      queryClient.setQueryData(queryKeys.resources.list('space'), listPage([resource]));
+      queryClient.setQueryData(queryKeys.limits.list('space'), listPage([]));
       queryClient.setQueryData(queryKeys.consumptions.by('space', '2026'), []);
     },
   });

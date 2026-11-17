@@ -28,7 +28,9 @@ interface Props {
 /** Faceted filter for the transaction list: pick any number of categories; none selected means all. */
 export function TransactionCategoryFilter({ compact = false, onChange, value }: Props) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: categories },
+  } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const selected = new Set(value);
   const selectedCategories = categories.filter((category) => selected.has(category.id));
 

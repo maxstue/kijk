@@ -3,6 +3,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import { createContext } from 'react';
 
 import type { ReviewActionProps } from './review-actions';
+import type { ReviewQuery } from './types';
 
 export interface ImportReviewState {
   job: ImportJob;
@@ -18,6 +19,8 @@ export interface ImportReviewState {
   acceptErrors: boolean;
   onAcceptErrors: (accepted: boolean) => void;
   selectedMonths: string;
+  filters: ReviewQuery;
+  onFilterChange: (query: Omit<ReviewQuery, 'page'>) => void;
   onPageChange: (page: number) => void;
   onResetOverrides: () => void;
   showAiPreview: boolean;

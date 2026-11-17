@@ -7,6 +7,7 @@ using Kijk.Application.Resources.Details;
 using Kijk.Application.Resources.List;
 using Kijk.Application.Resources.Shared;
 using Kijk.Application.Resources.Update;
+using Kijk.Application.Shared.Paging;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -28,7 +29,7 @@ public class ResourcesEndpoints : IEndpointGroup
 
         group.MapGet("", List).WithName("Resources.List")
             .RequireSpacePermission(SpacePermissions.Resources.View)
-            .WithSummary("Gets all resources");
+            .WithSummary("Gets the resources of the active space, optionally searched by name or unit, sorted and paged");
 
         group.MapGet("/{id:guid}", Details).WithName("Resources.Details")
             .RequireSpacePermission(SpacePermissions.Resources.View)
@@ -59,14 +60,19 @@ public class ResourcesEndpoints : IEndpointGroup
     }
 
     /// <summary>
-    /// Gets all resources.
+    /// Gets the resources, optionally searched, sorted and paged.
     /// </summary>
     /// <param name="handler">The handler.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <param name="query">Search, sorting and paging.</param>
     /// <returns>The result, or a problem response on failure.</returns>
-    private static async Task<Results<Ok<List<ResourceResponse>>, ProblemHttpResult>> List(ListHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<PageResponse<ResourceResponse>>, ProblemHttpResult>> List(
+        ListHandler handler,
+        [AsParameters] ListQueryParameters<ResourceSort> query,
+        [AsParameters] PageParameters paging,
+        CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(paging), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

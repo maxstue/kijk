@@ -12,7 +12,9 @@ interface BudgetCategoryFieldProps {
 }
 export function BudgetCategoryField({ control, categoryId }: BudgetCategoryFieldProps) {
   const spaceId = useSpaceId();
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
+  const {
+    data: { items: categories },
+  } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const expenseCategories = categories.filter((category) => category.kind === 'Expense');
   return (
     <FormField

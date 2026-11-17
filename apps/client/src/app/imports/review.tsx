@@ -10,17 +10,20 @@ import { useSpaceId } from '@/shared/hooks/use-active-space';
 
 import type { ReviewActionProps } from './review-actions';
 import { ImportReviewContext, type ImportReviewState } from './review-context';
+import type { ReviewQuery } from './types';
 interface Props extends Required<PropsWithChildren> {
+  query: ReviewQuery;
+  onQueryChange: (query: ReviewQuery) => void;
   job: ImportJob;
   stage: 'months' | 'review';
   onStageChange: (stage: 'months' | 'review') => void;
 }
 
 /** Owns state shared across review steps and both action bars, including while adjustments are unmounted. */
-export function ImportReview({ job, stage, onStageChange, children }: Props) {
+export function ImportReview({ job, stage, onStageChange, children, query, onQueryChange }: Props) {
   const spaceId = useSpaceId();
   const [includedEdgeMonths, setIncludedEdgeMonths] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
+  const setPage = (page: number) => onQueryChange({ ...query, page });
   const [acceptErrors, setAcceptErrors] = useState(false);
   const [showAiPreview, setShowAiPreview] = useState(false);
   const commitMutation = useMutation(importsOptions.commitMutationOptions(spaceId, job.id));
@@ -31,7 +34,7 @@ export function ImportReview({ job, stage, onStageChange, children }: Props) {
   const months = new Set([...job.fullMonths, ...includedEdgeMonths]);
   const selectedMonths = [...months].sort((left, right) => left.localeCompare(right)).join(',');
   const reviewQuery = useQuery({
-    ...importsOptions.candidatesQueryOptions(spaceId, job.id, { months: selectedMonths, page }),
+    ...importsOptions.candidatesQueryOptions(spaceId, job.id, { ...query, months: selectedMonths }),
     enabled: stage === 'review',
     placeholderData: keepPreviousData,
   });
@@ -86,6 +89,8 @@ export function ImportReview({ job, stage, onStageChange, children }: Props) {
     onAcceptErrors: setAcceptErrors,
     selectedMonths,
     onPageChange: setPage,
+    filters: query,
+    onFilterChange: (change) => onQueryChange({ ...query, ...change, page: 1 }),
     onResetOverrides: () =>
       resetMutation.mutate(undefined, {
         onSuccess: (count) => toast.success(`${count} manual overrides reset`),

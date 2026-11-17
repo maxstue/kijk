@@ -1,19 +1,20 @@
 import * as categoriesOptions from '@kijk/api/categories/options';
 import { SpacePermissions } from '@kijk/api/spaces/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@kijk/ui/components/card';
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { Tags } from 'lucide-react';
 
-import { categoryDefaultSort, getCategoryColumns } from '@/app/categories/columns';
+import { categorySort, getCategoryColumns } from '@/app/categories/columns';
 import { DataTable } from '@/shared/components/data-table';
 import { useSpaceId } from '@/shared/hooks/use-active-space';
 import { useSpacePermission } from '@/shared/hooks/use-space-permission';
+import type { TableControlProps } from '@/shared/lib/table-query';
 
 /** Categories page: default and custom categories, with create, update and delete for the custom ones. */
-export function CategoriesSection() {
+interface Props extends TableControlProps {}
+
+export function CategoriesSection({ search, onSearchChange }: Props) {
   const spaceId = useSpaceId();
   const canConfigure = useSpacePermission(SpacePermissions.finances.configure);
-  const { data: categories } = useSuspenseQuery(categoriesOptions.listQueryOptions(spaceId));
   const columns = getCategoryColumns(canConfigure);
 
   return (
@@ -28,7 +29,14 @@ export function CategoriesSection() {
         </CardHeader>
         <CardContent>
           <div className='mt-2'>
-            <DataTable columns={columns} data={categories} defaultSort={categoryDefaultSort} />
+            <DataTable
+              search={search}
+              onSearchChange={onSearchChange}
+              columns={columns}
+              queryOptions={(query) => categoriesOptions.listQueryOptions(spaceId, query)}
+              searchPlaceholder='Search name...'
+              sort={categorySort}
+            />
           </div>
         </CardContent>
       </Card>

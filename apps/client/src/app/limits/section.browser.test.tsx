@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { expect, test, vi } from 'vite-plus/test';
 import { page } from 'vite-plus/test/browser';
 
+import { listPage } from '@/test/list-page';
 import { worker } from '@/test/mocks/browser';
 import { render } from '@/test/render-space';
 
@@ -19,46 +20,50 @@ vi.mock('@/app/limits/form', () => ({
 test.each([375, 1280])('switches views and preserves history dialogs at %i px', async (width) => {
   await page.viewport(width, 900);
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  client.setQueryData(queryKeys.resources.list('space'), listPage([]));
   client.setQueryData(queryKeys.users.me, {
     user: { spaces: [{ id: 'space', isDefault: true, role: { permissions: [SpacePermissions.limits.view] } }] },
   });
-  client.setQueryData(queryKeys.limits.list('space'), [
-    {
-      id: 'limit',
-      name: 'Energy budget',
-      period: 'Month',
-      active: true,
-      isExceeded: true,
-      resource: { name: 'Electricity', unit: 'kWh' },
-      actualValue: 120,
-      limit: 100,
-      utilizationPercentage: 120,
-      remainingValue: 0,
-      history: [
-        {
-          periodStart: '2026-09-01T00:00:00Z',
-          periodEnd: '2026-10-01T00:00:00Z',
-          actualValue: 120,
-          isExceeded: true,
-          isComplete: false,
-        },
-        {
-          periodStart: '2026-08-01T00:00:00Z',
-          periodEnd: '2026-09-01T00:00:00Z',
-          actualValue: 150,
-          isExceeded: true,
-          isComplete: true,
-        },
-        {
-          periodStart: '2026-07-01T00:00:00Z',
-          periodEnd: '2026-08-01T00:00:00Z',
-          actualValue: 80,
-          isExceeded: false,
-          isComplete: true,
-        },
-      ],
-    },
-  ]);
+  client.setQueryData(
+    queryKeys.limits.list('space', { page: 1, pageSize: 10 }),
+    listPage([
+      {
+        id: 'limit',
+        name: 'Energy budget',
+        period: 'Month',
+        active: true,
+        isExceeded: true,
+        resource: { name: 'Electricity', unit: 'kWh' },
+        actualValue: 120,
+        limit: 100,
+        utilizationPercentage: 120,
+        remainingValue: 0,
+        history: [
+          {
+            periodStart: '2026-09-01T00:00:00Z',
+            periodEnd: '2026-10-01T00:00:00Z',
+            actualValue: 120,
+            isExceeded: true,
+            isComplete: false,
+          },
+          {
+            periodStart: '2026-08-01T00:00:00Z',
+            periodEnd: '2026-09-01T00:00:00Z',
+            actualValue: 150,
+            isExceeded: true,
+            isComplete: true,
+          },
+          {
+            periodStart: '2026-07-01T00:00:00Z',
+            periodEnd: '2026-08-01T00:00:00Z',
+            actualValue: 80,
+            isExceeded: false,
+            isComplete: true,
+          },
+        ],
+      },
+    ]),
+  );
   const screen = await render(
     <QueryClientProvider client={client}>
       <TestLimitsSection />
@@ -102,23 +107,27 @@ test.each([
   { role: 'Viewer', permissions: [SpacePermissions.limits.view], disabled: true },
 ])('$role gets limit actions matching its permissions', async ({ permissions, disabled }) => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  client.setQueryData(queryKeys.resources.list('space'), listPage([]));
   client.setQueryData(queryKeys.users.me, {
     user: { spaces: [{ id: 'space', isDefault: true, role: { permissions } }] },
   });
-  client.setQueryData(queryKeys.limits.list('space'), [
-    {
-      id: 'limit',
-      name: 'Energy budget',
-      period: 'Monthly',
-      active: true,
-      isExceeded: false,
-      resource: { name: 'Electricity', unit: 'kWh' },
-      actualValue: 0,
-      limit: 100,
-      utilizationPercentage: 0,
-      remainingValue: 100,
-    },
-  ]);
+  client.setQueryData(
+    queryKeys.limits.list('space', { page: 1, pageSize: 10 }),
+    listPage([
+      {
+        id: 'limit',
+        name: 'Energy budget',
+        period: 'Monthly',
+        active: true,
+        isExceeded: false,
+        resource: { name: 'Electricity', unit: 'kWh' },
+        actualValue: 0,
+        limit: 100,
+        utilizationPercentage: 0,
+        remainingValue: 100,
+      },
+    ]),
+  );
   const screen = await render(
     <QueryClientProvider client={client}>
       <TestLimitsSection />
@@ -134,23 +143,27 @@ test.each([
 
 test('preserves an unsaved edit when the view changes', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  client.setQueryData(queryKeys.resources.list('space'), listPage([]));
   client.setQueryData(queryKeys.users.me, {
     user: { spaces: [{ id: 'space', role: { permissions: [SpacePermissions.limits.plan] } }] },
   });
-  client.setQueryData(queryKeys.limits.list('space'), [
-    {
-      id: 'limit',
-      name: 'Energy budget',
-      period: 'Month',
-      active: true,
-      resource: { name: 'Electricity', unit: 'kWh' },
-      actualValue: 0,
-      limit: 100,
-      utilizationPercentage: 0,
-      remainingValue: 100,
-      history: [],
-    },
-  ]);
+  client.setQueryData(
+    queryKeys.limits.list('space', { page: 1, pageSize: 10 }),
+    listPage([
+      {
+        id: 'limit',
+        name: 'Energy budget',
+        period: 'Month',
+        active: true,
+        resource: { name: 'Electricity', unit: 'kWh' },
+        actualValue: 0,
+        limit: 100,
+        utilizationPercentage: 0,
+        remainingValue: 100,
+        history: [],
+      },
+    ]),
+  );
   const screen = await render(
     <QueryClientProvider client={client}>
       <TestLimitsSection />
@@ -170,23 +183,27 @@ test('preserves an unsaved edit when the view changes', async () => {
 
 test('deleting a limit requires confirmation and refreshes the list after a 204 response', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity }, mutations: { retry: false } } });
+  client.setQueryData(queryKeys.resources.list('space'), listPage([]));
   client.setQueryData(queryKeys.users.me, {
     user: { spaces: [{ id: 'space', isDefault: true, role: { permissions: [SpacePermissions.limits.plan] } }] },
   });
-  client.setQueryData(queryKeys.limits.list('space'), [
-    {
-      id: 'limit',
-      name: 'Energy budget',
-      period: 'Monthly',
-      active: true,
-      isExceeded: false,
-      resource: { name: 'Electricity', unit: 'kWh' },
-      actualValue: 0,
-      limit: 100,
-      utilizationPercentage: 0,
-      remainingValue: 100,
-    },
-  ]);
+  client.setQueryData(
+    queryKeys.limits.list('space', { page: 1, pageSize: 10 }),
+    listPage([
+      {
+        id: 'limit',
+        name: 'Energy budget',
+        period: 'Monthly',
+        active: true,
+        isExceeded: false,
+        resource: { name: 'Electricity', unit: 'kWh' },
+        actualValue: 0,
+        limit: 100,
+        utilizationPercentage: 0,
+        remainingValue: 100,
+      },
+    ]),
+  );
   const deleted = vi.fn<() => void>();
   worker.use(
     http.delete('http://localhost:5000/api/spaces/space/limits/limit', () => {
@@ -207,7 +224,7 @@ test('deleting a limit requires confirmation and refreshes the list after a 204 
   expect(deleted).not.toHaveBeenCalled();
   await screen.getByRole('button', { name: 'Delete limit', exact: true }).click();
   await screen.getByRole('alertdialog').getByRole('button', { name: 'Delete', exact: true }).click();
-  await expect.element(screen.getByText('No consumption limits yet')).toBeVisible();
+  await expect.element(screen.getByText('No matching consumption limits')).toBeVisible();
   expect(deleted).toHaveBeenCalledOnce();
   await screen.unmount();
   client.clear();
@@ -219,5 +236,6 @@ interface TestLimitsSectionProps {
 
 function TestLimitsSection({ viewOverride }: TestLimitsSectionProps) {
   const [view, setView] = useState<LimitsView>('list');
-  return <LimitsSection view={viewOverride ?? view} onViewChange={setView} />;
+  const [query, setQuery] = useState<import('@kijk/api/limits/types').LimitsQuery>({ page: 1, pageSize: 10 });
+  return <LimitsSection query={query} onQueryChange={setQuery} view={viewOverride ?? view} onViewChange={setView} />;
 }

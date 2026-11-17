@@ -8,3 +8,8 @@ export type CategoryKind = Api.CategoryKind;
 export type CreateCategoryRequest = Api.CreateCategoryRequest;
 /** Payload for updating a category. */
 export type UpdateCategoryRequest = Api.UpdateCategoryRequest;
+
+/** Categories available to the active space; one page of them when the query names a page. */
+export type CategoryPage = Api.PageResponseOfCategoryResponse;
+/** The columns the category list can be sorted by. */
+export type CategorySort = Api.CategorySort;

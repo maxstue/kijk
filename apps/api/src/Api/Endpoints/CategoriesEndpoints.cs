@@ -6,6 +6,7 @@ using Kijk.Application.Categories.Delete;
 using Kijk.Application.Categories.List;
 using Kijk.Application.Categories.Shared;
 using Kijk.Application.Categories.Update;
+using Kijk.Application.Shared.Paging;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -25,7 +26,7 @@ public sealed class CategoriesEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .RequireFeature(AppConstants.Features.Finances);
 
-        group.MapGet("/", List).WithName("Categories.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the categories available to the active space");
+        group.MapGet("/", List).WithName("Categories.List").RequireSpacePermission(SpacePermissions.Finances.View).WithSummary("Gets the categories available to the active space, optionally searched by name, sorted and paged");
         group.MapPost("/", Create).WithName("Categories.Create").RequireSpacePermission(SpacePermissions.Finances.Configure).WithRequestValidation<CreateCategoryRequest>().WithSummary("Creates a custom category");
         group.MapPut("/{id:guid}", Update).WithName("Categories.Update").RequireSpacePermission(SpacePermissions.Finances.Configure).WithRequestValidation<UpdateCategoryRequest>().WithSummary("Updates a custom category");
         group.MapDelete("/{id:guid}", Delete).WithName("Categories.Delete").RequireSpacePermission(SpacePermissions.Finances.Configure).WithSummary("Deletes an unused custom category");
@@ -33,9 +34,13 @@ public sealed class CategoriesEndpoints : IEndpointGroup
         return builder;
     }
 
-    private static async Task<Results<Ok<List<CategoryResponse>>, ProblemHttpResult>> List(ListHandler handler, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<PageResponse<CategoryResponse>>, ProblemHttpResult>> List(
+        ListHandler handler,
+        [AsParameters] ListQueryParameters<CategorySort> query,
+        [AsParameters] PageParameters paging,
+        CancellationToken cancellationToken)
     {
-        var result = await handler.HandleAsync(cancellationToken);
+        var result = await handler.HandleAsync(query.ToRequest(paging), cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

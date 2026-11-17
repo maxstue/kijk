@@ -5,6 +5,7 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
+import { listPage } from '@/test/list-page';
 import { render } from '@/test/render-space';
 
 import { BudgetForm } from './form';
@@ -18,7 +19,10 @@ vi.mock('@/shared/hooks/use-active-space', async (importOriginal) => ({
 
 test('saves a budget by category and month without loading budget versions first', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
-  client.setQueryData(queryKeys.categories.list('space'), [{ id: 'groceries', name: 'Groceries', kind: 'Expense' }]);
+  client.setQueryData(
+    queryKeys.categories.list('space'),
+    listPage([{ id: 'groceries', name: 'Groceries', kind: 'Expense' }]),
+  );
   vi.mocked(budgetsApi.setFromMonth).mockResolvedValue({ id: 'budget' } as Budget);
   const onClose = vi.fn<() => void>();
   const screen = await render(

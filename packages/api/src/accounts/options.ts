@@ -1,15 +1,21 @@
 import { invalidate } from '@kijk/api/cache';
+import { keepPreviousPageInSpace } from '@kijk/api/paging';
+import type { ListQuery } from '@kijk/api/paging';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import { create, remove, list, update } from './requests';
-import type { CreateAccountRequest, UpdateAccountRequest } from './types';
+import type { AccountPage, AccountSort, CreateAccountRequest, UpdateAccountRequest } from './types';
 
-/** Query for the accounts of the active space. */
-export const listQueryOptions = (spaceId: string) =>
+/**
+ * Query for the accounts of the active space. Tables pass a search, sort and page; selects omit the query to get every
+ * row.
+ */
+export const listQueryOptions = (spaceId: string, query: ListQuery<AccountSort> = {}) =>
   queryOptions({
-    queryFn: ({ signal }) => list(spaceId, signal),
-    queryKey: queryKeys.accounts.list(spaceId),
+    placeholderData: keepPreviousPageInSpace<AccountPage>(spaceId),
+    queryFn: ({ signal }) => list(spaceId, query, signal),
+    queryKey: queryKeys.accounts.list(spaceId, query),
   });
 
 /** Mutation that creates an account. */

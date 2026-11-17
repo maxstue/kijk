@@ -44,6 +44,7 @@
     "@sentry/react": "catalog:",
     "@tanstack/charts": "catalog:",
     "@tanstack/react-devtools": "catalog:",
+    "@tanstack/react-pacer": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",

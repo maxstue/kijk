@@ -15,14 +15,14 @@ import { formatStringToCurrency } from '@/shared/utils/format';
 
 const uncategorized = 'none';
 
-interface CandidateRowProps {
+interface Props {
   candidate: ImportCandidate;
   categories: Category[];
   importId: string;
   manualOverrides: boolean;
 }
 
-export function CandidateRow({ candidate, categories, importId, manualOverrides }: CandidateRowProps) {
+export function CandidateRow({ candidate, categories, importId, manualOverrides }: Props) {
   const spaceId = useSpaceId();
   const updateMutation = useMutation(importsOptions.updateCandidateMutationOptions(spaceId, importId));
 
@@ -46,12 +46,13 @@ export function CandidateRow({ candidate, categories, importId, manualOverrides 
         <Checkbox
           aria-label='Import this row'
           checked={!candidate.excluded}
-          disabled={updateMutation.isPending}
+          disabled={updateMutation.isPending || Boolean(candidate.errors)}
           onCheckedChange={(checked) => update({ excluded: checked !== true })}
         />
       </TableCell>
       <TableCell className='whitespace-nowrap'>{candidate.bookingDate}</TableCell>
       <TableCell>
+        {candidate.errors && <p className='text-destructive text-sm'>{candidate.errors}</p>}
         <div className='font-medium'>{candidate.counterparty ?? '—'}</div>
         {candidate.purpose && (
           <div className='text-muted-foreground max-w-80 truncate text-xs'>{candidate.purpose}</div>
@@ -68,7 +69,7 @@ export function CandidateRow({ candidate, categories, importId, manualOverrides 
           candidate={candidate}
           categories={categories}
           editable={manualOverrides}
-          disabled={updateMutation.isPending || candidate.excluded}
+          disabled={updateMutation.isPending || candidate.excluded || Boolean(candidate.errors)}
           onChange={(categoryId) => update({ categoryId })}
         />
       </TableCell>
