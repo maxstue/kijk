@@ -1,16 +1,50 @@
 name: Migrate database
-description: Build an EF Core migrations bundle and apply it to a database.
+description: Build an EF Core migrations bundle and apply it to a private Railway database through an SSH tunnel.
 
 inputs:
   connection_string:
-    description: Connection string used to build and apply the migrations bundle.
+    description: Connection string with the database credentials; host and port are replaced by the local tunnel.
     required: true
+  railway_api_token:
+    description: Railway API token with SSH access to the database service.
+    required: true
+  railway_project_id:
+    description: Railway project ID.
+    required: true
+  railway_environment_id:
+    description: Railway environment ID.
+    required: true
+  railway_ssh_private_key:
+    description: Private SSH key registered with Railway for the API token's account or workspace.
+    required: true
+  database_service:
+    description: Name of the Railway database service.
+    required: false
+    default: Postgres
 
 runs:
   using: composite
   steps:
     - name: '🔧 Setup .NET'
       uses: ./.github/actions/setup-dotnet
+
+    - name: '🚂 Install Railway CLI'
+      shell: bash
+      env:
+        # Same CLI version as the pinned deploy container image.
+        RAILWAY_CLI_VERSION: 5.71.0
+        RAILWAY_CLI_SHA256: 856dde75501fc1088065e5d980141ddc2340be81cfcef5ece8cd0e947ff9d709
+      run: |
+        set -euo pipefail
+
+        archive="$RUNNER_TEMP/railway.tar.gz"
+        curl -fsSL -o "$archive" \
+          "https://github.com/railwayapp/cli/releases/download/v${RAILWAY_CLI_VERSION}/railway-v${RAILWAY_CLI_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+        echo "${RAILWAY_CLI_SHA256}  ${archive}" | sha256sum --check --strict
+
+        mkdir -p "$RUNNER_TEMP/railway-cli"
+        tar -xzf "$archive" -C "$RUNNER_TEMP/railway-cli" railway
+        echo "$RUNNER_TEMP/railway-cli" >> "$GITHUB_PATH"
 
     - name: '🛠️ Create migrations bundle'
       shell: bash
@@ -31,11 +65,64 @@ runs:
       working-directory: ./apps/api
       env:
         API_MIGRATION_CONNECTION: ${{ inputs.connection_string }}
+        RAILWAY_API_TOKEN: ${{ inputs.railway_api_token }}
+        RAILWAY_PROJECT_ID: ${{ inputs.railway_project_id }}
+        RAILWAY_ENVIRONMENT_ID: ${{ inputs.railway_environment_id }}
+        RAILWAY_SSH_PRIVATE_KEY: ${{ inputs.railway_ssh_private_key }}
+        DATABASE_SERVICE: ${{ inputs.database_service }}
+        TUNNEL_PORT: '55432'
       run: |
         set -euo pipefail
 
+        # The Railway CLI picks up registered keys from ~/.ssh.
+        ssh_key="$HOME/.ssh/id_ed25519"
+        tunnel_log="$(mktemp)"
+        tunnel_pid=''
+
+        cleanup() {
+          if [ -n "$tunnel_pid" ]; then
+            kill "$tunnel_pid" 2>/dev/null || true
+          fi
+          rm -f "$ssh_key" "$tunnel_log"
+        }
+        trap cleanup EXIT
+
+        install -d -m 700 "$HOME/.ssh"
+        printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$ssh_key"
+        chmod 600 "$ssh_key"
+
+        railway connect "$DATABASE_SERVICE" \
+          --tunnel-only \
+          --project "$RAILWAY_PROJECT_ID" \
+          --environment "$RAILWAY_ENVIRONMENT_ID" \
+          --port "$TUNNEL_PORT" \
+          > "$tunnel_log" 2>&1 &
+        tunnel_pid=$!
+
+        for _ in $(seq 1 30); do
+          if (exec 3<>"/dev/tcp/127.0.0.1/$TUNNEL_PORT") 2>/dev/null; then
+            break
+          fi
+
+          if ! kill -0 "$tunnel_pid" 2>/dev/null; then
+            break
+          fi
+
+          sleep 1
+        done
+
+        if ! (exec 3<>"/dev/tcp/127.0.0.1/$TUNNEL_PORT") 2>/dev/null; then
+          # The tunnel output contains the database password.
+          grep -viE 'password|postgres(ql)?://' "$tunnel_log" || true
+          echo "::error title=Database migration::Could not open the SSH tunnel to the database."
+          exit 1
+        fi
+
+        # Npgsql uses the last value of a repeated key, so the tunnel replaces the stored host and port.
+        connection="${API_MIGRATION_CONNECTION%;};Host=127.0.0.1;Port=${TUNNEL_PORT}"
+
         migration_output="$(mktemp)"
-        ./efbundle --connection "$API_MIGRATION_CONNECTION" 2>&1 | tee "$migration_output"
+        ./efbundle --connection "$connection" 2>&1 | tee "$migration_output"
 
         echo "### 🗃️ Database migration" >> "$GITHUB_STEP_SUMMARY"
 

@@ -73,7 +73,7 @@ jobs:
       - name: '🏖️ Checkout Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: '🔐 Load secrets'
+      - name: '🔐 Load database secrets'
         uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
         with:
           method: oidc
@@ -83,10 +83,24 @@ jobs:
           env-slug: prod
           secret-path: /CI/Database
 
+      - name: '🔐 Load Railway secrets'
+        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
+        with:
+          method: oidc
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
+          domain: https://eu.infisical.com
+          env-slug: prod
+          secret-path: /CI/Deploy
+
       - name: '🗃️ Build and apply migrations'
         uses: ./.github/actions/migrate-database
         with:
           connection_string: ${{ env.API_MIGRATION_CONNECTION }}
+          railway_api_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
+          railway_project_id: ${{ env.RAILWAY_PROJECT_ID }}
+          railway_environment_id: ${{ env.RAILWAY_ENVIRONMENT_ID }}
+          railway_ssh_private_key: ${{ env.RAILWAY_SSH_PRIVATE_KEY }}
 
   deploy:
     name: 'Deploy ${{ matrix.name }} 🚂'
