@@ -9,7 +9,7 @@ const storage = vi.hoisted(() => ({
 }));
 const provider = vi.hoisted(() => ({ startTracing: vi.fn<(options: unknown) => unknown>() }));
 vi.mock('@kijk/core/lib/browser-storage', () => ({ browserStorage: storage }));
-vi.mock('@/shared/config', () => ({
+vi.mock('@/shared/config/env', () => ({
   config: {
     Mode: 'test',
     PosthogKey: 'phc_public',

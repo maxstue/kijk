@@ -1,6 +1,6 @@
 import { cn } from 'cn';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import { siteConfig } from '@/shared/config/site';
 
 interface Props {

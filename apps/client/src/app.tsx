@@ -4,8 +4,8 @@ import { QueryClientProvider, QueryErrorResetBoundary, type QueryClient } from '
 import type { PropsWithChildren } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 
+import { ThemeModeSwitcher } from '@/app/root/theme-mode-switcher';
 import { AppError } from '@/shared/components/errors/app-error';
-import { ThemeModeSwitcher } from '@/shared/components/theme-mode-switcher';
 import { ErrorService } from '@/shared/lib/error-tracking';
 
 interface Props extends Required<PropsWithChildren> {

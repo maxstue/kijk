@@ -2,7 +2,7 @@ import { Button, buttonVariants } from '@kijk/ui/components/button';
 import { cn } from 'cn';
 import { CookieIcon, ExternalLink } from 'lucide-react';
 
-import { useAnalyticsConsent } from '@/shared/hooks/use-analytics-consent';
+import { useAnalyticsConsent } from '@/app/root/use-analytics-consent';
 
 /** Cookie banner asking for analytics consent; hidden once the user decided. */
 export function AnalyticsBanner() {

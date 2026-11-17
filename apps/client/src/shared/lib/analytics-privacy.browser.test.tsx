@@ -4,7 +4,7 @@ import { HttpResponse, http } from 'msw';
 import { posthog } from 'posthog-js';
 import { expect, test, vi } from 'vite-plus/test';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import { worker } from '@/test/mocks/browser';
 
 import { AnalyticsService } from './analytics-tracking';

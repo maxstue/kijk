@@ -2,8 +2,8 @@ import { buttonVariants } from '@kijk/ui/components/button';
 import { cn } from 'cn';
 import { ExternalLink } from 'lucide-react';
 
+import { AppVersion } from '@/app/settings/info/app-version';
 import { DeleteAccount } from '@/app/settings/info/delete-account';
-import { AppVersion } from '@/shared/components/app-version';
 import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
 
 import { PrivacyForm } from './privacy-form';

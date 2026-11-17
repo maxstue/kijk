@@ -20,10 +20,10 @@ import { toast } from 'sonner';
 
 import type { UserStepFormDraft, UserStepFormValues } from '@/app/welcome/schemas';
 import { userStepSchema } from '@/app/welcome/schemas';
+import { useSignInProviderName } from '@/app/welcome/use-sign-in-provider-name';
 import { useWelcomeUser } from '@/app/welcome/use-welcome-user';
 import { AppBrand } from '@/shared/components/app-brand';
 import { Form } from '@/shared/components/form';
-import { useSignInProviderName } from '@/shared/hooks/use-sign-in-provider-name';
 
 import { PrivacyStep } from './privacy-step';
 import { ProfileStep } from './profile-step';
