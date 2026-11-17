@@ -17,10 +17,6 @@ inputs:
   railway_ssh_private_key:
     description: Private SSH key registered with Railway for the API token's account or workspace.
     required: true
-  database_service:
-    description: Name of the Railway database service.
-    required: false
-    default: Postgres
 
 runs:
   using: composite
@@ -31,14 +27,14 @@ runs:
     - name: '🚂 Install Railway CLI'
       shell: bash
       env:
-        # Same CLI version as the pinned deploy container image.
+        # Renovate does not update these; keep them aligned with the deploy container image by hand.
         RAILWAY_CLI_VERSION: 5.71.0
         RAILWAY_CLI_SHA256: 856dde75501fc1088065e5d980141ddc2340be81cfcef5ece8cd0e947ff9d709
       run: |
         set -euo pipefail
 
         archive="$RUNNER_TEMP/railway.tar.gz"
-        curl -fsSL -o "$archive" \
+        curl -fsSL --retry 3 -o "$archive" \
           "https://github.com/railwayapp/cli/releases/download/v${RAILWAY_CLI_VERSION}/railway-v${RAILWAY_CLI_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
         echo "${RAILWAY_CLI_SHA256}  ${archive}" | sha256sum --check --strict
 
@@ -69,38 +65,40 @@ runs:
         RAILWAY_PROJECT_ID: ${{ inputs.railway_project_id }}
         RAILWAY_ENVIRONMENT_ID: ${{ inputs.railway_environment_id }}
         RAILWAY_SSH_PRIVATE_KEY: ${{ inputs.railway_ssh_private_key }}
-        DATABASE_SERVICE: ${{ inputs.database_service }}
         TUNNEL_PORT: '55432'
       run: |
         set -euo pipefail
 
         # The Railway CLI picks up registered keys from ~/.ssh.
         ssh_key="$HOME/.ssh/id_ed25519"
-        tunnel_log="$(mktemp)"
         tunnel_pid=''
 
         cleanup() {
           if [ -n "$tunnel_pid" ]; then
             kill "$tunnel_pid" 2>/dev/null || true
           fi
-          rm -f "$ssh_key" "$tunnel_log"
+          rm -f "$ssh_key"
         }
         trap cleanup EXIT
 
         install -d -m 700 "$HOME/.ssh"
         printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$ssh_key"
         chmod 600 "$ssh_key"
+        unset RAILWAY_SSH_PRIVATE_KEY
 
-        railway connect "$DATABASE_SERVICE" \
+        # The tunnel prints the database credentials, so its output is discarded.
+        railway connect Postgres \
           --tunnel-only \
           --project "$RAILWAY_PROJECT_ID" \
           --environment "$RAILWAY_ENVIRONMENT_ID" \
           --port "$TUNNEL_PORT" \
-          > "$tunnel_log" 2>&1 &
+          > /dev/null 2>&1 &
         tunnel_pid=$!
 
+        ready=false
         for _ in $(seq 1 30); do
           if (exec 3<>"/dev/tcp/127.0.0.1/$TUNNEL_PORT") 2>/dev/null; then
+            ready=true
             break
           fi
 
@@ -111,10 +109,8 @@ runs:
           sleep 1
         done
 
-        if ! (exec 3<>"/dev/tcp/127.0.0.1/$TUNNEL_PORT") 2>/dev/null; then
-          # The tunnel output contains the database password.
-          grep -viE 'password|postgres(ql)?://' "$tunnel_log" || true
-          echo "::error title=Database migration::Could not open the SSH tunnel to the database."
+        if [ "$ready" != true ]; then
+          echo "::error title=Database migration::Could not open the SSH tunnel to the database. Run 'railway connect Postgres --tunnel-only' locally with the CI key to inspect the error."
           exit 1
         fi
 
