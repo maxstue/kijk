@@ -10,8 +10,8 @@ import {
 import { ChevronDown } from 'lucide-react';
 import { Fragment } from 'react';
 
+import { ResourceUnit } from '@/app/consumptions/resource-unit';
 import { ResourceIcon } from '@/shared/components/resource-icon';
-import { ResourceUnit } from '@/shared/components/resources-unit';
 
 import { AnnualEntriesTable } from './annual-entries-table';
 import { type AnnualResourceSummary } from './helpers';

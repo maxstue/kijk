@@ -5,7 +5,7 @@ import { flexRender, tableFeatures, useTable } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 import { RefreshCcw } from 'lucide-react';
 
-import { ResourceUnit } from '@/shared/components/resources-unit';
+import { ResourceUnit } from '@/app/consumptions/resource-unit';
 import type { Consumption } from '@/shared/types/domain';
 
 import { ConsumptionDeleteButton } from './delete-button';

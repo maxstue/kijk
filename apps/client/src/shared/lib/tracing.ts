@@ -1,5 +1,5 @@
 import type { AppRouter } from '@/router';
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import { getCookieConsent } from '@/shared/lib/cookie-consent';
 import type { CookieConsent } from '@/shared/types/analytics';
 

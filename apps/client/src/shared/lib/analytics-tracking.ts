@@ -2,7 +2,7 @@ import { browserStorage } from '@kijk/core/lib/browser-storage';
 import { posthog } from 'posthog-js';
 import type { CaptureOptions, Properties } from 'posthog-js';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import { getCookieConsent } from '@/shared/lib/cookie-consent';
 import { TracingService } from '@/shared/lib/tracing';
 import type { CookieConsent } from '@/shared/types/analytics';

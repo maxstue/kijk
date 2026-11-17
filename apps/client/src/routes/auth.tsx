@@ -6,13 +6,14 @@ import { z } from 'zod';
 
 import { AuthError, AuthPending } from '@/app/auth/feedback';
 import { Login } from '@/app/auth/login';
+import { safeRedirect } from '@/app/auth/safe-redirect';
 import { SignUp } from '@/app/auth/sign-up';
 import { AppBrand } from '@/shared/components/app-brand';
-import { safeRedirect } from '@/shared/lib/safe-redirect';
 import { getStartSpace } from '@/shared/lib/spaces';
 
 const authSearchSchema = z.object({
-  from: z.string().optional(),
+  // `from` is user-controlled; only internal targets survive, everything else becomes `/`.
+  from: z.string().optional().transform(safeRedirect),
 });
 
 /** Completes sign-in only after the session and Kijk account have both been loaded. */
@@ -34,7 +35,7 @@ export const Route = createFileRoute('/auth')({
     if (!isReadyCurrentUser(currentUser)) {
       throw redirect({ to: '/welcome', replace: true });
     }
-    const target = safeRedirect(search.from);
+    const target = search.from;
     const path = target.split(/[?#]/)[0];
     if (target !== '/' && path !== '/auth' && path !== '/sso-callback') {
       throw redirect({ to: target, replace: true });
@@ -50,7 +51,6 @@ export const Route = createFileRoute('/auth')({
 function AuthPage() {
   const [show, setShow] = useState<'Login' | 'Sign Up'>('Login');
   const search = Route.useSearch();
-  const from = safeRedirect(search.from);
 
   return (
     <main className='bg-background flex min-h-svh flex-1 flex-col items-center justify-center gap-6 p-6'>
@@ -58,8 +58,8 @@ function AuthPage() {
       <div className='flex w-full max-w-sm flex-col items-center gap-6'>
         <AppBrand />
         <div className='w-full'>
-          {show === 'Sign Up' && <SignUp goto={setShow} redirectTo={from} />}
-          {show === 'Login' && <Login goto={setShow} redirectTo={from} />}
+          {show === 'Sign Up' && <SignUp goto={setShow} redirectTo={search.from} />}
+          {show === 'Login' && <Login goto={setShow} redirectTo={search.from} />}
         </div>
       </div>
     </main>

@@ -9,13 +9,6 @@ export const monthSchema = z.enum(MONTHS);
 /** An English month name. */
 export type { Months } from '@kijk/api/months';
 
-const monthFormatter = new Intl.DateTimeFormat(undefined, { month: 'long' });
-
-/** Formats a month name in the given or the browser's locale. */
-export function formatMonth(month: Months, locale?: string) {
-  const formatter = locale ? new Intl.DateTimeFormat(locale, { month: 'long' }) : monthFormatter;
-  return formatter.format(new Date(2000, MONTHS.indexOf(month)));
-}
 /** Returns the month name of a 0-based month index; throws for invalid indexes. */
 export function getMonthFromIndex(index: number): Months {
   const month = MONTHS[index];

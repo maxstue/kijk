@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vite-plus/test';
 
-import { formatMonth, getMonthFromDate, getMonthFromIndex, getMonthNumber, shiftMonth } from './months';
+import { getMonthFromDate, getMonthFromIndex, getMonthNumber, shiftMonth } from './months';
 
 describe('month utilities', () => {
   test('maps zero-based date indexes to domain month values', () => {
@@ -11,10 +11,6 @@ describe('month utilities', () => {
   test('maps domain month values to one-based API indexes', () => {
     expect(getMonthNumber('january')).toBe(1);
     expect(getMonthNumber('december')).toBe(12);
-  });
-
-  test('formats a month using the requested locale', () => {
-    expect(formatMonth('march', 'de-DE')).toBe('März');
   });
 
   test('rejects invalid month values', () => {

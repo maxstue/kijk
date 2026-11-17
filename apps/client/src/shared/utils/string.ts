@@ -1,18 +1,3 @@
-import { z } from 'zod';
-
-import type { Nullish } from '@/shared/types/common';
-
-const stringRequiredSchema = z.string().trim().min(1);
-/**
- * Validates a given string if it is empty(null| undefined) or is only a whitespace
- *
- * @param value The string value to validate
- * @returns True if the value is NOT empty or is only a whitespace
- */
-export function stringIsNotEmptyOrWhitespace(value: Nullish<string>): value is string {
-  return stringRequiredSchema.safeParse(value).success;
-}
-
 const message = `
 ##    ## ####       ## ##    ##
 ##   ##   ##        ## ##   ##

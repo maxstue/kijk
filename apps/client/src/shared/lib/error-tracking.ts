@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/react';
 import { posthog } from 'posthog-js';
 import type { PostHog } from 'posthog-js';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import { scrubErrorEvent, scrubPosthogEvent } from '@/shared/lib/error-event-scrubber';
 
 /** Name of the PostHog instance that only reports errors; analytics starts separately after consent. */

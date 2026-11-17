@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-import { config } from '@/shared/config';
+import { config } from '@/shared/config/env';
 import { capitalizeFirstLetter } from '@/shared/utils/string';
 
 /** Displays the current development mode, viewport and CSS breakpoint. */

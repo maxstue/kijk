@@ -1,7 +1,7 @@
 import { expect, test } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
-import { ResourceUnit } from './resources-unit';
+import { ResourceUnit } from './resource-unit';
 
 test('renders a fallback when no resource is available', async () => {
   const screen = await render(<ResourceUnit />);

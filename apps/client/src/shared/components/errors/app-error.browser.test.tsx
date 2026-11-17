@@ -11,7 +11,7 @@ const { captureException } = vi.hoisted(() => ({
   captureException: vi.fn<(error: unknown) => void>(),
 }));
 
-vi.mock('@/shared/components/theme-mode-switcher', () => ({ ThemeModeSwitcher: () => null }));
+vi.mock('@/app/root/theme-mode-switcher', () => ({ ThemeModeSwitcher: () => null }));
 vi.mock('@/shared/lib/error-tracking', () => ({ ErrorService: { captureException } }));
 
 test.each([

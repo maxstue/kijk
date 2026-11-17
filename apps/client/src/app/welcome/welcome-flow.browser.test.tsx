@@ -11,7 +11,7 @@ const mutation = vi.hoisted(() => ({
   isPending: false,
 }));
 vi.mock('./use-welcome-user', () => ({ useWelcomeUser: () => mutation }));
-vi.mock('@/shared/hooks/use-sign-in-provider-name', () => ({
+vi.mock('@/app/welcome/use-sign-in-provider-name', () => ({
   useSignInProviderName: () => ({ providerName: 'Test provider' }),
 }));
 vi.mock('sonner', () => ({ toast: vi.fn<typeof toast>() }));
