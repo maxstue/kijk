@@ -12,6 +12,18 @@
   "minimumReleaseAge": "2 days",
   "rangeStrategy": "bump",
   "schedule": ["before 8am on monday"],
+  "customManagers": [
+    {
+      "description": "Update the Railway CLI release and its checksum in the migrate-database action.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/actions/migrate-database/action\\.yml$/"],
+      "matchStrings": [
+        "RAILWAY_CLI_VERSION: (?<currentValue>v\\S+)\\s+RAILWAY_CLI_SHA256: (?<currentDigest>[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "railwayapp/cli",
+      "datasourceTemplate": "github-release-attachments"
+    }
+  ],
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 8am on monday"],
@@ -55,6 +67,12 @@
       "matchManagers": ["npm", "nuget"],
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Keep the Railway CLI of the migration action and the deploy container on the same version.",
+      "matchPackageNames": ["railwayapp/cli", "ghcr.io/railwayapp/cli"],
+      "groupName": "railway cli",
+      "commitMessageTopic": "railway cli"
     }
   ]
 }

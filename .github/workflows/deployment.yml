@@ -87,13 +87,17 @@ jobs:
         uses: ./.github/actions/migrate-database
         with:
           connection_string: ${{ env.API_MIGRATION_CONNECTION }}
+          railway_api_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
+          railway_project_id: ${{ env.RAILWAY_PROJECT_ID }}
+          railway_environment_id: ${{ env.RAILWAY_ENVIRONMENT_ID }}
+          railway_ssh_private_key: ${{ env.RAILWAY_SSH_PRIVATE_KEY }}
 
   deploy:
     name: 'Deploy ${{ matrix.name }} 🚂'
     needs: [migrate-database, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    container: ghcr.io/railwayapp/cli@sha256:68718943fa4570cecd64a16472d42039dd63c532684da314a27132b8ef4b2f76
+    container: ghcr.io/railwayapp/cli:5.71.0@sha256:68718943fa4570cecd64a16472d42039dd63c532684da314a27132b8ef4b2f76
     # The production environment binds the Infisical identity (OIDC subject) that may only read
     # prod /CI/Deploy and prod /CI/Database.
     environment:
