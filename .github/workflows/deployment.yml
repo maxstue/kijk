@@ -132,7 +132,7 @@ jobs:
       - name: '🚀 Deploy ${{ matrix.name }} to Railway'
         uses: ./.github/actions/deploy-railway
         with:
-          api_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
+          project_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
           project_id: ${{ env.RAILWAY_PROJECT_ID }}
           service_id: ${{ env[matrix.service_id_variable] }}
           environment_id: ${{ env.RAILWAY_ENVIRONMENT_ID }}
