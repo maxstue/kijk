@@ -15,7 +15,10 @@ inputs:
     description: Railway environment ID.
     required: true
   railway_ssh_private_key:
-    description: Private SSH key registered with Railway for the API token's account or workspace.
+    description: Private SSH key for the migration tunnel.
+    required: true
+  railway_ssh_public_key:
+    description: Public SSH key registered with Railway for the API token's account or workspace.
     required: true
 
 runs:
@@ -65,11 +68,12 @@ runs:
         RAILWAY_PROJECT_ID: ${{ inputs.railway_project_id }}
         RAILWAY_ENVIRONMENT_ID: ${{ inputs.railway_environment_id }}
         RAILWAY_SSH_PRIVATE_KEY: ${{ inputs.railway_ssh_private_key }}
+        RAILWAY_SSH_PUBLIC_KEY: ${{ inputs.railway_ssh_public_key }}
         TUNNEL_PORT: '55432'
       run: |
         set -euo pipefail
 
-        # The Railway CLI picks up registered keys from ~/.ssh.
+        # Railway discovers identities through their public key files in ~/.ssh.
         ssh_key="$HOME/.ssh/id_ed25519"
         tunnel_pid=''
 
@@ -77,16 +81,17 @@ runs:
           if [ -n "$tunnel_pid" ]; then
             kill "$tunnel_pid" 2>/dev/null || true
           fi
-          rm -f "$ssh_key"
+          rm -f "$ssh_key" "$ssh_key.pub"
         }
         trap cleanup EXIT
 
         install -d -m 700 "$HOME/.ssh"
-        printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$ssh_key"
+        printf '%s\n' "${RAILWAY_SSH_PRIVATE_KEY:?Missing Infisical SSH private key}" > "$ssh_key"
         chmod 600 "$ssh_key"
-        unset RAILWAY_SSH_PRIVATE_KEY
+        printf '%s\n' "${RAILWAY_SSH_PUBLIC_KEY:?Missing Infisical SSH public key}" > "$ssh_key.pub"
+        unset RAILWAY_SSH_PRIVATE_KEY RAILWAY_SSH_PUBLIC_KEY
 
-        # The tunnel prints the database credentials, so its output is discarded.
+        # The CLI prints database credentials in tunnel-only mode.
         railway connect Postgres \
           --tunnel-only \
           --project "$RAILWAY_PROJECT_ID" \
@@ -97,12 +102,12 @@ runs:
 
         ready=false
         for _ in $(seq 1 30); do
-          if (exec 3<>"/dev/tcp/127.0.0.1/$TUNNEL_PORT") 2>/dev/null; then
-            ready=true
+          if ! kill -0 "$tunnel_pid" 2>/dev/null; then
             break
           fi
 
-          if ! kill -0 "$tunnel_pid" 2>/dev/null; then
+          if (exec 3<>"/dev/tcp/127.0.0.1/$TUNNEL_PORT") 2>/dev/null; then
+            ready=true
             break
           fi
 
@@ -110,7 +115,14 @@ runs:
         done
 
         if [ "$ready" != true ]; then
-          echo "::error title=Database migration::Could not open the SSH tunnel to the database. Run 'railway connect Postgres --tunnel-only' locally with the CI key to inspect the error."
+          if kill -0 "$tunnel_pid" 2>/dev/null; then
+            echo "::error title=Database migration::SSH tunnel was not ready after 30 seconds."
+          else
+            tunnel_status=0
+            wait "$tunnel_pid" || tunnel_status=$?
+            tunnel_pid=''
+            echo "::error title=Database migration::Railway CLI exited before the SSH tunnel was ready (exit code $tunnel_status)."
+          fi
           exit 1
         fi
 
