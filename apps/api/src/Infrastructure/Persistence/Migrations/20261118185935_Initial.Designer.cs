@@ -14,15 +14,16 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Kijk.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261005060913_AddCsvImports")]
-    partial class AddCsvImports
+    [Migration("20261118185935_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "creator_type", new[] { "system", "user" });
@@ -45,10 +46,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<string>("IbanLast4")
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)")
@@ -64,6 +61,14 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
                         .HasColumnType("timestamp with time zone")
@@ -72,12 +77,15 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_accounts");
 
-                    b.HasIndex("HouseholdId")
-                        .HasDatabaseName("ix_accounts_household_id");
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_accounts_owner_id");
 
-                    b.HasIndex(new[] { "HouseholdId" }, "ix_accounts_household_id_cash")
+                    b.HasIndex("SpaceId")
+                        .HasDatabaseName("ix_accounts_space_id");
+
+                    b.HasIndex(new[] { "SpaceId" }, "ix_accounts_space_id_cash")
                         .IsUnique()
-                        .HasDatabaseName("ix_accounts_household_id_cash")
+                        .HasDatabaseName("ix_accounts_space_id_cash")
                         .HasFilter("kind = 1");
 
                     b.ToTable("accounts", (string)null);
@@ -117,9 +125,13 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("HouseholdId")
+                    b.Property<Guid?>("OwnerId")
                         .HasColumnType("uuid")
-                        .HasColumnName("household_id");
+                        .HasColumnName("owner_id");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
@@ -139,9 +151,18 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedById")
                         .HasDatabaseName("ix_budgets_created_by_id");
 
-                    b.HasIndex("HouseholdId", "CategoryId", "ValidFrom")
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_budgets_owner_id");
+
+                    b.HasIndex("SpaceId", "CategoryId", "ValidFrom")
                         .IsUnique()
-                        .HasDatabaseName("ix_budgets_household_id_category_id_valid_from");
+                        .HasDatabaseName("ix_budgets_space_id_category_id_valid_from")
+                        .HasFilter("owner_id IS NULL");
+
+                    b.HasIndex("SpaceId", "OwnerId", "CategoryId", "ValidFrom")
+                        .IsUnique()
+                        .HasDatabaseName("ix_budgets_space_id_owner_id_category_id_valid_from")
+                        .HasFilter("owner_id IS NOT NULL");
 
                     b.ToTable("budgets", (string)null);
                 });
@@ -173,10 +194,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -191,14 +208,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
+                        .HasColumnName("name")
+                        .UseCollation("case_insensitive");
 
-                    b.Property<string>("NormalizedName")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("normalized_name")
-                        .HasComputedColumnSql("lower(btrim(name))", true);
+                    b.Property<Guid?>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
@@ -208,17 +223,20 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_categories");
 
-                    b.HasIndex("NormalizedName")
+                    b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_categories_normalized_name")
-                        .HasFilter("household_id IS NULL");
+                        .HasDatabaseName("ix_categories_name")
+                        .HasFilter("space_id IS NULL");
 
-                    b.HasIndex("HouseholdId", "NormalizedName")
+                    b.HasIndex("SpaceId", "Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_categories_household_id_normalized_name")
-                        .HasFilter("household_id IS NOT NULL");
+                        .HasDatabaseName("ix_categories_space_id_name")
+                        .HasFilter("space_id IS NOT NULL");
 
-                    b.ToTable("categories", (string)null);
+                    b.ToTable("categories", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_categories_name_trimmed", "name = btrim(name)");
+                        });
 
                     b.HasData(
                         new
@@ -344,10 +362,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -364,6 +378,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("origin");
 
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer")
                         .HasColumnName("priority");
@@ -371,6 +389,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<int>("Scope")
                         .HasColumnType("integer")
                         .HasColumnName("scope");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
@@ -383,9 +405,18 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_category_rules_category_id");
 
-                    b.HasIndex("HouseholdId", "Scope", "Key")
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_category_rules_owner_id");
+
+                    b.HasIndex("SpaceId", "Scope", "Key")
                         .IsUnique()
-                        .HasDatabaseName("ix_category_rules_household_id_scope_key");
+                        .HasDatabaseName("ix_category_rules_space_id_scope_key")
+                        .HasFilter("owner_id IS NULL");
+
+                    b.HasIndex("SpaceId", "OwnerId", "Scope", "Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_category_rules_space_id_owner_id_scope_key")
+                        .HasFilter("owner_id IS NOT NULL");
 
                     b.ToTable("category_rules", (string)null);
                 });
@@ -420,10 +451,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(250)")
                         .HasColumnName("description");
 
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -433,6 +460,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ResourceId")
                         .HasColumnType("uuid")
                         .HasColumnName("resource_id");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
 
                     b.Property<bool>("StartsNewMeterSegment")
                         .HasColumnType("boolean")
@@ -456,142 +487,16 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_consumptions");
 
-                    b.HasIndex("HouseholdId")
-                        .HasDatabaseName("ix_consumptions_household_id");
-
                     b.HasIndex("Name")
                         .HasDatabaseName("ix_consumptions_name");
 
                     b.HasIndex("ResourceId")
                         .HasDatabaseName("ix_consumptions_resource_id");
 
+                    b.HasIndex("SpaceId")
+                        .HasDatabaseName("ix_consumptions_space_id");
+
                     b.ToTable("consumptions", (string)null);
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.ConsumptionLimit", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("boolean")
-                        .HasColumnName("active");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_id");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("description");
-
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
-                    b.Property<DateTime?>("LastOccurrence")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_occurrence");
-
-                    b.Property<decimal>("Limit")
-                        .HasColumnType("numeric")
-                        .HasColumnName("limit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<int>("Period")
-                        .HasColumnType("integer")
-                        .HasColumnName("period");
-
-                    b.Property<Guid>("ResourceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("resource_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_consumptions_limits");
-
-                    b.HasIndex("CreatedById")
-                        .HasDatabaseName("ix_consumptions_limits_created_by_id");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("ix_consumptions_limits_name");
-
-                    b.HasIndex("ResourceId")
-                        .HasDatabaseName("ix_consumptions_limits_resource_id");
-
-                    b.HasIndex("HouseholdId", "ResourceId", "Period")
-                        .IsUnique()
-                        .HasDatabaseName("ix_consumptions_limits_household_id_resource_id_period");
-
-                    b.ToTable("consumptions_limits", (string)null);
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.Household", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<int>("PurposeRetention")
-                        .HasColumnType("integer")
-                        .HasColumnName("purpose_retention");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_households");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("ix_households_name");
-
-                    b.ToTable("households", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.ImportCandidate", b =>
@@ -600,6 +505,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<bool>("AiExcluded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ai_excluded");
 
                     b.Property<decimal?>("Amount")
                         .HasPrecision(18, 2)
@@ -633,6 +542,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("counterparty_key");
 
+                    b.Property<bool>("CountsAsOffset")
+                        .HasColumnType("boolean")
+                        .HasColumnName("counts_as_offset");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -655,6 +568,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ImportJobId")
                         .HasColumnType("uuid")
                         .HasColumnName("import_job_id");
+
+                    b.Property<bool>("IsCardSettlement")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_card_settlement");
 
                     b.Property<bool>("IsMerchantPayment")
                         .HasColumnType("boolean")
@@ -744,6 +661,22 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
 
+                    b.Property<bool>("AiCategorizationUnavailable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ai_categorization_unavailable");
+
+                    b.Property<int>("AiCategorizedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("ai_categorized_count");
+
+                    b.Property<int>("AiDataSharing")
+                        .HasColumnType("integer")
+                        .HasColumnName("ai_data_sharing");
+
+                    b.Property<bool>("AiUnavailable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ai_unavailable");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completed_at");
@@ -787,10 +720,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone[]")
                         .HasColumnName("full_months");
 
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<int>("ImportedCount")
                         .HasColumnType("integer")
                         .HasColumnName("imported_count");
@@ -829,6 +758,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone[]")
                         .HasColumnName("skipped_months");
 
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
@@ -853,8 +786,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("AccountId", "Status")
                         .HasDatabaseName("ix_import_jobs_account_id_status");
 
-                    b.HasIndex("HouseholdId", "CreatedAt")
-                        .HasDatabaseName("ix_import_jobs_household_id_created_at");
+                    b.HasIndex("SpaceId", "CreatedAt")
+                        .HasDatabaseName("ix_import_jobs_space_id_created_at");
 
                     b.ToTable("import_jobs", (string)null);
                 });
@@ -886,10 +819,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("header_fingerprint");
 
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<string>("Mapping")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -900,6 +829,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -912,11 +845,91 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_import_profiles");
 
-                    b.HasIndex("HouseholdId", "HeaderFingerprint", "Version")
+                    b.HasIndex("SpaceId", "HeaderFingerprint", "Version")
                         .IsUnique()
-                        .HasDatabaseName("ix_import_profiles_household_id_header_fingerprint_version");
+                        .HasDatabaseName("ix_import_profiles_space_id_header_fingerprint_version");
 
                     b.ToTable("import_profiles", (string)null);
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Limit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean")
+                        .HasColumnName("active");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime?>("LastOccurrence")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_occurrence");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Period")
+                        .HasColumnType("integer")
+                        .HasColumnName("period");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resource_id");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
+
+                    b.Property<decimal>("Threshold")
+                        .HasColumnType("numeric")
+                        .HasColumnName("threshold");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_limits");
+
+                    b.HasIndex("CreatedById")
+                        .HasDatabaseName("ix_limits_created_by_id");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("ix_limits_name");
+
+                    b.HasIndex("ResourceId")
+                        .HasDatabaseName("ix_limits_resource_id");
+
+                    b.HasIndex("SpaceId", "ResourceId", "Period")
+                        .IsUnique()
+                        .HasDatabaseName("ix_limits_space_id_resource_id_period");
+
+                    b.ToTable("limits", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Permission", b =>
@@ -998,21 +1011,15 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("57820fa1-c443-458d-b8d3-40ef527720d4"),
-                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "units:share"
-                        },
-                        new
-                        {
                             Id = new Guid("0e065002-1522-4138-a96b-52e657b7cbcc"),
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "household:configure"
+                            Name = "space:configure"
                         },
                         new
                         {
                             Id = new Guid("4ab7acac-5b5f-41b4-a3f7-7174694781b1"),
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "household:delete"
+                            Name = "space:delete"
                         },
                         new
                         {
@@ -1055,6 +1062,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                             Id = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a15"),
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "budgets:plan"
+                        },
+                        new
+                        {
+                            Id = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "finances:export"
                         });
                 });
 
@@ -1085,10 +1098,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<string>("Icon")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1101,14 +1110,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
-                        .HasColumnName("name");
+                        .HasColumnName("name")
+                        .UseCollation("case_insensitive");
 
-                    b.Property<string>("NormalizedName")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("normalized_name")
-                        .HasComputedColumnSql("lower(btrim(name))", true);
+                    b.Property<Guid?>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
 
                     b.Property<Guid>("UnitId")
                         .HasColumnType("uuid")
@@ -1127,17 +1134,20 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("UnitId")
                         .HasDatabaseName("ix_resources_unit_id");
 
-                    b.HasIndex("NormalizedName", "UnitId")
+                    b.HasIndex("Name", "UnitId")
                         .IsUnique()
-                        .HasDatabaseName("ix_resources_normalized_name_unit_id")
-                        .HasFilter("household_id IS NULL");
+                        .HasDatabaseName("ix_resources_name_unit_id")
+                        .HasFilter("space_id IS NULL");
 
-                    b.HasIndex("HouseholdId", "NormalizedName", "UnitId")
+                    b.HasIndex("SpaceId", "Name", "UnitId")
                         .IsUnique()
-                        .HasDatabaseName("ix_resources_household_id_normalized_name_unit_id")
-                        .HasFilter("household_id IS NOT NULL");
+                        .HasDatabaseName("ix_resources_space_id_name_unit_id")
+                        .HasFilter("space_id IS NOT NULL");
 
-                    b.ToTable("resources", (string)null);
+                    b.ToTable("resources", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_resources_name_trimmed", "name = btrim(name)");
+                        });
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Role", b =>
@@ -1193,6 +1203,64 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "Viewer"
                         });
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Space", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AiDataSharing")
+                        .HasColumnType("integer")
+                        .HasColumnName("ai_data_sharing");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsPersonal")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_personal");
+
+                    b.Property<bool>("MinimizeData")
+                        .HasColumnType("boolean")
+                        .HasColumnName("minimize_data");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("PurposeRetention")
+                        .HasColumnType("integer")
+                        .HasColumnName("purpose_retention");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_spaces");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("ix_spaces_name");
+
+                    b.ToTable("spaces", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Transaction", b =>
@@ -1258,10 +1326,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<Guid?>("ImportJobId")
                         .HasColumnType("uuid")
                         .HasColumnName("import_job_id");
@@ -1282,6 +1346,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("purpose");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -1310,8 +1378,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("AccountId", "BookingDate")
                         .HasDatabaseName("ix_transactions_account_id_booking_date");
 
-                    b.HasIndex("HouseholdId", "BookingDate")
-                        .HasDatabaseName("ix_transactions_household_id_booking_date");
+                    b.HasIndex("SpaceId", "BookingDate")
+                        .HasDatabaseName("ix_transactions_space_id_booking_date");
 
                     b.ToTable("transactions", (string)null);
                 });
@@ -1323,28 +1391,9 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("archived_at");
-
-                    b.Property<decimal?>("ConversionFactor")
-                        .HasPrecision(28, 12)
-                        .HasColumnType("numeric(28,12)")
-                        .HasColumnName("conversion_factor");
-
-                    b.Property<string>("ConversionType")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)")
-                        .HasColumnName("conversion_type");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
-
-                    b.Property<CreatorType>("CreatorType")
-                        .HasColumnType("creator_type")
-                        .HasColumnName("creator_type");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1354,18 +1403,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("normalized_name")
-                        .HasComputedColumnSql("lower(btrim(name))", true);
-
-                    b.Property<Guid?>("OwnerUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_user_id");
+                        .HasColumnName("name")
+                        .UseCollation("case_insensitive");
 
                     b.Property<string>("QuantityKey")
                         .IsRequired()
@@ -1373,15 +1412,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("quantity_key");
 
-                    b.Property<Guid?>("ReferenceUnitId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("reference_unit_id");
-
                     b.Property<string>("Symbol")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("symbol");
+                        .HasColumnName("symbol")
+                        .UseCollation("case_insensitive");
 
                     b.Property<string>("UnitsNetUnitName")
                         .HasMaxLength(100)
@@ -1395,28 +1431,24 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_units");
 
-                    b.HasIndex("ReferenceUnitId")
-                        .HasDatabaseName("ix_units_reference_unit_id");
-
-                    b.HasIndex("OwnerUserId", "NormalizedName")
+                    b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_units_owner_user_id_normalized_name")
-                        .HasFilter("creator_type = 'user' AND archived_at IS NULL");
+                        .HasDatabaseName("ix_units_name");
 
-                    b.HasIndex("QuantityKey", "UnitsNetUnitName")
+                    b.HasIndex("Symbol")
                         .IsUnique()
-                        .HasDatabaseName("ix_units_quantity_key_units_net_unit_name")
-                        .HasFilter("creator_type = 'system'");
+                        .HasDatabaseName("ix_units_symbol");
 
-                    b.ToTable("units", (string)null);
+                    b.ToTable("units", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_units_name_trimmed", "name = btrim(name)");
+                        });
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("11111111-1111-4111-8111-111111111111"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Liter",
                             QuantityKey = "Volume",
                             Symbol = "l",
@@ -1425,9 +1457,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-4111-8111-111111111112"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Milliliter",
                             QuantityKey = "Volume",
                             Symbol = "ml",
@@ -1436,9 +1466,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-4111-8111-111111111113"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Cubic meter",
                             QuantityKey = "Volume",
                             Symbol = "m³",
@@ -1447,9 +1475,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-4222-8222-222222222221"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Watt hour",
                             QuantityKey = "Energy",
                             Symbol = "Wh",
@@ -1458,9 +1484,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-4222-8222-222222222222"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Kilowatt hour",
                             QuantityKey = "Energy",
                             Symbol = "kWh",
@@ -1469,9 +1493,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-4222-8222-222222222223"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Megawatt hour",
                             QuantityKey = "Energy",
                             Symbol = "MWh",
@@ -1480,9 +1502,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-4333-8333-333333333331"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Gram",
                             QuantityKey = "Mass",
                             Symbol = "g",
@@ -1491,9 +1511,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-4333-8333-333333333332"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Kilogram",
                             QuantityKey = "Mass",
                             Symbol = "kg",
@@ -1502,44 +1520,38 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-4333-8333-333333333333"),
-                            ConversionType = "UnitsNet",
                             CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatorType = CreatorType.System,
                             Name = "Tonne",
                             QuantityKey = "Mass",
                             Symbol = "t",
                             UnitsNetUnitName = "Tonne"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-8444-444444444441"),
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Meter",
+                            QuantityKey = "Length",
+                            Symbol = "m",
+                            UnitsNetUnitName = "Meter"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-8444-444444444442"),
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Kilometer",
+                            QuantityKey = "Length",
+                            Symbol = "km",
+                            UnitsNetUnitName = "Kilometer"
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-4555-8555-555555555551"),
+                            CreatedAt = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Piece",
+                            QuantityKey = "Count",
+                            Symbol = "pcs"
                         });
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.UnitHousehold", b =>
-                {
-                    b.Property<Guid>("UnitId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("unit_id");
-
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
-                    b.Property<DateTime>("SharedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("shared_at");
-
-                    b.Property<Guid>("SharedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("shared_by_user_id");
-
-                    b.HasKey("UnitId", "HouseholdId")
-                        .HasName("pk_unit_households");
-
-                    b.HasIndex("HouseholdId")
-                        .HasDatabaseName("ix_unit_households_household_id");
-
-                    b.HasIndex("SharedByUserId")
-                        .HasDatabaseName("ix_unit_households_shared_by_user_id");
-
-                    b.ToTable("unit_households", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.User", b =>
@@ -1548,6 +1560,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<bool>("AiEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ai_enabled");
 
                     b.Property<int?>("AnalyticsConsent")
                         .HasColumnType("integer")
@@ -1573,10 +1589,27 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<DateTime?>("DeletionRequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletion_requested_at");
+
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("email");
+
+                    b.Property<DateTime?>("GuideCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("guide_completed_at");
+
+                    b.PrimitiveCollection<string[]>("GuideCompletedSteps")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("guide_completed_steps");
+
+                    b.Property<int>("GuideCompletedVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("guide_completed_version");
 
                     b.Property<string>("Image")
                         .HasMaxLength(250)
@@ -1593,6 +1626,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("onboarding_completed_at");
 
+                    b.Property<DateTime?>("SensitiveDataConsentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sensitive_data_consent_at");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
                         .HasColumnType("timestamp with time zone")
@@ -1608,15 +1645,15 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Kijk.Domain.Entities.UserHousehold", b =>
+            modelBuilder.Entity("Kijk.Domain.Entities.UserSpace", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("HouseholdId")
+                    b.Property<Guid>("SpaceId")
                         .HasColumnType("uuid")
-                        .HasColumnName("household_id");
+                        .HasColumnName("space_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1632,9 +1669,9 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDefault")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnName("is_default");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uuid")
@@ -1645,19 +1682,21 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("UserId", "HouseholdId")
-                        .HasName("pk_user_households");
-
-                    b.HasIndex("HouseholdId")
-                        .HasDatabaseName("ix_user_households_household_id");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("ix_user_households_is_active");
+                    b.HasKey("UserId", "SpaceId")
+                        .HasName("pk_user_spaces");
 
                     b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_user_households_role_id");
+                        .HasDatabaseName("ix_user_spaces_role_id");
 
-                    b.ToTable("user_households", (string)null);
+                    b.HasIndex("SpaceId")
+                        .HasDatabaseName("ix_user_spaces_space_id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_spaces_default")
+                        .HasFilter("is_default");
+
+                    b.ToTable("user_spaces", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
@@ -1739,11 +1778,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            PermissionsId = new Guid("57820fa1-c443-458d-b8d3-40ef527720d4"),
-                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
-                        },
-                        new
-                        {
                             PermissionsId = new Guid("0e065002-1522-4138-a96b-52e657b7cbcc"),
                             RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
                         },
@@ -1789,6 +1823,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
+                            PermissionsId = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
                             PermissionsId = new Guid("51af63b7-f581-48a5-8987-937939b56dec"),
                             RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
                         },
@@ -1830,6 +1869,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         new
                         {
                             PermissionsId = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a13"),
+                            RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
+                        },
+                        new
+                        {
+                            PermissionsId = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"),
                             RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
                         },
                         new
@@ -1880,14 +1924,22 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Kijk.Domain.Entities.Account", b =>
                 {
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                    b.HasOne("Kijk.Domain.Entities.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_accounts_users_owner_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany("Accounts")
-                        .HasForeignKey("HouseholdId")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_accounts_households_household_id");
+                        .HasConstraintName("fk_accounts_spaces_space_id");
 
-                    b.Navigation("Household");
+                    b.Navigation("Owner");
+
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Budget", b =>
@@ -1906,29 +1958,37 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_budgets_users_created_by_id");
 
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                    b.HasOne("Kijk.Domain.Entities.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_budgets_users_owner_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany("Budgets")
-                        .HasForeignKey("HouseholdId")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_budgets_households_household_id");
+                        .HasConstraintName("fk_budgets_spaces_space_id");
 
                     b.Navigation("Category");
 
                     b.Navigation("CreatedBy");
 
-                    b.Navigation("Household");
+                    b.Navigation("Owner");
+
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Category", b =>
                 {
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany("Categories")
-                        .HasForeignKey("HouseholdId")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_categories_households_household_id");
+                        .HasConstraintName("fk_categories_spaces_space_id");
 
-                    b.Navigation("Household");
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.CategoryRule", b =>
@@ -1940,27 +2000,28 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_category_rules_categories_category_id");
 
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                    b.HasOne("Kijk.Domain.Entities.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_category_rules_users_owner_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany("CategoryRules")
-                        .HasForeignKey("HouseholdId")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_category_rules_households_household_id");
+                        .HasConstraintName("fk_category_rules_spaces_space_id");
 
                     b.Navigation("Category");
 
-                    b.Navigation("Household");
+                    b.Navigation("Owner");
+
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Consumption", b =>
                 {
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
-                        .WithMany("Consumptions")
-                        .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_consumptions_households_household_id");
-
                     b.HasOne("Kijk.Domain.Entities.Resource", "Resource")
                         .WithMany()
                         .HasForeignKey("ResourceId")
@@ -1968,39 +2029,16 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_consumptions_resources_resource_id");
 
-                    b.Navigation("Household");
-
-                    b.Navigation("Resource");
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.ConsumptionLimit", b =>
-                {
-                    b.HasOne("Kijk.Domain.Entities.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_consumptions_limits_users_created_by_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
-                        .WithMany("ConsumptionLimits")
-                        .HasForeignKey("HouseholdId")
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
+                        .WithMany("Consumptions")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_consumptions_limits_households_household_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Resource", "Resource")
-                        .WithMany()
-                        .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_consumptions_limits_resources_resource_id");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Household");
+                        .HasConstraintName("fk_consumptions_spaces_space_id");
 
                     b.Navigation("Resource");
+
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.ImportCandidate", b =>
@@ -2043,39 +2081,69 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_import_jobs_users_created_by_id");
 
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany("ImportJobs")
-                        .HasForeignKey("HouseholdId")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_import_jobs_households_household_id");
+                        .HasConstraintName("fk_import_jobs_spaces_space_id");
 
                     b.Navigation("Account");
 
                     b.Navigation("CreatedBy");
 
-                    b.Navigation("Household");
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.ImportProfile", b =>
                 {
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany()
-                        .HasForeignKey("HouseholdId")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_import_profiles_households_household_id");
+                        .HasConstraintName("fk_import_profiles_spaces_space_id");
 
-                    b.Navigation("Household");
+                    b.Navigation("Space");
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Limit", b =>
+                {
+                    b.HasOne("Kijk.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_limits_users_created_by_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Resource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_limits_resources_resource_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
+                        .WithMany("Limits")
+                        .HasForeignKey("SpaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_limits_spaces_space_id");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Resource");
+
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Resource", b =>
                 {
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany("Resources")
-                        .HasForeignKey("HouseholdId")
+                        .HasForeignKey("SpaceId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_resources_households_household_id");
+                        .HasConstraintName("fk_resources_spaces_space_id");
 
                     b.HasOne("Kijk.Domain.Entities.Unit", "Unit")
                         .WithMany()
@@ -2084,7 +2152,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_resources_units_unit_id");
 
-                    b.Navigation("Household");
+                    b.Navigation("Space");
 
                     b.Navigation("Unit");
                 });
@@ -2110,18 +2178,18 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_transactions_users_created_by_id");
 
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
-                        .WithMany("Transactions")
-                        .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_transactions_households_household_id");
-
                     b.HasOne("Kijk.Domain.Entities.ImportJob", "ImportJob")
                         .WithMany()
                         .HasForeignKey("ImportJobId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_transactions_import_jobs_import_job_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
+                        .WithMany("Transactions")
+                        .HasForeignKey("SpaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_transactions_spaces_space_id");
 
                     b.Navigation("Account");
 
@@ -2129,86 +2197,37 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
                     b.Navigation("CreatedBy");
 
-                    b.Navigation("Household");
-
                     b.Navigation("ImportJob");
+
+                    b.Navigation("Space");
                 });
 
-            modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
+            modelBuilder.Entity("Kijk.Domain.Entities.UserSpace", b =>
                 {
-                    b.HasOne("Kijk.Domain.Entities.User", "OwnerUser")
-                        .WithMany("Units")
-                        .HasForeignKey("OwnerUserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_units_users_owner_user_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Unit", "ReferenceUnit")
-                        .WithMany()
-                        .HasForeignKey("ReferenceUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_units_units_reference_unit_id");
-
-                    b.Navigation("OwnerUser");
-
-                    b.Navigation("ReferenceUnit");
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.UnitHousehold", b =>
-                {
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
-                        .WithMany("UnitHouseholds")
-                        .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_unit_households_households_household_id");
-
-                    b.HasOne("Kijk.Domain.Entities.User", "SharedByUser")
-                        .WithMany()
-                        .HasForeignKey("SharedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_unit_households_users_shared_by_user_id");
-
-                    b.HasOne("Kijk.Domain.Entities.Unit", "Unit")
-                        .WithMany("Households")
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_unit_households_units_unit_id");
-
-                    b.Navigation("Household");
-
-                    b.Navigation("SharedByUser");
-
-                    b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.UserHousehold", b =>
-                {
-                    b.HasOne("Kijk.Domain.Entities.Household", "Household")
-                        .WithMany("UserHouseholds")
-                        .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_households_households_household_id");
-
                     b.HasOne("Kijk.Domain.Entities.Role", "Role")
-                        .WithMany("UserHouseholds")
+                        .WithMany("UserSpaces")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_user_households_roles_role_id");
+                        .HasConstraintName("fk_user_spaces_roles_role_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
+                        .WithMany("UserSpaces")
+                        .HasForeignKey("SpaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_spaces_spaces_space_id");
 
                     b.HasOne("Kijk.Domain.Entities.User", "User")
-                        .WithMany("UserHouseholds")
+                        .WithMany("UserSpaces")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_households_users_user_id");
-
-                    b.Navigation("Household");
+                        .HasConstraintName("fk_user_spaces_users_user_id");
 
                     b.Navigation("Role");
+
+                    b.Navigation("Space");
 
                     b.Navigation("User");
                 });
@@ -2247,7 +2266,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_users_resources_users_user_id");
                 });
 
-            modelBuilder.Entity("Kijk.Domain.Entities.Household", b =>
+            modelBuilder.Entity("Kijk.Domain.Entities.Role", b =>
+                {
+                    b.Navigation("UserSpaces");
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.Space", b =>
                 {
                     b.Navigation("Accounts");
 
@@ -2257,36 +2281,22 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
                     b.Navigation("CategoryRules");
 
-                    b.Navigation("ConsumptionLimits");
-
                     b.Navigation("Consumptions");
 
                     b.Navigation("ImportJobs");
+
+                    b.Navigation("Limits");
 
                     b.Navigation("Resources");
 
                     b.Navigation("Transactions");
 
-                    b.Navigation("UnitHouseholds");
-
-                    b.Navigation("UserHouseholds");
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.Role", b =>
-                {
-                    b.Navigation("UserHouseholds");
-                });
-
-            modelBuilder.Entity("Kijk.Domain.Entities.Unit", b =>
-                {
-                    b.Navigation("Households");
+                    b.Navigation("UserSpaces");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Units");
-
-                    b.Navigation("UserHouseholds");
+                    b.Navigation("UserSpaces");
                 });
 #pragma warning restore 612, 618
         }
