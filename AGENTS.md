@@ -112,7 +112,7 @@ dotnet ef database update                   # creates/updates DB schema
 ## Important Conventions
 
 - **Node/pnpm**: Managed via `package.json` (`engines`, `devEngines`)
-- **.NET**: 10.0 (per `global.json`)
+- **.NET**: SDK 11 (per `apps/api/global.json`, also used by the API Dockerfile), target framework and runtime `net10.0`
 - **Vite+ config**: `apps/client/vite.config.ts` configures the client app.
 - **Format config**: `oxfmt.config.ts` (printWidth: 120, singleQuote, LF line endings)
 - **Client lint/format**: Uses oxlint/oxfmt (NOT eslint/prettier for code style)
