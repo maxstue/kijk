@@ -91,6 +91,7 @@ jobs:
           railway_project_id: ${{ env.RAILWAY_PROJECT_ID }}
           railway_environment_id: ${{ env.RAILWAY_ENVIRONMENT_ID }}
           railway_ssh_private_key: ${{ env.RAILWAY_SSH_PRIVATE_KEY }}
+          railway_ssh_public_key: ${{ env.RAILWAY_SSH_PUBLIC_KEY }}
 
   deploy:
     name: 'Deploy ${{ matrix.name }} 🚂'
