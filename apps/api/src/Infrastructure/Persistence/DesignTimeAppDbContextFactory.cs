@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Design;
 namespace Kijk.Infrastructure.Persistence;
 
 /// <summary>
-/// Creates the application context for Entity Framework design-time tooling.
+/// Provides the context for EF migration tooling and bundles without starting the API.
 /// </summary>
 public sealed class DesignTimeAppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
