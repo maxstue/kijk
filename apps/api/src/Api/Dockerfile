@@ -4,7 +4,8 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Same SDK as CI (global.json rolls forward to the latest major): Api.SourceGenerators needs its Roslyn version.
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/Api/Api.csproj", "src/Api/"]
@@ -28,7 +29,9 @@ WORKDIR "/src/src/Api"
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false -p:TieredPGO=true
+# The OpenAPI document is only needed for client generation and would require the .NET 10 runtime in the SDK 11 image.
+RUN dotnet publish "Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false -p:TieredPGO=true \
+    -p:OpenApiGenerateDocuments=false -p:OpenApiGenerateDocumentsOnBuild=false
 
 FROM base AS final
 WORKDIR /app
