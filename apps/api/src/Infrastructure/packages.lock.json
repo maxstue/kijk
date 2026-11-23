@@ -46,12 +46,12 @@
       },
       "EntityFrameworkCore.Exceptions.PostgreSQL": {
         "type": "Direct",
-        "requested": "[10.0.1, )",
-        "resolved": "10.0.1",
-        "contentHash": "xB59v0MquOrRGh7FPwAyuVa+TkbmguWC6zYpaMOJE9uwC475BpXLctTdGXgxiQhwqPoq+i9yL6HQqnVFTBNutw==",
+        "requested": "[10.0.2, )",
+        "resolved": "10.0.2",
+        "contentHash": "a1z3LrzyMP51am426wo8mRpGwkOkAlYZZEprXXpwMaMPfB7tCDcX7xA4rhdKcl32UYKlYjXguJenk/G6NNx7fw==",
         "dependencies": {
-          "DbExceptionClassifier.PostgreSQL": "1.0.1",
-          "EntityFrameworkCore.Exceptions.Common": "10.0.1"
+          "DbExceptionClassifier.PostgreSQL": "1.0.2",
+          "EntityFrameworkCore.Exceptions.Common": "10.0.2"
         }
       },
       "Microsoft.AspNetCore.Authentication.JwtBearer": {
@@ -128,23 +128,23 @@
       },
       "Microsoft.Extensions.AI.OpenAI": {
         "type": "Direct",
-        "requested": "[10.11.0, )",
-        "resolved": "10.11.0",
-        "contentHash": "p8fJdcPOrwaUPRrag5dY9SLohaouutY+bqg1Lw+8OOEFqMXvCHGNWQXv2GcUUNPBCkTR4mcBEHoP9LAV2RtxzA==",
+        "requested": "[10.11.1, )",
+        "resolved": "10.11.1",
+        "contentHash": "i7/NS7BfByBF5on8UP0GDjeqWYIjkGG0b6ikQa/KkxXnVvgi/2bq/Z589zZ8UqNNeHjHgHDMviOPu6UStisOpQ==",
         "dependencies": {
-          "Microsoft.Extensions.AI.Abstractions": "10.11.0",
+          "Microsoft.Extensions.AI.Abstractions": "10.11.1",
           "OpenAI": "2.14.0"
         }
       },
       "Npgsql.EntityFrameworkCore.PostgreSQL": {
         "type": "Direct",
-        "requested": "[10.0.3, )",
-        "resolved": "10.0.3",
-        "contentHash": "IPGrrZnRkuW7OlHDhUESZz4G5DLkW7Nej/O3Cx+0iTsgyU5XJxBgpsvTHLloo3WWuAKKbDHXBvWPVkX1deRh1Q==",
+        "requested": "[10.0.4, )",
+        "resolved": "10.0.4",
+        "contentHash": "KRFbmHOn260bgSSQTKZsKtvEFW1k1AaZUtb/IPmW31M47qMkzAOglP7FHQgMeqpZeMJ2rjRwczfEUP5lyWUAdA==",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "[10.0.4, 11.0.0)",
-          "Microsoft.EntityFrameworkCore.Relational": "[10.0.4, 11.0.0)",
-          "Npgsql": "10.0.3"
+          "Microsoft.EntityFrameworkCore": "[10.0.15, 11.0.0)",
+          "Microsoft.EntityFrameworkCore.Relational": "[10.0.15, 11.0.0)",
+          "Npgsql": "10.0.4"
         }
       },
       "OpenTelemetry": {
@@ -200,9 +200,9 @@
       },
       "PostHog": {
         "type": "Direct",
-        "requested": "[2.26.1, )",
-        "resolved": "2.26.1",
-        "contentHash": "bs/6ZU3VcmWSdu4XK+t7ri4iggokETUsStHRKzMhaMJf35Yx2HrKcxEKX++HOvUVDlpf8ne4dnSDUi8OH8bVbA==",
+        "requested": "[2.26.5, )",
+        "resolved": "2.26.5",
+        "contentHash": "lWPYrwvpioWNk/ShkJa0fC+h2Kk8bJlcAjzEWF4NPO3rjM24AYA5QytP+ozWfelPNHRP72funzKIdlqB7ryM/g==",
         "dependencies": {
           "Microsoft.Extensions.Caching.Memory": "10.0.13",
           "Microsoft.Extensions.Http": "10.0.13",
@@ -270,9 +270,9 @@
       },
       "SonarAnalyzer.CSharp": {
         "type": "Direct",
-        "requested": "[10.36.0.15337, )",
-        "resolved": "10.36.0.15337",
-        "contentHash": "jGLAZUjheSURfe0T/dJYGUrMOrLt1fxaInpChq75YJvrywsxFoUKK/EM6PSfTjkt4pbaq2ywIQjgQzhrmmj5Ow=="
+        "requested": "[10.37.0.15768, )",
+        "resolved": "10.37.0.15768",
+        "contentHash": "73Qo5UF1HSCwUGqiZ9XOKXWNRAe3WN8dfsj3pWIi5oIuenY1Uo9WuMinGibs3up9zcJ5CFk5Ex/Ei/S17mcBvg=="
       },
       "System.Security.Cryptography.Pkcs": {
         "type": "Direct",
@@ -291,9 +291,9 @@
       },
       "WolverineFx": {
         "type": "Direct",
-        "requested": "[6.64.0, )",
-        "resolved": "6.64.0",
-        "contentHash": "hoGE3ZTGontyepxYQ96OUklj81x3a5dg9k32rpgCa1yNHWdsfJCtr9Lx/wZidUv+lfzm+LSLoVHsXILYeq+e2A==",
+        "requested": "[6.64.2, )",
+        "resolved": "6.64.2",
+        "contentHash": "Ygj/Sx+o7Nt+iKsq6BiYW8AnPDUUPJRXGb8PYDZCnvAxCNSaoq11/jUMeBcisllelWjWQX2Wd/v8yVfiknLyEg==",
         "dependencies": {
           "Cronos": "0.11.0",
           "JasperFx": "2.102.0",
@@ -313,35 +313,35 @@
       },
       "WolverineFx.EntityFrameworkCore": {
         "type": "Direct",
-        "requested": "[6.64.0, )",
-        "resolved": "6.64.0",
-        "contentHash": "SYn1juewjXZLG8gzwrtD3k6/LjP3Lg4MCDbW8ww6A3y418xpfYujterg1HHKHcLRnRu4Z7f1CEOIttFEip8hBw==",
+        "requested": "[6.64.2, )",
+        "resolved": "6.64.2",
+        "contentHash": "TCFTp9HABtrGhyeNdCqz3F+jMMCDbUIYpUptqlSDAjOBk717WzA+BYw47+gJWazxAgh1P5K7SqrU0v0jHKZnoA==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "10.0.4",
           "Microsoft.EntityFrameworkCore.Design": "10.0.4",
           "Microsoft.EntityFrameworkCore.Relational": "10.0.4",
           "Weasel.EntityFrameworkCore": "9.50.0",
-          "WolverineFx.RDBMS": "6.64.0"
+          "WolverineFx.RDBMS": "6.64.2"
         }
       },
       "WolverineFx.Postgresql": {
         "type": "Direct",
-        "requested": "[6.64.0, )",
-        "resolved": "6.64.0",
-        "contentHash": "2oQduQBFxVGH11zOxlqlS/d8SjJUaZaN+sFcRnXK+SgFmozu9QjFDuRlw3i3hOK42cpnG9hfkDxs5Reot3Gr3A==",
+        "requested": "[6.64.2, )",
+        "resolved": "6.64.2",
+        "contentHash": "HHFCEutzHAiM8oTG+a+CRaXU08HtZwL0hTs+ilPYMZAdbLQf9M5CaF9JDH2PQx4MS/zBSnDOqXfepr2xMaS+Yg==",
         "dependencies": {
           "Weasel.Postgresql": "9.50.0",
-          "WolverineFx.RDBMS": "6.64.0"
+          "WolverineFx.RDBMS": "6.64.2"
         }
       },
       "WolverineFx.RuntimeCompilation": {
         "type": "Direct",
-        "requested": "[6.64.0, )",
-        "resolved": "6.64.0",
-        "contentHash": "dMNmIIntswBpukJ/80CJA5jGlqMXa+t09eWlFbKZSXvz0e3btgCUJexNNHdndaBl0lCABflMJ12wjhZLhMxvXg==",
+        "requested": "[6.64.2, )",
+        "resolved": "6.64.2",
+        "contentHash": "rmjLtFtarXQXCrn+j8u+Wcwq73iLoyP4l2Rk5k+HyldXCwdtLCoMX87LNPf5aWoY5TzdhboV4mNfYJhicqhp3Q==",
         "dependencies": {
           "JasperFx.RuntimeCompiler": "5.1.0",
-          "WolverineFx": "6.64.0"
+          "WolverineFx": "6.64.2"
         }
       },
       "AspNetCore.HealthChecks.UI.Core": {
@@ -364,24 +364,24 @@
       },
       "DbExceptionClassifier.Common": {
         "type": "Transitive",
-        "resolved": "1.0.1",
-        "contentHash": "Lz0R2s1+7iIin7TUvz4XjCg8zD0D8aLTAU3WfGnS+M5cEiIdNYmGWn1h7wZXpAzHh8Js4De7MLChp8qE2wl3ig=="
+        "resolved": "1.0.2",
+        "contentHash": "fxtklldglV1GaCNi+HbP+d+xI3KdIP6+F/66xjnTkwtmdUHLj0Nnl89tVV8+N+o8joSiAodgmPEHO0M/fVb6XA=="
       },
       "DbExceptionClassifier.PostgreSQL": {
         "type": "Transitive",
-        "resolved": "1.0.1",
-        "contentHash": "bs2PvMf3kUMYPGJBMDwgUz3dO9MSa+DO765IsZbe2wAxc8zgfircZBqaWPNi4OxLe8zCX+azD0ySaBxKQa7xTQ==",
+        "resolved": "1.0.2",
+        "contentHash": "l15q14zk2CSFNQ2ibxO5uK5cdIfY/sV5yraHmy0Rw9j2PuIlbBxxG/9z438Bf4tACDgGvgj1s2Rhn7+jR6lwMA==",
         "dependencies": {
-          "DbExceptionClassifier.Common": "1.0.1",
+          "DbExceptionClassifier.Common": "1.0.2",
           "Npgsql": "10.0.2"
         }
       },
       "EntityFrameworkCore.Exceptions.Common": {
         "type": "Transitive",
-        "resolved": "10.0.1",
-        "contentHash": "dUuK9lJFQeLHqnPq5kTusu9MUIxvm3QVukwKDIB5ti0iaN6wBtm2SIQ4JNKU3ZneC6IQUEU57L6tWB+fB2IhCw==",
+        "resolved": "10.0.2",
+        "contentHash": "r418AEN5NKAxwHeTmSImWxDhufFRUwofroW2jIb/pt4HdSxiYjM8HbYVACOuCESoWgiu2juWjSYIMBaUt56Rgg==",
         "dependencies": {
-          "DbExceptionClassifier.Common": "1.0.1",
+          "DbExceptionClassifier.Common": "1.0.2",
           "Microsoft.EntityFrameworkCore.Relational": "10.0.5"
         }
       },
@@ -1084,8 +1084,8 @@
       },
       "Npgsql": {
         "type": "Transitive",
-        "resolved": "10.0.3",
-        "contentHash": "7nb5YzXuvWWJxB0J8DiyL3we+X4FOctZrt0fIBnucOIaIevFEEwGQVZKtiu9olXdlNAK1eNgqSral6r/jlhI4w==",
+        "resolved": "10.0.4",
+        "contentHash": "m2VCpcU9MKD8lLxTn+YaNIRWd+Gz3y/9wIaM+2ifDF24xZ2Kvvjx4CDB2BIgobr1Gj6a/gsdmfz1sQ+kmd7liw==",
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "10.0.0"
         }
@@ -1360,11 +1360,11 @@
       },
       "WolverineFx.RDBMS": {
         "type": "Transitive",
-        "resolved": "6.64.0",
-        "contentHash": "Klrsjh1JhFOhqgqJIpwjTjwpJmdsDdtDy3elObXC5AskHNJtleQHWVpvhC1QorwoyLyKnUqwJpe4q1fEpgPZ1w==",
+        "resolved": "6.64.2",
+        "contentHash": "EPMlZmGXsy0E/E6ule58yCal+IREHAhwyKk01EH0R2FWYCBhVbnd1+II0WE6EH+me9Ay5pGh7vvQKi2jQbGpyg==",
         "dependencies": {
           "Weasel.Core": "9.50.0",
-          "WolverineFx": "6.64.0"
+          "WolverineFx": "6.64.2"
         }
       },
       "application": {
@@ -1374,8 +1374,8 @@
           "FluentValidation": "[12.2.0, )",
           "Microsoft.EntityFrameworkCore": "[10.0.15, )",
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.15, )",
-          "Microsoft.Extensions.AI.Abstractions": "[10.11.0, )",
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
+          "Microsoft.Extensions.AI.Abstractions": "[10.11.1, )",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.4, )",
           "Sep": "[0.18.0, )",
           "UnitsNet": "[5.75.1, )"
         }
@@ -1413,9 +1413,9 @@
       },
       "Microsoft.Extensions.AI.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[10.11.0, )",
-        "resolved": "10.11.0",
-        "contentHash": "h4DX/TdJU4fk1GGaf19n6Kujkj6VXbGeL4UEOsQ8+ZJC5fVApPauokCtvBP684BYbczUYZQNfo1mbmyHG4WVSg=="
+        "requested": "[10.11.1, )",
+        "resolved": "10.11.1",
+        "contentHash": "LcfA+SF7/GYZcI/XIC6WW17g7xytFvMQOzlBvbK5rvcltQKYXqnX47WaE/tvFqNm2GQtqhWnG/EkJC+T5PBKMw=="
       },
       "Sep": {
         "type": "CentralTransitive",
