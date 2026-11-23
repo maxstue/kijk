@@ -1,7 +1,7 @@
 services:
   database:
     container_name: "kijk-db"
-    image: "postgres:18-alpine"
+    image: "postgres:19-alpine"
     restart: "on-failure"
     environment:
       POSTGRES_USER: postgres
