@@ -10,6 +10,7 @@ using Kijk.Application.Budgets.UpdateVersion;
 using Kijk.Application.CategoryRules.Shared;
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Paging;
+using Kijk.Application.Spaces.Create;
 using Kijk.Application.Transactions.Categorize;
 using Kijk.Application.Transactions.Record;
 using Kijk.Application.Transactions.Shared;
@@ -260,6 +261,40 @@ public class SpaceHttpTests
         using var shared = await host.Client.PutAsJsonAsync($"/api/spaces/{spaceId}/transactions/{sharedBooking}/category", new CategorizeTransactionRequest(GroceriesId, true), Json);
         var adminRulesAfter = (await adminClient.GetFromJsonAsync<PageResponse<CategoryRuleResponse>>($"/api/spaces/{spaceId}/category-rules", Json))!.Items;
         await Assert.That(adminRulesAfter.Single().Visibility).IsEqualTo(Visibility.Shared);
+    }
+
+    [Test]
+    public async Task CreatingASpaceMakesTheCreatorItsAdminAndKeepsTheOtherSpaces()
+    {
+        var (admin, _, existingId) = await CreateSharedSpaceAsync();
+        await using var host = await SpaceApiHost.StartAsync(admin.AuthId,
+            configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider, FakeIdentityProvider>()));
+
+        using var created = await host.Client.PostAsJsonAsync("/api/spaces", new CreateSpaceRequest("  Holiday home  ", "  "), Json);
+        using var invalid = await host.Client.PostAsJsonAsync("/api/spaces", new CreateSpaceRequest(" ", null), Json);
+        using var tooLong = await host.Client.PostAsJsonAsync("/api/spaces", new CreateSpaceRequest("Valid", new string('x', 251)), Json);
+
+        await Assert.That(created.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        await Assert.That(tooLong.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        var space = (await created.Content.ReadFromJsonAsync<CreateSpaceResponse>(Json))!;
+
+        var spaces = (await host.Client.GetFromJsonAsync<JsonElement>("/api/users/me", Json)).GetProperty("user").GetProperty("spaces");
+        await Assert.That(spaces.EnumerateArray().Select(item => item.GetProperty("id").GetGuid()))
+            .IsEquivalentTo(new[] { existingId, space.Id });
+
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var membership = await verification.UserSpaces.Include(link => link.Space).ThenInclude(item => item.Accounts)
+            .Include(link => link.Role)
+            .SingleAsync(link => link.SpaceId == space.Id);
+        await Assert.That(membership.UserId).IsEqualTo(admin.Id);
+        await Assert.That(membership.Role.Name).IsEqualTo("Admin");
+        await Assert.That(membership.IsDefault).IsFalse();
+        await Assert.That(membership.Space.Name).IsEqualTo("Holiday home");
+        await Assert.That(membership.Space.IsPersonal).IsFalse();
+        await Assert.That(membership.Space.Description).IsNull();
+        await Assert.That(membership.Space.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);
+        await Assert.That(await verification.UserSpaces.CountAsync(link => link.SpaceId == space.Id)).IsEqualTo(1);
     }
 
     private static async Task<(User Admin, User Member, Guid SpaceId)> CreateSharedSpaceAsync()

@@ -1,5 +1,9 @@
 import type * as Api from '@kijk/api/generated/types';
 
+/** Payload for creating a shared space. */
+export type CreateSpaceData = Api.CreateSpaceRequest;
+/** A newly created space. */
+export type CreatedSpace = Api.CreateSpaceResponse;
 /** Payload for updating space details. */
 export type UpdateSpaceData = Api.UpdateSpaceRequest;
 /** A space member with role. */

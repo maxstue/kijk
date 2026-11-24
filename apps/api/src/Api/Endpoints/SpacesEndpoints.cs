@@ -2,6 +2,7 @@ using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Spaces.ChangeMemberRole;
+using Kijk.Application.Spaces.Create;
 using Kijk.Application.Spaces.Delete;
 using Kijk.Application.Spaces.Members;
 using Kijk.Application.Spaces.Roles;
@@ -28,6 +29,10 @@ public sealed class SpacesEndpoints : IEndpointGroup
         group.MapGet("/roles", Roles).WithName("Spaces.Roles")
             .WithoutSpacePermission("The fixed role catalog is the same for every space.")
             .WithSummary("Gets the space roles and their permissions");
+        group.MapPost("/", Create).WithName("Spaces.Create")
+            .WithoutSpacePermission("The space does not exist yet; every user may create shared spaces and becomes their admin.")
+            .WithRequestValidation<CreateSpaceRequest>()
+            .WithSummary("Creates a shared space with the current user as admin");
         group.MapPut("/{id:guid}", Update).WithName("Spaces.Update")
             .RequireRouteSpacePermission(SpacePermissions.Space.Configure)
             .WithRequestValidation<UpdateSpaceRequest>()
@@ -54,6 +59,15 @@ public sealed class SpacesEndpoints : IEndpointGroup
         CancellationToken cancellationToken)
     {
         var result = await handler.HandleAsync(cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<CreateSpaceResponse>, ProblemHttpResult>> Create(
+        CreateSpaceRequest request,
+        CreateHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 

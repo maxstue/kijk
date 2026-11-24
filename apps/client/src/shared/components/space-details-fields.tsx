@@ -2,12 +2,16 @@ import { Input } from '@kijk/ui/components/input';
 import { Textarea } from '@kijk/ui/components/textarea';
 import type { Control } from 'react-hook-form';
 
-import type { SpaceUpdateFormValues } from '@/app/settings/spaces/schemas';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
-interface SpaceGeneralFieldsProps {
-  control: Control<SpaceUpdateFormValues>;
+import type { SpaceDetailsFormValues } from '@/shared/lib/space-details';
+
+interface Props {
+  control: Control<SpaceDetailsFormValues>;
+  disabled?: boolean;
 }
-export function SpaceGeneralFields({ control }: SpaceGeneralFieldsProps) {
+
+/** Name and description fields of a space, used when creating and when editing a space. */
+export function SpaceDetailsFields({ control, disabled }: Props) {
   return (
     <>
       <FormField
@@ -17,7 +21,7 @@ export function SpaceGeneralFields({ control }: SpaceGeneralFieldsProps) {
           <FormItem>
             <FormLabel>Space name</FormLabel>
             <FormControl>
-              <Input maxLength={100} {...field} />
+              <Input disabled={disabled} maxLength={100} {...field} />
             </FormControl>
             <FormDescription>This name is visible to everyone in the space.</FormDescription>
             <FormMessage />
@@ -31,7 +35,7 @@ export function SpaceGeneralFields({ control }: SpaceGeneralFieldsProps) {
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea maxLength={250} rows={4} {...field} />
+              <Textarea disabled={disabled} maxLength={250} rows={4} {...field} />
             </FormControl>
             <FormDescription>Optional details about this space. Maximum 250 characters.</FormDescription>
             <FormMessage />
