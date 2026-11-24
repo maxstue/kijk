@@ -10,9 +10,11 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # PostgreSQL 18+ keeps its data in a version-specific directory below this mount.
-      - postgres-data:/var/lib/postgresql
+      # PostgreSQL 18+ keeps its data in a version-specific directory below this mount and refuses to start
+      # when it finds an older major version there. Use one volume per major version; the previous volume
+      # (postgres-data for PostgreSQL 18) stays untouched and can be dumped/restored if its data is needed.
+      - postgres19-data:/var/lib/postgresql
       # - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
-  postgres-data:
+  postgres19-data:
