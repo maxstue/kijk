@@ -66,10 +66,8 @@ export function AccountMenu() {
       <AccountMenuDropdown
         account={account}
         isMobile={isMobile}
-        onCreateSpace={() => {
-          setOpenMobile(false);
-          setShowCreateSpace(true);
-        }}
+        // The mobile sheet stays open: closing it would unmount this menu together with the dialog.
+        onCreateSpace={() => setShowCreateSpace(true)}
         onNavigateToSettings={() => navigate({ to: '/settings' })}
         onOpenGuide={() => {
           setOpenMobile(false);

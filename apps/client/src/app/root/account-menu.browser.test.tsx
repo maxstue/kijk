@@ -2,9 +2,10 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { create } from '@kijk/api/spaces/requests';
 import { getMe } from '@kijk/api/users/requests';
 import type { CurrentUser } from '@kijk/api/users/types';
-import { SidebarProvider } from '@kijk/ui/components/sidebar';
+import { Sidebar, SidebarFooter, SidebarProvider, SidebarTrigger } from '@kijk/ui/components/sidebar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
+import { page } from 'vite-plus/test/browser';
 
 import { siteConfig } from '@/shared/config/site';
 import { render } from '@/test/render-space';
@@ -72,6 +73,37 @@ test('creating a space sends its trimmed details and opens it', async () => {
   } finally {
     await screen.unmount();
     client.clear();
+  }
+});
+
+test('on mobile the create space dialog stays open inside the sidebar sheet', async () => {
+  await page.viewport(390, 800);
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  client.setQueryData(queryKeys.users.me, currentUser([{ id: 'space', name: 'Family' }]));
+  const screen = await render(
+    <QueryClientProvider client={client}>
+      <SidebarProvider>
+        <SidebarTrigger />
+        <Sidebar>
+          <SidebarFooter>
+            <AccountMenu />
+          </SidebarFooter>
+        </Sidebar>
+      </SidebarProvider>
+    </QueryClientProvider>,
+  );
+  try {
+    await screen.getByRole('button', { name: 'Toggle Sidebar' }).click();
+    await screen.getByRole('button', { name: 'Family' }).click();
+    await screen.getByRole('menuitem', { name: 'Create space' }).click();
+    // Closing the sheet would unmount the menu with its dialog once the exit animations finish.
+    await Promise.all(document.getAnimations().map((animation) => animation.finished));
+
+    await expect.element(screen.getByRole('textbox', { name: 'Space name' })).toBeVisible();
+  } finally {
+    await screen.unmount();
+    client.clear();
+    await page.viewport(1280, 800);
   }
 });
 
