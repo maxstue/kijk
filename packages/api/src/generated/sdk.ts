@@ -117,6 +117,8 @@ import type {
   ResourcesUpdateResponses,
   SpacesChangeMemberRoleOptions,
   SpacesChangeMemberRoleResponses,
+  SpacesCreateOptions,
+  SpacesCreateResponses,
   SpacesDeleteOptions,
   SpacesDeleteResponses,
   SpacesMembersOptions,
@@ -1418,6 +1420,29 @@ export function spacesRoles<ThrowOnError extends boolean = true>(
       method: 'GET',
       url: '/api/spaces/roles',
       security: [securitySchemes.Bearer],
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `POST /api/spaces`
+ *
+ * @summary Creates a shared space with the current user as admin
+ */
+export function spacesCreate<ThrowOnError extends boolean = true>(
+  options: Options<SpacesCreateOptions, ThrowOnError>,
+): Promise<UnwrappedResult<SpacesCreateResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<SpacesCreateResponses, ThrowOnError>({
+      method: 'POST',
+      url: '/api/spaces',
+      security: [securitySchemes.Bearer],
+      contentType: { request: 'application/json' },
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),
     }),

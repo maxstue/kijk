@@ -1,4 +1,5 @@
 using Kijk.Application.Spaces.ChangeMemberRole;
+using Kijk.Application.Spaces.Create;
 using Kijk.Application.Spaces.Delete;
 using Kijk.Application.Spaces.Members;
 using Kijk.Application.Spaces.Roles;
@@ -14,6 +15,7 @@ public sealed class ModuleService : IModule
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         services.AddScoped<ChangeMemberRoleHandler>();
+        services.AddScoped<CreateHandler>();
         services.AddScoped<DeleteHandler>();
         services.AddScoped<MembersHandler>();
         services.AddScoped<RolesHandler>();

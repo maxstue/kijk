@@ -12,15 +12,15 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { spaceUpdateSchema } from '@/app/settings/spaces/schemas';
-import type { SpaceUpdateFormValues } from '@/app/settings/spaces/schemas';
 import { Form } from '@/shared/components/form';
 import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
+import { SpaceDetailsFields } from '@/shared/components/space-details-fields';
+import { spaceDetailsSchema } from '@/shared/lib/space-details';
+import type { SpaceDetailsFormValues } from '@/shared/lib/space-details';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
 import { SpaceDeleteContent } from './delete-content';
-import { SpaceGeneralFields } from './general-fields';
 
 /** General space settings: editable details and deletion, depending on the user's permissions. */
 export function SpaceGeneral() {
@@ -32,19 +32,19 @@ export function SpaceGeneral() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const updateMutation = useMutation(spacesOptions.updateMutationOptions());
 
-  const form = useForm<SpaceUpdateFormValues>({
+  const form = useForm<SpaceDetailsFormValues>({
     defaultValues: {
       description: space.description ?? '',
       name: space.name,
     },
-    resolver: zodResolver(spaceUpdateSchema),
+    resolver: zodResolver(spaceDetailsSchema),
     values: {
       description: space.description ?? '',
       name: space.name,
     },
   });
 
-  function onSubmit(values: SpaceUpdateFormValues) {
+  function onSubmit(values: SpaceDetailsFormValues) {
     updateMutation.mutate(
       {
         data: {
@@ -80,7 +80,7 @@ export function SpaceGeneral() {
       {canConfigure ? (
         <Form {...form}>
           <form className='space-y-6' noValidate onSubmit={form.handleSubmit(onSubmit)}>
-            <SpaceGeneralFields control={form.control} />
+            <SpaceDetailsFields control={form.control} />
             <Button disabled={updateMutation.isPending || !form.formState.isDirty} type='submit'>
               {updateMutation.isPending ? <SpinnerIcon className='size-5 animate-spin' /> : 'Save changes'}
             </Button>

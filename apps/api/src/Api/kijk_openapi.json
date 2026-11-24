@@ -4600,6 +4600,64 @@
         ]
       }
     },
+    "/api/spaces": {
+      "post": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Creates a shared space with the current user as admin",
+        "operationId": "Spaces.Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSpaceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSpaceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/spaces/{id}": {
       "put": {
         "tags": [
@@ -7395,6 +7453,46 @@
           }
         },
         "description": "Command to create a new resource type."
+      },
+      "CreateSpaceRequest": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The space name."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "An optional space description."
+          }
+        },
+        "description": "Contains the details of a new shared space."
+      },
+      "CreateSpaceResponse": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The identifier of the new space.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the new space."
+          }
+        },
+        "description": "The space that was created. The creator is its admin."
       },
       "CreateTransactionRequest": {
         "required": [

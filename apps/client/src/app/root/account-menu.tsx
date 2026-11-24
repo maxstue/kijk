@@ -20,6 +20,7 @@ import {
   ExternalLinkIcon,
   LockIcon,
   LogOut,
+  PlusIcon,
   SendIcon,
   SettingsIcon,
   CircleHelpIcon,
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { CreateSpaceDialog } from '@/app/root/create-space-dialog';
 import { FeedbackDialog } from '@/app/root/feedback-dialog';
 import { siteConfig } from '@/shared/config/site';
 import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
@@ -43,6 +45,7 @@ export function AccountMenu() {
   const router = useRouter();
   const { isMobile, setOpenMobile } = useSidebar();
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showCreateSpace, setShowCreateSpace] = useState(false);
   const { spaceId } = useParams({ strict: false });
   const navigationSpaceId = useNavigationSpaceId();
   const account = getAccountMenuData(currentAccount?.user, spaceId);
@@ -59,10 +62,14 @@ export function AccountMenu() {
   };
 
   return (
-    <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
+    <>
       <AccountMenuDropdown
         account={account}
         isMobile={isMobile}
+        onCreateSpace={() => {
+          setOpenMobile(false);
+          setShowCreateSpace(true);
+        }}
         onNavigateToSettings={() => navigate({ to: '/settings' })}
         onOpenGuide={() => {
           setOpenMobile(false);
@@ -76,8 +83,13 @@ export function AccountMenu() {
         onSignOut={handleSignOut}
         spaces={currentAccount?.user?.spaces ?? []}
       />
-      <FeedbackDialog onClose={() => setShowFeedback(false)} />
-    </Dialog>
+      <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
+        <FeedbackDialog onClose={() => setShowFeedback(false)} />
+      </Dialog>
+      <Dialog open={showCreateSpace} onOpenChange={setShowCreateSpace}>
+        <CreateSpaceDialog onClose={() => setShowCreateSpace(false)} />
+      </Dialog>
+    </>
   );
 }
 
@@ -87,6 +99,7 @@ interface AccountMenuDropdownProps {
   account: AccountMenuData;
   spaces: Space[];
   isMobile: boolean;
+  onCreateSpace: () => void;
   onNavigateToSettings: () => void;
   onOpenGuide: () => void;
   onOpenFeedback: () => void;
@@ -96,6 +109,7 @@ interface AccountMenuDropdownProps {
 function AccountMenuDropdown({
   account,
   isMobile,
+  onCreateSpace,
   onNavigateToSettings,
   onOpenGuide,
   onOpenFeedback,
@@ -136,7 +150,7 @@ function AccountMenuDropdown({
               </div>
             </div>
             <DropdownMenuSeparator />
-            <SpaceSwitcher spaces={spaces} />
+            <SpaceSwitcher spaces={spaces} onCreateSpace={onCreateSpace} />
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={onNavigateToSettings}>
@@ -196,10 +210,11 @@ function UserSummary({ displayName, email, imageUrl, initials }: UserSummaryProp
 
 interface SpaceSwitcherProps {
   spaces: Space[];
+  onCreateSpace: () => void;
 }
 
-/** Lists the user's spaces, personal first, and switches the active one. */
-function SpaceSwitcher({ spaces }: SpaceSwitcherProps) {
+/** Lists the user's spaces, personal first, switches the active one and offers to create a shared space. */
+function SpaceSwitcher({ spaces, onCreateSpace }: SpaceSwitcherProps) {
   const navigate = useNavigate();
   const { spaceId } = useParams({ strict: false });
   const sorted = spaces.toSorted((a, b) => Number(b.isPersonal) - Number(a.isPersonal) || a.name.localeCompare(b.name));
@@ -215,6 +230,10 @@ function SpaceSwitcher({ spaces }: SpaceSwitcherProps) {
           {space.id === spaceId && <Check aria-label='Active space' className='size-4' />}
         </DropdownMenuItem>
       ))}
+      <DropdownMenuItem onClick={onCreateSpace}>
+        <PlusIcon />
+        Create space
+      </DropdownMenuItem>
     </DropdownMenuGroup>
   );
 }

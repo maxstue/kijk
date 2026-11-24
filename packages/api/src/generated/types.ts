@@ -1244,6 +1244,48 @@ export type CreateResourceRequest = {
 };
 
 /**
+ * Contains the details of a new shared space.
+ *
+ * @type object
+ */
+export type CreateSpaceRequest = {
+  /**
+   * The space name.
+   *
+   * @type string
+   */
+  name: string;
+  /**
+   * An optional space description.
+   *
+   * @type string
+   */
+  description: string | null;
+};
+
+/**
+ * The space that was created. The creator is its admin.
+ *
+ * @type object
+ */
+export type CreateSpaceResponse = {
+  /**
+   * The identifier of the new space.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  id: string;
+  /**
+   * The name of the new space.
+   *
+   * @type string
+   */
+  name: string;
+};
+
+/**
  * Request for recording a transaction manually.
  *
  * @type object
@@ -6433,6 +6475,49 @@ export type SpacesRolesResponses = {
 
 /** Union of all possible responses */
 export type SpacesRolesResponse = SpacesRolesStatus200;
+
+/**
+ * The space that was created. The creator is its admin.
+ *
+ * @type object
+ */
+export type SpacesCreateStatus200 = CreateSpaceResponse;
+
+export type SpacesCreateStatus400 = HttpValidationProblemDetails;
+
+export type SpacesCreateStatus401 = Problem;
+
+export type SpacesCreateStatus403 = Problem;
+
+export type SpacesCreateStatus429 = Problem;
+
+export type SpacesCreateStatus500 = Problem;
+
+/**
+ * Contains the details of a new shared space.
+ *
+ * @type object
+ */
+export type SpacesCreateBody = CreateSpaceRequest;
+
+export type SpacesCreateOptions = {
+  body: SpacesCreateBody;
+  path?: never;
+  query?: never;
+  headers?: never;
+};
+
+export type SpacesCreateResponses = {
+  '200': SpacesCreateStatus200;
+  '400': SpacesCreateStatus400;
+  '401': SpacesCreateStatus401;
+  '403': SpacesCreateStatus403;
+  '429': SpacesCreateStatus429;
+  '500': SpacesCreateStatus500;
+};
+
+/** Union of all possible responses */
+export type SpacesCreateResponse = SpacesCreateStatus200;
 
 export type SpacesUpdatePath = {
   /**

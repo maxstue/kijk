@@ -42,6 +42,7 @@ export const apiOperations = {
   '/api/spaces/{spaceId}/resources': ['get', 'post'],
   '/api/spaces/{spaceId}/resources/{id}': ['get', 'put', 'delete'],
   '/api/spaces/roles': ['get'],
+  '/api/spaces': ['post'],
   '/api/spaces/{id}': ['put', 'delete'],
   '/api/spaces/{id}/members': ['get'],
   '/api/spaces/{id}/members/{userId}/role': ['put'],

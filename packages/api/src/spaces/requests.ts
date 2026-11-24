@@ -1,13 +1,19 @@
 import { apiClient } from '@kijk/api/client';
 import {
   spacesChangeMemberRole,
+  spacesCreate,
   spacesDelete,
   spacesMembers,
   spacesRoles,
   spacesUpdate,
 } from '@kijk/api/generated/sdk';
 
-import type { UpdateSpaceData } from './types';
+import type { CreateSpaceData, UpdateSpaceData } from './types';
+
+/** Creates a shared space with the current user as admin and returns it. */
+export async function create(data: CreateSpaceData) {
+  return spacesCreate({ client: apiClient(), body: data });
+}
 
 /** Updates the details of a space. */
 export async function update(id: string, data: UpdateSpaceData) {

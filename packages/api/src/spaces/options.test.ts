@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
 
 import { queryKeys } from '../query-keys';
-import { deleteMutationOptions } from './options';
-import { remove } from './requests';
+import { createMutationOptions, deleteMutationOptions } from './options';
+import { create, remove } from './requests';
 
 vi.mock('./requests', { spy: true });
 
@@ -38,5 +38,20 @@ test('deleting a space cancels its in-flight requests before removing the cache'
   await request;
   expect(requestSignal?.aborted).toBe(true);
   expect(client.getQueryState(queryKeys.resources.list('deleted'))).toBeUndefined();
+  client.clear();
+});
+
+test('creating a space refetches the current user that lists the spaces', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
+  client.setQueryData(queryKeys.users.me, { user: { spaces: [] } });
+  vi.mocked(create).mockResolvedValue({ id: 'new', name: 'Holiday home' });
+
+  const created = await client
+    .getMutationCache()
+    .build(client, createMutationOptions())
+    .execute({ description: null, name: 'Holiday home' });
+
+  expect(created).toEqual({ id: 'new', name: 'Holiday home' });
+  expect(client.getQueryState(queryKeys.users.me)?.isInvalidated).toBe(true);
   client.clear();
 });

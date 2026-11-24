@@ -2,8 +2,8 @@ import { invalidate } from '@kijk/api/cache';
 import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
-import { changeMemberRole, remove, getMembers, getRoles, update } from './requests';
-import type { UpdateSpaceData } from './types';
+import { changeMemberRole, create, remove, getMembers, getRoles, update } from './requests';
+import type { CreateSpaceData, UpdateSpaceData } from './types';
 
 /** Query for the fixed space roles; never stale. */
 export const rolesQueryOptions = () =>
@@ -18,6 +18,13 @@ export const membersQueryOptions = (spaceId: string) =>
   queryOptions({
     queryFn: ({ signal }) => getMembers(spaceId, signal),
     queryKey: queryKeys.spaces.members(spaceId),
+  });
+
+/** Mutation that creates a shared space; the current user, which lists the spaces, is refetched. */
+export const createMutationOptions = () =>
+  mutationOptions({
+    mutationFn: (data: CreateSpaceData) => create(data),
+    onSuccess: (_data, _variables, _result, { client }) => invalidate(client, queryKeys.users.me),
   });
 
 /** Mutation that updates space details. */
