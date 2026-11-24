@@ -36,6 +36,6 @@ public sealed class CreateHandler(IAppDbContext dbContext, CurrentUser currentUs
         var space = Space.Create(request.Name.Trim(), description);
         dbContext.UserSpaces.Add(UserSpace.Create(user, space, adminRole));
         await dbContext.SaveChangesAsync(cancellationToken);
-        return new CreateSpaceResponse(space.Id, space.Name);
+        return new CreateSpaceResponse(space.Id);
     }
 }

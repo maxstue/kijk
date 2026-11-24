@@ -278,7 +278,6 @@ public class SpaceHttpTests
         await Assert.That(invalid.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         await Assert.That(tooLong.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
         var space = (await created.Content.ReadFromJsonAsync<CreateSpaceResponse>(Json))!;
-        await Assert.That(space.Name).IsEqualTo("Holiday home");
 
         var spaces = (await host.Client.GetFromJsonAsync<JsonElement>("/api/users/me", Json)).GetProperty("user").GetProperty("spaces");
         await Assert.That(spaces.EnumerateArray().Select(item => item.GetProperty("id").GetGuid()))
@@ -291,6 +290,7 @@ public class SpaceHttpTests
         await Assert.That(membership.UserId).IsEqualTo(admin.Id);
         await Assert.That(membership.Role.Name).IsEqualTo("Admin");
         await Assert.That(membership.IsDefault).IsFalse();
+        await Assert.That(membership.Space.Name).IsEqualTo("Holiday home");
         await Assert.That(membership.Space.IsPersonal).IsFalse();
         await Assert.That(membership.Space.Description).IsNull();
         await Assert.That(membership.Space.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);

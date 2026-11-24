@@ -1277,12 +1277,6 @@ export type CreateSpaceResponse = {
    * @type string
    */
   id: string;
-  /**
-   * The name of the new space.
-   *
-   * @type string
-   */
-  name: string;
 };
 
 /**

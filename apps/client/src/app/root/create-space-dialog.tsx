@@ -32,9 +32,8 @@ export function CreateSpaceDialog({ onClose }: Props) {
       {
         onError: (error) => toast.error(error.message),
         onSuccess: (space) => {
-          form.reset();
           onClose();
-          toast.success(`${space.name} created`);
+          toast.success(`${values.name.trim()} created`);
           void navigate({ to: '/$spaceId', params: { spaceId: space.id } });
         },
       },
@@ -46,7 +45,7 @@ export function CreateSpaceDialog({ onClose }: Props) {
       <DialogHeader>
         <DialogTitle>Create space</DialogTitle>
         <DialogDescription>
-          A space keeps its own consumptions, limits and finances, for example for a holiday home. You become its admin.
+          A space keeps its own data separate from your other spaces. You become its admin.
         </DialogDescription>
       </DialogHeader>
       <Form {...form}>

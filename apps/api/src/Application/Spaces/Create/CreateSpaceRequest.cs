@@ -11,5 +11,4 @@ public sealed record CreateSpaceRequest(string Name, string? Description);
 /// The space that was created. The creator is its admin.
 /// </summary>
 /// <param name="Id">The identifier of the new space.</param>
-/// <param name="Name">The name of the new space.</param>
-public sealed record CreateSpaceResponse(Guid Id, string Name);
+public sealed record CreateSpaceResponse(Guid Id);

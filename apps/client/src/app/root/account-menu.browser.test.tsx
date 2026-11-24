@@ -1,6 +1,7 @@
 import { queryKeys } from '@kijk/api/query-keys';
 import { create } from '@kijk/api/spaces/requests';
 import { getMe } from '@kijk/api/users/requests';
+import type { CurrentUser } from '@kijk/api/users/types';
 import { SidebarProvider } from '@kijk/ui/components/sidebar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, test, vi } from 'vite-plus/test';
@@ -43,14 +44,11 @@ test('the support menu item is a named link to the support page', async () => {
 
 test('creating a space sends its trimmed details and opens it', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
-  const family = { id: 'space', name: 'Family', isPersonal: false };
-  const holidayHome = { id: 'holiday', name: 'Holiday home', isPersonal: false };
-  client.setQueryData(queryKeys.users.me, { status: 'Ready', user: { name: 'Max', spaces: [family] } });
-  vi.mocked(create).mockResolvedValue({ id: holidayHome.id, name: holidayHome.name });
-  vi.mocked(getMe).mockResolvedValue({
-    status: 'Ready',
-    user: { name: 'Max', spaces: [family, holidayHome] },
-  } as never);
+  const family = { id: 'space', name: 'Family' };
+  const holidayHome = { id: 'holiday', name: 'Holiday home' };
+  client.setQueryData(queryKeys.users.me, currentUser([family]));
+  vi.mocked(create).mockResolvedValue({ id: holidayHome.id });
+  vi.mocked(getMe).mockResolvedValue(currentUser([family, holidayHome]));
   const screen = await render(
     <QueryClientProvider client={client}>
       <SidebarProvider>
@@ -76,3 +74,35 @@ test('creating a space sends its trimmed details and opens it', async () => {
     client.clear();
   }
 });
+
+interface SpaceFixture {
+  id: string;
+  name: string;
+}
+
+/** A ready current user who is admin of the given shared spaces. */
+function currentUser(spaces: SpaceFixture[]): CurrentUser {
+  return {
+    status: 'Ready',
+    user: {
+      id: 'user',
+      authId: 'test-user',
+      email: 'user@example.test',
+      analyticsConsent: 'Declined',
+      analyticsConsentUpdatedAt: null,
+      onboardingCompletedAt: null,
+      sensitiveDataConsentAt: null,
+      aiEnabled: false,
+      name: 'Max',
+      resources: [],
+      useExternalProfile: false,
+      spaces: spaces.map((space) => ({
+        ...space,
+        description: null,
+        role: { id: 'admin', name: 'Admin', permissions: [] },
+        isDefault: false,
+        isPersonal: false,
+      })),
+    },
+  };
+}
