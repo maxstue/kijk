@@ -31,8 +31,8 @@ runs:
       shell: bash
       env:
         # Updated together with the deploy container image by Renovate (see renovate.json).
-        RAILWAY_CLI_VERSION: v5.71.0
-        RAILWAY_CLI_SHA256: 856dde75501fc1088065e5d980141ddc2340be81cfcef5ece8cd0e947ff9d709
+        RAILWAY_CLI_VERSION: v5.75.0
+        RAILWAY_CLI_SHA256: 28fca554b4862a1129d4976223e91ec828b9d402196a3ba823b83a7b06b6440e
       run: |
         set -euo pipefail
 
