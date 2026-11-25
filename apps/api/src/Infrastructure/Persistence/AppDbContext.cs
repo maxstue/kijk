@@ -27,6 +27,8 @@ public class AppDbContext : DbContext, IAppDbContext, IDataProtectionKeyContext
     /// <inheritdoc />
     public DbSet<UserSpace> UserSpaces { get; set; }
     /// <inheritdoc />
+    public DbSet<SpaceInvitation> SpaceInvitations { get; set; }
+    /// <inheritdoc />
     public DbSet<Consumption> Consumptions { get; set; }
     /// <inheritdoc />
     public DbSet<Limit> Limits { get; set; }

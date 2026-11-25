@@ -28,6 +28,7 @@ public static class SpaceDataEraser
         await dbContext.Consumptions.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Limits.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Resources.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.SpaceInvitations.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.UserSpaces.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Spaces.Where(item => item.Id == spaceId).ExecuteDeleteAsync(cancellationToken);
     }

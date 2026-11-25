@@ -3,8 +3,11 @@ using Kijk.Api.Extensions;
 using Kijk.Api.Models;
 using Kijk.Application.Spaces.ChangeMemberRole;
 using Kijk.Application.Spaces.Create;
+using Kijk.Application.Spaces.CreateInvitation;
 using Kijk.Application.Spaces.Delete;
+using Kijk.Application.Spaces.Invitations;
 using Kijk.Application.Spaces.Members;
+using Kijk.Application.Spaces.RevokeInvitation;
 using Kijk.Application.Spaces.Roles;
 using Kijk.Application.Spaces.Shared;
 using Kijk.Application.Spaces.Update;
@@ -51,6 +54,20 @@ public sealed class SpacesEndpoints : IEndpointGroup
             .WithRequestValidation<ChangeMemberRoleRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .WithSummary("Changes the role of another space member");
+        group.MapPost("/{id:guid}/invitations", CreateInvitation).WithName("Spaces.CreateInvitation")
+            .RequireRouteSpacePermission(SpacePermissions.Members.Invite)
+            .WithRequestValidation<CreateSpaceInvitationRequest>()
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .WithSummary("Creates a single-use invitation link to a shared space");
+        group.MapGet("/{id:guid}/invitations", Invitations).WithName("Spaces.Invitations")
+            .RequireRouteSpacePermission(SpacePermissions.Members.Invite)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .WithSummary("Gets the pending invitations of a space");
+        group.MapDelete("/{id:guid}/invitations/{invitationId:guid}", RevokeInvitation).WithName("Spaces.RevokeInvitation")
+            .RequireRouteSpacePermission(SpacePermissions.Members.Invite)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .WithSummary("Revokes a pending invitation");
         return builder;
     }
 
@@ -89,6 +106,35 @@ public sealed class SpacesEndpoints : IEndpointGroup
     {
         var result = await handler.HandleAsync(id, userId, request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<CreateSpaceInvitationResponse>, ProblemHttpResult>> CreateInvitation(
+        Guid id,
+        CreateSpaceInvitationRequest request,
+        CreateInvitationHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(id, request, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<Ok<IReadOnlyList<SpaceInvitationResponse>>, ProblemHttpResult>> Invitations(
+        Guid id,
+        InvitationsHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(id, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<NoContent, ProblemHttpResult>> RevokeInvitation(
+        Guid id,
+        Guid invitationId,
+        RevokeInvitationHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(id, invitationId, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 
     private static async Task<Results<NoContent, ProblemHttpResult>> Update(

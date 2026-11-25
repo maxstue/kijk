@@ -104,6 +104,9 @@ public static class SpacePermissions
 
         /// <summary>Change the role of other space members.</summary>
         public const string AssignRole = "members:assign-role";
+
+        /// <summary>Invite people to a shared space and manage pending invitations.</summary>
+        public const string Invite = "members:invite";
     }
 
     /// <summary>
@@ -127,6 +130,7 @@ public static class SpacePermissions
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a13"), Finances.Import),
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a14"), Finances.Configure),
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a15"), Budgets.Plan),
-        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"), Finances.Export)
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"), Finances.Export),
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"), Members.Invite)
     ];
 }

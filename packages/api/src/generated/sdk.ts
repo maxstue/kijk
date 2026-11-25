@@ -117,12 +117,18 @@ import type {
   ResourcesUpdateResponses,
   SpacesChangeMemberRoleOptions,
   SpacesChangeMemberRoleResponses,
+  SpacesCreateInvitationOptions,
+  SpacesCreateInvitationResponses,
   SpacesCreateOptions,
   SpacesCreateResponses,
   SpacesDeleteOptions,
   SpacesDeleteResponses,
+  SpacesInvitationsOptions,
+  SpacesInvitationsResponses,
   SpacesMembersOptions,
   SpacesMembersResponses,
+  SpacesRevokeInvitationOptions,
+  SpacesRevokeInvitationResponses,
   SpacesRolesOptions,
   SpacesRolesResponses,
   SpacesUpdateOptions,
@@ -629,7 +635,6 @@ export function consumptionsExport<ThrowOnError extends boolean = true>(
       method: 'GET',
       url: '/api/spaces/{spaceId}/consumptions/{id}/export',
       security: [securitySchemes.Bearer],
-      parseAs: 'blob',
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),
     }),
@@ -652,7 +657,6 @@ export function consumptionsExportMonth<ThrowOnError extends boolean = true>(
       method: 'GET',
       url: '/api/spaces/{spaceId}/consumptions/export',
       security: [securitySchemes.Bearer],
-      parseAs: 'blob',
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),
     }),
@@ -698,7 +702,6 @@ export function consumptionsImportTemplate<ThrowOnError extends boolean = true>(
       method: 'GET',
       url: '/api/spaces/{spaceId}/consumptions/import/template',
       security: [securitySchemes.Bearer],
-      parseAs: 'blob',
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),
     }),
@@ -1541,6 +1544,73 @@ export function spacesChangeMemberRole<ThrowOnError extends boolean = true>(
 }
 
 /**
+ * `POST /api/spaces/{id}/invitations`
+ *
+ * @summary Creates a single-use invitation link to a shared space
+ */
+export function spacesCreateInvitation<ThrowOnError extends boolean = true>(
+  options: Options<SpacesCreateInvitationOptions, ThrowOnError>,
+): Promise<UnwrappedResult<SpacesCreateInvitationResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<SpacesCreateInvitationResponses, ThrowOnError>({
+      method: 'POST',
+      url: '/api/spaces/{id}/invitations',
+      security: [securitySchemes.Bearer],
+      contentType: { request: 'application/json' },
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `GET /api/spaces/{id}/invitations`
+ *
+ * @summary Gets the pending invitations of a space
+ */
+export function spacesInvitations<ThrowOnError extends boolean = true>(
+  options: Options<SpacesInvitationsOptions, ThrowOnError>,
+): Promise<UnwrappedResult<SpacesInvitationsResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<SpacesInvitationsResponses, ThrowOnError>({
+      method: 'GET',
+      url: '/api/spaces/{id}/invitations',
+      security: [securitySchemes.Bearer],
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `DELETE /api/spaces/{id}/invitations/{invitationId}`
+ *
+ * @summary Revokes a pending invitation
+ */
+export function spacesRevokeInvitation<ThrowOnError extends boolean = true>(
+  options: Options<SpacesRevokeInvitationOptions, ThrowOnError>,
+): Promise<UnwrappedResult<SpacesRevokeInvitationResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<SpacesRevokeInvitationResponses, ThrowOnError>({
+      method: 'DELETE',
+      url: '/api/spaces/{id}/invitations/{invitationId}',
+      security: [securitySchemes.Bearer],
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
  * `GET /api/spaces/{spaceId}/transactions`
  *
  * @summary Gets a page of transactions of the active space, optionally by year, month, categories, without category or by a search of counterparty and purpose
@@ -1600,7 +1670,6 @@ export function transactionsExport<ThrowOnError extends boolean = true>(
       method: 'GET',
       url: '/api/spaces/{spaceId}/transactions/export',
       security: [securitySchemes.Bearer],
-      parseAs: 'blob',
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),
     }),

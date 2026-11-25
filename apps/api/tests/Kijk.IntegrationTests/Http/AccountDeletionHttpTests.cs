@@ -59,6 +59,7 @@ public class AccountDeletionHttpTests
         await Assert.That(await dbContext.Accounts.AnyAsync(item => item.Id == seed.PrivateAccountId)).IsFalse();
         await Assert.That(await dbContext.Transactions.AnyAsync(item => item.Counterparty == "Private shop")).IsFalse();
         await Assert.That(await dbContext.Budgets.AnyAsync(item => item.OwnerId != null)).IsFalse();
+        await Assert.That(await dbContext.SpaceInvitations.AnyAsync()).IsFalse();
 
         // Shared data stays and now belongs to the remaining member, who became the space's administrator.
         var shared = await dbContext.Transactions.SingleAsync(item => item.Counterparty == "Shared shop");
@@ -119,7 +120,11 @@ public class AccountDeletionHttpTests
         var sharedBudget = Budget.Create(300m, new MonthYear(October), true, groceries, leaving, shared);
         var privateBudget = Budget.Create(100m, new MonthYear(October), true, groceries, leaving, shared, Visibility.Private);
 
-        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget);
+        // Invitations the leaving user created: one in the space that remains, one in the space that goes.
+        var sharedInvitation = SpaceInvitation.Create(shared, member, leaving, [.. Enumerable.Repeat((byte)1, 32)], DateTime.UtcNow);
+        var soloInvitation = SpaceInvitation.Create(solo, member, leaving, [.. Enumerable.Repeat((byte)2, 32)], DateTime.UtcNow);
+
+        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget, sharedInvitation, soloInvitation);
         await dbContext.SaveChangesAsync();
         return new Seed(leaving, remaining, personal.Id, solo.Id, shared.Id, privateAccount.Id);
     }

@@ -35,6 +35,8 @@ export function createApiClient(options: ApiClientOptions) {
     baseURL: options.baseUrl,
     headers: options.headers,
     auth: getAuthToken ? async () => (await getAuthToken()) ?? undefined : undefined,
+    // CSV exports are downloaded as files; Kubb would otherwise read every text/* body as a string.
+    mediaTypes: { 'text/csv': { decode: (response) => response.blob() } },
     transport: async (request) => {
       const nativeRequest = new Request(request.url, toRequestInit(request));
       const response = await fetch(nativeRequest);

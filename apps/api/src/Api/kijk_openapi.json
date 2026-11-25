@@ -4890,6 +4890,186 @@
         ]
       }
     },
+    "/api/spaces/{id}/invitations": {
+      "post": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Creates a single-use invitation link to a shared space",
+        "operationId": "Spaces.CreateInvitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSpaceInvitationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSpaceInvitationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Gets the pending invitations of a space",
+        "operationId": "Spaces.Invitations",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SpaceInvitationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/spaces/{id}/invitations/{invitationId}": {
+      "delete": {
+        "tags": [
+          "Spaces"
+        ],
+        "summary": "Revokes a pending invitation",
+        "operationId": "Spaces.RevokeInvitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/spaces/{spaceId}/transactions": {
       "get": {
         "tags": [
@@ -7454,6 +7634,59 @@
         },
         "description": "Command to create a new resource type."
       },
+      "CreateSpaceInvitationRequest": {
+        "required": [
+          "roleId"
+        ],
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The role the invited person receives: Member (the default when omitted) or Viewer. Admins are appointed later by\nchanging a member's role.",
+            "format": "uuid"
+          }
+        },
+        "description": "Contains the role of a new invitation."
+      },
+      "CreateSpaceInvitationResponse": {
+        "required": [
+          "id",
+          "token",
+          "link",
+          "roleId",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The invitation identifier.",
+            "format": "uuid"
+          },
+          "token": {
+            "type": "string",
+            "description": "The single-use invitation token."
+          },
+          "link": {
+            "type": "string",
+            "description": "The app-relative invitation link in the form `/invite#&lt;token&gt;`. The token is in the URL fragment, so\nbrowsers never send it to a server."
+          },
+          "roleId": {
+            "type": "string",
+            "description": "The identifier of the role the invited person receives.",
+            "format": "uuid"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "When the invitation expires (UTC).",
+            "format": "date-time"
+          }
+        },
+        "description": "A new invitation. The token is returned only in this response and cannot be retrieved again."
+      },
       "CreateSpaceRequest": {
         "required": [
           "name",
@@ -9484,6 +9717,48 @@
           }
         },
         "description": "Request for choosing the space the app opens first."
+      },
+      "SpaceInvitationResponse": {
+        "required": [
+          "id",
+          "roleId",
+          "roleName",
+          "createdByName",
+          "createdAt",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The invitation identifier.",
+            "format": "uuid"
+          },
+          "roleId": {
+            "type": "string",
+            "description": "The identifier of the role the invited person receives.",
+            "format": "uuid"
+          },
+          "roleName": {
+            "type": "string",
+            "description": "The name of the role the invited person receives."
+          },
+          "createdByName": {
+            "type": "string",
+            "description": "The display name of the inviting member."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the invitation was created (UTC).",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "When the invitation expires (UTC).",
+            "format": "date-time"
+          }
+        },
+        "description": "A pending invitation to a shared space. The token is never part of it."
       },
       "SpaceMemberResponse": {
         "required": [

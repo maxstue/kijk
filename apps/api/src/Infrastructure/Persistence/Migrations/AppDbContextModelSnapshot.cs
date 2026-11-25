@@ -1065,6 +1065,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                             Id = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"),
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "finances:export"
+                        },
+                        new
+                        {
+                            Id = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"),
+                            CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "members:invite"
                         });
                 });
 
@@ -1258,6 +1264,84 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_spaces_name");
 
                     b.ToTable("spaces", (string)null);
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.SpaceInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("accepted_at");
+
+                    b.Property<Guid?>("AcceptedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accepted_by_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("space_id");
+
+                    b.Property<byte[]>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("bytea")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_space_invitations");
+
+                    b.HasIndex("AcceptedById")
+                        .HasDatabaseName("ix_space_invitations_accepted_by_id");
+
+                    b.HasIndex("CreatedById")
+                        .HasDatabaseName("ix_space_invitations_created_by_id");
+
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_space_invitations_role_id");
+
+                    b.HasIndex("SpaceId")
+                        .HasDatabaseName("ix_space_invitations_space_id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_space_invitations_token_hash");
+
+                    b.ToTable("space_invitations", (string)null);
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Transaction", b =>
@@ -1825,6 +1909,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
+                            PermissionsId = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"),
+                            RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
+                        },
+                        new
+                        {
                             PermissionsId = new Guid("51af63b7-f581-48a5-8987-937939b56dec"),
                             RolesId = new Guid("0195624d-3c82-73e8-bb7b-b3fac043f2cb")
                         },
@@ -2152,6 +2241,42 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Navigation("Space");
 
                     b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("Kijk.Domain.Entities.SpaceInvitation", b =>
+                {
+                    b.HasOne("Kijk.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("AcceptedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_space_invitations_users_accepted_by_id");
+
+                    b.HasOne("Kijk.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_space_invitations_users_created_by_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_space_invitations_roles_role_id");
+
+                    b.HasOne("Kijk.Domain.Entities.Space", "Space")
+                        .WithMany()
+                        .HasForeignKey("SpaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_space_invitations_spaces_space_id");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Space");
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.Transaction", b =>

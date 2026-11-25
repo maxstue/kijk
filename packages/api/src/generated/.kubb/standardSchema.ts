@@ -14,9 +14,18 @@ export type StandardSchemaIssue = {
   readonly path?: ReadonlyArray<PropertyKey | { readonly key: PropertyKey }> | undefined;
 };
 
-/** Thrown when validation fails, with the schema's `issues`. */
-export class ParseError extends Error {
+/**
+ * Thrown when validation fails, with the schema's `issues`. A failure inside a call also carries where it happened:
+ * `direction`, `source`, `method`, and `status`. So `error.status` still tells a 404 from a 500 when an error body does
+ * not match its schema.
+ */
+export class ValidationError extends Error {
   readonly issues: ReadonlyArray<StandardSchemaIssue>;
+  // Declared, so a field that is never set is not an own property and `'status' in error` stays false.
+  declare direction?: ValidationErrorContext['direction'];
+  declare source?: ValidationErrorContext['source'];
+  declare method?: string;
+  declare status?: number;
   // Declared here and set below, since the `cause` constructor option needs the ES2022 library.
   declare readonly cause?: unknown;
 
@@ -30,20 +39,25 @@ export class ParseError extends Error {
     cause?: unknown;
   }) {
     super(message ?? 'Validation failed');
-    this.name = 'ParseError';
+    this.name = 'ValidationError';
     this.issues = issues;
     if (cause !== undefined) this.cause = cause;
   }
 }
 
-/** Returns the parsed value, or throws a `ParseError` with the schema's `issues`. */
+/** @deprecated Use `ValidationError`. */
+export const ParseError: typeof ValidationError = ValidationError;
+/** @deprecated Use `ValidationError`. */
+export type ParseError = ValidationError;
+
+/** Returns the parsed value, or throws a `ValidationError` with the schema's `issues`. */
 export async function validateStandardSchema<TOutput>(
   schema: StandardSchemaValidator<TOutput>,
   value: unknown,
 ): Promise<TOutput> {
   const result = await schema['~standard'].validate(value);
   if (result.issues) {
-    throw new ParseError({ issues: result.issues });
+    throw new ValidationError({ issues: result.issues });
   }
   return (result as { value: TOutput }).value;
 }
@@ -118,9 +132,9 @@ export type ValidationErrorContext = {
   status?: number | undefined;
 };
 
-/** Return `{ value }` to use instead of a failed value. Return nothing to rethrow the `ParseError`. */
+/** Return `{ value }` to use instead of a failed value. Return nothing to rethrow the `ValidationError`. */
 export type ValidationErrorHandler = (
-  error: ParseError,
+  error: ValidationError,
   context: ValidationErrorContext,
 ) => { value: unknown } | void | Promise<{ value: unknown } | void>;
 
@@ -153,7 +167,13 @@ export async function runValidator<T>({
   try {
     return await validateStandardSchema(validator, value);
   } catch (error) {
-    if (!onValidationError || !(error instanceof ParseError)) throw error;
+    if (!(error instanceof ValidationError)) throw error;
+    // The URL stays off the error, so secrets in its query do not reach logs.
+    error.direction = context.direction;
+    error.source = context.source;
+    if (context.method !== undefined) error.method = context.method;
+    if (context.status !== undefined) error.status = context.status;
+    if (!onValidationError) throw error;
     const handled = await onValidationError(error, { ...context, value });
     if (!handled) throw error;
     return handled.value as T;

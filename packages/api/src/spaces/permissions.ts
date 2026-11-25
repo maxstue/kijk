@@ -28,6 +28,7 @@ export const SpacePermissions = {
   },
   members: {
     assignRole: 'members:assign-role',
+    invite: 'members:invite',
     view: 'members:view',
   },
   resources: {
@@ -58,6 +59,7 @@ export const spacePermissionLabels: Record<SpacePermission, string> = {
   'limits:plan': 'Create and change consumption limits',
   'limits:view': 'View consumption limits',
   'members:assign-role': 'Change the roles of other members',
+  'members:invite': 'Invite people and manage pending invitations',
   'members:view': 'View members and their roles',
   'resources:configure': 'Create, change and delete resources',
   'resources:view': 'View resources',
