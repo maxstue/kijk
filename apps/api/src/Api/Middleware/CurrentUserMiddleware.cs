@@ -25,6 +25,13 @@ public class CurrentUserMiddleware(IProblemDetailsService problemDetailsService,
 
         if (isPublicEndpoint)
         {
+            // Public endpoints may still tailor their answer to a signed-in caller.
+            if (context.User.FindFirstValue(ClaimTypes.NameIdentifier) is { Length: > 0 } authId)
+            {
+                currentUser.Principal = context.User;
+                currentUser.User = await GetUserFromDb(authId, null);
+            }
+
             await next(context);
             return;
         }

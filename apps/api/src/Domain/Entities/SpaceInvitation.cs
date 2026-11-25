@@ -61,6 +61,20 @@ public sealed class SpaceInvitation : BaseEntity
         AcceptedById = userId;
     }
 
+    /// <summary>
+    /// Uses up the invitation for a user and creates their membership with the invited role. Callers check
+    /// <see cref="IsPending" /> first and load <see cref="Space" /> and <see cref="Role" />.
+    /// </summary>
+    /// <param name="user">The joining user.</param>
+    /// <param name="utcNow">The current time.</param>
+    /// <returns>The new membership.</returns>
+    public UserSpace AcceptFor(User user, DateTime utcNow)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        Accept(user.Id, utcNow);
+        return UserSpace.Create(user, Space, Role);
+    }
+
     /// <summary>Revokes the invitation, so it can no longer be accepted.</summary>
     /// <param name="utcNow">The current time.</param>
     public void Revoke(DateTime utcNow) => RevokedAt ??= utcNow;

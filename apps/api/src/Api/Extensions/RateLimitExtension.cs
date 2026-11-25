@@ -7,7 +7,7 @@ namespace Kijk.Api.Extensions;
 /// <summary>Rate limiting setup.</summary>
 public static class RateLimitExtensions
 {
-    /// <summary>Registers the per-user rate limits: 100 requests per 10 seconds and 20 uploads per hour, answered with HTTP 429.</summary>
+    /// <summary>Registers the per-user rate limits: 100 requests per 10 seconds, 20 uploads per hour and 10 invitation lookups per minute and identity or address, answered with HTTP 429.</summary>
     /// <param name="services">The service collection.</param>
     /// <returns>The service collection.</returns>
     public static IServiceCollection AddRateLimitPolicy(this IServiceCollection services) => services.AddRateLimiter(options =>
@@ -29,6 +29,16 @@ public static class RateLimitExtensions
             {
                 PermitLimit = 20,
                 Window = TimeSpan.FromHours(1),
+            }));
+
+        // Tokens cannot be guessed; the tight limit keeps attempts to try them slow and visible. The preview is
+        // public, so callers without an identity are partitioned by their address.
+        options.AddPolicy(AppConstants.InvitationRateLimit, context => RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? $"address:{context.Connection.RemoteIpAddress}",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
             }));
     });
 

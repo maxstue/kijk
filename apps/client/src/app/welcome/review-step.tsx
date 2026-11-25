@@ -13,7 +13,7 @@ export function ReviewStep() {
     <dl className='divide-y rounded-lg border'>
       <ReviewItem label='Username' value={displayName} />
       <ReviewItem label='Sign-in profile' value={useExternalProfile ? 'Name and image used' : 'Not used'} />
-      <ReviewItem label='Space' value={spaceName} />
+      <ReviewItem label='Personal space' value={spaceName} />
       <ReviewItem label='Default resources' value={useDefaultResources ? 'All defaults' : 'None'} />
       <ReviewItem label='Analytics and tracing' value={analyticsConsent === 'Accepted' ? 'Shared' : 'Not shared'} />
     </dl>

@@ -41,7 +41,7 @@ public class SpaceHttpTests
     public Task ResetDatabase() => PostgreSqlTestDatabase.ResetAsync();
 
     [Test]
-    public async Task OnboardingCreatesAPersonalSpaceThatCanBeTheDefaultButNotDeleted()
+    public async Task OnboardingCreatesOnlyAPersonalSpaceThatCanBeTheDefaultButNotDeleted()
     {
         await using var host = await SpaceApiHost.StartAsync(
             "newcomer-auth",
@@ -55,11 +55,12 @@ public class SpaceHttpTests
         {
             var memberships = await dbContext.UserSpaces.Include(link => link.Space).ThenInclude(space => space.Accounts)
                 .Where(link => link.User.AuthId == "newcomer-auth").ToListAsync();
-            await Assert.That(memberships.Count).IsEqualTo(2);
-            var personal = memberships.Single(link => link.Space.IsPersonal);
-            await Assert.That(memberships.Any(link => link.IsDefault)).IsFalse();
+            // Onboarding creates only the personal space; shared spaces are created or joined later.
+            var personal = memberships.Single();
+            await Assert.That(personal.Space.IsPersonal).IsTrue();
+            await Assert.That(personal.Space.Name).IsEqualTo("Family");
+            await Assert.That(personal.IsDefault).IsFalse();
             await Assert.That(personal.Space.Accounts.Single().Kind).IsEqualTo(AccountKind.Cash);
-            await Assert.That(memberships.Single(link => !link.Space.IsPersonal).Space.Name).IsEqualTo("Family");
             personalId = personal.SpaceId;
         }
 

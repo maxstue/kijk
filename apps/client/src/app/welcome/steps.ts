@@ -14,7 +14,7 @@ export const stepOrder = steps.map(({ value }) => ({ value }));
 export type StepValue = (typeof steps)[number]['value'];
 
 export function stepTitle(step: number) {
-  return ['Welcome to Kijk', 'Set up your space', 'Choose your privacy settings', 'Review your setup'][step];
+  return ['Welcome to Kijk', 'Set up your personal space', 'Choose your privacy settings', 'Review your setup'][step];
 }
 
 export function stepDescription(step: number) {

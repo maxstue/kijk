@@ -3714,6 +3714,152 @@
         ]
       }
     },
+    "/api/invitations/preview": {
+      "post": {
+        "tags": [
+          "Invitations"
+        ],
+        "summary": "Shows what a pending invitation offers, also before signing in",
+        "operationId": "Invitations.Preview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/invitations/accept": {
+      "post": {
+        "tags": [
+          "Invitations"
+        ],
+        "summary": "Joins the space of an invitation with the invited role",
+        "operationId": "Invitations.Accept",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInvitationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/spaces/{spaceId}/limits": {
       "get": {
         "tags": [
@@ -6250,6 +6396,31 @@
   },
   "components": {
     "schemas": {
+      "AcceptInvitationResponse": {
+        "required": [
+          "spaceId",
+          "spaceName",
+          "roleId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "description": "The space identifier.",
+            "format": "uuid"
+          },
+          "spaceName": {
+            "type": "string",
+            "description": "The name of the space."
+          },
+          "roleId": {
+            "type": "string",
+            "description": "The identifier of the role the user received.",
+            "format": "uuid"
+          }
+        },
+        "description": "The space the current user joined by accepting an invitation."
+      },
       "AccountKind": {
         "enum": [
           "Bank",
@@ -9029,6 +9200,68 @@
           null
         ]
       },
+      "InvitationPreviewResponse": {
+        "required": [
+          "spaceName",
+          "roleId",
+          "roleName",
+          "invitedByName",
+          "expiresAt",
+          "isMember",
+          "spaceId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceName": {
+            "type": "string",
+            "description": "The name of the shared space."
+          },
+          "roleId": {
+            "type": "string",
+            "description": "The identifier of the role the invited person receives.",
+            "format": "uuid"
+          },
+          "roleName": {
+            "type": "string",
+            "description": "The name of the role the invited person receives."
+          },
+          "invitedByName": {
+            "type": "string",
+            "description": "The display name of the member who created the invitation."
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "When the invitation expires (UTC).",
+            "format": "date-time"
+          },
+          "isMember": {
+            "type": "boolean",
+            "description": "Whether the signed-in user already belongs to the space; accepting is then not possible. Always\n`false` without a session."
+          },
+          "spaceId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The space identifier, set only when the current user is already a member.",
+            "format": "uuid"
+          }
+        },
+        "description": "What an invitation offers, shown on the invitation page before signing in and before accepting."
+      },
+      "InvitationTokenRequest": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The token from the invitation link."
+          }
+        },
+        "description": "Names an invitation by its token. The token travels only in the request body, never in a URL, so it does not\nreach request logs."
+      },
       "LimitPeriodResponse": {
         "required": [
           "periodStart",
@@ -10713,8 +10946,11 @@
             "description": "The display name used by Kijk."
           },
           "spaceName": {
-            "type": "string",
-            "description": "The name of the first space, which the user can share with others."
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The name of the user's personal space, which is never shared. Defaults to \"Personal\" when omitted. Shared spaces\nare created after onboarding."
           },
           "useDefaultResources": {
             "type": "boolean",
@@ -10727,6 +10963,13 @@
           "analyticsConsent": {
             "description": "The user's explicit analytics preference.",
             "$ref": "#/components/schemas/AnalyticsConsent"
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The token of an invitation to accept. The user then also joins the invited space, which becomes the space the app\nopens first. An invalid invitation fails the onboarding without creating the account."
           }
         },
         "description": "Completes the setup of a newly registered user."
@@ -10803,6 +11046,9 @@
     },
     {
       "name": "Imports"
+    },
+    {
+      "name": "Invitations"
     },
     {
       "name": "Consumption Limits"

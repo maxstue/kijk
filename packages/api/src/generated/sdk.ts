@@ -95,6 +95,10 @@ import type {
   ImportsUpdateCandidateResponses,
   ImportsUpdateSettingsOptions,
   ImportsUpdateSettingsResponses,
+  InvitationsAcceptOptions,
+  InvitationsAcceptResponses,
+  InvitationsPreviewOptions,
+  InvitationsPreviewResponses,
   LimitsCreateOptions,
   LimitsCreateResponses,
   LimitsDeleteOptions,
@@ -1175,6 +1179,52 @@ export function importsUpdateSettings<ThrowOnError extends boolean = true>(
     apiClient<ImportsUpdateSettingsResponses, ThrowOnError>({
       method: 'PUT',
       url: '/api/spaces/{spaceId}/imports/settings',
+      security: [securitySchemes.Bearer],
+      contentType: { request: 'application/json' },
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `POST /api/invitations/preview`
+ *
+ * @summary Shows what a pending invitation offers, also before signing in
+ */
+export function invitationsPreview<ThrowOnError extends boolean = true>(
+  options: Options<InvitationsPreviewOptions, ThrowOnError>,
+): Promise<UnwrappedResult<InvitationsPreviewResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<InvitationsPreviewResponses, ThrowOnError>({
+      method: 'POST',
+      url: '/api/invitations/preview',
+      security: [securitySchemes.Bearer],
+      contentType: { request: 'application/json' },
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `POST /api/invitations/accept`
+ *
+ * @summary Joins the space of an invitation with the invited role
+ */
+export function invitationsAccept<ThrowOnError extends boolean = true>(
+  options: Options<InvitationsAcceptOptions, ThrowOnError>,
+): Promise<UnwrappedResult<InvitationsAcceptResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<InvitationsAcceptResponses, ThrowOnError>({
+      method: 'POST',
+      url: '/api/invitations/accept',
       security: [securitySchemes.Bearer],
       contentType: { request: 'application/json' },
       ...config,
