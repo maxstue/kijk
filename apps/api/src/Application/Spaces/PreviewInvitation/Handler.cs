@@ -5,7 +5,7 @@ using Kijk.Shared;
 namespace Kijk.Application.Spaces.PreviewInvitation;
 
 /// <summary>
-/// Shows a signed-in person what an invitation offers.
+/// Shows anyone with an invitation link what the invitation offers, before or after signing in.
 /// </summary>
 public sealed class PreviewInvitationHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {

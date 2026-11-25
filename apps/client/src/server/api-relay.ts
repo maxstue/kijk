@@ -42,8 +42,8 @@ export function isAnonymousOperation(path: string, method: string) {
 
 /**
  * The visitor's address as reported by the hosting proxies, used by the API to rate-limit anonymous requests.
- * Cloudflare sets `CF-Connecting-IP` in front of Railway, which sets `X-Real-IP`; a forged value can only split the
- * sender's own rate-limit budget.
+ * Cloudflare sets `CF-Connecting-IP` in front of Railway, which sets `X-Real-IP`. Clients can forge these headers when
+ * they bypass Cloudflare, so the web application must be reachable only through its Cloudflare domain.
  */
 export function getClientAddress(request: Request) {
   return (request.headers.get('cf-connecting-ip') ?? request.headers.get('x-real-ip'))?.trim() || undefined;

@@ -274,6 +274,28 @@ public class InvitationAcceptanceHttpTests
     }
 
     [Test]
+    public async Task OnboardingRejectsUnusableTokensBeforeCallingTheIdentityProviderAndIsRateLimited()
+    {
+        var identityProvider = new FakeIdentityProvider();
+        await using var host = await SpaceApiHost.StartAsync(
+            "newcomer-auth",
+            configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider>(_ => identityProvider)));
+
+        var statuses = new List<HttpStatusCode>();
+        for (var attempt = 0; attempt < 11; attempt++)
+        {
+            using var response = await host.Client.PutAsJsonAsync("/api/users/onboarding",
+                new WelcomeUserRequest("Newcomer", null, false, false, AnalyticsConsent.Declined, InvitationToken.Create().Token), Json);
+            statuses.Add(response.StatusCode);
+        }
+
+        await Assert.That(statuses.Take(10).Distinct()).IsEquivalentTo(new[] { HttpStatusCode.NotFound });
+        await Assert.That(statuses[10]).IsEqualTo(HttpStatusCode.TooManyRequests);
+        await Assert.That(identityProvider.Lookups).IsEmpty();
+        await Assert.That(identityProvider.ProfileSettings).IsEmpty();
+    }
+
+    [Test]
     public async Task PreviewAndAcceptShareATightRateLimit()
     {
         var seed = await SeedAsync();
@@ -400,8 +422,13 @@ public class InvitationAcceptanceHttpTests
     {
         public ConcurrentQueue<bool> ProfileSettings { get; } = new();
 
-        public Task<ExternalIdentity> GetAsync(string authId, CancellationToken cancellationToken) =>
-            Task.FromResult(new ExternalIdentity("Newcomer", "newcomer@example.test", null, false));
+        public ConcurrentQueue<string> Lookups { get; } = new();
+
+        public Task<ExternalIdentity> GetAsync(string authId, CancellationToken cancellationToken)
+        {
+            Lookups.Enqueue(authId);
+            return Task.FromResult(new ExternalIdentity("Newcomer", "newcomer@example.test", null, false));
+        }
 
         public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken)
         {

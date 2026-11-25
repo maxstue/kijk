@@ -34,6 +34,13 @@ public class CompleteOnboardingHandler(
             return await getMeUserHandler.HandleAsync(cancellationToken);
         }
 
+        // Unusable tokens fail before any call to the identity provider, so trying tokens costs only a cheap query.
+        if (request.InvitationToken is { } candidate
+            && !await dbContext.IsPendingInvitationAsync(candidate, timeProvider.GetUtcNow().UtcDateTime, cancellationToken))
+        {
+            return InvitationLookup.Invalid;
+        }
+
         var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
         // Calls to the identity provider stay outside the transaction, so no lock is held while waiting for it.
         // Setting the flag again on a retry is harmless.
@@ -128,19 +135,10 @@ public class CompleteOnboardingHandler(
 
     private static void JoinInvitedSpace(User user, SpaceInvitation invitation, DateTime utcNow)
     {
-        // A membership that already exists keeps its role, and the invitation stays usable for someone else.
-        var membership = user.UserSpaces.FirstOrDefault(link => link.SpaceId == invitation.SpaceId);
-        if (membership is null)
-        {
-            membership = invitation.AcceptFor(user, utcNow);
-            user.UserSpaces.Add(membership);
-        }
-
-        // The invited space opens first. Before onboarding completes no default can exist, so the partial unique
-        // index on the default membership cannot conflict.
-        if (!user.UserSpaces.Any(link => link.IsDefault))
-        {
-            membership.SetDefault(true);
-        }
+        // Onboarding only restarts for users left without any space (see Spaces/Delete), so the user is no member
+        // of the invited space yet and has no default space.
+        var membership = invitation.AcceptFor(user, utcNow);
+        membership.SetDefault(true);
+        user.UserSpaces.Add(membership);
     }
 }

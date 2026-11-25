@@ -31,10 +31,12 @@ public static class RateLimitExtensions
                 Window = TimeSpan.FromHours(1),
             }));
 
-        // Tokens cannot be guessed; the tight limit keeps attempts to try them slow and visible. The preview is
-        // public, so callers without an identity are partitioned by their address. The private API is reached only
-        // through the web application, which sends the visitor's address for anonymous previews; a forged value can
-        // only split the sender's own budget.
+        // Tokens cannot be guessed; the tight limit keeps attempts to try them slow and visible. It covers the
+        // invitation endpoints and onboarding, which also takes a token. The preview is public, so callers without an
+        // identity are partitioned by the address the web application sends. That address is only trustworthy while
+        // the API is reachable solely over the private network and all web traffic passes Cloudflare; otherwise
+        // rotating forged values would get a fresh budget each time. Without an address, which happens only outside
+        // the hosting proxies, anonymous callers share the budget of the web application's address.
         options.AddPolicy(AppConstants.InvitationRateLimit, context => RateLimitPartition.GetFixedWindowLimiter(
             context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? $"address:{ClientAddress(context)}",
             _ => new FixedWindowRateLimiterOptions

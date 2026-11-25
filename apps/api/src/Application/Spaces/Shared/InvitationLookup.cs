@@ -15,6 +15,20 @@ public static class InvitationLookup
     public static Error Invalid => Error.NotFound("This invitation is invalid or has expired. Ask for a new link.");
 
     /// <summary>
+    /// Checks without a lock whether a token belongs to an invitation that can still be accepted. Callers use it to
+    /// reject unusable tokens cheaply before slower work; the locked read in the transaction stays authoritative.
+    /// </summary>
+    /// <param name="dbContext">The database context.</param>
+    /// <param name="token">The token from the request body.</param>
+    /// <param name="utcNow">The current time.</param>
+    /// <param name="cancellationToken">The request cancellation token.</param>
+    /// <returns><see langword="true" /> while the invitation is neither used, revoked nor expired.</returns>
+    public static async Task<bool> IsPendingInvitationAsync(this IAppDbContext dbContext, string token, DateTime utcNow, CancellationToken cancellationToken) =>
+        InvitationToken.TryHash(token, out var hash) && await dbContext.SpaceInvitations
+            .AsNoTracking()
+            .AnyAsync(item => item.TokenHash == hash && item.AcceptedAt == null && item.RevokedAt == null && item.ExpiresAt > utcNow, cancellationToken);
+
+    /// <summary>
     /// Loads the invitation of a token with its space and role and locks it until the transaction ends, so it is
     /// accepted at most once. Callers check <see cref="SpaceInvitation.IsPending" /> themselves.
     /// </summary>
