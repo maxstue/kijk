@@ -61,6 +61,8 @@ public sealed class AccountEraser(IAppDbContext dbContext, IIdentityProvider ide
             }
         }
 
+        // Invitations the user created or accepted in spaces that remain for others go with the account.
+        await dbContext.SpaceInvitations.Where(item => item.CreatedById == userId || item.AcceptedById == userId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Users.Where(item => item.Id == userId).ExecuteDeleteAsync(cancellationToken);
     }
 

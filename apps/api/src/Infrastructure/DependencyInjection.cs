@@ -12,6 +12,7 @@ using Kijk.Infrastructure.Imports;
 using Kijk.Infrastructure.Jobs;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Persistence.Interceptors;
+using Kijk.Infrastructure.Spaces;
 using Kijk.Infrastructure.Telemetry;
 using Kijk.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,6 +44,7 @@ public static class DependencyInjection
                 .AddClerkBackendApi()
                 .AddAuth()
                 .AddImports()
+                .AddSpaces()
                 .AddAi();
 
         private IServiceCollection AddDatabase()

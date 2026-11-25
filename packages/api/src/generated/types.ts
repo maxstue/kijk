@@ -1244,6 +1244,68 @@ export type CreateResourceRequest = {
 };
 
 /**
+ * Contains the role of a new invitation.
+ *
+ * @type object
+ */
+export type CreateSpaceInvitationRequest = {
+  /**
+   * The role the invited person receives: Member (the default when omitted) or Viewer. Admins are appointed later by
+   * changing a member's role.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  roleId: string | null;
+};
+
+/**
+ * A new invitation. The token is returned only in this response and cannot be retrieved again.
+ *
+ * @type object
+ */
+export type CreateSpaceInvitationResponse = {
+  /**
+   * The invitation identifier.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  id: string;
+  /**
+   * The single-use invitation token.
+   *
+   * @type string
+   */
+  token: string;
+  /**
+   * The app-relative invitation link in the form `/invite#&lt;token&gt;`. The token is in the URL fragment, so browsers
+   * never send it to a server.
+   *
+   * @type string
+   */
+  link: string;
+  /**
+   * The identifier of the role the invited person receives.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  roleId: string;
+  /**
+   * When the invitation expires (UTC).
+   *
+   * Format: `date-time`
+   *
+   * @type string
+   */
+  expiresAt: string;
+};
+
+/**
  * Contains the details of a new shared space.
  *
  * @type object
@@ -2724,6 +2786,58 @@ export type SetDefaultSpaceRequest = {
    * @type string
    */
   spaceId: string | null;
+};
+
+/**
+ * A pending invitation to a shared space. The token is never part of it.
+ *
+ * @type object
+ */
+export type SpaceInvitationResponse = {
+  /**
+   * The invitation identifier.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  id: string;
+  /**
+   * The identifier of the role the invited person receives.
+   *
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  roleId: string;
+  /**
+   * The name of the role the invited person receives.
+   *
+   * @type string
+   */
+  roleName: string;
+  /**
+   * The display name of the inviting member.
+   *
+   * @type string
+   */
+  createdByName: string;
+  /**
+   * When the invitation was created (UTC).
+   *
+   * Format: `date-time`
+   *
+   * @type string
+   */
+  createdAt: string;
+  /**
+   * When the invitation expires (UTC).
+   *
+   * Format: `date-time`
+   *
+   * @type string
+   */
+  expiresAt: string;
 };
 
 /**
@@ -4430,8 +4544,12 @@ export type ConsumptionsExportPath = {
   id: string;
 };
 
-/** Format: `byte` */
-export type ConsumptionsExportStatus200 = Blob;
+/**
+ * Format: `byte`
+ *
+ * @type string
+ */
+export type ConsumptionsExportStatus200 = string;
 
 export type ConsumptionsExportStatus401 = Problem;
 
@@ -4479,8 +4597,12 @@ export type ConsumptionsExportMonthQuery = {
   month: string;
 };
 
-/** Format: `byte` */
-export type ConsumptionsExportMonthStatus200 = Blob;
+/**
+ * Format: `byte`
+ *
+ * @type string
+ */
+export type ConsumptionsExportMonthStatus200 = string;
 
 export type ConsumptionsExportMonthStatus400 = HttpValidationProblemDetails;
 
@@ -4586,8 +4708,12 @@ export type ConsumptionsImportTemplatePath = {
   spaceId: string;
 };
 
-/** Format: `byte` */
-export type ConsumptionsImportTemplateStatus200 = Blob;
+/**
+ * Format: `byte`
+ *
+ * @type string
+ */
+export type ConsumptionsImportTemplateStatus200 = string;
 
 export type ConsumptionsImportTemplateStatus401 = Problem;
 
@@ -6692,6 +6818,141 @@ export type SpacesChangeMemberRoleResponses = {
 /** Union of all possible responses */
 export type SpacesChangeMemberRoleResponse = SpacesChangeMemberRoleStatus200;
 
+export type SpacesCreateInvitationPath = {
+  /**
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  id: string;
+};
+
+/**
+ * A new invitation. The token is returned only in this response and cannot be retrieved again.
+ *
+ * @type object
+ */
+export type SpacesCreateInvitationStatus200 = CreateSpaceInvitationResponse;
+
+export type SpacesCreateInvitationStatus400 = HttpValidationProblemDetails;
+
+export type SpacesCreateInvitationStatus401 = Problem;
+
+export type SpacesCreateInvitationStatus403 = Problem;
+
+export type SpacesCreateInvitationStatus409 = ProblemDetails;
+
+export type SpacesCreateInvitationStatus429 = Problem;
+
+export type SpacesCreateInvitationStatus500 = Problem;
+
+/**
+ * Contains the role of a new invitation.
+ *
+ * @type object
+ */
+export type SpacesCreateInvitationBody = CreateSpaceInvitationRequest;
+
+export type SpacesCreateInvitationOptions = {
+  body: SpacesCreateInvitationBody;
+  path: SpacesCreateInvitationPath;
+  query?: never;
+  headers?: never;
+};
+
+export type SpacesCreateInvitationResponses = {
+  '200': SpacesCreateInvitationStatus200;
+  '400': SpacesCreateInvitationStatus400;
+  '401': SpacesCreateInvitationStatus401;
+  '403': SpacesCreateInvitationStatus403;
+  '409': SpacesCreateInvitationStatus409;
+  '429': SpacesCreateInvitationStatus429;
+  '500': SpacesCreateInvitationStatus500;
+};
+
+/** Union of all possible responses */
+export type SpacesCreateInvitationResponse = SpacesCreateInvitationStatus200;
+
+export type SpacesInvitationsPath = {
+  /**
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  id: string;
+};
+
+export type SpacesInvitationsStatus200 = SpaceInvitationResponse[];
+
+export type SpacesInvitationsStatus401 = Problem;
+
+export type SpacesInvitationsStatus403 = Problem;
+
+export type SpacesInvitationsStatus429 = Problem;
+
+export type SpacesInvitationsStatus500 = Problem;
+
+export type SpacesInvitationsOptions = {
+  body?: never;
+  path: SpacesInvitationsPath;
+  query?: never;
+  headers?: never;
+};
+
+export type SpacesInvitationsResponses = {
+  '200': SpacesInvitationsStatus200;
+  '401': SpacesInvitationsStatus401;
+  '403': SpacesInvitationsStatus403;
+  '429': SpacesInvitationsStatus429;
+  '500': SpacesInvitationsStatus500;
+};
+
+/** Union of all possible responses */
+export type SpacesInvitationsResponse = SpacesInvitationsStatus200;
+
+export type SpacesRevokeInvitationPath = {
+  /**
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  id: string;
+  /**
+   * Format: `uuid`
+   *
+   * @type string
+   */
+  invitationId: string;
+};
+
+export type SpacesRevokeInvitationStatus204 = unknown;
+
+export type SpacesRevokeInvitationStatus401 = Problem;
+
+export type SpacesRevokeInvitationStatus403 = Problem;
+
+export type SpacesRevokeInvitationStatus429 = Problem;
+
+export type SpacesRevokeInvitationStatus500 = Problem;
+
+export type SpacesRevokeInvitationOptions = {
+  body?: never;
+  path: SpacesRevokeInvitationPath;
+  query?: never;
+  headers?: never;
+};
+
+export type SpacesRevokeInvitationResponses = {
+  '204': SpacesRevokeInvitationStatus204;
+  '401': SpacesRevokeInvitationStatus401;
+  '403': SpacesRevokeInvitationStatus403;
+  '429': SpacesRevokeInvitationStatus429;
+  '500': SpacesRevokeInvitationStatus500;
+};
+
+/** Union of all possible responses */
+export type SpacesRevokeInvitationResponse = SpacesRevokeInvitationStatus204;
+
 export type TransactionsListPath = {
   /**
    * The space the request works on.
@@ -6831,8 +7092,12 @@ export type TransactionsExportQuery = {
   search?: string;
 };
 
-/** Format: `byte` */
-export type TransactionsExportStatus200 = Blob;
+/**
+ * Format: `byte`
+ *
+ * @type string
+ */
+export type TransactionsExportStatus200 = string;
 
 export type TransactionsExportStatus401 = Problem;
 

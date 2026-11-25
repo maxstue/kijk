@@ -43,6 +43,8 @@ public interface IAppDbContext
     DbSet<ImportCandidate> ImportCandidates { get; }
     /// <summary>Gets the confirmed import mappings.</summary>
     DbSet<ImportProfile> ImportProfiles { get; }
+    /// <summary>Gets the invitations to shared spaces.</summary>
+    DbSet<SpaceInvitation> SpaceInvitations { get; }
     /// <summary>Gets the space roles.</summary>
     DbSet<Role> Roles { get; }
     /// <summary>Gets the space permissions.</summary>

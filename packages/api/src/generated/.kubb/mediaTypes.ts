@@ -1,7 +1,7 @@
 import type { EventStreamOptions, RequestConfig } from './core';
 import type { RequestBody } from './serializers';
 import { baseContentType, jsonReplacer } from './serializers';
-import { ParseError } from './standardSchema';
+import { ValidationError } from './standardSchema';
 
 /** What a media type handler gets next to the body. */
 export type MediaTypeContext = {
@@ -11,7 +11,15 @@ export type MediaTypeContext = {
   signal?: AbortSignal | undefined;
   config: Omit<RequestConfig, 'client' | 'transport'> & EventStreamOptions;
   /** Where a stream records the last event ID it read, for `StreamResult.lastEventId`. */
-  cursor?: { lastEventId: string } | undefined;
+  cursor?: { lastEventId: string; idSeen?: boolean } | undefined;
+  /**
+   * Set when `retry` is on. Opens the stream again after a read failed with `error`, and resolves to the new body, or
+   * to nothing when the server says to stop. It rejects with `error` when no retry is left. Pass `delivered` when the
+   * stream yielded an item since it was opened.
+   */
+  reopen?:
+    | ((failure: { error: unknown; delivered: boolean }) => Promise<ReadableStream<Uint8Array> | undefined>)
+    | undefined;
 };
 
 /** Encodes and decodes bodies of one media type. Every method is optional. */
@@ -74,12 +82,12 @@ function encodeOrJson(body: unknown, { contentType }: MediaTypeContext): Request
   return JSON.stringify(body, jsonReplacer);
 }
 
-/** Parses JSON text, throwing a `ParseError` that names the content type when it is not valid JSON. */
+/** Parses JSON text, throwing a `ValidationError` that names the content type when it is not valid JSON. */
 export function parseJson(text: string, contentType: string | undefined): unknown {
   try {
     return JSON.parse(text);
   } catch (error) {
-    throw new ParseError({
+    throw new ValidationError({
       message: `Invalid JSON in a ${baseContentType(contentType)} body`,
       issues: [{ message: String(error) }],
       cause: error,
