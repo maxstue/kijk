@@ -9,6 +9,8 @@ namespace Kijk.Application.Spaces.AcceptInvitation;
 /// </summary>
 public sealed class AcceptInvitationHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
+    private static Error AlreadyMember => Error.Conflict("You are already a member of this space");
+
     /// <summary>
     /// Adds the current user to the invitation's space with the invited role and uses up the invitation.
     /// Members get a conflict and the invitation stays usable for someone else.
@@ -26,19 +28,33 @@ public sealed class AcceptInvitationHandler(IAppDbContext dbContext, CurrentUser
             return InvitationLookup.Invalid;
         }
 
-        // Serializes joins of this user, so two invitations to the same space cannot both add a membership.
-        var user = await dbContext.Users
-            .FromSqlInterpolated($"SELECT * FROM users WHERE id = {currentUser.Id} FOR UPDATE")
-            .SingleAsync(cancellationToken);
-        if (await dbContext.UserSpaces.AnyAsync(link => link.UserId == user.Id && link.SpaceId == invitation.SpaceId, cancellationToken))
+        if (await IsMemberAsync(invitation.SpaceId, cancellationToken))
         {
-            return Error.Conflict("You are already a member of this space");
+            return AlreadyMember;
         }
 
+        var user = await dbContext.Users.SingleAsync(item => item.Id == currentUser.Id, cancellationToken);
         dbContext.UserSpaces.Add(invitation.AcceptFor(user, utcNow));
-        await dbContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // The membership key rejects a second join through another invitation to the same space at the same time.
+            await transaction.RollbackAsync(cancellationToken);
+            if (!await IsMemberAsync(invitation.SpaceId, cancellationToken))
+            {
+                throw;
+            }
+
+            return AlreadyMember;
+        }
 
         return new AcceptInvitationResponse(invitation.SpaceId, invitation.Space.Name, invitation.RoleId);
     }
+
+    private Task<bool> IsMemberAsync(Guid spaceId, CancellationToken cancellationToken) =>
+        dbContext.UserSpaces.AsNoTracking().AnyAsync(link => link.UserId == currentUser.Id && link.SpaceId == spaceId, cancellationToken);
 }

@@ -47,10 +47,7 @@ public sealed class SpaceInvitation : BaseEntity
     /// <returns><see langword="true" /> while the invitation is neither used, revoked nor expired.</returns>
     public bool IsPending(DateTime utcNow) => AcceptedAt is null && RevokedAt is null && ExpiresAt > utcNow;
 
-    /// <summary>Marks the invitation as used. Callers check <see cref="IsPending" /> first.</summary>
-    /// <param name="userId">The user who accepted it.</param>
-    /// <param name="utcNow">The current time.</param>
-    public void Accept(Guid userId, DateTime utcNow)
+    private void Accept(Guid userId, DateTime utcNow)
     {
         if (!IsPending(utcNow))
         {

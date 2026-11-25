@@ -52,7 +52,6 @@ public sealed class PreviewInvitationHandler(IAppDbContext dbContext, CurrentUse
             invitation.RoleName,
             invitation.InvitedByName,
             invitation.ExpiresAt,
-            isMember,
             isMember ? invitation.SpaceId : null);
     }
 }

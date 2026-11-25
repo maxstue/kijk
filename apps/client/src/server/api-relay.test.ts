@@ -196,3 +196,42 @@ test('concurrent requests keep user credentials isolated', async () => {
     { auth: 'Bearer bob' },
   ]);
 });
+
+test('forwards only the invitation preview without a token, with the visitor address instead of credentials', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json({ spaceName: 'Family' }));
+  const preview = write('/api/invitations/preview', {
+    body: JSON.stringify({ token: 'secret' }),
+    headers: {
+      'content-type': 'application/json',
+      'cf-connecting-ip': '203.0.113.7',
+      'x-real-ip': '198.51.100.1',
+      Authorization: 'Bearer forged',
+    },
+  });
+
+  const response = await forwardApiRequest(preview, { apiUrl: 'https://api.example.test', fetch });
+  const anonymousAccept = await forwardApiRequest(write('/api/invitations/accept'), {
+    apiUrl: 'https://api.example.test',
+    fetch,
+  });
+
+  expect(response.status).toBe(200);
+  const headers = new Headers(fetch.mock.calls[0][1]?.headers);
+  expect(headers.has('Authorization')).toBe(false);
+  expect(headers.get('X-Forwarded-For')).toBe('203.0.113.7');
+  expect(anonymousAccept.status).toBe(401);
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+test('signed-in previews keep their token and send no address', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json({}));
+  await forwardApiRequest(write('/api/invitations/preview', { headers: { 'x-real-ip': '198.51.100.1' } }), {
+    apiUrl: 'https://api.example.test',
+    token: 'verified',
+    fetch,
+  });
+
+  const headers = new Headers(fetch.mock.calls[0][1]?.headers);
+  expect(headers.get('Authorization')).toBe('Bearer verified');
+  expect(headers.has('X-Forwarded-For')).toBe(false);
+});

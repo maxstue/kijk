@@ -64,3 +64,30 @@ test('forwards to API_URL after verifying the session', async () => {
   expect(response.status).toBe(200);
   expect((fetch.mock.calls[0][0] as URL).href).toBe('http://backend.example.test:5140/api/users/me');
 });
+
+test('relays the invitation preview without a session but keeps other operations signed in', async () => {
+  vi.stubEnv('CLERK_SECRET_KEY', 'configured-for-test');
+  vi.stubEnv('API_URL', 'http://backend.example.test:5140');
+  vi.mocked(auth).mockResolvedValue({ userId: null } as Awaited<ReturnType<typeof auth>>);
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ spaceName: 'Family' }));
+
+  const preview = await relayApiRequest(
+    new Request('https://app.example.test/api/invitations/preview', {
+      method: 'POST',
+      headers: { 'X-CSRF': '1', 'content-type': 'application/json' },
+      body: JSON.stringify({ token: 'secret' }),
+    }),
+  );
+  const withoutCsrf = await relayApiRequest(
+    new Request('https://app.example.test/api/invitations/preview', { method: 'POST' }),
+  );
+  const accept = await relayApiRequest(
+    new Request('https://app.example.test/api/invitations/accept', { method: 'POST', headers: { 'X-CSRF': '1' } }),
+  );
+
+  expect(preview.status).toBe(200);
+  expect((fetch.mock.calls[0][0] as URL).href).toBe('http://backend.example.test:5140/api/invitations/preview');
+  expect(withoutCsrf.status).toBe(403);
+  expect(accept.status).toBe(401);
+  expect(fetch).toHaveBeenCalledTimes(1);
+});

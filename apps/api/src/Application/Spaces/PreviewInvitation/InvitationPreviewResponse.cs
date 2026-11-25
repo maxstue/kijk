@@ -8,16 +8,13 @@ namespace Kijk.Application.Spaces.PreviewInvitation;
 /// <param name="RoleName">The name of the role the invited person receives.</param>
 /// <param name="InvitedByName">The display name of the member who created the invitation.</param>
 /// <param name="ExpiresAt">When the invitation expires (UTC).</param>
-/// <param name="IsMember">
-/// Whether the signed-in user already belongs to the space; accepting is then not possible. Always
-/// <see langword="false" /> without a session.
+/// <param name="SpaceId">
+/// The space identifier, set only when the signed-in user is already a member; accepting is then not possible.
 /// </param>
-/// <param name="SpaceId">The space identifier, set only when the current user is already a member.</param>
 public sealed record InvitationPreviewResponse(
     string SpaceName,
     Guid RoleId,
     string RoleName,
     string InvitedByName,
     DateTime ExpiresAt,
-    bool IsMember,
     Guid? SpaceId);

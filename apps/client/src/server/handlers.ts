@@ -1,9 +1,12 @@
 import { auth } from '@clerk/tanstack-react-start/server';
 
-import { forwardApiRequest, hasBffRequestHeader } from './api-relay';
+import { forwardApiRequest, hasBffRequestHeader, isAnonymousOperation } from './api-relay';
 import { apiProblem } from './problem';
 
-/** Verifies each request independently before resolving an upstream token; origin checks run in `start.ts`. */
+/**
+ * Verifies each request independently before resolving an upstream token; origin checks run in `start.ts`. Only the
+ * operations in `isAnonymousOperation` pass without a session.
+ */
 export async function relayApiRequest(request: Request) {
   if (!hasBffRequestHeader(request)) {
     return apiProblem(request, 403, 'Your request could not be verified. Reload the application and try again.');
@@ -13,11 +16,13 @@ export async function relayApiRequest(request: Request) {
     return apiProblem(request, 503, 'Sign-in is temporarily unavailable. Please try again later.');
   }
   const session = await auth();
-  if (!session.userId) {
+  const anonymous = !session.userId;
+  if (anonymous && !isAnonymousOperation(new URL(request.url).pathname, request.method)) {
     return apiProblem(request, 401, 'You are not signed in or your session has expired. Please sign in again.');
   }
-  const token = await session.getToken();
-  if (!token) {
+  // Signed-in callers of anonymous operations still send their token, so the API can tailor the answer.
+  const token = anonymous ? undefined : await session.getToken();
+  if (!anonymous && !token) {
     return apiProblem(request, 401, 'Your session could not be verified. Please sign in again.');
   }
   const apiUrl = process.env.API_URL;

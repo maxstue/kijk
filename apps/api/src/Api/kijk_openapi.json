@@ -9207,7 +9207,6 @@
           "roleName",
           "invitedByName",
           "expiresAt",
-          "isMember",
           "spaceId"
         ],
         "type": "object",
@@ -9234,16 +9233,12 @@
             "description": "When the invitation expires (UTC).",
             "format": "date-time"
           },
-          "isMember": {
-            "type": "boolean",
-            "description": "Whether the signed-in user already belongs to the space; accepting is then not possible. Always\n`false` without a session."
-          },
           "spaceId": {
             "type": [
               "null",
               "string"
             ],
-            "description": "The space identifier, set only when the current user is already a member.",
+            "description": "The space identifier, set only when the signed-in user is already a member; accepting is then not possible.",
             "format": "uuid"
           }
         },

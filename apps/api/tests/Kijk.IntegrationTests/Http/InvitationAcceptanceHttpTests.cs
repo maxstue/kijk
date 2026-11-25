@@ -50,7 +50,6 @@ public class InvitationAcceptanceHttpTests
         await Assert.That(preview.RoleId).IsEqualTo(SpaceRoles.Viewer.Id);
         await Assert.That(preview.RoleName).IsEqualTo(SpaceRoles.ViewerName);
         await Assert.That(preview.InvitedByName).IsEqualTo("admin");
-        await Assert.That(preview.IsMember).IsFalse();
         await Assert.That(preview.SpaceId).IsNull();
 
         using var accepted = await joiner.PostAsJsonAsync("/api/invitations/accept", new InvitationTokenRequest(token), Json);
@@ -118,7 +117,6 @@ public class InvitationAcceptanceHttpTests
         using var joiner = host.CreateClient(seed.Joiner.AuthId);
         using var acceptedByInvitee = await joiner.PostAsJsonAsync("/api/invitations/accept", new InvitationTokenRequest(token), Json);
 
-        await Assert.That(preview.IsMember).IsTrue();
         await Assert.That(preview.SpaceId).IsEqualTo(seed.SpaceId);
         await Assert.That(accepted.StatusCode).IsEqualTo(HttpStatusCode.Conflict);
         await Assert.That(acceptedByInvitee.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -178,7 +176,6 @@ public class InvitationAcceptanceHttpTests
         await Assert.That(previewedAnonymously.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(anonymousPreview.SpaceName).IsEqualTo("Shared space");
         await Assert.That(anonymousPreview.InvitedByName).IsEqualTo("admin");
-        await Assert.That(anonymousPreview.IsMember).IsFalse();
         await Assert.That(anonymousPreview.SpaceId).IsNull();
         await Assert.That(acceptedAnonymously.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
 
@@ -291,8 +288,14 @@ public class InvitationAcceptanceHttpTests
             statuses.Add(response.StatusCode);
         }
 
+        // The web application names the visitor's address, so one visitor cannot use up the budget of others.
+        using var otherVisitor = new HttpClient { BaseAddress = host.Client.BaseAddress };
+        otherVisitor.DefaultRequestHeaders.Add("X-Forwarded-For", "203.0.113.7");
+        using var otherAddress = await otherVisitor.PostAsJsonAsync("/api/invitations/preview", new InvitationTokenRequest(InvitationToken.Create().Token), Json);
+
         await Assert.That(statuses.Take(10).Distinct()).IsEquivalentTo(new[] { HttpStatusCode.NotFound });
         await Assert.That(statuses[10]).IsEqualTo(HttpStatusCode.TooManyRequests);
+        await Assert.That(otherAddress.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
     }
 
     [Test]
@@ -330,7 +333,8 @@ public class InvitationAcceptanceHttpTests
 
         if (acceptedBy is not null)
         {
-            invitation.Accept(acceptedBy.Id, DateTime.UtcNow);
+            var acceptor = await dbContext.Users.SingleAsync(item => item.Id == acceptedBy.Id);
+            dbContext.UserSpaces.Add(invitation.AcceptFor(acceptor, DateTime.UtcNow));
         }
 
         dbContext.SpaceInvitations.Add(invitation);

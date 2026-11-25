@@ -29,6 +29,9 @@ public class CompleteOnboardingHandler(
     public async Task<Result<CurrentUserResponse>> HandleAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {
         var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
+        // Calls to the identity provider stay outside the transaction, so no lock is held while waiting for it.
+        // Setting the flag again on a retry is harmless.
+        await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         // Locking the invitation before reading the account makes a parallel retry wait and then find it completed.
@@ -95,7 +98,6 @@ public class CompleteOnboardingHandler(
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
-        await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);

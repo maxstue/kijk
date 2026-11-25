@@ -32,15 +32,22 @@ public static class RateLimitExtensions
             }));
 
         // Tokens cannot be guessed; the tight limit keeps attempts to try them slow and visible. The preview is
-        // public, so callers without an identity are partitioned by their address.
+        // public, so callers without an identity are partitioned by their address. The private API is reached only
+        // through the web application, which sends the visitor's address for anonymous previews; a forged value can
+        // only split the sender's own budget.
         options.AddPolicy(AppConstants.InvitationRateLimit, context => RateLimitPartition.GetFixedWindowLimiter(
-            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? $"address:{context.Connection.RemoteIpAddress}",
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? $"address:{ClientAddress(context)}",
             _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 10,
                 Window = TimeSpan.FromMinutes(1),
             }));
     });
+
+    private static string? ClientAddress(HttpContext context) =>
+        context.Request.Headers["X-Forwarded-For"].ToString().Split(',')[0].Trim() is { Length: > 0 } forwarded
+            ? forwarded
+            : context.Connection.RemoteIpAddress?.ToString();
 
     /// <summary>Applies the per-user rate limit to all endpoints of the group.</summary>
     /// <param name="builder">The route group.</param>

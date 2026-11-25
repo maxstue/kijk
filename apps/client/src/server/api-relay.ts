@@ -9,6 +9,8 @@ const readMethods = new Set(['GET', 'HEAD']);
 const forwardedRequestHeaders = ['accept', 'content-type'];
 const forwardedResponseHeaders = ['content-type', 'content-disposition', 'retry-after'];
 const operations = Object.entries(apiOperations) as Array<[string, readonly string[]]>;
+/** Operations that work without a session; the API decides what they reveal and limits them per address. */
+const anonymousOperations = new Set(['POST /api/invitations/preview']);
 
 /** Checks the CSRF marker that the browser API client sends with every request. */
 export function hasBffRequestHeader(request: Request) {
@@ -32,19 +34,39 @@ export function matchApiOperation(path: string, method: string) {
   })?.[0];
 }
 
+/** Whether an operation may be forwarded without a session. */
+export function isAnonymousOperation(path: string, method: string) {
+  const operation = matchApiOperation(path, method);
+  return operation !== undefined && anonymousOperations.has(`${method.toUpperCase()} ${operation}`);
+}
+
+/**
+ * The visitor's address as reported by the hosting proxies, used by the API to rate-limit anonymous requests.
+ * Cloudflare sets `CF-Connecting-IP` in front of Railway, which sets `X-Real-IP`; a forged value can only split the
+ * sender's own rate-limit budget.
+ */
+export function getClientAddress(request: Request) {
+  return (request.headers.get('cf-connecting-ip') ?? request.headers.get('x-real-ip'))?.trim() || undefined;
+}
+
 interface RelayOptions {
   apiUrl: string;
-  token: string;
+  /** The verified user's API token; omitted only for anonymous operations. */
+  token?: string | null;
   fetch?: typeof globalThis.fetch;
 }
 
-/** Forwards a verified user's request to one fixed backend, streaming bodies and file responses. */
+/**
+ * Forwards a verified user's request, or an allowed anonymous one, to one fixed backend, streaming bodies and file
+ * responses.
+ */
 export async function forwardApiRequest(request: Request, options: RelayOptions) {
   const url = new URL(request.url);
   if (!matchApiOperation(url.pathname, request.method)) {
     return apiProblem(request, 404, 'This API path and HTTP method are not available through the web application.');
   }
-  if (!options.token.trim()) {
+  const token = options.token?.trim();
+  if (!token && !isAnonymousOperation(url.pathname, request.method)) {
     return apiProblem(request, 401, 'Your session could not be verified. Please sign in again.');
   }
 
@@ -56,7 +78,16 @@ export async function forwardApiRequest(request: Request, options: RelayOptions)
     return apiProblem(request, 503, 'Your account is temporarily unavailable. Please try again later.');
   }
 
-  const headers = new Headers({ Authorization: `Bearer ${options.token}` });
+  const headers = new Headers();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  } else {
+    // Only anonymous requests carry the address; signed-in requests are limited per user.
+    const address = getClientAddress(request);
+    if (address) {
+      headers.set('X-Forwarded-For', address);
+    }
+  }
   for (const name of forwardedRequestHeaders) {
     const value = request.headers.get(name);
     if (value) {

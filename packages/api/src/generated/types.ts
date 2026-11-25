@@ -2381,14 +2381,7 @@ export type InvitationPreviewResponse = {
    */
   expiresAt: string;
   /**
-   * Whether the signed-in user already belongs to the space; accepting is then not possible. Always `false` without a
-   * session.
-   *
-   * @type boolean
-   */
-  isMember: boolean;
-  /**
-   * The space identifier, set only when the current user is already a member.
+   * The space identifier, set only when the signed-in user is already a member; accepting is then not possible.
    *
    * Format: `uuid`
    *
