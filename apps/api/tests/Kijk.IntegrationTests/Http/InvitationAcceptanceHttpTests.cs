@@ -254,6 +254,26 @@ public class InvitationAcceptanceHttpTests
     }
 
     [Test]
+    public async Task RepeatingACompletedOnboardingLeavesTheProfileSettingAlone()
+    {
+        var identityProvider = new FakeIdentityProvider();
+        await using var host = await SpaceApiHost.StartAsync(
+            "newcomer-auth",
+            configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider>(_ => identityProvider)));
+
+        using var welcomed = await host.Client.PutAsJsonAsync("/api/users/onboarding",
+            new WelcomeUserRequest("Newcomer", null, false, true, AnalyticsConsent.Declined), Json);
+        using var repeated = await host.Client.PutAsJsonAsync("/api/users/onboarding",
+            new WelcomeUserRequest("Newcomer", null, false, false, AnalyticsConsent.Declined), Json);
+
+        await Assert.That(welcomed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(repeated.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        // Only the first, completing request reaches the identity provider.
+        await Assert.That(identityProvider.ProfileSettings.Count).IsEqualTo(1);
+        await Assert.That(identityProvider.ProfileSettings.Single()).IsTrue();
+    }
+
+    [Test]
     public async Task PreviewAndAcceptShareATightRateLimit()
     {
         var seed = await SeedAsync();
@@ -378,10 +398,16 @@ public class InvitationAcceptanceHttpTests
 
     private sealed class FakeIdentityProvider : IIdentityProvider
     {
+        public ConcurrentQueue<bool> ProfileSettings { get; } = new();
+
         public Task<ExternalIdentity> GetAsync(string authId, CancellationToken cancellationToken) =>
             Task.FromResult(new ExternalIdentity("Newcomer", "newcomer@example.test", null, false));
 
-        public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken)
+        {
+            ProfileSettings.Enqueue(useProfileInKijk);
+            return Task.CompletedTask;
+        }
 
         public Task DeleteAsync(string authId, CancellationToken cancellationToken) => Task.CompletedTask;
     }

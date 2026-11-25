@@ -28,6 +28,12 @@ public class CompleteOnboardingHandler(
     /// <returns>The ready account representation.</returns>
     public async Task<Result<CurrentUserResponse>> HandleAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {
+        // A completed account stays unchanged, including its profile setting at the identity provider.
+        if (currentUser.IsReady)
+        {
+            return await getMeUserHandler.HandleAsync(cancellationToken);
+        }
+
         var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
         // Calls to the identity provider stay outside the transaction, so no lock is held while waiting for it.
         // Setting the flag again on a retry is harmless.
