@@ -131,6 +131,6 @@ public static class SpacePermissions
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a14"), Finances.Configure),
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a15"), Budgets.Plan),
         new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a16"), Finances.Export),
-        new(new("7c1d2e94-5b3a-4f8e-9d61-0a4b8c2e5f17"), Members.Invite)
+        new(new("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"), Members.Invite)
     ];
 }

@@ -60,12 +60,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
             migrationBuilder.InsertData(
                 table: "permissions",
                 columns: new[] { "id", "created_at", "deleted_at", "name", "updated_at" },
-                values: new object[] { new Guid("7c1d2e94-5b3a-4f8e-9d61-0a4b8c2e5f17"), new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "members:invite", null });
+                values: new object[] { new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"), new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "members:invite", null });
 
             migrationBuilder.InsertData(
                 table: "roles_permissions",
                 columns: new[] { "permissions_id", "roles_id" },
-                values: new object[] { new Guid("7c1d2e94-5b3a-4f8e-9d61-0a4b8c2e5f17"), new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1") });
+                values: new object[] { new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"), new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1") });
 
             migrationBuilder.CreateIndex(
                 name: "ix_space_invitations_accepted_by_id",
@@ -76,11 +76,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                 name: "ix_space_invitations_created_by_id",
                 table: "space_invitations",
                 column: "created_by_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_space_invitations_expires_at",
-                table: "space_invitations",
-                column: "expires_at");
 
             migrationBuilder.CreateIndex(
                 name: "ix_space_invitations_role_id",
@@ -108,12 +103,12 @@ namespace Kijk.Infrastructure.Persistence.Migrations
             migrationBuilder.DeleteData(
                 table: "roles_permissions",
                 keyColumns: new[] { "permissions_id", "roles_id" },
-                keyValues: new object[] { new Guid("7c1d2e94-5b3a-4f8e-9d61-0a4b8c2e5f17"), new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1") });
+                keyValues: new object[] { new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"), new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1") });
 
             migrationBuilder.DeleteData(
                 table: "permissions",
                 keyColumn: "id",
-                keyValue: new Guid("7c1d2e94-5b3a-4f8e-9d61-0a4b8c2e5f17"));
+                keyValue: new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"));
         }
     }
 }

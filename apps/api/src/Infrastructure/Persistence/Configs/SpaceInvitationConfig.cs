@@ -14,7 +14,6 @@ public class SpaceInvitationConfig : IEntityTypeConfiguration<SpaceInvitation>
         // Accepting looks an invitation up by the hash of its token.
         builder.HasIndex(x => x.TokenHash).IsUnique();
         builder.HasIndex(x => x.SpaceId);
-        builder.HasIndex(x => x.ExpiresAt);
 
         builder.Property(x => x.TokenHash).HasMaxLength(32);
 

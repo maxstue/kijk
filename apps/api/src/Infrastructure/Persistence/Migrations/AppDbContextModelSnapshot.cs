@@ -1068,7 +1068,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7c1d2e94-5b3a-4f8e-9d61-0a4b8c2e5f17"),
+                            Id = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"),
                             CreatedAt = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Name = "members:invite"
                         });
@@ -1330,9 +1330,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CreatedById")
                         .HasDatabaseName("ix_space_invitations_created_by_id");
-
-                    b.HasIndex("ExpiresAt")
-                        .HasDatabaseName("ix_space_invitations_expires_at");
 
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_space_invitations_role_id");
@@ -1912,7 +1909,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            PermissionsId = new Guid("7c1d2e94-5b3a-4f8e-9d61-0a4b8c2e5f17"),
+                            PermissionsId = new Guid("b3f0d6a2-6c1e-4f57-9a0d-2e8c4b7f1a17"),
                             RolesId = new Guid("0195624d-5bd9-754c-a92b-5e0e82e1ede1")
                         },
                         new
