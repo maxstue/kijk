@@ -74,7 +74,7 @@ Configure the existing Client service through the Railway UI. Keep the repositor
 - Existing domain target port: 80; runtime `PORT=80`.
 - `RAILPACK_NODE_VERSION=26.12.1`.
 
-Remove the former `RAILPACK_SPA_OUTPUT_DIR` setting when switching to the Node server. Keep the domain target port aligned with `PORT`. Set `API_URL` to the private API address only after verifying the service's internal domain and listening port. Once the deployed client relays through `API_URL`, remove the API service's public domain in the Railway UI: the API exposes no callbacks and only the invitation preview anonymously, and without CORS browsers can no longer use it directly.
+Remove the former `RAILPACK_SPA_OUTPUT_DIR` setting when switching to the Node server. Keep the domain target port aligned with `PORT`. Set `API_URL` to the private API address only after verifying the service's internal domain and listening port. The API service has no public domain; it is reachable only over Railway's private network through `API_URL`. Keep it that way: the API exposes no callbacks and only the invitation preview anonymously, has no CORS policy, and trusts the `X-Forwarded-For` address the BFF sends for that preview's rate limit.
 
 Optional `VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY` and `VITE_POSTHOG_URL` configure both browser and web-server reporting. The server exports the same sampled anonymous HTTP spans to both providers; error events retain only type and stack frames. Browser analytics and performance tracing retain their existing consent behavior. Sourcemap upload credentials remain build-only secrets. When `POSTHOG_ENABLE=true`, `POSTHOG_API_KEY` must be a PostHog personal API key (`phx_`), separate from the public ingestion key in `VITE_POSTHOG_KEY`.
 
