@@ -16,8 +16,8 @@ public sealed class JobsOptions
     public DurabilityMode DurabilityMode { get; set; } = DurabilityMode.Balanced;
 
     /// <summary>
-    /// Gets or sets whether the hourly cleanups are scheduled. Integration tests turn this off, so no occurrence runs
-    /// while a test is checking data that a cleanup would delete.
+    /// Gets or sets whether the hourly cleanups are scheduled. Only integration tests turn this off, so no occurrence
+    /// runs while a test is checking data that a cleanup would delete; elsewhere the API logs a warning.
     /// </summary>
     public bool CleanupSchedulesEnabled { get; set; } = true;
 }

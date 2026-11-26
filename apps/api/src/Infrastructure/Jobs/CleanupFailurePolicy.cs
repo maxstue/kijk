@@ -9,8 +9,9 @@ using Wolverine.Runtime.Handlers;
 namespace Kijk.Infrastructure.Jobs;
 
 /// <summary>
-/// Error handling of the recurring cleanups: a failed occurrence is retried briefly and then discarded instead of
-/// dead-lettered, because the next occurrence deletes the same data. Wolverine logs every failure.
+/// Error handling of the recurring cleanups: a failed occurrence is discarded instead of retried or dead-lettered,
+/// because the next occurrence deletes the same data an hour later. Wolverine logs every failure. Chain rules are
+/// evaluated before the global retry rules, which <c>CleanupScheduleTests</c> checks.
 /// </summary>
 internal sealed class CleanupFailurePolicy : IHandlerPolicy
 {
@@ -21,9 +22,7 @@ internal sealed class CleanupFailurePolicy : IHandlerPolicy
     {
         foreach (var chain in chains.Where(chain => CleanupMessages.Contains(chain.MessageType)))
         {
-            chain.OnAnyException()
-                .RetryWithCooldown(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(60))
-                .Then.Discard();
+            chain.OnAnyException().Discard();
         }
     }
 }

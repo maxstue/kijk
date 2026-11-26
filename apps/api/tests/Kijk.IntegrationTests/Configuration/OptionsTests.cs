@@ -112,8 +112,9 @@ public class OptionsTests
 
         services.GetRequiredService<IStartupValidator>().Validate();
 
-        await Assert.That(services.GetRequiredService<IOptions<JobsOptions>>().Value.DurabilityMode)
-            .IsEqualTo(DurabilityMode.Balanced);
+        var jobs = services.GetRequiredService<IOptions<JobsOptions>>().Value;
+        await Assert.That(jobs.DurabilityMode).IsEqualTo(DurabilityMode.Balanced);
+        await Assert.That(jobs.CleanupSchedulesEnabled).IsTrue();
     }
 
     [Test]

@@ -6,6 +6,8 @@ using Kijk.Infrastructure.Spaces;
 using Kijk.Infrastructure.Users.Delete;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Wolverine;
@@ -35,8 +37,10 @@ public static class JobsDependencyInjection
         services.AddWolverineExtension<JobOptionsExtension>();
         var connectionString = configuration.GetConnectionString("DefaultConnection")
                                ?? throw new InvalidOperationException("The connection string 'DefaultConnection' is missing");
-        // Schedules register Wolverine services, so they cannot be added from an extension that reads IOptions.
-        var schedulesEnabled = configuration.GetSection(JobsOptions.SectionName).Get<JobsOptions>()?.CleanupSchedulesEnabled ?? true;
+        // Schedules register Wolverine services, so they cannot be added from an extension that reads IOptions. Only the
+        // flag is read here; the rest of the section keeps its validated options path.
+        var schedulesEnabled = configuration.GetValue<bool?>(
+            $"{JobsOptions.SectionName}:{nameof(JobsOptions.CleanupSchedulesEnabled)}") ?? true;
         services.AddWolverine(options =>
         {
             options.ApplicationAssembly = typeof(JobsDependencyInjection).Assembly;
@@ -79,8 +83,17 @@ public static class JobsDependencyInjection
         return services;
     }
 
-    private sealed class JobOptionsExtension(IOptions<JobsOptions> jobs) : IWolverineExtension
+    private sealed class JobOptionsExtension(IOptions<JobsOptions> jobs, IHostEnvironment environment, ILogger<JobOptionsExtension> logger)
+        : IWolverineExtension
     {
-        public void Configure(WolverineOptions options) => options.Durability.Mode = jobs.Value.DurabilityMode;
+        public void Configure(WolverineOptions options)
+        {
+            options.Durability.Mode = jobs.Value.DurabilityMode;
+            if (!jobs.Value.CleanupSchedulesEnabled && !environment.IsEnvironment("Testing"))
+            {
+                logger.LogWarning(
+                    "Cleanup schedules are disabled: closed invitations and expired import files are not deleted");
+            }
+        }
     }
 }
