@@ -33,13 +33,20 @@ namespace Kijk.Infrastructure.Persistence.Migrations
             migrationBuilder.Sql("""
                 UPDATE users SET name = btrim(name) WHERE name <> btrim(name);
 
-                WITH ranked AS (
-                    SELECT id,
-                           row_number() OVER (PARTITION BY name ORDER BY random()) - 1 AS position,
-                           first_value(floor(random() * 9999)::int) OVER (PARTITION BY name ORDER BY id) AS offset_start
-                    FROM users
+                -- One random start per name (grouped ignoring case by the column collation), materialized so that
+                -- every user of that name uses the same value.
+                WITH offsets AS MATERIALIZED (
+                    SELECT name, floor(random() * 9999)::int AS offset_start
+                    FROM (SELECT DISTINCT name FROM users) AS names
                 ),
-                pool AS (
+                ranked AS MATERIALIZED (
+                    SELECT users.id,
+                           row_number() OVER (PARTITION BY users.name ORDER BY random()) - 1 AS position,
+                           offsets.offset_start
+                    FROM users
+                    JOIN offsets ON offsets.name = users.name
+                ),
+                pool AS MATERIALIZED (
                     SELECT number AS tag, row_number() OVER (ORDER BY random()) - 1 AS position
                     FROM generate_series(1, 9999) AS number
                 )
