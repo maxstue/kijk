@@ -37,7 +37,7 @@ function renderWelcome(onComplete = vi.fn<() => Promise<void>>().mockResolvedVal
 async function advanceToReview(screen: Awaited<ReturnType<typeof render>>, share: boolean) {
   await screen.getByRole('radio', { name: share ? /Use profile/ : /Do not use/ }).click();
   await screen.getByRole('button', { name: 'Continue', exact: true }).click();
-  await expect.element(screen.getByText('Set up your space', { exact: true })).toBeVisible();
+  await expect.element(screen.getByText('Set up your personal space', { exact: true })).toBeVisible();
   if (!share) {
     await screen.getByRole('radio', { name: /No defaults/ }).click();
   }
@@ -72,7 +72,7 @@ test('requires an explicit profile and analytics choice before advancing', async
   await expect.element(screen.getByText('Welcome to Kijk', { exact: true })).toBeVisible();
   await screen.getByRole('radio', { name: /Do not use/ }).click();
   await screen.getByRole('button', { name: 'Continue', exact: true }).click();
-  await expect.element(screen.getByText('Set up your space', { exact: true })).toBeVisible();
+  await expect.element(screen.getByText('Set up your personal space', { exact: true })).toBeVisible();
   await screen.getByRole('button', { name: 'Continue', exact: true }).click();
   await expect.element(screen.getByText('Choose your privacy settings', { exact: true })).toBeVisible();
   await screen.getByRole('button', { name: 'Continue', exact: true }).click();

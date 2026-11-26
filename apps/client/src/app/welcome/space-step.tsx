@@ -19,9 +19,12 @@ export function SpaceStep({ control }: SpaceStepProps) {
         name='spaceName'
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Space name</FormLabel>
+            <FormLabel>Personal space name</FormLabel>
+            <FormDescription>
+              Only you can see this space. You can create shared spaces and invite others later.
+            </FormDescription>
             <FormControl>
-              <Input placeholder='My space' {...field} />
+              <Input placeholder='Personal' {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

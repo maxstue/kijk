@@ -27,6 +27,12 @@ public class CompleteOnboardingHandler(
     /// <returns>The ready account representation.</returns>
     public async Task<Result<CurrentUserResponse>> HandleAsync(WelcomeUserRequest request, CancellationToken cancellationToken)
     {
+        // A completed account stays unchanged, including its profile setting at the identity provider.
+        if (currentUser.IsReady)
+        {
+            return await getMeUserHandler.HandleAsync(cancellationToken);
+        }
+
         var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
         var user = await dbContext.Users
             .Where(x => x.AuthId == currentUser.AuthId)
@@ -41,34 +47,31 @@ public class CompleteOnboardingHandler(
             return await getMeUserHandler.HandleAsync(cancellationToken);
         }
 
+        var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Id == SpaceRoles.Admin.Id, cancellationToken);
+        if (adminRole is null)
+        {
+            logger.LogError(new InvalidOperationException("Admin role was not found"), "Onboarding could not create the personal space");
+            return Error.Unexpected("Role was not found");
+        }
+
         if (user is null)
         {
             user = User.Init(currentUser.AuthId, request.DisplayName.Trim(), externalIdentity.Email);
             dbContext.Users.Add(user);
         }
 
-        // A retried onboarding reuses the space the first attempt created.
-        var firstSpace = user.UserSpaces
-            .Select(userSpace => userSpace.Space)
-            .FirstOrDefault(space => !space.IsPersonal);
-
-        if (firstSpace is null)
+        // Every user starts with a personal space that is never shared; a retried onboarding reuses it. Shared spaces
+        // are created later or joined through an invitation.
+        var personalSpace = user.UserSpaces.Select(link => link.Space).FirstOrDefault(space => space.IsPersonal);
+        if (personalSpace is null)
         {
-            // The user who creates a space becomes its administrator.
-            var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Id == SpaceRoles.Admin.Id, cancellationToken);
-            if (adminRole is null)
-            {
-                logger.LogError(new InvalidOperationException("Admin role was not found"), "Onboarding could not create the first space");
-                return Error.Unexpected("Role was not found");
-            }
+            personalSpace = Space.CreatePersonal();
+            user.UserSpaces.Add(UserSpace.Create(user, personalSpace, adminRole));
+        }
 
-            firstSpace = Space.Create(request.SpaceName.Trim());
-            user.UserSpaces.Add(UserSpace.Create(user, firstSpace, adminRole));
-            if (!user.UserSpaces.Any(link => link.Space.IsPersonal))
-            {
-                // Every user also gets a personal space that is never shared.
-                user.UserSpaces.Add(UserSpace.Create(user, Space.CreatePersonal(), adminRole));
-            }
+        if (request.SpaceName?.Trim() is { Length: > 0 } spaceName)
+        {
+            personalSpace.Rename(spaceName);
         }
 
         var defaultResources = await dbContext.Resources
@@ -76,7 +79,6 @@ public class CompleteOnboardingHandler(
             .ToListAsync(cancellationToken);
 
         var completedAt = timeProvider.GetUtcNow().UtcDateTime;
-        firstSpace.Rename(request.SpaceName.Trim());
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
@@ -87,6 +89,7 @@ public class CompleteOnboardingHandler(
         }
         catch (DbUpdateException)
         {
+            // A parallel request created the account first; its result counts.
             var completedUserExists = await dbContext.Users
                 .AsNoTracking()
                 .AnyAsync(existingUser => existingUser.AuthId == currentUser.AuthId && existingUser.OnboardingCompletedAt != null, cancellationToken);

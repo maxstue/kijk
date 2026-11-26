@@ -10713,8 +10713,11 @@
             "description": "The display name used by Kijk."
           },
           "spaceName": {
-            "type": "string",
-            "description": "The name of the first space, which the user can share with others."
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The name of the user's personal space, which is never shared. Defaults to \"Personal\" when omitted. Shared spaces\nare created or joined after onboarding."
           },
           "useDefaultResources": {
             "type": "boolean",

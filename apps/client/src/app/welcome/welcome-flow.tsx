@@ -45,7 +45,7 @@ interface WelcomeFlowProps {
 export function WelcomeFlow({
   email,
   fullName,
-  spaceName,
+  spaceName = 'Personal',
   imageUrl,
   initialDisplayName,
   onComplete,

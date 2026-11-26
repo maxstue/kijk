@@ -3409,11 +3409,12 @@ export type WelcomeUserRequest = {
    */
   displayName: string;
   /**
-   * The name of the first space, which the user can share with others.
+   * The name of the user's personal space, which is never shared. Defaults to "Personal" when omitted. Shared spaces
+   * are created or joined after onboarding.
    *
    * @type string
    */
-  spaceName: string;
+  spaceName: string | null;
   /**
    * Whether all system default resources should be enabled.
    *
