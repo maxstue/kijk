@@ -144,6 +144,8 @@ public static class DependencyInjection
                 return new ClerkBackendApi(bearerAuth: authOptions.SecretKey);
             });
             services.AddScoped<IIdentityProvider, ClerkIdentityProvider>();
+            services.AddHttpClient<IIdentityInvitations, ClerkInvitations>((sp, client) =>
+                ClerkInvitations.Configure(client, sp.GetRequiredService<IOptions<AuthOptions>>().Value.SecretKey));
 
             return services;
         }

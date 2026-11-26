@@ -1,5 +1,6 @@
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.Shared;
 using Kijk.Domain.Authorization;
@@ -15,6 +16,7 @@ namespace Kijk.Application.Users.CompleteOnboarding;
 public class CompleteOnboardingHandler(
     IAppDbContext dbContext,
     IIdentityProvider identityProvider,
+    IIdentityInvitations identityInvitations,
     CurrentUser currentUser,
     TimeProvider timeProvider,
     ILogger<CompleteOnboardingHandler> logger,
@@ -84,6 +86,7 @@ public class CompleteOnboardingHandler(
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
+        var invitationId = await LinkInvitationAsync(completedAt, cancellationToken);
         await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
         try
         {
@@ -105,6 +108,60 @@ public class CompleteOnboardingHandler(
             }
         }
 
+        if (invitationId is not null)
+        {
+            await ClearInvitationIdAsync(cancellationToken);
+        }
+
         return await getMeUserHandler.HandleAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Binds the invitation by e-mail that the new account signed up through to it, so it appears in the inbox. The
+    /// change is saved together with the account.
+    /// </summary>
+    private async Task<Guid?> LinkInvitationAsync(DateTime utcNow, CancellationToken cancellationToken)
+    {
+        var invitationId = await identityInvitations.GetInvitationIdAsync(currentUser.AuthId, cancellationToken);
+        if (invitationId is null)
+        {
+            return null;
+        }
+
+        var invitation = await dbContext.SpaceInvitations
+            .FirstOrDefaultAsync(item => item.Id == invitationId && item.InviteeAuthId == null, cancellationToken);
+        if (invitation is null || !invitation.IsPending(utcNow))
+        {
+            return invitationId;
+        }
+
+        var authId = currentUser.AuthId;
+        var alreadyInvited = await dbContext.SpaceInvitations
+            .Unclosed()
+            .AnyAsync(item => item.SpaceId == invitation.SpaceId && item.InviteeAuthId == authId, cancellationToken);
+        if (alreadyInvited)
+        {
+            // The account already has an invitation to this space; a second one would only duplicate it.
+            invitation.Revoke(utcNow);
+        }
+        else
+        {
+            invitation.LinkInvitee(authId);
+        }
+
+        return invitationId;
+    }
+
+    private async Task ClearInvitationIdAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await identityInvitations.ClearInvitationIdAsync(currentUser.AuthId, cancellationToken);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            // The account is ready; a leftover invitation id is harmless because a linked invitation is not linked again.
+            logger.LogWarning(exception, "Onboarding could not remove the invitation id from the identity");
+        }
     }
 }

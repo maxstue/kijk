@@ -1,11 +1,14 @@
 using Kijk.Api.Authorization;
 using Kijk.Api.Extensions;
 using Kijk.Api.Models;
+using Kijk.Application.Users.AcceptInvitation;
 using Kijk.Application.Users.CompleteOnboarding;
+using Kijk.Application.Users.DeclineInvitation;
 using Kijk.Application.Users.Delete;
 using Kijk.Application.Users.Features;
 using Kijk.Application.Users.Feedback;
 using Kijk.Application.Users.Guide;
+using Kijk.Application.Users.Invitations;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.RequestDeletion;
 using Kijk.Application.Users.SetDefaultSpace;
@@ -24,6 +27,7 @@ namespace Kijk.Api.Endpoints;
 public class UsersEndpoints : IEndpointGroup
 {
     private const string CurrentUserOnly = "Only reads or changes the current user's own account.";
+    private const string InvitedUserOnly = "The invited person is not a member of the space yet; the handler only finds invitations addressed to the current user.";
 
     /// <inheritdoc />
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder builder)
@@ -54,6 +58,23 @@ public class UsersEndpoints : IEndpointGroup
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
             .WithoutSpacePermission(CurrentUserOnly)
             .WithSummary("Gets the parts of Kijk that are switched on for the current user");
+
+        group.MapGet("/me/invitations", Invitations).WithName("Users.Invitations")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission(InvitedUserOnly)
+            .WithSummary("Gets the current user's pending invitations to shared spaces");
+
+        group.MapPost("/me/invitations/{invitationId:guid}/accept", AcceptInvitation).WithName("Users.AcceptInvitation")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission(InvitedUserOnly)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .WithSummary("Accepts an invitation and joins the space; accepting again returns the same space");
+
+        group.MapPost("/me/invitations/{invitationId:guid}/decline", DeclineInvitation).WithName("Users.DeclineInvitation")
+            .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
+            .WithoutSpacePermission(InvitedUserOnly)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .WithSummary("Declines an invitation");
 
         group.MapPost("/me/feedback", Feedback).WithName("Users.Feedback")
             .RequireAuthorization(AppConstants.Policies.OnboardingCompleted)
@@ -157,6 +178,27 @@ public class UsersEndpoints : IEndpointGroup
     {
         var result = await handler.HandleAsync(request, cancellationToken);
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Ok<IReadOnlyList<ReceivedInvitationResponse>>> Invitations(InvitationsHandler handler, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await handler.HandleAsync(cancellationToken));
+
+    private static async Task<Results<Ok<AcceptInvitationResponse>, ProblemHttpResult>> AcceptInvitation(
+        Guid invitationId,
+        AcceptInvitationHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(invitationId, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
+    }
+
+    private static async Task<Results<NoContent, ProblemHttpResult>> DeclineInvitation(
+        Guid invitationId,
+        DeclineInvitationHandler handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(invitationId, cancellationToken);
+        return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.NoContent();
     }
 
     private static async Task<Results<NoContent, ProblemHttpResult>> Feedback(

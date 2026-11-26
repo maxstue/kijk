@@ -1,6 +1,9 @@
+using Kijk.Application.Users.AcceptInvitation;
 using Kijk.Application.Users.CompleteOnboarding;
+using Kijk.Application.Users.DeclineInvitation;
 using Kijk.Application.Users.Delete;
 using Kijk.Application.Users.Features;
+using Kijk.Application.Users.Invitations;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.RequestDeletion;
 using Kijk.Application.Users.SetDefaultSpace;
@@ -16,7 +19,10 @@ public sealed class ModuleService : IModule
     /// <inheritdoc />
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
+        services.AddScoped<AcceptInvitationHandler>();
         services.AddScoped<AccountEraser>();
+        services.AddScoped<DeclineInvitationHandler>();
+        services.AddScoped<InvitationsHandler>();
         services.AddScoped<UniqueNameSaver>();
         services.AddScoped<RequestDeletionHandler>();
         services.AddScoped<SetDefaultSpaceHandler>();

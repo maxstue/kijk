@@ -16,7 +16,7 @@ public sealed class InvitationsHandler(IAppDbContext dbContext, CurrentUser curr
     /// </summary>
     /// <param name="spaceId">The space identifier.</param>
     /// <param name="cancellationToken">The request cancellation token.</param>
-    /// <returns>The pending invitations without their tokens.</returns>
+    /// <returns>The pending invitations.</returns>
     public async Task<Result<IReadOnlyList<SpaceInvitationResponse>>> HandleAsync(Guid spaceId, CancellationToken cancellationToken)
     {
         if (await dbContext.AuthorizeSpaceAsync(currentUser.Id, spaceId, SpacePermissions.Members.Invite, cancellationToken) is { } error)
@@ -27,7 +27,8 @@ public sealed class InvitationsHandler(IAppDbContext dbContext, CurrentUser curr
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var invitations = await dbContext.SpaceInvitations
             .AsNoTracking()
-            .Where(item => item.SpaceId == spaceId && item.AcceptedAt == null && item.RevokedAt == null && item.ExpiresAt > utcNow)
+            .Where(item => item.SpaceId == spaceId)
+            .Pending(utcNow)
             .OrderByDescending(item => item.CreatedAt)
             .ToResponse()
             .ToListAsync(cancellationToken);

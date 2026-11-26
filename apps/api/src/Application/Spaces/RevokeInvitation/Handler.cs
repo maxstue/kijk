@@ -11,7 +11,8 @@ namespace Kijk.Application.Spaces.RevokeInvitation;
 public sealed class RevokeInvitationHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>
-    /// Revokes an invitation when the current user's role allows inviting, so its link can no longer be used.
+    /// Revokes an invitation when the current user's role allows inviting, so it disappears from the invited person's inbox.
+    /// The cleanup then deletes the e-mail that the authentication provider holds for it.
     /// </summary>
     /// <param name="spaceId">The space identifier.</param>
     /// <param name="invitationId">The invitation identifier.</param>

@@ -8,7 +8,7 @@ namespace Kijk.Application.Spaces.Delete;
 /// <summary>
 /// Deletes a space and its space-owned data.
 /// </summary>
-public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUser)
+public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUser, ProviderInvitationEraser providerInvitationEraser)
 {
     /// <summary>
     /// Deletes a space when the current user's role allows deleting it.
@@ -54,6 +54,10 @@ public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUs
         {
             membership.User.ResetOnboarding();
         }
+
+        // The authentication provider's invitations hold e-mail addresses; they go before the space. If the deletion
+        // fails afterwards, the cleanup treats the missing provider invitations as deleted.
+        await providerInvitationEraser.EraseAsync(dbContext.SpaceInvitations.Where(item => item.SpaceId == id), int.MaxValue, cancellationToken);
 
         // The members' onboarding resets are saved first; then the space and all its data go in one transaction.
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);

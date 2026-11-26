@@ -151,14 +151,20 @@ import type {
   TransactionsUpdateResponses,
   UnitsListOptions,
   UnitsListResponses,
+  UsersAcceptInvitationOptions,
+  UsersAcceptInvitationResponses,
   UsersCompleteOnboardingOptions,
   UsersCompleteOnboardingResponses,
+  UsersDeclineInvitationOptions,
+  UsersDeclineInvitationResponses,
   UsersFeaturesOptions,
   UsersFeaturesResponses,
   UsersFeedbackOptions,
   UsersFeedbackResponses,
   UsersGuideOptions,
   UsersGuideResponses,
+  UsersInvitationsOptions,
+  UsersInvitationsResponses,
   UsersMeOptions,
   UsersMeResponses,
   UsersRequestDeletionOptions,
@@ -1546,7 +1552,7 @@ export function spacesChangeMemberRole<ThrowOnError extends boolean = true>(
 /**
  * `POST /api/spaces/{id}/invitations`
  *
- * @summary Creates a single-use invitation link to a shared space
+ * @summary Invites a person into a shared space by unique name or e-mail address
  */
 export function spacesCreateInvitation<ThrowOnError extends boolean = true>(
   options: Options<SpacesCreateInvitationOptions, ThrowOnError>,
@@ -1938,6 +1944,72 @@ export function usersFeatures<ThrowOnError extends boolean = true>(
     apiClient<UsersFeaturesResponses, ThrowOnError>({
       method: 'GET',
       url: '/api/users/me/features',
+      security: [securitySchemes.Bearer],
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `GET /api/users/me/invitations`
+ *
+ * @summary Gets the current user's pending invitations to shared spaces
+ */
+export function usersInvitations<ThrowOnError extends boolean = true>(
+  options: Options<UsersInvitationsOptions, ThrowOnError> = {},
+): Promise<UnwrappedResult<UsersInvitationsResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<UsersInvitationsResponses, ThrowOnError>({
+      method: 'GET',
+      url: '/api/users/me/invitations',
+      security: [securitySchemes.Bearer],
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `POST /api/users/me/invitations/{invitationId}/accept`
+ *
+ * @summary Accepts an invitation and joins the space; accepting again returns the same space
+ */
+export function usersAcceptInvitation<ThrowOnError extends boolean = true>(
+  options: Options<UsersAcceptInvitationOptions, ThrowOnError>,
+): Promise<UnwrappedResult<UsersAcceptInvitationResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<UsersAcceptInvitationResponses, ThrowOnError>({
+      method: 'POST',
+      url: '/api/users/me/invitations/{invitationId}/accept',
+      security: [securitySchemes.Bearer],
+      ...config,
+      throwOnError: resolveThrowOnError(config.throwOnError, true),
+    }),
+    resolveThrowOnError(config.throwOnError, true),
+  );
+}
+
+/**
+ * `POST /api/users/me/invitations/{invitationId}/decline`
+ *
+ * @summary Declines an invitation
+ */
+export function usersDeclineInvitation<ThrowOnError extends boolean = true>(
+  options: Options<UsersDeclineInvitationOptions, ThrowOnError>,
+): Promise<UnwrappedResult<UsersDeclineInvitationResponses, ThrowOnError>> {
+  const { client: apiClient = client, ...config } = options;
+
+  return unwrapResult(
+    apiClient<UsersDeclineInvitationResponses, ThrowOnError>({
+      method: 'POST',
+      url: '/api/users/me/invitations/{invitationId}/decline',
       security: [securitySchemes.Bearer],
       ...config,
       throwOnError: resolveThrowOnError(config.throwOnError, true),

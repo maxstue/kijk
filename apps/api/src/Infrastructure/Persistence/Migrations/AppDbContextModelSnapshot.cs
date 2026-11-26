@@ -1291,6 +1291,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by_id");
 
+                    b.Property<DateTime?>("DeclinedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("declined_at");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
@@ -1298,6 +1302,22 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at");
+
+                    b.Property<string>("InviteeAuthId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("invitee_auth_id");
+
+                    b.Property<string>("InviteeLabel")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("invitee_label");
+
+                    b.Property<string>("ProviderInvitationId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("provider_invitation_id");
 
                     b.Property<DateTime?>("RevokedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1310,12 +1330,6 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("SpaceId")
                         .HasColumnType("uuid")
                         .HasColumnName("space_id");
-
-                    b.Property<byte[]>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("bytea")
-                        .HasColumnName("token_hash");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
@@ -1331,15 +1345,19 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedById")
                         .HasDatabaseName("ix_space_invitations_created_by_id");
 
+                    b.HasIndex("InviteeAuthId")
+                        .HasDatabaseName("ix_space_invitations_invitee_auth_id");
+
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_space_invitations_role_id");
 
                     b.HasIndex("SpaceId")
                         .HasDatabaseName("ix_space_invitations_space_id");
 
-                    b.HasIndex("TokenHash")
+                    b.HasIndex("SpaceId", "InviteeAuthId")
                         .IsUnique()
-                        .HasDatabaseName("ix_space_invitations_token_hash");
+                        .HasDatabaseName("ix_space_invitations_space_id_invitee_auth_id")
+                        .HasFilter("invitee_auth_id IS NOT NULL AND accepted_at IS NULL AND declined_at IS NULL AND revoked_at IS NULL");
 
                     b.ToTable("space_invitations", (string)null);
                 });

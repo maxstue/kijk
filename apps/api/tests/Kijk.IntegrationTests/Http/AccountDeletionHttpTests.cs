@@ -44,10 +44,15 @@ public class AccountDeletionHttpTests
     {
         var seed = await SeedAsync();
         var identities = new RecordingIdentityProvider();
+        var invitations = new FakeIdentityInvitations();
         await using var host = await SpaceApiHost.StartAsync(
             seed.Leaving.AuthId,
             jobsEnabled: true,
-            services => services.Replace(ServiceDescriptor.Singleton<IIdentityProvider>(identities)));
+            services =>
+            {
+                services.Replace(ServiceDescriptor.Singleton<IIdentityProvider>(identities));
+                services.Replace(ServiceDescriptor.Singleton<IIdentityInvitations>(invitations));
+            });
 
         using var response = await host.Client.PostAsync("/api/users/me/deletion", null);
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
@@ -60,6 +65,8 @@ public class AccountDeletionHttpTests
         await Assert.That(await dbContext.Transactions.AnyAsync(item => item.Counterparty == "Private shop")).IsFalse();
         await Assert.That(await dbContext.Budgets.AnyAsync(item => item.OwnerId != null)).IsFalse();
         await Assert.That(await dbContext.SpaceInvitations.AnyAsync()).IsFalse();
+        // The authentication provider no longer holds the invited addresses either.
+        await Assert.That(invitations.Deleted).IsEquivalentTo(DeletedProviderInvitations);
 
         // Shared data stays and now belongs to the remaining member, who became the space's administrator.
         var shared = await dbContext.Transactions.SingleAsync(item => item.Counterparty == "Shared shop");
@@ -120,14 +127,20 @@ public class AccountDeletionHttpTests
         var sharedBudget = Budget.Create(300m, new MonthYear(October), true, groceries, leaving, shared);
         var privateBudget = Budget.Create(100m, new MonthYear(October), true, groceries, leaving, shared, Visibility.Private);
 
-        // Invitations the leaving user created: one in the space that remains, one in the space that goes.
-        var sharedInvitation = SpaceInvitation.Create(shared, member, leaving, [.. Enumerable.Repeat((byte)1, 32)], DateTime.UtcNow);
-        var soloInvitation = SpaceInvitation.Create(solo, member, leaving, [.. Enumerable.Repeat((byte)2, 32)], DateTime.UtcNow);
+        // Invitations by e-mail the leaving user created, one in the space that remains and one in the space that goes,
+        // and one the leaving user received.
+        var sharedInvitation = SpaceInvitation.ForNewAccount(shared, member, leaving, "an***@ex***.test", DateTime.UtcNow);
+        sharedInvitation.AttachProviderInvitation("inv_shared");
+        var soloInvitation = SpaceInvitation.ForNewAccount(solo, member, leaving, "bo***@ex***.test", DateTime.UtcNow);
+        soloInvitation.AttachProviderInvitation("inv_solo");
+        var receivedInvitation = SpaceInvitation.ForIdentity(shared, member, remaining, leaving.AuthId, "leaving#0001", DateTime.UtcNow);
 
-        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget, sharedInvitation, soloInvitation);
+        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget, sharedInvitation, soloInvitation, receivedInvitation);
         await dbContext.SaveChangesAsync();
         return new Seed(leaving, remaining, personal.Id, solo.Id, shared.Id, privateAccount.Id);
     }
+
+    private static readonly string[] DeletedProviderInvitations = ["inv_shared", "inv_solo"];
 
     private static User CreateUser(string name)
     {

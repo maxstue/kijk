@@ -58,8 +58,11 @@ public sealed class SpacesEndpoints : IEndpointGroup
             .RequireRouteSpacePermission(SpacePermissions.Members.Invite)
             .WithRequestValidation<CreateSpaceInvitationRequest>()
             .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .WithSummary("Creates a single-use invitation link to a shared space");
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
+            .RequireRateLimiting(AppConstants.InvitationRateLimit)
+            .WithSummary("Invites a person into a shared space by unique name or e-mail address");
         group.MapGet("/{id:guid}/invitations", Invitations).WithName("Spaces.Invitations")
             .RequireRouteSpacePermission(SpacePermissions.Members.Invite)
             .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -108,7 +111,7 @@ public sealed class SpacesEndpoints : IEndpointGroup
         return result.IsError ? TypedResults.Problem(result.Error.ToProblemDetails()) : TypedResults.Ok(result.Value);
     }
 
-    private static async Task<Results<Ok<CreateSpaceInvitationResponse>, ProblemHttpResult>> CreateInvitation(
+    private static async Task<Results<Ok<SpaceInvitationResponse>, ProblemHttpResult>> CreateInvitation(
         Guid id,
         CreateSpaceInvitationRequest request,
         CreateInvitationHandler handler,
