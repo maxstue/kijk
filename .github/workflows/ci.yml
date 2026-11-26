@@ -10,7 +10,6 @@ name: CI
 #   changes ─┬─ Apps: client (format → lint → build → test) ── Client E2E ─┐
 #            ├─ Packages: api|core|ui|... (format → lint → typecheck → test) ─┼─ CI result
 #            ├─ Apps: api (restore → format → build → test → audit) ────────┤
-#            ├─ Railway plan (.railway/railway.ts vs. production, report) ──┤
 #            └─ audit                  workspace coverage ── sonar ───────┘
 #
 # `ci-result` is the only check that branch protection has to require.
@@ -120,23 +119,6 @@ jobs:
       workspace: oxlint-plugin-boundaries
       directory: packages/oxlint-plugin-boundaries
 
-  # Plans `.railway/railway.ts` against production and reports the changes in the job summary for review. It only
-  # fails when the file cannot be evaluated; the production release in `deployment.yml` applies the changes.
-  # Opt in once the plan credential is available. The plan evaluates repository code with that credential,
-  # so bots and forks are skipped.
-  railway:
-    name: "🚂 Railway"
-    needs: [changes]
-    if: >-
-      vars.RAILWAY_PR_PLAN_ENABLED == 'true' &&
-      needs.changes.outputs.railway == 'true' &&
-      !endsWith(github.actor, '[bot]') &&
-      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-    uses: ./.github/workflows/_railway-config.yml
-    permissions:
-      contents: read
-      id-token: write
-
   audit:
     name: Audit
     needs: [changes]
@@ -180,7 +162,6 @@ jobs:
         packages-config,
         packages-oxlint-plugin-boundaries,
         apps-api,
-        railway,
         audit,
         sonar,
       ]

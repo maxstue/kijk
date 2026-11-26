@@ -18,5 +18,4 @@ Change Railway settings in `railway.ts` instead of the dashboard, so the plan st
 ## CI/CD
 
 - The production release plans the release commit and applies the saved plan before migrations and deployments. It uses the existing `RAILWAY_DEPLOY_TOKEN`, scoped to `kijk` / `production`, from Infisical `prod /CI/Deploy` through the production identity. A destructive or invalid plan stops the release. An explicitly approved destructive change can be applied locally with `railway config apply --confirm-destructive`.
-- To enable Railway plan summaries for trusted PRs and pushes to `main`, set the GitHub repository variable `RAILWAY_PR_PLAN_ENABLED` to `true` after making `RAILWAY_PLAN_TOKEN` available to the Infisical `ci` identity at `prod /CI/Railway`. The job evaluates repository code with this production project token. A dedicated token allows independent rotation. The production release works with the existing deploy token alone.
-- Both workflows use the composite action `.github/actions/railway-config`, which pins the Railway CLI version and checksum.
+- The release uses the composite action `.github/actions/railway-config`, which pins the Railway CLI version and checksum and writes the plan to the release summary.

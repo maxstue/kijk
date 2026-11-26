@@ -95,7 +95,6 @@ jobs:
         uses: ./.github/actions/railway-config
         with:
           project_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
-          mode: apply
 
   migrate-database:
     name: 'Migrate Database 🗃️'
