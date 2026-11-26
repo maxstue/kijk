@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -80,6 +81,46 @@ public class SpaceHttpTests
         await Assert.That(cleared.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
         await Assert.That(await verification.UserSpaces.AnyAsync(link => link.User.AuthId == "newcomer-auth" && link.IsDefault)).IsFalse();
+    }
+
+    [Test]
+    public async Task OnboardingWithoutANameKeepsTheDefaultNameOfThePersonalSpace()
+    {
+        await using var host = await SpaceApiHost.StartAsync(
+            "newcomer-auth",
+            configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider, FakeIdentityProvider>()));
+
+        using var tooShort = await host.Client.PutAsJsonAsync("/api/users/onboarding",
+            new WelcomeUserRequest("Newcomer", " x ", false, false, AnalyticsConsent.Declined), Json);
+        using var welcomed = await host.Client.PutAsJsonAsync("/api/users/onboarding",
+            new WelcomeUserRequest("Newcomer", null, false, false, AnalyticsConsent.Declined), Json);
+
+        await Assert.That(tooShort.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        await Assert.That(welcomed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var space = await verification.UserSpaces.Where(link => link.User.AuthId == "newcomer-auth").Select(link => link.Space).SingleAsync();
+        await Assert.That(space.IsPersonal).IsTrue();
+        await Assert.That(space.Name).IsEqualTo(Space.PersonalName);
+    }
+
+    [Test]
+    public async Task RepeatingACompletedOnboardingLeavesTheProfileSettingAlone()
+    {
+        var identityProvider = new FakeIdentityProvider();
+        await using var host = await SpaceApiHost.StartAsync(
+            "newcomer-auth",
+            configureServices: services => services.Replace(ServiceDescriptor.Scoped<IIdentityProvider>(_ => identityProvider)));
+
+        using var welcomed = await host.Client.PutAsJsonAsync("/api/users/onboarding",
+            new WelcomeUserRequest("Newcomer", null, false, true, AnalyticsConsent.Declined), Json);
+        using var repeated = await host.Client.PutAsJsonAsync("/api/users/onboarding",
+            new WelcomeUserRequest("Newcomer", null, false, false, AnalyticsConsent.Declined), Json);
+
+        await Assert.That(welcomed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(repeated.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        // Only the first, completing request reaches the identity provider.
+        await Assert.That(identityProvider.ProfileSettings.Count).IsEqualTo(1);
+        await Assert.That(identityProvider.ProfileSettings.Single()).IsTrue();
     }
 
     [Test]
@@ -322,10 +363,16 @@ public class SpaceHttpTests
 
     private sealed class FakeIdentityProvider : IIdentityProvider
     {
+        public ConcurrentQueue<bool> ProfileSettings { get; } = new();
+
         public Task<ExternalIdentity> GetAsync(string authId, CancellationToken cancellationToken) =>
             Task.FromResult(new ExternalIdentity("Newcomer", "newcomer@example.test", null, false));
 
-        public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken)
+        {
+            ProfileSettings.Enqueue(useProfileInKijk);
+            return Task.CompletedTask;
+        }
 
         public Task DeleteAsync(string authId, CancellationToken cancellationToken) => Task.CompletedTask;
     }

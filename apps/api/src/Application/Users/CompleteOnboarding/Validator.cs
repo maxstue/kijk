@@ -1,4 +1,3 @@
-using Kijk.Application.Spaces.Shared;
 using Kijk.Shared;
 
 namespace Kijk.Application.Users.CompleteOnboarding;
@@ -21,11 +20,6 @@ public sealed class WelcomeUserRequestValidator : AbstractValidator<WelcomeUserR
             .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
             .OverridePropertyName(nameof(WelcomeUserRequest.SpaceName))
             .When(request => request.SpaceName is not null);
-
-        RuleFor(request => request.InvitationToken)
-            .NotEmpty().WithErrorCode(ErrorCodes.ValidationError)
-            .MaximumLength(InvitationToken.MaxLength).WithErrorCode(ErrorCodes.ValidationError)
-            .When(request => request.InvitationToken is not null);
 
         RuleFor(request => request.AnalyticsConsent)
             .IsInEnum().WithErrorCode(ErrorCodes.ValidationError);

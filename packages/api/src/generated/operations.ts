@@ -37,8 +37,6 @@ export const apiOperations = {
   '/api/spaces/{spaceId}/imports/{id}/commit': ['post'],
   '/api/spaces/{spaceId}/imports/{id}/cancel': ['post'],
   '/api/spaces/{spaceId}/imports/settings': ['get', 'put'],
-  '/api/invitations/preview': ['post'],
-  '/api/invitations/accept': ['post'],
   '/api/spaces/{spaceId}/limits': ['get', 'post'],
   '/api/spaces/{spaceId}/limits/{id}': ['get', 'put', 'delete'],
   '/api/spaces/{spaceId}/resources': ['get', 'post'],

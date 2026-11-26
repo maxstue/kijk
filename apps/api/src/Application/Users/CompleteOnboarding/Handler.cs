@@ -1,6 +1,5 @@
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
-using Kijk.Application.Spaces.Shared;
 using Kijk.Application.Users.Me;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
@@ -34,24 +33,7 @@ public class CompleteOnboardingHandler(
             return await getMeUserHandler.HandleAsync(cancellationToken);
         }
 
-        // Unusable tokens fail before any call to the identity provider, so trying tokens costs only a cheap query.
-        if (request.InvitationToken is { } candidate
-            && !await dbContext.IsPendingInvitationAsync(candidate, timeProvider.GetUtcNow().UtcDateTime, cancellationToken))
-        {
-            return InvitationLookup.Invalid;
-        }
-
         var externalIdentity = await identityProvider.GetAsync(currentUser.AuthId, cancellationToken);
-        // Calls to the identity provider stay outside the transaction, so no lock is held while waiting for it.
-        // Setting the flag again on a retry is harmless.
-        await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
-        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-        // Locking the invitation before reading the account makes a parallel retry wait and then find it completed.
-        var invitation = request.InvitationToken is { } token
-            ? await dbContext.LockInvitationAsync(token, cancellationToken)
-            : null;
-
         var user = await dbContext.Users
             .Where(x => x.AuthId == currentUser.AuthId)
             .Include(x => x.Resources)
@@ -63,13 +45,6 @@ public class CompleteOnboardingHandler(
         if (user?.OnboardingCompleted is true)
         {
             return await getMeUserHandler.HandleAsync(cancellationToken);
-        }
-
-        var completedAt = timeProvider.GetUtcNow().UtcDateTime;
-        if (request.InvitationToken is not null && invitation?.IsPending(completedAt) is not true)
-        {
-            // Never complete without the space the user expects to join.
-            return InvitationLookup.Invalid;
         }
 
         var adminRole = await dbContext.Roles.SingleOrDefaultAsync(role => role.Id == SpaceRoles.Admin.Id, cancellationToken);
@@ -85,8 +60,8 @@ public class CompleteOnboardingHandler(
             dbContext.Users.Add(user);
         }
 
-        // Every user starts with a personal space that is never shared. Shared spaces are created later, or joined
-        // through an invitation.
+        // Every user starts with a personal space that is never shared; a retried onboarding reuses it. Shared spaces
+        // are created later or joined through an invitation.
         var personalSpace = user.UserSpaces.Select(link => link.Space).FirstOrDefault(space => space.IsPersonal);
         if (personalSpace is null)
         {
@@ -99,27 +74,22 @@ public class CompleteOnboardingHandler(
             personalSpace.Rename(spaceName);
         }
 
-        if (invitation is not null)
-        {
-            JoinInvitedSpace(user, invitation, completedAt);
-        }
-
         var defaultResources = await dbContext.Resources
             .Where(resource => resource.CreatorType == CreatorType.System)
             .ToListAsync(cancellationToken);
 
+        var completedAt = timeProvider.GetUtcNow().UtcDateTime;
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
+        await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
         }
         catch (DbUpdateException)
         {
             // A parallel request created the account first; its result counts.
-            await transaction.RollbackAsync(cancellationToken);
             var completedUserExists = await dbContext.Users
                 .AsNoTracking()
                 .AnyAsync(existingUser => existingUser.AuthId == currentUser.AuthId && existingUser.OnboardingCompletedAt != null, cancellationToken);
@@ -131,14 +101,5 @@ public class CompleteOnboardingHandler(
         }
 
         return await getMeUserHandler.HandleAsync(cancellationToken);
-    }
-
-    private static void JoinInvitedSpace(User user, SpaceInvitation invitation, DateTime utcNow)
-    {
-        // Onboarding only restarts for users left without any space (see Spaces/Delete), so the user is no member
-        // of the invited space yet and has no default space.
-        var membership = invitation.AcceptFor(user, utcNow);
-        membership.SetDefault(true);
-        user.UserSpaces.Add(membership);
     }
 }

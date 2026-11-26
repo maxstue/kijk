@@ -77,9 +77,7 @@ public class UsersEndpoints : IEndpointGroup
             .WithSummary("Deletes the current user's account and all their data in the background");
 
         group.MapPut("/onboarding", CompleteOnboarding).WithName("Users.CompleteOnboarding")
-            .WithoutSpacePermission("Onboarding creates the user's personal space and may join the space of an invitation, which the token grants.")
-            // The optional invitation token must not be easier to try here than on the invitation endpoints.
-            .RequireRateLimiting(AppConstants.InvitationRateLimit)
+            .WithoutSpacePermission("Onboarding creates the user's personal space.")
             .WithRequestValidation<WelcomeUserRequest>()
             .WithSummary("Completes onboarding and creates the Kijk account when needed");
 
