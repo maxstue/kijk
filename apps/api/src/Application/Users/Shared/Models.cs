@@ -1,3 +1,4 @@
+using Kijk.Domain.Entities;
 using Kijk.Shared;
 
 namespace Kijk.Application.Users.Shared;
@@ -5,7 +6,8 @@ namespace Kijk.Application.Users.Shared;
 /// <summary>The current user's account settings.</summary>
 /// <param name="Id">The user id.</param>
 /// <param name="AuthId">The authentication provider's user id.</param>
-/// <param name="Name">The display name.</param>
+/// <param name="Name">The Kijk user name.</param>
+/// <param name="Tag">The four-digit number that makes the name unique.</param>
 /// <param name="Email">The email address.</param>
 /// <param name="UseDefaultResources">Whether the system default resources are enabled.</param>
 /// <param name="AnalyticsConsent">The analytics preference.</param>
@@ -17,6 +19,7 @@ public record UserResponse(
     Guid Id,
     string? AuthId,
     string? Name,
+    int Tag,
     string? Email,
     bool? UseDefaultResources,
     AnalyticsConsent? AnalyticsConsent,
@@ -29,4 +32,10 @@ public record UserResponse(
     /// Gets whether the user has completed onboarding.
     /// </summary>
     public bool OnboardingCompleted => OnboardingCompletedAt.HasValue;
+
+    /// <summary>
+    /// Gets the unique name, for example <c>Max#4821</c>, with which others invite the user into a space. It is an
+    /// identifier and never part of telemetry or logs.
+    /// </summary>
+    public string? UniqueName => Name is null ? null : User.FormatUniqueName(Name, Tag);
 }

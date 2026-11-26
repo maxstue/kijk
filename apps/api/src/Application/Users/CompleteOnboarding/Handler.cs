@@ -1,6 +1,7 @@
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Users.Me;
+using Kijk.Application.Users.Shared;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
@@ -17,6 +18,7 @@ public class CompleteOnboardingHandler(
     CurrentUser currentUser,
     TimeProvider timeProvider,
     ILogger<CompleteOnboardingHandler> logger,
+    UniqueNameSaver uniqueNameSaver,
     MeHandler getMeUserHandler)
 {
     /// <summary>
@@ -85,7 +87,10 @@ public class CompleteOnboardingHandler(
         await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
         try
         {
-            await dbContext.SaveChangesAsync(cancellationToken);
+            if (await uniqueNameSaver.SaveAsync(user, cancellationToken) is { } conflict)
+            {
+                return conflict;
+            }
         }
         catch (DbUpdateException)
         {

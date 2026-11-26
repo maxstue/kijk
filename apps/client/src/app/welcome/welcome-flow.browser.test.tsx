@@ -7,18 +7,18 @@ import type { UserStepFormValues } from './schemas';
 import { WelcomeFlow } from './welcome-flow';
 
 const mutation = vi.hoisted(() => ({
-  mutateAsync: vi.fn<(values: UserStepFormValues) => Promise<void>>(),
+  mutateAsync: vi.fn<(values: UserStepFormValues) => Promise<{ user: { uniqueName: string } }>>(),
   isPending: false,
 }));
 vi.mock('./use-welcome-user', () => ({ useWelcomeUser: () => mutation }));
 vi.mock('@/app/welcome/use-sign-in-provider-name', () => ({
   useSignInProviderName: () => ({ providerName: 'Test provider' }),
 }));
-vi.mock('sonner', () => ({ toast: vi.fn<typeof toast>() }));
+vi.mock('sonner', () => ({ toast: Object.assign(vi.fn<typeof toast>(), { success: vi.fn<typeof toast.success>() }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mutation.mutateAsync.mockResolvedValue(undefined);
+  mutation.mutateAsync.mockResolvedValue({ user: { uniqueName: 'Max#4821' } });
   mutation.isPending = false;
 });
 
@@ -63,6 +63,12 @@ test.each([true, false])('submits the explicit profile, resource and privacy cho
     useDefaultResources: share,
     analyticsConsent: share ? 'Accepted' : 'Declined',
   });
+  expect(toast.success).toHaveBeenCalledWith('Your unique name is Max#4821', expect.anything());
+});
+
+test('explains the unique name next to the username', async () => {
+  const screen = await renderWelcome();
+  await expect.element(screen.getByText(/Others can invite you into a space with this unique name/)).toBeVisible();
 });
 
 test('requires an explicit profile and analytics choice before advancing', async () => {

@@ -4,6 +4,7 @@ using Kijk.Application.Users.Features;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.RequestDeletion;
 using Kijk.Application.Users.SetDefaultSpace;
+using Kijk.Application.Users.Shared;
 using Kijk.Application.Users.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,7 @@ public sealed class ModuleService : IModule
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         services.AddScoped<AccountEraser>();
+        services.AddScoped<UniqueNameSaver>();
         services.AddScoped<RequestDeletionHandler>();
         services.AddScoped<SetDefaultSpaceHandler>();
         services.AddScoped<MeHandler>();

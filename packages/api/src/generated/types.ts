@@ -1669,35 +1669,79 @@ export type ExternalIdentityResponse = {
  */
 export type GetMeUserResponse = {
   /**
+   * The user id.
+   *
    * Format: `uuid`
    *
    * @type string
    */
   id: string;
+  /**
+   * The authentication provider's user id.
+   *
+   * @type string
+   */
   authId: string | null;
+  /**
+   * The Kijk user name.
+   *
+   * @type string
+   */
   name: string | null;
+  /**
+   * The four-digit number that makes the name unique.
+   *
+   * Format: `int32`
+   */
+  tag: number | string;
+  /**
+   * The email address.
+   *
+   * @type string
+   */
   email: string | null;
   analyticsConsent: (null | null) | AnalyticsConsent;
   /**
+   * When the analytics preference last changed.
+   *
    * Format: `date-time`
    *
    * @type string
    */
   analyticsConsentUpdatedAt: string | null;
   /**
+   * When onboarding was completed.
+   *
    * Format: `date-time`
    *
    * @type string
    */
   onboardingCompletedAt: string | null;
+  /**
+   * Whether AI features are allowed for the user.
+   *
+   * @type boolean
+   */
   aiEnabled: boolean;
   /**
+   * When the user consented to processing sensitive bank data.
+   *
    * Format: `date-time`
    *
    * @type string
    */
   sensitiveDataConsentAt: string | null;
+  /**
+   * The user's space memberships.
+   *
+   * @type array
+   */
   spaces: UserSpaceResponse[] | null;
+  /**
+   * The resources the user has enabled.
+   *
+   * @type array
+   */
   resources: UserResourceResponse[] | null;
   /**
    * Gets whether the user has completed onboarding.
@@ -1705,6 +1749,13 @@ export type GetMeUserResponse = {
    * @type boolean | undefined
    */
   onboardingCompleted?: boolean;
+  /**
+   * Gets the unique name, for example `Max#4821`, with which others invite the user into a space. It is an identifier
+   * and never part of telemetry or logs.
+   *
+   * @type string | undefined
+   */
+  uniqueName?: string | null;
   /**
    * Gets whether Kijk may use the external full name and profile image.
    *
@@ -3340,11 +3391,17 @@ export type UserResponse = {
    */
   authId: string | null;
   /**
-   * The display name.
+   * The Kijk user name.
    *
    * @type string
    */
   name: string | null;
+  /**
+   * The four-digit number that makes the name unique.
+   *
+   * Format: `int32`
+   */
+  tag: number | string;
   /**
    * The email address.
    *
@@ -3394,6 +3451,13 @@ export type UserResponse = {
    * @type boolean | undefined
    */
   onboardingCompleted?: boolean;
+  /**
+   * Gets the unique name, for example `Max#4821`, with which others invite the user into a space. It is an identifier
+   * and never part of telemetry or logs.
+   *
+   * @type string | undefined
+   */
+  uniqueName?: string | null;
 };
 
 /**

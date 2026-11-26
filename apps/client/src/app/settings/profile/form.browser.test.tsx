@@ -33,6 +33,8 @@ async function renderProfile() {
       sensitiveDataConsentAt: null,
       aiEnabled: false,
       name: 'Max',
+      tag: 4821,
+      uniqueName: 'Max#4821',
       resources: [],
       useExternalProfile: false,
       spaces: [
@@ -148,4 +150,24 @@ test('retains remaining changes after a partial save so the same button can retr
   await screen.getByRole('button', { name: 'Update profile' }).click();
   await expect.element(screen.getByRole('button', { name: 'Update profile' })).toBeDisabled();
   expect(usersApi.setDefaultSpace).toHaveBeenCalledTimes(2);
+});
+
+test('shows the unique name and copies it for invitations', async () => {
+  const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+  onTestFinished(() => writeText.mockRestore());
+  const screen = await renderProfile();
+
+  await expect.element(screen.getByRole('textbox', { name: 'Unique name' })).toHaveValue('Max#4821');
+  await screen.getByRole('button', { name: 'Copy unique name' }).click();
+
+  await vi.waitFor(() => expect(writeText).toHaveBeenCalledExactlyOnceWith('Max#4821'));
+});
+
+test('rejects a username with the separator of the unique name', async () => {
+  const screen = await renderProfile();
+  await screen.getByRole('textbox', { name: 'Username' }).fill('Max#1234');
+  await screen.getByRole('button', { name: 'Update profile' }).click();
+
+  await expect.element(screen.getByText('The name must not contain # or @.')).toBeVisible();
+  expect(usersApi.update).not.toHaveBeenCalled();
 });

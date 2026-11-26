@@ -126,6 +126,8 @@ function currentUser(spaces: SpaceFixture[]): CurrentUser {
       sensitiveDataConsentAt: null,
       aiEnabled: false,
       name: 'Max',
+      tag: 4821,
+      uniqueName: 'Max#4821',
       resources: [],
       useExternalProfile: false,
       spaces: spaces.map((space) => ({

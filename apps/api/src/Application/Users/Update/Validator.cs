@@ -13,6 +13,8 @@ public sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserReq
         RuleFor(request => request.UserName)
             .Must(name => !string.IsNullOrWhiteSpace(name)).WithErrorCode(ErrorCodes.ValidationError)
             .Length(2, 100).WithErrorCode(ErrorCodes.ValidationError)
+            .Must(name => name.IndexOfAny(['#', '@']) < 0 && !name.Any(char.IsControl)).WithErrorCode(ErrorCodes.ValidationError)
+            .WithMessage("The name must not contain '#', '@' or control characters, because it becomes part of the unique name (Max#4821).")
             .When(request => request.UserName is not null);
 
         RuleFor(request => request.AnalyticsConsent)

@@ -1701,7 +1701,8 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                        .HasColumnName("name")
+                        .UseCollation("case_insensitive");
 
                     b.Property<DateTime?>("OnboardingCompletedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1710,6 +1711,10 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("SensitiveDataConsentAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sensitive_data_consent_at");
+
+                    b.Property<int>("Tag")
+                        .HasColumnType("integer")
+                        .HasColumnName("tag");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
@@ -1723,7 +1728,16 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_users_auth_id");
 
-                    b.ToTable("users", (string)null);
+                    b.HasIndex("Name", "Tag")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_name_tag");
+
+                    b.ToTable("users", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_users_name_trimmed", "name = btrim(name)");
+
+                            t.HasCheckConstraint("ck_users_tag_range", "tag BETWEEN 1 AND 9999");
+                        });
                 });
 
             modelBuilder.Entity("Kijk.Domain.Entities.UserSpace", b =>
