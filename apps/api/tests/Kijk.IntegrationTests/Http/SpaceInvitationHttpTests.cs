@@ -7,10 +7,12 @@ using Kijk.Application.Spaces.CreateInvitation;
 using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
+using Kijk.Infrastructure.Spaces;
 using Kijk.IntegrationTests.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Wolverine.Tracking;
 
 namespace Kijk.IntegrationTests.Http;
 
@@ -173,6 +175,23 @@ public class SpaceInvitationHttpTests
         await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId);
         var listed = (await host.Client.GetFromJsonAsync<List<SpaceInvitationResponse>>($"/api/spaces/{seed.SpaceId}/invitations"))!;
         await Assert.That(listed.Select(item => item.Id)).IsEquivalentTo(new[] { pending });
+    }
+
+    [Test]
+    public async Task ThePublishedCleanupMessageDeletesClosedInvitationsThroughTheDurableQueue()
+    {
+        var seed = await SeedAsync(SpaceRoles.AdminName);
+        var now = DateTime.UtcNow;
+        var pending = await AddInvitationAsync(seed.SpaceId, seed.Actor.Id);
+        await AddInvitationAsync(seed.SpaceId, seed.Actor.Id, now - TimeSpan.FromDays(6), revokedAt: now - SpaceInvitation.Retention - TimeSpan.FromDays(1));
+        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, jobsEnabled: true);
+
+        await host.Host.TrackActivity().Timeout(TimeSpan.FromSeconds(30))
+            .ExecuteAndWaitAsync(context => context.PublishAsync(new CleanupInvitations()));
+
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var kept = await verification.SpaceInvitations.Select(item => item.Id).ToListAsync();
+        await Assert.That(kept).IsEquivalentTo(new[] { pending });
     }
 
     [Test]

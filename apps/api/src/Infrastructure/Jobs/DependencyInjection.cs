@@ -35,6 +35,8 @@ public static class JobsDependencyInjection
         services.AddWolverineExtension<JobOptionsExtension>();
         var connectionString = configuration.GetConnectionString("DefaultConnection")
                                ?? throw new InvalidOperationException("The connection string 'DefaultConnection' is missing");
+        // Schedules register Wolverine services, so they cannot be added from an extension that reads IOptions.
+        var schedulesEnabled = configuration.GetSection(JobsOptions.SectionName).Get<JobsOptions>()?.CleanupSchedulesEnabled ?? true;
         services.AddWolverine(options =>
         {
             options.ApplicationAssembly = typeof(JobsDependencyInjection).Assembly;
@@ -48,15 +50,20 @@ public static class JobsDependencyInjection
                 .IncludeType(typeof(DeleteUserAccountMessageHandler))
                 .IncludeType(typeof(CleanupInvitationsMessageHandler))
                 .IncludeType(typeof(CleanupImportsMessageHandler));
-            // Wolverine publishes each occurrence on exactly one node and skips missed ones. The cleanups delete
-            // everything that is due by then, so the next occurrence makes up for a missed one.
-            // The schedule name defaults to the message type name. It feeds Wolverine's deduplication ids, so renaming
-            // a cleanup message also renames its schedule.
-            options.Schedules.ScheduleRecurring<CleanupInvitations>(HourlyCron);
-            options.Schedules.ScheduleRecurring<CleanupImports>(HourlyCron);
+            if (schedulesEnabled)
+            {
+                // Wolverine publishes each occurrence on exactly one node. The cleanups delete everything that is due
+                // by then, so a missed or failed occurrence needs no catch-up. The schedule name defaults to the
+                // message type name and feeds Wolverine's deduplication ids, so renaming a cleanup message also
+                // renames its schedule.
+                options.Schedules.ScheduleRecurring<CleanupInvitations>(HourlyCron);
+                options.Schedules.ScheduleRecurring<CleanupImports>(HourlyCron);
+            }
+
             options.PersistMessagesWithPostgresql(connectionString, WolverineSchema);
             options.UseEntityFrameworkCoreTransactions();
             options.Policies.UseDurableLocalQueues();
+            options.Policies.Add<CleanupFailurePolicy>();
             options.OnException<NpgsqlException>().RetryWithCooldown(
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(10),

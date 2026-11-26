@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Sentry.Extensibility;
@@ -27,7 +28,7 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
 {
     internal HttpClient Client => client;
 
-    internal IServiceProvider Services => application.Services;
+    internal IHost Host => application;
 
     internal HttpClient CreateClient(string authId)
     {
@@ -58,6 +59,8 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
             ["Fingerprint:MasterKey"] = TestFingerprintKey,
             ["DataProtection:KeyEncryptionKey"] = "ZmVkY2JhOTg3NjU0MzIxMGZlZGNiYTk4NzY1NDMyMTA=",
             ["Jobs:DurabilityMode"] = "Solo",
+            // Scheduled cleanups would otherwise run in any test that happens to span a full hour.
+            ["Jobs:CleanupSchedulesEnabled"] = "false",
             ["Serilog:WriteTo:0:Name"] = "Console",
             ["Serilog:MinimumLevel:Default"] = "Warning"
         });
