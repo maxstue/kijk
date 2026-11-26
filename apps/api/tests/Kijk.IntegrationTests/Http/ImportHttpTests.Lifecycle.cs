@@ -110,17 +110,7 @@ public partial class ImportHttpTests
     public async Task CleanupFailsExpiredImportsAndDeletesTheirFiles()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        Guid jobId;
-        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
-        {
-            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
-            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
-            var job = ImportJob.Create("old.csv", account, user, account.Space);
-            dbContext.ImportJobs.Add(job);
-            dbContext.ImportFiles.Add(ImportFile.Create([1, 2, 3], job, DateTime.UtcNow.AddDays(-2)));
-            await dbContext.SaveChangesAsync();
-            jobId = job.Id;
-        }
+        var jobId = await AddExpiredImportAsync(fixture);
 
         await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
         {
@@ -138,17 +128,7 @@ public partial class ImportHttpTests
     public async Task ThePublishedCleanupMessageDeletesExpiredFilesThroughTheDurableQueue()
     {
         var fixture = await CreateFixtureAsync("Admin");
-        Guid jobId;
-        await using (var dbContext = PostgreSqlTestDatabase.CreateDbContext())
-        {
-            var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
-            var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
-            var job = ImportJob.Create("old.csv", account, user, account.Space);
-            dbContext.ImportJobs.Add(job);
-            dbContext.ImportFiles.Add(ImportFile.Create([1, 2, 3], job, DateTime.UtcNow.AddDays(-2)));
-            await dbContext.SaveChangesAsync();
-            jobId = job.Id;
-        }
+        var jobId = await AddExpiredImportAsync(fixture);
 
         await using var host = await SpaceApiHost.StartAsync(fixture.User.AuthId, jobsEnabled: true);
         await host.Host.TrackActivity().Timeout(TimeSpan.FromSeconds(30))
@@ -159,4 +139,15 @@ public partial class ImportHttpTests
         await Assert.That(await verification.ImportFiles.AnyAsync()).IsFalse();
     }
 
+    private static async Task<Guid> AddExpiredImportAsync(Fixture fixture)
+    {
+        await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
+        var account = await dbContext.Accounts.Include(item => item.Space).SingleAsync(item => item.Id == fixture.Account.Id);
+        var user = await dbContext.Users.SingleAsync(item => item.Id == fixture.User.Id);
+        var job = ImportJob.Create("old.csv", account, user, account.Space);
+        dbContext.ImportJobs.Add(job);
+        dbContext.ImportFiles.Add(ImportFile.Create([1, 2, 3], job, DateTime.UtcNow.AddDays(-2)));
+        await dbContext.SaveChangesAsync();
+        return job.Id;
+    }
 }

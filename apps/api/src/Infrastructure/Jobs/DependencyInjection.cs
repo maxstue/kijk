@@ -23,6 +23,9 @@ public static class JobsDependencyInjection
     private const string WolverineSchema = "wolverine";
     private const string HourlyCron = "0 * * * *";
 
+    /// <summary>The environment of the integration-test hosts, which turn the cleanup schedules off on purpose.</summary>
+    internal const string TestingEnvironment = "Testing";
+
     /// <summary>Registers the durable queue and its workers, except during build-time OpenAPI generation.</summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The application configuration.</param>
@@ -83,13 +86,14 @@ public static class JobsDependencyInjection
         return services;
     }
 
-    private sealed class JobOptionsExtension(IOptions<JobsOptions> jobs, IHostEnvironment environment, ILogger<JobOptionsExtension> logger)
+    /// <summary>Applies <see cref="JobsOptions" /> and warns when the cleanups are not scheduled outside the tests.</summary>
+    internal sealed class JobOptionsExtension(IOptions<JobsOptions> jobs, IHostEnvironment environment, ILogger<JobOptionsExtension> logger)
         : IWolverineExtension
     {
         public void Configure(WolverineOptions options)
         {
             options.Durability.Mode = jobs.Value.DurabilityMode;
-            if (!jobs.Value.CleanupSchedulesEnabled && !environment.IsEnvironment("Testing"))
+            if (!jobs.Value.CleanupSchedulesEnabled && !environment.IsEnvironment(TestingEnvironment))
             {
                 logger.LogWarning(
                     "Cleanup schedules are disabled: closed invitations and expired import files are not deleted");

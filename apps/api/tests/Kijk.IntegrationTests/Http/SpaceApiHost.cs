@@ -48,7 +48,7 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
-            EnvironmentName = "Testing",
+            EnvironmentName = JobsDependencyInjection.TestingEnvironment,
             ApplicationName = typeof(DependencyInjection).Assembly.FullName
         });
         builder.Configuration.Sources.Clear();
