@@ -11,6 +11,17 @@ namespace Kijk.IntegrationTests.Persistence;
 internal static class PostgreSqlTestDatabase
 {
     private static readonly PostgreSqlContainer Container = new PostgreSqlBuilder("postgres:18-alpine").Build();
+    private const string ResetWolverineSql =
+        """
+        DO $$
+        DECLARE item record;
+        BEGIN
+            FOR item IN SELECT tablename FROM pg_tables WHERE schemaname = 'wolverine' LOOP
+                EXECUTE format('TRUNCATE TABLE wolverine.%I CASCADE', item.tablename);
+            END LOOP;
+        END $$;
+        """;
+
     private static Respawner _respawner = null!;
     private static string _restoreSystemRowsSql = null!;
     private static bool _started;
@@ -60,6 +71,9 @@ internal static class PostgreSqlTestDatabase
         await connection.OpenAsync();
         await _respawner.ResetAsync(connection);
         await ExecuteAsync(connection, _restoreSystemRowsSql);
+        // Respawn only knows the tables that existed when it was created; Wolverine creates its schema with the first
+        // host that runs background jobs. Empty it too, so no scheduled or failed envelope reaches a later test.
+        await ExecuteAsync(connection, ResetWolverineSql);
     }
 
     private static async Task<string> CopySystemRowsAsync(NpgsqlConnection connection, string table, string systemRows)

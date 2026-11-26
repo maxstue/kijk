@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace Kijk.Application.Imports.Cleanup;
 
 /// <summary>
-/// Deletes expired upload files and leftover review rows, and fails imports whose file expired. Runs at startup and
-/// periodically, so files never outlive their expiry even after a restart or an abandoned upload.
+/// Deletes expired upload files and leftover review rows, and fails imports whose file expired. Runs every hour while
+/// the API is up, so files are normally gone within an hour of their expiry; readers already skip expired files.
 /// </summary>
 public sealed class CleanupImportsHandler(IAppDbContext dbContext, TimeProvider timeProvider, ILogger<CleanupImportsHandler> logger)
 {
