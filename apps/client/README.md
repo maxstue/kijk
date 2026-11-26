@@ -62,9 +62,9 @@ pnpm exec playwright test --project chromium --no-deps --grep 'public pages deli
 
 ## Railway
 
-Production deployments run exclusively through the existing GitHub Actions deployment workflow. Build and test locally; do not deploy with `railway up` or manual redeploy commands.
+The manual [Production Release](https://linear.app/justmax/document/release-process-563ce9397fc5) workflow applies Railway configuration before migrations and deployment. The run summary under **Actions → Production Release** shows the Railway plan.
 
-The Client service is defined in [`.railway/railway.ts`](../../.railway/railway.ts) together with the other Railway services; change its build, deploy, domain and variable settings there and review them with `railway config plan`. Keep the repository root (`/`) as build context, since the app imports workspace packages. Keep the domain target port (80) aligned with `PORT`, and `API_URL` pointing at the API's private domain and listening port (`http://${{Api.RAILWAY_PRIVATE_DOMAIN}}:8080`). The API has no public domain: it exposes no anonymous endpoints or callbacks, and without CORS browsers cannot use it directly.
+The Client service is defined in [`.railway/railway.ts`](../../.railway/railway.ts) together with the other Railway services; change its build, deploy, domain and variable settings there. Use `railway config plan` for an optional local preview. Keep the repository root (`/`) as build context, since the app imports workspace packages. Keep the domain target port (80) aligned with `PORT`, and `API_URL` pointing at the API's private domain and listening port (`http://${{Api.RAILWAY_PRIVATE_DOMAIN}}:8080`). The API has no public domain: it exposes no anonymous endpoints or callbacks, and without CORS browsers cannot use it directly.
 
 Optional `VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY` and `VITE_POSTHOG_URL` configure both browser and web-server reporting. The server exports the same sampled anonymous HTTP spans to both providers; error events retain only type and stack frames. Browser analytics and performance tracing retain their existing consent behavior. Sourcemap upload credentials remain build-only secrets. When `POSTHOG_ENABLE=true`, `POSTHOG_API_KEY` must be a PostHog personal API key (`phx_`), separate from the public ingestion key in `VITE_POSTHOG_KEY`.
 

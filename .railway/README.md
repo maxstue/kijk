@@ -15,7 +15,8 @@ railway config plan --detailed-exit-code  # 0 = in sync, 2 = changes, else error
 
 Change Railway settings in `railway.ts` instead of the dashboard, so the plan stays empty. If someone changes a setting in the dashboard, the next plan shows it as drift: adopt it in the file, otherwise the next release reverts it. Settings the SDK cannot express (for example the upstream repository of the backup images) remain dashboard-only.
 
-## CI/CD
+## Production release
 
-- The production release plans the release commit and applies the saved plan before migrations and deployments. It uses the existing `RAILWAY_DEPLOY_TOKEN`, scoped to `kijk` / `production`, from Infisical `prod /CI/Deploy` through the production identity. A destructive or invalid plan stops the release. An explicitly approved destructive change can be applied locally with `railway config apply --confirm-destructive`.
-- The release uses the composite action `.github/actions/railway-config`, which pins the Railway CLI version and checksum and writes the plan to the release summary.
+Run **Actions → Production Release** from `main`. The workflow uses the existing `RAILWAY_DEPLOY_TOKEN` from Infisical `prod /CI/Deploy`. It writes the plan to the run summary and applies it before migrations and deployments. Destructive plans stop the release.
+
+See [Release Process](https://linear.app/justmax/document/release-process-563ce9397fc5) for the release sequence and [Operations](https://linear.app/justmax/document/operations-5405a97dcb1b#deployments) for failure handling.

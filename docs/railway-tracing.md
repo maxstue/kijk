@@ -44,32 +44,22 @@ HTTP requests have drained, so requests still running at SIGTERM/SIGINT are expo
 
 ## Deployment prerequisites
 
-Production deployments continue through the existing CI/CD workflow. No manual
-redeploy is required to review these changes.
+Tracing settings for API, Client, Backup CRON and Backup Cleanup are declared in
+[`.railway/railway.ts`](../.railway/railway.ts). The manual [Production Release](https://linear.app/justmax/document/release-process-563ce9397fc5)
+workflow applies the Railway plan before migrations and application deployment.
 
-The Client's Railway settings currently point to a deleted config file. In
-**Client → Settings → Config-as-code → Config File**, clear
-`apps/client/railway.json` before the next CI deployment. Keep root `/`, build
-`pnpm build:client`, start `pnpm --filter kijk-client start`, healthcheck `/health`
-and port `80`. The start script now preloads the SDK from
-[instrumentation.mjs](../apps/client/instrumentation.mjs). No Railway JSON/TOML
-configuration file should be reintroduced.
-
-Backup CRON still follows `railwayapp-templates/postgres-s3-backups@main`. That
-repository is archived and rejects new PRs. The instrumentation PR is
-[maxstue/postgres-s3-backups#1](https://github.com/maxstue/postgres-s3-backups/pull/1).
-After its merge, review changing **Backup CRON → Settings → Source** to
-`maxstue/postgres-s3-backups@main`; the fork PR alone cannot update the current
-production source. Backup Cleanup's complete replacement file is staged in Railway for dashboard review;
-applying the staged code deploys it. Its configured cron remains unchanged.
+The Client start script preloads the SDK from
+[`instrumentation.mjs`](../apps/client/instrumentation.mjs). The backup services
+use versioned images from
+[maxstue/postgres-s3-backups-cleanup](https://github.com/maxstue/postgres-s3-backups-cleanup).
+The configuration file declares their image tags, schedules and variables.
 
 ## Live acceptance after deployment
 
 1. Confirm the deployment includes the merged code and Railway's OTEL variables.
    Never print the exporter authentication headers or other secrets.
-2. Request each public service and capture `x-railway-trace-id`. The API returns
-   405 for HEAD `/`; that response still identifies an edge trace. Use GET for
-   actual application operations.
+2. Request the public Client and capture `x-railway-trace-id` where returned.
+   Exercise the private API through the Client's same-origin BFF.
 3. Fetch the trace with `get-trace`, passing the project and production environment
    IDs explicitly. Allow ingestion time. Require a span with component `service`;
    edge/proxy spans alone do not prove SDK export.
