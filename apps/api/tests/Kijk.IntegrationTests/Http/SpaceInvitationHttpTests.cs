@@ -124,7 +124,13 @@ public class SpaceInvitationHttpTests
         var identities = new FakeIdentityInvitations();
         identities.Accounts["outsider@example.test"] = seed.Outsider.AuthId;
         identities.Accounts["other@example.test"] = seed.Other.AuthId;
-        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, configureServices: Use(identities));
+        var now = DateTimeOffset.UtcNow;
+        now = now.AddTicks(7 - now.Ticks % TimeSpan.TicksPerMicrosecond);
+        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, configureServices: services =>
+        {
+            Use(identities)(services);
+            services.AddSingleton<TimeProvider>(new FixedTimeProvider(now));
+        });
 
         using var forAccount = await InviteAsync(host.Client, seed.SpaceId, new(null, null, "Outsider@Example.test"));
         using var forAccountAgain = await InviteAsync(host.Client, seed.SpaceId, new(null, null, "outsider@example.test"));
@@ -741,6 +747,11 @@ public class SpaceInvitationHttpTests
 
             return result;
         }
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
     private sealed class NewcomerIdentityProvider(FakeIdentityInvitations invitations) : IIdentityProvider

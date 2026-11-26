@@ -45,7 +45,10 @@ public sealed class CreateInvitationHandler(
 
         var role = await dbContext.Roles.SingleAsync(item => item.Id == (request.RoleId ?? SpaceRoles.Member.Id), cancellationToken);
         var creator = await dbContext.Users.SingleAsync(item => item.Id == currentUser.Id, cancellationToken);
-        var context = new InvitationContext(space, role, creator, timeProvider.GetUtcNow().UtcDateTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
+        // Match PostgreSQL timestamp precision so the first and repeated responses have the same expiry.
+        utcNow = utcNow.AddTicks(-(utcNow.Ticks % TimeSpan.TicksPerMicrosecond));
+        var context = new InvitationContext(space, role, creator, utcNow);
 
         return string.IsNullOrWhiteSpace(request.Email)
             ? await InviteByNameAsync(context, request.UniqueName!, cancellationToken)
