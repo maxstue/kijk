@@ -20,3 +20,5 @@ Change Railway settings in `railway.ts` instead of the dashboard, so the plan st
 Run **Actions → Production Release** from `main`. The workflow uses the existing `RAILWAY_DEPLOY_TOKEN` from Infisical `prod /CI/Deploy`. It writes the plan to the run summary and applies it before migrations and deployments. Destructive plans stop the release.
 
 See [Release Process](https://linear.app/justmax/document/release-process-563ce9397fc5) for the release sequence and [Operations](https://linear.app/justmax/document/operations-5405a97dcb1b#deployments) for failure handling.
+
+See [Railway tracing in Linear](https://linear.app/justmax/document/adr-railway-sentry-und-posthog-parallel-vergleichen-0831d0ff9a64) for instrumentation coverage and production checks.
