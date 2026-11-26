@@ -46,6 +46,7 @@
     "auto-changelog": "catalog:",
     "husky": "catalog:",
     "lint-staged": "catalog:",
+    "railway": "catalog:",
     "release-it": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",

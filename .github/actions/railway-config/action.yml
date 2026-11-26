@@ -1,0 +1,107 @@
+name: Railway config
+description: >-
+  Plan .railway/railway.ts against the Railway environment of a project token and either report the changes or apply
+  them. Requires Node and the installed workspace dependencies (setup-js), because the CLI evaluates the TypeScript
+  file.
+
+inputs:
+  project_token:
+    description: Railway project token; it selects the project and environment.
+    required: true
+  mode:
+    description: >-
+      `report` writes the plan to the job summary and fails only if it cannot be created. `apply` applies exactly the
+      planned changes and refuses destructive ones (deleted resources or variables), which stay a manual step.
+    default: report
+
+runs:
+  using: composite
+  steps:
+    - name: '🚂 Install Railway CLI'
+      shell: bash
+      env:
+        # Update version and checksum together (release asset digest on GitHub).
+        RAILWAY_CLI_VERSION: 5.75.0
+        RAILWAY_CLI_SHA256: ba5d9fb5dce1c59789f4216e6b754becd75025ed740388452be55aae83720400
+      run: |
+        set -euo pipefail
+        archive="railway-v${RAILWAY_CLI_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+        curl -fsSL --retry 3 -o "$RUNNER_TEMP/$archive" \
+          "https://github.com/railwayapp/cli/releases/download/v${RAILWAY_CLI_VERSION}/$archive"
+        echo "${RAILWAY_CLI_SHA256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict
+        mkdir -p "$RUNNER_TEMP/railway-cli"
+        tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/railway-cli" railway
+        echo "$RUNNER_TEMP/railway-cli" >> "$GITHUB_PATH"
+
+    - name: '🔎 Plan'
+      id: plan
+      shell: bash
+      env:
+        RAILWAY_TOKEN: ${{ inputs.project_token }}
+        MODE: ${{ inputs.mode }}
+        NO_COLOR: '1'
+      run: |
+        set -euo pipefail
+        case "$MODE" in
+          report|apply) ;;
+          *) echo "::error title=Invalid mode::mode must be report or apply, got '$MODE'."; exit 1 ;;
+        esac
+
+        if [ -z "$RAILWAY_TOKEN" ]; then
+          echo "::error title=Missing Railway token::Provide a Railway project token for the target environment."
+          exit 1
+        fi
+
+        # Keep the pinned plan on the runner. It may contain variable values.
+        umask 077
+        plan="$RUNNER_TEMP/railway-plan.json"
+        log="$RUNNER_TEMP/railway-plan.txt"
+        plan_args=(--detailed-exit-code)
+        if [ "$MODE" = "apply" ]; then
+          plan_args+=(--out "$plan")
+        fi
+
+        status=0
+        railway config plan "${plan_args[@]}" > "$log" 2>&1 || status=$?
+        cat "$log"
+
+        {
+          echo "## Railway plan"
+          echo
+          echo '```text'
+          cat "$log"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        case "$status" in
+          0)
+            echo "Railway matches .railway/railway.ts."
+            echo "changes=false" >> "$GITHUB_OUTPUT" ;;
+          2)
+            if [ "$MODE" = "apply" ]; then
+              if ! jq -e '.destructive == false and (.changeSet.changes | length > 0 and all(.severity == "safe"))' "$plan" > /dev/null; then
+                echo "::error title=Railway plan blocked::Apply requires a valid, non-destructive plan. Review the release summary."
+                exit 1
+              fi
+            fi
+            echo "::notice title=Railway changes::Railway differs from .railway/railway.ts; see the plan in the job summary."
+            echo "changes=true" >> "$GITHUB_OUTPUT" ;;
+          *)
+            echo "::error title=Railway plan failed::railway config plan exited with $status."
+            exit "$status" ;;
+        esac
+
+    # Applies the pinned change set without re-evaluating the file. Railway rejects it if the environment or the
+    # .railway/ tree changed since the plan.
+    - name: '🚀 Apply'
+      if: inputs.mode == 'apply' && steps.plan.outputs.changes == 'true'
+      shell: bash
+      env:
+        RAILWAY_TOKEN: ${{ inputs.project_token }}
+        NO_COLOR: '1'
+      run: |
+        set -euo pipefail
+        railway config apply --plan "$RUNNER_TEMP/railway-plan.json" --yes
+        # The environment must now match the file.
+        railway config plan --detailed-exit-code > /dev/null
+        echo "Applied .railway/railway.ts to Railway." | tee -a "$GITHUB_STEP_SUMMARY"

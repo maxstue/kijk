@@ -64,18 +64,8 @@ pnpm exec playwright test --project chromium --no-deps --grep 'public pages deli
 
 Production deployments run exclusively through the existing GitHub Actions deployment workflow. Build and test locally; do not deploy with `railway up` or manual redeploy commands.
 
-Configure the existing Client service through the Railway UI. Keep the repository root (`/`) as build context, since the app imports workspace packages. Clear the Railway Config File setting. Railway's JSON/TOML Config as Code is deprecated; this app does not use a Railway config file.
-
-- Builder: Railpack.
-- Build command: `pnpm build:client`.
-- Start command: `pnpm --filter kijk-client start`.
-- Healthcheck: `/health`, timeout 120 seconds.
-- Watch paths: `apps/client/**`, `packages/**`, `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`.
-- Existing domain target port: 80; runtime `PORT=80`.
-- `RAILPACK_NODE_VERSION=26.12.1`.
-
-Remove the former `RAILPACK_SPA_OUTPUT_DIR` setting when switching to the Node server. Keep the domain target port aligned with `PORT`. Set `API_URL` to the private API address only after verifying the service's internal domain and listening port. Once the deployed client relays through `API_URL`, remove the API service's public domain in the Railway UI: the API exposes no anonymous endpoints or callbacks, and without CORS browsers can no longer use it directly.
+The Client service is defined in [`.railway/railway.ts`](../../.railway/railway.ts) together with the other Railway services; change its build, deploy, domain and variable settings there and review them with `railway config plan`. Keep the repository root (`/`) as build context, since the app imports workspace packages. Keep the domain target port (80) aligned with `PORT`, and `API_URL` pointing at the API's private domain and listening port (`http://${{Api.RAILWAY_PRIVATE_DOMAIN}}:8080`). The API has no public domain: it exposes no anonymous endpoints or callbacks, and without CORS browsers cannot use it directly.
 
 Optional `VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY` and `VITE_POSTHOG_URL` configure both browser and web-server reporting. The server exports the same sampled anonymous HTTP spans to both providers; error events retain only type and stack frames. Browser analytics and performance tracing retain their existing consent behavior. Sourcemap upload credentials remain build-only secrets. When `POSTHOG_ENABLE=true`, `POSTHOG_API_KEY` must be a PostHog personal API key (`phx_`), separate from the public ingestion key in `VITE_POSTHOG_KEY`.
 
-The migration plan is attached to [KIJK-275](https://linear.app/justmax/issue/KIJK-275/refactor-to-use-tanstck-start). Hosting follows [Railway's TanStack Start guide](https://docs.railway.com/guides/tanstack-start); see also [Config as Code deprecation](https://docs.railway.com/config-as-code).
+The migration plan is attached to [KIJK-275](https://linear.app/justmax/issue/KIJK-275/refactor-to-use-tanstck-start). Hosting follows [Railway's TanStack Start guide](https://docs.railway.com/guides/tanstack-start); see also [Railway Infrastructure as Code](https://docs.railway.com/infrastructure-as-code).

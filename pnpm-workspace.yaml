@@ -106,6 +106,7 @@ catalog:
   zustand: ^5.1.0
   vite-plus: 1.7.0
   driver.js: 1.14.0
+  railway: ^3.17.0
 
 catalogMode: "prefer"
 minimumReleaseAge: 2880 # 2 days

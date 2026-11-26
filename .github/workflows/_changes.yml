@@ -20,6 +20,9 @@ on:
       dotnet:
         description: Whether the .NET API has to be checked.
         value: ${{ jobs.changes.outputs.dotnet }}
+      railway:
+        description: Whether the Railway configuration has to be planned.
+        value: ${{ jobs.changes.outputs.railway }}
 
 permissions:
   contents: read
@@ -33,6 +36,7 @@ jobs:
       js: ${{ github.event_name != 'pull_request' || steps.filter.outputs.js == 'true' }}
       js-workspaces: ${{ steps.workspaces.outputs.list || '[]' }}
       dotnet: ${{ github.event_name != 'pull_request' || steps.filter.outputs.dotnet == 'true' }}
+      railway: ${{ github.event_name != 'pull_request' || steps.filter.outputs.railway == 'true' }}
 
     steps:
       # A pull request checks out its merge commit; its first parent is the base branch, so `HEAD^1` compares exactly
@@ -67,6 +71,16 @@ jobs:
               - ".github/actions/setup-dotnet/**"
               - ".github/workflows/_dotnet.yml"
               - "apps/api/**"
+            # The SDK version is part of the root manifests.
+            railway:
+              - *ci
+              - ".github/actions/railway-config/**"
+              - ".github/workflows/_railway-config.yml"
+              - ".github/workflows/deployment.yml"
+              - ".railway/**"
+              - "package.json"
+              - "pnpm-lock.yaml"
+              - "pnpm-workspace.yaml"
 
       # Only provides pnpm to read the workspace graph; nothing is installed.
       - name: "🔧 Set up Vite+"
