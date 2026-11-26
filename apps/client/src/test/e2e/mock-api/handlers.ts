@@ -37,6 +37,8 @@ const currentUser = {
     id: '00000000-0000-4000-8000-000000000001',
     authId: 'e2e-mock-user',
     name: 'E2E User',
+    tag: 1,
+    uniqueName: 'E2E User#0001',
     email: 'e2e@example.test',
     aiEnabled: true,
     analyticsConsent: 'Declined',

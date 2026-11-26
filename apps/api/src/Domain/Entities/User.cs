@@ -10,8 +10,23 @@ public sealed class User : BaseEntity
     /// </summary>
     public required string AuthId { get; init; }
 
-    /// <summary>Gets or sets the display name.</summary>
-    public required string Name { get; set; }
+    /// <summary>The smallest number of a unique name.</summary>
+    public const int MinTag = 1;
+
+    /// <summary>The largest number of a unique name.</summary>
+    public const int MaxTag = 9999;
+
+    /// <summary>Gets the Kijk user name. Together with <see cref="Tag" /> it is unique, ignoring case.</summary>
+    public string Name { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Gets the four-digit number that makes the name unique, for example 4821 in <c>Max#4821</c>. Others use the unique
+    /// name to invite this user into a space.
+    /// </summary>
+    public int Tag { get; private set; }
+
+    /// <summary>Gets the unique name, for example <c>Max#4821</c>.</summary>
+    public string UniqueName => FormatUniqueName(Name, Tag);
 
     /// <summary>Gets the email address.</summary>
     public string? Email { get; init; }
@@ -155,11 +170,38 @@ public sealed class User : BaseEntity
     /// <param name="completedAt">The completion time (UTC).</param>
     public void CompleteOnboarding(string displayName, AnalyticsConsent analyticsConsent, DateTime completedAt)
     {
-        Name = displayName;
+        Rename(displayName);
         AnalyticsConsent = analyticsConsent;
         AnalyticsConsentUpdatedAt = completedAt;
         OnboardingCompletedAt = completedAt;
     }
+
+    /// <summary>
+    /// Changes the Kijk user name and keeps the number. If the combination is taken, the caller assigns a free number
+    /// with <see cref="AssignTag" />.
+    /// </summary>
+    /// <param name="name">The new name.</param>
+    public void Rename(string name) => Name = name.Trim();
+
+    /// <summary>Assigns another number to make the name unique.</summary>
+    /// <param name="tag">A number from <see cref="MinTag" /> to <see cref="MaxTag" />.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The number is outside the allowed range.</exception>
+    public void AssignTag(int tag)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(tag, MinTag);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(tag, MaxTag);
+        Tag = tag;
+    }
+
+    /// <summary>Formats a name and its number as a unique name, for example <c>Max#0042</c>.</summary>
+    /// <param name="name">The Kijk user name.</param>
+    /// <param name="tag">The number.</param>
+    /// <returns>The unique name.</returns>
+    public static string FormatUniqueName(string name, int tag) => $"{name}#{tag:D4}";
+
+    /// <summary>Draws a random number for a unique name.</summary>
+    /// <returns>A number from <see cref="MinTag" /> to <see cref="MaxTag" />.</returns>
+    public static int RandomTag() => Random.Shared.Next(MinTag, MaxTag + 1);
 
     /// <summary>
     /// Resets onboarding when the user no longer belongs to a space.
@@ -191,13 +233,14 @@ public sealed class User : BaseEntity
 
     /// <summary>Creates a user whose onboarding is still pending.</summary>
     /// <param name="authId">The authentication provider's user id.</param>
-    /// <param name="name">The display name.</param>
+    /// <param name="name">The Kijk user name.</param>
     /// <param name="email">The email address.</param>
-    /// <returns>The new user.</returns>
+    /// <returns>The new user with a random number.</returns>
     public static User Init(string authId, string name, string? email) => new()
     {
         AuthId = authId,
-        Name = name,
+        Name = name.Trim(),
+        Tag = RandomTag(),
         Email = email
     };
 }

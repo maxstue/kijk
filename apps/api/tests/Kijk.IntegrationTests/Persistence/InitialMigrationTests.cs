@@ -1,6 +1,9 @@
+using Kijk.Domain.Entities;
 using Kijk.Infrastructure.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
 
 namespace Kijk.IntegrationTests.Persistence;
@@ -52,6 +55,35 @@ public class InitialMigrationTests
         migratedNames.RemoveWhere(name => name.Contains("__EFMigrationsHistory", StringComparison.Ordinal) || name.Contains("ef_migrations_history", StringComparison.Ordinal));
 
         await Assert.That(migratedNames.Order()).IsEquivalentTo(modelNames.Order());
+    }
+
+    [Test]
+    public async Task UniqueNameMigrationGivesExistingUsersFreeNumbers()
+    {
+        var database = await CreateDatabaseAsync("unique_name_migration");
+        await using (var dbContext = CreateDbContext(database))
+        {
+            await dbContext.GetService<IMigrator>().MigrateAsync("20261125191937_AddSpaceInvitations");
+        }
+
+        await ExecuteAsync(database, """
+            INSERT INTO users (id, auth_id, name, guide_completed_version, guide_completed_steps, ai_enabled)
+            SELECT gen_random_uuid(), 'auth-' || n, CASE WHEN n % 2 = 0 THEN 'max' ELSE ' Max ' END, 0, '{}', false
+            FROM generate_series(1, 50) AS n;
+            INSERT INTO users (id, auth_id, name, guide_completed_version, guide_completed_steps, ai_enabled)
+            VALUES (gen_random_uuid(), 'auth-other', 'Moritz', 0, '{}', false);
+            """);
+
+        await using (var dbContext = CreateDbContext(database))
+        {
+            await dbContext.Database.MigrateAsync();
+            var users = await dbContext.Users.AsNoTracking().ToListAsync();
+
+            await Assert.That(users.Count).IsEqualTo(51);
+            await Assert.That(users.All(user => user.Tag is >= User.MinTag and <= User.MaxTag)).IsTrue();
+            await Assert.That(users.Where(user => user.Name != "Moritz").All(user => user.Name is "max" or "Max")).IsTrue();
+            await Assert.That(users.Select(user => user.UniqueName.ToUpperInvariant()).Distinct().Count()).IsEqualTo(51);
+        }
     }
 
     private static async Task<HashSet<string>> NamesAsync(string connectionString)

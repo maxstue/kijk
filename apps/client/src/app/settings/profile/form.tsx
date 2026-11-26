@@ -12,6 +12,7 @@ import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import { Form } from '@/shared/components/form';
 
 import { SignInProfileField, UsernameField, DefaultSpaceField, DefaultResourcesField } from './form-fields';
+import { UniqueName } from './unique-name';
 
 /** Form for the display name, default space, default resources and profile usage. */
 export function ProfileForm() {
@@ -68,6 +69,7 @@ export function ProfileForm() {
           <ConnectedSignInMethods />
           <SignInProfileField disabled={isSubmitting || !currentUser?.id} />
           <UsernameField />
+          {currentUser?.uniqueName && <UniqueName uniqueName={currentUser.uniqueName} />}
           <DefaultSpaceField spaces={currentUser?.spaces ?? []} disabled={isSubmitting || !currentUser?.id} />
           <DefaultResourcesField disabled={isSubmitting || !currentUser?.id} />
 

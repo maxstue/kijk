@@ -8292,6 +8292,7 @@
           "id",
           "authId",
           "name",
+          "tag",
           "email",
           "analyticsConsent",
           "analyticsConsentUpdatedAt",
@@ -8305,25 +8306,38 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The user id.",
             "format": "uuid"
           },
           "authId": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The authentication provider's user id."
           },
           "name": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The Kijk user name."
+          },
+          "tag": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The four-digit number that makes the name unique.",
+            "format": "int32"
           },
           "email": {
             "type": [
               "null",
               "string"
-            ]
+            ],
+            "description": "The email address."
           },
           "analyticsConsent": {
             "oneOf": [
@@ -8331,6 +8345,7 @@
                 "type": "null"
               },
               {
+                "description": "The analytics preference.",
                 "$ref": "#/components/schemas/AnalyticsConsent"
               }
             ]
@@ -8340,6 +8355,7 @@
               "null",
               "string"
             ],
+            "description": "When the analytics preference last changed.",
             "format": "date-time"
           },
           "onboardingCompletedAt": {
@@ -8347,16 +8363,19 @@
               "null",
               "string"
             ],
+            "description": "When onboarding was completed.",
             "format": "date-time"
           },
           "aiEnabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether AI features are allowed for the user."
           },
           "sensitiveDataConsentAt": {
             "type": [
               "null",
               "string"
             ],
+            "description": "When the user consented to processing sensitive bank data.",
             "format": "date-time"
           },
           "spaces": {
@@ -8366,7 +8385,8 @@
             ],
             "items": {
               "$ref": "#/components/schemas/UserSpaceResponse"
-            }
+            },
+            "description": "The user's space memberships."
           },
           "resources": {
             "type": [
@@ -8375,11 +8395,19 @@
             ],
             "items": {
               "$ref": "#/components/schemas/UserResourceResponse"
-            }
+            },
+            "description": "The resources the user has enabled."
           },
           "onboardingCompleted": {
             "type": "boolean",
             "description": "Gets whether the user has completed onboarding."
+          },
+          "uniqueName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Gets the unique name, for example `Max#4821`, with which others invite the user into a space. It is an\nidentifier and never part of telemetry or logs."
           },
           "useExternalProfile": {
             "type": [
@@ -10533,6 +10561,7 @@
           "id",
           "authId",
           "name",
+          "tag",
           "email",
           "useDefaultResources",
           "analyticsConsent",
@@ -10560,7 +10589,16 @@
               "null",
               "string"
             ],
-            "description": "The display name."
+            "description": "The Kijk user name."
+          },
+          "tag": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "The four-digit number that makes the name unique.",
+            "format": "int32"
           },
           "email": {
             "type": [
@@ -10618,6 +10656,13 @@
           "onboardingCompleted": {
             "type": "boolean",
             "description": "Gets whether the user has completed onboarding."
+          },
+          "uniqueName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Gets the unique name, for example `Max#4821`, with which others invite the user into a space. It is an\nidentifier and never part of telemetry or logs."
           }
         },
         "description": "The current user's account settings."

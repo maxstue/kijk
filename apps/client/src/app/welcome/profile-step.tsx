@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import type { UserStepFormDraft } from '@/app/welcome/schemas';
 import { AuthIdentitySummary } from '@/shared/components/auth-identity-summary';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/form';
+import { uniqueNameHint } from '@/shared/lib/user-name';
 
 import { Choice } from './choice';
 
@@ -69,7 +70,9 @@ export function ProfileStep({ providerName, control, email, fullName, imageUrl }
             <FormControl>
               <Input autoComplete='name' placeholder='Your name' {...field} />
             </FormControl>
-            <FormDescription>This is how your name appears in Kijk. It does not affect sign-in.</FormDescription>
+            <FormDescription>
+              This is how your name appears in Kijk. It does not affect sign-in. {uniqueNameHint}
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

@@ -67,7 +67,12 @@ export function WelcomeFlow({
 
   async function submit(values: UserStepFormValues) {
     try {
-      await mutateAsync(values);
+      const account = await mutateAsync(values);
+      if (account.user?.uniqueName) {
+        toast.success(`Your unique name is ${account.user.uniqueName}`, {
+          description: 'Others can invite you into a space with it. You find it in your profile settings.',
+        });
+      }
       await onComplete();
     } catch (error) {
       toast('An error occurred while completing your setup.', {

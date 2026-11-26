@@ -15,6 +15,7 @@ public class UpdateHandler(
     IIdentityProvider identityProvider,
     CurrentUser currentUser,
     TimeProvider timeProvider,
+    UniqueNameSaver uniqueNameSaver,
     ILogger<UpdateHandler> logger)
 {
     /// <summary>
@@ -38,7 +39,8 @@ public class UpdateHandler(
 
         if (request.UserName is not null)
         {
-            userEntity.Name = request.UserName.Trim();
+            // The number stays while the combination is free; otherwise the saver assigns a free one.
+            userEntity.Rename(request.UserName);
         }
 
         if (request.AnalyticsConsent is not null)
@@ -63,7 +65,10 @@ public class UpdateHandler(
 
         await SetDefaultResourcesAsync(userEntity, request.UseDefaultResources, cancellationToken);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        if (await uniqueNameSaver.SaveAsync(userEntity, cancellationToken) is { } conflict)
+        {
+            return conflict;
+        }
 
         return userEntity.ToResponse(userEntity.Resources.Any(resource => resource.CreatorType == CreatorType.System));
     }

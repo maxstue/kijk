@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { userNameSchema } from '@/shared/lib/user-name';
+
 /** Validation of the onboarding form. */
 export const userStepSchema = z.object({
   analyticsConsent: z
@@ -16,7 +18,7 @@ export const userStepSchema = z.object({
 
       return value;
     }),
-  displayName: z.string().trim().min(2).max(100),
+  displayName: userNameSchema,
   spaceName: z.string().trim().min(2).max(100),
   useDefaultResources: z.boolean(),
   useExternalProfile: z
