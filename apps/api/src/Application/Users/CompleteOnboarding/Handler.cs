@@ -149,11 +149,7 @@ public class CompleteOnboardingHandler(
 
         foreach (var match in matches)
         {
-            var invitations = dbContext.SpaceInvitations.Unclosed()
-                .Where(item => item.SpaceId == match.SpaceId && item.InviteeAuthId == authId);
-            await invitations.CloseExpiredAsync(utcNow, cancellationToken);
-            await unbound.Where(item => item.Id == match.Id && !invitations.Any())
-                .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.InviteeAuthId, authId), cancellationToken);
+            await SpaceInvitationRecipient.LinkAsync(dbContext, match.Id, match.SpaceId, authId, utcNow, cancellationToken);
         }
     }
 }

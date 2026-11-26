@@ -6,7 +6,10 @@ namespace Kijk.Application.Shared.Jobs;
 /// </summary>
 public interface IJobQueue
 {
-    /// <summary>Saves all pending changes and queues the message atomically.</summary>
+    /// <summary>
+    /// Saves pending changes and queues the message atomically. If the current context has an explicit transaction,
+    /// this call commits it. Call it after all writes that belong to the operation.
+    /// </summary>
     /// <typeparam name="TMessage">A message type with a Wolverine handler.</typeparam>
     /// <param name="message">The message.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>

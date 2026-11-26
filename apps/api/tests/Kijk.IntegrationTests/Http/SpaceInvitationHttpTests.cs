@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -11,10 +12,12 @@ using Kijk.Application.Users.CompleteOnboarding;
 using Kijk.Application.Users.Invitations;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
+using Kijk.Infrastructure.Persistence;
 using Kijk.Infrastructure.Spaces;
 using Kijk.IntegrationTests.Persistence;
 using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -229,6 +232,29 @@ public class SpaceInvitationHttpTests
     }
 
     [Test]
+    public async Task RepeatingAnEmailInvitationLinksItAfterTheNameInvitationIsRevoked()
+    {
+        var seed = await SeedAsync(SpaceRoles.AdminName);
+        var identities = new FakeIdentityInvitations();
+        const string email = "outsider@example.test";
+        identities.Accounts[email] = seed.Outsider.AuthId;
+        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, configureServices: Use(identities));
+        using var invitee = host.CreateClient(seed.Outsider.AuthId);
+
+        var byName = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, seed.Outsider.UniqueName, null)));
+        var byEmail = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(SpaceRoles.Viewer.Id, null, email)));
+        using var revoked = await host.Client.DeleteAsync($"/api/spaces/{seed.SpaceId}/invitations/{byName.Id}");
+        await Assert.That(revoked.StatusCode).IsEqualTo(HttpStatusCode.NoContent);
+
+        var repeated = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, null, email)));
+
+        await Assert.That(repeated).IsEqualTo(byEmail);
+        await Assert.That(identities.Invitations).IsEmpty();
+        var inbox = (await invitee.GetFromJsonAsync<List<ReceivedInvitationResponse>>("/api/users/me/invitations"))!;
+        await Assert.That(inbox.Select(item => item.Id)).IsEquivalentTo(new[] { byEmail.Id });
+    }
+
+    [Test]
     public async Task InvitingYourOwnAddressIsRejected()
     {
         var seed = await SeedAsync(SpaceRoles.AdminName);
@@ -281,6 +307,39 @@ public class SpaceInvitationHttpTests
         await Assert.That(await verification.SpaceInvitations.AnyAsync(item => item.ProviderInvitationId != null)).IsFalse();
         using var accepted = await newcomer.PostAsync($"/api/users/me/invitations/{first.Id}/accept", null);
         await Assert.That(accepted.StatusCode).IsEqualTo(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task OnboardingCompletesWhenAConcurrentInvitationAlreadyLinkedTheRecipient()
+    {
+        const string newcomerAuthId = "newcomer-auth";
+        var seed = await SeedAsync(SpaceRoles.AdminName);
+        var identities = new FakeIdentityInvitations();
+        var race = new CompetingInvitation(() => AddInvitationAsync(seed.SpaceId, seed.Actor.Id, newcomerAuthId));
+        await using var host = await SpaceApiHost.StartAsync(
+            seed.Actor.AuthId,
+            jobsEnabled: true,
+            configureServices: services =>
+            {
+                Use(identities)(services);
+                services.Replace(ServiceDescriptor.Singleton<IIdentityProvider>(new NewcomerIdentityProvider(identities)));
+                services.ConfigureDbContext<AppDbContext>(options => options.AddInterceptors(race));
+            });
+
+        var original = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, null, UnknownEmail)));
+        identities.SignUp(identities.Invitations.Single().Key, newcomerAuthId);
+        using var newcomer = host.CreateClient(newcomerAuthId);
+        await host.Host.TrackActivity().Timeout(TimeSpan.FromSeconds(30)).ExecuteAndWaitAsync(async Task (_) =>
+        {
+            using var welcomed = await newcomer.PutAsJsonAsync("/api/users/onboarding", new WelcomeUserRequest("Anna", null, false, false, AnalyticsConsent.Declined), Json);
+            await Assert.That(welcomed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        });
+
+        var inbox = (await newcomer.GetFromJsonAsync<List<ReceivedInvitationResponse>>("/api/users/me/invitations"))!;
+        await Assert.That(inbox.Select(item => item.Id)).IsEquivalentTo(new[] { race.InvitationId });
+        await Assert.That(identities.Metadata.ContainsKey(newcomerAuthId)).IsFalse();
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.SpaceInvitations.Where(item => item.Id == original.Id).Select(item => item.InviteeAuthId).SingleAsync()).IsNull();
     }
 
     [Test]
@@ -665,6 +724,24 @@ public class SpaceInvitationHttpTests
     }
 
     private sealed record Seed(User Actor, User Other, User Outsider, Guid SpaceId);
+
+    // Adds a competing row after the check and before PostgreSQL executes the recipient update.
+    private sealed class CompetingInvitation(Func<Task<Guid>> insert) : DbCommandInterceptor
+    {
+        public Guid InvitationId { get; private set; }
+
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
+            DbCommand command, CommandEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            if (eventData.CommandSource == CommandSource.ExecuteUpdate && InvitationId == Guid.Empty
+                && command.CommandText.Contains("SET invitee_auth_id", StringComparison.Ordinal))
+            {
+                InvitationId = await insert();
+            }
+
+            return result;
+        }
+    }
 
     private sealed class NewcomerIdentityProvider(FakeIdentityInvitations invitations) : IIdentityProvider
     {

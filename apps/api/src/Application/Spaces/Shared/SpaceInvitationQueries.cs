@@ -1,4 +1,3 @@
-using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 
 namespace Kijk.Application.Spaces.Shared;
@@ -28,14 +27,4 @@ public static class SpaceInvitationQueries
     public static Task<int> CloseExpiredAsync(this IQueryable<SpaceInvitation> invitations, DateTime utcNow, CancellationToken cancellationToken) =>
         invitations.Unclosed().Where(item => item.ExpiresAt <= utcNow)
             .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.RevokedAt, utcNow), cancellationToken);
-
-    /// <summary>Removes exactly the invitations whose provider ids the caller can enqueue in the same transaction.</summary>
-    public static async Task<string[]> RemoveForErasureAsync(
-        this IQueryable<SpaceInvitation> invitations, IAppDbContext dbContext, CancellationToken cancellationToken)
-    {
-        var rows = await invitations.ToListAsync(cancellationToken);
-        dbContext.SpaceInvitations.RemoveRange(rows);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return rows.Select(item => item.ProviderInvitationId).OfType<string>().ToArray();
-    }
 }

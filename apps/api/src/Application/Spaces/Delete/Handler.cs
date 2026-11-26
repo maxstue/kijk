@@ -57,8 +57,9 @@ public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUs
         }
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        var providerIds = await dbContext.SpaceInvitations.Where(item => item.SpaceId == id)
-            .RemoveForErasureAsync(dbContext, cancellationToken);
+        var invitations = dbContext.SpaceInvitations.Where(item => item.SpaceId == id);
+        var providerIds = await SpaceInvitationErasure.StageAsync(dbContext, invitations, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
         await SpaceDataEraser.EraseAsync(dbContext, id, cancellationToken);
         if (providerIds.Length > 0)
         {

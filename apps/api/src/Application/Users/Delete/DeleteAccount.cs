@@ -61,9 +61,10 @@ public sealed class AccountEraser(
             .ToListAsync(cancellationToken);
         var erasedSpaceIds = memberships.Where(item => item.IsPersonal || item.Members == 1).Select(item => item.SpaceId).ToList();
 
-        var providerIds = await dbContext.SpaceInvitations.Where(item =>
-                erasedSpaceIds.Contains(item.SpaceId) || item.CreatedById == userId || item.AcceptedById == userId || item.InviteeAuthId == authId)
-            .RemoveForErasureAsync(dbContext, cancellationToken);
+        var invitations = dbContext.SpaceInvitations.Where(item =>
+                erasedSpaceIds.Contains(item.SpaceId) || item.CreatedById == userId || item.AcceptedById == userId || item.InviteeAuthId == authId);
+        var providerIds = await SpaceInvitationErasure.StageAsync(dbContext, invitations, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         foreach (var membership in memberships)
         {

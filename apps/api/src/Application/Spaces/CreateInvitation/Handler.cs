@@ -6,6 +6,7 @@ using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Kijk.Application.Spaces.CreateInvitation;
 
@@ -93,9 +94,9 @@ public sealed class CreateInvitationHandler(
         var submissions = dbContext.SpaceInvitations
             .Where(item => item.SpaceId == context.Space.Id && item.EmailFingerprint == fingerprint);
         var previous = await FindEmailSubmissionAsync(submissions, context.UtcNow, cancellationToken);
-        if (previous is not null)
+        if (previous is not null && !NeedsRecipient(previous))
         {
-            return previous;
+            return previous.ToResponse();
         }
 
         var authId = await identityInvitations.FindByVerifiedEmailAsync(email, cancellationToken);
@@ -104,80 +105,99 @@ public sealed class CreateInvitationHandler(
             return Error.Validation("You cannot invite yourself");
         }
 
+        if (previous is not null && authId is null)
+        {
+            return previous.ToResponse();
+        }
+
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        var (invitation, created) = previous is null
+            ? await ReserveEmailSubmissionAsync(context, submissions, email, fingerprint, cancellationToken)
+            : (previous, false);
+
+        if (created && authId is null)
+        {
+            await SendProviderInvitationAsync(invitation, email, transaction, cancellationToken);
+        }
+        else
+        {
+            if (authId is not null && NeedsRecipient(invitation))
+            {
+                await LinkExistingInviteeAsync(invitation, authId, context.UtcNow, cancellationToken);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+
+        return invitation.ToResponse();
+    }
+
+    private async Task<(SpaceInvitation Invitation, bool Created)> ReserveEmailSubmissionAsync(
+        InvitationContext context,
+        IQueryable<SpaceInvitation> submissions,
+        string email,
+        string fingerprint,
+        CancellationToken cancellationToken)
+    {
         await submissions.CloseExpiredAsync(context.UtcNow, cancellationToken);
         var invitation = SpaceInvitation.ForEmail(context.Space, context.Role, context.Creator, EmailMask.Mask(email), fingerprint, context.UtcNow);
         dbContext.SpaceInvitations.Add(invitation);
         try
         {
-            // Reserve the e-mail submission before sending, so concurrent requests cannot both send mail.
+            // Reserve the submission before sending, so concurrent requests cannot both send mail.
             await dbContext.SaveChangesAsync(cancellationToken);
+            return (invitation, true);
         }
         catch (DbUpdateException)
         {
+            dbContext.SpaceInvitations.Entry(invitation).State = EntityState.Detached;
             var concurrent = await FindEmailSubmissionAsync(submissions, context.UtcNow, cancellationToken);
             if (concurrent is null)
             {
                 throw;
             }
 
-            return concurrent;
+            return (concurrent, false);
         }
-
-        if (authId is null)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            // Once sending starts, retain the returned provider id even if the HTTP caller disconnects.
-            var providerId = await identityInvitations.InviteAsync(email, invitation.Id, SpaceInvitation.Lifetime, CancellationToken.None);
-            invitation.AttachProviderInvitation(providerId);
-            try
-            {
-                await dbContext.SaveChangesAsync(CancellationToken.None);
-                await transaction.CommitAsync(CancellationToken.None);
-            }
-            catch
-            {
-                await identityInvitations.DeleteInvitationAsync(providerId, CancellationToken.None);
-                throw;
-            }
-
-            return invitation.ToResponse();
-        }
-
-        // A member or someone with another open invitation gets an ordinary admin-visible submission without an Inbox entry.
-        var membership = await dbContext.UserSpaces.AnyAsync(
-            item => item.SpaceId == context.Space.Id && item.User.AuthId == authId, cancellationToken);
-        if (!membership)
-        {
-            var openForIdentity = ForIdentity(context.Space.Id, authId);
-            await openForIdentity.CloseExpiredAsync(context.UtcNow, cancellationToken);
-            if (!await openForIdentity.Unclosed().AnyAsync(cancellationToken))
-            {
-                invitation.LinkInvitee(authId);
-                try
-                {
-                    await dbContext.SaveChangesAsync(cancellationToken);
-                }
-                catch (DbUpdateException)
-                {
-                    if (!await openForIdentity.Unclosed().AnyAsync(cancellationToken))
-                    {
-                        throw;
-                    }
-
-                    // A concurrent name or e-mail invitation already reached the recipient.
-                    dbContext.SpaceInvitations.Entry(invitation).State = EntityState.Detached;
-                }
-            }
-        }
-
-        await transaction.CommitAsync(cancellationToken);
-        return invitation.ToResponse();
     }
 
-    private static Task<SpaceInvitationResponse?> FindEmailSubmissionAsync(
+    private async Task SendProviderInvitationAsync(
+        SpaceInvitation invitation, string email, IDbContextTransaction transaction, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        // Once sending starts, retain the returned provider ID even if the caller disconnects.
+        var providerId = await identityInvitations.InviteAsync(email, invitation.Id, SpaceInvitation.Lifetime, CancellationToken.None);
+        invitation.AttachProviderInvitation(providerId);
+        try
+        {
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+            await transaction.CommitAsync(CancellationToken.None);
+        }
+        catch
+        {
+            await identityInvitations.DeleteInvitationAsync(providerId, CancellationToken.None);
+            throw;
+        }
+    }
+
+    private async Task LinkExistingInviteeAsync(SpaceInvitation invitation, string authId, DateTime utcNow, CancellationToken cancellationToken)
+    {
+        var membership = await dbContext.UserSpaces.AnyAsync(
+            item => item.SpaceId == invitation.SpaceId && item.User.AuthId == authId, cancellationToken);
+        if (!membership)
+        {
+            await SpaceInvitationRecipient.LinkAsync(dbContext, invitation.Id, invitation.SpaceId, authId, utcNow, cancellationToken);
+        }
+    }
+
+    private static bool NeedsRecipient(SpaceInvitation invitation) =>
+        invitation.InviteeAuthId is null && invitation.ProviderInvitationId is null;
+
+    private static Task<SpaceInvitation?> FindEmailSubmissionAsync(
         IQueryable<SpaceInvitation> submissions, DateTime utcNow, CancellationToken cancellationToken) =>
-        submissions.AsNoTracking().Pending(utcNow).ToResponse().SingleOrDefaultAsync(cancellationToken);
+        submissions.AsNoTracking().Pending(utcNow)
+            .Include(item => item.Role).Include(item => item.CreatedBy)
+            .SingleOrDefaultAsync(cancellationToken);
 
     /// <returns>The new invitation, or <see langword="null" /> when the person already has a pending one.</returns>
     private async Task<SpaceInvitation?> InviteIdentityAsync(InvitationContext context, string inviteeAuthId, string label, CancellationToken cancellationToken)
