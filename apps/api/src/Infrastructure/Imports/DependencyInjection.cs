@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kijk.Infrastructure.Imports;
 
-/// <summary>Registers import encryption, pseudonymization and cleanup.</summary>
+/// <summary>Registers import encryption and pseudonymization.</summary>
 internal static class ImportsDependencyInjection
 {
     /// <summary>Registers the import services.</summary>
@@ -31,7 +31,6 @@ internal static class ImportsDependencyInjection
         dataProtection.PersistKeysToDbContext<AppDbContext>();
         services.AddOptions<KeyManagementOptions>()
             .Configure<IOptions<KeyRingOptions>>((options, keyRing) => options.XmlEncryptor = new AesGcmXmlEncryptor(keyRing));
-        services.AddHostedService<ImportCleanupService>();
 
         return services;
     }

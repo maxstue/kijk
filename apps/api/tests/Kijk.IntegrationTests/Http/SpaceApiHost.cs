@@ -27,6 +27,8 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
 {
     internal HttpClient Client => client;
 
+    internal IServiceProvider Services => application.Services;
+
     internal HttpClient CreateClient(string authId)
     {
         var result = new HttpClient { BaseAddress = client.BaseAddress };

@@ -2,6 +2,7 @@ using JasperFx.CodeGeneration.Model;
 using Kijk.Application.Shared.Jobs;
 using Kijk.Infrastructure.Configuration;
 using Kijk.Infrastructure.Imports;
+using Kijk.Infrastructure.Spaces;
 using Kijk.Infrastructure.Users.Delete;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,13 @@ namespace Kijk.Infrastructure.Jobs;
 public static class JobsDependencyInjection
 {
     private const string WolverineSchema = "wolverine";
+    private const string HourlyCron = "0 * * * *";
+
+    /// <summary>The name of the hourly invitation cleanup schedule.</summary>
+    internal const string CleanupInvitationsSchedule = "cleanup-invitations";
+
+    /// <summary>The name of the hourly import cleanup schedule.</summary>
+    internal const string CleanupImportsSchedule = "cleanup-imports";
 
     /// <summary>Registers the durable queue and its workers, except during build-time OpenAPI generation.</summary>
     /// <param name="services">The service collection.</param>
@@ -43,7 +51,14 @@ public static class JobsDependencyInjection
             options.CodeGeneration.ReferenceAssembly(typeof(IServiceScopeFactory).Assembly);
             options.Discovery.DisableConventionalDiscovery()
                 .IncludeType(typeof(ImportMessageHandler))
-                .IncludeType(typeof(DeleteUserAccountMessageHandler));
+                .IncludeType(typeof(DeleteUserAccountMessageHandler))
+                .IncludeType(typeof(CleanupInvitationsMessageHandler))
+                .IncludeType(typeof(CleanupImportsMessageHandler));
+            // Wolverine publishes each occurrence on exactly one node and skips missed ones. The cleanups delete
+            // everything that is due by then, so the next occurrence makes up for a missed one.
+            // Schedule names feed Wolverine's deduplication ids and must stay stable.
+            options.Schedules.ScheduleRecurring(CleanupInvitationsSchedule, HourlyCron, occurrence => new CleanupInvitations(occurrence));
+            options.Schedules.ScheduleRecurring(CleanupImportsSchedule, HourlyCron, occurrence => new CleanupImports(occurrence));
             options.PersistMessagesWithPostgresql(connectionString, WolverineSchema);
             options.UseEntityFrameworkCoreTransactions();
             options.Policies.UseDurableLocalQueues();
