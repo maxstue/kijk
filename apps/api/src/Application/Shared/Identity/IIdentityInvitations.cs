@@ -2,7 +2,7 @@ namespace Kijk.Application.Shared.Identity;
 
 /// <summary>
 /// Looks up identities by e-mail and manages the authentication provider's invitations, which deliver Kijk invitations
-/// to people without an account. Kijk passes e-mail addresses through to the provider but never stores or logs them.
+/// to people without an account. Full e-mail addresses go only to the provider.
 /// </summary>
 public interface IIdentityInvitations
 {
@@ -14,7 +14,7 @@ public interface IIdentityInvitations
 
     /// <summary>
     /// Sends the provider's invitation e-mail to a person without an account. Signing up through it stores the Kijk
-    /// invitation id in the new identity, see <see cref="GetInvitationIdAsync" />.
+    /// invitation id in the new identity.
     /// </summary>
     /// <param name="email">The e-mail address.</param>
     /// <param name="invitationId">The Kijk invitation.</param>
@@ -31,12 +31,6 @@ public interface IIdentityInvitations
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A task that completes when the invitation is gone.</returns>
     Task DeleteInvitationAsync(string providerInvitationId, CancellationToken cancellationToken);
-
-    /// <summary>Reads the Kijk invitation an identity signed up through.</summary>
-    /// <param name="authId">The identity's id.</param>
-    /// <param name="cancellationToken">A token to cancel the operation.</param>
-    /// <returns>The Kijk invitation id, or <see langword="null" /> when the identity did not sign up through one.</returns>
-    Task<Guid?> GetInvitationIdAsync(string authId, CancellationToken cancellationToken);
 
     /// <summary>Removes the Kijk invitation id from an identity once Kijk has linked it.</summary>
     /// <param name="authId">The identity's id.</param>

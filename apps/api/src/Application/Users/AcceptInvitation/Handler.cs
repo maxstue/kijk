@@ -1,4 +1,5 @@
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Entities;
 using Kijk.Shared;
 
@@ -20,32 +21,36 @@ public sealed class AcceptInvitationHandler(IAppDbContext dbContext, CurrentUser
     {
         var authId = currentUser.AuthId;
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        // Parallel acceptances wait for each other, so exactly one creates the membership.
-        var invitation = await dbContext.SpaceInvitations
-            .FromSqlInterpolated($"SELECT * FROM space_invitations WHERE id = {invitationId} AND invitee_auth_id = {authId} FOR UPDATE")
-            .SingleOrDefaultAsync(cancellationToken);
+        var received = dbContext.SpaceInvitations.Where(item => item.Id == invitationId && item.InviteeAuthId == authId);
+        var invitation = await received.Select(item => new { item.SpaceId, item.RoleId }).SingleOrDefaultAsync(cancellationToken);
         if (invitation is null)
         {
             return Error.NotFound("Invitation could not be found");
         }
 
         var response = new AcceptInvitationResponse(invitation.SpaceId);
-        if (await dbContext.UserSpaces.AnyAsync(link => link.SpaceId == invitation.SpaceId && link.UserId == currentUser.Id, cancellationToken))
+        var memberships = dbContext.UserSpaces.Where(link => link.SpaceId == invitation.SpaceId && link.UserId == currentUser.Id);
+        if (await memberships.AnyAsync(cancellationToken))
         {
             return response;
         }
 
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        if (!invitation.IsPending(utcNow))
+        var accepted = await received.Pending(utcNow).ExecuteUpdateAsync(
+            setters => setters.SetProperty(item => item.AcceptedAt, utcNow).SetProperty(item => item.AcceptedById, currentUser.Id),
+            cancellationToken);
+        if (accepted == 0)
         {
-            return Error.NotFound("Invitation could not be found");
+            // Another request may have completed the join while this update waited.
+            return await memberships.AnyAsync(cancellationToken)
+                ? response
+                : Error.NotFound("Invitation could not be found");
         }
 
         var user = await dbContext.Users.SingleAsync(item => item.Id == currentUser.Id, cancellationToken);
         var space = await dbContext.Spaces.SingleAsync(item => item.Id == invitation.SpaceId, cancellationToken);
         var role = await dbContext.Roles.SingleAsync(item => item.Id == invitation.RoleId, cancellationToken);
         dbContext.UserSpaces.Add(UserSpace.Create(user, space, role));
-        invitation.Accept(user.Id, utcNow);
         await dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return response;

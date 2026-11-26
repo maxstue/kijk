@@ -16,9 +16,6 @@ public sealed class CleanupInvitationsHandler(
     TimeProvider timeProvider,
     ILogger<CleanupInvitationsHandler> logger)
 {
-    // The provider allows 100 invitation requests per hour; the hourly run stays well below and continues next hour.
-    private const int ProviderDeletionsPerRun = 50;
-
     /// <summary>Runs the cleanup.</summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The number of deleted invitations in Kijk.</returns>
@@ -27,7 +24,7 @@ public sealed class CleanupInvitationsHandler(
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var unneeded = dbContext.SpaceInvitations.Where(item =>
             item.InviteeAuthId != null || item.AcceptedAt != null || item.DeclinedAt != null || item.RevokedAt != null || item.ExpiresAt <= utcNow);
-        var providerDeleted = await providerInvitationEraser.EraseAsync(unneeded, ProviderDeletionsPerRun, cancellationToken);
+        var providerDeleted = await providerInvitationEraser.EraseAsync(unneeded, cancellationToken);
 
         // An invitation whose provider invitation could not be deleted yet stays, so the next run retries it.
         var cutoff = utcNow - SpaceInvitation.Retention;

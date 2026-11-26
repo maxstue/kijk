@@ -56,6 +56,7 @@ public static class JobsDependencyInjection
                 .IncludeType(typeof(ImportMessageHandler))
                 .IncludeType(typeof(DeleteUserAccountMessageHandler))
                 .IncludeType(typeof(CleanupInvitationsMessageHandler))
+                .IncludeType(typeof(InvitationMessageHandler))
                 .IncludeType(typeof(CleanupImportsMessageHandler));
             if (schedulesEnabled)
             {

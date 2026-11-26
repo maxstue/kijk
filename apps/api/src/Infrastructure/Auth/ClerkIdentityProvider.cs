@@ -29,7 +29,12 @@ public sealed class ClerkIdentityProvider(ClerkBackendApi clerkBackendApi) : IId
             fullName,
             primaryEmail,
             user.HasImage ? user.ImageUrl : null,
-            ReadUseProfilePreference(user.PrivateMetadata));
+            ReadUseProfilePreference(user.PrivateMetadata))
+        {
+            VerifiedEmails = user.EmailAddresses.Where(email => ClerkInvitations.IsVerified(email.Verification))
+                .Select(email => email.EmailAddressValue).ToArray(),
+            InvitationId = ClerkInvitations.ReadInvitationId(user.PublicMetadata)
+        };
     }
 
     /// <inheritdoc />

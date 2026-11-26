@@ -22,7 +22,7 @@ public sealed record DeleteUserAccount(Guid UserId, string AuthId);
 public sealed class AccountEraser(
     IAppDbContext dbContext,
     IIdentityProvider identityProvider,
-    ProviderInvitationEraser providerInvitationEraser,
+    IJobQueue queue,
     ILogger<AccountEraser> logger)
 {
     /// <summary>Runs the deletion. It can run again after a failure.</summary>
@@ -34,8 +34,15 @@ public sealed class AccountEraser(
         if (await dbContext.Users.AnyAsync(item => item.Id == message.UserId, cancellationToken))
         {
             await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            await EraseDataAsync(message.UserId, message.AuthId, cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
+            var providerIds = await EraseDataAsync(message.UserId, message.AuthId, cancellationToken);
+            if (providerIds.Length > 0)
+            {
+                await queue.SaveChangesAndEnqueueAsync(new DeleteProviderInvitations(providerIds), cancellationToken);
+            }
+            else
+            {
+                await transaction.CommitAsync(cancellationToken);
+            }
         }
 
         // Last, so a failure here retries the job and only this step remains.
@@ -46,7 +53,7 @@ public sealed class AccountEraser(
         }
     }
 
-    private async Task EraseDataAsync(Guid userId, string authId, CancellationToken cancellationToken)
+    private async Task<string[]> EraseDataAsync(Guid userId, string authId, CancellationToken cancellationToken)
     {
         var memberships = await dbContext.UserSpaces
             .Where(link => link.UserId == userId)
@@ -54,10 +61,9 @@ public sealed class AccountEraser(
             .ToListAsync(cancellationToken);
         var erasedSpaceIds = memberships.Where(item => item.IsPersonal || item.Members == 1).Select(item => item.SpaceId).ToList();
 
-        // Invitations that go with the account must not leave e-mail addresses at the authentication provider.
-        var invitations = dbContext.SpaceInvitations.Where(item =>
-            erasedSpaceIds.Contains(item.SpaceId) || item.CreatedById == userId || item.AcceptedById == userId || item.InviteeAuthId == authId);
-        await providerInvitationEraser.EraseAsync(invitations, int.MaxValue, cancellationToken);
+        var providerIds = await dbContext.SpaceInvitations.Where(item =>
+                erasedSpaceIds.Contains(item.SpaceId) || item.CreatedById == userId || item.AcceptedById == userId || item.InviteeAuthId == authId)
+            .RemoveForErasureAsync(dbContext, cancellationToken);
 
         foreach (var membership in memberships)
         {
@@ -71,11 +77,8 @@ public sealed class AccountEraser(
             }
         }
 
-        // Invitations the user created, accepted or received in spaces that remain for others go with the account.
-        await dbContext.SpaceInvitations
-            .Where(item => item.CreatedById == userId || item.AcceptedById == userId || item.InviteeAuthId == authId)
-            .ExecuteDeleteAsync(cancellationToken);
         await dbContext.Users.Where(item => item.Id == userId).ExecuteDeleteAsync(cancellationToken);
+        return providerIds;
     }
 
     private async Task LeaveSharedSpaceAsync(Guid userId, Guid spaceId, CancellationToken cancellationToken)

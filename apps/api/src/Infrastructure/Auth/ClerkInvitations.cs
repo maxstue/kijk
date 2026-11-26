@@ -68,7 +68,8 @@ public sealed class ClerkInvitations(ClerkBackendApi clerkBackendApi, HttpClient
     {
         // The same server as the SDK's other calls.
         var serverUrl = clerkBackendApi.SDKConfiguration.GetTemplatedServerUrl().TrimEnd('/');
-        using var response = await httpClient.DeleteAsync($"{serverUrl}/invitations/{Uri.EscapeDataString(providerInvitationId)}", cancellationToken);
+        using var request = new HttpRequestMessage(HttpMethod.Delete, $"{serverUrl}/invitations/{Uri.EscapeDataString(providerInvitationId)}");
+        using var response = await SendDeletionAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
             // Already deleted, e.g. by a previous run of the cleanup.
@@ -82,17 +83,15 @@ public sealed class ClerkInvitations(ClerkBackendApi clerkBackendApi, HttpClient
         }
     }
 
-    /// <inheritdoc />
-    public async Task<Guid?> GetInvitationIdAsync(string authId, CancellationToken cancellationToken)
+    private async Task<HttpResponseMessage> SendDeletionAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         try
         {
-            var response = await clerkBackendApi.Users.GetAsync(authId).WaitAsync(cancellationToken);
-            return ReadInvitationId(response.User?.PublicMetadata);
+            return await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         }
-        catch (SDKBaseError error) when (error.Response.StatusCode == HttpStatusCode.NotFound)
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            return null;
+            throw new HttpRequestException("Clerk did not finish the invitation deletion in time.");
         }
     }
 
@@ -105,7 +104,14 @@ public sealed class ClerkInvitations(ClerkBackendApi clerkBackendApi, HttpClient
             PublicMetadata = new() { [InvitationMetadataKey] = null! }
         };
 
-        await clerkBackendApi.Users.UpdateMetadataAsync(authId, request).WaitAsync(cancellationToken);
+        try
+        {
+            await WithoutBodyAsync(() => clerkBackendApi.Users.UpdateMetadataAsync(authId, request).WaitAsync(cancellationToken));
+        }
+        catch (HttpRequestException error) when (error.StatusCode == HttpStatusCode.NotFound)
+        {
+            // A deleted identity has no metadata to clear.
+        }
     }
 
     /// <summary>Reads the Kijk invitation id from public metadata.</summary>
@@ -142,10 +148,12 @@ public sealed class ClerkInvitations(ClerkBackendApi clerkBackendApi, HttpClient
         }
     }
 
-    private static bool IsVerified(Verification? verification) => verification is not null && (
+    internal static bool IsVerified(Verification? verification) => verification is not null && (
         verification.Otp?.Status == VerificationStatus.Verified ||
         verification.EmailLink?.Status == VerificationEmailLinkVerificationStatus.Verified ||
         verification.Ticket?.Status == VerificationTicketVerificationStatus.Verified ||
         verification.FromOAuth?.Status == VerificationFromOauthVerificationStatus.Verified ||
+        verification.VerificationSAMLVerificationEmailAddressSAML?.Status == VerificationSamlVerificationStatus.Verified ||
+        verification.VerificationSCIM?.Status == VerificationScimVerificationStatus.Verified ||
         verification.Admin is not null);
 }

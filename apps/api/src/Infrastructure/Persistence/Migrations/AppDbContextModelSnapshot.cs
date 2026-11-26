@@ -1299,6 +1299,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("EmailFingerprint")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("email_fingerprint");
+
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at");
@@ -1353,6 +1358,11 @@ namespace Kijk.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SpaceId")
                         .HasDatabaseName("ix_space_invitations_space_id");
+
+                    b.HasIndex("EmailFingerprint", "SpaceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_space_invitations_email_fingerprint_space_id")
+                        .HasFilter("email_fingerprint IS NOT NULL AND accepted_at IS NULL AND declined_at IS NULL AND revoked_at IS NULL");
 
                     b.HasIndex("SpaceId", "InviteeAuthId")
                         .IsUnique()
@@ -2300,7 +2310,7 @@ namespace Kijk.Infrastructure.Persistence.Migrations
                     b.HasOne("Kijk.Domain.Entities.Space", "Space")
                         .WithMany()
                         .HasForeignKey("SpaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_space_invitations_spaces_space_id");
 

@@ -9,6 +9,7 @@ using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Wolverine.Tracking;
 
 namespace Kijk.IntegrationTests.Http;
 
@@ -54,9 +55,11 @@ public class AccountDeletionHttpTests
                 services.Replace(ServiceDescriptor.Singleton<IIdentityInvitations>(invitations));
             });
 
-        using var response = await host.Client.PostAsync("/api/users/me/deletion", null);
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
-        await WaitUntilDeletedAsync(seed.Leaving.Id);
+        await host.Host.TrackActivity().Timeout(TimeSpan.FromSeconds(30)).ExecuteAndWaitAsync(async Task (_) =>
+        {
+            using var response = await host.Client.PostAsync("/api/users/me/deletion", null);
+            await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
+        });
 
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         // Everything that belonged only to the leaving user is gone, including the space they used alone.
@@ -77,22 +80,6 @@ public class AccountDeletionHttpTests
         await Assert.That(remaining.UserId).IsEqualTo(seed.Remaining.Id);
         await Assert.That(remaining.Role.Name).IsEqualTo("Admin");
         await Assert.That(identities.Deleted).Contains(seed.Leaving.AuthId);
-    }
-
-    private static async Task WaitUntilDeletedAsync(Guid userId)
-    {
-        for (var attempt = 0; attempt < 120; attempt++)
-        {
-            await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-            if (!await dbContext.Users.AnyAsync(item => item.Id == userId))
-            {
-                return;
-            }
-
-            await Task.Delay(250);
-        }
-
-        throw new TimeoutException("The account was not deleted");
     }
 
     private static async Task<Seed> SeedAsync()
@@ -129,9 +116,9 @@ public class AccountDeletionHttpTests
 
         // Invitations by e-mail the leaving user created, one in the space that remains and one in the space that goes,
         // and one the leaving user received.
-        var sharedInvitation = SpaceInvitation.ForNewAccount(shared, member, leaving, "an***@ex***.test", DateTime.UtcNow);
+        var sharedInvitation = SpaceInvitation.ForEmail(shared, member, leaving, "an***@ex***.test", "shared", DateTime.UtcNow);
         sharedInvitation.AttachProviderInvitation("inv_shared");
-        var soloInvitation = SpaceInvitation.ForNewAccount(solo, member, leaving, "bo***@ex***.test", DateTime.UtcNow);
+        var soloInvitation = SpaceInvitation.ForEmail(solo, member, leaving, "bo***@ex***.test", "solo", DateTime.UtcNow);
         soloInvitation.AttachProviderInvitation("inv_solo");
         var receivedInvitation = SpaceInvitation.ForIdentity(shared, member, remaining, leaving.AuthId, "leaving#0001", DateTime.UtcNow);
 

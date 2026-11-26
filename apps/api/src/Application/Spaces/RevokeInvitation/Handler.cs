@@ -1,5 +1,6 @@
 using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 
@@ -26,15 +27,15 @@ public sealed class RevokeInvitationHandler(IAppDbContext dbContext, CurrentUser
         }
 
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        var invitation = await dbContext.SpaceInvitations
-            .FirstOrDefaultAsync(item => item.Id == invitationId && item.SpaceId == spaceId, cancellationToken);
-        if (invitation is null || !invitation.IsPending(utcNow))
+        var updated = await dbContext.SpaceInvitations
+            .Where(item => item.Id == invitationId && item.SpaceId == spaceId)
+            .Pending(utcNow)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.RevokedAt, utcNow), cancellationToken);
+        if (updated == 0)
         {
             return Error.NotFound("Invitation could not be found");
         }
 
-        invitation.Revoke(utcNow);
-        await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

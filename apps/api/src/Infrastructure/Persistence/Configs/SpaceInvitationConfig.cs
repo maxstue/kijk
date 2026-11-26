@@ -17,6 +17,10 @@ public class SpaceInvitationConfig : IEntityTypeConfiguration<SpaceInvitation>
         builder.HasIndex(x => new { x.SpaceId, x.InviteeAuthId })
             .IsUnique()
             .HasFilter("invitee_auth_id IS NOT NULL AND accepted_at IS NULL AND declined_at IS NULL AND revoked_at IS NULL");
+        builder.HasIndex(x => new { x.EmailFingerprint, x.SpaceId })
+            .IsUnique()
+            .HasFilter("email_fingerprint IS NOT NULL AND accepted_at IS NULL AND declined_at IS NULL AND revoked_at IS NULL");
+        builder.Property(x => x.EmailFingerprint).HasMaxLength(64);
         // The inbox lists the invitations of one person.
         builder.HasIndex(x => x.InviteeAuthId);
 
@@ -32,10 +36,11 @@ public class SpaceInvitationConfig : IEntityTypeConfiguration<SpaceInvitation>
         builder.Property(m => m.UpdatedAt)
             .ValueGeneratedOnUpdate();
 
+        // Space deletion explicitly removes the invitations it has recorded for provider cleanup.
         builder.HasOne(x => x.Space)
             .WithMany()
             .HasForeignKey(x => x.SpaceId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Role)
             .WithMany()

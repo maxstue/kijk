@@ -28,7 +28,7 @@ namespace Kijk.IntegrationTests.Http;
 public class SpaceInvitationHttpTests
 {
     private const string UnknownEmail = "anna.mueller@gmail.com";
-    private static readonly string[] ExpectedEmailLabels = ["ou***@ex***.test", "ou***@ex***.test", "ot***@ex***.test", "an***@gm***.com"];
+    private static readonly string[] ExpectedEmailLabels = ["ou***@ex***.test", "ou***@ex***.test", "ot***@ex***.test", "an***@gm***.com", "an***@gm***.com"];
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
 
     [Before(Class)]
@@ -127,28 +127,31 @@ public class SpaceInvitationHttpTests
         using var forAccountAgain = await InviteAsync(host.Client, seed.SpaceId, new(null, null, "outsider@example.test"));
         using var forMember = await InviteAsync(host.Client, seed.SpaceId, new(null, null, "other@example.test"));
         using var forNobody = await InviteAsync(host.Client, seed.SpaceId, new(null, null, UnknownEmail));
+        using var forNobodyAgain = await InviteAsync(host.Client, seed.SpaceId, new(SpaceRoles.Viewer.Id, null, UnknownEmail.ToUpperInvariant()));
 
-        foreach (var response in new[] { forAccount, forAccountAgain, forMember, forNobody })
+        foreach (var response in new[] { forAccount, forAccountAgain, forMember, forNobody, forNobodyAgain })
         {
             await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         }
 
-        var responses = new[] { forAccount, forAccountAgain, forMember, forNobody };
+        var responses = new[] { forAccount, forAccountAgain, forMember, forNobody, forNobodyAgain };
         var shapes = new List<string>();
+        var invitations = new List<SpaceInvitationResponse>();
         foreach (var response in responses)
         {
-            using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var body = await response.Content.ReadAsStringAsync();
+            using var document = JsonDocument.Parse(body);
             shapes.Add(string.Join(',', document.RootElement.EnumerateObject().Select(property => $"{property.Name}:{property.Value.ValueKind}")));
+            invitations.Add(JsonSerializer.Deserialize<SpaceInvitationResponse>(body, Json)!);
         }
 
         await Assert.That(shapes.Distinct().Count()).IsEqualTo(1);
-        var labels = new List<string>();
-        foreach (var response in responses)
-        {
-            labels.Add((await response.Content.ReadFromJsonAsync<SpaceInvitationResponse>())!.InviteeLabel);
-        }
+        await Assert.That(invitations.Select(item => item.InviteeLabel)).IsEquivalentTo(ExpectedEmailLabels);
+        await Assert.That(invitations[0]).IsEqualTo(invitations[1]);
+        await Assert.That(invitations[3]).IsEqualTo(invitations[4]);
 
-        await Assert.That(labels).IsEquivalentTo(ExpectedEmailLabels);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.SpaceInvitations.CountAsync()).IsEqualTo(3);
 
         // Only the address without an account receives an e-mail from the authentication provider.
         await Assert.That(identities.Invitations.Values.Select(item => item.Email)).IsEquivalentTo(new[] { UnknownEmail });
@@ -165,6 +168,67 @@ public class SpaceInvitationHttpTests
     }
 
     [Test]
+    public async Task CancellingAnEmailRequestDoesNotLoseTheProviderInvitation()
+    {
+        var seed = await SeedAsync(SpaceRoles.AdminName);
+        var sending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var finish = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var identities = new FakeIdentityInvitations
+        {
+            BeforeSending = token =>
+            {
+                sending.TrySetResult();
+                return finish.Task.WaitAsync(token);
+            }
+        };
+        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, configureServices: Use(identities));
+        var request = new CreateSpaceInvitationRequest(null, null, UnknownEmail);
+        using var cancellation = new CancellationTokenSource();
+        var cancelled = host.Client.PostAsJsonAsync($"/api/spaces/{seed.SpaceId}/invitations", request, cancellation.Token);
+        await sending.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var retry = InviteAsync(host.Client, seed.SpaceId, request);
+        try
+        {
+            await cancellation.CancelAsync();
+            await Assert.ThrowsAsync<OperationCanceledException>(async () => await cancelled);
+        }
+        finally
+        {
+            finish.TrySetResult();
+        }
+
+        var response = await ReadAsync(await retry);
+        var provider = identities.Invitations.Single();
+        await Assert.That(provider.Value.InvitationId).IsEqualTo(response.Id);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var stored = await verification.SpaceInvitations.SingleAsync();
+        await Assert.That(stored.ProviderInvitationId).IsEqualTo(provider.Key);
+    }
+
+    [Test]
+    public async Task AnEmailSubmissionDoesNotExposeOrReplaceAnEarlierNameInvitation()
+    {
+        var seed = await SeedAsync(SpaceRoles.AdminName);
+        var identities = new FakeIdentityInvitations();
+        const string email = "outsider@example.test";
+        identities.Accounts[email] = seed.Outsider.AuthId;
+        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, configureServices: Use(identities));
+        using var invitee = host.CreateClient(seed.Outsider.AuthId);
+
+        var byName = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, seed.Outsider.UniqueName, null)));
+        var byEmail = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(SpaceRoles.Viewer.Id, null, email)));
+
+        await Assert.That(byEmail.Id).IsNotEqualTo(byName.Id);
+        await Assert.That(byEmail.InviteeLabel).IsEqualTo("ou***@ex***.test");
+        await Assert.That(byEmail.RoleId).IsEqualTo(SpaceRoles.Viewer.Id);
+        await Assert.That(identities.Invitations).IsEmpty();
+        var inbox = (await invitee.GetFromJsonAsync<List<ReceivedInvitationResponse>>("/api/users/me/invitations"))!;
+        await Assert.That(inbox.Select(item => item.Id)).IsEquivalentTo(new[] { byName.Id });
+        var listed = (await host.Client.GetFromJsonAsync<List<SpaceInvitationResponse>>($"/api/spaces/{seed.SpaceId}/invitations"))!;
+        await Assert.That(listed.Select(item => item.Id)).IsEquivalentTo(new[] { byName.Id, byEmail.Id });
+    }
+
+    [Test]
     public async Task InvitingYourOwnAddressIsRejected()
     {
         var seed = await SeedAsync(SpaceRoles.AdminName);
@@ -178,40 +242,44 @@ public class SpaceInvitationHttpTests
     }
 
     [Test]
-    public async Task ANewAccountSeesItsInvitationAfterOnboardingAndTheProviderInvitationIsDeleted()
+    public async Task ANewAccountReceivesEveryMatchingInvitationAndMetadataCleanupRetries()
     {
+        const string newcomerAuthId = "newcomer-auth";
         var seed = await SeedAsync(SpaceRoles.AdminName);
-        var identities = new FakeIdentityInvitations();
+        var (secondSpaceId, secondAdmin) = await CreateForeignSpaceAsync();
+        await AddInvitationAsync(seed.SpaceId, seed.Actor.Id, newcomerAuthId, DateTime.UtcNow - SpaceInvitation.Lifetime - TimeSpan.FromDays(1));
+        var identities = new FakeIdentityInvitations { FailFirstMetadataClear = true };
         await using var host = await SpaceApiHost.StartAsync(
             seed.Actor.AuthId,
+            jobsEnabled: true,
             configureServices: services =>
             {
                 Use(identities)(services);
-                services.Replace(ServiceDescriptor.Scoped<IIdentityProvider, NewcomerIdentityProvider>());
+                services.Replace(ServiceDescriptor.Singleton<IIdentityProvider>(new NewcomerIdentityProvider(identities)));
             });
+        using var otherAdmin = host.CreateClient(secondAdmin);
+        var first = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, null, UnknownEmail)));
+        var second = await ReadAsync(await InviteAsync(otherAdmin, secondSpaceId, new(null, null, UnknownEmail)));
+        var providerId = identities.Invitations.Single(item => item.Value.InvitationId == first.Id).Key;
+        identities.SignUp(providerId, newcomerAuthId);
+        using var newcomer = host.CreateClient(newcomerAuthId);
 
-        using var created = await InviteAsync(host.Client, seed.SpaceId, new(null, null, UnknownEmail));
-        var invitation = (await created.Content.ReadFromJsonAsync<SpaceInvitationResponse>())!;
-        var providerInvitationId = identities.Invitations.Single().Key;
-        await Assert.That(identities.Invitations[providerInvitationId].InvitationId).IsEqualTo(invitation.Id);
-
-        identities.SignUp(providerInvitationId, "newcomer-auth");
-        using var newcomer = host.CreateClient("newcomer-auth");
-        using var welcomed = await newcomer.PutAsJsonAsync("/api/users/onboarding", new WelcomeUserRequest("Anna", null, false, false, AnalyticsConsent.Declined), Json);
-        await Assert.That(welcomed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await host.Host.TrackActivity().Timeout(TimeSpan.FromSeconds(30)).ExecuteAndWaitAsync(async Task (_) =>
+        {
+            using var welcomed = await newcomer.PutAsJsonAsync("/api/users/onboarding", new WelcomeUserRequest("Anna", null, false, false, AnalyticsConsent.Declined), Json);
+            await Assert.That(welcomed.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        });
 
         var inbox = (await newcomer.GetFromJsonAsync<List<ReceivedInvitationResponse>>("/api/users/me/invitations"))!;
-        await Assert.That(inbox.Select(item => item.Id)).IsEquivalentTo(new[] { invitation.Id });
-        await Assert.That(identities.Metadata.ContainsKey("newcomer-auth")).IsFalse();
+        await Assert.That(inbox.Select(item => item.Id)).IsEquivalentTo(new[] { first.Id, second.Id });
+        await Assert.That(identities.Metadata.ContainsKey(newcomerAuthId)).IsFalse();
+        await Assert.That(identities.MetadataClearAttempts).IsEqualTo(2);
 
         await CleanupAsync(identities);
-        await Assert.That(identities.Deleted).IsEquivalentTo(new[] { providerInvitationId });
+        await Assert.That(identities.Deleted.Count).IsEqualTo(2);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
-        var stored = await verification.SpaceInvitations.SingleAsync();
-        await Assert.That(stored.InviteeAuthId).IsEqualTo("newcomer-auth");
-        await Assert.That(stored.ProviderInvitationId).IsNull();
-
-        using var accepted = await newcomer.PostAsync($"/api/users/me/invitations/{invitation.Id}/accept", null);
+        await Assert.That(await verification.SpaceInvitations.AnyAsync(item => item.ProviderInvitationId != null)).IsFalse();
+        using var accepted = await newcomer.PostAsync($"/api/users/me/invitations/{first.Id}/accept", null);
         await Assert.That(accepted.StatusCode).IsEqualTo(HttpStatusCode.OK);
     }
 
@@ -271,6 +339,27 @@ public class SpaceInvitationHttpTests
 
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
         await Assert.That(await verification.UserSpaces.CountAsync(link => link.SpaceId == seed.SpaceId && link.UserId == seed.Outsider.Id)).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task AcceptAndRevokeCannotBothCloseAnInvitation()
+    {
+        var seed = await SeedAsync(SpaceRoles.AdminName);
+        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId);
+        var invitation = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, seed.Outsider.UniqueName, null)));
+        using var invitee = host.CreateClient(seed.Outsider.AuthId);
+
+        var accept = invitee.PostAsync($"/api/users/me/invitations/{invitation.Id}/accept", null);
+        var revoke = host.Client.DeleteAsync($"/api/spaces/{seed.SpaceId}/invitations/{invitation.Id}");
+        await Task.WhenAll(accept, revoke);
+        using var acceptance = await accept;
+        using var revocation = await revoke;
+
+        await Assert.That(acceptance.IsSuccessStatusCode).IsNotEqualTo(revocation.IsSuccessStatusCode);
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        var stored = await verification.SpaceInvitations.SingleAsync();
+        await Assert.That(stored.AcceptedAt is not null).IsEqualTo(acceptance.IsSuccessStatusCode);
+        await Assert.That(stored.RevokedAt is not null).IsEqualTo(revocation.IsSuccessStatusCode);
     }
 
     [Test]
@@ -437,17 +526,41 @@ public class SpaceInvitationHttpTests
     }
 
     [Test]
-    public async Task DeletingASpaceDeletesItsInvitationsAndTheirProviderInvitations()
+    public async Task AProviderDeletionFailureDoesNotBlockOtherInvitations()
     {
         var seed = await SeedAsync(SpaceRoles.AdminName);
         var identities = new FakeIdentityInvitations();
         await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, configureServices: Use(identities));
+        var first = await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, null, UnknownEmail)));
+        await ReadAsync(await InviteAsync(host.Client, seed.SpaceId, new(null, null, "another@example.test")));
+        identities.FailingDeletion = identities.Invitations.Single(item => item.Value.InvitationId == first.Id).Key;
+        await using (var db = PostgreSqlTestDatabase.CreateDbContext())
+        {
+            await db.SpaceInvitations.ExecuteUpdateAsync(setters => setters.SetProperty(item => item.ExpiresAt, DateTime.UtcNow.AddMinutes(-1)));
+        }
+
+        await CleanupAsync(identities);
+
+        await Assert.That(identities.Invitations.Values.Select(item => item.InvitationId)).IsEquivalentTo(new[] { first.Id });
+        await using var verification = PostgreSqlTestDatabase.CreateDbContext();
+        await Assert.That(await verification.SpaceInvitations.Where(item => item.ProviderInvitationId != null).Select(item => item.Id).ToListAsync())
+            .IsEquivalentTo(new[] { first.Id });
+    }
+
+    [Test]
+    public async Task DeletingASpaceDeletesItsInvitationsAndTheirProviderInvitations()
+    {
+        var seed = await SeedAsync(SpaceRoles.AdminName);
+        var identities = new FakeIdentityInvitations();
+        await using var host = await SpaceApiHost.StartAsync(seed.Actor.AuthId, jobsEnabled: true, configureServices: Use(identities));
         await InviteAsync(host.Client, seed.SpaceId, new(null, null, UnknownEmail));
         await InviteAsync(host.Client, seed.SpaceId, new(null, seed.Outsider.UniqueName, null));
 
-        using var deleted = await host.Client.DeleteAsync($"/api/spaces/{seed.SpaceId}");
-
-        await Assert.That(deleted.StatusCode).IsEqualTo(HttpStatusCode.NoContent);
+        await host.Host.TrackActivity().Timeout(TimeSpan.FromSeconds(30)).ExecuteAndWaitAsync(async Task (_) =>
+        {
+            using var deleted = await host.Client.DeleteAsync($"/api/spaces/{seed.SpaceId}");
+            await Assert.That(deleted.StatusCode).IsEqualTo(HttpStatusCode.NoContent);
+        });
         await Assert.That(identities.Invitations).IsEmpty();
         await Assert.That(identities.Deleted.Count).IsEqualTo(1);
         await using var verification = PostgreSqlTestDatabase.CreateDbContext();
@@ -474,7 +587,7 @@ public class SpaceInvitationHttpTests
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         var handler = new CleanupInvitationsHandler(
             dbContext,
-            new ProviderInvitationEraser(dbContext, identities),
+            new ProviderInvitationEraser(dbContext, identities, NullLogger<ProviderInvitationEraser>.Instance),
             TimeProvider.System,
             NullLogger<CleanupInvitationsHandler>.Instance);
         return await handler.CleanupAsync(CancellationToken.None);
@@ -553,10 +666,14 @@ public class SpaceInvitationHttpTests
 
     private sealed record Seed(User Actor, User Other, User Outsider, Guid SpaceId);
 
-    private sealed class NewcomerIdentityProvider : IIdentityProvider
+    private sealed class NewcomerIdentityProvider(FakeIdentityInvitations invitations) : IIdentityProvider
     {
         public Task<ExternalIdentity> GetAsync(string authId, CancellationToken cancellationToken) =>
-            Task.FromResult(new ExternalIdentity(null, null, null, false));
+            Task.FromResult(new ExternalIdentity(null, null, null, false)
+            {
+                InvitationId = invitations.Metadata.TryGetValue(authId, out var id) ? id : null,
+                VerifiedEmails = invitations.Accounts.Where(item => item.Value == authId).Select(item => item.Key).ToArray()
+            });
 
         public Task SetUseProfileInKijkAsync(string authId, bool useProfileInKijk, CancellationToken cancellationToken) => Task.CompletedTask;
 

@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
@@ -8,7 +9,7 @@ namespace Kijk.Application.Spaces.Delete;
 /// <summary>
 /// Deletes a space and its space-owned data.
 /// </summary>
-public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUser, ProviderInvitationEraser providerInvitationEraser)
+public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUser, IJobQueue queue)
 {
     /// <summary>
     /// Deletes a space when the current user's role allows deleting it.
@@ -55,15 +56,19 @@ public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUs
             membership.User.ResetOnboarding();
         }
 
-        // The authentication provider's invitations hold e-mail addresses; they go before the space. If the deletion
-        // fails afterwards, the cleanup treats the missing provider invitations as deleted.
-        await providerInvitationEraser.EraseAsync(dbContext.SpaceInvitations.Where(item => item.SpaceId == id), int.MaxValue, cancellationToken);
-
-        // The members' onboarding resets are saved first; then the space and all its data go in one transaction.
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var providerIds = await dbContext.SpaceInvitations.Where(item => item.SpaceId == id)
+            .RemoveForErasureAsync(dbContext, cancellationToken);
         await SpaceDataEraser.EraseAsync(dbContext, id, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        if (providerIds.Length > 0)
+        {
+            await queue.SaveChangesAndEnqueueAsync(new DeleteProviderInvitations(providerIds), cancellationToken);
+        }
+        else
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
+
         return true;
     }
 }

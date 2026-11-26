@@ -47,6 +47,9 @@ public sealed class SpaceInvitation : BaseEntity
     /// </summary>
     public string InviteeLabel { get; private set; } = string.Empty;
 
+    /// <summary>Gets the keyed fingerprint used to match a verified e-mail without retaining the address.</summary>
+    public string? EmailFingerprint { get; init; }
+
     /// <summary>Gets when the invitation can no longer be accepted (UTC).</summary>
     public DateTime ExpiresAt { get; init; }
 
@@ -56,48 +59,23 @@ public sealed class SpaceInvitation : BaseEntity
     public required User CreatedBy { get; init; }
 
     /// <summary>Gets when the invitation was accepted (UTC).</summary>
-    public DateTime? AcceptedAt { get; private set; }
+    public DateTime? AcceptedAt { get; init; }
 
     /// <summary>Gets the id of the user who accepted the invitation.</summary>
-    public Guid? AcceptedById { get; private set; }
+    public Guid? AcceptedById { get; init; }
 
     /// <summary>Gets when the invited person declined the invitation (UTC).</summary>
-    public DateTime? DeclinedAt { get; private set; }
+    public DateTime? DeclinedAt { get; init; }
 
     /// <summary>Gets when the invitation was revoked (UTC).</summary>
     public DateTime? RevokedAt { get; private set; }
-
-    /// <summary>Determines whether the invitation can still be accepted.</summary>
-    /// <param name="utcNow">The current time.</param>
-    /// <returns><see langword="true" /> while the invitation is neither accepted, declined, revoked nor expired.</returns>
-    public bool IsPending(DateTime utcNow) =>
-        AcceptedAt is null && DeclinedAt is null && RevokedAt is null && ExpiresAt > utcNow;
-
-    /// <summary>Marks the invitation as used. Callers check <see cref="IsPending" /> first.</summary>
-    /// <param name="userId">The user who accepted it.</param>
-    /// <param name="utcNow">The current time.</param>
-    public void Accept(Guid userId, DateTime utcNow)
-    {
-        EnsurePending(utcNow);
-        AcceptedAt = utcNow;
-        AcceptedById = userId;
-    }
-
-    /// <summary>Records that the invited person declined. Callers check <see cref="IsPending" /> first.</summary>
-    /// <param name="utcNow">The current time.</param>
-    public void Decline(DateTime utcNow)
-    {
-        EnsurePending(utcNow);
-        DeclinedAt = utcNow;
-    }
 
     /// <summary>Revokes the invitation, so it can no longer be accepted.</summary>
     /// <param name="utcNow">The current time.</param>
     public void Revoke(DateTime utcNow) => RevokedAt ??= utcNow;
 
     /// <summary>
-    /// Binds an invitation sent by e-mail to the person who signed up through it. The provider invitation stays
-    /// recorded until the cleanup has deleted it.
+    /// Binds an e-mail invitation to the identity that has verified the address.
     /// </summary>
     /// <param name="authId">The new identity at the authentication provider.</param>
     public void LinkInvitee(string authId)
@@ -135,20 +113,11 @@ public sealed class SpaceInvitation : BaseEntity
         return invitation;
     }
 
-    /// <summary>
-    /// Creates an invitation for a person without an account. Attach the provider invitation that delivers the e-mail
-    /// with <see cref="AttachProviderInvitation" />.
-    /// </summary>
-    /// <param name="space">The shared space.</param>
-    /// <param name="role">The role the invited person receives.</param>
-    /// <param name="createdBy">The inviting member.</param>
-    /// <param name="inviteeLabel">The shortened e-mail address shown to the space admins.</param>
-    /// <param name="utcNow">The current time.</param>
-    /// <returns>The new invitation.</returns>
-    public static SpaceInvitation ForNewAccount(Space space, Role role, User createdBy, string inviteeLabel, DateTime utcNow) =>
-        Create(space, role, createdBy, inviteeLabel, utcNow);
+    /// <summary>Records an invitation submitted by e-mail with a masked display label and keyed fingerprint.</summary>
+    public static SpaceInvitation ForEmail(Space space, Role role, User createdBy, string inviteeLabel, string emailFingerprint, DateTime utcNow) =>
+        Create(space, role, createdBy, inviteeLabel, utcNow, emailFingerprint);
 
-    private static SpaceInvitation Create(Space space, Role role, User createdBy, string inviteeLabel, DateTime utcNow)
+    private static SpaceInvitation Create(Space space, Role role, User createdBy, string inviteeLabel, DateTime utcNow, string? emailFingerprint = null)
     {
         ArgumentNullException.ThrowIfNull(space);
         ArgumentException.ThrowIfNullOrWhiteSpace(inviteeLabel);
@@ -163,15 +132,8 @@ public sealed class SpaceInvitation : BaseEntity
             Role = role,
             CreatedBy = createdBy,
             InviteeLabel = inviteeLabel,
+            EmailFingerprint = emailFingerprint,
             ExpiresAt = utcNow.Add(Lifetime)
         };
-    }
-
-    private void EnsurePending(DateTime utcNow)
-    {
-        if (!IsPending(utcNow))
-        {
-            throw new InvalidOperationException("Only a pending invitation can be accepted or declined");
-        }
     }
 }

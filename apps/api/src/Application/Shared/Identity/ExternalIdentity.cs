@@ -11,4 +11,11 @@ public sealed record ExternalIdentity(
     string? FullName,
     string? Email,
     string? ImageUrl,
-    bool? UseProfileInKijk);
+    bool? UseProfileInKijk)
+{
+    /// <summary>Gets the addresses verified by the identity provider.</summary>
+    public IReadOnlyList<string> VerifiedEmails { get; init; } = [];
+
+    /// <summary>Gets the invitation id carried by the provider registration.</summary>
+    public Guid? InvitationId { get; init; }
+}

@@ -1,4 +1,5 @@
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Shared;
 
 namespace Kijk.Application.Users.DeclineInvitation;
@@ -18,15 +19,15 @@ public sealed class DeclineInvitationHandler(IAppDbContext dbContext, CurrentUse
     {
         var authId = currentUser.AuthId;
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        var invitation = await dbContext.SpaceInvitations
-            .FirstOrDefaultAsync(item => item.Id == invitationId && item.InviteeAuthId == authId, cancellationToken);
-        if (invitation is null || !invitation.IsPending(utcNow))
+        var updated = await dbContext.SpaceInvitations
+            .Where(item => item.Id == invitationId && item.InviteeAuthId == authId)
+            .Pending(utcNow)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.DeclinedAt, utcNow), cancellationToken);
+        if (updated == 0)
         {
             return Error.NotFound("Invitation could not be found");
         }
 
-        invitation.Decline(utcNow);
-        await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

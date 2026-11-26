@@ -1,5 +1,7 @@
 using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Security;
 using Kijk.Application.Spaces.Shared;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.Shared;
@@ -16,7 +18,8 @@ namespace Kijk.Application.Users.CompleteOnboarding;
 public class CompleteOnboardingHandler(
     IAppDbContext dbContext,
     IIdentityProvider identityProvider,
-    IIdentityInvitations identityInvitations,
+    IJobQueue queue,
+    IPseudonymizer pseudonymizer,
     CurrentUser currentUser,
     TimeProvider timeProvider,
     ILogger<CompleteOnboardingHandler> logger,
@@ -86,8 +89,8 @@ public class CompleteOnboardingHandler(
         user.SetDefaultResources(request.UseDefaultResources, defaultResources);
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
-        var invitationId = await LinkInvitationAsync(completedAt, cancellationToken);
         await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
             if (await uniqueNameSaver.SaveAsync(user, cancellationToken) is { } conflict)
@@ -97,6 +100,7 @@ public class CompleteOnboardingHandler(
         }
         catch (DbUpdateException)
         {
+            await transaction.RollbackAsync(cancellationToken);
             // A parallel request created the account first; its result counts.
             var completedUserExists = await dbContext.Users
                 .AsNoTracking()
@@ -106,62 +110,50 @@ public class CompleteOnboardingHandler(
             {
                 throw;
             }
+
+            return await getMeUserHandler.HandleAsync(cancellationToken);
         }
 
-        if (invitationId is not null)
+        await LinkInvitationsAsync(externalIdentity, completedAt, cancellationToken);
+        if (externalIdentity.InvitationId is not null)
         {
-            await ClearInvitationIdAsync(cancellationToken);
+            // The outbox commits the onboarding and the metadata cleanup together.
+            await queue.SaveChangesAndEnqueueAsync(new ClearInvitationMetadata(currentUser.AuthId), cancellationToken);
+        }
+        else
+        {
+            await transaction.CommitAsync(cancellationToken);
         }
 
         return await getMeUserHandler.HandleAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Binds the invitation by e-mail that the new account signed up through to it, so it appears in the inbox. The
-    /// change is saved together with the account.
-    /// </summary>
-    private async Task<Guid?> LinkInvitationAsync(DateTime utcNow, CancellationToken cancellationToken)
+    private async Task LinkInvitationsAsync(ExternalIdentity identity, DateTime utcNow, CancellationToken cancellationToken)
     {
-        var invitationId = await identityInvitations.GetInvitationIdAsync(currentUser.AuthId, cancellationToken);
-        if (invitationId is null)
+        var fingerprints = identity.VerifiedEmails.Select(email => InvitationEmail.Fingerprint(pseudonymizer, email)).ToArray();
+        if (fingerprints.Length == 0 && identity.InvitationId is null)
         {
-            return null;
-        }
-
-        var invitation = await dbContext.SpaceInvitations
-            .FirstOrDefaultAsync(item => item.Id == invitationId && item.InviteeAuthId == null, cancellationToken);
-        if (invitation is null || !invitation.IsPending(utcNow))
-        {
-            return invitationId;
+            return;
         }
 
         var authId = currentUser.AuthId;
-        var alreadyInvited = await dbContext.SpaceInvitations
-            .Unclosed()
-            .AnyAsync(item => item.SpaceId == invitation.SpaceId && item.InviteeAuthId == authId, cancellationToken);
-        if (alreadyInvited)
-        {
-            // The account already has an invitation to this space; a second one would only duplicate it.
-            invitation.Revoke(utcNow);
-        }
-        else
-        {
-            invitation.LinkInvitee(authId);
-        }
+        var unbound = dbContext.SpaceInvitations
+            .Where(item => item.InviteeAuthId == null && item.ProviderInvitationId != null)
+            .Pending(utcNow);
+        var matches = await unbound
+            .Where(item => item.EmailFingerprint != null && fingerprints.Contains(item.EmailFingerprint)
+                || item.EmailFingerprint == null && item.Id == identity.InvitationId)
+            .OrderBy(item => item.SpaceId).ThenBy(item => item.CreatedAt).ThenBy(item => item.Id)
+            .Select(item => new { item.Id, item.SpaceId })
+            .ToListAsync(cancellationToken);
 
-        return invitationId;
-    }
-
-    private async Task ClearInvitationIdAsync(CancellationToken cancellationToken)
-    {
-        try
+        foreach (var match in matches)
         {
-            await identityInvitations.ClearInvitationIdAsync(currentUser.AuthId, cancellationToken);
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            // The account is ready; a leftover invitation id is harmless because a linked invitation is not linked again.
-            logger.LogWarning(exception, "Onboarding could not remove the invitation id from the identity");
+            var invitations = dbContext.SpaceInvitations.Unclosed()
+                .Where(item => item.SpaceId == match.SpaceId && item.InviteeAuthId == authId);
+            await invitations.CloseExpiredAsync(utcNow, cancellationToken);
+            await unbound.Where(item => item.Id == match.Id && !invitations.Any())
+                .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.InviteeAuthId, authId), cancellationToken);
         }
     }
 }

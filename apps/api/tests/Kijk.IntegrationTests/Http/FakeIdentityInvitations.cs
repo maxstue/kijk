@@ -16,35 +16,58 @@ internal sealed class FakeIdentityInvitations : IIdentityInvitations
 
     public ConcurrentQueue<string> Deleted { get; } = new();
 
+    public Func<CancellationToken, Task>? BeforeSending { get; set; }
+    public string? FailingDeletion { get; set; }
+    public bool FailFirstMetadataClear { get; set; }
+    public int MetadataClearAttempts { get; private set; }
+
     /// <summary>The Kijk invitation ids in the identities' public metadata.</summary>
     public ConcurrentDictionary<string, Guid> Metadata { get; } = new();
 
     public Task<string?> FindByVerifiedEmailAsync(string email, CancellationToken cancellationToken) =>
         Task.FromResult(Accounts.TryGetValue(email, out var authId) ? authId : null);
 
-    public Task<string> InviteAsync(string email, Guid invitationId, TimeSpan lifetime, CancellationToken cancellationToken)
+    public async Task<string> InviteAsync(string email, Guid invitationId, TimeSpan lifetime, CancellationToken cancellationToken)
     {
+        if (BeforeSending is { } beforeSending)
+        {
+            await beforeSending(cancellationToken);
+        }
+
         var id = $"inv_{Interlocked.Increment(ref _nextInvitation)}";
         Invitations[id] = (email, invitationId);
-        return Task.FromResult(id);
+        return id;
     }
 
     public Task DeleteInvitationAsync(string providerInvitationId, CancellationToken cancellationToken)
     {
+        if (providerInvitationId == FailingDeletion)
+        {
+            throw new HttpRequestException("Provider unavailable");
+        }
+
         Invitations.TryRemove(providerInvitationId, out _);
         Deleted.Enqueue(providerInvitationId);
         return Task.CompletedTask;
     }
 
-    public Task<Guid?> GetInvitationIdAsync(string authId, CancellationToken cancellationToken) =>
-        Task.FromResult(Metadata.TryGetValue(authId, out var id) ? id : (Guid?)null);
-
     public Task ClearInvitationIdAsync(string authId, CancellationToken cancellationToken)
     {
+        MetadataClearAttempts++;
+        if (FailFirstMetadataClear && MetadataClearAttempts == 1)
+        {
+            throw new HttpRequestException("Provider unavailable");
+        }
+
         Metadata.TryRemove(authId, out _);
         return Task.CompletedTask;
     }
 
     /// <summary>Signs up through a provider invitation: the identity receives its Kijk invitation id.</summary>
-    public void SignUp(string providerInvitationId, string authId) => Metadata[authId] = Invitations[providerInvitationId].InvitationId;
+    public void SignUp(string providerInvitationId, string authId)
+    {
+        var invitation = Invitations[providerInvitationId];
+        Accounts[invitation.Email] = authId;
+        Metadata[authId] = invitation.InvitationId;
+    }
 }

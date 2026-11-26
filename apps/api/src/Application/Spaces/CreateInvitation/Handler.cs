@@ -1,6 +1,7 @@
 using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Security;
 using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
 using Kijk.Domain.Entities;
@@ -15,6 +16,7 @@ public sealed class CreateInvitationHandler(
     IAppDbContext dbContext,
     CurrentUser currentUser,
     IIdentityInvitations identityInvitations,
+    IPseudonymizer pseudonymizer,
     TimeProvider timeProvider)
 {
     /// <summary>
@@ -87,42 +89,102 @@ public sealed class CreateInvitationHandler(
 
     private async Task<Result<SpaceInvitationResponse>> InviteByEmailAsync(InvitationContext context, string email, CancellationToken cancellationToken)
     {
-        var label = EmailMask.Mask(email);
-        var inviteeAuthId = await identityInvitations.FindByVerifiedEmailAsync(email, cancellationToken);
-        if (inviteeAuthId == currentUser.AuthId)
+        var fingerprint = InvitationEmail.Fingerprint(pseudonymizer, email);
+        var submissions = dbContext.SpaceInvitations
+            .Where(item => item.SpaceId == context.Space.Id && item.EmailFingerprint == fingerprint);
+        var previous = await FindEmailSubmissionAsync(submissions, context.UtcNow, cancellationToken);
+        if (previous is not null)
+        {
+            return previous;
+        }
+
+        var authId = await identityInvitations.FindByVerifiedEmailAsync(email, cancellationToken);
+        if (authId == currentUser.AuthId)
         {
             return Error.Validation("You cannot invite yourself");
         }
 
-        if (inviteeAuthId is null)
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await submissions.CloseExpiredAsync(context.UtcNow, cancellationToken);
+        var invitation = SpaceInvitation.ForEmail(context.Space, context.Role, context.Creator, EmailMask.Mask(email), fingerprint, context.UtcNow);
+        dbContext.SpaceInvitations.Add(invitation);
+        try
         {
-            return await InviteNewAccountAsync(context, email, label, cancellationToken);
+            // Reserve the e-mail submission before sending, so concurrent requests cannot both send mail.
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            var concurrent = await FindEmailSubmissionAsync(submissions, context.UtcNow, cancellationToken);
+            if (concurrent is null)
+            {
+                throw;
+            }
+
+            return concurrent;
         }
 
-        // Whether the address has an account must not show. Members and people who are already invited therefore get
-        // the same response as everyone else: a member does not see the invitation in their inbox, and a second
-        // invitation of the same person returns the pending one.
-        var invitation = await InviteIdentityAsync(context, inviteeAuthId, label, cancellationToken)
-            ?? await dbContext.SpaceInvitations
-                .AsNoTracking()
-                .Include(item => item.Role)
-                .Include(item => item.CreatedBy)
-                .Unclosed()
-                .SingleAsync(item => item.SpaceId == context.Space.Id && item.InviteeAuthId == inviteeAuthId, cancellationToken);
+        if (authId is null)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            // Once sending starts, retain the returned provider id even if the HTTP caller disconnects.
+            var providerId = await identityInvitations.InviteAsync(email, invitation.Id, SpaceInvitation.Lifetime, CancellationToken.None);
+            invitation.AttachProviderInvitation(providerId);
+            try
+            {
+                await dbContext.SaveChangesAsync(CancellationToken.None);
+                await transaction.CommitAsync(CancellationToken.None);
+            }
+            catch
+            {
+                await identityInvitations.DeleteInvitationAsync(providerId, CancellationToken.None);
+                throw;
+            }
 
-        return invitation.ToResponse() with { InviteeLabel = label };
+            return invitation.ToResponse();
+        }
+
+        // A member or someone with another open invitation gets an ordinary admin-visible submission without an Inbox entry.
+        var membership = await dbContext.UserSpaces.AnyAsync(
+            item => item.SpaceId == context.Space.Id && item.User.AuthId == authId, cancellationToken);
+        if (!membership)
+        {
+            var openForIdentity = ForIdentity(context.Space.Id, authId);
+            await openForIdentity.CloseExpiredAsync(context.UtcNow, cancellationToken);
+            if (!await openForIdentity.Unclosed().AnyAsync(cancellationToken))
+            {
+                invitation.LinkInvitee(authId);
+                try
+                {
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+                catch (DbUpdateException)
+                {
+                    if (!await openForIdentity.Unclosed().AnyAsync(cancellationToken))
+                    {
+                        throw;
+                    }
+
+                    // A concurrent name or e-mail invitation already reached the recipient.
+                    dbContext.SpaceInvitations.Entry(invitation).State = EntityState.Detached;
+                }
+            }
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+        return invitation.ToResponse();
     }
+
+    private static Task<SpaceInvitationResponse?> FindEmailSubmissionAsync(
+        IQueryable<SpaceInvitation> submissions, DateTime utcNow, CancellationToken cancellationToken) =>
+        submissions.AsNoTracking().Pending(utcNow).ToResponse().SingleOrDefaultAsync(cancellationToken);
 
     /// <returns>The new invitation, or <see langword="null" /> when the person already has a pending one.</returns>
     private async Task<SpaceInvitation?> InviteIdentityAsync(InvitationContext context, string inviteeAuthId, string label, CancellationToken cancellationToken)
     {
-        // An expired invitation still occupies the unique index for this person and space; it can be closed.
-        await dbContext.SpaceInvitations
-            .Unclosed()
-            .Where(item => item.SpaceId == context.Space.Id && item.InviteeAuthId == inviteeAuthId && item.ExpiresAt <= context.UtcNow)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.RevokedAt, context.UtcNow), cancellationToken);
-
-        if (await dbContext.SpaceInvitations.Unclosed().AnyAsync(item => item.SpaceId == context.Space.Id && item.InviteeAuthId == inviteeAuthId, cancellationToken))
+        var invitations = ForIdentity(context.Space.Id, inviteeAuthId).Unclosed();
+        await invitations.CloseExpiredAsync(context.UtcNow, cancellationToken);
+        if (await invitations.AnyAsync(cancellationToken))
         {
             return null;
         }
@@ -136,7 +198,7 @@ public sealed class CreateInvitationHandler(
         }
         catch (DbUpdateException)
         {
-            if (!await IsInvitedAsync(context.Space.Id, inviteeAuthId, cancellationToken))
+            if (!await invitations.AnyAsync(cancellationToken))
             {
                 throw;
             }
@@ -147,29 +209,8 @@ public sealed class CreateInvitationHandler(
         }
     }
 
-    private async Task<Result<SpaceInvitationResponse>> InviteNewAccountAsync(InvitationContext context, string email, string label, CancellationToken cancellationToken)
-    {
-        var invitation = SpaceInvitation.ForNewAccount(context.Space, context.Role, context.Creator, label, context.UtcNow);
-        // Adding assigns the id that the provider invitation carries to the new account.
-        dbContext.SpaceInvitations.Add(invitation);
-        var providerInvitationId = await identityInvitations.InviteAsync(email, invitation.Id, SpaceInvitation.Lifetime, cancellationToken);
-        invitation.AttachProviderInvitation(providerInvitationId);
-        try
-        {
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-        catch
-        {
-            // Without the Kijk invitation, the provider invitation and the address it holds have no purpose.
-            await identityInvitations.DeleteInvitationAsync(providerInvitationId, CancellationToken.None);
-            throw;
-        }
-
-        return invitation.ToResponse();
-    }
-
-    private Task<bool> IsInvitedAsync(Guid spaceId, string inviteeAuthId, CancellationToken cancellationToken) =>
-        dbContext.SpaceInvitations.AsNoTracking().Unclosed().AnyAsync(item => item.SpaceId == spaceId && item.InviteeAuthId == inviteeAuthId, cancellationToken);
+    private IQueryable<SpaceInvitation> ForIdentity(Guid spaceId, string authId) =>
+        dbContext.SpaceInvitations.Where(item => item.SpaceId == spaceId && item.InviteeAuthId == authId);
 
     private sealed record InvitationContext(Space Space, Role Role, User Creator, DateTime UtcNow);
 }

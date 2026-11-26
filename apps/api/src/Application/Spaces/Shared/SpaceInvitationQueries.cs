@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Persistence;
 using Kijk.Domain.Entities;
 
 namespace Kijk.Application.Spaces.Shared;
@@ -6,14 +7,13 @@ namespace Kijk.Application.Spaces.Shared;
 public static class SpaceInvitationQueries
 {
     /// <summary>
-    /// Keeps the invitations that can still be accepted: not accepted, declined, revoked or expired. Matches
-    /// <see cref="SpaceInvitation.IsPending" />.
+    /// Keeps the invitations that can still be accepted: not accepted, declined, revoked or expired.
     /// </summary>
     /// <param name="invitations">The invitations.</param>
     /// <param name="utcNow">The current time.</param>
     /// <returns>The pending invitations.</returns>
     public static IQueryable<SpaceInvitation> Pending(this IQueryable<SpaceInvitation> invitations, DateTime utcNow) =>
-        invitations.Where(item => item.AcceptedAt == null && item.DeclinedAt == null && item.RevokedAt == null && item.ExpiresAt > utcNow);
+        invitations.Unclosed().Where(item => item.ExpiresAt > utcNow);
 
     /// <summary>
     /// Keeps the invitations that still block a new invitation for the same person in the unique index: not accepted,
@@ -23,4 +23,19 @@ public static class SpaceInvitationQueries
     /// <returns>The unclosed invitations.</returns>
     public static IQueryable<SpaceInvitation> Unclosed(this IQueryable<SpaceInvitation> invitations) =>
         invitations.Where(item => item.AcceptedAt == null && item.DeclinedAt == null && item.RevokedAt == null);
+
+    /// <summary>Releases expired invitations from the partial unique indexes.</summary>
+    public static Task<int> CloseExpiredAsync(this IQueryable<SpaceInvitation> invitations, DateTime utcNow, CancellationToken cancellationToken) =>
+        invitations.Unclosed().Where(item => item.ExpiresAt <= utcNow)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.RevokedAt, utcNow), cancellationToken);
+
+    /// <summary>Removes exactly the invitations whose provider ids the caller can enqueue in the same transaction.</summary>
+    public static async Task<string[]> RemoveForErasureAsync(
+        this IQueryable<SpaceInvitation> invitations, IAppDbContext dbContext, CancellationToken cancellationToken)
+    {
+        var rows = await invitations.ToListAsync(cancellationToken);
+        dbContext.SpaceInvitations.RemoveRange(rows);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return rows.Select(item => item.ProviderInvitationId).OfType<string>().ToArray();
+    }
 }

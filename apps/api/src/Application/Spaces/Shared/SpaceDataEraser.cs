@@ -8,7 +8,7 @@ namespace Kijk.Application.Spaces.Shared;
 /// </summary>
 public static class SpaceDataEraser
 {
-    /// <summary>Deletes the space and everything in it. Call it inside a transaction.</summary>
+    /// <summary>Deletes the space and everything in it. Call inside a transaction after removing the space’s invitations.</summary>
     /// <param name="dbContext">The database context.</param>
     /// <param name="spaceId">The space.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
@@ -28,7 +28,6 @@ public static class SpaceDataEraser
         await dbContext.Consumptions.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Limits.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Resources.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
-        await dbContext.SpaceInvitations.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.UserSpaces.Where(item => item.SpaceId == spaceId).ExecuteDeleteAsync(cancellationToken);
         await dbContext.Spaces.Where(item => item.Id == spaceId).ExecuteDeleteAsync(cancellationToken);
     }
