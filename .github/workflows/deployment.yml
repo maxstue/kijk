@@ -93,9 +93,48 @@ jobs:
           railway_ssh_private_key: ${{ env.RAILWAY_SSH_PRIVATE_KEY }}
           railway_ssh_public_key: ${{ env.RAILWAY_SSH_PUBLIC_KEY }}
 
+  # Railway configuration changes can trigger deployments, so migrate the database before planning and applying.
+  # The release applies the saved plan and stops on destructive changes.
+  railway-config:
+    name: 'Apply Railway Config 🚂'
+    needs: [prepare-release, migrate-database]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The production environment binds the Infisical identity (OIDC subject) that may only read
+    # prod /CI/Deploy and prod /CI/Database.
+    environment:
+      name: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: '🏖️ Checkout Repository'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare-release.outputs.source_sha }}
+
+      # Provides Node and the `railway` SDK that the CLI needs to evaluate `.railway/railway.ts`.
+      - name: '🔧 Set up JavaScript'
+        uses: ./.github/actions/setup-js
+
+      - name: '🔐 Load secrets'
+        uses: Infisical/secrets-action@d2e351f16c6ca20d17c85e6c992e04bdeb64e87d # v1.0.18
+        with:
+          method: oidc
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-id: ${{ vars.INFISICAL_PROJECT_ID }}
+          domain: https://eu.infisical.com
+          env-slug: prod
+          secret-path: /CI/Deploy
+
+      - name: '🚂 Apply .railway/railway.ts'
+        uses: ./.github/actions/railway-config
+        with:
+          project_token: ${{ env.RAILWAY_DEPLOY_TOKEN }}
+
   deploy:
     name: 'Deploy ${{ matrix.name }} 🚂'
-    needs: [migrate-database, prepare-release]
+    needs: [railway-config, prepare-release]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container: ghcr.io/railwayapp/cli:5.71.0@sha256:68718943fa4570cecd64a16472d42039dd63c532684da314a27132b8ef4b2f76

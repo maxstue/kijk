@@ -43,8 +43,6 @@ Use separately exported parts such as `Card`, `CardHeader` and `CardContent`, wi
 
 Apps may use these components directly and repeatedly. A wrapper should capture meaningful behavior, a domain responsibility or shared layout rules; repeated JSX alone is not a reason to add one. Structural compound components need no Context. Add Context only when their parts coordinate shared state or behavior.
 
-See the [client composition guide](https://linear.app/justmax/document/architecture-62a60c95919b#react-component-composition) for examples, state ownership and refactoring checks.
-
 ## Adding components
 
 `components.json` is configured for the shadcn CLI. Run it from this package to add a component; it is written to

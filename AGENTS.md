@@ -18,7 +18,7 @@ pnpm dev:api      # api only
 pnpm build        # all apps (parallel)
 pnpm lint         # lint all workspaces
 pnpm fmt          # check formatting in all workspaces
-pnpm release      # auto-changelog + GitHub release (CalVer: yyyy.mm.minor)
+pnpm release      # release-it helper used by the Production Release workflow
 ```
 
 ### Client (`apps/client`)
@@ -153,10 +153,11 @@ Use the current official React guidance when evaluating these choices:
 
 ## CI (GitHub Actions)
 
-- **Deployments**: production deployments run exclusively through the existing CI/CD workflow. Do not run `railway up` or manually redeploy services. Prepare required Railway UI settings for review; do not introduce deprecated Railway JSON/TOML config files.
+- **Deployments**: production deployments run exclusively through the existing CI/CD workflow. Do not run `railway up` or manually redeploy services. Do not introduce deprecated Railway JSON/TOML config files.
+- **Railway infrastructure**: `.railway/railway.ts` (Railway IaC, SDK `railway` in the root workspace) owns services, build/deploy settings, domains and all service variables of the `production` environment. Change Railway settings there instead of in the dashboard; write plain configuration as literals or references (`ref`, `${{Service.VARIABLE}}`) and keep secrets as `preserve()`. The production release alone plans against Railway in CI, shows the plan in its job summary, and applies it after migrations because configuration changes can trigger Railway deployments. Destructive plans stop the release. See [Release Process](https://linear.app/justmax/document/release-process-563ce9397fc5). Never run `railway config apply` yourself without explicit approval of that exact plan. Settings the SDK cannot express stay in the dashboard.
 - **Entry workflows** (`ci.yml`, `deployment.yml`) only define triggers and compose building blocks; they contain no check logic.
 - **Reusable workflows** (`.github/workflows/_*.yml`) are the building blocks, one per area: `_changes` (path filter, PRs only), `_js-workspace` (one JavaScript app or package), `_dotnet` (one .NET app), `_js-e2e` (E2E tests for one app), `_js-audit`, `_sonar` (reuses the coverage artifacts of the same run). `ci.yml` calls `_js-workspace` and `_dotnet` once per app or package, so each has one job in the checks list and graph. Its steps run sequentially: format, lint, build (or typecheck), tests and, for .NET, audit. Workspace jobs run independently in parallel.
-- **Composite actions** (`.github/actions/*`) hold shared steps: `setup-js` (Vite+, install, cached Playwright), `setup-dotnet`, `deploy-railway`, `migrate-database`, `create-release`.
+- **Composite actions** (`.github/actions/*`) hold shared steps: `setup-js` (Vite+, install, cached Playwright), `setup-dotnet`, `deploy-railway`, `railway-config` (plans and applies production configuration with a pinned Railway CLI), `migrate-database`, `create-release`.
 - `ci-result` is the only required status check.
 - New app or package: add an `apps-<name>` or `packages-<name>` job in `ci.yml` that calls `_js-workspace.yml` (inputs `workspace`, `directory`, optionally `build`, `test`, `browser`, `browser-directory`) or `_dotnet.yml` (inputs `workspace`, `directory`, `solution`, optionally `format-exclude`), and add it to the `needs` lists of `sonar` and `ci-result`; Sonar picks up its coverage automatically. A JavaScript workspace needs the scripts `fmt`, `lint`, `typecheck` (plus `build` / `test:coverage` if enabled). For E2E, add a separate caller of `_js-e2e.yml` (inputs `workspace`, `directory`, optionally `command`, `timeout`, `secrets-env`, `secrets-path`) that needs the app checks, grants `id-token: write` for Infisical, and is included in `ci-result.needs`. Workspace checks need only read access. Browser setup uses the workspace directory; `browser-directory` can select another workspace that provides the Playwright CLI. E2E uses its app directory for browser setup and test execution.
 - The checks within a workspace run sequentially with one setup; E2E waits for that app's checks. Sonar waits for workspace coverage and can run alongside E2E; `ci-result` also requires E2E to pass. On pull requests, `_changes` selects the affected JavaScript workspaces (changed ones plus their dependents, via pnpm) and the other blocks are skipped; changes to shared files (root manifests, lockfile, JavaScript CI) check all of them.

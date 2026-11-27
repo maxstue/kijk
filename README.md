@@ -51,7 +51,7 @@ Please refer to the contributing [guide](./.github/CONTRIBUTING.md) for how to i
 
 ## 🚀 Deployment <a name = "deployment"></a>
 
-Deployment is handled through the repository's GitHub Actions workflows.
+The manual GitHub Actions production release runs database migrations, applies [Railway configuration](./.railway/railway.ts), and deploys API and Client. See the [Production Release workflow](./.github/workflows/deployment.yml).
 
 The single [web application](./apps/client/README.md) uses TanStack Start and a Nitro Node server on Railway. It serves both the public website and the client-rendered signed-in application, with a same-origin BFF to the .NET API.
 
