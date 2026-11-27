@@ -3,6 +3,7 @@ import { posthog } from 'posthog-js';
 import type { CaptureOptions, Properties } from 'posthog-js';
 
 import { config } from '@/shared/config/env';
+import { scrubAnalyticsEvent } from '@/shared/lib/analytics-event-scrubber';
 import { getCookieConsent } from '@/shared/lib/cookie-consent';
 import { TracingService } from '@/shared/lib/tracing';
 import type { CookieConsent } from '@/shared/types/analytics';
@@ -55,6 +56,8 @@ function enableAnalytics() {
       advanced_disable_flags: true,
       api_host: config.PosthogUrl,
       autocapture: false,
+      // Invitation links carry a Clerk sign-up ticket in the URL.
+      before_send: scrubAnalyticsEvent,
       capture_exceptions: false,
       capture_performance: false,
       capture_heatmaps: false,

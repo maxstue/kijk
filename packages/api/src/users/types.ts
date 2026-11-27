@@ -4,6 +4,8 @@ import type * as Api from '@kijk/api/generated/types';
 export type CurrentUser = Api.CurrentUserResponse;
 /** The parts of Kijk that are switched on for the current user. */
 export type Features = Api.FeaturesResponse;
+/** A pending invitation in the current user's inbox. */
+export type ReceivedInvitation = Api.ReceivedInvitationResponse;
 /** A user who completed onboarding. */
 export type ReadyCurrentUser = Api.GetMeUserResponse;
 
