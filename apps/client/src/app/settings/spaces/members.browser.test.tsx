@@ -29,6 +29,8 @@ const invitation: SpaceInvitation = {
   roleName: 'Viewer',
 };
 
+interface Props extends PropsWithChildren {}
+
 interface SpaceOptions {
   isPersonal?: boolean;
   permissions: string[];
@@ -51,7 +53,7 @@ async function renderMembers(options: SpaceOptions) {
   ]);
   client.setQueryData(queryKeys.spaces.roles(), roles);
   const value = { space: space(options), user: { id: 'me' } as Api.GetMeUserResponse };
-  function Wrapper({ children }: PropsWithChildren) {
+  function Wrapper({ children }: Props) {
     return (
       <QueryClientProvider client={client}>
         <SpaceSettingsContext value={value}>{children}</SpaceSettingsContext>
