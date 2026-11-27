@@ -9,6 +9,7 @@ using Kijk.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Wolverine.Tracking;
 
 namespace Kijk.IntegrationTests.Http;
 
@@ -44,14 +45,21 @@ public class AccountDeletionHttpTests
     {
         var seed = await SeedAsync();
         var identities = new RecordingIdentityProvider();
+        var invitations = new FakeIdentityInvitations();
         await using var host = await SpaceApiHost.StartAsync(
             seed.Leaving.AuthId,
             jobsEnabled: true,
-            services => services.Replace(ServiceDescriptor.Singleton<IIdentityProvider>(identities)));
+            services =>
+            {
+                services.Replace(ServiceDescriptor.Singleton<IIdentityProvider>(identities));
+                services.Replace(ServiceDescriptor.Singleton<IIdentityInvitations>(invitations));
+            });
 
-        using var response = await host.Client.PostAsync("/api/users/me/deletion", null);
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
-        await WaitUntilDeletedAsync(seed.Leaving.Id);
+        await host.Host.TrackActivity().Timeout(TimeSpan.FromSeconds(30)).ExecuteAndWaitAsync(async Task (_) =>
+        {
+            using var response = await host.Client.PostAsync("/api/users/me/deletion", null);
+            await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
+        });
 
         await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
         // Everything that belonged only to the leaving user is gone, including the space they used alone.
@@ -60,6 +68,8 @@ public class AccountDeletionHttpTests
         await Assert.That(await dbContext.Transactions.AnyAsync(item => item.Counterparty == "Private shop")).IsFalse();
         await Assert.That(await dbContext.Budgets.AnyAsync(item => item.OwnerId != null)).IsFalse();
         await Assert.That(await dbContext.SpaceInvitations.AnyAsync()).IsFalse();
+        // The authentication provider no longer holds the invited addresses either.
+        await Assert.That(invitations.Deleted).IsEquivalentTo(DeletedProviderInvitations);
 
         // Shared data stays and now belongs to the remaining member, who became the space's administrator.
         var shared = await dbContext.Transactions.SingleAsync(item => item.Counterparty == "Shared shop");
@@ -70,22 +80,6 @@ public class AccountDeletionHttpTests
         await Assert.That(remaining.UserId).IsEqualTo(seed.Remaining.Id);
         await Assert.That(remaining.Role.Name).IsEqualTo("Admin");
         await Assert.That(identities.Deleted).Contains(seed.Leaving.AuthId);
-    }
-
-    private static async Task WaitUntilDeletedAsync(Guid userId)
-    {
-        for (var attempt = 0; attempt < 120; attempt++)
-        {
-            await using var dbContext = PostgreSqlTestDatabase.CreateDbContext();
-            if (!await dbContext.Users.AnyAsync(item => item.Id == userId))
-            {
-                return;
-            }
-
-            await Task.Delay(250);
-        }
-
-        throw new TimeoutException("The account was not deleted");
     }
 
     private static async Task<Seed> SeedAsync()
@@ -120,14 +114,20 @@ public class AccountDeletionHttpTests
         var sharedBudget = Budget.Create(300m, new MonthYear(October), true, groceries, leaving, shared);
         var privateBudget = Budget.Create(100m, new MonthYear(October), true, groceries, leaving, shared, Visibility.Private);
 
-        // Invitations the leaving user created: one in the space that remains, one in the space that goes.
-        var sharedInvitation = SpaceInvitation.Create(shared, member, leaving, [.. Enumerable.Repeat((byte)1, 32)], DateTime.UtcNow);
-        var soloInvitation = SpaceInvitation.Create(solo, member, leaving, [.. Enumerable.Repeat((byte)2, 32)], DateTime.UtcNow);
+        // Invitations by e-mail the leaving user created, one in the space that remains and one in the space that goes,
+        // and one the leaving user received.
+        var sharedInvitation = SpaceInvitation.ForEmail(shared, member, leaving, "an***@ex***.test", "shared", DateTime.UtcNow);
+        sharedInvitation.AttachProviderInvitation("inv_shared");
+        var soloInvitation = SpaceInvitation.ForEmail(solo, member, leaving, "bo***@ex***.test", "solo", DateTime.UtcNow);
+        soloInvitation.AttachProviderInvitation("inv_solo");
+        var receivedInvitation = SpaceInvitation.ForIdentity(shared, member, remaining, leaving.AuthId, "leaving#0001", DateTime.UtcNow);
 
-        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget, sharedInvitation, soloInvitation);
+        dbContext.AddRange(soloCategory, soloBudget, sharedAccount, privateAccount, sharedBooking, privateBooking, sharedBudget, privateBudget, sharedInvitation, soloInvitation, receivedInvitation);
         await dbContext.SaveChangesAsync();
         return new Seed(leaving, remaining, personal.Id, solo.Id, shared.Id, privateAccount.Id);
     }
+
+    private static readonly string[] DeletedProviderInvitations = ["inv_shared", "inv_solo"];
 
     private static User CreateUser(string name)
     {

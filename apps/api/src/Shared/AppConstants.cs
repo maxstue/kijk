@@ -54,6 +54,9 @@ public static class AppConstants
     /// <summary>The name of the per-user rate limit for file uploads.</summary>
     public const string UploadRateLimit = "PerUserUploadRatelimit";
 
+    /// <summary>The name of the per-user rate limit for new invitations.</summary>
+    public const string InvitationRateLimit = "PerUserInvitationRatelimit";
+
     /// <summary>Default colors.</summary>
     public static class Colors
     {

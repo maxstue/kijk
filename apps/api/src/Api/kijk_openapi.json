@@ -4895,7 +4895,7 @@
         "tags": [
           "Spaces"
         ],
-        "summary": "Creates a single-use invitation link to a shared space",
+        "summary": "Invites a person into a shared space by unique name or e-mail address",
         "operationId": "Spaces.CreateInvitation",
         "parameters": [
           {
@@ -4924,7 +4924,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateSpaceInvitationResponse"
+                  "$ref": "#/components/schemas/SpaceInvitationResponse"
                 }
               }
             }
@@ -4942,6 +4942,16 @@
           "403": {
             "$ref": "#/components/responses/403"
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -4952,11 +4962,11 @@
               }
             }
           },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
           "429": {
             "$ref": "#/components/responses/429"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
           },
           "500": {
             "$ref": "#/components/responses/500"
@@ -6059,6 +6069,158 @@
         ]
       }
     },
+    "/api/users/me/invitations": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Gets the current user's pending invitations to shared spaces",
+        "operationId": "Users.Invitations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReceivedInvitationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/users/me/invitations/{invitationId}/accept": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Accepts an invitation and joins the space; accepting again returns the same space",
+        "operationId": "Users.AcceptInvitation",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInvitationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/users/me/invitations/{invitationId}/decline": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Declines an invitation",
+        "operationId": "Users.DeclineInvitation",
+        "parameters": [
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/users/me/feedback": {
       "post": {
         "tags": [
@@ -6250,6 +6412,20 @@
   },
   "components": {
     "schemas": {
+      "AcceptInvitationResponse": {
+        "required": [
+          "spaceId"
+        ],
+        "type": "object",
+        "properties": {
+          "spaceId": {
+            "type": "string",
+            "description": "The space identifier.",
+            "format": "uuid"
+          }
+        },
+        "description": "The space the current user joined, or already belonged to."
+      },
       "AccountKind": {
         "enum": [
           "Bank",
@@ -7636,7 +7812,9 @@
       },
       "CreateSpaceInvitationRequest": {
         "required": [
-          "roleId"
+          "roleId",
+          "uniqueName",
+          "email"
         ],
         "type": "object",
         "properties": {
@@ -7647,45 +7825,23 @@
             ],
             "description": "The role the invited person receives: Member (the default when omitted) or Viewer. Admins are appointed later by\nchanging a member's role.",
             "format": "uuid"
+          },
+          "uniqueName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The invited person's unique name, for example `Max#4821`. It must match exactly, ignoring case; an unknown\nname results in 404. Set either this or Email."
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The invited person's e-mail address. A person with an account finds the invitation in their inbox; a person\nwithout one receives an invitation e-mail from the authentication provider. Both cases return the same response,\nand Kijk stores only a shortened form of the address. Set either this or UniqueName."
           }
         },
-        "description": "Contains the role of a new invitation."
-      },
-      "CreateSpaceInvitationResponse": {
-        "required": [
-          "id",
-          "token",
-          "link",
-          "roleId",
-          "expiresAt"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The invitation identifier.",
-            "format": "uuid"
-          },
-          "token": {
-            "type": "string",
-            "description": "The single-use invitation token."
-          },
-          "link": {
-            "type": "string",
-            "description": "The app-relative invitation link in the form `/invite#&lt;token&gt;`. The token is in the URL fragment, so\nbrowsers never send it to a server."
-          },
-          "roleId": {
-            "type": "string",
-            "description": "The identifier of the role the invited person receives.",
-            "format": "uuid"
-          },
-          "expiresAt": {
-            "type": "string",
-            "description": "When the invitation expires (UTC).",
-            "format": "date-time"
-          }
-        },
-        "description": "A new invitation. The token is returned only in this response and cannot be retrieved again."
+        "description": "Invites one person into a shared space, either by unique name or by e-mail address."
       },
       "CreateSpaceRequest": {
         "required": [
@@ -9626,6 +9782,59 @@
         ],
         "description": "Represents how much of the purpose text a space keeps after an import."
       },
+      "ReceivedInvitationResponse": {
+        "required": [
+          "id",
+          "spaceId",
+          "spaceName",
+          "roleId",
+          "roleName",
+          "invitedByName",
+          "createdAt",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The invitation identifier.",
+            "format": "uuid"
+          },
+          "spaceId": {
+            "type": "string",
+            "description": "The identifier of the space the invitation is for.",
+            "format": "uuid"
+          },
+          "spaceName": {
+            "type": "string",
+            "description": "The name of the space."
+          },
+          "roleId": {
+            "type": "string",
+            "description": "The identifier of the role the user receives when accepting.",
+            "format": "uuid"
+          },
+          "roleName": {
+            "type": "string",
+            "description": "The name of that role."
+          },
+          "invitedByName": {
+            "type": "string",
+            "description": "The display name of the inviting member."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the invitation was created (UTC).",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "When the invitation expires (UTC).",
+            "format": "date-time"
+          }
+        },
+        "description": "A pending invitation in the current user's inbox."
+      },
       "ResourceResponse": {
         "required": [
           "id",
@@ -9749,6 +9958,7 @@
       "SpaceInvitationResponse": {
         "required": [
           "id",
+          "inviteeLabel",
           "roleId",
           "roleName",
           "createdByName",
@@ -9761,6 +9971,10 @@
             "type": "string",
             "description": "The invitation identifier.",
             "format": "uuid"
+          },
+          "inviteeLabel": {
+            "type": "string",
+            "description": "The invited person: the unique name (`Max#4821`) for invitations by name, a shortened e-mail address\n(`an***@gm***.com`) for invitations by e-mail. An invitation by e-mail never shows whether the address belongs\nto a Kijk account."
           },
           "roleId": {
             "type": "string",
@@ -9786,7 +10000,7 @@
             "format": "date-time"
           }
         },
-        "description": "A pending invitation to a shared space. The token is never part of it."
+        "description": "A pending invitation to a shared space, as the space admins see it."
       },
       "SpaceMemberResponse": {
         "required": [

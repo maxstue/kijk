@@ -7,6 +7,7 @@ using Kijk.Application.Spaces.Invitations;
 using Kijk.Application.Spaces.Members;
 using Kijk.Application.Spaces.RevokeInvitation;
 using Kijk.Application.Spaces.Roles;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Application.Spaces.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +26,7 @@ public sealed class ModuleService : IModule
         services.AddScoped<DeleteHandler>();
         services.AddScoped<InvitationsHandler>();
         services.AddScoped<MembersHandler>();
+        services.AddScoped<ProviderInvitationEraser>();
         services.AddScoped<RevokeInvitationHandler>();
         services.AddScoped<RolesHandler>();
         services.AddScoped<UpdateHandler>();

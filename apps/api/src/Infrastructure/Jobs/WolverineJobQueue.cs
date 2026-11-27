@@ -7,6 +7,7 @@ namespace Kijk.Infrastructure.Jobs;
 /// <summary>
 /// Stores background jobs through Wolverine's EF Core outbox: the message is written in the same transaction as the
 /// pending changes and delivered by the durable local queue, also after a restart.
+/// Wolverine commits an active transaction before flushing the message.
 /// </summary>
 /// <param name="outbox">The outbox bound to the request's <see cref="AppDbContext" />.</param>
 internal sealed class WolverineJobQueue(IDbContextOutbox<AppDbContext> outbox) : IJobQueue

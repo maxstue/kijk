@@ -1,5 +1,8 @@
 using Kijk.Application.Shared.Identity;
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Shared.Security;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Application.Users.Me;
 using Kijk.Application.Users.Shared;
 using Kijk.Domain.Authorization;
@@ -15,6 +18,8 @@ namespace Kijk.Application.Users.CompleteOnboarding;
 public class CompleteOnboardingHandler(
     IAppDbContext dbContext,
     IIdentityProvider identityProvider,
+    IJobQueue queue,
+    IPseudonymizer pseudonymizer,
     CurrentUser currentUser,
     TimeProvider timeProvider,
     ILogger<CompleteOnboardingHandler> logger,
@@ -85,6 +90,7 @@ public class CompleteOnboardingHandler(
         user.CompleteOnboarding(request.DisplayName.Trim(), request.AnalyticsConsent, completedAt);
 
         await identityProvider.SetUseProfileInKijkAsync(currentUser.AuthId, request.UseExternalProfile, cancellationToken);
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
             if (await uniqueNameSaver.SaveAsync(user, cancellationToken) is { } conflict)
@@ -94,6 +100,7 @@ public class CompleteOnboardingHandler(
         }
         catch (DbUpdateException)
         {
+            await transaction.RollbackAsync(cancellationToken);
             // A parallel request created the account first; its result counts.
             var completedUserExists = await dbContext.Users
                 .AsNoTracking()
@@ -103,8 +110,46 @@ public class CompleteOnboardingHandler(
             {
                 throw;
             }
+
+            return await getMeUserHandler.HandleAsync(cancellationToken);
+        }
+
+        await LinkInvitationsAsync(externalIdentity, completedAt, cancellationToken);
+        if (externalIdentity.InvitationId is not null)
+        {
+            // The outbox commits the onboarding and the metadata cleanup together.
+            await queue.SaveChangesAndEnqueueAsync(new ClearInvitationMetadata(currentUser.AuthId), cancellationToken);
+        }
+        else
+        {
+            await transaction.CommitAsync(cancellationToken);
         }
 
         return await getMeUserHandler.HandleAsync(cancellationToken);
+    }
+
+    private async Task LinkInvitationsAsync(ExternalIdentity identity, DateTime utcNow, CancellationToken cancellationToken)
+    {
+        var fingerprints = identity.VerifiedEmails.Select(email => InvitationEmail.Fingerprint(pseudonymizer, email)).ToArray();
+        if (fingerprints.Length == 0 && identity.InvitationId is null)
+        {
+            return;
+        }
+
+        var authId = currentUser.AuthId;
+        var unbound = dbContext.SpaceInvitations
+            .Where(item => item.InviteeAuthId == null && item.ProviderInvitationId != null)
+            .Pending(utcNow);
+        var matches = await unbound
+            .Where(item => item.EmailFingerprint != null && fingerprints.Contains(item.EmailFingerprint)
+                || item.EmailFingerprint == null && item.Id == identity.InvitationId)
+            .OrderBy(item => item.SpaceId).ThenBy(item => item.CreatedAt).ThenBy(item => item.Id)
+            .Select(item => new { item.Id, item.SpaceId })
+            .ToListAsync(cancellationToken);
+
+        foreach (var match in matches)
+        {
+            await SpaceInvitationRecipient.LinkAsync(dbContext, match.Id, match.SpaceId, authId, utcNow, cancellationToken);
+        }
     }
 }

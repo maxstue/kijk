@@ -1,3 +1,4 @@
+using Kijk.Application.Shared.Jobs;
 using Kijk.Application.Shared.Persistence;
 using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
@@ -8,7 +9,7 @@ namespace Kijk.Application.Spaces.Delete;
 /// <summary>
 /// Deletes a space and its space-owned data.
 /// </summary>
-public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUser)
+public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUser, IJobQueue queue)
 {
     /// <summary>
     /// Deletes a space when the current user's role allows deleting it.
@@ -55,11 +56,20 @@ public sealed class DeleteHandler(IAppDbContext dbContext, CurrentUser currentUs
             membership.User.ResetOnboarding();
         }
 
-        // The members' onboarding resets are saved first; then the space and all its data go in one transaction.
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        var invitations = dbContext.SpaceInvitations.Where(item => item.SpaceId == id);
+        var providerIds = await SpaceInvitationErasure.StageAsync(dbContext, invitations, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         await SpaceDataEraser.EraseAsync(dbContext, id, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        if (providerIds.Length > 0)
+        {
+            await queue.SaveChangesAndEnqueueAsync(new DeleteProviderInvitations(providerIds), cancellationToken);
+        }
+        else
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
+
         return true;
     }
 }

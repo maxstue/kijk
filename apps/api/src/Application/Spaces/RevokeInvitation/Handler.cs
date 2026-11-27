@@ -1,5 +1,6 @@
 using Kijk.Application.Shared.Authorization;
 using Kijk.Application.Shared.Persistence;
+using Kijk.Application.Spaces.Shared;
 using Kijk.Domain.Authorization;
 using Kijk.Shared;
 
@@ -11,7 +12,8 @@ namespace Kijk.Application.Spaces.RevokeInvitation;
 public sealed class RevokeInvitationHandler(IAppDbContext dbContext, CurrentUser currentUser, TimeProvider timeProvider)
 {
     /// <summary>
-    /// Revokes an invitation when the current user's role allows inviting, so its link can no longer be used.
+    /// Revokes an invitation when the current user's role allows inviting, so it disappears from the invited person's inbox.
+    /// The cleanup then deletes the e-mail that the authentication provider holds for it.
     /// </summary>
     /// <param name="spaceId">The space identifier.</param>
     /// <param name="invitationId">The invitation identifier.</param>
@@ -25,15 +27,15 @@ public sealed class RevokeInvitationHandler(IAppDbContext dbContext, CurrentUser
         }
 
         var utcNow = timeProvider.GetUtcNow().UtcDateTime;
-        var invitation = await dbContext.SpaceInvitations
-            .FirstOrDefaultAsync(item => item.Id == invitationId && item.SpaceId == spaceId, cancellationToken);
-        if (invitation is null || !invitation.IsPending(utcNow))
+        var updated = await dbContext.SpaceInvitations
+            .Where(item => item.Id == invitationId && item.SpaceId == spaceId)
+            .Pending(utcNow)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.RevokedAt, utcNow), cancellationToken);
+        if (updated == 0)
         {
             return Error.NotFound("Invitation could not be found");
         }
 
-        invitation.Revoke(utcNow);
-        await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

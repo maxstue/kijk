@@ -5,6 +5,7 @@ using Kijk.Api;
 using Kijk.Api.Extensions;
 using Kijk.Api.Middleware;
 using Kijk.Application;
+using Kijk.Application.Shared.Identity;
 using Kijk.Application.Shared.Jobs;
 using Kijk.Infrastructure;
 using Kijk.Infrastructure.Jobs;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -83,6 +85,8 @@ internal sealed class SpaceApiHost(WebApplication application, HttpClient client
         // Keep the production DbContext registration so HTTP tests also cover its provider options,
         // execution strategy and interceptors. Only the connection string points to Testcontainers.
         builder.Services.AddSingleton<IHub>(HubAdapter.Instance);
+        // Tests never reach the real authentication provider; a test passes its own fake to inspect the calls.
+        builder.Services.Replace(ServiceDescriptor.Singleton<IIdentityInvitations>(new FakeIdentityInvitations()));
         configureServices?.Invoke(builder.Services);
         builder.Services.AddAuthentication(options =>
         {
