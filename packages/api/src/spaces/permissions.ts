@@ -37,6 +37,16 @@ export const SpacePermissions = {
   },
 } as const;
 
+/** Identifiers of the fixed space roles. Mirrors `SpaceRoles` in the API. */
+export const SpaceRoleIds = {
+  admin: '0195624d-5bd9-754c-a92b-5e0e82e1ede1',
+  member: '0195624d-3c82-73e8-bb7b-b3fac043f2cb',
+  viewer: '3e42fa02-77ac-4bb9-a9a8-d031a3b8ea75',
+} as const;
+
+/** Roles an invitation can grant; admins are appointed later by changing a member's role. */
+export const invitableRoleIds: ReadonlySet<string> = new Set([SpaceRoleIds.member, SpaceRoleIds.viewer]);
+
 type PermissionGroups = typeof SpacePermissions;
 /** Any permission name from {@link SpacePermissions}. */
 export type SpacePermission = {

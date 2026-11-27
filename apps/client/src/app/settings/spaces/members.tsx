@@ -2,21 +2,38 @@ import * as spacesOptions from '@kijk/api/spaces/options';
 import type { SpacePermission } from '@kijk/api/spaces/permissions';
 import { SpacePermissions, hasSpacePermission, spacePermissionLabels } from '@kijk/api/spaces/permissions';
 import { Card, CardContent } from '@kijk/ui/components/card';
+import { Dialog } from '@kijk/ui/components/dialog';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
+import { useState } from 'react';
 
-import { PageHeader, PageHeaderContent, PageHeaderTitle, PageHeaderDescription } from '@/shared/components/page-header';
+import {
+  PageAddButton,
+  PageHeader,
+  PageHeaderActions,
+  PageHeaderContent,
+  PageHeaderDescription,
+  PageHeaderTitle,
+} from '@/shared/components/page-header';
 
 import { SpaceBackLink } from './back-link';
 import { useSpaceSettings } from './context';
+import { PendingInvitations } from './invitations';
+import { InviteDialog } from './invite-dialog';
 import { MemberRoleSelect } from './member-role-select';
 
-/** Members page: member list with roles, the user's own permissions and the role overview. */
+/**
+ * Members page: member list with roles, invitations for admins of shared spaces, the user's own permissions and the
+ * role overview.
+ */
 export function SpaceMembers() {
   const { space } = useSpaceSettings();
   const { data: members } = useSuspenseQuery(spacesOptions.membersQueryOptions(space.id));
   const { data: roles } = useSuspenseQuery(spacesOptions.rolesQueryOptions());
   const canAssignRoles = hasSpacePermission(space, SpacePermissions.members.assignRole);
+  // Personal spaces are never shared.
+  const canInvite = !space.isPersonal && hasSpacePermission(space, SpacePermissions.members.invite);
+  const [showInvite, setShowInvite] = useState(false);
 
   return (
     <div className='mx-auto w-full max-w-4xl space-y-6'>
@@ -26,6 +43,11 @@ export function SpaceMembers() {
           <PageHeaderTitle>Members</PageHeaderTitle>
           <PageHeaderDescription>{<> People in {space.name} and their roles. </>}</PageHeaderDescription>
         </PageHeaderContent>
+        {canInvite && (
+          <PageHeaderActions>
+            <PageAddButton onClick={() => setShowInvite(true)}>Invite</PageAddButton>
+          </PageHeaderActions>
+        )}
       </PageHeader>
 
       <Card className='gap-0 py-0'>
@@ -50,6 +72,20 @@ export function SpaceMembers() {
         <p className='text-muted-foreground text-sm'>
           You can change the roles of other members. Your own role stays as it is.
         </p>
+      )}
+
+      {canInvite && (
+        <>
+          <PendingInvitations spaceId={space.id} />
+          <Dialog open={showInvite} onOpenChange={setShowInvite}>
+            <InviteDialog
+              roles={roles}
+              spaceId={space.id}
+              spaceName={space.name}
+              onClose={() => setShowInvite(false)}
+            />
+          </Dialog>
+        </>
       )}
 
       <section className='space-y-3'>
