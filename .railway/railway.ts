@@ -15,7 +15,8 @@ import {
 // Railway infrastructure of the `kijk` project (environment `production`).
 // Variables are managed (the default): this file owns every variable on these services. Secrets stay in Railway as
 // `preserve()`; plain configuration is written out so changes are reviewed in pull requests.
-// Code is deployed by the GitHub Actions deployment workflow (`railway up`), not by this file.
+// The release applies configuration after migrations because Railway can redeploy affected services.
+// The release then uploads the selected API and Client source commit with `railway up`.
 
 const REGION = 'europe-west4-drams3a';
 const REPO = 'maxstue/kijk';

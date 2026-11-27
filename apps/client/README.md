@@ -62,7 +62,7 @@ pnpm exec playwright test --project chromium --no-deps --grep 'public pages deli
 
 ## Railway
 
-The manual [Production Release](../../.github/workflows/deployment.yml) workflow applies Railway configuration before migrations and deployment. The run summary under **Actions → Production Release** shows the Railway plan.
+The manual [Production Release](../../.github/workflows/deployment.yml) workflow migrates the database before planning and applying Railway configuration. The explicit API and Client deployment jobs follow. The run summary under **Actions → Production Release** shows the Railway plan.
 
 The Client service is defined in [`.railway/railway.ts`](../../.railway/railway.ts) together with the other Railway services; change its build, deploy, domain and variable settings there. Use `railway config plan` for an optional local preview. Keep the repository root (`/`) as build context, since the app imports workspace packages. Keep the domain target port (80) aligned with `PORT`, and `API_URL` pointing at the API's private domain and listening port (`http://${{Api.RAILWAY_PRIVATE_DOMAIN}}:8080`). The API has no public domain: it exposes no anonymous endpoints or callbacks, and without CORS browsers cannot use it directly.
 

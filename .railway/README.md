@@ -17,6 +17,6 @@ Change Railway settings in `railway.ts` instead of the dashboard, so the plan st
 
 ## Production release
 
-Run **Actions → Production Release** from `main`. The workflow uses the existing `RAILWAY_DEPLOY_TOKEN` from Infisical `prod /CI/Deploy`. It writes the plan to the run summary and applies it before migrations and deployments. Destructive plans stop the release.
+Run **Actions → Production Release** from `main`. The workflow uses the existing `RAILWAY_DEPLOY_TOKEN` from Infisical `prod /CI/Deploy`. After database migrations, the workflow writes the plan to the run summary and applies safe changes from the saved plan. Railway can redeploy affected services during apply. The explicit API and Client deployment jobs follow. Destructive plans stop the release.
 
 See the [Production Release workflow](../.github/workflows/deployment.yml) for job dependencies and release gates.
