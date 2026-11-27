@@ -2,13 +2,16 @@ import { apiClient } from '@kijk/api/client';
 import {
   spacesChangeMemberRole,
   spacesCreate,
+  spacesCreateInvitation,
   spacesDelete,
+  spacesInvitations,
   spacesMembers,
+  spacesRevokeInvitation,
   spacesRoles,
   spacesUpdate,
 } from '@kijk/api/generated/sdk';
 
-import type { CreateSpaceData, UpdateSpaceData } from './types';
+import type { CreateSpaceData, CreateSpaceInvitationData, UpdateSpaceData } from './types';
 
 /** Creates a shared space with the current user as admin and returns it. */
 export async function create(data: CreateSpaceData) {
@@ -38,4 +41,19 @@ export async function getMembers(id: string, signal?: AbortSignal) {
 /** Changes the role of another space member and returns the updated member. */
 export async function changeMemberRole(id: string, userId: string, roleId: string) {
   return spacesChangeMemberRole({ client: apiClient(), body: { roleId }, path: { id, userId } });
+}
+
+/** Loads the pending invitations of a space, newest first. */
+export async function getInvitations(id: string, signal?: AbortSignal) {
+  return spacesInvitations({ client: apiClient(), path: { id }, signal });
+}
+
+/** Invites one person into a shared space by unique name or e-mail address and returns the invitation. */
+export async function createInvitation(id: string, data: CreateSpaceInvitationData) {
+  return spacesCreateInvitation({ client: apiClient(), body: data, path: { id } });
+}
+
+/** Revokes a pending invitation of a space. */
+export async function revokeInvitation(id: string, invitationId: string) {
+  await spacesRevokeInvitation({ client: apiClient(), path: { id, invitationId } });
 }

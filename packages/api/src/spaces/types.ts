@@ -10,3 +10,7 @@ export type UpdateSpaceData = Api.UpdateSpaceRequest;
 export type SpaceMember = Api.SpaceMemberResponse;
 /** A space role and its permissions. */
 export type SpaceRole = Api.SpaceRoleResponse;
+/** Payload for inviting one person by unique name or e-mail address. */
+export type CreateSpaceInvitationData = Api.CreateSpaceInvitationRequest;
+/** A pending invitation to a shared space, as the space admins see it. */
+export type SpaceInvitation = Api.SpaceInvitationResponse;

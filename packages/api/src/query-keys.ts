@@ -21,6 +21,7 @@ const users = {
 
 const spaces = {
   all: ['spaces'] as const,
+  invitations: (spaceId: string) => [...space(spaceId), 'invitations'] as const,
   members: (spaceId: string) => [...space(spaceId), 'members'] as const,
   roles: () => [...spaces.all, 'roles'] as const,
 };
