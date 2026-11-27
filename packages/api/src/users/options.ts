@@ -3,7 +3,10 @@ import { queryKeys } from '@kijk/api/query-keys';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 
 import {
+  acceptInvitation,
   completeOnboarding,
+  declineInvitation,
+  getInvitations,
   getFeatures,
   getMe,
   requestDeletion,
@@ -90,4 +93,33 @@ export const setDefaultSpaceMutationOptions = () =>
 export const requestDeletionMutationOptions = () =>
   mutationOptions({
     mutationFn: requestDeletion,
+  });
+
+/** Query for the current user's pending invitations to shared spaces. */
+export const invitationsQueryOptions = () =>
+  queryOptions({
+    queryFn: ({ signal }) => getInvitations(signal),
+    queryKey: queryKeys.users.invitations,
+  });
+
+/**
+ * Mutation that accepts an invitation; the inbox, the current user with their spaces and the members of the joined
+ * space are refetched before it resolves, so the app can open the space right away.
+ */
+export const acceptInvitationMutationOptions = () =>
+  mutationOptions({
+    mutationFn: (invitationId: string) => acceptInvitation(invitationId),
+    mutationKey: queryKeys.users.invitations,
+    onSuccess: ({ spaceId }, _invitationId, _result, { client }) =>
+      invalidate(client, queryKeys.users.invitations, queryKeys.users.me, queryKeys.spaces.members(spaceId)),
+    // A failed answer mostly means the invitation expired or was revoked meanwhile.
+    onError: (_error, _invitationId, _result, { client }) => invalidate(client, queryKeys.users.invitations),
+  });
+
+/** Mutation that declines an invitation; the inbox is refetched, also after a failure. */
+export const declineInvitationMutationOptions = () =>
+  mutationOptions({
+    mutationFn: (invitationId: string) => declineInvitation(invitationId),
+    mutationKey: queryKeys.users.invitations,
+    onSettled: (_data, _error, _invitationId, _result, { client }) => invalidate(client, queryKeys.users.invitations),
   });

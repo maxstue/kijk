@@ -39,7 +39,7 @@ class ErrorTrackingService {
           response: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
         },
         httpBodies: [],
-        urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+        urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user', '__clerk'] },
         genAI: { inputs: false, outputs: false },
         databaseQueryData: false,
         graphQL: { document: false, variables: false },

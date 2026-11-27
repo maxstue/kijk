@@ -10,6 +10,7 @@ import { Link } from '@tanstack/react-router';
 import { cn } from 'cn';
 
 import { CommandMenu } from '@/app/root/command-menu';
+import { InboxNavItem } from '@/app/root/inbox-nav-item';
 import { useNavGroups } from '@/app/root/use-nav-groups';
 import { useNavigationSpaceId } from '@/shared/hooks/use-active-space';
 
@@ -25,6 +26,7 @@ export function NavMain() {
             <SidebarMenuItem className='w-full'>
               <SidebarMenuButton render={<CommandMenu />} size='sm' />
             </SidebarMenuItem>
+            <InboxNavItem />
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

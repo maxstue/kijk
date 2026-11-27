@@ -1,9 +1,12 @@
 import { apiClient } from '@kijk/api/client';
 import {
+  usersAcceptInvitation,
   usersCompleteOnboarding,
+  usersDeclineInvitation,
   usersFeatures,
   usersFeedback,
   usersGuide,
+  usersInvitations,
   usersMe,
   usersRequestDeletion,
   usersResetGuide,
@@ -84,4 +87,19 @@ export async function setDefaultSpace(spaceId: string | null) {
 /** Starts deleting the current user's account and all their data in the background. */
 export async function requestDeletion() {
   await usersRequestDeletion({ client: apiClient() });
+}
+
+/** Loads the current user's pending invitations to shared spaces. */
+export async function getInvitations(signal?: AbortSignal) {
+  return usersInvitations({ client: apiClient(), signal });
+}
+
+/** Accepts an invitation and returns the joined space; accepting again returns the same space. */
+export async function acceptInvitation(invitationId: string) {
+  return usersAcceptInvitation({ client: apiClient(), path: { invitationId } });
+}
+
+/** Declines an invitation. */
+export async function declineInvitation(invitationId: string) {
+  await usersDeclineInvitation({ client: apiClient(), path: { invitationId } });
 }

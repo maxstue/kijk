@@ -21,6 +21,7 @@ import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteRouteImport } from './routes/_authenticated/_onboarding/route'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as AuthenticatedAppSpaceIdRouteRouteImport } from './routes/_authenticated/_app/$spaceId/route'
+import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
 import { Route as AuthenticatedAppSettingsRouteRouteImport } from './routes/_authenticated/_app/settings/route'
 import { Route as AuthenticatedOnboardingWelcomeRouteImport } from './routes/_authenticated/_onboarding/welcome'
 import { Route as AuthenticatedAppSpaceIdIndexRouteImport } from './routes/_authenticated/_app/$spaceId/index'
@@ -105,6 +106,11 @@ const AuthenticatedAppSpaceIdRouteRoute =
     path: '/$spaceId',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
+const AuthenticatedAppInboxRoute = AuthenticatedAppInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
 const AuthenticatedAppSettingsRouteRoute =
   AuthenticatedAppSettingsRouteRouteImport.update({
     id: '/settings',
@@ -262,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/api/$': typeof ApiSplatRoute
   '/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
+  '/inbox': typeof AuthenticatedAppInboxRoute
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/$spaceId/finances': typeof AuthenticatedAppSpaceIdFinancesRouteRouteWithChildren
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
@@ -296,6 +303,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/$': typeof ApiSplatRoute
   '/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
+  '/inbox': typeof AuthenticatedAppInboxRoute
   '/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
   '/$spaceId': typeof AuthenticatedAppSpaceIdIndexRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/api/$': typeof ApiSplatRoute
   '/_authenticated/_app/$spaceId': typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRouteRouteWithChildren
+  '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
   '/_authenticated/_onboarding/welcome': typeof AuthenticatedOnboardingWelcomeRoute
   '/_authenticated/_app/$spaceId/finances': typeof AuthenticatedAppSpaceIdFinancesRouteRouteWithChildren
   '/_authenticated/_app/settings/$section': typeof AuthenticatedAppSettingsSectionRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/api/$'
     | '/$spaceId'
     | '/settings'
+    | '/inbox'
     | '/welcome'
     | '/$spaceId/finances'
     | '/settings/$section'
@@ -403,6 +413,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/$'
     | '/settings'
+    | '/inbox'
     | '/welcome'
     | '/settings/$section'
     | '/$spaceId'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/api/$'
     | '/_authenticated/_app/$spaceId'
     | '/_authenticated/_app/settings'
+    | '/_authenticated/_app/inbox'
     | '/_authenticated/_onboarding/welcome'
     | '/_authenticated/_app/$spaceId/finances'
     | '/_authenticated/_app/settings/$section'
@@ -559,6 +571,13 @@ declare module '@tanstack/react-router' {
       path: '/$spaceId'
       fullPath: '/$spaceId'
       preLoaderRoute: typeof AuthenticatedAppSpaceIdRouteRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/inbox': {
+      id: '/_authenticated/_app/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof AuthenticatedAppInboxRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/settings': {
@@ -871,6 +890,7 @@ const AuthenticatedAppSettingsRouteRouteWithChildren =
 interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppSpaceIdRouteRoute: typeof AuthenticatedAppSpaceIdRouteRouteWithChildren
   AuthenticatedAppSettingsRouteRoute: typeof AuthenticatedAppSettingsRouteRouteWithChildren
+  AuthenticatedAppInboxRoute: typeof AuthenticatedAppInboxRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
@@ -878,6 +898,7 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
     AuthenticatedAppSpaceIdRouteRouteWithChildren,
   AuthenticatedAppSettingsRouteRoute:
     AuthenticatedAppSettingsRouteRouteWithChildren,
+  AuthenticatedAppInboxRoute: AuthenticatedAppInboxRoute,
 }
 
 const AuthenticatedAppRouteRouteWithChildren =
